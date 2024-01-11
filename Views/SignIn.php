@@ -19,10 +19,7 @@
         margin-bottom: 5%;
     }
 
-    /* Height for devices larger than 576px */
-    @media (min-width: 992px) {
-        #intro {}
-    }
+   
 
     .navbar .nav-link {
         color: #fff !important;
@@ -35,17 +32,17 @@
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-xl-5 col-md-8">
-                        <form class="bg-white rounded shadow-5-strong p-5" style="opacity: 70%;">
+                        <form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%;" method="POST" action="/Hff_IntranetV01/index.php?action=Authentification">
                             <img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo">
 
                             <div class="form-outline mb-4" data-mdb-input-init>
-                                <input type="email" id="form1Example1" class="form-control" />
-                                <label class="form-label" for="form1Example1">Email address</label>
+                                <input type="text" id="form1Example1" class="form-control"  name="Username"/>
+                                <label class="form-label" for="form1Example1">Utilisateur</label>
                             </div>
 
                             <div class="form-outline mb-4" data-mdb-input-init>
-                                <input type="password" id="form1Example2" class="form-control" />
-                                <label class="form-label" for="form1Example2">Password</label>
+                                <input type="password" id="form1Example2" class="form-control" name="Pswd"/>
+                                <label class="form-label" for="form1Example2">Mot de passe </label>
                             </div>
                             <button type="submit" class="btn" style="background-color: black; color: white;">Se connecter</button>
                         </form>
