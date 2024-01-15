@@ -1,6 +1,15 @@
 <?php
+include 'Model/Connexion.php';
 include 'Model/LdapModel.php';
 include 'Controler/LdapControl.php';
+//---Profil---
+include 'Model/ProfilModel.php';
+include 'Controler/ProfilControl.php';
+$Conn_IntranetV01 =  new Connexion();
+$ModelProfil = new ProfilModel($Conn_IntranetV01);
+$ControlProfil = new ProfilControl($ModelProfil);
+
+//----
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -8,7 +17,11 @@ $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'default';
 switch ($action) {
+    case 'Acceuil':
+        $ControlProfil->showPageAcceuil();
+        break;
     case 'Authentification':
+
         if (!$Connexion_Ldap_User) {
             echo '<script type="text/javascript">
                 alert("Merci de vérifier votre session LDAP");
@@ -16,11 +29,25 @@ switch ($action) {
             </script>';
         } else {
             session_start();
-            $_SESSION['user']= $Username;
-            include'Views/Principal.html';
+            $_SESSION['user'] = $Username;
+            $ControlProfil->showInfoProfilUser();
         }
         break;
-    default:
-        include 'Views/SignIn.html';
+
+    case 'Logout':
+        session_start();
+        $_SESSION['user'] = $Username;
+        unset($_SESSION['user']);
+        session_destroy();
+        session_unset();
+        header("Location:/Hff_IntranetV01/");
+        exit();
+        session_write_close();
         break;
+
+    case 'Propos':
+            $ControlProfil->showinfoAllUsercours();
+        break;
+    default:
+        include 'Views/SignIn.php';
 }
