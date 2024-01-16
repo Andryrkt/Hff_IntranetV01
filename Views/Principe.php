@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +17,24 @@
     <!-- Core theme JS-->
     <script src="/Hff_IntranetV01/Views/js/scripts.js"></script>
 </head>
+<style>
+    #Setting {
+        <?php
+        $fichier = "../Hff_IntranetV01/Views/assets/AccessUserProfil.txt";
+        if ((file_exists($fichier)) && (is_readable($fichier))) {
+            $text = file_get_contents($fichier);
+           //echo $text;
+            if (strpos($text, $_SESSION['user']) !== false) {
+                echo 'display:block';
+            } else {
+                echo 'display:none';
+            }
+        } else {
+            echo 'Le fichier ' . $fichier . ' n\'existe pas ou n\'est pas disponible en ouverture';
+        }
+        ?>
+    }
+</style>
 
 <body>
     <!-- Responsive navbar-->
@@ -65,8 +84,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Propos</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
+                            <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>
@@ -77,44 +96,7 @@
             </div>
         </div>
     </nav>
-    <div class="container">
-        <div id="demo" class="carousel slide" data-bs-ride="carousel">
 
-            <!-- Indicators/dots -->
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
-            </div>
-
-            <!-- The slideshow/carousel -->
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC03.jpg" alt="Los Angeles" class="d-block" style="width:100%" height="auto">
-                </div>
-                <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC01.jpg" alt="Chicago" class="d-block" style="width:100%">
-                </div>
-                <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC02.jpg" alt="New York" class="d-block" style="width:100%">
-                </div>
-                <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC04.jpg" alt="chine" class="d-block" style="width:100%">
-                </div>
-            </div>
-
-            <!-- Left and right controls/icons -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
-        </div>
-
-        
-
-    </div>
 
 </body>
 

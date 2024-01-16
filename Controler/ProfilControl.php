@@ -17,6 +17,7 @@ class ProfilControl
         try {
             $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
             include 'Views/Principe.php';
+            include 'Views/Acceuil.php';
         } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
         }
@@ -50,7 +51,7 @@ class ProfilControl
         try {
             $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
             include 'Views/Principe.php';
-            
+            include 'Views/Acceuil.php';
         } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
         }

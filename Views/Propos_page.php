@@ -18,25 +18,26 @@
                 </div>
 
                 <div class="row">
-                    <?php foreach ($infoUserCours as $Info) : ?>
+                   
                         <div class="input-group input-group-sm mb-3">
                             <label for="email" class="input-group-text">Utilisateur:</label>
-                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value="<?php echo $Info['Utilisateur'] ?>">
+                            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value="<?php echo $UserConnect ?>">
                         </div>
                 </div>
-                <div class="row">
-                    <div class="input-group input-group-sm mb-3">
-                        <label for="email" class="input-group-text">Profil:</label>
-                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value="<?php echo $Info['Profil'] ?>">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="input-group input-group-sm mb-3">
-                        <label for="email" class="input-group-text">Acces:</label>
-                        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" value="<?php echo $Info['App'] ?>">
-                    </div>
-                </div>
-            <?php endforeach; ?>
+                <table class="table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="text-align: center;">Profil</th>
+                                    <th style="text-align: center;">Access App</th>
+                                </tr>
+                            </thead>
+                            <?php foreach ($infoUserCours as $Info) : ?>
+                            <tbody>
+                                <td style="text-align: center;"><?php echo $Info['Profil'] ?></td>
+                                <td style="text-align: center;"><?php echo $Info['App'] ?></td>
+                            </tbody>
+                            <?php endforeach; ?>
+                </table>
             </div>
         </div>
     </div>

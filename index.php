@@ -14,6 +14,7 @@ $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
 $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+//$Ldap->searchLdapUser();
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'default';
 switch ($action) {
@@ -50,4 +51,4 @@ switch ($action) {
         break;
     default:
         include 'Views/SignIn.php';
-}
+    }
