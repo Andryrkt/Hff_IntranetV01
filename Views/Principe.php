@@ -8,13 +8,8 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Hff Intranet</title>
-    <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <!-- Core theme CSS (includes Bootstrap)-->
     <link href="/Hff_IntranetV01/Views/css/styles.css" rel="stylesheet" />
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
     <script src="/Hff_IntranetV01/Views/js/scripts.js"></script>
 </head>
 <style>
@@ -35,7 +30,6 @@
         ?>
     }
 </style>
-
 <body>
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
@@ -86,6 +80,8 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
+                            <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>

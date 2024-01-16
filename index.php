@@ -10,6 +10,12 @@ $ModelProfil = new ProfilModel($Conn_IntranetV01);
 $ControlProfil = new ProfilControl($ModelProfil);
 
 //----
+ //Personnel
+ include 'Model/PersonnelModel.php';
+ include 'Controler/PersonnelControl.php';
+ $ModelPers = new PersonnelModel($Conn_IntranetV01);
+ $ControlPers = new PersonnelControl($ModelPers);
+ //---
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -47,8 +53,17 @@ switch ($action) {
         break;
 
     case 'Propos':
-            $ControlProfil->showinfoAllUsercours();
+        $ControlProfil->showinfoAllUsercours();
         break;
+       
+    case 'Personnels':
+        $ControlPers->showPersonnelForm();
+        break;
+    case 'PersonnelList':
+        $ControlPers->showListePersonnel();
+        break;
+
+    //    
     default:
         include 'Views/SignIn.php';
-    }
+}
