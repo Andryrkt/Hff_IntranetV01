@@ -7,6 +7,20 @@
     <title>Fiche Ordre</title>
 </head>
 <script>
+    function visible() {
+        var select = document.getElementById('typeMission');
+        var labelINput = document.getElementById('labAutre');
+        var input = document.getElementById('AutreType');
+        if (select.value == "AUTRES A PRECISER") {
+            labelINput.style.display = 'block';
+            input.style.display = 'block';
+
+        } else {
+            labelINput.style.display = 'none';
+            input.style.display = 'none';
+        }
+    }
+
     function recupeVal() {
         var DateD = document.getElementById('dateDebut').value;
         var DateF = document.getElementById('dateFin').value;
@@ -67,11 +81,30 @@
             node.value = value.toLocaleString();
 
     }
+
+    function Somme() {
+        var mont01 = document.getElementById('Autredep1').value;
+        var mont02 = document.getElementById('Autredep2').value;
+        var mont03 = document.getElementById('Autredep3').value;
+        if (mont01 === "") {
+            mont01 = 0
+        }
+        if (mont02 === "") {
+            mont02 = 0
+        }
+        if (mont03 === "") {
+            mont03 = 0
+        }
+
+        document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
+
+
+    }
 </script>
 
-<body onload="visible_espece()">
+<body onload="visible_espece(); visible()">
     <div class="container">
-        <form action="" method="¨POST">
+        <form action="/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php" method="POST">
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
@@ -192,7 +225,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control">
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
@@ -202,7 +235,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control">
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
@@ -212,7 +245,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control">
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this);'>
                 </div>
             </div>
             <div class="row">
@@ -229,7 +262,7 @@
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()">
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme()">
                         <option value="ESPECES">ESPECES</option>
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
@@ -237,10 +270,10 @@
                 </div>
                 <div class="col">
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
-                    <input type="text" name="valMode" id="modeesp" class="form-control">
+                    <input type="text" name="valModesp" id="modeesp" class="form-control">
                     <?php foreach ($Compte as $Compte) : ?>
-                        <input type="text" name="valMode" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
-                        <input type="text" name="valMode" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">
+                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
+                        <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">
                     <?php endforeach ?>
                 </div>
             </div>

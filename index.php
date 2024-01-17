@@ -75,6 +75,7 @@ switch ($action) {
          $ControlDOM->ShowDomPDF();
         break;     
     case 'EnvoyerImprime':
+        $ControlDOM->EnvoieImprimeDom();
         break;    
     //    
     default:

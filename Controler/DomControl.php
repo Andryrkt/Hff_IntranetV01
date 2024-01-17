@@ -56,7 +56,8 @@ class DomControl
         }
     }
 
-    public function EnvoieImprimeDom(){
+    public function EnvoieImprimeDom()
+    {
         session_start();
         if (empty($_SESSION['user'])) {
             header("Location:/Hff_IntranetV01/index.php?action=Logout");
@@ -64,27 +65,27 @@ class DomControl
             exit();
         }
 
-        if ($_SERVER['REQUEST_METHOD']  === 'POST'){
+        if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $NumDom = $_POST['NumDOM'];
             $serv = $_POST['LibServ'];
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
             $Nom = $_POST['nomprenom'];
-            $matr =$_POST['matricule'];
+            $matr = $_POST['matricule'];
             $period = $_POST['periode'];
             $dateD = $_POST['dateDebut'];
             $heureD = $_POST['heureDebut'];
             $dateF = $_POST['dateFin'];
             $heureF = $_POST['heureFin'];
             $NbJ = $_POST['Nbjour'];
-            $motif =$_POST['motif'];
+            $motif = $_POST['motif'];
             $Client = $_POST['client'];
             $fiche = $_POST['fiche'];
             $lieu = $_POST['lieuInterv'];
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];
             $idemn = $_POST['idemForfait'];
-            $totalIdemn =$_POST['TotalidemForfait'];
+            $totalIdemn = $_POST['TotalidemForfait'];
             $motifdep01 = $_POST['MotifAutredep'];
             $montdep01 = $_POST['Autredep1'];
             $motifdep02 = $_POST['MotifAutredep2'];
@@ -93,8 +94,21 @@ class DomControl
             $montdep03 = $_POST['Autredep3'];
             $totaldep = $_POST['TotalAutredep'];
             $libmodepaie = $_POST['modepaie'];
-            $valModepaie = $_POST['valMode'];
-        }
+            $valModesp = $_POST['valModesp'];
+            $valModemob = $_POST['valModemob'];
+            $valModecompt = $_POST['valModecomt'];
+            if ($libmodepaie === "ESPECES") {
+                $mode =  $valModesp;
+            }
+            if ($libmodepaie === "MOBILE MONEY") {
+                $mode =  $valModemob;
+            }
+            if ($libmodepaie === "VIREMENT BANCAIRE") {
+                $mode =  $valModecompt;
+            }
 
+            echo $NumDom;
+            include 'Views/tcpdf/examples/example_065.php';
+        }
     }
 }
