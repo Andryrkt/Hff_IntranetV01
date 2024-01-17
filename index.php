@@ -16,6 +16,12 @@ $ControlProfil = new ProfilControl($ModelProfil);
  $ModelPers = new PersonnelModel($Conn_IntranetV01);
  $ControlPers = new PersonnelControl($ModelPers);
  //---
+ //DOM
+ include 'Model/DomModel.php';
+ include 'Controler/DomControl.php';
+ $ModelDOM = new DomModel($Conn_IntranetV01);
+ $ControlDOM = new DomControl($ModelDOM);
+ //----
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -62,7 +68,14 @@ switch ($action) {
     case 'PersonnelList':
         $ControlPers->showListePersonnel();
         break;
-
+    case 'New_DOM':
+        $ControlDOM->showFormDOM();
+        break;
+    case 'checkMatricule':
+         $ControlDOM->ShowDomPDF();
+        break;     
+    case 'EnvoyerImprime':
+        break;    
     //    
     default:
         include 'Views/SignIn.php';

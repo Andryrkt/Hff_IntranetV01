@@ -41,7 +41,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Nouvelle Demande d'Ordre</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
                             <li><a class="dropdown-item" href="#">Liste des demandes d'Ordre</a></li>
 
                         </ul>
@@ -50,7 +50,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Intervention</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Nouvelle Demande d'Intervention</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouvelle Demande d'Intervention</a></li>
                             <li><a class="dropdown-item" href="#">Liste des demandes d'Intervention </a></li>
 
                         </ul>
@@ -59,7 +59,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Appro</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Nouvelle Demande d'Appro</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouvelle Demande d'Appro</a></li>
                             <li><a class="dropdown-item" href="#">Liste des demandes d'Appro</a></li>
 
                         </ul>
@@ -68,7 +68,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Support Info</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Nouveau Support</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouveau Support</a></li>
                             <li><a class="dropdown-item" href="#">Liste de Support </a></li>
 
                         </ul>
