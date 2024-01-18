@@ -1,4 +1,5 @@
 <?php
+require_once('TCPDF-main/tcpdf.php');
 class DomModel
 {
     private $connexion;
@@ -104,5 +105,143 @@ class DomModel
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
+    }
+
+    public function InsertDom()
+    {
+    }
+
+    public function genererPDF(
+        $NumDom,
+        $serv,
+        $matr,
+        $typMiss,
+        $autrTyp,
+        $Nom,
+        $NbJ,
+        $dateD,
+        $heureD,
+        $dateF,
+        $heureF,
+        $motif,
+        $Client,
+        $fiche,
+        $lieu,
+        $vehicule,
+        $numvehicul,
+        $idemn,
+        $totalIdemn,
+        $motifdep01,
+        $montdep01,
+        $motifdep02,
+        $montdep02,
+        $motifdep03,
+        $montdep03,
+        $totaldep,
+        $libmodepaie,
+        $mode
+    ) {
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('pdfatimesbi', 'B', 16);
+        $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 1, 'C');
+        $pdf->Ln(10);
+        $pdf->SetFont('pdfatimesbi', '', 12);
+
+        $pdf->setY(30);
+        $pdf->Cell(0, 10, 'TYPE DE MISSION : ' . $typMiss, 0, 1);
+        $pdf->Cell(0, 10, 'SERVICE : ' . $serv, 0, 1);
+        $pdf->Cell(60, 10, 'MATRICULE : ' . $matr, 0, 0);
+        $pdf->Cell(60, 10, 'NOM et PRENOMS: ' . $Nom, 0, 1);
+        $pdf->Cell(40, 10, 'PERIODE: ' . $NbJ . ' Jour(s)', 0, 0);
+        $pdf->Cell(50, 10, 'SOIT DU ' . $dateD, 0, 0, 'C');
+        $pdf->Cell(30, 10, 'A  ' . $heureD . ' Heures ', 0, 0);
+        $pdf->Cell(30, 10, ' AU  ' . $dateF, 0, 0);
+        $pdf->Cell(30, 10, '  A ' . $heureF . ' Heures ', 0, 1);
+        $pdf->Cell(0, 10, 'MOTIF : ' . $motif, 0, 1);
+        $pdf->Cell(80, 10, 'CLIENT : ' . $Client, 0, 0);
+        $pdf->Cell(30, 10, 'N° FICHE : ' . $fiche, 0, 1);
+        $pdf->Cell(0, 10, 'LIEU D INTERVENTION : ' . $lieu, 0, 1);
+        $pdf->Cell(80, 10, 'VEHICULE DE SOCIETE : ' . $vehicule, 0, 0);
+        $pdf->Cell(60, 10, 'N° DU VEHICULE: ' . $numvehicul, 0, 1);
+        $pdf->Cell(80, 10, 'INDEMNITE FORFAITAIRE: ' . $idemn . '/j', 0, 0);
+        $pdf->Cell(60, 10, 'TOTAL INDEMNITE: ' . $totalIdemn, 0, 1, 'L');
+
+        $pdf->setY(130);
+        $pdf->Cell(20, 10, 'AUTRES: ', 0, 1, 'R');
+        $pdf->setY(140);
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
+        $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  $motifdep01, 1, 0, 'C');
+        $pdf->Cell(80, 10, '' . $montdep01, 1, 1, 'C');
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  $motifdep02, 1, 0, 'C');
+        $pdf->Cell(80, 10, '' . $montdep02, 1, 1, 'C');
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  $motifdep03, 1, 0, 'C');
+        $pdf->Cell(80, 10, '' . $montdep03, 1, 1, 'C');
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
+        $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
+
+        $pdf->setY(200);
+        $pdf->Cell(60, 10, 'MODE DE PAIEMENT : ', 0, 0);
+        $pdf->Cell(60, 10, $libmodepaie, 0, 0);
+        $pdf->Cell(60, 10, $mode, 0, 1);
+
+        $pdf->setY(220);
+        $pdf->Cell(0, 10, 'Je soussigné(e), reconnais avoir lu et approuvé le code de conduite et de moralité en mission.', 0, 1);
+
+        $pdf->SetFont('pdfatimesbi', '', 10);
+        $pdf->setY(230);
+        $pdf->setX(10);
+        $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
+        $pdf->Cell(40, 10, 'CHEF DE SERVICE', 1, 0, 'C');
+        $pdf->Cell(50, 10, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
+        $pdf->Cell(60, 10, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
+
+        $pdf->Cell(40, 20, ' ', 1, 0, 'C');
+        $pdf->Cell(40, 20, ' ', 1, 0, 'C');
+        $pdf->Cell(50, 20, '  ', 1, 0, 'C');
+        $pdf->Cell(60, 20, ' ', 1, 1, 'C');
+        $ipadr = '192.168.0.15';
+        /*9$Dossier = '\\\\'.$ipadr.'\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\';
+        //$Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
+        $pdf->Output( $Dossier.$serv . '.pdf', 'F');*/
+
+        // Adresse IP de l'ordinateur distant
+        $adresseIP = '192.168.0.15';
+
+        // Chemin du fichier distant
+        $cheminFichierDistant = '\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\';
+
+        // Chemin local pour enregistrer le fichier PDF
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/ADMINISTRATION - INFORMATIQUE.pdf';
+
+        // URL cURL pour le fichier distant
+        $urlFichierDistant = 'file://' . $adresseIP . $cheminFichierDistant;
+          
+        // Initialisation de cURL
+        $ch = curl_init($urlFichierDistant);
+
+        // Paramètres cURL
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // Exécution de la requête cURL
+        $resultat = curl_exec($ch);
+
+        // Fermeture de la ressource cURL
+        curl_close($ch);
+
+        // Vérification si le téléchargement a réussi
+        if ($resultat) {
+            // Enregistrement du fichier localement
+            file_put_contents($cheminDestinationLocal, $resultat);
+            echo 'Fichier téléchargé avec succès sur le serveur local.';
+        } else {
+            echo 'Erreur lors du téléchargement du fichier distant.';
+        }
     }
 }

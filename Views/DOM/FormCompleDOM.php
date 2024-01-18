@@ -27,7 +27,7 @@
 
         var StartDate = new Date(DateD);
         var EndDate = new Date(DateF);
-        var DiffDate = (EndDate - StartDate) / (1000 * 60 * 60 * 24);
+        var DiffDate = (EndDate - StartDate) / (1000 * 60 * 60 * 24) + 1;
         document.getElementById('Nbjour').value = DiffDate;
     }
 
@@ -40,16 +40,16 @@
             document.getElementById('labelMode').innerHTML = "ESPECES";
         }
         if (mode === "MOBILE MONEY") {
-            document.getElementById('modeMob').style.display = "block";
+            document.getElementById('modeMob').style.display = "block"; 
             document.getElementById('modeesp').style.display = "none";
-            document.getElementById('modecompte').style.display = "none";
+            document.getElementById('modecompte').style.display = 'none';
             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
         }
         if (mode === "VIREMENT BANCAIRE") {
             document.getElementById('modeesp').style.display = "none";
             document.getElementById('modeMob').style.display = "none";
             document.getElementById('modecompte').style.display = "block";
-            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
+            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE"; 
         }
     }
 
@@ -102,13 +102,17 @@
     }
 </script>
 
-<body onload="visible_espece(); visible()">
+<body onload="visible_espece(); visible()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php" method="POST">
+        <form action="/Hff_IntranetV01/index.php?action=EnvoyerImprime" method="POST">
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
                     <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>">
+                </div>
+                <div class="col">
+                    <label for="datesyst" class="label-form"> Date</label>
+                    <input type="date" name="datesyst" id="modeesp" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
             <div class="row">
@@ -134,11 +138,8 @@
             </div>
             <div class="row">
                 <div class="col">
-
                     <label for="Nomprenoms" class="label-form"> Nom </label>
-
                     <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms ?>" />
-
                 </div>
                 <div class="col">
                     <label for="matricule" class="label-form"> Matricule</label>
@@ -147,13 +148,7 @@
             </div>
 
 
-            <div class="row">
-                <div class="col">
-                    <label for="periode" class="label-form" id="nomprenom"> Période</label>
-                    <input type="text" name="periode" id="periode" class="form-control" required>
-                </div>
 
-            </div>
             <div class="row">
                 <div class="col">
                     <label for="dateDebut" class="label-form"> Date début</label>
@@ -163,6 +158,8 @@
                     <label for="heureDebut" class="label-form"> Heure début</label>
                     <input type="time" name="heureDebut" id="heureDebut" class="form-control" required>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <label for="dateFin" class="label-form"> Date Fin</label>
                     <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal()" required>
@@ -170,10 +167,15 @@
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
                     <input type="time" name="heureFin" id="heureFin" class="form-control" required>
-                    <input type="hidden" name="Nbjour" id="Nbjour"><!-- nb de jour de mission-->
+                    
                 </div>
             </div>
             <div class="row">
+                <div class="col">
+                    <label for="periode" class="label-form" id="nomprenom"> Période</label>
+                    <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;">
+                </div>
+
                 <div class="col">
                     <label for="motif" class="label-form"> Motif</label>
                     <input type="text" name="motif" id="motif" class="form-control" required>
@@ -211,11 +213,11 @@
             <div class="row">
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" onfocus='use_number(this)' required />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité()" required />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="number" name="TotalidemForfait" id="TotalidemForfait" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' required />
+                    <input type="number" name="TotalidemForfait" id="TotalidemForfait" class="form-control"  required />
                 </div>
             </div>
             <div class="row">
@@ -225,7 +227,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" >
                 </div>
             </div>
             <div class="row">
@@ -235,7 +237,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" >
                 </div>
             </div>
             <div class="row">
@@ -245,7 +247,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this);'>
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" >
                 </div>
             </div>
             <div class="row">
@@ -270,7 +272,7 @@
                 </div>
                 <div class="col">
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
-                    <input type="text" name="valModesp" id="modeesp" class="form-control">
+                    <input type="text" name="valModesp" id="modeesp" class="form-control" >
                     <?php foreach ($Compte as $Compte) : ?>
                         <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">
@@ -278,10 +280,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-                    <label for="datesyst" class="label-form"> Date</label>
-                    <input type="date" name="datesyst" id="modeesp" class="form-control" value="<?php echo $datesyst ?>" readonly>
-                </div>
+
 
             </div>
             <div class="row">

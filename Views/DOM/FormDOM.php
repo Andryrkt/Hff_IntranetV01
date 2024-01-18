@@ -28,15 +28,7 @@
         document.getElementById('matricule').value = result;
     }
 
-    function recupeVal() {
-        var DateD = document.getElementById('dateDebut').value;
-        var DateF = document.getElementById('dateFin').value;
-
-        var StartDate = new Date(DateD);
-        var EndDate = new Date(DateF);
-        var DiffDate = (EndDate - StartDate) / (1000 * 60 * 60 * 24);
-        document.getElementById('Nbjour').value = DiffDate;
-    }
+ 
 </script>
 
 <body onload="visible(); Matricule()">
@@ -69,8 +61,8 @@
                         <div class="col">
                             <label for="typeMission" class="label-form"> Type de Mission</label>
                             <select name="typeMission" id="typeMission" class="form-select" onchange="visible()"><!--à discuter voir dans le fiche -->
-                                <option value="COMPLEMENT">COMPLEMENT</option>
-                                <option value="MISSION">MISSION</option>
+                                <option value="COMPLEMENT">MISSION</option>MISSION
+                                <option value="MISSION">COMPLEMENT</option>
                                 <option value="FORMATION">FORMATION</option>
                                 <option value="MUTATION">MUTATION</option>
                                 <option value="AUTRES A PRECISER">AUTRES A PRECISER</option>

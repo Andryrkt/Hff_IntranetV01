@@ -1,4 +1,5 @@
 <?php
+
 class DomControl
 {
     public $DomModel;
@@ -52,6 +53,7 @@ class DomControl
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
             include 'Views/Principe.php';
+            //include 'Views/DOM/FormCompleAutre.php';
             include 'Views/DOM/FormCompleDOM.php';
         }
     }
@@ -72,10 +74,9 @@ class DomControl
             $autrTyp = $_POST['AutreType'];
             $Nom = $_POST['nomprenom'];
             $matr = $_POST['matricule'];
-            $period = $_POST['periode'];
-            $dateD = $_POST['dateDebut'];
+            $dateD = date("d/m/Y", strtotime($_POST['dateDebut']));
             $heureD = $_POST['heureDebut'];
-            $dateF = $_POST['dateFin'];
+            $dateF = date("d/m/Y", strtotime($_POST['dateFin']));
             $heureF = $_POST['heureFin'];
             $NbJ = $_POST['Nbjour'];
             $motif = $_POST['motif'];
@@ -84,7 +85,7 @@ class DomControl
             $lieu = $_POST['lieuInterv'];
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];
-            $idemn = $_POST['idemForfait'];
+            $idemn = $_POST['idemForfait'] ;
             $totalIdemn = $_POST['TotalidemForfait'];
             $motifdep01 = $_POST['MotifAutredep'];
             $montdep01 = $_POST['Autredep1'];
@@ -96,7 +97,7 @@ class DomControl
             $libmodepaie = $_POST['modepaie'];
             $valModesp = $_POST['valModesp'];
             $valModemob = $_POST['valModemob'];
-            $valModecompt = $_POST['valModecomt'];
+            $valModecompt = $_POST['valModecompt'];
             if ($libmodepaie === "ESPECES") {
                 $mode =  $valModesp;
             }
@@ -106,9 +107,38 @@ class DomControl
             if ($libmodepaie === "VIREMENT BANCAIRE") {
                 $mode =  $valModecompt;
             }
-
-            echo $NumDom;
-            include 'Views/tcpdf/examples/example_065.php';
+            $this->DomModel->genererPDF(
+                $NumDom,
+                $serv,
+                $matr,
+                $typMiss,
+                $autrTyp,
+                $Nom,
+                $NbJ,
+                $dateD,
+                $heureD,
+                $dateF,
+                $heureF,
+                $motif,
+                $Client,
+                $fiche,
+                $lieu,
+                $vehicule,
+                $numvehicul,
+                $idemn,
+                $totalIdemn,
+                $motifdep01,
+                $montdep01,
+                $motifdep02,
+                $montdep02,
+                $motifdep03,
+                $montdep03,
+                $totaldep,
+                $libmodepaie,
+                $mode
+            );
+            echo "ok ";
+            //include '/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php';
         }
     }
 }
