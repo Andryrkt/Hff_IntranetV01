@@ -68,6 +68,7 @@ class DomControl
         }
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+            $Code_serv = $_POST['Serv'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
             $serv = $_POST['LibServ'];
@@ -109,6 +110,7 @@ class DomControl
                 $mode =  $valModecompt;
             }
             $this->DomModel->genererPDF(
+                $Code_serv,
                 $dateS,
                 $NumDom,
                 $serv,
@@ -140,7 +142,7 @@ class DomControl
                 $mode
             );
            // echo "ok ";
-            echo '<script type="text/javascript">
+           echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hff_IntranetV01/index.php?action=New_DOM";
                 </script>';

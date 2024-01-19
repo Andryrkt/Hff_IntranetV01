@@ -42,18 +42,18 @@
                     <div class="row">
                         <div class="col">
                             <label for="NumDOM" class="label-form">N° DOM</label>
-                            <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDOM ?>">
+                            <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDOM ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
                             <?php foreach ($CodeServiceofCours as $CodeServiceofCours) : ?>
                                 <label for="Serv" class="label-form">Code :</label>
-                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['Code_AgenceService_Sage'] ?>">
+                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['Code_AgenceService_Sage'] ?>" readonly>
                         </div>
                         <div class="col">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['Libelle_AgenceService_Sage'] ?>">
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['Libelle_AgenceService_Sage'] ?>" readonly>
                         </div>
                     <?php endforeach; ?>
                     </div>
@@ -84,7 +84,7 @@
                         </div>
                         <div class="col">
                             <label for="matricule" class="label-form"> Matricule</label>
-                            <input type="text" name="matricule" id="matricule" class="form-control">
+                            <input type="text" name="matricule" id="matricule" class="form-control" readonly> 
                         </div>
                     </div>
                     <div class="row">
