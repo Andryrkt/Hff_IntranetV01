@@ -61,8 +61,8 @@
                         <div class="col">
                             <label for="typeMission" class="label-form"> Type de Mission</label>
                             <select name="typeMission" id="typeMission" class="form-select" onchange="visible()"><!--à discuter voir dans le fiche -->
-                                <option value="COMPLEMENT">MISSION</option>MISSION
-                                <option value="MISSION">COMPLEMENT</option>
+                                <option value="MISSION">MISSION</option>MISSION
+                                <option value="COMPLEMENT">COMPLEMENT</option>
                                 <option value="FORMATION">FORMATION</option>
                                 <option value="MUTATION">MUTATION</option>
                                 <option value="AUTRES A PRECISER">AUTRES A PRECISER</option>
