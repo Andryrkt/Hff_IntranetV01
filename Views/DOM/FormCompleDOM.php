@@ -36,21 +36,22 @@
         if (mode === "ESPECES") {
             document.getElementById('modeMob').style.display = "none";
             document.getElementById('modecompte').style.display = "none";
-            document.getElementById('modeesp').style.display = "block";
+            document.getElementById('modeespece').style.display = "block";
             document.getElementById('labelMode').innerHTML = "ESPECES";
         }
         if (mode === "MOBILE MONEY") {
             document.getElementById('modeMob').style.display = "block"; 
-            document.getElementById('modeesp').style.display = "none";
+            document.getElementById('modeespece').style.display = "none";
             document.getElementById('modecompte').style.display = 'none';
             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
         }
         if (mode === "VIREMENT BANCAIRE") {
-            document.getElementById('modeesp').style.display = "none";
+            document.getElementById('modeespece').style.display = "none";
             document.getElementById('modeMob').style.display = "none";
             document.getElementById('modecompte').style.display = "block";
             document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE"; 
         }
+        
     }
 
     function indemnité() {
@@ -272,7 +273,7 @@
                 </div>
                 <div class="col">
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
-                    <input type="text" name="valModesp" id="modeesp" class="form-control" >
+                    <input type="text" name="valModesp" id="modeespece" class="form-control" >
                     <?php foreach ($Compte as $Compte) : ?>
                         <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">

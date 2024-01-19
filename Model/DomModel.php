@@ -112,6 +112,7 @@ class DomModel
     }
 
     public function genererPDF(
+        $datesyst,
         $NumDom,
         $serv,
         $matr,
@@ -143,32 +144,37 @@ class DomModel
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] .'/Hff_IntranetV01/Views/assets/logoHff.jpg';
+        $pdf->Image($logoPath, 10, 10, 30, '', 'jpg');
+
         $pdf->SetFont('pdfatimesbi', 'B', 16);
         $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 1, 'C');
         $pdf->Ln(10);
         $pdf->SetFont('pdfatimesbi', '', 12);
 
         $pdf->setY(30);
-        $pdf->Cell(0, 10, 'TYPE DE MISSION : ' . $typMiss, 0, 1);
-        $pdf->Cell(0, 10, 'SERVICE : ' . $serv, 0, 1);
-        $pdf->Cell(60, 10, 'MATRICULE : ' . $matr, 0, 0);
-        $pdf->Cell(60, 10, 'NOM et PRENOMS: ' . $Nom, 0, 1);
-        $pdf->Cell(40, 10, 'PERIODE: ' . $NbJ . ' Jour(s)', 0, 0);
-        $pdf->Cell(50, 10, 'SOIT DU ' . $dateD, 0, 0, 'C');
-        $pdf->Cell(30, 10, 'A  ' . $heureD . ' Heures ', 0, 0);
-        $pdf->Cell(30, 10, ' AU  ' . $dateF, 0, 0);
-        $pdf->Cell(30, 10, '  A ' . $heureF . ' Heures ', 0, 1);
-        $pdf->Cell(0, 10, 'MOTIF : ' . $motif, 0, 1);
-        $pdf->Cell(80, 10, 'CLIENT : ' . $Client, 0, 0);
-        $pdf->Cell(30, 10, 'N° FICHE : ' . $fiche, 0, 1);
-        $pdf->Cell(0, 10, 'LIEU D INTERVENTION : ' . $lieu, 0, 1);
-        $pdf->Cell(80, 10, 'VEHICULE DE SOCIETE : ' . $vehicule, 0, 0);
-        $pdf->Cell(60, 10, 'N° DU VEHICULE: ' . $numvehicul, 0, 1);
-        $pdf->Cell(80, 10, 'INDEMNITE FORFAITAIRE: ' . $idemn . '/j', 0, 0);
-        $pdf->Cell(60, 10, 'TOTAL INDEMNITE: ' . $totalIdemn, 0, 1, 'L');
+        $pdf->Cell(80, 10, 'Type de Mission: ' . $typMiss, 0, 0);
+        $pdf->Cell(80, 10, 'Le: ' . $datesyst, 0, 1,'R');
+
+        $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
+        $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 0);
+        $pdf->Cell(60, 10, 'Nom et Prénoms: ' . $Nom, 0, 1);
+        $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
+        $pdf->Cell(50, 10, 'Soit du ' . $dateD, 0, 0, 'C');
+        $pdf->Cell(30, 10, 'à  ' . $heureD . ' Heures ', 0, 0);
+        $pdf->Cell(30, 10, ' au  ' . $dateF, 0, 0);
+        $pdf->Cell(30, 10, '  à ' . $heureF . ' Heures ', 0, 1);
+        $pdf->Cell(0, 10, 'Motif : ' . $motif, 0, 1);
+        $pdf->Cell(80, 10, 'Client : ' . $Client, 0, 0);
+        $pdf->Cell(30, 10, 'N° fiche : ' . $fiche, 0, 1);
+        $pdf->Cell(0, 10, 'Lieu d intervention : ' . $lieu, 0, 1);
+        $pdf->Cell(80, 10, 'Véhicule société : ' . $vehicule, 0, 0);
+        $pdf->Cell(60, 10, 'N° de véhicule: ' . $numvehicul, 0, 1);
+        $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn . '/j', 0, 0);
+        $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn, 0, 1, 'L');
 
         $pdf->setY(130);
-        $pdf->Cell(20, 10, 'AUTRES: ', 0, 1, 'R');
+        $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
         $pdf->setY(140);
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
@@ -187,7 +193,7 @@ class DomModel
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
 
         $pdf->setY(200);
-        $pdf->Cell(60, 10, 'MODE DE PAIEMENT : ', 0, 0);
+        $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
         $pdf->Cell(60, 10, $mode, 0, 1);
 
@@ -206,42 +212,22 @@ class DomModel
         $pdf->Cell(40, 20, ' ', 1, 0, 'C');
         $pdf->Cell(50, 20, '  ', 1, 0, 'C');
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
-        $ipadr = '192.168.0.15';
-        /*9$Dossier = '\\\\'.$ipadr.'\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\';
-        //$Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
-        $pdf->Output( $Dossier.$serv . '.pdf', 'F');*/
 
-        // Adresse IP de l'ordinateur distant
-        $adresseIP = '192.168.0.15';
+        
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
+        $pdf->Output( $Dossier.$serv . '.pdf', 'F');
+
 
         // Chemin du fichier distant
-        $cheminFichierDistant = '\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\';
+        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\'.$NumDom.$serv.'.pdf';
 
         // Chemin local pour enregistrer le fichier PDF
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/ADMINISTRATION - INFORMATIQUE.pdf';
-
-        // URL cURL pour le fichier distant
-        $urlFichierDistant = 'file://' . $adresseIP . $cheminFichierDistant;
-          
-        // Initialisation de cURL
-        $ch = curl_init($urlFichierDistant);
-
-        // Paramètres cURL
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        // Exécution de la requête cURL
-        $resultat = curl_exec($ch);
-
-        // Fermeture de la ressource cURL
-        curl_close($ch);
-
-        // Vérification si le téléchargement a réussi
-        if ($resultat) {
-            // Enregistrement du fichier localement
-            file_put_contents($cheminDestinationLocal, $resultat);
-            echo 'Fichier téléchargé avec succès sur le serveur local.';
-        } else {
-            echo 'Erreur lors du téléchargement du fichier distant.';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/'.$serv.'.pdf';
+        if(copy($cheminDestinationLocal,$cheminFichierDistant)){
+           
+        }else{
+            echo "sorry";
         }
+
     }
 }

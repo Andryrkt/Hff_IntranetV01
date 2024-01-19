@@ -68,6 +68,7 @@ class DomControl
         }
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+            $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
             $serv = $_POST['LibServ'];
             $typMiss = $_POST['typeMission'];
@@ -85,7 +86,7 @@ class DomControl
             $lieu = $_POST['lieuInterv'];
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];
-            $idemn = $_POST['idemForfait'] ;
+            $idemn = $_POST['idemForfait'];
             $totalIdemn = $_POST['TotalidemForfait'];
             $motifdep01 = $_POST['MotifAutredep'];
             $montdep01 = $_POST['Autredep1'];
@@ -108,6 +109,7 @@ class DomControl
                 $mode =  $valModecompt;
             }
             $this->DomModel->genererPDF(
+                $dateS,
                 $NumDom,
                 $serv,
                 $matr,
@@ -137,8 +139,11 @@ class DomControl
                 $libmodepaie,
                 $mode
             );
-            echo "ok ";
-            //include '/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php';
+           // echo "ok ";
+            echo '<script type="text/javascript">
+                alert("Demande OM Envoyer");
+                document.location.href = "/Hff_IntranetV01/index.php?action=New_DOM";
+                </script>';
         }
     }
 }
