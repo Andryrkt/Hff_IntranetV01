@@ -49,11 +49,11 @@
                         <div class="col">
                             <?php foreach ($CodeServiceofCours as $CodeServiceofCours) : ?>
                                 <label for="Serv" class="label-form">Code :</label>
-                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['Code_AgenceService_Sage'] ?>" readonly>
+                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['Code_AgenceService_IRIUM'] ?>" readonly>
                         </div>
                         <div class="col">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['Libelle_AgenceService_Sage'] ?>" readonly>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['Libelle_Service_Agence_IRIUM'] ?>" readonly>
                         </div>
                     <?php endforeach; ?>
                     </div>

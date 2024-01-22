@@ -43,8 +43,8 @@ class DomModel
     public function getInfoAgenceUserofCours($Usernames)
     {
         $QueryAgence = "SELECT Utilisateur,
-                    Code_AgenceService_Sage,
-                    Libelle_AgenceService_Sage
+                    Code_AgenceService_IRIUM,
+                    Libelle_Service_Agence_IRIUM
                     FROM Personnel, Profil_User 
                     WHERE Personnel.Matricule = Profil_User.Matricule
                     AND Profil_User.utilisateur = '" . $Usernames . "'";
@@ -112,6 +112,7 @@ class DomModel
     }
 
     public function genererPDF(
+        $alldepene,
         $Code_serv,
         $datesyst,
         $NumDom,
@@ -156,7 +157,7 @@ class DomModel
         $pdf->setY(30);
         $pdf->Cell(80, 10, 'Type de Mission: ' . $typMiss, 0, 0);
         $pdf->Cell(80, 10, 'Le: ' . $datesyst, 0, 1,'R');
-
+        $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
         $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
         $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 0);
         $pdf->Cell(60, 10, 'Nom et Prénoms: ' . $Nom, 0, 1);
@@ -193,6 +194,9 @@ class DomModel
         $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
 
+        $pdf->Cell(0, 10,   'qui fait le somme de ', 0, 0);
+        $pdf->Cell(0, 10,   $alldepene, 0, 1);
+
         $pdf->setY(200);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
@@ -204,21 +208,21 @@ class DomModel
         $pdf->SetFont('pdfatimesbi', '', 10);
         $pdf->setY(230);
         $pdf->setX(10);
-        $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
-        $pdf->Cell(40, 10, 'CHEF DE SERVICE', 1, 0, 'C');
-        $pdf->Cell(50, 10, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
+      //  $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
+        $pdf->Cell(60, 10, 'CHEF DE SERVICE', 1, 0, 'C');
+        $pdf->Cell(60, 10, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
         $pdf->Cell(60, 10, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
 
-        $pdf->Cell(40, 20, ' ', 1, 0, 'C');
-        $pdf->Cell(40, 20, ' ', 1, 0, 'C');
-        $pdf->Cell(50, 20, '  ', 1, 0, 'C');
+        
+        $pdf->Cell(60, 20, ' ', 1, 0, 'C');
+        $pdf->Cell(60, 20, '  ', 1, 0, 'C');
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
         
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
-        $pdf->Output( $Dossier.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf', 'F');
+        $pdf->Output( $Dossier.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf', 'I');
 
-
+/*
         // Chemin du fichier distant
         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\'.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf';
 
@@ -228,7 +232,7 @@ class DomModel
            
         }else{
             echo "sorry";
-        }
+        }*/
 
     }
 }

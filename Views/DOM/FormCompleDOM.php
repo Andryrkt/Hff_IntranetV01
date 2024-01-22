@@ -101,6 +101,12 @@
 
 
     }
+    function all(){
+        var autre = document.getElementById('TotalAutredep').value;
+        alert (autre);
+       /* var indem = document.getElementById('TotalidemForfait').value;
+        document.getElementById('Alldepense').value = parseInt(autre) + parseInt(idemn);*/
+    }
 </script>
 
 <body onload="visible_espece(); visible()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
@@ -214,7 +220,7 @@
             <div class="row">
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité()" required />
+                    <input type="number" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité()" required />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
@@ -257,6 +263,14 @@
                     <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control">
                 </div>
             </div>
+
+           <!-- <div class="row">
+                <div class="col">
+                    <label for="Alldepense" class="label-form"> Total indemnité et Autre </label>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control">
+                </div>
+            </div>-->
+
             <div class="row">
                 <div class="col">
                     <h4 style="text-align: center;">Mode de paiement</h4>
@@ -265,7 +279,7 @@
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme()">
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme();all()">
                         <option value="ESPECES">ESPECES</option>
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
