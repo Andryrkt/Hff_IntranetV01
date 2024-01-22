@@ -58,19 +58,19 @@ class DomModel
     public function getserviceofcours($Usernames)
     {
         $serviceofcours = "SELECT 
-                                Code_AgenceService_Sage
+                                Code_Service_Agence_IRIUM
                                 FROM Personnel, Profil_User 
                                 WHERE Personnel.Matricule = Profil_User.Matricule
                                 AND Profil_User.utilisateur = '" . $Usernames . "'";
         $excServofCours = $this->connexion->query($serviceofcours);
-        return $excServofCours ? odbc_fetch_array($excServofCours)['Code_AgenceService_Sage'] : false;
+        return $excServofCours ? odbc_fetch_array($excServofCours)['Code_Service_Agence_IRIUM'] : false;
     }
     public function getInfoUserMservice($ServiceofCours)
     {
         $QueryService = "SELECT  Matricule,
                         Noms_Prenoms
                         FROM Personnel 
-                        WHERE Code_AgenceService_Sage = '" . $ServiceofCours . "' ";
+                        WHERE Code_Service_Agence_IRIUM = '" . $ServiceofCours . "' ";
         $execService = $this->connexion->query($QueryService);
         $ResUserAllService = array();
         while ($tab = odbc_fetch_array($execService)) {
@@ -112,7 +112,6 @@ class DomModel
     }
 
     public function genererPDF(
-        $alldepene,
         $Code_serv,
         $datesyst,
         $NumDom,
@@ -193,10 +192,7 @@ class DomModel
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
-
-        $pdf->Cell(0, 10,   'qui fait le somme de ', 0, 0);
-        $pdf->Cell(0, 10,   $alldepene, 0, 1);
-
+        
         $pdf->setY(200);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
