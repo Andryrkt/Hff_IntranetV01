@@ -192,7 +192,7 @@ class DomModel
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
-        
+
         $pdf->setY(200);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
@@ -216,19 +216,19 @@ class DomModel
 
         
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
-        $pdf->Output( $Dossier.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf', 'I');
+        $pdf->Output( $Dossier.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf', 'F');
 
-/*
-        // Chemin du fichier distant
+
+      
         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\'.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf';
 
-        // Chemin local pour enregistrer le fichier PDF
+        
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/'.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf';
         if(copy($cheminDestinationLocal,$cheminFichierDistant)){
            
         }else{
             echo "sorry";
-        }*/
+        }
 
     }
 }
