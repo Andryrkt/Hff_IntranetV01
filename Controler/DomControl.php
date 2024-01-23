@@ -23,7 +23,8 @@ class DomControl
 
             $NumDOM = $this->DomModel->DOM_autoINcriment();
             $UserConnect = $_SESSION['user'];
-            $CodeServiceofCours = $this->DomModel->getInfoAgenceUserofCours($_SESSION['user']);
+            $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
+            $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage,$_SESSION['user']);
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $PersonelServOfCours = $this->DomModel->getInfoUserMservice($Servofcours);
             include 'Views/Principe.php';
@@ -68,6 +69,7 @@ class DomControl
         }
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+            $AllMontant = $_POST['Alldepense'];
             $Code_serv = $_POST['Serv'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -110,6 +112,7 @@ class DomControl
                 $mode =  $valModecompt;
             }
             $this->DomModel->genererPDF(
+                $AllMontant,
                 $Code_serv,
                 $dateS,
                 $NumDom,
@@ -141,8 +144,8 @@ class DomControl
                 $libmodepaie,
                 $mode
             );
-           // echo "ok ";
-           echo '<script type="text/javascript">
+            // echo "ok ";
+            echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hff_IntranetV01/index.php?action=New_DOM";
                 </script>';

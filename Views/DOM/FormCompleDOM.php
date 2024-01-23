@@ -87,6 +87,8 @@
         var mont01 = document.getElementById('Autredep1').value;
         var mont02 = document.getElementById('Autredep2').value;
         var mont03 = document.getElementById('Autredep3').value;
+        var montIndemTotal = document.getElementById('TotalidemForfait').value;
+        
         if (mont01 === "") {
             mont01 = 0
         }
@@ -98,15 +100,11 @@
         }
 
         document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
-
-
+      
+        document.getElementById('Alldepense').value =  parseInt(document.getElementById('TotalAutredep').value) + parseInt(montIndemTotal);
     }
-    function all(){
-        var autre = document.getElementById('TotalAutredep').value;
-        alert (autre);
-       /* var indem = document.getElementById('TotalidemForfait').value;
-        document.getElementById('Alldepense').value = parseInt(autre) + parseInt(idemn);*/
-    }
+   
+   
 </script>
 
 <body onload="visible_espece(); visible()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
@@ -180,7 +178,7 @@
             <div class="row">
                 <div class="col">
                     <label for="periode" class="label-form" id="nomprenom"> Période</label>
-                    <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;">
+                    <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;" readonly>
                 </div>
 
                 <div class="col">
@@ -262,14 +260,13 @@
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
                     <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control">
                 </div>
+                <div class="col">
+                    <label for="Alldepense" class="label-form"> Montant Total</label>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control"  >
+                </div>
             </div>
 
-           <!-- <div class="row">
-                <div class="col">
-                    <label for="Alldepense" class="label-form"> Total indemnité et Autre </label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control">
-                </div>
-            </div>-->
+            
 
             <div class="row">
                 <div class="col">
@@ -279,7 +276,7 @@
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme();all()">
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme()">
                         <option value="ESPECES">ESPECES</option>
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>

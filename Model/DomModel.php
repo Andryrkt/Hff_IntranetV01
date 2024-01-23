@@ -8,6 +8,12 @@ class DomModel
         $this->connexion = $connexion;
     }
 
+    public function getDatesystem()
+    {
+        $d = strtotime("now");
+        $Date_system = date("Y-m-d", $d);
+        return $Date_system;
+    }
     public function DOM_autoINcriment()
     {
         //NumDOM auto
@@ -55,6 +61,36 @@ class DomModel
         }
         return $ResAgence;
     }
+    // Agence Sage to Irium
+    public function getAgence_SageofCours($Userconnect)
+    {
+        $sql_Agence = "SELECT Code_AgenceService_Sage
+                            FROM Personnel, Profil_User
+                            WHERE Personnel.Matricule = Profil_User.Matricule
+                            AND Profil_User.utilisateur = '" . $Userconnect . "'";
+        $exec_Sql_Agence = $this->connexion->query($sql_Agence);
+        return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
+    }
+    public function getAgenceServiceIriumofcours($CodeAgenceSage, $Userconnect)
+    {
+        $sqlAgence_Service_Irim = "SELECT  agence_ips, 
+                                            nom_agence_i100,
+                                            service_ips,
+                                             nom_service_i100
+                                    FROM Agence_Service_Irium, personnel,Profil_User
+                                    WHERE Agence_Service_Irium.service_sage_paie = personnel.Code_AgenceService_Sage
+                                    AND personnel.Code_AgenceService_Sage = '" . $CodeAgenceSage . "'
+                                    AND Personnel.Matricule = Profil_User.Matricule
+                                    AND Profil_User.utilisateur = '" . $Userconnect . "' ";
+        $exec_sqlAgence_Service_Irium = $this->connexion->query($sqlAgence_Service_Irim);
+        $Tab_AgenceServiceIrium = array();
+        while ($row_Irium = odbc_fetch_array($exec_sqlAgence_Service_Irium)) {
+            $Tab_AgenceServiceIrium[] = $row_Irium;
+        }
+        return $Tab_AgenceServiceIrium;
+    }
+    //
+    //code Service sage en cours
     public function getserviceofcours($Usernames)
     {
         $serviceofcours = "SELECT 
@@ -78,6 +114,7 @@ class DomModel
         }
         return $ResUserAllService;
     }
+    //
     public function getInfoTelCompte($userSelect)
     {
         $QueryCompte  = "SELECT Noms_Prenoms,
@@ -100,18 +137,9 @@ class DomModel
         $execCname = $this->connexion->query($Queryname);
         return $execCname ? odbc_fetch_array($execCname)['Noms_Prenoms'] : false;
     }
-    public function getDatesystem()
-    {
-        $d = strtotime("now");
-        $Date_system = date("Y-m-d", $d);
-        return $Date_system;
-    }
-
-    public function InsertDom()
-    {
-    }
 
     public function genererPDF(
+        $AllMontant,
         $Code_serv,
         $datesyst,
         $NumDom,
@@ -145,7 +173,7 @@ class DomModel
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] .'/Hff_IntranetV01/Views/assets/logoHff.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 30, '', 'jpg');
 
         $pdf->SetFont('pdfatimesbi', 'B', 16);
@@ -155,11 +183,13 @@ class DomModel
 
         $pdf->setY(30);
         $pdf->Cell(80, 10, 'Type de Mission: ' . $typMiss, 0, 0);
-        $pdf->Cell(80, 10, 'Le: ' . $datesyst, 0, 1,'R');
+        $pdf->Cell(80, 10,  $autrTyp, 0, 0,'C');
+        $pdf->Cell(40, 10, 'Le: ' . $datesyst, 0, 1, 'C');
         $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
         $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
-        $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 0);
-        $pdf->Cell(60, 10, 'Nom et Prénoms: ' . $Nom, 0, 1);
+        $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 1);
+
+        $pdf->Cell(0, 10, 'Nom et Prénoms: ' . $Nom, 0, 1);
         $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
         $pdf->Cell(50, 10, 'Soit du ' . $dateD, 0, 0, 'C');
         $pdf->Cell(30, 10, 'à  ' . $heureD . ' Heures ', 0, 0);
@@ -174,9 +204,9 @@ class DomModel
         $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn . '/j', 0, 0);
         $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn, 0, 1, 'L');
 
-        $pdf->setY(130);
-        $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
         $pdf->setY(140);
+        $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
+        $pdf->setY(150);
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
@@ -192,43 +222,44 @@ class DomModel
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
+        $pdf->setX(30);
+        $pdf->Cell(80, 10,  'MONTANT TOTAL DE ', 1, 0, 'C');
+        $pdf->Cell(80, 10,   $AllMontant, 1, 1, 'C');
 
-        $pdf->setY(200);
+        $pdf->setY(220);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
         $pdf->Cell(60, 10, $mode, 0, 1);
 
-        $pdf->setY(220);
+        $pdf->setY(230);
         $pdf->Cell(0, 10, 'Je soussigné(e), reconnais avoir lu et approuvé le code de conduite et de moralité en mission.', 0, 1);
 
         $pdf->SetFont('pdfatimesbi', '', 10);
-        $pdf->setY(230);
+        $pdf->setY(240);
         $pdf->setX(10);
-      //  $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
+        //  $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
         $pdf->Cell(60, 10, 'CHEF DE SERVICE', 1, 0, 'C');
         $pdf->Cell(60, 10, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
         $pdf->Cell(60, 10, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
 
-        
+
         $pdf->Cell(60, 20, ' ', 1, 0, 'C');
         $pdf->Cell(60, 20, '  ', 1, 0, 'C');
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
-        
+
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
-        $pdf->Output( $Dossier.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf', 'F');
+        $pdf->Output($Dossier . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf', 'I');
 
 
-      
-        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\'.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf';
+/*
+        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
-        
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/'.$NumDom.'_'.$matr.'_'.$Code_serv.'.pdf';
-        if(copy($cheminDestinationLocal,$cheminFichierDistant)){
-           
-        }else{
+
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+        } else {
             echo "sorry";
-        }
-
+        }*/
     }
 }
