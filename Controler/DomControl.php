@@ -77,6 +77,7 @@ class DomControl
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
             $Nom = $_POST['nomprenom'];
+            $Prenoms = $_POST['prenom'];
             $matr = $_POST['matricule'];
             $dateD = date("d/m/Y", strtotime($_POST['dateDebut']));
             $heureD = $_POST['heureDebut'];
@@ -112,6 +113,7 @@ class DomControl
                 $mode =  $valModecompt;
             }
             $this->DomModel->genererPDF(
+                $Prenoms,
                 $AllMontant,
                 $Code_serv,
                 $dateS,

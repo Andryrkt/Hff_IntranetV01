@@ -40,7 +40,7 @@
             document.getElementById('labelMode').innerHTML = "ESPECES";
         }
         if (mode === "MOBILE MONEY") {
-            document.getElementById('modeMob').style.display = "block"; 
+            document.getElementById('modeMob').style.display = "block";
             document.getElementById('modeespece').style.display = "none";
             document.getElementById('modecompte').style.display = 'none';
             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
@@ -49,9 +49,9 @@
             document.getElementById('modeespece').style.display = "none";
             document.getElementById('modeMob').style.display = "none";
             document.getElementById('modecompte').style.display = "block";
-            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE"; 
+            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
         }
-        
+
     }
 
     function indemnité() {
@@ -88,7 +88,7 @@
         var mont02 = document.getElementById('Autredep2').value;
         var mont03 = document.getElementById('Autredep3').value;
         var montIndemTotal = document.getElementById('TotalidemForfait').value;
-        
+
         if (mont01 === "") {
             mont01 = 0
         }
@@ -100,11 +100,9 @@
         }
 
         document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
-      
-        document.getElementById('Alldepense').value =  parseInt(document.getElementById('TotalAutredep').value) + parseInt(montIndemTotal);
+
+        document.getElementById('Alldepense').value = parseInt(document.getElementById('TotalAutredep').value) + parseInt(montIndemTotal);
     }
-   
-   
 </script>
 
 <body onload="visible_espece(); visible()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
@@ -143,13 +141,21 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="Nomprenoms" class="label-form"> Nom </label>
-                    <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms ?>" />
-                </div>
-                <div class="col">
                     <label for="matricule" class="label-form"> Matricule</label>
                     <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
                 </div>
+            </div>
+            <div class="row" >  
+                <?php foreach ($Noms as $Noms) : ?>
+                    <div class="col">
+                        <label for="Nomprenoms" class="label-form"> Nom </label>
+                        <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" />
+                    </div>
+                    <div class="col">
+                        <label for="prenoms" class="label-form"> Prénoms </label>
+                        <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
+                    </div>
+                <?php endforeach; ?>
             </div>
 
 
@@ -172,7 +178,7 @@
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
                     <input type="time" name="heureFin" id="heureFin" class="form-control" required>
-                    
+
                 </div>
             </div>
             <div class="row">
@@ -222,7 +228,7 @@
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="number" name="TotalidemForfait" id="TotalidemForfait" class="form-control"  required />
+                    <input type="number" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required />
                 </div>
             </div>
             <div class="row">
@@ -232,7 +238,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" >
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control">
                 </div>
             </div>
             <div class="row">
@@ -242,7 +248,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" >
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control">
                 </div>
             </div>
             <div class="row">
@@ -252,7 +258,7 @@
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" >
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control">
                 </div>
             </div>
             <div class="row">
@@ -262,11 +268,11 @@
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control"  >
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control">
                 </div>
             </div>
 
-            
+
 
             <div class="row">
                 <div class="col">
@@ -284,7 +290,7 @@
                 </div>
                 <div class="col">
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
-                    <input type="text" name="valModesp" id="modeespece" class="form-control" >
+                    <input type="text" name="valModesp" id="modeespece" class="form-control">
                     <?php foreach ($Compte as $Compte) : ?>
                         <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">

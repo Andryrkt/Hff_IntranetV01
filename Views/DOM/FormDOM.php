@@ -49,11 +49,11 @@
                         <div class="col">
                             <?php foreach ($CodeServiceofCours as $CodeServiceofCours) : ?>
                                 <label for="Serv" class="label-form">Code :</label>
-                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['nom_agence_i100'] ?>" readonly>
+                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['agence_ips']. " ".$CodeServiceofCours['nom_agence_i100'] ?>" readonly>
                         </div>
                         <div class="col">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['nom_service_i100'] ?>" readonly>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['service_ips']." ".$CodeServiceofCours['nom_service_i100'] ?>" readonly>
                         </div>
                     <?php endforeach; ?>
                     </div>
@@ -78,7 +78,7 @@
                             <label for="Nomprenoms" class="label-form"> Nom - Matricule</label>
                             <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
                                 <?php foreach ($PersonelServOfCours as $PersonelServOfCours) : ?>
-                                    <option value="<?php echo $PersonelServOfCours['Noms_Prenoms'] . " - " . $PersonelServOfCours['Matricule'] ?>"> <?php echo $PersonelServOfCours['Noms_Prenoms'] . " - " . $PersonelServOfCours['Matricule'] ?></option>
+                                    <option value="<?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?>"> <?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>

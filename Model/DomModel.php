@@ -104,7 +104,8 @@ class DomModel
     public function getInfoUserMservice($ServiceofCours)
     {
         $QueryService = "SELECT  Matricule,
-                        Noms_Prenoms
+                        Nom,
+                        Prenoms
                         FROM Personnel 
                         WHERE Code_Service_Agence_IRIUM = '" . $ServiceofCours . "' ";
         $execService = $this->connexion->query($QueryService);
@@ -117,7 +118,8 @@ class DomModel
     //
     public function getInfoTelCompte($userSelect)
     {
-        $QueryCompte  = "SELECT Noms_Prenoms,
+        $QueryCompte  = "SELECT Nom,
+                            Prenoms,
                             Numero_Telephone,
                             Numero_Compte_Bancaire
                             FROM Personnel
@@ -131,17 +133,22 @@ class DomModel
     }
     public function getName($Matricule)
     {
-        $Queryname  = "SELECT Noms_Prenoms
+        $Queryname  = "SELECT Nom, Prenoms
                         FROM Personnel
                         WHERE Matricule = '" . $Matricule . "'";
         $execCname = $this->connexion->query($Queryname);
-        return $execCname ? odbc_fetch_array($execCname)['Noms_Prenoms'] : false;
+        $Infopers = array();
+        while ($tabInfo = odbc_fetch_array($execCname)) {
+            $Infopers[] = $tabInfo;
+        }
+        return $Infopers;
     }
 
     public function genererPDF(
+        $Prenoms,
         $AllMontant,
         $Code_serv,
-        $datesyst,
+        $dateS,
         $NumDom,
         $serv,
         $matr,
@@ -178,18 +185,21 @@ class DomModel
 
         $pdf->SetFont('pdfatimesbi', 'B', 16);
         $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 1, 'C');
+        $pdf->SetFont('pdfatimesbi', '', 12);
+        $pdf->Cell(0, 10, $NumDom, 0, 1, 'R');
         $pdf->Ln(10);
         $pdf->SetFont('pdfatimesbi', '', 12);
 
         $pdf->setY(30);
-        $pdf->Cell(80, 10, 'Type de Mission: ' . $typMiss, 0, 0);
-        $pdf->Cell(80, 10,  $autrTyp, 0, 0,'C');
-        $pdf->Cell(40, 10, 'Le: ' . $datesyst, 0, 1, 'C');
+        $pdf->Cell(80, 10, 'Type  : ' . $typMiss, 0, 0);
+        $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'C');
+        $pdf->Cell(40, 10, 'Le: ' . $dateS, 0, 1, 'C');
         $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
         $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
         $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 1);
 
-        $pdf->Cell(0, 10, 'Nom et Prénoms: ' . $Nom, 0, 1);
+        $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
+        $pdf->Cell(0, 10, 'Prénoms: ' . $Prenoms, 0, 1);
         $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
         $pdf->Cell(50, 10, 'Soit du ' . $dateD, 0, 0, 'C');
         $pdf->Cell(30, 10, 'à  ' . $heureD . ' Heures ', 0, 0);
@@ -204,9 +214,9 @@ class DomModel
         $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn . '/j', 0, 0);
         $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn, 0, 1, 'L');
 
-        $pdf->setY(140);
-        $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
         $pdf->setY(150);
+        $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
+        $pdf->setY(160);
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
@@ -220,27 +230,25 @@ class DomModel
         $pdf->Cell(80, 10,  $motifdep03, 1, 0, 'C');
         $pdf->Cell(80, 10, '' . $montdep03, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  'TOTAL ', 1, 0, 'C');
+        $pdf->Cell(80, 10,  'Total autre ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $totaldep, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  'MONTANT TOTAL DE ', 1, 0, 'C');
+        $pdf->Cell(80, 10,  'MONTANT TOTAL A PAYER ', 1, 0, 'C');
         $pdf->Cell(80, 10,   $AllMontant, 1, 1, 'C');
 
-        $pdf->setY(220);
+        $pdf->setY(230);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
         $pdf->Cell(60, 10, $libmodepaie, 0, 0);
         $pdf->Cell(60, 10, $mode, 0, 1);
 
-        $pdf->setY(230);
-        $pdf->Cell(0, 10, 'Je soussigné(e), reconnais avoir lu et approuvé le code de conduite et de moralité en mission.', 0, 1);
 
         $pdf->SetFont('pdfatimesbi', '', 10);
         $pdf->setY(240);
         $pdf->setX(10);
         //  $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
-        $pdf->Cell(60, 10, 'CHEF DE SERVICE', 1, 0, 'C');
-        $pdf->Cell(60, 10, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
-        $pdf->Cell(60, 10, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
+        $pdf->Cell(60, 8, 'CHEF DE SERVICE', 1, 0, 'C');
+        $pdf->Cell(60, 8, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
+        $pdf->Cell(60, 8, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
 
 
         $pdf->Cell(60, 20, ' ', 1, 0, 'C');
@@ -251,8 +259,8 @@ class DomModel
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
         $pdf->Output($Dossier . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf', 'I');
 
+        /*
 
-/*
         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
 
