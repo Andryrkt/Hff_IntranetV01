@@ -221,13 +221,13 @@ class DomModel
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  $motifdep01, 1, 0, 'C');
+        $pdf->Cell(80, 10,  '   '.$motifdep01, 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $montdep01, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  $motifdep02, 1, 0, 'C');
+        $pdf->Cell(80, 10,  '  '.$motifdep02, 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $montdep02, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  $motifdep03, 1, 0, 'C');
+        $pdf->Cell(80, 10,  '   '.$motifdep03, 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $montdep03, 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'Total autre ', 1, 0, 'C');

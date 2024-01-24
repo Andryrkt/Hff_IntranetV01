@@ -88,7 +88,7 @@
         var mont02 = document.getElementById('Autredep2').value;
         var mont03 = document.getElementById('Autredep3').value;
         var montIndemTotal = document.getElementById('TotalidemForfait').value;
-
+       
         if (mont01 === "") {
             mont01 = 0
         }
@@ -99,7 +99,7 @@
             mont03 = 0
         }
 
-        document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
+       document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
 
         document.getElementById('Alldepense').value = parseInt(document.getElementById('TotalAutredep').value) + parseInt(montIndemTotal);
     }
@@ -244,21 +244,21 @@
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control">
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" >
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control">
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus = 'use_number(this)' onblur ='use_text(this)'>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
-                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control">
+                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" onfocus="Somme()">
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control">
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" >
                 </div>
             </div>
             <div class="row">
