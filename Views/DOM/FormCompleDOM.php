@@ -79,7 +79,12 @@
             empty_val = true;
         node.type = 'text';
         if (!empty_val)
-            node.value = value.toLocaleString();
+            var options = {
+                style: 'decimal',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            };
+        node.value = value.toLocaleString('en-US', options).replace(/,/g, '.');
 
     }
 
@@ -88,20 +93,33 @@
         var mont02 = document.getElementById('Autredep2').value;
         var mont03 = document.getElementById('Autredep3').value;
         var montIndemTotal = document.getElementById('TotalidemForfait').value;
-       
-        if (mont01 === "") {
-            mont01 = 0
+        var Smont01 = parseFloat(mont01.replace(/\./g, '').replace(',', '.'));
+        var Smont02 = parseFloat(mont02.replace(/\./g, '').replace(',', '.'));
+        var Smont03 = parseFloat(mont03.replace(/\./g, '').replace(',', '.'));
+        var SmontIndemTotal = parseFloat(montIndemTotal.replace(/\./g, '').replace(',', '.'));
+        if (Smont01 === "") {
+            Smont01 = 0
         }
-        if (mont02 === "") {
-            mont02 = 0
+        if (Smont02 === "") {
+            Smont02 = 0
         }
-        if (mont03 === "") {
-            mont03 = 0
+        if (Smont03 === "") {
+            Smont03 = 0
         }
+        var options = {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        };
+        var Somme = parseInt(Smont01, 10) + parseInt(Smont02) + parseInt(Smont03);
+        var TotalAutre = document.getElementById('TotalAutredep')
+        TotalAutre.value = Somme.toLocaleString('en-US', options).replace(/,/g, '.');
 
-       document.getElementById('TotalAutredep').value = parseInt(mont01) + parseInt(mont02) + parseInt(mont03);
+        STotalAutre = parseFloat(TotalAutre.value.replace(/\./g, '').replace(',', '.'));
+        var SommeTo = parseInt(STotalAutre) + parseInt(SmontIndemTotal);
+        var NetPaie = document.getElementById('Alldepense')
+        NetPaie.value = SommeTo.toLocaleString('en-US', options).replace(/,/g, '.');
 
-        document.getElementById('Alldepense').value = parseInt(document.getElementById('TotalAutredep').value) + parseInt(montIndemTotal);
     }
 </script>
 
@@ -145,7 +163,7 @@
                     <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
                 </div>
             </div>
-            <div class="row" >  
+            <div class="row">
                 <?php foreach ($Noms as $Noms) : ?>
                     <div class="col">
                         <label for="Nomprenoms" class="label-form"> Nom </label>
@@ -223,12 +241,21 @@
             </div>
             <div class="row">
                 <div class="col">
+                    <label for="Devis" class="label-form">Devis:</label>
+
+                    <select name="Devis" id="Devis" class="form-select">
+                        <option value="MGA">MGA</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+                <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="number" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité()" required />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this)' />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="number" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required onfocus='use_number(this)' onblur='use_text(this)' />
                 </div>
             </div>
             <div class="row">
@@ -238,37 +265,37 @@
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control">
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" >
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control">
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus = 'use_number(this)' onblur ='use_text(this)'>
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
-                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" onfocus="Somme()">
+                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control">
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" >
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control">
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control">
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
                 </div>
             </div>
 

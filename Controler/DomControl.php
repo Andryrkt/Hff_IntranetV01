@@ -43,6 +43,7 @@ class DomControl
         }
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $NumDom = $_POST['NumDOM'];
+           
             $code_service = $_POST['Serv'];
             $service = $_POST['LibServ'];
             $typeMission = $_POST['typeMission'];
@@ -73,6 +74,7 @@ class DomControl
             $Code_serv = $_POST['Serv'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
+            $Devis = $_POST['Devis'];
             $serv = $_POST['LibServ'];
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
@@ -113,6 +115,7 @@ class DomControl
                 $mode =  $valModecompt;
             }
             $this->DomModel->genererPDF(
+                $Devis,
                 $Prenoms,
                 $AllMontant,
                 $Code_serv,
