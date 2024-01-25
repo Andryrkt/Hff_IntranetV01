@@ -15,6 +15,7 @@ class TypeDocControl
             session_destroy();
             exit();
         }
+        $UserConnect = $_SESSION['user'];
         include 'Views/Principe.php';
         include('Views/TypeDoc/TypeDoc_Form.php');
     }
