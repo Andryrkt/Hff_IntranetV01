@@ -97,14 +97,17 @@
         var Smont02 = parseFloat(mont02.replace(/\./g, '').replace(',', '.'));
         var Smont03 = parseFloat(mont03.replace(/\./g, '').replace(',', '.'));
         var SmontIndemTotal = parseFloat(montIndemTotal.replace(/\./g, '').replace(',', '.'));
-        if (Smont01 === "") {
+        if (mont01 === "") {
             Smont01 = 0
         }
-        if (Smont02 === "") {
+        if (mont02 === "") {
             Smont02 = 0
         }
-        if (Smont03 === "") {
+        if (mont03 === "") {
             Smont03 = 0
+        }
+        if (montIndemTotal === "") {
+            SmontIndemTotal = 0
         }
         var options = {
             style: 'decimal',

@@ -199,7 +199,7 @@ class DomModel
 
         $pdf->setY(30);
         $pdf->Cell(80, 10, 'Type  : ' . $typMiss, 0, 0);
-        $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'C');
+        $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'L');
         $pdf->Cell(40, 10, 'Le: ' . $dateS, 0, 1, 'C');
         $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
         $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
