@@ -143,7 +143,13 @@ class DomModel
         }
         return $Infopers;
     }
-//pdf
+
+    //Insert DOM 
+    public function InsertDom()
+    {
+    }
+
+    //pdf
     public function genererPDF(
         $Devis,
         $Prenoms,
@@ -201,7 +207,7 @@ class DomModel
 
         $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
         $pdf->Cell(0, 10, 'Prénoms: ' . $Prenoms, 0, 1);
-        $pdf->Cell(40, 10, 'Période: ' . $NbJ .' Jour(s)', 0, 0);
+        $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
         $pdf->Cell(50, 10, 'Soit du ' . $dateD, 0, 0, 'C');
         $pdf->Cell(30, 10, 'à  ' . $heureD . ' Heures ', 0, 0);
         $pdf->Cell(30, 10, ' au  ' . $dateF, 0, 0);
@@ -212,8 +218,8 @@ class DomModel
         $pdf->Cell(0, 10, 'Lieu d intervention : ' . $lieu, 0, 1);
         $pdf->Cell(80, 10, 'Véhicule société : ' . $vehicule, 0, 0);
         $pdf->Cell(60, 10, 'N° de véhicule: ' . $numvehicul, 0, 1);
-        $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn .' ' .$Devis. '/j', 0, 0);
-        $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn.' ' .$Devis, 0, 1, 'L');
+        $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0);
+        $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn . ' ' . $Devis, 0, 1, 'L');
 
         $pdf->setY(150);
         $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
@@ -222,20 +228,20 @@ class DomModel
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '   '.$motifdep01, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep01.' ' .$Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '   ' . $motifdep01, 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $montdep01 . ' ' . $Devis, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '  '.$motifdep02, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep02.' ' .$Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '  ' . $motifdep02, 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $montdep02 . ' ' . $Devis, 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '   '.$motifdep03, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep03.' ' .$Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '   ' . $motifdep03, 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $montdep03 . ' ' . $Devis, 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'Total autre ', 1, 0, 'C');
-        $pdf->Cell(80, 10,   $totaldep.' ' .$Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,   $totaldep . ' ' . $Devis, 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'MONTANT TOTAL A PAYER ', 1, 0, 'C');
-        $pdf->Cell(80, 10,   $AllMontant.' ' .$Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,   $AllMontant . ' ' . $Devis, 1, 1, 'C');
 
         $pdf->setY(230);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
