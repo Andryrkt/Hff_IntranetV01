@@ -10,18 +10,24 @@ $ModelProfil = new ProfilModel($Conn_IntranetV01);
 $ControlProfil = new ProfilControl($ModelProfil);
 
 //----
- //Personnel
- include 'Model/PersonnelModel.php';
- include 'Controler/PersonnelControl.php';
- $ModelPers = new PersonnelModel($Conn_IntranetV01);
- $ControlPers = new PersonnelControl($ModelPers);
- //---
- //DOM
- include 'Model/DomModel.php';
- include 'Controler/DomControl.php';
- $ModelDOM = new DomModel($Conn_IntranetV01);
- $ControlDOM = new DomControl($ModelDOM);
- //----
+//Personnel
+include 'Model/PersonnelModel.php';
+include 'Controler/PersonnelControl.php';
+$ModelPers = new PersonnelModel($Conn_IntranetV01);
+$ControlPers = new PersonnelControl($ModelPers);
+//---
+//DOM
+include 'Model/DomModel.php';
+include 'Controler/DomControl.php';
+$ModelDOM = new DomModel($Conn_IntranetV01);
+$ControlDOM = new DomControl($ModelDOM);
+//----
+// TypeDoc
+include 'Model/TypeDocModel.php';
+include 'Controler/TypeDocControl.php';
+$ModelType = new TypeDocModel($Conn_IntranetV01);
+$ControlType = new TypeDocControl($ModelType);
+//----
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -61,7 +67,7 @@ switch ($action) {
     case 'Propos':
         $ControlProfil->showinfoAllUsercours();
         break;
-       
+
     case 'Personnels':
         $ControlPers->showPersonnelForm();
         break;
@@ -72,12 +78,15 @@ switch ($action) {
         $ControlDOM->showFormDOM();
         break;
     case 'checkMatricule':
-         $ControlDOM->ShowDomPDF();
-        break;     
+        $ControlDOM->ShowDomPDF();
+        break;
     case 'EnvoyerImprime':
         $ControlDOM->EnvoieImprimeDom();
-        break;    
-    //    
+        break;
+    case 'TypeDoc':
+        $ControlType->showTypeDocForm();
+        break;
+        //    
     default:
         include 'Views/SignIn.php';
 }
