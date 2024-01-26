@@ -1,5 +1,5 @@
 <?php
-//include 'Model/FunctionChaine.php';
+
 class TypeDocControl
 {
     private $TypeDocModel;

@@ -159,7 +159,7 @@ class DomModel
     }
 
     //Insert DOM 
-    public function InsertDom($NumDom, $datS,$typMiss)
+    public function InsertDom($NumDom, $dateS,$typMiss)
     {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Autre_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,

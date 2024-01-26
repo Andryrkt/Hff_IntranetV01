@@ -99,6 +99,8 @@ switch ($action) {
      case 'Statut':
         $ControlStatut->ShowFormStatut();
         break;   
+     case 'MoveStatut':
+           $ControlStatut->MoveStatut();
     default:
         include 'Views/SignIn.php';
 }

@@ -12,7 +12,7 @@
         <div class="row" style="margin-top: 1%;">
             <div class="col">
                 <h3 style="text-align: center;">Type de Document</h3>
-                <form action="/Hff_IntranetV01/index.php?action=#" method="POST">
+                <form action="/Hff_IntranetV01/index.php?action=MoveStatut" method="POST">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="CodeApp"> Application</label>
                         <div class="col-sm-10">
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="CodeStatut">Sous Type</label>
+                        <label class="col-sm-2 control-label" for="CodeStatut">Code Statut</label>
                         <div class="col-sm-10">
                             <input class="form-control" id="CodeStatut" type="text" name="CodeStatut">
                         </div>
@@ -49,7 +49,13 @@
                         </tr>
                     </thead>
                     <tbody>
-
+                        <?php foreach ($ListStatut as $ListStatut) : ?>
+                            <tr>
+                                <td> <?php echo $ListStatut['Code_Application'];?></td>
+                                <td> <?php echo $ListStatut['Code_Statut'];?></td>
+                                <td> <?php echo $ListStatut['Description'];?></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
