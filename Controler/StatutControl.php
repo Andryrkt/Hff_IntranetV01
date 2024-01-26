@@ -1,4 +1,5 @@
 <?php
+
 class StatutControl
 {
     private $StatutModel;
@@ -32,7 +33,7 @@ class StatutControl
             $CoedApp = $_POST['CodeApp'];
             $CodeStatut = $_POST['CodeStatut'];
             $Descript = $_POST['descStatut'];
-            $DateSyst = getDatesystem();
+            $DateSyst = $this->StatutModel->getDatesystem();
             $insertStatut = $this->StatutModel->InsertStatut( $CoedApp, $CodeStatut,$Descript,$DateSyst);
             header('Location:/Hff_IntranetV01/index.php?action=Statut');
         }

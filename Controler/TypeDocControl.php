@@ -32,7 +32,7 @@ class TypeDocControl
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $TypeDoc = $_POST['TypeDoc'];
             $SousTyp = $_POST['Soutyp'];
-            $DateSyst = getDatesystem();
+            $DateSyst =$this->TypeDocModel->getDatesystem(); 
             $Insers = $this->TypeDocModel->Insert_TypeDoc($TypeDoc,$SousTyp,$DateSyst);  
             header('Location:/Hff_IntranetV01/index.php?action=TypeDoc');
 
