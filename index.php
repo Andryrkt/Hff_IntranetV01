@@ -28,6 +28,12 @@ include 'Controler/TypeDocControl.php';
 $ModelType = new TypeDocModel($Conn_IntranetV01);
 $ControlType = new TypeDocControl($ModelType);
 //----
+//Statut
+include 'Model/StatutModel.php';
+include 'Controler/StatutControl.php';
+$ModelStatut = new StatutModel($Conn_IntranetV01);
+$ControlStatut = new StatutControl($ModelStatut);
+//----
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -90,6 +96,9 @@ switch ($action) {
         $ControlType->MoveTypeDocForm();
         break;   
         //    
+     case 'Statut':
+        $ControlStatut->ShowFormStatut();
+        break;   
     default:
         include 'Views/SignIn.php';
 }

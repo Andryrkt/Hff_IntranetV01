@@ -83,6 +83,7 @@
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" id="TypeDoc">Statut App</a></li>
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>

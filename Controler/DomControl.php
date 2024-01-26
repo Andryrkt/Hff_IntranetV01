@@ -150,7 +150,7 @@ class DomControl
                 $libmodepaie,
                 $mode
             );
-            
+            $insertToDOM = $this->DomModel;
             // echo "ok ";
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
