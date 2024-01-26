@@ -86,6 +86,9 @@ switch ($action) {
     case 'TypeDoc':
         $ControlType->showTypeDocForm();
         break;
+     case 'MoveTypeDoc':
+        $ControlType->MoveTypeDocForm();
+        break;   
         //    
     default:
         include 'Views/SignIn.php';

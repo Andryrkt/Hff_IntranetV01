@@ -149,6 +149,7 @@ class DomControl
                 $libmodepaie,
                 $mode
             );
+            
             // echo "ok ";
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");

@@ -12,3 +12,10 @@ function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet
         }
         return $ChaineComplet;
     }
+
+    function getDatesystem()
+    {
+        $d = strtotime("now");
+        $Date_system = date("Y-m-d", $d);
+        return $Date_system;
+    }
