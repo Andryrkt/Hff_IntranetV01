@@ -1,4 +1,5 @@
 <?php
+
 require_once('TCPDF-main/tcpdf.php');
 class DomModel
 {
@@ -44,7 +45,20 @@ class DomModel
         $Result_Num_DOM = "DOM" . $AnneMoisOfcours . CompleteChaineCaractere($vNumSequential, 4, "0", "G");
         return $Result_Num_DOM;
     }
-
+    //TypeDOc 
+    public function getTypeDoc(){
+        $Sql_TypeDoc = "SELECT Code_Document,
+                    Code_Sous_type 
+                    FROM Sous_type_document
+                    WHERE Code_Document = 'ORM' ";
+        $execTypeDoc = $this->connexion->query($Sql_TypeDoc);
+        $TypDoc = array();
+        while($TabTyp = odbc_fetch_array($execTypeDoc)){
+            $TypDoc[] = $TabTyp;
+        }
+        return $TypDoc;
+    }
+    //
     //personnel
     public function getInfoAgenceUserofCours($Usernames)
     {

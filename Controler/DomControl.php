@@ -27,6 +27,7 @@ class DomControl
             $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage,$_SESSION['user']);
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $PersonelServOfCours = $this->DomModel->getInfoUserMservice($Servofcours);
+            $TypeDocument = $this->DomModel->getTypeDoc();
             include 'Views/Principe.php';
             include 'Views/DOM/FormDOM.php';
         } catch (Exception $e) {

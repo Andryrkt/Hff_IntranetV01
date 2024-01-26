@@ -42,7 +42,7 @@
                             <label for="NumDOM" class="label-form">N° DOM</label>
                             <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDOM ?>" readonly>
                         </div>
-                       
+
                     </div>
                     <div class="row">
                         <div class="col">
@@ -60,11 +60,9 @@
                         <div class="col">
                             <label for="typeMission" class="label-form"> Type de Mission</label>
                             <select name="typeMission" id="typeMission" class="form-select" onchange="visible()"><!--à discuter voir dans le fiche -->
-                                <option value="MISSION">MISSION</option>
-                                <option value="COMPLEMENT">COMPLEMENT</option>
-                                <option value="FORMATION">FORMATION</option>
-                                <option value="MUTATION">MUTATION</option>
-                                <option value="AUTRES A PRECISER">AUTRES A PRECISER</option>
+                                <?php foreach ($TypeDocument as $TypeDocument) : ?>
+                                    <option value="<?php echo $TypeDocument['Code_Sous_type'] ?>"><?php echo $TypeDocument['Code_Sous_type'] ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col">
