@@ -51,9 +51,12 @@
                     <tbody>
                         <?php foreach ($ListStatut as $ListStatut) : ?>
                             <tr>
-                                <td> <?php echo $ListStatut['Code_Application'];?></td>
-                                <td> <?php echo $ListStatut['Code_Statut'];?></td>
-                                <td> <?php echo $ListStatut['Description'];?></td>
+                                <td> <?php echo $ListStatut['Code_Application']; ?></td>
+                                <td> <?php echo $ListStatut['Code_Statut']; ?></td>
+                                <td> <?php
+                                        $observe = $ListStatut['Description'];
+                                        echo iconv('Windows-1252', 'UTF-8', $observe);
+                                        ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

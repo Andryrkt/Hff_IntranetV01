@@ -7,6 +7,12 @@ class StatutModel
     {
         $this->Connexion = $Connexion;
     }
+    public function getDatesystem()
+    {
+        $d = strtotime("now");
+        $Date_system = date("Y-m-d", $d);
+        return $Date_system;
+    }
     public function InsertStatut($CoedApp, $CodeStatut,  $Descript, $DateSyst)
     {
         $Sql_Statut = "INSERT INTO Statut_demande

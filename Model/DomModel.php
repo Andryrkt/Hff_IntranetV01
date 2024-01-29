@@ -164,7 +164,7 @@ class DomModel
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Autre_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
-                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel)
+                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut)
                        VALUES('" . $NumDom . "','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',
                        '".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',
                        '".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',)";

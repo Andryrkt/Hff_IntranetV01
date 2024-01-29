@@ -72,19 +72,21 @@ class DomControl
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $AllMontant = $_POST['Alldepense'];
-            $Code_serv = $_POST['Serv'];
+            $Code_serv = $_POST['Serv']; //80 Admin
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
             $Devis = $_POST['Devis'];
-            $serv = $_POST['LibServ'];
+            $serv = $_POST['LibServ']; //INF info 
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
             $Nom = $_POST['nomprenom'];
             $Prenoms = $_POST['prenom'];
             $matr = $_POST['matricule'];
-            $dateD = date("d/m/Y", strtotime($_POST['dateDebut']));
+            $DateDebut = $_POST['dateDebut'];
+            $dateD = date("d/m/Y", strtotime( $DateDebut));
             $heureD = $_POST['heureDebut'];
-            $dateF = date("d/m/Y", strtotime($_POST['dateFin']));
+            $DateFin = $_POST['dateFin'];
+            $dateF = date("d/m/Y", strtotime($DateFin));
             $heureF = $_POST['heureFin'];
             $NbJ = $_POST['Nbjour'];
             $motif = $_POST['motif'];
