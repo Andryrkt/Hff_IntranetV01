@@ -110,12 +110,15 @@ class DomControl
             $valModecompt = $_POST['valModecompt'];
             if ($libmodepaie === "ESPECES") {
                 $mode =  $valModesp;
+                $modeDB = $valModesp;
             }
             if ($libmodepaie === "MOBILE MONEY") {
-                $mode =  $valModemob;
+                $mode =  "TEL ".$valModemob;
+                $modeDB = $valModemob;
             }
             if ($libmodepaie === "VIREMENT BANCAIRE") {
-                $mode =  $valModecompt;
+                $mode =  "CPT ".$valModecompt;
+                $modeDB = $valModecompt;
             }
             $this->DomModel->genererPDF(
                 $Devis,
