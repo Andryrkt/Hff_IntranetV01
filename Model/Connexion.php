@@ -3,7 +3,7 @@ class Connexion
 {
     private $DB = "HFF_INTRANET_V01";
     private $User = "sa";
-    private $pswd = "Hff@sql2O24";
+    private $pswd = "Hff@sql2024";
     private $conn;
     public function __construct()
     {
