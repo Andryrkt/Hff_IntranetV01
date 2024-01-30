@@ -44,13 +44,16 @@ class DomControl
         }
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $NumDom = $_POST['NumDOM'];
-           
             $code_service = $_POST['Serv'];
             $service = $_POST['LibServ'];
             $typeMission = $_POST['typeMission'];
             $autrtype = $_POST['AutreType'];
             $Maricule = $_POST['matricule'];
             $UserConnect = $_SESSION['user'];
+            $check = $_POST['radiochek'];
+            $nomExt = $_POST['namesExt'];
+            $prenomExt = $_POST['firstnamesExt'];
+            $CINext = $_POST['cin'];
 
             $datesyst = $this->DomModel->getDatesystem();
             $Noms = $this->DomModel->getName($Maricule);
@@ -72,16 +75,32 @@ class DomControl
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $AllMontant = $_POST['Alldepense'];
+            $checkext = $_POST['radiochek'];
+              //Interne
+              $NomINt = $_POST['nomprenom'];
+              $PrenomsINt = $_POST['prenom'];
+              $matrInt = $_POST['matricule'];
+              //temporaire
+              $Nomext = $_POST['namesExt'];
+              $PrenomExt = $_POST['firstnamesExt'];
+              $MatrExt = "XE".$_POST['cin'];
+              //
             $Code_serv = $_POST['Serv']; //80 Admin
+            $code = explode(" ",$Code_serv);
+            $Agence=strtolower(end($code)); // Admin
+            $serv = $_POST['LibServ']; //INF info 
+            $codeserv = explode(" ",$serv);
+            $Servi=strtolower(end($codeserv)); // INfo
+
+        
+            $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
             $Devis = $_POST['Devis'];
-            $serv = $_POST['LibServ']; //INF info 
+            
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
-            $Nom = $_POST['nomprenom'];
-            $Prenoms = $_POST['prenom'];
-            $matr = $_POST['matricule'];
+          
             $DateDebut = $_POST['dateDebut'];
             $dateD = date("d/m/Y", strtotime( $DateDebut));
             $heureD = $_POST['heureDebut'];

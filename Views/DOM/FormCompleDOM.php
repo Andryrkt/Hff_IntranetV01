@@ -124,9 +124,22 @@
         NetPaie.value = SommeTo.toLocaleString('en-US', options).replace(/,/g, '.');
 
     }
+    function Interne_externe() {
+        var Interne = document.getElementById('Interne');
+        var externe = document.getElementById('externe');
+
+        var checkInterne = document.getElementById('radiochek').value;
+       if(checkInterne ==='Interne'){
+        externe.style.display = 'none';
+        Interne.style.display = 'block'
+       }else{
+        externe.style.display = 'block';
+        Interne.style.display = 'none';
+       }
+    }
 </script>
 
-<body onload="visible_espece(); visible()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
+<body onload="visible_espece(); visible();Interne_externe()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
         <form action="/Hff_IntranetV01/index.php?action=EnvoyerImprime" method="POST">
             <div class="row">
@@ -166,7 +179,8 @@
                     <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
                 </div>
             </div>
-            <div class="row">
+            <input type="text" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
+            <div class="row" id="Interne">
                 <?php foreach ($Noms as $Noms) : ?>
                     <div class="col">
                         <label for="Nomprenoms" class="label-form"> Nom </label>
@@ -178,7 +192,20 @@
                     </div>
                 <?php endforeach; ?>
             </div>
-
+            <div class="row" id="externe">
+                <div class="col">
+                    <label for="namesExt" class="label-form"> Nom</label>
+                    <input type="text" name="namesExt" id="namesExt" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="firstnamesExt" class="label-form"> Prénoms</label>
+                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="cin" class="label-form"> CIN</label>
+                    <input type="text" name="cin" id="cin" class="form-control">
+                </div>
+            </div>
 
 
             <div class="row">

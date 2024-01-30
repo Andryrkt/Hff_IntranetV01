@@ -27,9 +27,23 @@
         let result = names.substring(names.length - 4);
         document.getElementById('matricule').value = result;
     }
+
+    function Interne_externe() {
+        var Interne = document.getElementById('Interne');
+        var externe = document.getElementById('externe');
+
+        var checkInterne = document.getElementById('radiochek').value;
+       if(checkInterne ==='Interne'){
+        externe.style.display = 'none';
+        Interne.style.display = 'block'
+       }else{
+        externe.style.display = 'block';
+        Interne.style.display = 'none';
+       }
+    }
 </script>
 
-<body onload="visible(); Matricule()">
+<body onload="visible(); Matricule();Interne_externe()">
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -70,6 +84,17 @@
                             <input type="text" name="AutreType" class="form-control" id="AutreType">
                         </div>
                     </div>
+                    <div class="row">
+
+                        <div class="col">
+                            <label for="AutreType" class="label-form" id="labAutre"> Salarié:</label>
+                            <select name="radiochek" id="radiochek" class="form-select " style="text-align: right;" onchange="Interne_externe()">
+                                <option value="Interne">Interne</option>
+                                <option value="Externe">Temporaire</option>
+                            </select>
+                        </div>
+
+                    </div>
                     <div class="row" id="Interne">
                         <div class="col">
                             <label for="Nomprenoms" class="label-form"> Nom - Matricule</label>
@@ -84,7 +109,20 @@
                             <input type="text" name="matricule" id="matricule" class="form-control" readonly>
                         </div>
                     </div>
-                    
+                    <div class="row" id="externe">
+                        <div class="col">
+                            <label for="namesExt" class="label-form"> Nom</label>
+                            <input type="text" name="namesExt" id="namesExt" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="firstnamesExt" class="label-form"> Prénoms</label>
+                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="cin" class="label-form"> CIN</label>
+                            <input type="text" name="cin" id="cin" class="form-control">
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="mt-2">
                             <button type="submit" class="btn btn-info"> Suivant</button>
