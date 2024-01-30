@@ -24,7 +24,7 @@ class DomControl
             $NumDOM = $this->DomModel->DOM_autoINcriment();
             $UserConnect = $_SESSION['user'];
             $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage,$_SESSION['user']);
+            $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $PersonelServOfCours = $this->DomModel->getInfoUserMservice($Servofcours);
             $TypeDocument = $this->DomModel->getTypeDoc();
@@ -76,33 +76,43 @@ class DomControl
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $AllMontant = $_POST['Alldepense'];
             $checkext = $_POST['radiochek'];
-              //Interne
-              $NomINt = $_POST['nomprenom'];
-              $PrenomsINt = $_POST['prenom'];
-              $matrInt = $_POST['matricule'];
-              //temporaire
-              $Nomext = $_POST['namesExt'];
-              $PrenomExt = $_POST['firstnamesExt'];
-              $MatrExt = "XE".$_POST['cin'];
-              //
+            //Interne
+            $NomINt = $_POST['nomprenom'];
+            $PrenomsINt = $_POST['prenom'];
+            $matrInt = $_POST['matricule'];
+            //temporaire
+            $Nomext = $_POST['namesExt'];
+            $PrenomExt = $_POST['firstnamesExt'];
+            $MatrExt = $_POST['cin'];
+            //
             $Code_serv = $_POST['Serv']; //80 Admin
-            $code = explode(" ",$Code_serv);
-            $Agence=strtolower(end($code)); // Admin
+            $code = explode(" ", $Code_serv);
+            $Agence = strtolower(end($code)); // Admin
             $serv = $_POST['LibServ']; //INF info 
-            $codeserv = explode(" ",$serv);
-            $Servi=strtolower(end($codeserv)); // INfo
-
-        
+            $codeserv = explode(" ", $serv);
+            $Servi = strtolower(end($codeserv)); // INfo
+            if ($checkext === "Interne") {
+                $Nom =  $NomINt;
+                $Prenoms = $PrenomsINt;
+                $matr = $matrInt;
+            } else {
+                if ($Agence === "Rental" && $Servi === "Atelier") {
+                    $Nom = $Nomext ;
+                    $Prenoms = $PrenomExt ;
+                    $matr = "XER00".$MatrExt."TEMPORAIRE";
+                }
+            }
+            
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
             $Devis = $_POST['Devis'];
-            
+
             $typMiss = $_POST['typeMission'];
             $autrTyp = $_POST['AutreType'];
-          
+
             $DateDebut = $_POST['dateDebut'];
-            $dateD = date("d/m/Y", strtotime( $DateDebut));
+            $dateD = date("d/m/Y", strtotime($DateDebut));
             $heureD = $_POST['heureDebut'];
             $DateFin = $_POST['dateFin'];
             $dateF = date("d/m/Y", strtotime($DateFin));
@@ -132,11 +142,11 @@ class DomControl
                 $modeDB = $valModesp;
             }
             if ($libmodepaie === "MOBILE MONEY") {
-                $mode =  "TEL ".$valModemob;
+                $mode =  "TEL " . $valModemob;
                 $modeDB = $valModemob;
             }
             if ($libmodepaie === "VIREMENT BANCAIRE") {
-                $mode =  "CPT ".$valModecompt;
+                $mode =  "CPT " . $valModecompt;
                 $modeDB = $valModecompt;
             }
             $this->DomModel->genererPDF(

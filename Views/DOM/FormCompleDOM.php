@@ -1,3 +1,6 @@
+<?php
+include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -124,18 +127,24 @@
         NetPaie.value = SommeTo.toLocaleString('en-US', options).replace(/,/g, '.');
 
     }
+
     function Interne_externe() {
         var Interne = document.getElementById('Interne');
         var externe = document.getElementById('externe');
-
+        var Pj = document.getElementById('PJ');
+        var labelPj = document.getElementById('label_PJ');
         var checkInterne = document.getElementById('radiochek').value;
-       if(checkInterne ==='Interne'){
-        externe.style.display = 'none';
-        Interne.style.display = 'block'
-       }else{
-        externe.style.display = 'block';
-        Interne.style.display = 'none';
-       }
+        if (checkInterne === 'Interne') {
+            externe.style.display = 'none';
+            Interne.style.display = 'block'
+            Pj.style.display = 'none';
+            labelPj.style.display = 'none';
+        } else {
+            externe.style.display = 'block';
+            Interne.style.display = 'none';
+            Pj.style.display = 'Block';
+            labelPj.style.display = 'Block';
+        }
     }
 </script>
 
@@ -173,14 +182,13 @@
                     <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $autrtype ?>">
                 </div>
             </div>
-            <div class="row">
+
+            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
+            <div class="row" id="Interne">
                 <div class="col">
                     <label for="matricule" class="label-form"> Matricule</label>
                     <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
                 </div>
-            </div>
-            <input type="text" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
-            <div class="row" id="Interne">
                 <?php foreach ($Noms as $Noms) : ?>
                     <div class="col">
                         <label for="Nomprenoms" class="label-form"> Nom </label>
@@ -195,15 +203,15 @@
             <div class="row" id="externe">
                 <div class="col">
                     <label for="namesExt" class="label-form"> Nom</label>
-                    <input type="text" name="namesExt" id="namesExt" class="form-control">
+                    <input type="text" name="namesExt" id="namesExt" class="form-control" value="<?php echo $nomExt?>">
                 </div>
                 <div class="col">
                     <label for="firstnamesExt" class="label-form"> Prénoms</label>
-                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
+                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" value="<?php echo $prenomExt?>">
                 </div>
                 <div class="col">
                     <label for="cin" class="label-form"> CIN</label>
-                    <input type="text" name="cin" id="cin" class="form-control">
+                    <input type="text" name="cin" id="cin" class="form-control" value="<?php echo $CINext?>">
                 </div>
             </div>
 
@@ -354,9 +362,26 @@
                     <?php endforeach ?>
                 </div>
             </div>
-            <div class="row">
 
-
+            <div class="row" id="label_PJ">
+                <div class="col">
+                    <h4 style="text-align: center;">Pièce Jointe</h4>
+                </div>
+            </div>
+            <div class="row" id="PJ">
+                <div class="col">
+                    <label for="file01" class="label-form"> Fichier joint 01:</label>
+                    <?php
+                    inputFields("", "file01", "file01", "", "file");
+                    ?>
+                </div>
+                <div class="col">
+                    <label for="file02" class="label-form"> Fichier joint 02 :</label>
+                    <?php
+                    inputFields("", "file02", "file02", "", "file");
+                    ?>
+                </div>
+               
             </div>
             <div class="row">
                 <div class="mt-2 ">
