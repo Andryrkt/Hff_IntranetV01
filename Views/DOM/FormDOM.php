@@ -70,7 +70,7 @@
                             <input type="text" name="AutreType" class="form-control" id="AutreType">
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" id="Interne">
                         <div class="col">
                             <label for="Nomprenoms" class="label-form"> Nom - Matricule</label>
                             <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
@@ -84,6 +84,7 @@
                             <input type="text" name="matricule" id="matricule" class="form-control" readonly>
                         </div>
                     </div>
+                    
                     <div class="row">
                         <div class="mt-2">
                             <button type="submit" class="btn btn-info"> Suivant</button>
