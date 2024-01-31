@@ -138,10 +138,6 @@ class DomControl
                 $matr = "XER00" . $MatrExt . "TEMPORAIRE";
             }
 
-echo $matr;
-
-
-
 
             if ($libmodepaie === "ESPECES") {
                 $mode =  $valModesp;
@@ -155,8 +151,6 @@ echo $matr;
                 $mode =  "CPT " . $valModecompt;
                 $modeDB = $valModecompt;
             }
-
-
 
             $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
             $files01 = $_FILES["file01"];
