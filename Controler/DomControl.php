@@ -76,7 +76,7 @@ class DomControl
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $AllMontant = $_POST['Alldepense'];
             $checkext = $_POST['radiochek'];
-
+            $usersession = $_SESSION['user'];
             //Interne
             $NomINt = $_POST['nomprenom'];
             $PrenomsINt = $_POST['prenom'];
@@ -92,7 +92,7 @@ class DomControl
             $serv = $_POST['LibServ']; //INF info 
             $codeserv = explode(" ", $serv);
             $Servi = strtolower(end($codeserv)); // INfo
-
+            $codeAg_serv = $Agence."-".$Servi;
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
