@@ -33,15 +33,36 @@
         var externe = document.getElementById('externe');
 
         var checkInterne = document.getElementById('radiochek').value;
-       if(checkInterne ==='Interne'){
-        externe.style.display = 'none';
-        Interne.style.display = 'block'
-       }else{
-        externe.style.display = 'block';
-        Interne.style.display = 'none';
-       }
+        if (checkInterne === 'Interne') {
+            externe.style.display = 'none';
+            Interne.style.display = 'block'
+        } else {
+            externe.style.display = 'block';
+            Interne.style.display = 'none';
+        }
     }
 </script>
+<?php
+$fichier = $_SERVER['DOCUMENT_ROOT'] . 'Hff_IntranetV01/Views/Acces/Agence.txt';
+
+foreach ($CodeServiceofCours as $code) :
+    $LibAgence = $code['nom_agence_i100'];
+    $LibServ = $code['nom_service_i100'];
+endforeach;
+$Agence = $LibAgence . " " . $LibServ;
+
+?>
+<style>
+    #chek {
+        <?php
+        if (strpos(file_get_contents($fichier), $Agence) !== false) {
+
+        } else {
+            echo 'display: none';
+        }
+        ?>
+    }
+</style>
 
 <body onload="visible(); Matricule();Interne_externe()">
     <div class="container">
@@ -84,7 +105,7 @@
                             <input type="text" name="AutreType" class="form-control" id="AutreType">
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" id="chek">
 
                         <div class="col">
                             <label for="AutreType" class="label-form" id="labAutre"> Salarié:</label>

@@ -76,6 +76,7 @@ class DomControl
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $AllMontant = $_POST['Alldepense'];
             $checkext = $_POST['radiochek'];
+
             //Interne
             $NomINt = $_POST['nomprenom'];
             $PrenomsINt = $_POST['prenom'];
@@ -91,18 +92,7 @@ class DomControl
             $serv = $_POST['LibServ']; //INF info 
             $codeserv = explode(" ", $serv);
             $Servi = strtolower(end($codeserv)); // INfo
-            if ($checkext === "Interne") {
-                $Nom =  $NomINt;
-                $Prenoms = $PrenomsINt;
-                $matr = $matrInt;
-            } else {
-                if ($Agence === "Rental" && $Servi === "Atelier") {
-                    $Nom = $Nomext ;
-                    $Prenoms = $PrenomExt ;
-                    $matr = "XER00".$MatrExt."TEMPORAIRE";
-                }
-            }
-            
+
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -137,6 +127,22 @@ class DomControl
             $valModesp = $_POST['valModesp'];
             $valModemob = $_POST['valModemob'];
             $valModecompt = $_POST['valModecompt'];
+
+            if ($checkext === "Interne") {
+                $Nom =  $NomINt;
+                $Prenoms = $PrenomsINt;
+                $matr = $matrInt;
+            } else {
+                $Nom = $Nomext;
+                $Prenoms = $PrenomExt;
+                $matr = "XER00" . $MatrExt . "TEMPORAIRE";
+            }
+
+echo $matr;
+
+
+
+
             if ($libmodepaie === "ESPECES") {
                 $mode =  $valModesp;
                 $modeDB = $valModesp;
@@ -149,6 +155,35 @@ class DomControl
                 $mode =  "CPT " . $valModecompt;
                 $modeDB = $valModecompt;
             }
+
+
+
+            $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
+            $files01 = $_FILES["file01"];
+            $file02 = $_FILES["file02"];
+
+            $filename01 = $files01['name'];
+            $filetemp01 = $files01['tmp_name'];
+            $filename_separator01 = explode('.', $filename01);
+            $file_extension01 = strtolower(end($filename_separator01));
+
+            $filename02 = $file02['name'];
+            $filetemp02 = $file02['tmp_name'];
+            $filename_separator02 = explode('.', $filename02);
+            $file_extension02 = strtolower(end($filename_separator02));
+
+
+            if (!empty($filename01)) {
+                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
+                move_uploaded_file($filetemp01, $Upload_file);
+            }
+            if (!empty($filename02)) {
+                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
+                move_uploaded_file($filetemp02, $Upload_file);
+            }
+
+
+            /*
             $this->DomModel->genererPDF(
                 $Devis,
                 $Prenoms,
@@ -189,7 +224,7 @@ class DomControl
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hff_IntranetV01/index.php?action=New_DOM";
-                </script>';
+                </script>';*/
         }
     }
 }

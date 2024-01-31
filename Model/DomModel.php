@@ -46,14 +46,15 @@ class DomModel
         return $Result_Num_DOM;
     }
     //TypeDOc 
-    public function getTypeDoc(){
+    public function getTypeDoc()
+    {
         $Sql_TypeDoc = "SELECT Code_Document,
                     Code_Sous_type 
                     FROM Sous_type_document
                     WHERE Code_Document = 'ORM' ";
         $execTypeDoc = $this->connexion->query($Sql_TypeDoc);
         $TypDoc = array();
-        while($TabTyp = odbc_fetch_array($execTypeDoc)){
+        while ($TabTyp = odbc_fetch_array($execTypeDoc)) {
             $TypDoc[] = $TabTyp;
         }
         return $TypDoc;
@@ -159,17 +160,17 @@ class DomModel
     }
 
     //Insert DOM 
-    public function InsertDom($NumDom, $dateS,$typMiss)
+    public function InsertDom($NumDom, $dateS, $typMiss)
     {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Autre_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
-                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom)
-                       VALUES('" . $NumDom . "','".$dateS."','ORM','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',
-                       '".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',
-                       '".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."','".$dateS."',)";
+                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2)
+                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "',
+                       '" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "',
+                       '" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "','" . $dateS . "',)";
     }
-
+    
     //pdf
     public function genererPDF(
         $Devis,

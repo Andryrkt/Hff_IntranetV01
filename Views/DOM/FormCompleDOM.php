@@ -147,10 +147,14 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
         }
     }
 </script>
+<style>
+    #radiochek {
 
+    }
+</style>
 <body onload="visible_espece(); visible();Interne_externe()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hff_IntranetV01/index.php?action=EnvoyerImprime" method="POST">
+        <form action="/Hff_IntranetV01/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
@@ -183,7 +187,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
                 </div>
             </div>
 
-            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
+            <input type="text" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
             <div class="row" id="Interne">
                 <div class="col">
                     <label for="matricule" class="label-form"> Matricule</label>
