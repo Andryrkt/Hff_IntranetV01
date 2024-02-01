@@ -172,7 +172,7 @@ class DomModel
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
                        '" . $Nom . "','" . $Prenoms . "''" . $Devis . "''" . $filename01 . "''" . $filename02 . "')";
-        $excec8insertDOM = $this->connexion->query($Insert_DOM);
+        $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
     
     //pdf
