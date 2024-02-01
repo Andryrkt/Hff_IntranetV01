@@ -94,7 +94,8 @@ class DomControl
             $codeserv = explode(" ", $serv);
             $Code_Servi = strtolower(current($codeserv)); // INF
             $Servi = strtolower(end($codeserv)); // INfo
-            $codeAg_serv = $code_Agence . "-" . $Code_Servi;
+            $codeAg_serv = $code_Agence . "-" . $Code_Servi; //80-INF
+            $LibelleCodeAg_Serv = $Agence."-".$Servi;
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -247,7 +248,8 @@ class DomControl
                 $Devis,
                 $filename01,
                 $filename02,
-                $usersession
+                $usersession,
+               $LibelleCodeAg_Serv
             );
           
             echo '<script type="text/javascript">
@@ -267,5 +269,7 @@ class DomControl
 
         $UserConnect = $_SESSION['user'];
         include 'Views/Principe.php';
+        $ListDom = $this->DomModel->getListDom();
+        include 'Views/DOM/ListDom.php';
     }
 }

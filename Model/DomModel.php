@@ -160,26 +160,84 @@ class DomModel
     }
 
     //Insert DOM 
-    public function InsertDom($NumDom, $dateS, $typMiss, $autrTyp, $matr, $usersession, $codeAg_serv,$DateDebut,$heureD,$DateFin,$heureF,$NbJ,
- $motif,$Client, $lieu,$vehicule,$idemn,$totalIdemn,$motifdep01,$montdep01,$motifdep02,$montdep02,$motifdep03,$montdep03, $totaldep,$AllMontant,$modeDB,
- $valModemob,$Nom,$Prenoms,$Devis,$filename01,$filename02,$usersessionCre)
-    {
+    public function InsertDom(
+        $NumDom,
+        $dateS,
+        $typMiss,
+        $autrTyp,
+        $matr,
+        $usersession,
+        $codeAg_serv,
+        $DateDebut,
+        $heureD,
+        $DateFin,
+        $heureF,
+        $NbJ,
+        $motif,
+        $Client,
+        $lieu,
+        $vehicule,
+        $idemn,
+        $totalIdemn,
+        $motifdep01,
+        $montdep01,
+        $motifdep02,
+        $montdep02,
+        $motifdep03,
+        $montdep03,
+        $totaldep,
+        $AllMontant,
+        $modeDB,
+        $valModemob,
+        $Nom,
+        $Prenoms,
+        $Devis,
+        $filename01,
+        $filename02,
+        $usersessionCre,
+        $LibCodeAg_serv
+    ) {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Autre_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
-                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation)
+                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service)
                        VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $autrTyp . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
-                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','".$usersession ."')";
+                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
-    public function getListDom(){
-        $ListDom = "SELECT 
-                    ";
+    public function getListDom()
+    {
+        $ListDOM= "SELECT  ID_Demande_Ordre_Mission,
+                            LibelleCodeAgence_Service, 
+                            Nom_Session_Utilisateur,
+                            Numero_Ordre_Mission,
+                            Type_Document,
+                            Sous_type_document,
+                            Matricule, 
+                            Date_Demande, 
+                            Nombre_Jour, 
+                            Date_Debut, 
+                            Date_Fin, 
+                            Motif_Deplacement,
+                            Client, 
+                            Lieu_Intervention,
+                            Devis,
+                            Statut_demande.Description as Statut
+                    FROM Demande_ordre_mission, Statut_demande
+                    WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                    ORDER BY ID_Demande_Ordre_Mission DESC";
+        $exec_ListDOM = $this->connexion->query($ListDOM);
+        $DomList = array();
+        while($row_ListDom = odbc_fetch_array($exec_ListDOM)){
+            $DomList[] = $row_ListDom;
+        }
+        return $DomList;
+
     }
-    
+
     //pdf
     public function genererPDF(
         $Devis,
@@ -297,7 +355,7 @@ class DomModel
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
         $pdf->Output($Dossier . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf', 'F');
 
-        
+
 
         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
