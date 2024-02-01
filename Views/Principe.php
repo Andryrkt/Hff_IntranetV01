@@ -42,7 +42,7 @@
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="#">Liste des demandes d'Ordre</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
 
                         </ul>
                     </li>

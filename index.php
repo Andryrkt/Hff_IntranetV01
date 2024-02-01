@@ -83,6 +83,9 @@ switch ($action) {
     case 'New_DOM':
         $ControlDOM->showFormDOM();
         break;
+    case 'ListDom':
+        $ControlDOM->ShowListDom();
+        break;    
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
         break;

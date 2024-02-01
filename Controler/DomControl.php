@@ -88,11 +88,13 @@ class DomControl
             //
             $Code_serv = $_POST['Serv']; //80 Admin
             $code = explode(" ", $Code_serv);
+            $code_Agence = strtolower(current($code)); //80 
             $Agence = strtolower(end($code)); // Admin
             $serv = $_POST['LibServ']; //INF info 
             $codeserv = explode(" ", $serv);
+            $Code_Servi = strtolower(current($codeserv)); // INF
             $Servi = strtolower(end($codeserv)); // INfo
-            $codeAg_serv = $Agence."-".$Servi;
+            $codeAg_serv = $code_Agence . "-" . $Code_Servi;
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -176,8 +178,6 @@ class DomControl
                 move_uploaded_file($filetemp02, $Upload_file);
             }
 
-
-            /*
             $this->DomModel->genererPDF(
                 $Devis,
                 $Prenoms,
@@ -213,12 +213,59 @@ class DomControl
                 $libmodepaie,
                 $mode
             );
-            $insertToDOM = $this->DomModel;
-            // echo "ok ";
+            $this->DomModel->InsertDom(
+                $NumDom,
+                $dateSystem,
+                $typMiss,
+                $autrTyp,
+                $matr,
+                $usersession,
+                $codeAg_serv,
+                $DateDebut,
+                $heureD,
+                $DateFin,
+                $heureF,
+                $NbJ,
+                $motif,
+                $Client,
+                $lieu,
+                $vehicule,
+                $idemn,
+                $totalIdemn,
+                $motifdep01,
+                $montdep01,
+                $motifdep02,
+                $montdep02,
+                $motifdep03,
+                $montdep03,
+                $totaldep,
+                $AllMontant,
+                $modeDB,
+                $valModemob,
+                $Nom,
+                $Prenoms,
+                $Devis,
+                $filename01,
+                $filename02,
+                $usersession
+            );
+          
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
-                document.location.href = "/Hff_IntranetV01/index.php?action=New_DOM";
-                </script>';*/
+                document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
+                </script>';
         }
+    }
+    public function ShowListDom()
+    {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+
+        $UserConnect = $_SESSION['user'];
+        include 'Views/Principe.php';
     }
 }

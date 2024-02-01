@@ -183,7 +183,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
                 </div>
             </div>
 
-            <input type="text" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
+            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
             <div class="row" id="Interne">
                 <div class="col">
                     <label for="matricule" class="label-form"> Matricule</label>
