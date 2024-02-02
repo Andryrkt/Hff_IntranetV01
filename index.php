@@ -104,6 +104,9 @@ switch ($action) {
         break;   
      case 'MoveStatut':
            $ControlStatut->MoveStatut();
+     case 'Fusion':
+        $ControlDOM->ExecFusion();
+        break;      
     default:
         include 'Views/SignIn.php';
 }

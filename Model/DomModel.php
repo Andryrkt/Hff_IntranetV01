@@ -1,6 +1,9 @@
 <?php
 
+use setasign\Fpdi\Tcpdf\Fpdi;
+
 require_once('TCPDF-main/tcpdf.php');
+require_once('FPDI-2.6.0/src/autoload.php');
 class DomModel
 {
     private $connexion;
@@ -210,7 +213,7 @@ class DomModel
 
     public function getListDom()
     {
-        $ListDOM= "SELECT  ID_Demande_Ordre_Mission,
+        $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
                             LibelleCodeAgence_Service, 
                             Nom_Session_Utilisateur,
                             Numero_Ordre_Mission,
@@ -231,11 +234,10 @@ class DomModel
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
-        while($row_ListDom = odbc_fetch_array($exec_ListDOM)){
+        while ($row_ListDom = odbc_fetch_array($exec_ListDOM)) {
             $DomList[] = $row_ListDom;
         }
         return $DomList;
-
     }
 
     //pdf
@@ -358,12 +360,31 @@ class DomModel
 
 
         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-       //$cheminFichierDistant = 'C:\xampp\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+        //$cheminFichierDistant = 'C:\xampp\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
         } else {
             echo "sorry";
         }
+    }
+    public function genererFusion()
+    {
+        $pdf01 = new Fpdi();
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/DOM24020006_XER00101 214 582 056TEMPORAIRE_80 Administration.pdf';
+        $pdf01->setSourceFile($chemin01);
+        $templateId = $pdf01->importPage(1);
+        $pdf01->addPage();
+        $pdf01->useTemplate($templateId);
+
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/TEST_DEVIS_1607AEK23 SAHANALA TNR MXT TNR.pdf';
+        // Ajouter le deuxième fichier PDF
+        $pdf01->setSourceFile($chemin02);
+        $templateId = $pdf01->importPage(1);
+        $pdf01->addPage();
+        $pdf01->useTemplate($templateId);
+
+        // Sauvegarder le PDF fusionné
+        $pdf01->Output( $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/fusion_test.pdf', 'F');
     }
 }

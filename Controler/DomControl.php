@@ -291,4 +291,18 @@ class DomControl
         $ListDom = $this->DomModel->getListDom();
         include 'Views/DOM/ListDom.php';
     }
+    public function ExecFusion(){
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+
+        $this->DomModel->genererFusion();
+        echo '<script type="text/javascript">
+        alert("DOM FUSION");
+        document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
+        </script>';
+    }
 }

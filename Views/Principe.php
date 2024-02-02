@@ -50,7 +50,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Intervention</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouvelle Demande d'Intervention</a></li>
+                            <li><a class="dropdown-item" href="#">Nouvelle Demande d'Intervention</a></li>
                             <li><a class="dropdown-item" href="#">Liste des demandes d'Intervention </a></li>
 
                         </ul>
@@ -59,7 +59,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Appro</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouvelle Demande d'Appro</a></li>
+                            <li><a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a></li>
                             <li><a class="dropdown-item" href="#">Liste des demandes d'Appro</a></li>
 
                         </ul>
@@ -68,7 +68,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Support Info</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=#">Nouveau Support</a></li>
+                            <li><a class="dropdown-item" href="#">Nouveau Support</a></li>
                             <li><a class="dropdown-item" href="#">Liste de Support </a></li>
 
                         </ul>
@@ -79,7 +79,7 @@
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
-                            <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Fusion" id="Setting">paramètre</a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
