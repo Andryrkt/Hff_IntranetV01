@@ -41,18 +41,21 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             document.getElementById('modecompte').style.display = "none";
             document.getElementById('modeespece').style.display = "block";
             document.getElementById('labelMode').innerHTML = "ESPECES";
+            document.getElementById('labelMode01').innerHTML = "ESPECES";
         }
         if (mode === "MOBILE MONEY") {
             document.getElementById('modeMob').style.display = "block";
             document.getElementById('modeespece').style.display = "none";
             document.getElementById('modecompte').style.display = 'none';
             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
+            document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
         }
         if (mode === "VIREMENT BANCAIRE") {
             document.getElementById('modeespece').style.display = "none";
             document.getElementById('modeMob').style.display = "none";
             document.getElementById('modecompte').style.display = "block";
             document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
+            document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
         }
 
     }
@@ -134,16 +137,23 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
         var Pj = document.getElementById('PJ');
         var labelPj = document.getElementById('label_PJ');
         var checkInterne = document.getElementById('radiochek').value;
+        var OptInt = document.getElementById('OpInter');
+        var OptExt = document.getElementById('OpExter');
+
         if (checkInterne === 'Interne') {
             externe.style.display = 'none';
             Interne.style.display = 'block'
             Pj.style.display = 'none';
             labelPj.style.display = 'none';
+            OptInt.style.display = 'block';
+            OptExt.style.display = 'none';
         } else {
             externe.style.display = 'block';
             Interne.style.display = 'none';
             Pj.style.display = 'Block';
             labelPj.style.display = 'Block';
+            OptInt.style.display = 'none';
+            OptExt.style.display = 'Block';
         }
     }
 </script>
@@ -203,15 +213,15 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             <div class="row" id="externe">
                 <div class="col">
                     <label for="namesExt" class="label-form"> Nom</label>
-                    <input type="text" name="namesExt" id="namesExt" class="form-control" value="<?php echo $nomExt?>">
+                    <input type="text" name="namesExt" id="namesExt" class="form-control" value="<?php echo $nomExt ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="firstnamesExt" class="label-form"> Prénoms</label>
-                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" value="<?php echo $prenomExt?>">
+                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" value="<?php echo $prenomExt ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="cin" class="label-form"> CIN</label>
-                    <input type="text" name="cin" id="cin" class="form-control" value="<?php echo $CINext?>">
+                    <input type="text" name="cin" id="cin" class="form-control" value="<?php echo $CINext ?>" readonly>
                 </div>
             </div>
 
@@ -279,7 +289,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="Devis" class="label-form">Devis:</label>
+                    <label for="Devis" class="label-form">Devise:</label>
 
                     <select name="Devis" id="Devis" class="form-select">
                         <option value="MGA">MGA</option>
@@ -347,19 +357,23 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme()">
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()">
                         <option value="ESPECES">ESPECES</option>
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col" id="OpInter">
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
                     <input type="text" name="valModesp" id="modeespece" class="form-control">
                     <?php foreach ($Compte as $Compte) : ?>
                         <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">
                     <?php endforeach ?>
+                </div>
+                <div class="col" id="OpExter">
+                    <label for="modeesp" class="label-form" id="labelMode01"> Mode</label>
+                    <input type="text" name="valModespExt" id="modeExt" class="form-control">
                 </div>
             </div>
 
@@ -381,7 +395,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
                     inputFields("", "file02", "file02", "", "file");
                     ?>
                 </div>
-               
+
             </div>
             <div class="row">
                 <div class="mt-2 ">

@@ -110,7 +110,7 @@ $Agence = $LibAgence . " " . $LibServ;
                         <div class="col">
                             <label for="AutreType" class="label-form" id="labAutre"> Salarié:</label>
                             <select name="radiochek" id="radiochek" class="form-select " style="text-align: right;" onchange="Interne_externe()">
-                                <option value="Interne">Interne</option>
+                                <option value="Interne">Permanent</option>
                                 <option value="Externe">Temporaire</option>
                             </select>
                         </div>

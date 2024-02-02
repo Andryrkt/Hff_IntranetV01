@@ -95,7 +95,7 @@ class DomControl
             $Code_Servi = strtolower(current($codeserv)); // INF
             $Servi = strtolower(end($codeserv)); // INfo
             $codeAg_serv = $code_Agence . "-" . $Code_Servi; //80-INF
-            $LibelleCodeAg_Serv = $Agence."-".$Servi;
+            $LibelleCodeAg_Serv = $Agence . "-" . $Servi;
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -111,60 +111,79 @@ class DomControl
             $dateF = date("d/m/Y", strtotime($DateFin));
             $heureF = $_POST['heureFin'];
             $NbJ = $_POST['Nbjour'];
-            $motif = $_POST['motif'];
-            $Client = $_POST['client'];
+            $motif =  str_replace("'", "''", $_POST['motif']);
+
+            $Client = str_replace("'", "''", $_POST['client']);
             $fiche = $_POST['fiche'];
-            $lieu = $_POST['lieuInterv'];
+            $lieu = str_replace("'", "''", $_POST['lieuInterv']);
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];
             $idemn = $_POST['idemForfait'];
             $totalIdemn = $_POST['TotalidemForfait'];
-            $motifdep01 = $_POST['MotifAutredep'];
+            $motifdep01 = str_replace("'", "''", $_POST['MotifAutredep']);
             $montdep01 = $_POST['Autredep1'];
-            $motifdep02 = $_POST['MotifAutredep2'];
+            $motifdep02 = str_replace("'", "''", $_POST['MotifAutredep2']);
             $montdep02 = $_POST['Autredep2'];
-            $motifdep03 = $_POST['MotifAutredep3'];
+            $motifdep03 = str_replace("'", "''", $_POST['MotifAutredep3']);
             $montdep03 = $_POST['Autredep3'];
             $totaldep = $_POST['TotalAutredep'];
             $libmodepaie = $_POST['modepaie'];
             $valModesp = $_POST['valModesp'];
             $valModemob = $_POST['valModemob'];
             $valModecompt = $_POST['valModecompt'];
-
+            $valModeExt = $_POST['valModespExt'];
             if ($checkext === "Interne") {
                 $Nom =  $NomINt;
                 $Prenoms = $PrenomsINt;
                 $matr = $matrInt;
+
+
+                if ($libmodepaie === "ESPECES") {
+                    $mode =  $valModesp;
+                    $modeDB = $valModesp;
+                }
+                if ($libmodepaie === "MOBILE MONEY") {
+                    $mode =  "TEL " . $valModemob;
+                    $modeDB = $valModemob;
+                }
+                if ($libmodepaie === "VIREMENT BANCAIRE") {
+                    $mode =  "CPT " . $valModecompt;
+                    $modeDB = $valModecompt;
+                }
+
             } else {
                 $Nom = $Nomext;
                 $Prenoms = $PrenomExt;
                 $matr = "XER00" . $MatrExt . "TEMPORAIRE";
+
+                if ($libmodepaie === "ESPECES") {
+                    $mode =  $valModeExt;
+                    $modeDB = $valModeExt;
+                }
+                if ($libmodepaie === "MOBILE MONEY") {
+                    $mode =  "TEL " . $valModeExt;
+                    $modeDB = $valModeExt;
+                }
+                if ($libmodepaie === "VIREMENT BANCAIRE") {
+                    $mode =  "CPT " . $valModeExt;
+                    $modeDB = $valModeExt;
+                }
+    
             }
 
 
-            if ($libmodepaie === "ESPECES") {
-                $mode =  $valModesp;
-                $modeDB = $valModesp;
-            }
-            if ($libmodepaie === "MOBILE MONEY") {
-                $mode =  "TEL " . $valModemob;
-                $modeDB = $valModemob;
-            }
-            if ($libmodepaie === "VIREMENT BANCAIRE") {
-                $mode =  "CPT " . $valModecompt;
-                $modeDB = $valModecompt;
-            }
+
 
             $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
             $files01 = $_FILES["file01"];
             $file02 = $_FILES["file02"];
 
-            $filename01 = $files01['name'];
+            $filename01 = str_replace("'", "''", $files01['name']);
             $filetemp01 = $files01['tmp_name'];
             $filename_separator01 = explode('.', $filename01);
             $file_extension01 = strtolower(end($filename_separator01));
 
-            $filename02 = $file02['name'];
+            $filename02 = str_replace("'", "''", $file02['name']);
             $filetemp02 = $file02['tmp_name'];
             $filename_separator02 = explode('.', $filename02);
             $file_extension02 = strtolower(end($filename_separator02));
@@ -249,9 +268,9 @@ class DomControl
                 $filename01,
                 $filename02,
                 $usersession,
-               $LibelleCodeAg_Serv
+                $LibelleCodeAg_Serv
             );
-          
+
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";

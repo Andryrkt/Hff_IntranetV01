@@ -357,8 +357,8 @@ class DomModel
 
 
 
-       // $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-       $cheminFichierDistant = 'C:\xampp\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+       //$cheminFichierDistant = 'C:\xampp\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
