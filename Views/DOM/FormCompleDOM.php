@@ -164,7 +164,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
-                    <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>">
+                    <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="datesyst" class="label-form"> Date</label>
@@ -174,17 +174,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="Serv" class="label-form">Code :</label>
-                    <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>">
+                    <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>">
+                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="typeMission" class="label-form"> Type de Mission</label>
-                    <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" />
+                    <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" readonly />
 
                 </div>
                 <div class="col">

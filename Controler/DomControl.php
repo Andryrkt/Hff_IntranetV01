@@ -132,6 +132,24 @@ class DomControl
             $valModemob = $_POST['valModemob'];
             $valModecompt = $_POST['valModecompt'];
             $valModeExt = $_POST['valModespExt'];
+
+            // FJ
+            $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
+            $files01 = $_FILES["file01"];
+            $file02 = $_FILES["file02"];
+
+            $filename01 = str_replace("'", "''", $files01['name']);
+            $filetemp01 = $files01['tmp_name'];
+            $filename_separator01 = explode('.', $filename01);
+            $file_extension01 = strtolower(end($filename_separator01));
+
+            $filename02 = str_replace("'", "''", $file02['name']);
+            $filetemp02 = $file02['tmp_name'];
+            $filename_separator02 = explode('.', $filename02);
+            $file_extension02 = strtolower(end($filename_separator02));
+
+
+          
             if ($checkext === "Interne") {
                 $Nom =  $NomINt;
                 $Prenoms = $PrenomsINt;
@@ -151,6 +169,79 @@ class DomControl
                     $modeDB = $valModecompt;
                 }
 
+                //exce
+                $this->DomModel->genererPDF(
+                    $Devis,
+                    $Prenoms,
+                    $AllMontant,
+                    $Code_serv,
+                    $dateS,
+                    $NumDom,
+                    $serv,
+                    $matr,
+                    $typMiss,
+                    $autrTyp,
+                    $Nom,
+                    $NbJ,
+                    $dateD,
+                    $heureD,
+                    $dateF,
+                    $heureF,
+                    $motif,
+                    $Client,
+                    $fiche,
+                    $lieu,
+                    $vehicule,
+                    $numvehicul,
+                    $idemn,
+                    $totalIdemn,
+                    $motifdep01,
+                    $montdep01,
+                    $motifdep02,
+                    $montdep02,
+                    $motifdep03,
+                    $montdep03,
+                    $totaldep,
+                    $libmodepaie,
+                    $mode
+                );
+                $this->DomModel->InsertDom(
+                    $NumDom,
+                    $dateSystem,
+                    $typMiss,
+                    $autrTyp,
+                    $matr,
+                    $usersession,
+                    $codeAg_serv,
+                    $DateDebut,
+                    $heureD,
+                    $DateFin,
+                    $heureF,
+                    $NbJ,
+                    $motif,
+                    $Client,
+                    $lieu,
+                    $vehicule,
+                    $idemn,
+                    $totalIdemn,
+                    $motifdep01,
+                    $montdep01,
+                    $motifdep02,
+                    $montdep02,
+                    $motifdep03,
+                    $montdep03,
+                    $totaldep,
+                    $AllMontant,
+                    $modeDB,
+                    $valModemob,
+                    $Nom,
+                    $Prenoms,
+                    $Devis,
+                    $filename01,
+                    $filename02,
+                    $usersession,
+                    $LibelleCodeAg_Serv
+                );
             } else {
                 $Nom = $Nomext;
                 $Prenoms = $PrenomExt;
@@ -168,108 +259,104 @@ class DomControl
                     $mode =  "CPT " . $valModeExt;
                     $modeDB = $valModeExt;
                 }
-    
+
+              
+                 //exce
+                 $this->DomModel->genererPDF(
+                    $Devis,
+                    $Prenoms,
+                    $AllMontant,
+                    $Code_serv,
+                    $dateS,
+                    $NumDom,
+                    $serv,
+                    $matr,
+                    $typMiss,
+                    $autrTyp,
+                    $Nom,
+                    $NbJ,
+                    $dateD,
+                    $heureD,
+                    $dateF,
+                    $heureF,
+                    $motif,
+                    $Client,
+                    $fiche,
+                    $lieu,
+                    $vehicule,
+                    $numvehicul,
+                    $idemn,
+                    $totalIdemn,
+                    $motifdep01,
+                    $montdep01,
+                    $motifdep02,
+                    $montdep02,
+                    $motifdep03,
+                    $montdep03,
+                    $totaldep,
+                    $libmodepaie,
+                    $mode
+                );
+                $this->DomModel->InsertDom(
+                    $NumDom,
+                    $dateSystem,
+                    $typMiss,
+                    $autrTyp,
+                    $matr,
+                    $usersession,
+                    $codeAg_serv,
+                    $DateDebut,
+                    $heureD,
+                    $DateFin,
+                    $heureF,
+                    $NbJ,
+                    $motif,
+                    $Client,
+                    $lieu,
+                    $vehicule,
+                    $idemn,
+                    $totalIdemn,
+                    $motifdep01,
+                    $montdep01,
+                    $motifdep02,
+                    $montdep02,
+                    $motifdep03,
+                    $montdep03,
+                    $totaldep,
+                    $AllMontant,
+                    $modeDB,
+                    $valModemob,
+                    $Nom,
+                    $Prenoms,
+                    $Devis,
+                    $filename01,
+                    $filename02,
+                    $usersession,
+                    $LibelleCodeAg_Serv
+                );
+                if (!empty($filename01)) {
+                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
+                    move_uploaded_file($filetemp01, $Upload_file);
+                    $FichierDom = $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+                    
+                    $this->DomModel->genererFusion($FichierDom,$filename01);
+                }
+                if (!empty($filename02)) {
+                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
+                    move_uploaded_file($filetemp02, $Upload_file);
+                    $FichierDom = $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+                    $this->DomModel->genererFusion($FichierDom,$filename02);
+                }
+
+
             }
 
 
 
 
-            $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
-            $files01 = $_FILES["file01"];
-            $file02 = $_FILES["file02"];
-
-            $filename01 = str_replace("'", "''", $files01['name']);
-            $filetemp01 = $files01['tmp_name'];
-            $filename_separator01 = explode('.', $filename01);
-            $file_extension01 = strtolower(end($filename_separator01));
-
-            $filename02 = str_replace("'", "''", $file02['name']);
-            $filetemp02 = $file02['tmp_name'];
-            $filename_separator02 = explode('.', $filename02);
-            $file_extension02 = strtolower(end($filename_separator02));
 
 
-            if (!empty($filename01)) {
-                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
-                move_uploaded_file($filetemp01, $Upload_file);
-            }
-            if (!empty($filename02)) {
-                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
-                move_uploaded_file($filetemp02, $Upload_file);
-            }
 
-            $this->DomModel->genererPDF(
-                $Devis,
-                $Prenoms,
-                $AllMontant,
-                $Code_serv,
-                $dateS,
-                $NumDom,
-                $serv,
-                $matr,
-                $typMiss,
-                $autrTyp,
-                $Nom,
-                $NbJ,
-                $dateD,
-                $heureD,
-                $dateF,
-                $heureF,
-                $motif,
-                $Client,
-                $fiche,
-                $lieu,
-                $vehicule,
-                $numvehicul,
-                $idemn,
-                $totalIdemn,
-                $motifdep01,
-                $montdep01,
-                $motifdep02,
-                $montdep02,
-                $motifdep03,
-                $montdep03,
-                $totaldep,
-                $libmodepaie,
-                $mode
-            );
-            $this->DomModel->InsertDom(
-                $NumDom,
-                $dateSystem,
-                $typMiss,
-                $autrTyp,
-                $matr,
-                $usersession,
-                $codeAg_serv,
-                $DateDebut,
-                $heureD,
-                $DateFin,
-                $heureF,
-                $NbJ,
-                $motif,
-                $Client,
-                $lieu,
-                $vehicule,
-                $idemn,
-                $totalIdemn,
-                $motifdep01,
-                $montdep01,
-                $motifdep02,
-                $montdep02,
-                $motifdep03,
-                $montdep03,
-                $totaldep,
-                $AllMontant,
-                $modeDB,
-                $valModemob,
-                $Nom,
-                $Prenoms,
-                $Devis,
-                $filename01,
-                $filename02,
-                $usersession,
-                $LibelleCodeAg_Serv
-            );
 
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
@@ -291,7 +378,8 @@ class DomControl
         $ListDom = $this->DomModel->getListDom();
         include 'Views/DOM/ListDom.php';
     }
-    public function ExecFusion(){
+   /* public function ExecFusion()
+    {
         session_start();
         if (empty($_SESSION['user'])) {
             header("Location:/Hff_IntranetV01/index.php?action=Logout");
@@ -304,5 +392,5 @@ class DomControl
         alert("DOM FUSION");
         document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
         </script>';
-    }
+    }*/
 }

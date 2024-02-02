@@ -228,7 +228,8 @@ class DomModel
                             Client, 
                             Lieu_Intervention,
                             Devis,
-                            Statut_demande.Description as Statut
+                            Statut_demande.Description as Statut,
+
                     FROM Demande_ordre_mission, Statut_demande
                     WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
                     ORDER BY ID_Demande_Ordre_Mission DESC";
@@ -368,16 +369,16 @@ class DomModel
             echo "sorry";
         }
     }
-    public function genererFusion()
+    public function genererFusion($FichierDom, $FichierAttache)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/DOM24020006_XER00101 214 582 056TEMPORAIRE_80 Administration.pdf';
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/'.$FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/TEST_DEVIS_1607AEK23 SAHANALA TNR MXT TNR.pdf';
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/'.$FichierAttache;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);
@@ -385,6 +386,6 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        $pdf01->Output( $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/fusion_test.pdf', 'F');
+        $pdf01->Output( $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Fusion/'.$FichierDom.'.pdf', 'F');
     }
 }
