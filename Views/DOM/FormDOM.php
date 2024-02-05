@@ -69,7 +69,7 @@ $Agence = $LibAgence . " " . $LibServ;
         <div class="card">
             <div class="card-body">
                 <div class="col" style="text-align: right;font-weight: bold;">
-                    <h4>Demande d'Orde de Mission</h4>
+                    <h4>Demande d'Ordre de Mission</h4>
                 </div>
                 <form method="POST" action="/Hff_IntranetV01/index.php?action=checkMatricule">
                     <div class="row">
@@ -87,7 +87,7 @@ $Agence = $LibAgence . " " . $LibServ;
                         </div>
                         <div class="col">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['service_ips'] . " " . $CodeServiceofCours['nom_service_i100'] ?>" readonly>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['service_ips'] . " " . iconv('Windows-1252', 'UTF-8',$CodeServiceofCours['nom_service_i100']) ?>" readonly>
                         </div>
                     <?php endforeach; ?>
                     </div>
