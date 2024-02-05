@@ -122,8 +122,7 @@ class DomModel
     public function getInfoUserMservice($ServiceofCours)
     {
         $QueryService = "SELECT  Matricule,
-                        Nom,
-                        Prenoms
+                        Nom+' '+Prenoms as Nom
                         FROM Personnel 
                         WHERE Code_AgenceService_Sage = '" . $ServiceofCours . "' ";
         $execService = $this->connexion->query($QueryService);

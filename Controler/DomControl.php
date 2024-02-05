@@ -245,7 +245,7 @@ class DomControl
             } else {
                 $Nom = $Nomext;
                 $Prenoms = $PrenomExt;
-                $matr = "XER00" . $MatrExt . "TEMPORAIRE";
+                $matr = "XER00" . $MatrExt . " - TEMPORAIRE";
 
                 if ($libmodepaie === "ESPECES") {
                     $mode =  $valModeExt;
@@ -350,12 +350,6 @@ class DomControl
 
 
             }
-
-
-
-
-
-
 
 
             echo '<script type="text/javascript">

@@ -118,7 +118,7 @@ $Agence = $LibAgence . " " . $LibServ;
                     </div>
                     <div class="row" id="Interne">
                         <div class="col">
-                            <label for="Nomprenoms" class="label-form"> Nom - Matricule</label>
+                            <label for="Nomprenoms" class="label-form"> Nom et Matricule</label>
                             <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
                                 <?php foreach ($PersonelServOfCours as $PersonelServOfCours) : ?>
                                     <option value="<?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?>"> <?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?></option>
