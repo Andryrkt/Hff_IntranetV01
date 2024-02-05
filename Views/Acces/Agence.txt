@@ -1,2 +1,3 @@
-Rental Atelier
-Administration Informatique
+Rental ATE
+Administration UMP
+Administration INF

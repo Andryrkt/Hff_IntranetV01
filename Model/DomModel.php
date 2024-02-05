@@ -89,6 +89,7 @@ class DomModel
         $exec_Sql_Agence = $this->connexion->query($sql_Agence);
         return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
     }
+
     public function getAgenceServiceIriumofcours($CodeAgenceSage, $Userconnect)
     {
         $sqlAgence_Service_Irim = "SELECT  agence_ips, 
@@ -119,6 +120,16 @@ class DomModel
         $excServofCours = $this->connexion->query($serviceofcours);
         return $excServofCours ? odbc_fetch_array($excServofCours)['Code_AgenceService_Sage'] : false;
     }
+    // libel Agence Service 
+   public function getLibeleAgence_Service($CodeAgenceSage){
+    $LibelServ = " SELECT nom_agence_i100 + '-'+  nom_service_i100 as LibAgenceService
+                        
+                  FROM Agence_Service_Irium 
+                WHERE service_sage_paie = '".$CodeAgenceSage."' ";
+   $execLibserv = $this->connexion->query($LibelServ);
+   return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;            
+   }
+
     public function getInfoUserMservice($ServiceofCours)
     {
         $QueryService = "SELECT  Matricule,
@@ -210,7 +221,7 @@ class DomModel
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
-    public function getListDom()
+    public function getListDom($LibServofCours)
     {
         $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
                             LibelleCodeAgence_Service, 
@@ -228,9 +239,10 @@ class DomModel
                             Lieu_Intervention,
                             Devis,
                             Statut_demande.Description as Statut,
-
+                            Total_General_Payer
                     FROM Demande_ordre_mission, Statut_demande
                     WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                    AND Demande_ordre_mission.LibelleCodeAgence_Service = LOWER('".$LibServofCours."')
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
@@ -239,6 +251,8 @@ class DomModel
         }
         return $DomList;
     }
+
+
 
     //pdf
     public function genererPDF(
@@ -359,8 +373,8 @@ class DomModel
 
 
 
-        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-        //$cheminFichierDistant = 'C:\xampp\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+        //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+         $cheminFichierDistant = 'C:\DOCUWARE\\ORDRE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
@@ -371,13 +385,13 @@ class DomModel
     public function genererFusion($FichierDom, $FichierAttache)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/'.$FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/'.$FichierAttache;
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/' . $FichierAttache;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);
@@ -385,6 +399,7 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        $pdf01->Output( $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Fusion/'.$FichierDom.'.pdf', 'F');
+       //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Fusion/' . $FichierDom . '.pdf', 'F');
+       $pdf01->Output('C:\DOCUWARE\\ORDRE DE MISSION\\' . $FichierDom . '.pdf', 'F');
     }
 }

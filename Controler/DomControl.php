@@ -368,8 +368,10 @@ class DomControl
         }
 
         $UserConnect = $_SESSION['user'];
+        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
         include 'Views/Principe.php';
-        $ListDom = $this->DomModel->getListDom();
+        $ListDom = $this->DomModel->getListDom($LibServofCours);
         include 'Views/DOM/ListDom.php';
     }
    /* public function ExecFusion()

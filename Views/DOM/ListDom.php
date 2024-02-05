@@ -8,7 +8,7 @@
 </head>
 
 <body>
-
+   
     <table class=" table">
         <thead class="table-dark">
             <tr>
@@ -28,13 +28,14 @@
                 <th style="text-align: center;">Client </th>
                 <th style="text-align: center;">Lieu d'intervention</th>
                 <th style="text-align: center;">Montant à payer</th>
+                <th style="text-align: center;">Devise</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($ListDom as $ListDom) : ?>
+            <?php   foreach ($ListDom as $ListDom) : ?>
                 <tr>
                     <td><?php echo $ListDom['ID_Demande_Ordre_Mission'] ?></td>
-                    <td><?php echo $ListDom['LibelleCodeAgence_Service'] ?></td>
+                    <td><?php echo iconv('Windows-1252', 'UTF-8',  $ListDom['LibelleCodeAgence_Service']) ?></td>
                     <td><?php echo $ListDom['Nom_Session_Utilisateur'] ?></td>
                     <td><?php echo $ListDom['Type_Document'] ?></td>
                     <td><?php echo $ListDom['Sous_type_document'] ?></td>
@@ -57,6 +58,7 @@
                     <td><?php echo $ListDom['Motif_Deplacement'] ?></td>
                     <td><?php echo $ListDom['Client'] ?></td>
                     <td><?php echo $ListDom['Lieu_Intervention'] ?></td>
+                    <td><?php echo $ListDom['Total_General_Payer'] ?></td>
                     <td><?php echo $ListDom['Devis'] ?></td>
                 </tr>
             <?php endforeach; ?>

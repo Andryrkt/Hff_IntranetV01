@@ -47,7 +47,7 @@ $fichier = $_SERVER['DOCUMENT_ROOT'] . 'Hff_IntranetV01/Views/Acces/Agence.txt';
 
 foreach ($CodeServiceofCours as $code) :
     $LibAgence = $code['nom_agence_i100'];
-    $LibServ = $code['nom_service_i100'];
+    $LibServ = $code['service_ips'];
 endforeach;
 $Agence = $LibAgence . " " . $LibServ;
 
