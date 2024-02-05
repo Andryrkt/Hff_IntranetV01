@@ -112,12 +112,12 @@ class DomModel
     public function getserviceofcours($Usernames)
     {
         $serviceofcours = "SELECT 
-                                Code_Service_Agence_IRIUM
+                                Code_AgenceService_Sage
                                 FROM Personnel, Profil_User 
                                 WHERE Personnel.Matricule = Profil_User.Matricule
                                 AND Profil_User.utilisateur = '" . $Usernames . "'";
         $excServofCours = $this->connexion->query($serviceofcours);
-        return $excServofCours ? odbc_fetch_array($excServofCours)['Code_Service_Agence_IRIUM'] : false;
+        return $excServofCours ? odbc_fetch_array($excServofCours)['Code_AgenceService_Sage'] : false;
     }
     public function getInfoUserMservice($ServiceofCours)
     {
@@ -125,7 +125,7 @@ class DomModel
                         Nom,
                         Prenoms
                         FROM Personnel 
-                        WHERE Code_Service_Agence_IRIUM = '" . $ServiceofCours . "' ";
+                        WHERE Code_AgenceService_Sage = '" . $ServiceofCours . "' ";
         $execService = $this->connexion->query($QueryService);
         $ResUserAllService = array();
         while ($tab = odbc_fetch_array($execService)) {

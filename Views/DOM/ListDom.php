@@ -27,7 +27,7 @@
                 <th style="text-align: center;">Objet</th>
                 <th style="text-align: center;">Client </th>
                 <th style="text-align: center;">Lieu d'intervention</th>
-                <th style="text-align: center;">Devis</th>
+                <th style="text-align: center;">Montant à payer</th>
             </tr>
         </thead>
         <tbody>

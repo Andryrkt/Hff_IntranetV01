@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,10 +14,10 @@
 <style>
     #Setting {
         <?php
-        $fichier = "../Hff_IntranetV01/Views/assets/AccessUserProfil.txt";
+        $fichier = "../Hff_IntranetV01/Views/assets/AccessUserProfil_Param.txt";
         if ((file_exists($fichier)) && (is_readable($fichier))) {
             $text = file_get_contents($fichier);
-           //echo $text;
+            //echo $text;
             if (strpos($text, $_SESSION['user']) !== false) {
                 echo 'display:block';
             } else {
@@ -29,7 +28,24 @@
         }
         ?>
     }
+
+    #DOM {
+        <?php
+       foreach($infoUserCours as $infoUserCours):
+        $infoUserCours['App'];
+        $infoUserCours['Utilisateur'];
+       endforeach;
+       $App = $infoUserCours['App'];
+       $findApp = strpos($App, 'DOM');
+       if($findApp !== false){
+        echo 'display:block';
+       } else{
+         echo 'display:none';
+       }
+        ?>
+    }
 </style>
+
 <body>
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
@@ -38,9 +54,9 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Ordre de Mission</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li class="nav-item dropdown" id="DOM">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" > Demande d'Ordre de Mission</a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" >
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
 
@@ -78,8 +94,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Fusion" id="Setting">paramètre</a></li>
+                           <!-- <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>-->
+                            <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
