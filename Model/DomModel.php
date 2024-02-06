@@ -300,7 +300,7 @@ class DomModel
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/assets/logoHff.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 30, '', 'jpg');
 
         $pdf->SetFont('pdfatimesbi', 'B', 16);
@@ -376,7 +376,7 @@ class DomModel
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
         $pdf->Output($Dossier . $NumDom .'_' . $codeAg_serv . '.pdf', 'F');
 
 
@@ -389,7 +389,7 @@ class DomModel
         //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
          $cheminFichierDistant = 'C:/DOCUWARE/ORDRE-DE-MISSION/'. $NumDom . '_'. $codeAg_serv . '.pdf';
 
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/'. $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/'. $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "ok";
         } else {
@@ -399,20 +399,20 @@ class DomModel
     public function genererFusion($FichierDom, $FichierAttache01,$FichierAttache02)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $FichierAttache01;
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache01;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin03 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $FichierAttache02;
+        $chemin03 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache02;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin03);
         $templateId = $pdf01->importPage(1);
@@ -420,7 +420,7 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-       //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Fusion/' . $FichierDom . '.pdf', 'F');
+       //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
        $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom . '.pdf', 'F');
     }
 }
