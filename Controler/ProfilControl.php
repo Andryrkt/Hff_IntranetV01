@@ -34,15 +34,14 @@ class ProfilControl
 
         try {
             $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-            $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
             include 'Views/Principe.php';
+            $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
             include 'Views/Propos_page.php';
         } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
         }
     }
-    public function showPageAcceuil()
-    {
+    public function showPageAcceuil(){
         session_start();
         if (empty($_SESSION['user'])) {
             header("Location:/Hff_IntranetV01/index.php?action=Logout");
@@ -51,7 +50,6 @@ class ProfilControl
         }
 
         try {
-            $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
             $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
             include 'Views/Principe.php';
             include 'Views/Acceuil.php';

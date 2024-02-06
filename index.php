@@ -56,7 +56,7 @@ switch ($action) {
         if (!$Connexion_Ldap_User) {
             echo '<script type="text/javascript">
                 alert("Merci de vérifier votre session LDAP");
-                document.location.href = "/Hff_IntranetV01";
+                document.location.href = "/Hffintranet";
             </script>';
         } else {
             session_start();
@@ -71,7 +71,7 @@ switch ($action) {
         unset($_SESSION['user']);
         session_destroy();
         session_unset();
-        header("Location:/Hff_IntranetV01/");
+        header("Location:/Hffintranet/");
         exit();
         session_write_close();
         break;
