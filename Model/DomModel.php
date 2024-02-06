@@ -381,7 +381,7 @@ class DomModel
 
 
     }
-
+ 
     // copy interne vers DOCUWARE
     public function copyInterneToDOXCUWARE($NumDom,$codeAg_serv){
 
@@ -421,6 +421,6 @@ class DomModel
 
         // Sauvegarder le PDF fusionné
        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
-       $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom . '.pdf', 'F');
+       $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom , 'F');
     }
 }
