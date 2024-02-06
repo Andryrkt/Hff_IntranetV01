@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD']  === 'POST') {
                 $mode =  $valModecompt;
             }
 
-      require_once('../Hff_IntranetV01/Views/tcpdf/tcpdf.php');
+      require_once('../Hffintranet/Views/tcpdf/tcpdf.php');
       $pdf = new TCPDF();
       $pdf->SetFont('aealarabiya', '', 12);
       $pdf->AddPage();   
@@ -167,7 +167,7 @@ $html = '
 ';
 $pdf->writeHTML($html, true, false, true, false, '');
 $NomFichier = 'DOM_'.$NumDom. $matr.'.pdf';  
-$pdf->Output($_SERVER['DOCUMENT_ROOT'] .'/Hff_INtranetV01/Upload/'.$NomFichier, 'F'); 
+$pdf->Output($_SERVER['DOCUMENT_ROOT'] .'/Hffintranet/Upload/'.$NomFichier, 'F'); 
 }
 
 ?>

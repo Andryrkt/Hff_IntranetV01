@@ -43,7 +43,7 @@
     }
 </script>
 <?php
-$fichier = $_SERVER['DOCUMENT_ROOT'] . 'Hff_IntranetV01/Views/Acces/Agence.txt';
+$fichier = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Views/Acces/Agence.txt';
 
 foreach ($CodeServiceofCours as $code) :
     $LibAgence = $code['nom_agence_i100'];
@@ -71,7 +71,7 @@ $Agence = $LibAgence . " " . $LibServ;
                 <div class="col" style="text-align: right;font-weight: bold;">
                     <h4>Demande d'Ordre de Mission</h4>
                 </div>
-                <form method="POST" action="/Hff_IntranetV01/index.php?action=checkMatricule">
+                <form method="POST" action="/Hffintranet/index.php?action=checkMatricule">
                     <div class="row">
                         <div class="col">
                             <label for="NumDOM" class="label-form">N° DOM</label>

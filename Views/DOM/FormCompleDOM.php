@@ -1,5 +1,5 @@
 <?php
-include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
+include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,9 +158,9 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
     }
 </script>
 
-<body onload="visible_espece(); visible();Interne_externe()"><!--/Hff_IntranetV01/Views/tcpdf/examples/Flight_brief_pdf.php-->
+<body onload="visible_espece(); visible();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hff_IntranetV01/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
+        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
