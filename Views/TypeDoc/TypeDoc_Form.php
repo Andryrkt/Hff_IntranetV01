@@ -12,7 +12,7 @@
         <div class="row" style="margin-top: 1%;">
             <div class="col">
                 <h3 style="text-align: center;">Type de Document</h3>
-                <form action="/Hff_IntranetV01/index.php?action=MoveTypeDoc" method="POST">
+                <form action="/Hffintranet/index.php?action=MoveTypeDoc" method="POST">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="TypeDoc"> Document</label>
                         <div class="col-sm-10">
@@ -28,7 +28,7 @@
                     </div>
                     <div class="btn-group" style="margin-top: 1%;">
                         <button name="btn_coms" type="submit" class="btn btn-success" value="ADD">Ajouter</button>
-                      <!---  <a href="/Hff_IntranetV01/index.php?action=Acceuil " class="btn btn-danger"> Annuler</a>-->
+                      <!---  <a href="/Hffintranet/index.php?action=Acceuil " class="btn btn-danger"> Annuler</a>-->
                     </div>
 
                 </form>

@@ -17,7 +17,7 @@
                 </div>
                 <div class="d-flex flex-row ">
                     <div class="p-2">
-                        <a href="/Hff_IntranetV01/index.php?action=PersonnelList" class="btn btn-warning">
+                        <a href="/Hffintranet/index.php?action=PersonnelList" class="btn btn-warning">
                             Liste des personnels
                         </a>
 

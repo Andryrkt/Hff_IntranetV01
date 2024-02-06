@@ -12,16 +12,16 @@
             <!-- The slideshow/carousel -->
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC03.jpg" alt="Los Angeles" class="d-block" style="width:100%" height="auto">
+                    <img src="/Hffintranet/Views/assets/PIC03.jpg" alt="Los Angeles" class="d-block" style="width:100%" height="auto">
                 </div>
                 <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC01.jpg" alt="Chicago" class="d-block" style="width:100%">
+                    <img src="/Hffintranet/Views/assets/PIC01.jpg" alt="Chicago" class="d-block" style="width:100%">
                 </div>
                 <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC02.jpg" alt="New York" class="d-block" style="width:100%">
+                    <img src="/Hffintranet/Views/assets/PIC02.jpg" alt="New York" class="d-block" style="width:100%">
                 </div>
                 <div class="carousel-item">
-                    <img src="/Hff_IntranetV01/Views/assets/PIC04.jpg" alt="chine" class="d-block" style="width:100%">
+                    <img src="/Hffintranet/Views/assets/PIC04.jpg" alt="chine" class="d-block" style="width:100%">
                 </div>
             </div>
 

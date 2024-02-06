@@ -31,7 +31,7 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-xl-5 col-md-8">
-            <form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="/Hff_IntranetV01/index.php?action=Authentification">
+            <form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="/Hffintranet/index.php?action=Authentification">
               <img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo" />
 
               <div class="form-outline mb-4" data-mdb-input-init>

@@ -18,7 +18,7 @@
                 </div>
                 <div class="d-flex flex-row ">
                     <div class="p-2">
-                        <a href="/Hff_IntranetV01/index.php?action=Personnels" class="btn btn-success">
+                        <a href="/Hffintranet/index.php?action=Personnels" class="btn btn-success">
                             Nouvelle Personnel
                         </a>
 

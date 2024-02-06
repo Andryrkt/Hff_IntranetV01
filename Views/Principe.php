@@ -7,14 +7,14 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Hff Intranet</title>
-    <link href="/Hff_IntranetV01/Views/css/styles.css" rel="stylesheet" />
+    <link href="/Hffintranet/Views/css/styles.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/Hff_IntranetV01/Views/js/scripts.js"></script>
+    <script src="/Hffintranet/Views/js/scripts.js"></script>
 </head>
 <style>
     #Setting {
         <?php
-        $fichier = "../Hff_IntranetV01/Views/assets/AccessUserProfil_Param.txt";
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         if ((file_exists($fichier)) && (is_readable($fichier))) {
             $text = file_get_contents($fichier);
             //echo $text;
@@ -50,15 +50,15 @@
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
         <div class="container">
-            <a class="navbar-brand" href="/Hff_IntranetV01/index.php?action=Acceuil"><img src="/Hff_IntranetV01/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
+            <a class="navbar-brand" href="/Hffintranet/index.php?action=Acceuil"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown" id="DOM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" > Demande d'Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" >
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
 
                         </ul>
                     </li>
@@ -94,16 +94,16 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                           <!-- <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
+                           <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Logout">Déconnection</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Logout">Déconnection</a></li>
                         </ul>
                     </li>
 
@@ -112,9 +112,9 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" >Type de Document</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" >Statut App</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=AgenceAutoriser" >Autorisation AgenceService</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" >Type de Document</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" >Statut App</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser" >Autorisation AgenceService</a></li>
                             
                         </ul>
                     </li>

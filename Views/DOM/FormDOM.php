@@ -12,6 +12,7 @@
         var select = document.getElementById('typeMission');
         var labelINput = document.getElementById('labAutre');
         var input = document.getElementById('AutreType');
+        
         if (select.value == "AUTRES A PRECISER") {
             labelINput.style.display = 'block';
             input.style.display = 'block';

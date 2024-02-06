@@ -25,7 +25,7 @@
 <body>
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style="margin-bottom: 2%;">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/Hff_IntranetV01/index.php?action=#"><img src="/Hff_IntranetV01/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
+            <a class="navbar-brand" href="/Hffintranet/index.php?action=#"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -46,8 +46,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: #fbbb01;"><?php echo $UserConnect ?> </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Propos de vous</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Logout">déconnection</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Propos de vous</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Logout">déconnection</a></li>
                         </ul>
                     </li>
                     
