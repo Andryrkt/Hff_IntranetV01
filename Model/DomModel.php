@@ -130,12 +130,19 @@ class DomModel
    return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;            
    }
 
-    public function getInfoUserMservice($ServiceofCours)
+  
+    public function getInfoUserMservice($ConnectUser)
     {
         $QueryService = "SELECT  Matricule,
-                        Nom+' '+Prenoms as Nom
-                        FROM Personnel 
-                        WHERE Code_AgenceService_Sage = '" . $ServiceofCours . "' ";
+                        Nom+' '+Prenoms as Nom,
+                        Agence_Service_Irium.agence_ips+Agence_Service_Irium.service_ips
+                        FROM Personnel, Agence_Service_Irium 
+                        WHERE Personnel.Code_AgenceService_Sage = Agence_Service_Irium.service_sage_paie
+                        AND Personnel.Code_AgenceService_Sage 
+                        IN (SELECT service_sage_paie 
+                        FROM Agence_Service_Irium WHERE  agence_ips+service_ips  IN (
+                            SELECT  Code_AgenceService_IRIUM 
+                            FROM Agence_service_autorise WHERE Session_Utilisateur = '".$ConnectUser."') )";
         $execService = $this->connexion->query($QueryService);
         $ResUserAllService = array();
         while ($tab = odbc_fetch_array($execService)) {

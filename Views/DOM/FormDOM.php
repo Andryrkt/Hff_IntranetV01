@@ -24,7 +24,7 @@
 
     function Matricule() {
         var names = document.getElementById('nomprenom').value;
-        let result = names.substring(names.length - 4);
+        let result = names.substring(0,4);
         document.getElementById('matricule').value = result;
     }
 
@@ -121,7 +121,7 @@ $Agence = $LibAgence . " " . $LibServ;
                             <label for="Nomprenoms" class="label-form"> Nom et Matricule</label>
                             <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
                                 <?php foreach ($PersonelServOfCours as $PersonelServOfCours) : ?>
-                                    <option value="<?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?>"> <?php echo $PersonelServOfCours['Nom'] . " - " . $PersonelServOfCours['Matricule'] ?></option>
+                                    <option value="<?php echo $PersonelServOfCours['Matricule'] . " - " . $PersonelServOfCours['Nom'] ?>"> <?php echo $PersonelServOfCours['Matricule'] . " - " . $PersonelServOfCours['Nom'] ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>

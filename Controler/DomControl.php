@@ -25,8 +25,8 @@ class DomControl
             $UserConnect = $_SESSION['user'];
             $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-            $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-            $PersonelServOfCours = $this->DomModel->getInfoUserMservice($Servofcours);
+           // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+            $PersonelServOfCours = $this->DomModel->getInfoUserMservice($_SESSION['user']);
             $TypeDocument = $this->DomModel->getTypeDoc();
             include 'Views/Principe.php';
             include 'Views/DOM/FormDOM.php';
