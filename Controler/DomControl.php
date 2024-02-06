@@ -248,7 +248,7 @@ class DomControl
 
                 $Nom = $Nomext;
                 $Prenoms = $PrenomExt;
-                $matr = "XER00" . $MatrExt . " - TEMPORAIRE";
+                $matr = "XER00 -" . $MatrExt . " - TEMPORAIRE";
 
                 if ($libmodepaie === "ESPECES") {
                     $mode =  $valModeExt;
@@ -308,7 +308,7 @@ class DomControl
                         move_uploaded_file($filetemp01, $Upload_file);
                         $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                         move_uploaded_file($filetemp02, $Upload_file02);
-                        $FichierDom = $NumDom . '_' . $codeAg_serv ;
+                        $FichierDom = $NumDom . '_' . $codeAg_serv .'.pdf';
 
                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                         $this->DomModel->InsertDom(
