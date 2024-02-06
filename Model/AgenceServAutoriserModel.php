@@ -21,4 +21,9 @@ class AgenceServAutoriserModel{
         }
         return $ListAgServ;
      }
+
+     public function deleteAgenceAuto($Id){
+        $deleteParam = "DELETE FROM Agence_service_autorise WHERE ID_Agence_Service_Autorise = '".$Id."'";
+        $execDelete = $this->Connexion->query($deleteParam);
+     }
 }

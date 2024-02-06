@@ -46,14 +46,7 @@
                         <?php foreach ($ListAgenceAuto as $ListAgenceAuto) : ?>
                             <tr>
                                 <td>
-                                    <div class="dropdown dropend">
-                                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-                                            Action
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li> <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="dropdown-item " href="/Hff_IntranetV01/index.php?action=DelAgAuto&id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Cancel the booking</a> </li>
-                                        </ul>
-                                    </div>
+                                     <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="btn btn-danger" href="/Hff_IntranetV01/index.php?action=DelAgAuto&Id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Supprimer</a> 
                                 </td>
                                 <td> <?php echo $ListAgenceAuto['Session_Utilisateur'] ?></td>
                                 <td> <?php echo $ListAgenceAuto['Code_AgenceService_IRIUM'] ?></td>

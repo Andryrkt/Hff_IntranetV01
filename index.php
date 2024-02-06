@@ -91,7 +91,7 @@ switch ($action) {
         break;
     case 'ListDom':
         $ControlDOM->ShowListDom();
-        break;    
+        break;
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
         break;
@@ -102,18 +102,21 @@ switch ($action) {
     case 'TypeDoc':
         $ControlType->showTypeDocForm();
         break;
-     case 'MoveTypeDoc':
+    case 'MoveTypeDoc':
         $ControlType->MoveTypeDocForm();
-        break;   
+        break;
         //    
-     case 'Statut':
+    case 'Statut':
         $ControlStatut->ShowFormStatut();
-        break;   
-     case 'MoveStatut':
-           $ControlStatut->MoveStatut();
-         break;
-      case 'AgenceAutoriser':
+        break;
+    case 'MoveStatut':
+        $ControlStatut->MoveStatut();
+        break;
+    case 'AgenceAutoriser':
         $ControlAutorisation->showListAgenceService();
+        break;
+    case 'DelAgAuto':
+        $ControlAutorisation->deleteAgenceAuto();
         break;
     default:
         include 'Views/SignIn.php';
