@@ -53,7 +53,7 @@
                         $DF = date("d/m/Y", strtotime($dateFin));
                         echo $DF;
                         ?></td>
-                    <td><?php echo $ListDom['Numero_Ordre_Mission'] ?></td>
+                    <td><a href="/Hffintranet/index.php?action=DetailDOM"> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
                     <td><?php echo $ListDom['Statut'] ?></td>
                     <td><?php echo $ListDom['Motif_Deplacement'] ?></td>
                     <td><?php echo $ListDom['Client'] ?></td>
