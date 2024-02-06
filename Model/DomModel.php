@@ -143,7 +143,7 @@ class DomModel
         }
         return $ResUserAllService;
     }
-    //
+    // 
     public function getInfoTelCompte($userSelect)
     {
         $QueryCompte  = "SELECT Nom,
@@ -288,7 +288,8 @@ class DomModel
         $montdep03,
         $totaldep,
         $libmodepaie,
-        $mode
+        $mode,
+        $codeAg_serv
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
@@ -368,38 +369,51 @@ class DomModel
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/';
-        $pdf->Output($Dossier . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf', 'F');
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/';
+        $pdf->Output($Dossier . $NumDom .'_' . $codeAg_serv . '.pdf', 'F');
 
+
+    }
+
+    // copy interne vers DOCUWARE
+    public function copyInterneToDOXCUWARE($NumDom,$codeAg_serv){
 
 
         //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-         $cheminFichierDistant = 'C:\DOCUWARE\\ORDRE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE-DE-MISSION/'. $NumDom . '_'. $codeAg_serv . '.pdf';
 
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/'. $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "ok";
         } else {
             echo "sorry";
         }
     }
-    public function genererFusion($FichierDom, $FichierAttache)
+    public function genererFusion($FichierDom, $FichierAttache01,$FichierAttache02)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Upload/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Controler/pdf/' . $FichierAttache;
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $FichierAttache01;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
+        $chemin03 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $FichierAttache02;
+        // Ajouter le deuxième fichier PDF
+        $pdf01->setSourceFile($chemin03);
+        $templateId = $pdf01->importPage(1);
+        $pdf01->addPage();
+        $pdf01->useTemplate($templateId);
+
         // Sauvegarder le PDF fusionné
        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hff_INtranetV01/Fusion/' . $FichierDom . '.pdf', 'F');
-       $pdf01->Output('C:\DOCUWARE\\ORDRE DE MISSION\\' . $FichierDom . '.pdf', 'F');
+       $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom . '.pdf', 'F');
     }
 }

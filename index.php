@@ -90,6 +90,7 @@ switch ($action) {
         $ControlDOM->ShowDomPDF();
         break;
     case 'EnvoyerImprime':
+
         $ControlDOM->EnvoieImprimeDom();
         break;
     case 'TypeDoc':
@@ -104,7 +105,7 @@ switch ($action) {
         break;   
      case 'MoveStatut':
            $ControlStatut->MoveStatut();
-          
+         
     default:
         include 'Views/SignIn.php';
 }

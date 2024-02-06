@@ -94,7 +94,7 @@ class DomControl
             $codeserv = explode(" ", $serv);
             $Code_Servi = strtolower(current($codeserv)); // INF
             $Servi = strtolower(end($codeserv)); // INfo
-            $codeAg_serv = $code_Agence . "-" . $Code_Servi; //80-INF
+            $codeAg_serv = $code_Agence . $Code_Servi; //80-INF
             $LibelleCodeAg_Serv = $Agence . "-" . $Servi;
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
@@ -149,7 +149,7 @@ class DomControl
             $file_extension02 = strtolower(end($filename_separator02));
 
 
-          
+
             if ($checkext === "Interne") {
                 $Nom =  $NomINt;
                 $Prenoms = $PrenomsINt;
@@ -203,8 +203,10 @@ class DomControl
                     $montdep03,
                     $totaldep,
                     $libmodepaie,
-                    $mode
+                    $mode,
+                    $codeAg_serv
                 );
+                $this->DomModel->copyInterneToDOXCUWARE($NumDom,$codeAg_serv);
                 $this->DomModel->InsertDom(
                     $NumDom,
                     $dateSystem,
@@ -243,6 +245,7 @@ class DomControl
                     $LibelleCodeAg_Serv
                 );
             } else {
+
                 $Nom = $Nomext;
                 $Prenoms = $PrenomExt;
                 $matr = "XER00" . $MatrExt . " - TEMPORAIRE";
@@ -260,9 +263,9 @@ class DomControl
                     $modeDB = $valModeExt;
                 }
 
-              
-                 //exce
-                 $this->DomModel->genererPDF(
+
+                //exce
+                $this->DomModel->genererPDF(
                     $Devis,
                     $Prenoms,
                     $AllMontant,
@@ -295,60 +298,74 @@ class DomControl
                     $montdep03,
                     $totaldep,
                     $libmodepaie,
-                    $mode
+                    $mode,
+                    $codeAg_serv
                 );
-                $this->DomModel->InsertDom(
-                    $NumDom,
-                    $dateSystem,
-                    $typMiss,
-                    $autrTyp,
-                    $matr,
-                    $usersession,
-                    $codeAg_serv,
-                    $DateDebut,
-                    $heureD,
-                    $DateFin,
-                    $heureF,
-                    $NbJ,
-                    $motif,
-                    $Client,
-                    $lieu,
-                    $vehicule,
-                    $idemn,
-                    $totalIdemn,
-                    $motifdep01,
-                    $montdep01,
-                    $motifdep02,
-                    $montdep02,
-                    $motifdep03,
-                    $montdep03,
-                    $totaldep,
-                    $AllMontant,
-                    $modeDB,
-                    $valModemob,
-                    $Nom,
-                    $Prenoms,
-                    $Devis,
-                    $filename01,
-                    $filename02,
-                    $usersession,
-                    $LibelleCodeAg_Serv
-                );
-                if (!empty($filename01)) {
-                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
-                    move_uploaded_file($filetemp01, $Upload_file);
-                    $FichierDom = $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-                    
-                    $this->DomModel->genererFusion($FichierDom,$filename01);
+
+                if (!empty($filename01) && !empty($filename02)) {
+                    if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
+                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
+                        move_uploaded_file($filetemp01, $Upload_file);
+                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
+                        move_uploaded_file($filetemp02, $Upload_file02);
+                        $FichierDom = $NumDom . '_' . $codeAg_serv ;
+
+                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+                        $this->DomModel->InsertDom(
+                            $NumDom,
+                            $dateSystem,
+                            $typMiss,
+                            $autrTyp,
+                            $matr,
+                            $usersession,
+                            $codeAg_serv,
+                            $DateDebut,
+                            $heureD,
+                            $DateFin,
+                            $heureF,
+                            $NbJ,
+                            $motif,
+                            $Client,
+                            $lieu,
+                            $vehicule,
+                            $idemn,
+                            $totalIdemn,
+                            $motifdep01,
+                            $montdep01,
+                            $motifdep02,
+                            $montdep02,
+                            $motifdep03,
+                            $montdep03,
+                            $totaldep,
+                            $AllMontant,
+                            $modeDB,
+                            $valModemob,
+                            $Nom,
+                            $Prenoms,
+                            $Devis,
+                            $filename01,
+                            $filename02,
+                            $usersession,
+                            $LibelleCodeAg_Serv
+                        );
+                    } else {
+                        echo '<script type="text/javascript">
+                    alert("Merci de Mettre les pièce jointes en PDF");
+                    </script>';
+                    }
+                } else {
+                    echo '<script type="text/javascript">
+                    alert("Merci de Mettre les pièce jointes");
+                
+                    </script>';
                 }
-                if (!empty($filename02)) {
+
+                /*if (!empty($filename02)) {
                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
                     move_uploaded_file($filetemp02, $Upload_file);
                     $FichierDom = $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
                     $this->DomModel->genererFusion($FichierDom,$filename02);
-                }
-
-
+                }*/
             }
 
 
@@ -374,7 +391,7 @@ class DomControl
         $ListDom = $this->DomModel->getListDom($LibServofCours);
         include 'Views/DOM/ListDom.php';
     }
-   /* public function ExecFusion()
+    /* public function copy()
     {
         session_start();
         if (empty($_SESSION['user'])) {
@@ -383,8 +400,8 @@ class DomControl
             exit();
         }
 
-        $this->DomModel->genererFusion();
-        echo '<script type="text/javascript">
+        $this->DomModel->copyInterneToDOXCUWARE();
+       echo '<script type="text/javascript">
         alert("DOM FUSION");
         document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
         </script>';

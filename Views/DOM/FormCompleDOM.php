@@ -178,7 +178,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly </div>
+                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly >
                 </div>
                 <div class="row">
                     <div class="col">
@@ -383,13 +383,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Views/DOM/FormPJ.php');
                 </div>
                 <div class="row" id="PJ">
                     <div class="col">
-                        <label for="file01" class="label-form"> Fichier joint 01:</label>
+                        <label for="file01" class="label-form"> Fichier joint 01 (Merci de mettre un fichier PDF):</label>
                         <?php
                         inputFields("", "file01", "file01", "", "file");
                         ?>
                     </div>
                     <div class="col">
-                        <label for="file02" class="label-form"> Fichier joint 02 :</label>
+                        <label for="file02" class="label-form"> Fichier joint 02 (Merci de mettre un fichier PDF):</label>
                         <?php
                         inputFields("", "file02", "file02", "", "file");
                         ?>
