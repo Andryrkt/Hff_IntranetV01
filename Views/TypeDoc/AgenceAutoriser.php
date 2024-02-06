@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hff Intranet</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row" style="margin-top: 1%;">
+            <div class="col">
+                <h3 style="text-align: center;">Agence Service Autoriser</h3>
+                <form action="/Hff_IntranetV01/index.php?action=MoveTypeDoc" method="POST">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="TypeDoc"> Utilisateur</label>
+                        <div class="col-sm-10">
+                            <!-- <input class="form-control" id="focusedInput" type="text" value="Click to focus...">-->
+                            <input type="text" class="form-control" name="User" id="User">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="Soutyp">Agence Service</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="Agence" type="text" name="Agence">
+                        </div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 1%;">
+                        <button name="btn_coms" type="submit" class="btn btn-success" value="ADD">Ajouter</button>
+                        <!---  <a href="/Hff_IntranetV01/index.php?action=Acceuil " class="btn btn-danger"> Annuler</a>-->
+                    </div>
+
+                </form>
+            </div>
+            <div class="col">
+                <table class=" table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th></th>
+                            <th style="text-align: center;">Utilisateur </th>
+                            <th style="text-align: center;">AgenceService_Autoriser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($ListAgenceAuto as $ListAgenceAuto) : ?>
+                            <tr>
+                                <td>
+                                    <div class="dropdown dropend">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                            Action
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li> <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="dropdown-item " href="/Hff_IntranetV01/index.php?action=DelAgAuto&id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Cancel the booking</a> </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td> <?php echo $ListAgenceAuto['Session_Utilisateur'] ?></td>
+                                <td> <?php echo $ListAgenceAuto['Code_AgenceService_IRIUM'] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+
+</html>

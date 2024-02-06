@@ -34,6 +34,12 @@ include 'Controler/StatutControl.php';
 $ModelStatut = new StatutModel($Conn_IntranetV01);
 $ControlStatut = new StatutControl($ModelStatut);
 //----
+//Autorisation
+include 'Model/AgenceServAutoriserModel.php';
+include 'Controler/AgenceServAutoriserControl.php';
+$ModelAutorisation = new AgenceServAutoriserModel($Conn_IntranetV01);
+$ControlAutorisation = new AgenceServAutoriserControl($ModelAutorisation);
+//
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
 $Ldap = new LdapConnect();
@@ -105,7 +111,10 @@ switch ($action) {
         break;   
      case 'MoveStatut':
            $ControlStatut->MoveStatut();
-         
+         break;
+      case 'AgenceAutoriser':
+        $ControlAutorisation->showListAgenceService();
+        break;
     default:
         include 'Views/SignIn.php';
 }

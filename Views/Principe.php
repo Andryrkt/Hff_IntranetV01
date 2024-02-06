@@ -94,18 +94,31 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                           <!-- <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>-->
+                           <!-- <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
-                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" id="TypeDoc">Statut App</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>
                             <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Logout">Déconnection</a></li>
                         </ul>
                     </li>
+
+                    <li class="nav-item dropdown" id="Setting">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#" id="Perso">Personnels</a></li>
+                            <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=TypeDoc" >Type de Document</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=Statut" >Statut App</a></li>
+                            <li><a class="dropdown-item" href="/Hff_IntranetV01/index.php?action=AgenceAutoriser" >Autorisation AgenceService</a></li>
+                            
+                        </ul>
+                    </li>
+
                 </ul>
             </div>
         </div>
