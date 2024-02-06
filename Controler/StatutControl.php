@@ -12,7 +12,7 @@ class StatutControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -25,7 +25,7 @@ class StatutControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -35,7 +35,7 @@ class StatutControl
             $Descript = $_POST['descStatut'];
             $DateSyst = $this->StatutModel->getDatesystem();
             $insertStatut = $this->StatutModel->InsertStatut( $CoedApp, $CodeStatut,$Descript,$DateSyst);
-            header('Location:/Hff_IntranetV01/index.php?action=Statut');
+            header('Location:/Hffintranet/index.php?action=Statut');
         }
     }
 }

@@ -9,7 +9,7 @@ class AgenceServAutoriserControl{
     public function showListAgenceService(){
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -21,14 +21,14 @@ class AgenceServAutoriserControl{
     public function deleteAgenceAuto(){
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
         if (isset($_GET['Id'])){
             $id = $_GET['Id'];
             $Delete = $this->AgenceServAutoriserModel->deleteAgenceAuto($id);
-            header('Location:/Hff_IntranetV01/index.php?action=AgenceAutoriser');
+            header('Location:/Hffintranet/index.php?action=AgenceAutoriser');
         }
     }
 }

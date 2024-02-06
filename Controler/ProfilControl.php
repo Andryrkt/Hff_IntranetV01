@@ -9,7 +9,7 @@ class ProfilControl
     public function showInfoProfilUser()
     {
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -27,7 +27,7 @@ class ProfilControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -44,7 +44,7 @@ class ProfilControl
     public function showPageAcceuil(){
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }

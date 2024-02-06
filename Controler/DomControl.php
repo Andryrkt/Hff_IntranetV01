@@ -14,7 +14,7 @@ class DomControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -38,7 +38,7 @@ class DomControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -68,7 +68,7 @@ class DomControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -304,9 +304,9 @@ class DomControl
 
                 if (!empty($filename01) && !empty($filename02)) {
                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename01;
+                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                         move_uploaded_file($filetemp01, $Upload_file);
-                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
+                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                         move_uploaded_file($filetemp02, $Upload_file02);
                         $FichierDom = $NumDom . '_' . $codeAg_serv ;
 
@@ -361,7 +361,7 @@ class DomControl
                 }
 
                 /*if (!empty($filename02)) {
-                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hff_IntranetV01/Controler/pdf/' . $filename02;
+                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                     move_uploaded_file($filetemp02, $Upload_file);
                     $FichierDom = $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
                     $this->DomModel->genererFusion($FichierDom,$filename02);
@@ -371,7 +371,7 @@ class DomControl
 
             echo '<script type="text/javascript">
                 alert("Demande OM Envoyer");
-                document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
+                document.location.href = "/Hffintranet/index.php?action=ListDom";
                 </script>';
         }
     }
@@ -379,7 +379,7 @@ class DomControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -395,7 +395,7 @@ class DomControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -403,7 +403,7 @@ class DomControl
         $this->DomModel->copyInterneToDOXCUWARE();
        echo '<script type="text/javascript">
         alert("DOM FUSION");
-        document.location.href = "/Hff_IntranetV01/index.php?action=ListDom";
+        document.location.href = "/Hffintranet/index.php?action=ListDom";
         </script>';
     }*/
 }

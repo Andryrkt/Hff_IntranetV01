@@ -12,7 +12,7 @@ class TypeDocControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -25,7 +25,7 @@ class TypeDocControl
     {
         session_start();
         if (empty($_SESSION['user'])) {
-            header("Location:/Hff_IntranetV01/index.php?action=Logout");
+            header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
@@ -34,7 +34,7 @@ class TypeDocControl
             $SousTyp = $_POST['Soutyp'];
             $DateSyst =$this->TypeDocModel->getDatesystem(); 
             $Insers = $this->TypeDocModel->Insert_TypeDoc($TypeDoc,$SousTyp,$DateSyst);  
-            header('Location:/Hff_IntranetV01/index.php?action=TypeDoc');
+            header('Location:/Hffintranet/index.php?action=TypeDoc');
 
         }
     }
