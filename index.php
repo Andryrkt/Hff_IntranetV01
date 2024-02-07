@@ -95,8 +95,9 @@ switch ($action) {
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
         break;
+    case 'DetailDOM':
+        break;
     case 'EnvoyerImprime':
-
         $ControlDOM->EnvoieImprimeDom();
         break;
     case 'TypeDoc':
@@ -118,6 +119,7 @@ switch ($action) {
     case 'DelAgAuto':
         $ControlAutorisation->deleteAgenceAuto();
         break;
+
     default:
         include 'Views/SignIn.php';
 }

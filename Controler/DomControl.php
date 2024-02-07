@@ -25,7 +25,7 @@ class DomControl
             $UserConnect = $_SESSION['user'];
             $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-           // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+            // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $PersonelServOfCours = $this->DomModel->getInfoUserMservice($_SESSION['user']);
             $TypeDocument = $this->DomModel->getTypeDoc();
             include 'Views/Principe.php';
@@ -206,7 +206,7 @@ class DomControl
                     $mode,
                     $codeAg_serv
                 );
-                $this->DomModel->copyInterneToDOXCUWARE($NumDom,$codeAg_serv);
+                $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_serv);
                 $this->DomModel->InsertDom(
                     $NumDom,
                     $dateSystem,
@@ -222,6 +222,7 @@ class DomControl
                     $NbJ,
                     $motif,
                     $Client,
+                    $fiche,
                     $lieu,
                     $vehicule,
                     $idemn,
@@ -308,7 +309,7 @@ class DomControl
                         move_uploaded_file($filetemp01, $Upload_file);
                         $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                         move_uploaded_file($filetemp02, $Upload_file02);
-                        $FichierDom = $NumDom . '_' . $codeAg_serv .'.pdf';
+                        $FichierDom = $NumDom . '_' . $codeAg_serv . '.pdf';
 
                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                         $this->DomModel->InsertDom(
@@ -326,6 +327,7 @@ class DomControl
                             $NbJ,
                             $motif,
                             $Client,
+                            $fiche,
                             $lieu,
                             $vehicule,
                             $idemn,
@@ -391,7 +393,7 @@ class DomControl
         $ListDom = $this->DomModel->getListDom($LibServofCours);
         include 'Views/DOM/ListDom.php';
     }
-    /* public function copy()
+    public function DetailDOM()
     {
         session_start();
         if (empty($_SESSION['user'])) {
@@ -399,11 +401,9 @@ class DomControl
             session_destroy();
             exit();
         }
+        if (isset($_GET['NumDom'])) {
+            $NumDom = $_GET['NumDom'];
 
-        $this->DomModel->copyInterneToDOXCUWARE();
-       echo '<script type="text/javascript">
-        alert("DOM FUSION");
-        document.location.href = "/Hffintranet/index.php?action=ListDom";
-        </script>';
-    }*/
+        }
+    }
 }
