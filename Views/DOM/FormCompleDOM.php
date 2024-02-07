@@ -156,6 +156,16 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             OptExt.style.display = 'Block';
         }
     }
+
+    function Difference_date() {
+        var DD = document.getElementById('dateDebut').value;
+        var DF = document.getElementById('dateFin').value;
+        var DateD = new Date(DD);
+        var DateF = new Date(DF);
+        if(DateD > DateF){
+            alert('Merci de vérifier la date précédente ');
+        }
+    }
 </script>
 
 <body onload="visible_espece(); visible();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
@@ -178,7 +188,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly >
+                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -238,7 +248,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <div class="row">
                     <div class="col">
                         <label for="dateFin" class="label-form"> Date Fin</label>
-                        <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal()" required>
+                        <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required>
                     </div>
                     <div class="col">
                         <label for="heureFin" class="label-form"> Heure Fin</label>
@@ -398,7 +408,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="row">
                     <div class="mt-2 ">
-                        <a onclick="return confirm('Voulez-vous envoyer la demande ?')" > <button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip"> <i class="fa fa-print"> Envoyer</i></button> </a>
+                        <a onclick="return confirm('Voulez-vous envoyer la demande ?')"> <button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip"> <i class="fa fa-print"> Envoyer</i></button> </a>
                     </div>
                 </div>
 
