@@ -217,7 +217,7 @@
                     <div class="row" id="PJ">
                         <div class="col">
                             <label for="file01" class="label-form"> Fichier joint 01 </label>
-                            <input type="text" name="file01" id="file01" class="form-control" value="<?php echo $detailDom['Piece_Jointe_1'] ?>" readonly>
+                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $detailDom['Piece_Jointe_1'] ?>"> <input type="text" name="file01" id="file01" class="form-control" value="<?php echo $detailDom['Piece_Jointe_1'] ?>" readonly></a>
                         </div>
                         <div class="col">
                             <label for="file02" class="label-form"> Fichier joint 02 </label>
