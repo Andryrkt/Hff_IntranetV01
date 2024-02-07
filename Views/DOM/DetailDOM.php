@@ -25,13 +25,13 @@
         let Matr = document.getElementById('matricule01').value;
         var pj = document.getElementById('PJ');
         var libPJ = document.getElementById('label_PJ')
-       if(Matr.length >4){
-        libPJ.style.display = 'block';
-        pj.style.display = 'block';
-       }else{
-        libPJ.style.display = 'none';
-        pj.style.display = 'none';
-       }
+        if (Matr.length > 4) {
+            libPJ.style.display = 'block';
+            pj.style.display = 'block';
+        } else {
+            libPJ.style.display = 'none';
+            pj.style.display = 'none';
+        }
     }
 </script>
 
@@ -72,11 +72,11 @@
                         </div>
                         <div class="col">
                             <label for="Nomprenoms" class="label-form"> Nom </label>
-                            <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $detailDom['Nom'] ?>" readonly/>
+                            <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $detailDom['Nom'] ?>" readonly />
                         </div>
                         <div class="col">
                             <label for="prenoms" class="label-form"> Prénoms </label>
-                            <input name="prenom" id="prenom" class="form-control" value="<?php echo $detailDom['Prenom'] ?>" readonly/>
+                            <input name="prenom" id="prenom" class="form-control" value="<?php echo $detailDom['Prenom'] ?>" readonly />
                         </div>
                     </div>
 
@@ -99,7 +99,7 @@
                         </div>
                         <div class="col">
                             <label for="heureFin" class="label-form"> Heure Fin</label>
-                            <input type="time" name="heureFin" id="heureFin" class="form-control" value="<?php echo $detailDom['Heure_Fin'] ?>" readonly> 
+                            <input type="time" name="heureFin" id="heureFin" class="form-control" value="<?php echo $detailDom['Heure_Fin'] ?>" readonly>
 
                         </div>
                     </div>
@@ -147,11 +147,11 @@
                         </div>
                         <div class="col">
                             <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                            <input type="text" name="idemForfait" id="idemForfait" class="form-control" value="<?php echo $detailDom['Indemnite_Forfaitaire'] ?>" readonly/>
+                            <input type="text" name="idemForfait" id="idemForfait" class="form-control" value="<?php echo $detailDom['Indemnite_Forfaitaire'] ?>" readonly />
                         </div>
                         <div class="col">
                             <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                            <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" value="<?php echo $detailDom['Total_Indemnite_Forfaitaire'] ?>" readonly/>
+                            <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" value="<?php echo $detailDom['Total_Indemnite_Forfaitaire'] ?>" readonly />
                         </div>
                     </div>
                     <div class="row">
@@ -217,11 +217,11 @@
                     <div class="row" id="PJ">
                         <div class="col">
                             <label for="file01" class="label-form"> Fichier joint 01 </label>
-                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $detailDom['Piece_Jointe_1'] ?>"> <input type="text" name="file01" id="file01" class="form-control" value="<?php echo $detailDom['Piece_Jointe_1'] ?>" readonly></a>
+                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $detailDom['Piece_Jointe_1'] ?>" target="_blank"> <input type="text" name="file01" id="file01" class="form-control" value="<?php echo $detailDom['Piece_Jointe_1'] ?>" readonly></a>
                         </div>
                         <div class="col">
                             <label for="file02" class="label-form"> Fichier joint 02 </label>
-                            <input type="text" name="file02" id="file02" class="form-control" value="<?php echo $detailDom['Piece_Jointe_2'] ?>" readonly>
+                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $detailDom['Piece_Jointe_2'] ?>" target="_blank"><input type="text" name="file02" id="file02" class="form-control" value="<?php echo $detailDom['Piece_Jointe_2'] ?>" readonly></a>
                         </div>
 
                     </div>
