@@ -96,6 +96,7 @@ switch ($action) {
         $ControlDOM->ShowDomPDF();
         break;
     case 'DetailDOM':
+        $ControlDOM->DetailDOM();
         break;
     case 'EnvoyerImprime':
         $ControlDOM->EnvoieImprimeDom();

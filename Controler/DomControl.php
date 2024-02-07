@@ -158,15 +158,15 @@ class DomControl
 
                 if ($libmodepaie === "ESPECES") {
                     $mode =  $valModesp;
-                    $modeDB = $valModesp;
+                    $modeDB = "ESPECES ".$valModesp;
                 }
                 if ($libmodepaie === "MOBILE MONEY") {
                     $mode =  "TEL " . $valModemob;
-                    $modeDB = $valModemob;
+                    $modeDB = "MOBILE MONEY : ".$valModemob;
                 }
                 if ($libmodepaie === "VIREMENT BANCAIRE") {
                     $mode =  "CPT " . $valModecompt;
-                    $modeDB = $valModecompt;
+                    $modeDB = "VIREMENT BANCAIRE : ".$valModecompt;
                 }
 
                 //exce
@@ -243,7 +243,8 @@ class DomControl
                     $filename01,
                     $filename02,
                     $usersession,
-                    $LibelleCodeAg_Serv
+                    $LibelleCodeAg_Serv,
+                    $numvehicul
                 );
             } else {
 
@@ -251,18 +252,20 @@ class DomControl
                 $Prenoms = $PrenomExt;
                 $matr = "XER00 -" . $MatrExt . " - TEMPORAIRE";
 
-                if ($libmodepaie === "ESPECES") {
+               if ($libmodepaie === "ESPECES") {
                     $mode =  $valModeExt;
-                    $modeDB = $valModeExt;
+                    $modeDB = "ESPECES ".$valModeExt;
                 }
                 if ($libmodepaie === "MOBILE MONEY") {
                     $mode =  "TEL " . $valModeExt;
-                    $modeDB = $valModeExt;
+                    $modeDB = "MOBILE MONEY : ".$valModeExt;
                 }
                 if ($libmodepaie === "VIREMENT BANCAIRE") {
                     $mode =  "CPT " . $valModeExt;
-                    $modeDB = $valModeExt;
+                    $modeDB = "VIREMENT BANCAIRE : ".$valModeExt;
                 }
+
+              
 
 
                 //exce
@@ -300,7 +303,8 @@ class DomControl
                     $totaldep,
                     $libmodepaie,
                     $mode,
-                    $codeAg_serv
+                    $codeAg_serv,
+                    
                 );
 
                 if (!empty($filename01) && !empty($filename02)) {
@@ -348,7 +352,8 @@ class DomControl
                             $filename01,
                             $filename02,
                             $usersession,
-                            $LibelleCodeAg_Serv
+                            $LibelleCodeAg_Serv,
+                            $numvehicul
                         );
                     } else {
                         echo '<script type="text/javascript">
@@ -403,7 +408,12 @@ class DomControl
         }
         if (isset($_GET['NumDom'])) {
             $NumDom = $_GET['NumDom'];
-
+            $UserConnect = $_SESSION['user'];
+        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+        include 'Views/Principe.php';
+        $detailDom = $this->DomModel->getDetailDOMselect($NumDom);
+        include 'Views/DOM/DetailDOM.php';
         }
     }
 }
