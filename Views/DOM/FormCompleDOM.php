@@ -143,15 +143,15 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         if (checkInterne === 'Interne') {
             externe.style.display = 'none';
             Interne.style.display = 'block'
-             IntServ.style.display = 'block';
-             ExtServ.style.display = 'none';
+            IntServ.style.display = 'block';
+            ExtServ.style.display = 'none';
             OptInt.style.display = 'block';
             OptExt.style.display = 'none';
         } else {
             externe.style.display = 'block';
             Interne.style.display = 'none';
             IntServ.style.display = 'none';
-             ExtServ.style.display = 'Block';
+            ExtServ.style.display = 'Block';
             OptInt.style.display = 'none';
             OptExt.style.display = 'Block';
         }
@@ -194,11 +194,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row" id="int">
                 <?php foreach ($Compte as $Serv) : ?>
                     <div class="col-4">
-                        <label for="Serv" class="label-form">CodeINt :</label>
+                        <label for="Serv" class="label-form">Code :</label>
                         <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
                     </div>
                     <div class="col-4">
-                        <label for="LibServ" class="label-form">ServiceINt :</label>
+                        <label for="LibServ" class="label-form">Service :</label>
                         <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
                     </div>
                 <?php endforeach; ?>
@@ -255,7 +255,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="heureDebut" class="label-form"> Heure début</label>
-                    <input type="time" name="heureDebut" id="heureDebut" class="form-control" required>
+                    <input type="time" name="heureDebut" id="heureDebut" class="form-control" required value="08:00">
                 </div>
             </div>
             <div class="row">
@@ -265,13 +265,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
-                    <input type="time" name="heureFin" id="heureFin" class="form-control" required>
+                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="10:00">
 
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="periode" class="label-form" id="nomprenom"> Période</label>
+                    <label for="periode" class="label-form" id="nomprenom"> Nombre de Jour</label>
                     <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;" readonly>
                 </div>
 
@@ -325,7 +325,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required onfocus='use_number(this)' onblur='use_text(this)' />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this)' />
                 </div>
             </div>
             <div class="row">
@@ -345,7 +345,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
@@ -355,17 +355,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)'>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly>
                 </div>
             </div>
 
@@ -380,8 +380,8 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
                     <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()">
-                        <option value="ESPECES">ESPECES</option>
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
+                        <option value="ESPECES">ESPECES</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
                     </select>
                 </div>
@@ -391,7 +391,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <?php foreach ($Compte as $Num) : ?>
                         <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Num['Numero_Compte_Bancaire'] ?>">
-                    <?php endforeach ;?>
+                    <?php endforeach; ?>
                 </div>
                 <div class="col" id="OpExter">
                     <label for="modeesp" class="label-form" id="labelMode01"> Mode</label>

@@ -165,8 +165,10 @@ class DomControl
             $filename_separator02 = explode('.', $filename02);
             $file_extension02 = strtolower(end($filename_separator02));
 
-            // 
+            // 1
+
             if (strtotime($DateDebut) < strtotime($DateFin)) {
+
                 if ($checkext === "Interne") {
                     $Nom =  $NomINt;
                     $Prenoms = $PrenomsINt;
@@ -186,10 +188,27 @@ class DomControl
                         $mode =  "CPT " . $valModecompt;
                         $modeDB = "VIREMENT BANCAIRE : " . $valModecompt;
                     }
+                    $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
+                    // nvl date 
+                    $DDForm = strtotime($DateDebut);
+                    $DFForm = strtotime($DateFin);
+                    if ($DomMaxMinDate !== NULL) {
+                        echo 'non null';
+                        //en cours
+                        $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
+                        $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
+                        if ($DDForm <= $DF) {
+                            echo 'cette personne est indisponnible';
+                        } else {
+                            echo 'cette personne est disponnible';
+                        }
+                    } else {
+                        echo 'null';
+                    }
                     //
                     if (!empty($filename01) || !empty($filename02)) {
                         //  echo 'avec PJ' . $filename01 . '-' . $filename02;
-                        $this->DomModel->genererPDF(
+                        /* $this->DomModel->genererPDF(
                             $Devis,
                             $Prenoms,
                             $AllMontant,
@@ -277,10 +296,10 @@ class DomControl
                             $usersession,
                             $LibelleCodeAg_ServDB,
                             $numvehicul
-                        );
+                        );*/
                     } else {
                         echo 'sans PJ';
-                        $this->DomModel->genererPDF(
+                        /*  $this->DomModel->genererPDF(
                             $Devis,
                             $Prenoms,
                             $AllMontant,
@@ -356,7 +375,7 @@ class DomControl
                             $usersession,
                             $LibelleCodeAg_ServDB,
                             $numvehicul
-                        );
+                        );*/
                     }
                     //
                 } else {
@@ -379,7 +398,7 @@ class DomControl
                         $modeDB = "VIREMENT BANCAIRE : " . $valModeExt;
                     }
                     //exce
-                    $this->DomModel->genererPDF(
+                    /*$this->DomModel->genererPDF(
                         $Devis,
                         $Prenoms,
                         $AllMontant,
@@ -415,9 +434,9 @@ class DomControl
                         $mode,
                         $codeAg_servDB,
 
-                    );
+                    );*/
                     //
-                    if (!empty($filename01) && !empty($filename02)) {
+                    /*   if (!empty($filename01) && !empty($filename02)) {
                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
                             $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                             move_uploaded_file($filetemp01, $Upload_file);
@@ -475,21 +494,21 @@ class DomControl
                     alert("Merci de Mettre les pièce jointes");
                 
                     </script>';
-                    }
+                    }*/
                     //
 
                 }
-                //
+                //  1
             } else {
                 echo '<script type="text/javascript">
                 alert("Merci de vérifier la date début ");
                 document.location.href = "/Hffintranet/index.php?action=showFormDOM";
                 </script>';
             }
-            echo '<script type="text/javascript">   
+            /* echo '<script type="text/javascript">   
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
-                </script>';
+                </script>';*/
         }
     }
     public function ShowListDom()

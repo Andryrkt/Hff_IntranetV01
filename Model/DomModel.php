@@ -178,6 +178,22 @@ class DomModel
         }
         return $compte;
     }
+
+    //
+    public function getInfoDOMMatrSelet($Matri){
+        $SqlDate = "SELECT  min(Date_Debut) as DateDebutMin,
+                             max(Date_Fin) as DateFinMax
+                    FROM Demande_ordre_mission
+                    WHERE  Matricule = '".$Matri."'  
+                    GROUP BY Matricule";
+        $execSqlDate = $this->connexion->query($SqlDate);
+        $DateM = array();
+        while($tab_list = odbc_fetch_array($execSqlDate)){
+            $DateM[] = $tab_list;
+        }
+        return $DateM;
+    }
+    //
     public function getName($Matricule)
     {
         $Queryname  = "SELECT Nom, Prenoms
