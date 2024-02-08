@@ -153,23 +153,23 @@ class DomModel
     }
     // 
     public function getInfoTelCompte($userSelect)
-    {
-        /* $QueryCompte  = "SELECT Nom,
-                            Prenoms,
-                            Numero_Telephone,
-                            Numero_Compte_Bancaire
-                            FROM Personnel
-                            WHERE Matricule = '" . $userSelect . "'";
-        */
-        $QueryCompte = "SELECT Nom,
-        Prenoms,
-        Numero_Telephone,
-        Numero_Compte_Bancaire,
-        Agence_Service_Irium.agence_ips+' '+Agence_Service_Irium.nom_agence_i100 AS Code_serv,
-        Agence_Service_Irium.service_ips+' '+Agence_Service_Irium.nom_service_i100 AS Serv_lib
-        FROM Personnel,Agence_Service_Irium
-        WHERE Personnel.Code_AgenceService_Sage = Agence_Service_Irium.service_sage_paie
-        AND Personnel.Matricule = '".$userSelect."' ";
+    { 
+        $QueryCompte = "SELECT
+                                Nom,
+                                Prenoms,
+                                (
+                                    SELECT TOP 1 Numero_Tel
+                                    FROM Demande_ordre_mission
+                                    WHERE Demande_ordre_mission.Matricule = Personnel.Matricule
+                                    ORDER BY Date_demande DESC
+                                ) AS NumeroTel_Recente,
+                                Numero_Compte_Bancaire,
+                                Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv,
+                                Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 AS Serv_lib
+                        FROM Personnel
+                        JOIN Agence_Service_Irium 
+                        ON Personnel.Code_AgenceService_Sage = Agence_Service_Irium.service_sage_paie
+                         WHERE  Personnel.Matricule = '".$userSelect."' ";
 
         $execCompte = $this->connexion->query($QueryCompte);
         $compte = array();
@@ -242,7 +242,7 @@ class DomModel
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
-    public function getListDom($LibServofCours)
+    public function getListDom($User)
     {
         $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
                             LibelleCodeAgence_Service, 
@@ -263,7 +263,9 @@ class DomModel
                             Total_General_Payer
                     FROM Demande_ordre_mission, Statut_demande
                     WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                    AND Demande_ordre_mission.LibelleCodeAgence_Service = LOWER('" . $LibServofCours . "')
+                    AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+                                                                            FROM Agence_service_autorise 
+                                                                            WHERE Session_Utilisateur = '".$User."' )
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
@@ -427,7 +429,7 @@ class DomModel
 
 
         //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE-DE-MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
@@ -461,6 +463,27 @@ class DomModel
 
         // Sauvegarder le PDF fusionné
         //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
-        $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom, 'F');
+        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
+    }
+
+    public function genererFusion1($FichierDom, $FichierAttache01)
+    {
+        $pdf01 = new Fpdi();
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
+        $pdf01->setSourceFile($chemin01);
+        $templateId = $pdf01->importPage(1);
+        $pdf01->addPage();
+        $pdf01->useTemplate($templateId);
+
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache01;
+        // Ajouter le deuxième fichier PDF
+        $pdf01->setSourceFile($chemin02);
+        $templateId = $pdf01->importPage(1);
+        $pdf01->addPage();
+        $pdf01->useTemplate($templateId);
+
+        // Sauvegarder le PDF fusionné
+        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
+        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 }
