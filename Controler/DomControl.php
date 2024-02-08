@@ -55,9 +55,13 @@ class DomControl
             $prenomExt = $_POST['firstnamesExt'];
             $CINext = $_POST['cin'];
 
+
+
+
             $datesyst = $this->DomModel->getDatesystem();
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
+
             include 'Views/Principe.php';
             //include 'Views/DOM/FormCompleAutre.php';
             include 'Views/DOM/FormCompleDOM.php';
@@ -85,7 +89,7 @@ class DomControl
             $Nomext = $_POST['namesExt'];
             $PrenomExt = $_POST['firstnamesExt'];
             $MatrExt = $_POST['cin'];
-            //
+            //Serv_Ext
             $Code_serv = $_POST['Serv']; //80 Admin
             $code = explode(" ", $Code_serv);
             $code_Agence = strtolower(current($code)); //80 
@@ -96,6 +100,19 @@ class DomControl
             $Servi = strtolower(end($codeserv)); // INfo
             $codeAg_serv = $code_Agence . $Code_Servi; //80-INF
             $LibelleCodeAg_Serv = $Agence . "-" . $Servi;
+
+            //Serv_INT
+            $Code_servINT = $_POST['ServINt'];
+            $codeINT = explode(" ", $Code_servINT);
+            $code_AgenceINT = strtolower(current($codeINT)); //80 
+            $AgenceINT = strtolower(end($codeINT)); // Admin
+            $servINT = $_POST['LibServINT']; //INF info 
+            $codeservINT = explode(" ", $servINT);
+            $Code_ServiINT = strtolower(current($codeservINT)); // INF
+            $ServiINT = strtolower(end($codeserv)); // INfo
+            $codeAg_servINT = $code_AgenceINT . $Code_ServiINT; //80-INF
+            $LibelleCodeAg_ServINT = $AgenceINT . "-" . $ServiINT;
+
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
             $NumDom = $_POST['NumDOM'];
@@ -154,7 +171,8 @@ class DomControl
                     $Nom =  $NomINt;
                     $Prenoms = $PrenomsINt;
                     $matr = $matrInt;
-
+                    $codeAg_servDB = $codeAg_servINT;
+                    $LibelleCodeAg_ServDB = $LibelleCodeAg_ServINT;
 
                     if ($libmodepaie === "ESPECES") {
                         $mode =  $valModesp;
@@ -168,86 +186,180 @@ class DomControl
                         $mode =  "CPT " . $valModecompt;
                         $modeDB = "VIREMENT BANCAIRE : " . $valModecompt;
                     }
+                    if (empty($filename01) || empty($filename02)) {
+                        //exce
+                        $this->DomModel->genererPDF(
+                            $Devis,
+                            $Prenoms,
+                            $AllMontant,
+                            $Code_servINT,
+                            $dateS,
+                            $NumDom,
+                            $serv,
+                            $matr,
+                            $typMiss,
+                            $autrTyp,
+                            $Nom,
+                            $NbJ,
+                            $dateD,
+                            $heureD,
+                            $dateF,
+                            $heureF,
+                            $motif,
+                            $Client,
+                            $fiche,
+                            $lieu,
+                            $vehicule,
+                            $numvehicul,
+                            $idemn,
+                            $totalIdemn,
+                            $motifdep01,
+                            $montdep01,
+                            $motifdep02,
+                            $montdep02,
+                            $motifdep03,
+                            $montdep03,
+                            $totaldep,
+                            $libmodepaie,
+                            $mode,
+                            $codeAg_servDB
+                        );
+                        $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_serv);
 
-                    //exce
-                    $this->DomModel->genererPDF(
-                        $Devis,
-                        $Prenoms,
-                        $AllMontant,
-                        $Code_serv,
-                        $dateS,
-                        $NumDom,
-                        $serv,
-                        $matr,
-                        $typMiss,
-                        $autrTyp,
-                        $Nom,
-                        $NbJ,
-                        $dateD,
-                        $heureD,
-                        $dateF,
-                        $heureF,
-                        $motif,
-                        $Client,
-                        $fiche,
-                        $lieu,
-                        $vehicule,
-                        $numvehicul,
-                        $idemn,
-                        $totalIdemn,
-                        $motifdep01,
-                        $montdep01,
-                        $motifdep02,
-                        $montdep02,
-                        $motifdep03,
-                        $montdep03,
-                        $totaldep,
-                        $libmodepaie,
-                        $mode,
-                        $codeAg_serv
-                    );
-                    $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_serv);
-                    $this->DomModel->InsertDom(
-                        $NumDom,
-                        $dateSystem,
-                        $typMiss,
-                        $autrTyp,
-                        $matr,
-                        $usersession,
-                        $codeAg_serv,
-                        $DateDebut,
-                        $heureD,
-                        $DateFin,
-                        $heureF,
-                        $NbJ,
-                        $motif,
-                        $Client,
-                        $fiche,
-                        $lieu,
-                        $vehicule,
-                        $idemn,
-                        $totalIdemn,
-                        $motifdep01,
-                        $montdep01,
-                        $motifdep02,
-                        $montdep02,
-                        $motifdep03,
-                        $montdep03,
-                        $totaldep,
-                        $AllMontant,
-                        $modeDB,
-                        $valModemob,
-                        $Nom,
-                        $Prenoms,
-                        $Devis,
-                        $filename01,
-                        $filename02,
-                        $usersession,
-                        $LibelleCodeAg_Serv,
-                        $numvehicul
-                    );
+                        $this->DomModel->InsertDom(
+                            $NumDom,
+                            $dateSystem,
+                            $typMiss,
+                            $autrTyp,
+                            $matr,
+                            $usersession,
+                            $codeAg_serv,
+                            $DateDebut,
+                            $heureD,
+                            $DateFin,
+                            $heureF,
+                            $NbJ,
+                            $motif,
+                            $Client,
+                            $fiche,
+                            $lieu,
+                            $vehicule,
+                            $idemn,
+                            $totalIdemn,
+                            $motifdep01,
+                            $montdep01,
+                            $motifdep02,
+                            $montdep02,
+                            $motifdep03,
+                            $montdep03,
+                            $totaldep,
+                            $AllMontant,
+                            $modeDB,
+                            $valModemob,
+                            $Nom,
+                            $Prenoms,
+                            $Devis,
+                            $filename01,
+                            $filename02,
+                            $usersession,
+                            $LibelleCodeAg_ServDB,
+                            $numvehicul
+                        );
+                    } else {
+                        $this->DomModel->genererPDF(
+                            $Devis,
+                            $Prenoms,
+                            $AllMontant,
+                            $Code_servINT,
+                            $dateS,
+                            $NumDom,
+                            $serv,
+                            $matr,
+                            $typMiss,
+                            $autrTyp,
+                            $Nom,
+                            $NbJ,
+                            $dateD,
+                            $heureD,
+                            $dateF,
+                            $heureF,
+                            $motif,
+                            $Client,
+                            $fiche,
+                            $lieu,
+                            $vehicule,
+                            $numvehicul,
+                            $idemn,
+                            $totalIdemn,
+                            $motifdep01,
+                            $montdep01,
+                            $motifdep02,
+                            $montdep02,
+                            $motifdep03,
+                            $montdep03,
+                            $totaldep,
+                            $libmodepaie,
+                            $mode,
+                            $codeAg_servDB
+                        );
+                        if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
+                            $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
+                            move_uploaded_file($filetemp01, $Upload_file);
+                            $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
+                            move_uploaded_file($filetemp02, $Upload_file02);
+                            $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+                            $this->DomModel->InsertDom(
+                                $NumDom,
+                                $dateSystem,
+                                $typMiss,
+                                $autrTyp,
+                                $matr,
+                                $usersession,
+                                $codeAg_servDB,
+                                $DateDebut,
+                                $heureD,
+                                $DateFin,
+                                $heureF,
+                                $NbJ,
+                                $motif,
+                                $Client,
+                                $fiche,
+                                $lieu,
+                                $vehicule,
+                                $idemn,
+                                $totalIdemn,
+                                $motifdep01,
+                                $montdep01,
+                                $motifdep02,
+                                $montdep02,
+                                $motifdep03,
+                                $montdep03,
+                                $totaldep,
+                                $AllMontant,
+                                $modeDB,
+                                $valModemob,
+                                $Nom,
+                                $Prenoms,
+                                $Devis,
+                                $filename01,
+                                $filename02,
+                                $usersession,
+                                $LibelleCodeAg_ServDB,
+                                $numvehicul
+                            );
+                        }
+                    }
+
+                    //
+
+                    //
+
+
                 } else {
-
+                    $codeAg_servDB = $Code_serv;
+                    $LibelleCodeAg_ServDB = $LibelleCodeAg_Serv;
                     $Nom = $Nomext;
                     $Prenoms = $PrenomExt;
                     $matr = "XER00 -" . $MatrExt . " - TEMPORAIRE";
@@ -303,17 +415,17 @@ class DomControl
                         $totaldep,
                         $libmodepaie,
                         $mode,
-                        $codeAg_serv,
+                        $codeAg_servDB,
 
                     );
-
+                    //
                     if (!empty($filename01) && !empty($filename02)) {
                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
                             $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                             move_uploaded_file($filetemp01, $Upload_file);
                             $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                             move_uploaded_file($filetemp02, $Upload_file02);
-                            $FichierDom = $NumDom . '_' . $codeAg_serv . '.pdf';
+                            $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
 
                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                             $this->DomModel->InsertDom(
@@ -323,7 +435,7 @@ class DomControl
                                 $autrTyp,
                                 $matr,
                                 $usersession,
-                                $codeAg_serv,
+                                $codeAg_servDB,
                                 $DateDebut,
                                 $heureD,
                                 $DateFin,
@@ -352,7 +464,7 @@ class DomControl
                                 $filename01,
                                 $filename02,
                                 $usersession,
-                                $LibelleCodeAg_Serv,
+                                $LibelleCodeAg_ServDB,
                                 $numvehicul
                             );
                         } else {
@@ -366,7 +478,7 @@ class DomControl
                 
                     </script>';
                     }
-
+                    //
                     /*if (!empty($filename02)) {
                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
                     move_uploaded_file($filetemp02, $Upload_file);
@@ -375,7 +487,7 @@ class DomControl
                 }*/
                 }
                 //
-            }else{
+            } else {
                 echo '<script type="text/javascript">
                 alert("Merci de vérifier la date début ");
                 document.location.href = "/Hffintranet/index.php?action=showFormDOM";

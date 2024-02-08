@@ -134,8 +134,8 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     function Interne_externe() {
         var Interne = document.getElementById('Interne');
         var externe = document.getElementById('externe');
-        var Pj = document.getElementById('PJ');
-        var labelPj = document.getElementById('label_PJ');
+        var IntServ = document.getElementById('int');
+        var ExtServ = document.getElementById('ext');
         var checkInterne = document.getElementById('radiochek').value;
         var OptInt = document.getElementById('OpInter');
         var OptExt = document.getElementById('OpExter');
@@ -143,15 +143,15 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         if (checkInterne === 'Interne') {
             externe.style.display = 'none';
             Interne.style.display = 'block'
-            Pj.style.display = 'none';
-            labelPj.style.display = 'none';
+             IntServ.style.display = 'block';
+             ExtServ.style.display = 'none';
             OptInt.style.display = 'block';
             OptExt.style.display = 'none';
         } else {
             externe.style.display = 'block';
             Interne.style.display = 'none';
-            Pj.style.display = 'Block';
-            labelPj.style.display = 'Block';
+            IntServ.style.display = 'none';
+             ExtServ.style.display = 'Block';
             OptInt.style.display = 'none';
             OptExt.style.display = 'Block';
         }
@@ -162,7 +162,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         var DF = document.getElementById('dateFin').value;
         var DateD = new Date(DD);
         var DateF = new Date(DF);
-        if(DateD > DateF){
+        if (DateD > DateF) {
             alert('Merci de vérifier la date précédente ');
         }
     }
@@ -181,236 +181,249 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <input type="date" name="datesyst" id="modeesp" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
+            <div class="row" id="ext">
+                <div class="col-4">
                     <label for="Serv" class="label-form">Code :</label>
                     <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
                 </div>
-                <div class="col">
+                <div class="col-4">
                     <label for="LibServ" class="label-form">Service :</label>
                     <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="typeMission" class="label-form"> Type de Mission</label>
-                        <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" readonly />
-
+            </div>
+            <div class="row" id="int">
+                <?php foreach ($Compte as $Serv) : ?>
+                    <div class="col-4">
+                        <label for="Serv" class="label-form">CodeINt :</label>
+                        <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
                     </div>
-                    <div class="col">
-                        <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
-                        <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $autrtype ?>">
+                    <div class="col-4">
+                        <label for="LibServ" class="label-form">ServiceINt :</label>
+                        <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
                     </div>
-                </div>
-
-                <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
-                <div class="row" id="Interne">
-                    <div class="col">
-                        <label for="matricule" class="label-form"> Matricule</label>
-                        <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
-                    </div>
-                    <?php foreach ($Noms as $Noms) : ?>
-                        <div class="col">
-                            <label for="Nomprenoms" class="label-form"> Nom </label>
-                            <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" />
-                        </div>
-                        <div class="col">
-                            <label for="prenoms" class="label-form"> Prénoms </label>
-                            <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="row" id="externe">
-                    <div class="col">
-                        <label for="namesExt" class="label-form"> Nom</label>
-                        <input type="text" name="namesExt" id="namesExt" class="form-control" value="<?php echo $nomExt ?>" readonly>
-                    </div>
-                    <div class="col">
-                        <label for="firstnamesExt" class="label-form"> Prénoms</label>
-                        <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" value="<?php echo $prenomExt ?>" readonly>
-                    </div>
-                    <div class="col">
-                        <label for="cin" class="label-form"> CIN</label>
-                        <input type="text" name="cin" id="cin" class="form-control" value="<?php echo $CINext ?>" readonly>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col">
-                        <label for="dateDebut" class="label-form"> Date début</label>
-                        <input type="date" name="dateDebut" id="dateDebut" class="form-control" required>
-                    </div>
-                    <div class="col">
-                        <label for="heureDebut" class="label-form"> Heure début</label>
-                        <input type="time" name="heureDebut" id="heureDebut" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="dateFin" class="label-form"> Date Fin</label>
-                        <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required>
-                    </div>
-                    <div class="col">
-                        <label for="heureFin" class="label-form"> Heure Fin</label>
-                        <input type="time" name="heureFin" id="heureFin" class="form-control" required>
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="periode" class="label-form" id="nomprenom"> Période</label>
-                        <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;" readonly>
-                    </div>
-
-                    <div class="col">
-                        <label for="motif" class="label-form"> Motif</label>
-                        <input type="text" name="motif" id="motif" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="client" class="label-form"> Client</label>
-                        <input type="text" name="client" id="client" class="form-control">
-                    </div>
-                    <div class="col">
-                        <label for="fiche" class="label-form"> N°fiche</label>
-                        <input type="text" name="fiche" id="fiche" class="form-control">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
-                        <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="vehicule" class="label-form"> Véhicule Société</label>
-                        <select name="vehicule" id="vehicule" class="form-select">
-                            <option value="OUI">OUI</option>
-                            <option value="NON">NON</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <label for="N_vehicule" class="label-form"> N°</label>
-                        <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="Devis" class="label-form">Devise:</label>
-
-                        <select name="Devis" id="Devis" class="form-select">
-                            <option value="MGA">MGA</option>
-                            <option value="EUR">EUR</option>
-                            <option value="USD">USD</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                        <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this)' />
-                    </div>
-                    <div class="col">
-                        <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                        <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required onfocus='use_number(this)' onblur='use_text(this)' />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="MotifAutredep" class="label-form"> Motif Autre dépense 1</label>
-                        <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control">
-                    </div>
-                    <div class="col">
-                        <label for="Autredep1" class="label-form"> Montant </label>
-                        <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                        <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control">
-                    </div>
-                    <div class="col">
-                        <label for="Autredep2" class="label-form"> Montant </label>
-                        <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
-                        <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control">
-                    </div>
-                    <div class="col">
-                        <label for="Autredep3" class="label-form"> Montant </label>
-                        <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                        <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
-                    </div>
-                    <div class="col">
-                        <label for="Alldepense" class="label-form"> Montant Total</label>
-                        <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
-                    </div>
-                </div>
-
-
-
-                <div class="row">
-                    <div class="col">
-                        <h4 style="text-align: center;">Mode de paiement</h4>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="modepaie" class="label-form"> Mode paiement</label>
-                        <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()">
-                            <option value="ESPECES">ESPECES</option>
-                            <option value="MOBILE MONEY">MOBILE MONEY</option>
-                            <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
-                        </select>
-                    </div>
-                    <div class="col" id="OpInter">
-                        <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
-                        <input type="text" name="valModesp" id="modeespece" class="form-control">
-                        <?php foreach ($Compte as $Compte) : ?>
-                            <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Compte['Numero_Telephone'] ?>">
-                            <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Compte['Numero_Compte_Bancaire'] ?>">
-                        <?php endforeach ?>
-                    </div>
-                    <div class="col" id="OpExter">
-                        <label for="modeesp" class="label-form" id="labelMode01"> Mode</label>
-                        <input type="text" name="valModespExt" id="modeExt" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row" id="label_PJ">
-                    <div class="col">
-                        <h4 style="text-align: center;">Pièce Jointe</h4>
-                    </div>
-                </div>
-                <div class="row" id="PJ">
-                    <div class="col">
-                        <label for="file01" class="label-form"> Fichier joint 01 (Merci de mettre un fichier PDF):</label>
-                        <?php
-                        inputFields("", "file01", "file01", "", "file");
-                        ?>
-                    </div>
-                    <div class="col">
-                        <label for="file02" class="label-form"> Fichier joint 02 (Merci de mettre un fichier PDF):</label>
-                        <?php
-                        inputFields("", "file02", "file02", "", "file");
-                        ?>
-                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="typeMission" class="label-form"> Type de Mission</label>
+                    <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" readonly />
 
                 </div>
-                <div class="row">
-                    <div class="mt-2 ">
-                        <a onclick="return confirm('Voulez-vous envoyer la demande ?')"> <button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip"> <i class="fa fa-print"> Envoyer</i></button> </a>
-                    </div>
+                <div class="col">
+                    <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
+                    <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $autrtype ?>">
                 </div>
+            </div>
+
+            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
+            <div class="row" id="Interne">
+                <div class="col">
+                    <label for="matricule" class="label-form"> Matricule</label>
+                    <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
+                </div>
+                <?php foreach ($Noms as $Noms) : ?>
+                    <div class="col">
+                        <label for="Nomprenoms" class="label-form"> Nom </label>
+                        <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" />
+                    </div>
+                    <div class="col">
+                        <label for="prenoms" class="label-form"> Prénoms </label>
+                        <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="row" id="externe">
+                <div class="col">
+                    <label for="namesExt" class="label-form"> Nom</label>
+                    <input type="text" name="namesExt" id="namesExt" class="form-control" value="<?php echo $nomExt ?>" readonly>
+                </div>
+                <div class="col">
+                    <label for="firstnamesExt" class="label-form"> Prénoms</label>
+                    <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" value="<?php echo $prenomExt ?>" readonly>
+                </div>
+                <div class="col">
+                    <label for="cin" class="label-form"> CIN</label>
+                    <input type="text" name="cin" id="cin" class="form-control" value="<?php echo $CINext ?>" readonly>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col">
+                    <label for="dateDebut" class="label-form"> Date début</label>
+                    <input type="date" name="dateDebut" id="dateDebut" class="form-control" required>
+                </div>
+                <div class="col">
+                    <label for="heureDebut" class="label-form"> Heure début</label>
+                    <input type="time" name="heureDebut" id="heureDebut" class="form-control" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="dateFin" class="label-form"> Date Fin</label>
+                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required>
+                </div>
+                <div class="col">
+                    <label for="heureFin" class="label-form"> Heure Fin</label>
+                    <input type="time" name="heureFin" id="heureFin" class="form-control" required>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="periode" class="label-form" id="nomprenom"> Période</label>
+                    <input type="text" name="Nbjour" id="Nbjour" class="form-control" required style="text-align: right;" readonly>
+                </div>
+
+                <div class="col">
+                    <label for="motif" class="label-form"> Motif</label>
+                    <input type="text" name="motif" id="motif" class="form-control" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="client" class="label-form"> Client</label>
+                    <input type="text" name="client" id="client" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="fiche" class="label-form"> N°fiche</label>
+                    <input type="text" name="fiche" id="fiche" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
+                    <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="vehicule" class="label-form"> Véhicule Société</label>
+                    <select name="vehicule" id="vehicule" class="form-select">
+                        <option value="OUI">OUI</option>
+                        <option value="NON">NON</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="N_vehicule" class="label-form"> N°</label>
+                    <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="Devis" class="label-form">Devise:</label>
+
+                    <select name="Devis" id="Devis" class="form-select">
+                        <option value="MGA">MGA</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this)' />
+                </div>
+                <div class="col">
+                    <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" required onfocus='use_number(this)' onblur='use_text(this)' />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="MotifAutredep" class="label-form"> Motif Autre dépense 1</label>
+                    <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="Autredep1" class="label-form"> Montant </label>
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="Autredep2" class="label-form"> Montant </label>
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
+                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control">
+                </div>
+                <div class="col">
+                    <label for="Autredep3" class="label-form"> Montant </label>
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                </div>
+                <div class="col">
+                    <label for="Alldepense" class="label-form"> Montant Total</label>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col">
+                    <h4 style="text-align: center;">Mode de paiement</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="modepaie" class="label-form"> Mode paiement</label>
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()">
+                        <option value="ESPECES">ESPECES</option>
+                        <option value="MOBILE MONEY">MOBILE MONEY</option>
+                        <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
+                    </select>
+                </div>
+                <div class="col" id="OpInter">
+                    <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
+                    <input type="text" name="valModesp" id="modeespece" class="form-control">
+                    <?php foreach ($Compte as $Num) : ?>
+                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['Numero_Telephone'] ?>">
+                        <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Num['Numero_Compte_Bancaire'] ?>">
+                    <?php endforeach ;?>
+                </div>
+                <div class="col" id="OpExter">
+                    <label for="modeesp" class="label-form" id="labelMode01"> Mode</label>
+                    <input type="text" name="valModespExt" id="modeExt" class="form-control">
+                </div>
+            </div>
+
+            <div class="row" id="label_PJ">
+                <div class="col">
+                    <h4 style="text-align: center;">Pièce Jointe</h4>
+                </div>
+            </div>
+            <div class="row" id="PJ">
+                <div class="col">
+                    <label for="file01" class="label-form"> Fichier joint 01 (Merci de mettre un fichier PDF):</label>
+                    <?php
+                    inputFields("", "file01", "file01", "", "file");
+                    ?>
+                </div>
+                <div class="col">
+                    <label for="file02" class="label-form"> Fichier joint 02 (Merci de mettre un fichier PDF):</label>
+                    <?php
+                    inputFields("", "file02", "file02", "", "file");
+                    ?>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="mt-2 ">
+                    <a onclick="return confirm('Voulez-vous envoyer la demande ?')"> <button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip"> <i class="fa fa-print"> Envoyer</i></button> </a>
+                </div>
+            </div>
 
         </form>
     </div>

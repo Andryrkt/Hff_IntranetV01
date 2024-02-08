@@ -121,16 +121,17 @@ class DomModel
         return $excServofCours ? odbc_fetch_array($excServofCours)['Code_AgenceService_Sage'] : false;
     }
     // libel Agence Service 
-   public function getLibeleAgence_Service($CodeAgenceSage){
-    $LibelServ = " SELECT nom_agence_i100 + '-'+  nom_service_i100 as LibAgenceService
+    public function getLibeleAgence_Service($CodeAgenceSage)
+    {
+        $LibelServ = " SELECT nom_agence_i100 + '-'+  nom_service_i100 as LibAgenceService
                         
                   FROM Agence_Service_Irium 
-                WHERE service_sage_paie = '".$CodeAgenceSage."' ";
-   $execLibserv = $this->connexion->query($LibelServ);
-   return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;            
-   }
+                WHERE service_sage_paie = '" . $CodeAgenceSage . "' ";
+        $execLibserv = $this->connexion->query($LibelServ);
+        return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;
+    }
 
-  
+
     public function getInfoUserMservice($ConnectUser)
     {
         $QueryService = "SELECT  Matricule,
@@ -142,7 +143,7 @@ class DomModel
                         IN (SELECT service_sage_paie 
                         FROM Agence_Service_Irium WHERE  agence_ips+service_ips  IN (
                             SELECT  Code_AgenceService_IRIUM 
-                            FROM Agence_service_autorise WHERE Session_Utilisateur = '".$ConnectUser."') )";
+                            FROM Agence_service_autorise WHERE Session_Utilisateur = '" . $ConnectUser . "') )";
         $execService = $this->connexion->query($QueryService);
         $ResUserAllService = array();
         while ($tab = odbc_fetch_array($execService)) {
@@ -153,12 +154,23 @@ class DomModel
     // 
     public function getInfoTelCompte($userSelect)
     {
-        $QueryCompte  = "SELECT Nom,
+        /* $QueryCompte  = "SELECT Nom,
                             Prenoms,
                             Numero_Telephone,
                             Numero_Compte_Bancaire
                             FROM Personnel
                             WHERE Matricule = '" . $userSelect . "'";
+        */
+        $QueryCompte = "SELECT Nom,
+        Prenoms,
+        Numero_Telephone,
+        Numero_Compte_Bancaire,
+        Agence_Service_Irium.agence_ips+' '+Agence_Service_Irium.nom_agence_i100 AS Code_serv,
+        Agence_Service_Irium.service_ips+' '+Agence_Service_Irium.nom_service_i100 AS Serv_lib
+        FROM Personnel,Agence_Service_Irium
+        WHERE Personnel.Code_AgenceService_Sage = Agence_Service_Irium.service_sage_paie
+        AND Personnel.Matricule = '".$userSelect."' ";
+
         $execCompte = $this->connexion->query($QueryCompte);
         $compte = array();
         while ($tab_compt = odbc_fetch_array($execCompte)) {
@@ -226,7 +238,7 @@ class DomModel
                        VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $autrTyp . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
-                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '".$fiche."', '".$Numvehicule."')";
+                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
@@ -251,7 +263,7 @@ class DomModel
                             Total_General_Payer
                     FROM Demande_ordre_mission, Statut_demande
                     WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                    AND Demande_ordre_mission.LibelleCodeAgence_Service = LOWER('".$LibServofCours."')
+                    AND Demande_ordre_mission.LibelleCodeAgence_Service = LOWER('" . $LibServofCours . "')
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
@@ -260,7 +272,8 @@ class DomModel
         }
         return $DomList;
     }
-    public function getDetailDOMselect($NumDOM){
+    public function getDetailDOMselect($NumDOM)
+    {
         $SqlDetail = "SELECT Numero_Ordre_Mission, Date_Demande,
                              Sous_Type_Document, Autre_Type_Document,
                              Matricule, Nom_Session_Utilisateur,  
@@ -279,10 +292,10 @@ class DomModel
                              Total_General_Payer, Mode_Paiement, 
                              Piece_Jointe_1, Piece_Jointe_2
                      FROM Demande_ordre_mission
-                     WHERE Numero_Ordre_Mission = '".$NumDOM."'";
+                     WHERE Numero_Ordre_Mission = '" . $NumDOM . "'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
         $listDetail = array();
-        while($TabDetail= odbc_fetch_array($execSqlDetail)){
+        while ($TabDetail = odbc_fetch_array($execSqlDetail)) {
             $listDetail[] = $TabDetail;
         }
         return $listDetail;
@@ -405,26 +418,25 @@ class DomModel
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $NumDom .'_' . $codeAg_serv . '.pdf', 'F');
-
-
+        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'F');
     }
- 
+
     // copy interne vers DOCUWARE
-    public function copyInterneToDOXCUWARE($NumDom,$codeAg_serv){
+    public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
+    {
 
 
         //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE-DE-MISSION/'. $NumDom . '_'. $codeAg_serv . '.pdf';
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE-DE-MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/'. $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "ok";
         } else {
             echo "sorry";
         }
     }
-    public function genererFusion($FichierDom, $FichierAttache01,$FichierAttache02)
+    public function genererFusion($FichierDom, $FichierAttache01, $FichierAttache02)
     {
         $pdf01 = new Fpdi();
         $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
@@ -448,7 +460,7 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-       //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
-       $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom , 'F');
+        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
+        $pdf01->Output('C:/DOCUWARE/ORDRE-DE-MISSION/' . $FichierDom, 'F');
     }
 }
