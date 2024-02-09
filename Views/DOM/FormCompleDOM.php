@@ -168,7 +168,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     }
 </script>
 
-<body onload="visible_espece(); visible();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
+<body onload="visible_espece();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
             <div class="row">
@@ -182,51 +182,51 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
             </div>
             <div class="row" id="ext">
-                <div class="col-4">
+                <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
                     <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
                 </div>
-                <div class="col-4">
+                <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
                     <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
                 </div>
             </div>
             <div class="row" id="int">
                 <?php foreach ($Compte as $Serv) : ?>
-                    <div class="col-4">
+                    <div class="col-4 offset-6">
                         <label for="Serv" class="label-form">Code :</label>
                         <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 offset-6">
                         <label for="LibServ" class="label-form">Service :</label>
                         <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
                     </div>
                 <?php endforeach; ?>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col-6">
                     <label for="typeMission" class="label-form"> Type de Mission</label>
                     <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" readonly />
 
                 </div>
-                <div class="col">
+                <!--<div class="col">
                     <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
                     <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $autrtype ?>">
-                </div>
+                </div>-->
             </div>
 
             <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
             <div class="row" id="Interne">
-                <div class="col">
+                <div class="col-6">
                     <label for="matricule" class="label-form"> Matricule</label>
                     <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
                 </div>
                 <?php foreach ($Noms as $Noms) : ?>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="Nomprenoms" class="label-form"> Nom </label>
                         <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" />
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="prenoms" class="label-form"> Prénoms </label>
                         <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
                     </div>
@@ -321,11 +321,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this)' />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this);' />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this)' />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this);Somme();' />
                 </div>
             </div>
             <div class="row">

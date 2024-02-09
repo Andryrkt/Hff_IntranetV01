@@ -12,7 +12,7 @@
         var select = document.getElementById('typeMission');
         var labelINput = document.getElementById('labAutre');
         var input = document.getElementById('AutreType');
-        
+
         if (select.value == "AUTRES A PRECISER") {
             labelINput.style.display = 'block';
             input.style.display = 'block';
@@ -25,7 +25,7 @@
 
     function Matricule() {
         var names = document.getElementById('nomprenom').value;
-        let result = names.substring(0,4);
+        let result = names.substring(0, 4);
         document.getElementById('matricule').value = result;
     }
 
@@ -57,7 +57,6 @@ $Agence = $LibAgence . " " . $LibServ;
     #chek {
         <?php
         if (strpos(file_get_contents($fichier), $Agence) !== false) {
-
         } else {
             echo 'display: none';
         }
@@ -65,7 +64,7 @@ $Agence = $LibAgence . " " . $LibServ;
     }
 </style>
 
-<body onload="visible(); Matricule();Interne_externe()">
+<body onload=" Matricule();Interne_externe()">
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -81,14 +80,14 @@ $Agence = $LibAgence . " " . $LibServ;
 
                     </div>
                     <div class="row">
-                        <div class="col">
+                        <div class="col-4 ">
                             <?php foreach ($CodeServiceofCours as $CodeServiceofCours) : ?>
                                 <label for="Serv" class="label-form">Code :</label>
-                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['agence_ips'] . " " . iconv('Windows-1252', 'UTF-8',$CodeServiceofCours['nom_agence_i100']) ?>" readonly><!--echo iconv('Windows-1252', 'UTF-8', $observe)-->
+                                <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $CodeServiceofCours['agence_ips'] . " " . iconv('Windows-1252', 'UTF-8', $CodeServiceofCours['nom_agence_i100']) ?>" readonly><!--echo iconv('Windows-1252', 'UTF-8', $observe)-->
                         </div>
-                        <div class="col">
+                        <div class="col-4">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['service_ips'] . " " . iconv('Windows-1252', 'UTF-8',$CodeServiceofCours['nom_service_i100']) ?>" readonly>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $CodeServiceofCours['service_ips'] . " " . iconv('Windows-1252', 'UTF-8', $CodeServiceofCours['nom_service_i100']) ?>" readonly>
                         </div>
                     <?php endforeach; ?>
                     </div>
@@ -101,16 +100,16 @@ $Agence = $LibAgence . " " . $LibServ;
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col">
+                        <!--<div class="col">
                             <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
                             <input type="text" name="AutreType" class="form-control" id="AutreType">
-                        </div>
+                        </div>-->
                     </div>
                     <div class="row" id="chek">
 
                         <div class="col-4">
                             <label for="AutreType" class="label-form" id="labAutre"> Salarié:</label>
-                            <select name="radiochek" id="radiochek" class="form-select "  onchange="Interne_externe()">
+                            <select name="radiochek" id="radiochek" class="form-select " onchange="Interne_externe()">
                                 <option value="Interne">Permanent</option>
                                 <option value="Externe">Temporaire</option>
                             </select>
@@ -119,7 +118,7 @@ $Agence = $LibAgence . " " . $LibServ;
                     </div>
                     <div class="row" id="Interne">
                         <div class="col">
-                            <label for="Nomprenoms" class="label-form">  Matricule et Nom</label>
+                            <label for="Nomprenoms" class="label-form"> Matricule et Nom</label>
                             <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
                                 <?php foreach ($PersonelServOfCours as $PersonelServOfCours) : ?>
                                     <option value="<?php echo $PersonelServOfCours['Matricule'] . " - " . $PersonelServOfCours['Nom'] ?>"> <?php echo $PersonelServOfCours['Matricule'] . " - " . $PersonelServOfCours['Nom'] ?></option>
