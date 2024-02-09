@@ -171,6 +171,9 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 <body onload="visible_espece();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
+            <div class="d-flex  flex-row-reverse  col">
+                <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
+            </div>
             <div class="row">
                 <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
@@ -251,21 +254,21 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="dateDebut" class="label-form"> Date début</label>
-                    <input type="date" name="dateDebut" id="dateDebut" class="form-control" required>
+                    <input type="date" name="dateDebut" id="dateDebut" class="form-control" required style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="heureDebut" class="label-form"> Heure début</label>
-                    <input type="time" name="heureDebut" id="heureDebut" class="form-control" required value="08:00">
+                    <input type="time" name="heureDebut" id="heureDebut" class="form-control" required value="08:00" style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="dateFin" class="label-form"> Date Fin</label>
-                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required>
+                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
-                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="10:00">
+                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="10:00" style="border-color: orange;">
 
                 </div>
             </div>
@@ -277,29 +280,29 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col">
                     <label for="motif" class="label-form"> Motif</label>
-                    <input type="text" name="motif" id="motif" class="form-control" required>
+                    <input type="text" name="motif" id="motif" class="form-control" required style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="client" class="label-form"> Client</label>
-                    <input type="text" name="client" id="client" class="form-control">
+                    <input type="text" name="client" id="client" class="form-control" style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="fiche" class="label-form"> N°fiche</label>
-                    <input type="text" name="fiche" id="fiche" class="form-control">
+                    <input type="text" name="fiche" id="fiche" class="form-control" >
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
-                    <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required>
+                    <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="vehicule" class="label-form"> Véhicule Société</label>
-                    <select name="vehicule" id="vehicule" class="form-select">
+                    <select name="vehicule" id="vehicule" class="form-select" style="border-color: orange;">
                         <option value="OUI">OUI</option>
                         <option value="NON">NON</option>
                     </select>
@@ -321,47 +324,47 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this);' />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this);' style="border-color: orange;" />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this);Somme();' />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this);Somme();' style="border-color: orange;" />
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep" class="label-form"> Motif Autre dépense 1</label>
-                    <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control">
+                    <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control" style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)'>
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control">
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" style="border-color: orange;" >
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)'>
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)' style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
-                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control">
+                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)'>
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)' style="border-color: orange;">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly >
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
@@ -379,7 +382,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()">
+                    <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()" style="border-color: orange;">
                         <option value="MOBILE MONEY">MOBILE MONEY</option>
                         <option value="ESPECES">ESPECES</option>
                         <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
@@ -389,7 +392,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
                     <input type="text" name="valModesp" id="modeespece" class="form-control">
                     <?php foreach ($Compte as $Num) : ?>
-                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>">
+                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>" style="border-color: orange;">
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Num['Numero_Compte_Bancaire'] ?>">
                     <?php endforeach; ?>
                 </div>
