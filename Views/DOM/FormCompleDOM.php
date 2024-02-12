@@ -94,15 +94,61 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
     }
 
+    function formatEtMettreAJour(champSource, champDestination) {
+        // Récupérer la valeur actuelle du champ source
+        let valeur = document.getElementById(champSource).value;
+
+        // Supprimer tous les caractères non numériques
+        valeur = valeur.replace(/[^\d]/g, '');
+
+        // Convertir la chaîne en nombre
+        let nombre = parseFloat(valeur);
+
+        // Vérifier si le nombre est valide
+        if (!isNaN(nombre)) {
+           
+            // Formater le nombre avec des séparateurs de milliers
+            let valeurFormatee = nombre.toLocaleString('en-US').replace(/,/g, '.');
+
+            // Mettre à jour le champ source avec le nombre formaté
+            document.getElementById(champSource).value = valeurFormatee;
+
+            // Mettre à jour le champ destination avec le nombre formaté
+            document.getElementById(champDestination).value = valeurFormatee;
+
+            // Appeler la fonction de somme
+            sommeChamps('champ1', 'champ2');
+        } else {
+            // Si le nombre n'est pas valide, laisser les champs inchangés
+            document.getElementById(champSource).value = '';
+            document.getElementById(champDestination).value = '';
+        }
+    }
+
+    function sommeEtIndemnite(champA, champB, champ2) {
+        // Récupérer les valeurs des deux champs
+        let valeurChampA = parseFloat(document.getElementById(champA).value.replace(/[^\d]/g, '')) || 0;
+        let valeurChampB = document.getElementById(champB).value;
+
+        // Calculer la somme
+        let somme = valeurChampA * valeurChampB;
+
+        // Formater la somme avec des séparateurs de milliers
+        let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
+
+        // Mettre à jour le champ2 avec la somme formatée
+        document.getElementById(champ2).value = sommeFormatee;
+    }
+
     function Somme() {
         var mont01 = document.getElementById('Autredep1').value;
         var mont02 = document.getElementById('Autredep2').value;
         var mont03 = document.getElementById('Autredep3').value;
         var montIndemTotal = document.getElementById('TotalidemForfait').value;
-        var Smont01 = parseFloat(mont01.replace(/\./g, '').replace(',', '.'));
-        var Smont02 = parseFloat(mont02.replace(/\./g, '').replace(',', '.'));
-        var Smont03 = parseFloat(mont03.replace(/\./g, '').replace(',', '.'));
-        var SmontIndemTotal = parseFloat(montIndemTotal.replace(/\./g, '').replace(',', '.'));
+        var Smont01 = parseFloat(mont01.replace(/\./g, '').replace(',', ''));
+        var Smont02 = parseFloat(mont02.replace(/\./g, '').replace(',', ''));
+        var Smont03 = parseFloat(mont03.replace(/\./g, '').replace(',', ''));
+        var SmontIndemTotal = parseFloat(montIndemTotal.replace(/\./g, '').replace(',', ''));
         if (mont01 === "") {
             Smont01 = 0
         }
@@ -129,6 +175,36 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         var NetPaie = document.getElementById('Alldepense')
         NetPaie.value = SommeTo.toLocaleString('en-US', options).replace(/,/g, '.');
 
+    }
+
+    function calculerSomme(champA, champB, champC, TotalC) {
+        // Récupérer les valeurs des deux champs
+        let valeurChampA = parseFloat(document.getElementById(champA).value.replace('.', '')) || 0;
+        let valeurChampB = parseFloat(document.getElementById(champB).value.replace('.', '')) || 0;
+        let valeurChampC = parseFloat(document.getElementById(champC).value.replace('.', '')) || 0;
+        // Calculer la somme
+        let somme = valeurChampA + valeurChampB + valeurChampC;
+        
+        // Formater la somme avec des séparateurs de milliers
+        let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
+
+        // Mettre à jour le champ sommeTotal avec la somme formatée
+        document.getElementById(TotalC).value = sommeFormatee;
+    }
+
+    function calculerSommeAll(champA, champB, TotalAll) {
+        // Récupérer les valeurs des deux champs
+        let valeurChampA = parseFloat(document.getElementById(champA).value.replace('.', '')) || 0;
+        let valeurChampB = parseFloat(document.getElementById(champB).value.replace('.', '')) || 0;
+       
+        // Calculer la somme
+        let somme = valeurChampA + valeurChampB ;
+
+        // Formater la somme avec des séparateurs de milliers
+        let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
+
+        // Mettre à jour le champ sommeTotal avec la somme formatée
+        document.getElementById(TotalAll).value = sommeFormatee;
     }
 
     function Interne_externe() {
@@ -268,7 +344,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
-                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="10:00" style="border-color: orange;">
+                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="18:00" style="border-color: orange;">
 
                 </div>
             </div>
@@ -290,7 +366,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="fiche" class="label-form"> N°fiche</label>
-                    <input type="text" name="fiche" id="fiche" class="form-control" >
+                    <input type="text" name="fiche" id="fiche" class="form-control">
                 </div>
             </div>
             <div class="row">
@@ -324,11 +400,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" onblur="indemnité();use_text(this)" required onfocus='use_number(this);' style="border-color: orange;" />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " required style="border-color: orange;" />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onfocus='use_number(this)' onblur='use_text(this);Somme();' style="border-color: orange;" />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" disabled onblur='Somme();'  />
                 </div>
             </div>
             <div class="row">
@@ -338,17 +414,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' style="border-color: orange;">
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" oninput="formatEtMettreAJour('Autredep1');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" style="border-color: orange;" >
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)' style="border-color: orange;">
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" oninput="formatEtMettreAJour('Autredep2');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
@@ -358,17 +434,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" onfocus='use_number(this);Somme();' onblur='use_text(this)' style="border-color: orange;">
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" oninput="formatEtMettreAJour('Autredep3');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly >
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" disabled>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" onfocus='use_number(this)' onblur='use_text(this)' readonly>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" oninput="formatEtMettreAJour('Alldepense');" disabled>
                 </div>
             </div>
 
