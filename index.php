@@ -95,6 +95,15 @@ switch ($action) {
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
         break;
+    case 'SelectCateg':
+        $ControlDOM->selectCatg();
+        break;
+    case 'SelectCatgeRental':
+        $ControlDOM->selectCategRental();
+        break;
+    case 'selectIdem':
+        $ControlDOM->selectSiteRental();
+        break;
     case 'DetailDOM':
         $ControlDOM->DetailDOM();
         break;

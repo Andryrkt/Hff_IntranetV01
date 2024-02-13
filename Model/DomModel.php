@@ -153,7 +153,7 @@ class DomModel
     }
     // 
     public function getInfoTelCompte($userSelect)
-    { 
+    {
         $QueryCompte = "SELECT
                                 Nom,
                                 Prenoms,
@@ -169,7 +169,7 @@ class DomModel
                         FROM Personnel
                         JOIN Agence_Service_Irium 
                         ON Personnel.Code_AgenceService_Sage = Agence_Service_Irium.service_sage_paie
-                         WHERE  Personnel.Matricule = '".$userSelect."' ";
+                         WHERE  Personnel.Matricule = '" . $userSelect . "' ";
 
         $execCompte = $this->connexion->query($QueryCompte);
         $compte = array();
@@ -180,19 +180,21 @@ class DomModel
     }
 
     //
-    public function getInfoDOMMatrSelet($Matri){
+    public function getInfoDOMMatrSelet($Matri)
+    {
         $SqlDate = "SELECT  min(Date_Debut) as DateDebutMin,
                              max(Date_Fin) as DateFinMax
                     FROM Demande_ordre_mission
-                    WHERE  Matricule = '".$Matri."'  
+                    WHERE  Matricule = '" . $Matri . "'  
                     GROUP BY Matricule";
         $execSqlDate = $this->connexion->query($SqlDate);
         $DateM = array();
-        while($tab_list = odbc_fetch_array($execSqlDate)){
+        while ($tab_list = odbc_fetch_array($execSqlDate)) {
             $DateM[] = $tab_list;
         }
         return $DateM;
     }
+
     //
     public function getName($Matricule)
     {
@@ -206,13 +208,47 @@ class DomModel
         }
         return $Infopers;
     }
-
+    // categorie
+    public function CategPers($TypeMiss)
+    {
+        $SqlTypeMiss = "SELECT DISTINCT
+                        Catg 
+                        FROM Idemnity 
+                        WHERE Type = '" . $TypeMiss . "' 
+                        AND Rmq = 'STD'";
+        $execSqlTypeMiss = $this->connexion->query($SqlTypeMiss);
+        $ListCatg = array();
+        while ($TabTYpeMiss = odbc_fetch_array($execSqlTypeMiss)) {
+            $ListCatg[] = $TabTYpeMiss;
+        }
+        return $ListCatg;
+    }
+    public function catgeRental($CodeR)
+    {
+        $SqlRentacatg = "SELECT DISTINCT Catg FROM Idemnity WHERE Type = 'MUTATION' AND Rmq = '" . $CodeR . "' ";
+        $exSql = $this->connexion->query($SqlRentacatg);
+        $ListCatge = array();
+        while ($tab_list = odbc_fetch_array($exSql)) {
+            $ListCatge[] = $tab_list;
+        }
+        return $ListCatge;
+    }
+    public function SelectSiteRental($TypeM, $CatgPers)
+    {
+        $Site = "SELECT DISTINCT Destination FROM Idemnity WHERE Type = '" . $TypeM . "' AND Catg = '" . $CatgPers . "' ";
+        $exSite = $this->connexion->query($Site);
+        $list = array();
+        while($tab = odbc_fetch_array($exSite)){
+            $list[] = $tab;
+        }
+        return $list;
+    }
     //Insert DOM 
     public function InsertDom(
         $NumDom,
         $dateS,
         $typMiss,
-        
+
         $matr,
         $usersession,
         $codeAg_serv,
@@ -281,7 +317,7 @@ class DomModel
                     WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
                     AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
                                                                             FROM Agence_service_autorise 
-                                                                            WHERE Session_Utilisateur = '".$User."' )
+                                                                            WHERE Session_Utilisateur = '" . $User . "' )
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
@@ -331,7 +367,7 @@ class DomModel
         $serv,
         $matr,
         $typMiss,
-        
+
         $Nom,
         $NbJ,
         $dateD,
@@ -371,7 +407,7 @@ class DomModel
 
         $pdf->setY(30);
         $pdf->Cell(80, 10, 'Type  : ' . $typMiss, 0, 0);
-       // $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'L');
+        // $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'L');
         $pdf->Cell(40, 10, 'Le: ' . $dateS, 0, 1, 'C');
         $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
         $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);

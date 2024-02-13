@@ -19,7 +19,7 @@
                 <th style="text-align: center;">Sous Type </th>
                 <th style="text-align: center;">Matricule concerné</th>
                 <th style="text-align: center;">Date de demande </th>
-                <th style="text-align: center;">Période</th>
+                <th style="text-align: center;">Nombre de Jour</th>
                 <th style="text-align: center;">Date début</th>
                 <th style="text-align: center;">Date Fin</th>
                 <th style="text-align: center;">N° DOM</th>

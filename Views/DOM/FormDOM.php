@@ -8,20 +8,20 @@
 
 </head>
 <script>
-    function visible() {
+    /*function visible() {
         var select = document.getElementById('typeMission');
-        var labelINput = document.getElementById('labAutre');
-        var input = document.getElementById('AutreType');
+        var labelcatg = document.getElementById('labCategPers');
+        var categ = document.getElementById('categPers');
 
-        if (select.value == "AUTRES A PRECISER") {
-            labelINput.style.display = 'block';
-            input.style.display = 'block';
+        if (select.value !== "MISSION" || select.value !== "MUTATION") {
+            labelcatg.style.display = 'block';
+            categ.style.display = 'block';
 
         } else {
-            labelINput.style.display = 'none';
-            input.style.display = 'none';
+            labelcatg.style.display = 'none';
+            categ.style.display = 'none';
         }
-    }
+    }*/
 
     function Matricule() {
         var names = document.getElementById('nomprenom').value;
@@ -64,7 +64,7 @@ $Agence = $LibAgence . " " . $LibServ;
     }
 </style>
 
-<body onload=" Matricule();Interne_externe()">
+<body onload=" Matricule();Interne_externe() ">
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -94,10 +94,17 @@ $Agence = $LibAgence . " " . $LibServ;
                     <div class="row">
                         <div class="col">
                             <label for="typeMission" class="label-form"> Type de Mission</label>
-                            <select name="typeMission" id="typeMission" class="form-select" onchange="visible()"><!--à discuter voir dans le fiche -->
+                            <select name="typeMission" id="typeMission" class="form-select"><!-- onchange="visible() à discuter voir dans le fiche -->
                                 <?php foreach ($TypeDocument as $TypeDocument) : ?>
                                     <option value="<?php echo $TypeDocument['Code_Sous_type'] ?>"><?php echo $TypeDocument['Code_Sous_type'] ?></option>
                                 <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-4" id="chek">
+                            <label for="AutreType" class="label-form" id="labSalarie"> Salarié:</label>
+                            <select name="radiochek" id="radiochek" class="form-select" onchange="Interne_externe()">
+                                <option value="Interne">Permanent</option>
+                                <option value="Externe">Temporaire</option>
                             </select>
                         </div>
                         <!--<div class="col">
@@ -105,17 +112,56 @@ $Agence = $LibAgence . " " . $LibServ;
                             <input type="text" name="AutreType" class="form-control" id="AutreType">
                         </div>-->
                     </div>
-                    <div class="row" id="chek">
-
+                    <!-- <div class="row" id="chek">
                         <div class="col-4">
-                            <label for="AutreType" class="label-form" id="labAutre"> Salarié:</label>
-                            <select name="radiochek" id="radiochek" class="form-select " onchange="Interne_externe()">
+                            <label for="AutreType" class="label-form" id="labSalarie"> Salarié:</label>
+                            <select name="radiochek" id="radiochek" class="form-select" onchange="Interne_externe()">
                                 <option value="Interne">Permanent</option>
                                 <option value="Externe">Temporaire</option>
                             </select>
                         </div>
+                    </div>-->
+                    <!---->
+                    <div class="row">
+                        <div class="col-6">
+
+                            <div id="affichage_container">
+                            </div>
+                            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                            <script>
+                                $(document).ready(function() {
+                                    $('#typeMission').change(function() {
+                                        var valeurSelectionnee = $(this).val();
+                                        if (valeurSelectionnee === "MISSION" || valeurSelectionnee === "MUTATION") {
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '/Hffintranet/index.php?action=SelectCateg',
+                                                data: {
+                                                    typeMission: valeurSelectionnee
+                                                },
+                                                success: function(response) {
+                                                    if (response.trim() === "") {
+                                                        $('#affichage_container').hide();
+                                                    } else {
+                                                        $('#affichage_container').html(response).show();
+                                                    }
+                                                },
+                                                error: function(error) {
+                                                    console.error(error);
+                                                }
+                                            });
+                                        } else {
+                                            $('#affichage_container').hide();
+                                        }
+                                    });
+                                    $('#typeMission').change();
+                                });
+                            </script>
+
+                        </div>
 
                     </div>
+                    <!---->
                     <div class="row" id="Interne">
                         <div class="col">
                             <label for="Nomprenoms" class="label-form"> Matricule et Nom</label>

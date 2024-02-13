@@ -106,7 +106,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
         // Vérifier si le nombre est valide
         if (!isNaN(nombre)) {
-           
+
             // Formater le nombre avec des séparateurs de milliers
             let valeurFormatee = nombre.toLocaleString('en-US').replace(/,/g, '.');
 
@@ -184,7 +184,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         let valeurChampC = parseFloat(document.getElementById(champC).value.replace('.', '')) || 0;
         // Calculer la somme
         let somme = valeurChampA + valeurChampB + valeurChampC;
-        
+
         // Formater la somme avec des séparateurs de milliers
         let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
 
@@ -196,9 +196,9 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         // Récupérer les valeurs des deux champs
         let valeurChampA = parseFloat(document.getElementById(champA).value.replace('.', '')) || 0;
         let valeurChampB = parseFloat(document.getElementById(champB).value.replace('.', '')) || 0;
-       
+
         // Calculer la somme
-        let somme = valeurChampA + valeurChampB ;
+        let somme = valeurChampA + valeurChampB;
 
         // Formater la somme avec des séparateurs de milliers
         let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
@@ -242,9 +242,30 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             alert('Merci de vérifier la date précédente ');
         }
     }
+
+    function typeCatge() {
+        var catgRental = document.getElementById('MuteRental');
+        var catgSTD = document.getElementById('categ');
+        var TypeMiss = document.getElementById('typeMission').value;
+        var check = document.getElementById('radiochek').value;
+        var codeservint = document.getElementById('ServINt').value;
+        var codeservExt = document.getElementById('Serv').value;
+        if (check === 'Interne') {
+            codeSer = codeservint;
+        } else {
+            codeSer = codeservExt;
+        }
+        if (codeSer === '50 Rental' && TypeMiss == 'MUTATION') {
+            catgRental.style.display = 'block';
+            catgSTD.style.display = 'none';
+        } else {
+            catgRental.style.display = 'none';
+            catgSTD.style.display = 'bloxk';
+        }
+    }
 </script>
 
-<body onload="visible_espece();Interne_externe()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
+<body onload="visible_espece();Interne_externe(); typeCatge()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
             <div class="d-flex  flex-row-reverse  col">
@@ -286,12 +307,98 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <div class="col-6">
                     <label for="typeMission" class="label-form"> Type de Mission</label>
                     <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $typeMission ?>" readonly />
-
                 </div>
+
+
                 <!--<div class="col">
                     <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
                     <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $autrtype ?>">
                 </div>-->
+            </div>
+            <div class="row">
+                <div class="col" id="categ">
+                    <label for="catego" class="label-form"> Catégorie:</label>
+                    <input type="text" name="catego" id="catego" class="form-control" value="<?php echo $CategPers ?>">
+                </div>
+                <div class="col" id="MuteRental"> </div>
+                <div class="col" id="SITE"></div>
+                <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                <script>
+                    $(document).ready(function() {
+                        // Variables globales
+
+
+                        // Fonction pour gérer le changement du champ ServINt
+                        function handleServINtChange() {
+                            var valeurCode = $('#ServINt').val();
+                            var typeMission = $('#typeMission').val();
+                            var codeServ = valeurCode.substring(0, 2);
+                            if (typeMission === "MUTATION" && codeServ === '50') {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Hffintranet/index.php?action=SelectCatgeRental',
+                                    data: {
+                                        CodeRental: codeServ
+                                    },
+                                    success: function(response) {
+                                        $('#MuteRental').html(response).show();
+                                        handleSiteRental();
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                    }
+                                });
+                            } else {
+                                $('#MuteRental').hide();
+                            }
+                        }
+
+                        function handleSiteRental() {
+                            var MutatRental = $('#MuteRental option:selected').text();
+                            MutaRental = MutatRental.replace(/\+/g, ' ');
+                          if (MutaRental.trim() !== "") {
+                                var valeurCode = $('#ServINt').val();
+                                var typeMission = $('#typeMission').val();
+                                var codeServ = valeurCode.substring(0, 2);
+                                if (typeMission === "MUTATION" && codeServ === '50') {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/Hffintranet/index.php?action=selectIdem',
+                                        data: {
+                                            CategPers: MutaRental,
+                                            TypeMiss : typeMission
+                                            
+                                        },
+                                        success: function(response1) {
+                                            $('#SITE').html(response1).show();
+                                        },
+                                        error: function(error) {
+                                            console.error(error);
+                                        }
+                                    });
+                                }
+                            } else {
+                                // Gérer le cas où MutatRental est vide
+                                $('#SITE').html("La valeur de MutatRental est vide.").show();
+                            }
+                        }
+
+                        // Gérer le changement du champ ServINt lors du chargement de la page et lors de la saisie
+                        $('#ServINt').on('input', function() {
+                            handleServINtChange();
+                        });
+
+                        $('#MuteRental').change(function() {
+                            handleSiteRental();
+                        });
+
+                        // Appeler la fonction de gestion du changement au chargement de la page
+                        handleServINtChange();
+                        handleSiteRental();
+                    });
+                </script>
+
+
             </div>
 
             <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
@@ -310,6 +417,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                         <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
                     </div>
                 <?php endforeach; ?>
+
             </div>
             <div class="row" id="externe">
                 <div class="col">
@@ -399,12 +507,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     </select>
                 </div>
                 <div class="col">
-                    <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
+                    <label for="idemForfait" class="label-form"> Indemnité Forfaitaire Journalière(s)</label>
                     <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " required style="border-color: orange;" />
                 </div>
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" disabled onblur='Somme();'  />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" disabled onblur='Somme();' />
                 </div>
             </div>
             <div class="row">
@@ -414,7 +522,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" oninput="formatEtMettreAJour('Autredep1');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep1');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
@@ -424,7 +532,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" oninput="formatEtMettreAJour('Autredep2');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep2');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
@@ -434,7 +542,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" oninput="formatEtMettreAJour('Autredep3');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep3');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense')">
                 </div>
             </div>
             <div class="row">
