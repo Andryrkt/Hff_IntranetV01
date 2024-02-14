@@ -62,9 +62,11 @@ class DomControl
             session_destroy();
             exit();
         }
-        $CatgPersSelect = $_POST['CategPers'];
-       $TypeMiss = $_POST['TypeMiss'];
-        $MutSiteRental = $this->DomModel->SelectSiteRental($TypeMiss,$CatgPersSelect);
+         $CatgPersSelect = $_POST['CategPers'];
+         $TypeMiss = $_POST['TypeMiss'];
+        
+        $MutSiteRental = $this->DomModel->SelectSite($TypeMiss,$CatgPersSelect);
+        
         $response1 = "<label for='SiteRental' class='label-form' id='labSiteRental'> Site:</label>";
         $response1 .="<select id='SiteRental' class='form-select' name='SiteRental'>";
         foreach ($MutSiteRental as $Site) {
@@ -76,6 +78,28 @@ class DomControl
         $response1 .= "</select>";
 
         echo $response1;
+    }
+
+    public function SelectPrixRental(){
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        } 
+        $typeMiss = $_POST['typeMiss'];
+        $categ = $_POST['categ'];
+        $sitesel = $_POST['siteselect'];
+        $codeserv = $_POST['codeser'];
+        if($codeserv === '50'){
+            $PrixMutRental = $this->DomModel->SelectMUTPrixRental($typeMiss,$categ,$sitesel);
+            echo $PrixMutRental;
+        }else{
+           $PrixMutSTD = $this->DomModel->SelectMUTPrixSTD($typeMiss,$categ,$sitesel);
+           echo $PrixMutSTD;
+        }
+        
+        
     }
     //
 

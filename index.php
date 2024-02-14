@@ -104,6 +104,10 @@ switch ($action) {
     case 'selectIdem':
         $ControlDOM->selectSiteRental();
         break;
+  
+    case 'SelectPrixRental':
+        $ControlDOM->SelectPrixRental();
+        break;
     case 'DetailDOM':
         $ControlDOM->DetailDOM();
         break;

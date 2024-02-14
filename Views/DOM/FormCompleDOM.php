@@ -325,9 +325,6 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
                 <script>
                     $(document).ready(function() {
-                        // Variables globales
-
-
                         // Fonction pour gérer le changement du champ ServINt
                         function handleServINtChange() {
                             var valeurCode = $('#ServINt').val();
@@ -351,37 +348,153 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                             } else {
                                 $('#MuteRental').hide();
                             }
+
                         }
 
                         function handleSiteRental() {
                             var MutatRental = $('#MuteRental option:selected').text();
                             MutaRental = MutatRental.replace(/\+/g, ' ');
-                          if (MutaRental.trim() !== "") {
-                                var valeurCode = $('#ServINt').val();
-                                var typeMission = $('#typeMission').val();
-                                var codeServ = valeurCode.substring(0, 2);
+                            var valeurCode = $('#ServINt').val();
+                            var typeMission = $('#typeMission').val();
+                            var codeServ = valeurCode.substring(0, 2);
+                            if (MutaRental.trim() !== "") {
+
                                 if (typeMission === "MUTATION" && codeServ === '50') {
                                     $.ajax({
                                         type: 'POST',
                                         url: '/Hffintranet/index.php?action=selectIdem',
                                         data: {
                                             CategPers: MutaRental,
-                                            TypeMiss : typeMission
-                                            
+                                            TypeMiss: typeMission
+
                                         },
                                         success: function(response1) {
                                             $('#SITE').html(response1).show();
+                                            handlePrixRental();
                                         },
                                         error: function(error) {
                                             console.error(error);
                                         }
                                     });
                                 }
-                            } else {
-                                // Gérer le cas où MutatRental est vide
-                                $('#SITE').html("La valeur de MutatRental est vide.").show();
                             }
+
+                            if (typeMission === "MUTATION" && codeServ !== '50') {
+                                var catgePErs = $('#catego').val();
+                                CatgePers = catgePErs.replace(/\+/g, ' ');
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Hffintranet/index.php?action=selectIdem',
+                                    data: {
+                                        CategPers: CatgePers,
+                                        TypeMiss: typeMission
+                                    },
+                                    success: function(response1) {
+                                        $('#SITE').html(response1).show();
+                                        handlePrixRental();
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                    }
+                                });
+                            }
+                            if (typeMission === "MISSION" ) {
+                                var catgePErs = $('#catego').val();
+                                CatgePers = catgePErs.replace(/\+/g, ' ');
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Hffintranet/index.php?action=selectIdem',
+                                    data: {
+                                        CategPers: CatgePers,
+                                        TypeMiss: typeMission
+                                    },
+                                    success: function(response1) {
+                                        $('#SITE').html(response1).show();
+                                        handlePrixRental();
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                    }
+                                });
+                            }
+
                         }
+
+                        function handlePrixRental() {
+                            var SiteRental = $('#SITE option:selected').text();
+                            SiteRental01 = SiteRental.replace(/\+/g, ' ');
+                            var MutatRental = $('#MuteRental option:selected').text();
+                            MutaRental = MutatRental.replace(/\+/g, ' ');
+                            var valeurCode = $('#ServINt').val();
+                            var typeMission = $('#typeMission').val();
+                            var codeServ = valeurCode.substring(0, 2);
+                            if (SiteRental01.trim() !== "") {
+
+                                if (typeMission === "MUTATION" && codeServ === '50') {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/Hffintranet/index.php?action=SelectPrixRental',
+                                        data: {
+                                            typeMiss: typeMission,
+                                            categ: MutaRental,
+                                            siteselect: SiteRental01,
+                                            codeser: codeServ
+                                        },
+                                        success: function(PrixRental) {
+                                            $('#idemForfait').val(PrixRental).show();
+                                        },
+                                        error: function(error) {
+                                            console.error(error);
+                                        }
+                                    });
+                                }
+                            }
+                            if (typeMission === "MUTATION" && codeServ !== '50') {
+                                var catgePErs = $('#catego').val();
+                                CatgePers = catgePErs.replace(/\+/g, ' ');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Hffintranet/index.php?action=SelectPrixRental',
+                                    data: {
+                                        typeMiss: typeMission,
+                                        categ: CatgePers,
+                                        siteselect: SiteRental01,
+                                        codeser: codeServ
+                                    },
+                                    success: function(PrixRental) {
+                                        $('#idemForfait').val(PrixRental).show();
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                    }
+                                });
+                            }
+                            if (typeMission === "MISSION" ) {
+                                var catgePErs = $('#catego').val();
+                                CatgePers = catgePErs.replace(/\+/g, ' ');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/Hffintranet/index.php?action=SelectPrixRental',
+                                    data: {
+                                        typeMiss: typeMission,
+                                        categ: CatgePers,
+                                        siteselect: SiteRental01,
+                                        codeser: codeServ
+                                    },
+                                    success: function(PrixRental) {
+                                        $('#idemForfait').val(PrixRental).show();
+                                    },
+                                    error: function(error) {
+                                        console.error(error);
+                                    }
+                                });
+                            }
+
+
+                        }
+
 
                         // Gérer le changement du champ ServINt lors du chargement de la page et lors de la saisie
                         $('#ServINt').on('input', function() {
@@ -391,10 +504,14 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                         $('#MuteRental').change(function() {
                             handleSiteRental();
                         });
+                        $('#SITE').change(function() {
+                            handlePrixRental();
+                        });
 
                         // Appeler la fonction de gestion du changement au chargement de la page
                         handleServINtChange();
                         handleSiteRental();
+                        handlePrixRental();
                     });
                 </script>
 
@@ -448,7 +565,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="dateFin" class="label-form"> Date Fin</label>
-                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date() " required style="border-color: orange;">
+                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date();sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " required style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
