@@ -190,7 +190,7 @@ class DomControl
         }
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
-            $AllMontant = $_POST['Alldepense'];
+            $AllMontant = $_POST['Alldepense']; 
             $checkext = $_POST['radiochek'];
             $usersession = $_SESSION['user'];
             //Interne
@@ -227,10 +227,17 @@ class DomControl
 
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
-            $NumDom = $_POST['NumDOM'];
+            $NumDom = $_POST['NumDOM']; echo $NumDom;
             $Devis = $_POST['Devis'];
 
             $typMiss = $_POST['typeMission'];
+            $rentalCateg = $_POST['MutationRental'];
+            $site = $_POST['SiteRental'];
+            $catgeSTD = $_POST['catego'];
+            echo 'STD: ->'.$catgeSTD.'   Site'.$site .'<br>';
+            if($typMiss === 'MISSION'){
+
+            }
             //$autrTyp = $_POST['AutreType'];
 
             $DateDebut = $_POST['dateDebut'];
@@ -248,6 +255,7 @@ class DomControl
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];
             $idemn = $_POST['idemForfait'];
+            $idemnDoit = $_POST['idemForfait01'];
             $totalIdemn = $_POST['TotalidemForfait'];
             $motifdep01 = str_replace("'", "''", $_POST['MotifAutredep']);
             $montdep01 = $_POST['Autredep1'];
@@ -412,7 +420,8 @@ class DomControl
                                 $filename02,
                                 $usersession,
                                 $LibelleCodeAg_ServDB,
-                                $numvehicul
+                                $numvehicul,
+                                $idemnDoit
                             );*/
                     } else {
                         echo 'sans PJ';
@@ -491,7 +500,8 @@ class DomControl
                                 $filename02,
                                 $usersession,
                                 $LibelleCodeAg_ServDB,
-                                $numvehicul
+                                $numvehicul,
+                                $idemnDoit
                             );*/
                     }
                     //
@@ -582,8 +592,8 @@ class DomControl
                             move_uploaded_file($filetemp02, $Upload_file02);
                             $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
 
-                            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                            $this->DomModel->InsertDom(
+                           // $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+                           /* $this->DomModel->InsertDom(
                                 $NumDom,
                                 $dateSystem,
                                 $typMiss,
@@ -620,8 +630,9 @@ class DomControl
                                 $filename02,
                                 $usersession,
                                 $LibelleCodeAg_ServDB,
-                                $numvehicul
-                            );
+                                $numvehicul,
+                                $idemnDoit
+                            );*/
                         } else {
                             echo '<script type="text/javascript">
                             alert("Merci de Mettre les pièce jointes en PDF");
@@ -656,10 +667,10 @@ class DomControl
                 document.location.href = "/Hffintranet/index.php?action=showFormDOM";
                 </script>';
             }
-            echo '<script type="text/javascript">   
+          /*  echo '<script type="text/javascript">   
                 alert("Demande OM Envoyer");
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
-                </script>';
+                </script>';*/
         }
     }
     public function ShowListDom()

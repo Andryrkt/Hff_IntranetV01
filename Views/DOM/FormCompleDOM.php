@@ -267,7 +267,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
 <body onload="visible_espece();Interne_externe(); typeCatge()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data">
+        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
             <div class="d-flex  flex-row-reverse  col">
                 <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
             </div>
@@ -278,7 +278,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="datesyst" class="label-form"> Date</label>
-                    <input type="date" name="datesyst" id="modeesp" class="form-control" value="<?php echo $datesyst ?>" readonly>
+                    <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
             <div class="row" id="ext">
@@ -319,203 +319,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <div class="col" id="categ">
                     <label for="catego" class="label-form"> Catégorie:</label>
                     <input type="text" name="catego" id="catego" class="form-control" value="<?php echo $CategPers ?>">
+
                 </div>
+                <!---->
                 <div class="col" id="MuteRental"> </div>
                 <div class="col" id="SITE"></div>
-                <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-                <script>
-                    $(document).ready(function() {
-                        // Fonction pour gérer le changement du champ ServINt
-                        function handleServINtChange() {
-                            var valeurCode = $('#ServINt').val();
-                            var typeMission = $('#typeMission').val();
-                            var codeServ = valeurCode.substring(0, 2);
-                            if (typeMission === "MUTATION" && codeServ === '50') {
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/Hffintranet/index.php?action=SelectCatgeRental',
-                                    data: {
-                                        CodeRental: codeServ
-                                    },
-                                    success: function(response) {
-                                        $('#MuteRental').html(response).show();
-                                        handleSiteRental();
-                                    },
-                                    error: function(error) {
-                                        console.error(error);
-                                    }
-                                });
-                            } else {
-                                $('#MuteRental').hide();
-                            }
-
-                        }
-
-                        function handleSiteRental() {
-                            var MutatRental = $('#MuteRental option:selected').text();
-                            MutaRental = MutatRental.replace(/\+/g, ' ');
-                            var valeurCode = $('#ServINt').val();
-                            var typeMission = $('#typeMission').val();
-                            var codeServ = valeurCode.substring(0, 2);
-                            if (MutaRental.trim() !== "") {
-
-                                if (typeMission === "MUTATION" && codeServ === '50') {
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '/Hffintranet/index.php?action=selectIdem',
-                                        data: {
-                                            CategPers: MutaRental,
-                                            TypeMiss: typeMission
-
-                                        },
-                                        success: function(response1) {
-                                            $('#SITE').html(response1).show();
-                                            handlePrixRental();
-                                        },
-                                        error: function(error) {
-                                            console.error(error);
-                                        }
-                                    });
-                                }
-                            }
-
-                            if (typeMission === "MUTATION" && codeServ !== '50') {
-                                var catgePErs = $('#catego').val();
-                                CatgePers = catgePErs.replace(/\+/g, ' ');
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/Hffintranet/index.php?action=selectIdem',
-                                    data: {
-                                        CategPers: CatgePers,
-                                        TypeMiss: typeMission
-                                    },
-                                    success: function(response1) {
-                                        $('#SITE').html(response1).show();
-                                        handlePrixRental();
-                                    },
-                                    error: function(error) {
-                                        console.error(error);
-                                    }
-                                });
-                            }
-                            if (typeMission === "MISSION" ) {
-                                var catgePErs = $('#catego').val();
-                                CatgePers = catgePErs.replace(/\+/g, ' ');
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/Hffintranet/index.php?action=selectIdem',
-                                    data: {
-                                        CategPers: CatgePers,
-                                        TypeMiss: typeMission
-                                    },
-                                    success: function(response1) {
-                                        $('#SITE').html(response1).show();
-                                        handlePrixRental();
-                                    },
-                                    error: function(error) {
-                                        console.error(error);
-                                    }
-                                });
-                            }
-
-                        }
-
-                        function handlePrixRental() {
-                            var SiteRental = $('#SITE option:selected').text();
-                            SiteRental01 = SiteRental.replace(/\+/g, ' ');
-                            var MutatRental = $('#MuteRental option:selected').text();
-                            MutaRental = MutatRental.replace(/\+/g, ' ');
-                            var valeurCode = $('#ServINt').val();
-                            var typeMission = $('#typeMission').val();
-                            var codeServ = valeurCode.substring(0, 2);
-                            if (SiteRental01.trim() !== "") {
-
-                                if (typeMission === "MUTATION" && codeServ === '50') {
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '/Hffintranet/index.php?action=SelectPrixRental',
-                                        data: {
-                                            typeMiss: typeMission,
-                                            categ: MutaRental,
-                                            siteselect: SiteRental01,
-                                            codeser: codeServ
-                                        },
-                                        success: function(PrixRental) {
-                                            $('#idemForfait').val(PrixRental).show();
-                                        },
-                                        error: function(error) {
-                                            console.error(error);
-                                        }
-                                    });
-                                }
-                            }
-                            if (typeMission === "MUTATION" && codeServ !== '50') {
-                                var catgePErs = $('#catego').val();
-                                CatgePers = catgePErs.replace(/\+/g, ' ');
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/Hffintranet/index.php?action=SelectPrixRental',
-                                    data: {
-                                        typeMiss: typeMission,
-                                        categ: CatgePers,
-                                        siteselect: SiteRental01,
-                                        codeser: codeServ
-                                    },
-                                    success: function(PrixRental) {
-                                        $('#idemForfait').val(PrixRental).show();
-                                    },
-                                    error: function(error) {
-                                        console.error(error);
-                                    }
-                                });
-                            }
-                            if (typeMission === "MISSION" ) {
-                                var catgePErs = $('#catego').val();
-                                CatgePers = catgePErs.replace(/\+/g, ' ');
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/Hffintranet/index.php?action=SelectPrixRental',
-                                    data: {
-                                        typeMiss: typeMission,
-                                        categ: CatgePers,
-                                        siteselect: SiteRental01,
-                                        codeser: codeServ
-                                    },
-                                    success: function(PrixRental) {
-                                        $('#idemForfait').val(PrixRental).show();
-                                    },
-                                    error: function(error) {
-                                        console.error(error);
-                                    }
-                                });
-                            }
-
-
-                        }
-
-
-                        // Gérer le changement du champ ServINt lors du chargement de la page et lors de la saisie
-                        $('#ServINt').on('input', function() {
-                            handleServINtChange();
-                        });
-
-                        $('#MuteRental').change(function() {
-                            handleSiteRental();
-                        });
-                        $('#SITE').change(function() {
-                            handlePrixRental();
-                        });
-
-                        // Appeler la fonction de gestion du changement au chargement de la page
-                        handleServINtChange();
-                        handleSiteRental();
-                        handlePrixRental();
-                    });
-                </script>
-
-
+                <!---->
             </div>
 
             <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $check; ?>">
@@ -626,10 +435,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire Journalière(s)</label>
                     <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " required style="border-color: orange;" />
+                    <input type="hidden" name="idemForfait01" id="idemForfait01" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " style="border-color: orange;" />
                 </div>
+
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" disabled onblur='Somme();' />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onblur='Somme();' />
                 </div>
             </div>
             <div class="row">
@@ -665,11 +476,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" disabled>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" readonly>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" oninput="formatEtMettreAJour('Alldepense');" disabled>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" oninput="formatEtMettreAJour('Alldepense');" readonly>
                 </div>
             </div>
 
@@ -699,7 +510,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col" id="OpExter">
                     <label for="modeesp" class="label-form" id="labelMode01"> Mode</label>
-                    <input type="text" name="valModespExt" id="modeExt" class="form-control">
+                    <input type="text" name="valModespExt" id="valModespExt" class="form-control">
                 </div>
             </div>
 
@@ -732,5 +543,307 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         </form>
     </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Fonction pour gérer le changement du champ ServINt
+        function handleServINtChange() {
+            var valeurCode = $('#ServINt').val();
+            var typeMission = $('#typeMission').val();
+            var codeServ = valeurCode.substring(0, 2);
+            if (typeMission === "MUTATION" && codeServ === '50') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=SelectCatgeRental',
+                    data: {
+                        CodeRental: codeServ
+                    },
+                    success: function(response) {
+                        $('#MuteRental').html(response).show();
+                        handleSiteRental();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#MuteRental').hide();
+            }
+
+        }
+
+        function handleSiteRental() {
+            var MutatRental = $('#MuteRental option:selected').text();
+            MutaRental = MutatRental.replace(/\+/g, ' '); //categorie select
+            var catgePErs = $('#catego').val(); //no rental
+            CatgePers = catgePErs.replace(/\+/g, ' ');
+            var valeurCode = $('#ServINt').val();
+            var typeMission = $('#typeMission').val();
+            var codeServ = valeurCode.substring(0, 2);
+            if (MutaRental.trim() !== "") {
+
+                if (typeMission === "MUTATION" && codeServ === '50') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Hffintranet/index.php?action=selectIdem',
+                        data: {
+                            CategPers: MutaRental,
+                            TypeMiss: typeMission
+
+                        },
+                        success: function(response1) {
+                            $('#SITE').html(response1).show();
+                            handlePrixRental();
+                        },
+                        error: function(error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            }
+
+            if (typeMission === "MUTATION" && codeServ !== '50') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=selectIdem',
+                    data: {
+                        CategPers: CatgePers,
+                        TypeMiss: typeMission
+                    },
+                    success: function(response1) {
+                        $('#SITE').html(response1).show();
+                        handlePrixRental();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            }
+            if (typeMission === "MISSION") {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=selectIdem',
+                    data: {
+                        CategPers: CatgePers,
+                        TypeMiss: typeMission
+                    },
+                    success: function(response1) {
+                        $('#SITE').html(response1).show();
+                        handlePrixRental();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+        }
+
+        function handlePrixRental() {
+            var SiteRental = $('#SITE option:selected').text();
+            SiteRental01 = SiteRental.replace(/\+/g, ' ');
+            var MutatRental = $('#MuteRental option:selected').text();
+            MutaRental = MutatRental.replace(/\+/g, ' ');
+            var valeurCode = $('#ServINt').val();
+            var typeMission = $('#typeMission').val();
+            var codeServ = valeurCode.substring(0, 2);
+            if (SiteRental01.trim() !== "") {
+
+                if (typeMission === "MUTATION" && codeServ === '50') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Hffintranet/index.php?action=SelectPrixRental',
+                        data: {
+                            typeMiss: typeMission,
+                            categ: MutaRental,
+                            siteselect: SiteRental01,
+                            codeser: codeServ
+                        },
+                        success: function(PrixRental) {
+                            $('#idemForfait').val(PrixRental).show();
+                        },
+                        error: function(error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            }
+            if (typeMission === "MUTATION" && codeServ !== '50') {
+                var catgePErs = $('#catego').val();
+                CatgePers = catgePErs.replace(/\+/g, ' ');
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=SelectPrixRental',
+                    data: {
+                        typeMiss: typeMission,
+                        categ: CatgePers,
+                        siteselect: SiteRental01,
+                        codeser: codeServ
+                    },
+                    success: function(PrixRental) {
+                        $('#idemForfait').val(PrixRental).show();
+                        $('#idemForfait01').val(PrixRental).show();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            }
+            if (typeMission === "MISSION") {
+                var catgePErs = $('#catego').val();
+                CatgePers = catgePErs.replace(/\+/g, ' ');
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=SelectPrixRental',
+                    data: {
+                        typeMiss: typeMission,
+                        categ: CatgePers,
+                        siteselect: SiteRental01,
+                        codeser: codeServ
+                    },
+                    success: function(PrixRental) {
+                        $('#idemForfait').val(PrixRental).show();
+                        $('#idemForfait01').val(PrixRental).show();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+
+        }
+
+
+        // Gérer le changement du champ ServINt lors du chargement de la page et lors de la saisie
+        $('#ServINt').on('input', function() {
+            handleServINtChange();
+        });
+
+        $('#MuteRental').change(function() {
+            handleSiteRental();
+        });
+        $('#SITE').change(function() {
+            handlePrixRental();
+        });
+
+        // Appeler la fonction de gestion du changement au chargement de la page
+        $('#Formulaire').submit(function(e) {
+            e.preventDefault();
+            // variable 
+             var NumDOM = $('#NumDOM').val();
+               var datesyst = $('#datesyst ').val();
+               var Serv = $('#Serv ').val();
+               var LibServ = $('#LibServ ').val();
+               var ServINt = $('#ServINt').val();
+               var LibServINT = $('#LibServINT').val();
+               var typeMission = $('#typeMission').val();
+            var MutatioRental = $('#MuteRental option:selected').text(); //categorieRental
+            // console.log(MutatioRental);
+            var SiteRental = $('#SITE option:selected').text(); // Site
+            //  console.log(SiteRental);
+            var catgePErs = $('#catego').val(); // catgorie non Rental
+            var matricule = $('#matricule ').val();
+            var nomprenom =$ ('#nomprenom  ').val();
+            var prenom =$('#prenom').val();
+            var namesExt = $('#namesExt').val();
+            var firstnamesExt = $('#firstnamesExt ').val();
+            var cin = $('#cin').val();
+            var dateDebut = $('#dateDebut').val();
+            var heureDebut = $('#heureDebut').val();
+            var dateFin = $('#heureDebut').val();
+            var heureFin = $('#heureFin').val();
+            var Nbjour = $('#Nbjour').val();
+            var motif = $('#motif').val();
+            var client = $('#client').val();
+            var fiche = $('#fiche').val();
+            var lieuInterv = $('#lieuInterv').val();
+            var vehicule = $('#vehicule').val();
+            var N_vehicule = $('#N_vehicule').val();
+            var Devis = $('#Devis').val();
+            var idemForfait = $('#idemForfait').val();
+            var idemForfait01 = $('#idemForfait01').val();
+            var TotalidemForfait = $('#TotalidemForfait').val();
+            var MotifAutredep = $('#MotifAutredep').val();
+            var Autredep1 = $('#Autredep1').val();
+            var MotifAutredep2 = $('#MotifAutredep2').val();
+            var Autredep2 = $('#Autredep2').val();
+            var MotifAutredep3 = $('#MotifAutredep3').val();
+            var Autredep3 = $('#Autredep3').val();
+            var TotalAutredep = $('#TotalAutredep').val();
+            var Alldepense = $('#Alldepense').val();
+            var modepaie = $('#modepaie').val();
+            var valModesp = $('#valModesp').val();
+            var valModemob = $('#valModemob').val();
+            var valModecompt = $('#valModecompt').val();
+            var valModespExt = $('#valModespExtt').val();
+            var file01 = $('#file01').val();
+            var file02 = $('#file02').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/Hffintranet/index.php?action=EnvoyerImprime',
+                data: {
+                    NumDOM:NumDOM,
+                     datesyst : datesyst,
+                     Serv : Serv ,
+                     LibServ : LibServ ,
+                     ServINt : ServINt ,
+                     LibServINT : LibServINT,
+                     typeMission : typeMission ,
+                    MutationRental: MutatioRental,
+                     SiteRental : SiteRental ,
+                     catgePErs: catgePErs,
+                     matricule: matricule,
+                     nomprenom : nomprenom,
+                     prenom: prenom,
+                     namesExt: namesExt,
+                     firstnamesExt : firstnamesExt,
+                     cin: cin,
+                     dateDebut: dateDebut,
+                     heureDebut: heureDebut,
+                     dateFin: dateFin,
+                     heureFin: heureFin,
+                     Nbjour: Nbjour,
+                     motif: motif,
+                     client:client,
+                     fiche: fiche,
+                     lieuInterv:lieuInterv,
+                     vehicule: vehicule,
+                     N_vehicule: N_vehicule,
+                     Devis: Devis,
+                     idemForfait: idemForfait,
+                     idemForfait01: idemForfait01,
+                     TotalidemForfait: TotalidemForfait,
+                     MotifAutredep: MotifAutredep,
+                     Autredep1: Autredep1,
+                     MotifAutredep2: MotifAutredep2,
+                     Autredep2:Autredep2,
+                     MotifAutredep3: MotifAutredep3,
+                     Autredep3:Autredep3,
+                     TotalAutredep:TotalAutredep,
+                     Alldepense: Alldepense,
+                     modepaie: modepaie,
+                     valModesp : valModesp ,
+                     valModemob :valModemob ,
+                     valModecompt :valModecompt ,
+                     valModespExt :valModespExt ,
+                     file01 : file01 ,
+                     file02 :file02 
+
+                },
+                beforeSend: function(xhr) {
+                    console.log("Données envoyées au serveur :", xhr);
+                },
+            });
+
+        });
+        handleServINtChange();
+        handleSiteRental();
+        handlePrixRental();
+    });
+</script>
 
 </html>
