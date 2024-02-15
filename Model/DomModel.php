@@ -294,16 +294,20 @@ class DomModel
         $usersessionCre,
         $LibCodeAg_serv,
         $Numvehicule,
-        $doitIdemn
+        $doitIdemn,
+        $CategoriePers,
+        $Site
     ) {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
-                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, NumVehicule,Doit_indemnite)
-                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
+                        Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
+                        NumVehicule,Doit_indemnite, Categorie, Site)
+                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','". $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
-                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "', '".$doitIdemn."')";
+                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
+                        '".$doitIdemn."', '".$CategoriePers."','".$Site."')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
@@ -404,7 +408,9 @@ class DomModel
         $totaldep,
         $libmodepaie,
         $mode,
-        $codeAg_serv
+        $codeAg_serv,
+        $CategoriePers,
+        $Site
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
@@ -421,9 +427,11 @@ class DomModel
         $pdf->setY(30);
         $pdf->Cell(80, 10, 'Type  : ' . $typMiss, 0, 0);
         // $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'L');
-        $pdf->Cell(40, 10, 'Le: ' . $dateS, 0, 1, 'C');
-        $pdf->Cell(0, 10, 'Agence: ' . $Code_serv, 0, 1);
-        $pdf->Cell(0, 10, 'Service: ' . $serv, 0, 1);
+        $pdf->Cell(110, 10, 'Le: ' . $dateS, 0, 1, 'R');
+        $pdf->Cell(80, 10, 'Agence: ' . $Code_serv, 0, 0);
+        $pdf->Cell(110, 10, 'Catégorie : ' . $CategoriePers, 0, 1, 'R');
+        $pdf->Cell(80, 10, 'Service: ' . $serv, 0, 0);
+        $pdf->Cell(110, 10, 'Site : ' . $Site, 0, 1, 'R');
         $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 1);
 
         $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
@@ -493,8 +501,8 @@ class DomModel
     {
 
 
-        //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $matr . '_' . $Code_serv . '.pdf';
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
+       // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
@@ -527,8 +535,8 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
-        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
+        //$pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 
     public function genererFusion1($FichierDom, $FichierAttache01)
@@ -548,7 +556,7 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
-        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom . '.pdf', 'F');
+        //$pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 }

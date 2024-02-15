@@ -244,7 +244,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     }
 
     function typeCatge() {
-        var catgRental = document.getElementById('MuteRental');
+        var catgRental = document.getElementById('MUTARENTAL');
         var catgSTD = document.getElementById('categ');
         var TypeMiss = document.getElementById('typeMission').value;
         var check = document.getElementById('radiochek').value;
@@ -322,7 +322,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 </div>
                 <!---->
-                <div class="col" id="MuteRental"> </div>
+                <div class="col" id="MUTARENTAL"></div>
                 <div class="col" id="SITE"></div>
                 <!---->
             </div>
@@ -559,7 +559,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                         CodeRental: codeServ
                     },
                     success: function(response) {
-                        $('#MuteRental').html(response).show();
+                        $('#MUTARENTAL').html(response).show();
                         handleSiteRental();
                     },
                     error: function(error) {
@@ -567,13 +567,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     }
                 });
             } else {
-                $('#MuteRental').hide();
+                $('#MUTARENTAL').hide();
             }
 
         }
 
         function handleSiteRental() {
-            var MutatRental = $('#MuteRental option:selected').text();
+            var MutatRental = $('#MUTARENTAL option:selected').text();
             MutaRental = MutatRental.replace(/\+/g, ' '); //categorie select
             var catgePErs = $('#catego').val(); //no rental
             CatgePers = catgePErs.replace(/\+/g, ' ');
@@ -644,7 +644,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         function handlePrixRental() {
             var SiteRental = $('#SITE option:selected').text();
             SiteRental01 = SiteRental.replace(/\+/g, ' ');
-            var MutatRental = $('#MuteRental option:selected').text();
+            var MutatRental = $('#MUTARENTAL option:selected').text();
             MutaRental = MutatRental.replace(/\+/g, ' ');
             var valeurCode = $('#ServINt').val();
             var typeMission = $('#typeMission').val();
@@ -722,123 +722,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             handleServINtChange();
         });
 
-        $('#MuteRental').change(function() {
+        $('#MUTARENTAL').change(function() {
             handleSiteRental();
         });
         $('#SITE').change(function() {
             handlePrixRental();
-        });
-
-        // Appeler la fonction de gestion du changement au chargement de la page
-        $('#Formulaire').submit(function(e) {
-            e.preventDefault();
-            // variable 
-             var NumDOM = $('#NumDOM').val();
-               var datesyst = $('#datesyst ').val();
-               var Serv = $('#Serv ').val();
-               var LibServ = $('#LibServ ').val();
-               var ServINt = $('#ServINt').val();
-               var LibServINT = $('#LibServINT').val();
-               var typeMission = $('#typeMission').val();
-            var MutatioRental = $('#MuteRental option:selected').text(); //categorieRental
-            // console.log(MutatioRental);
-            var SiteRental = $('#SITE option:selected').text(); // Site
-            //  console.log(SiteRental);
-            var catgePErs = $('#catego').val(); // catgorie non Rental
-            var matricule = $('#matricule ').val();
-            var nomprenom =$ ('#nomprenom  ').val();
-            var prenom =$('#prenom').val();
-            var namesExt = $('#namesExt').val();
-            var firstnamesExt = $('#firstnamesExt ').val();
-            var cin = $('#cin').val();
-            var dateDebut = $('#dateDebut').val();
-            var heureDebut = $('#heureDebut').val();
-            var dateFin = $('#heureDebut').val();
-            var heureFin = $('#heureFin').val();
-            var Nbjour = $('#Nbjour').val();
-            var motif = $('#motif').val();
-            var client = $('#client').val();
-            var fiche = $('#fiche').val();
-            var lieuInterv = $('#lieuInterv').val();
-            var vehicule = $('#vehicule').val();
-            var N_vehicule = $('#N_vehicule').val();
-            var Devis = $('#Devis').val();
-            var idemForfait = $('#idemForfait').val();
-            var idemForfait01 = $('#idemForfait01').val();
-            var TotalidemForfait = $('#TotalidemForfait').val();
-            var MotifAutredep = $('#MotifAutredep').val();
-            var Autredep1 = $('#Autredep1').val();
-            var MotifAutredep2 = $('#MotifAutredep2').val();
-            var Autredep2 = $('#Autredep2').val();
-            var MotifAutredep3 = $('#MotifAutredep3').val();
-            var Autredep3 = $('#Autredep3').val();
-            var TotalAutredep = $('#TotalAutredep').val();
-            var Alldepense = $('#Alldepense').val();
-            var modepaie = $('#modepaie').val();
-            var valModesp = $('#valModesp').val();
-            var valModemob = $('#valModemob').val();
-            var valModecompt = $('#valModecompt').val();
-            var valModespExt = $('#valModespExtt').val();
-            var file01 = $('#file01').val();
-            var file02 = $('#file02').val();
-
-            $.ajax({
-                type: 'POST',
-                url: '/Hffintranet/index.php?action=EnvoyerImprime',
-                data: {
-                    NumDOM:NumDOM,
-                     datesyst : datesyst,
-                     Serv : Serv ,
-                     LibServ : LibServ ,
-                     ServINt : ServINt ,
-                     LibServINT : LibServINT,
-                     typeMission : typeMission ,
-                    MutationRental: MutatioRental,
-                     SiteRental : SiteRental ,
-                     catgePErs: catgePErs,
-                     matricule: matricule,
-                     nomprenom : nomprenom,
-                     prenom: prenom,
-                     namesExt: namesExt,
-                     firstnamesExt : firstnamesExt,
-                     cin: cin,
-                     dateDebut: dateDebut,
-                     heureDebut: heureDebut,
-                     dateFin: dateFin,
-                     heureFin: heureFin,
-                     Nbjour: Nbjour,
-                     motif: motif,
-                     client:client,
-                     fiche: fiche,
-                     lieuInterv:lieuInterv,
-                     vehicule: vehicule,
-                     N_vehicule: N_vehicule,
-                     Devis: Devis,
-                     idemForfait: idemForfait,
-                     idemForfait01: idemForfait01,
-                     TotalidemForfait: TotalidemForfait,
-                     MotifAutredep: MotifAutredep,
-                     Autredep1: Autredep1,
-                     MotifAutredep2: MotifAutredep2,
-                     Autredep2:Autredep2,
-                     MotifAutredep3: MotifAutredep3,
-                     Autredep3:Autredep3,
-                     TotalAutredep:TotalAutredep,
-                     Alldepense: Alldepense,
-                     modepaie: modepaie,
-                     valModesp : valModesp ,
-                     valModemob :valModemob ,
-                     valModecompt :valModecompt ,
-                     valModespExt :valModespExt ,
-                     file01 : file01 ,
-                     file02 :file02 
-
-                },
-                beforeSend: function(xhr) {
-                    console.log("Données envoyées au serveur :", xhr);
-                },
-            });
-
         });
         handleServINtChange();
         handleSiteRental();
