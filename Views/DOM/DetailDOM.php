@@ -59,10 +59,10 @@
                             <label for="typeMission" class="label-form"> Type de Mission</label>
                             <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $detailDom['Sous_Type_Document'] ?>" readonly />
                         </div>
-                        <div class="col">
+                        <!--<div class="col">
                             <label for="AutreType" class="label-form" id="labAutre"> Autre</label>
                             <input type="text" name="AutreType" class="form-control" id="AutreType" value="<?php echo $detailDom['Autre_Type_Document'] ?>" readonly>
-                        </div>
+                        </div>-->
                     </div>
 
                     <div class="row">
