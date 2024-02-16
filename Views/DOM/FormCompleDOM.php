@@ -192,13 +192,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         document.getElementById(TotalC).value = sommeFormatee;
     }
 
-    function calculerSommeAll(champA, champB,champC, TotalAll) {
+    function calculerSommeAll(champA, champB, champC, TotalAll) {
         // Récupérer les valeurs des deux champs
         let valeurChampA = parseFloat(document.getElementById(champA).value.replace('.', '')) || 0;
         let valeurChampB = parseFloat(document.getElementById(champB).value.replace('.', '')) || 0;
         let valeurchampC = parseFloat(document.getElementById(champC).value.replace('.', '')) || 0;
         // Calculer la somme
-        let somme = (valeurChampA + valeurChampB ) - valeurchampC;
+        let somme = (valeurChampA + valeurChampB) - valeurchampC;
 
         // Formater la somme avec des séparateurs de milliers
         let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
@@ -206,6 +206,8 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         // Mettre à jour le champ sommeTotal avec la somme formatée
         document.getElementById(TotalAll).value = sommeFormatee;
     }
+  
+  
 
     function Interne_externe() {
         var Interne = document.getElementById('Interne');
@@ -261,6 +263,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         } else {
             catgRental.style.display = 'none';
             catgSTD.style.display = 'bloxk';
+        }
+    }
+    function negative(TotalAll) {
+        let valeur_TotalAll = parseFloat(document.getElementById(TotalAll).value.replace('.', '')) || 0;
+        if (valeur_TotalAll < 0) {
+            document.getElementById(TotalAll).value = 0;
         }
     }
 </script>
@@ -426,11 +434,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="IdemDeplac" class="label-form">indemnité de déplacement</label>
-                    <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control" style="border-color: orange;" oninput="formatEtMettreAJour('IdemDeplac')" onblur="sommeEtIndemnite('IdemDeplac','Nbjour','TotalIdemDeplac')" >
+                    <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control" style="border-color: orange;" oninput="formatEtMettreAJour('IdemDeplac')" onblur="sommeEtIndemnite('IdemDeplac','Nbjour','TotalIdemDeplac');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense')">
                 </div>
                 <div class="col">
                     <label for="TotalIdemDeplac" class="label-form"> Total indemnité de déplacement</label>
-                    <input type="text" name="TotalIdemDeplac" id="TotalIdemDeplac" class="form-control" style="border-color: orange;">
+                    <input type="text" name="TotalIdemDeplac" id="TotalIdemDeplac" class="form-control" style="border-color: orange;" readonly>
                 </div>
             </div>
             <div class="row">
@@ -445,7 +453,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire Journalière(s)</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense') " style="border-color: orange;" />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" />
                     <input type="hidden" name="idemForfait01" id="idemForfait01" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense') " style="border-color: orange;" />
                 </div>
 
@@ -461,7 +469,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep1');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense')">
+                    <input type="text" name="Autredep1" id="Autredep1" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep1');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense')">
                 </div>
             </div>
             <div class="row">
@@ -471,7 +479,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep2');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense')">
+                    <input type="text" name="Autredep2" id="Autredep2" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep2');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense')">
                 </div>
             </div>
             <div class="row">
@@ -481,7 +489,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
-                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep3');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense')">
+                    <input type="text" name="Autredep3" id="Autredep3" class="form-control" value="0" oninput="formatEtMettreAJour('Autredep3');" style="border-color: orange;" onblur="calculerSomme('Autredep1','Autredep2','Autredep3','TotalAutredep');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense')">
                 </div>
             </div>
             <div class="row">

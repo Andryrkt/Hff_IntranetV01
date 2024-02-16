@@ -437,7 +437,7 @@ class DomModel
 
         $pdf->Cell(80, 10, 'Matricule : ' . $matr, 0, 0);
         $pdf->Cell(110, 10, 'Ideminté de déplacement: ' . $Idemn_depl, 0, 1, 'R');
-        
+
         $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
         $pdf->Cell(0, 10, 'Prénoms: ' . $Prenoms, 0, 1);
         $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
@@ -505,7 +505,7 @@ class DomModel
     {
 
 
-       //$cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
+      // $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
