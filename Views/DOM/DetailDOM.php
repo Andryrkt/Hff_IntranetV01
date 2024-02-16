@@ -129,6 +129,10 @@
                             <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
                             <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" value="<?php echo $detailDom['Lieu_Intervention'] ?>" readonly>
                         </div>
+                        <div class="col">
+                            <label for="IdemDeplac" class="label-form">indemnité de déplacement</label>
+                            <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control"  value="<?php echo $detailDom['idemnity_depl'] ?>">
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col">
@@ -140,6 +144,7 @@
                             <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" value="<?php echo $detailDom['NumVehicule'] ?>" readonly />
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col">
                             <label for="Devis" class="label-form">Devise:</label>

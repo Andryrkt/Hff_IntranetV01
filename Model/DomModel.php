@@ -362,7 +362,8 @@ class DomModel
                              Autres_depense_2, Motif_Autres_depense_3,
                              Autres_depense_3,Total_Autres_Depenses, 
                              Total_General_Payer, Mode_Paiement, 
-                             Piece_Jointe_1, Piece_Jointe_2
+                             Piece_Jointe_1, Piece_Jointe_2,
+                             idemnity_depl
                      FROM Demande_ordre_mission
                      WHERE Numero_Ordre_Mission = '" . $NumDOM . "'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
