@@ -331,16 +331,16 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row" id="Interne">
                 <div class="col-6">
                     <label for="matricule" class="label-form"> Matricule</label>
-                    <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>">
+                    <input type="text" name="matricule" id="matricule" class="form-control" value="<?php echo $Maricule ?>" readonly>
                 </div>
                 <?php foreach ($Noms as $Noms) : ?>
                     <div class="col-6">
                         <label for="Nomprenoms" class="label-form"> Nom </label>
-                        <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" />
+                        <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $Noms['Nom'] ?>" readonly/>
                     </div>
                     <div class="col-6">
                         <label for="prenoms" class="label-form"> Prénoms </label>
-                        <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" />
+                        <input name="prenom" id="prenom" class="form-control" value="<?php echo $Noms['Prenoms'] ?>" readonly/>
                     </div>
                 <?php endforeach; ?>
 

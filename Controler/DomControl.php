@@ -343,7 +343,7 @@ class DomControl
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                             if ($DDForm <= $DF) {
                                 echo '<script type="text/javascript">
-                                    alert("Cette Personne est en cours de mission, Non disponible");
+                                    alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                     </script>';
                             }
@@ -453,7 +453,7 @@ class DomControl
                                 } //Mobile&allMOnt
                                 else {
                                     echo '<script type="text/javascript">
-                                alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
+                                alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                 </script>';
                                 }
@@ -546,7 +546,7 @@ class DomControl
                                 } //mobile&allMont 
                                 else {
                                     echo '<script type="text/javascript">
-                            alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
+                            alert("Assurez vous que le Montant Total est inférieur à 500.000");
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                                 }
@@ -658,7 +658,7 @@ class DomControl
                             } //Mobile&allMOnt
                             else {
                                 echo '<script type="text/javascript">
-                                alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
+                                alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                 </script>';
                             }
@@ -751,7 +751,7 @@ class DomControl
                             } //mobile&allMont 
                             else {
                                 echo '<script type="text/javascript">
-                            alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
+                            alert("Assurez vous que le Montant Total est inférieur à 500.000");
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                             }
@@ -802,7 +802,7 @@ class DomControl
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                             if ($DDForm <= $DF) {
                                 echo '<script type="text/javascript">
-                                    alert("cette Personne est en cours de mission, Non disponible");
+                                    alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                     </script>';
                             }
@@ -916,7 +916,7 @@ class DomControl
                             } //mobile & AllMont 
                             else {
                                 echo '<script type="text/javascript">
-                                 alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
+                                 alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                             }
@@ -1048,7 +1048,6 @@ class DomControl
                 </script>';
             }
             echo '<script type="text/javascript">   
-                alert("Demande OM Envoyer");
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
                 </script>';
         }
