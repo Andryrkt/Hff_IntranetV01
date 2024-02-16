@@ -263,6 +263,9 @@ class DomControl
             $idemn = $_POST['idemForfait'];
             $idemnDoit = $_POST['idemForfait01'];
             $totalIdemn = $_POST['TotalidemForfait'];
+            //
+            $Idemn_depl = $_POST['IdemDeplac'];
+            //
             $motifdep01 = str_replace("'", "''", $_POST['MotifAutredep']);
             $montdep01 = $_POST['Autredep1'];
             $motifdep02 = str_replace("'", "''", $_POST['MotifAutredep2']);
@@ -392,7 +395,8 @@ class DomControl
                                         $mode,
                                         $codeAg_servDB,
                                         $CategoriePers,
-                                        $Site
+                                        $Site,
+                                        $Idemn_depl
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -448,7 +452,8 @@ class DomControl
                                         $numvehicul,
                                         $idemnDoit,
                                         $CategoriePers,
-                                        $Site
+                                        $Site,
+                                        $Idemn_depl
                                     );
                                 } //Mobile&allMOnt
                                 else {
@@ -497,7 +502,8 @@ class DomControl
                                         $mode,
                                         $codeAg_servDB,
                                         $CategoriePers,
-                                        $Site
+                                        $Site,
+                                        $Idemn_depl
                                     );
                                     $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -541,7 +547,8 @@ class DomControl
                                         $numvehicul,
                                         $idemnDoit,
                                         $CategoriePers,
-                                        $Site
+                                        $Site,
+                                        $Idemn_depl
                                     );
                                 } //mobile&allMont 
                                 else {
@@ -597,7 +604,8 @@ class DomControl
                                     $mode,
                                     $codeAg_servDB,
                                     $CategoriePers,
-                                    $Site
+                                    $Site,
+                                    $Idemn_depl
                                 );
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -653,7 +661,8 @@ class DomControl
                                     $numvehicul,
                                     $idemnDoit,
                                     $CategoriePers,
-                                    $Site
+                                    $Site,
+                                    $Idemn_depl
                                 );
                             } //Mobile&allMOnt
                             else {
@@ -702,7 +711,8 @@ class DomControl
                                     $mode,
                                     $codeAg_servDB,
                                     $CategoriePers,
-                                    $Site
+                                    $Site,
+                                    $Idemn_depl
                                 );
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -746,7 +756,8 @@ class DomControl
                                     $numvehicul,
                                     $idemnDoit,
                                     $CategoriePers,
-                                    $Site
+                                    $Site,
+                                    $Idemn_depl
                                 );
                             } //mobile&allMont 
                             else {
@@ -847,7 +858,8 @@ class DomControl
                                     $mode,
                                     $codeAg_servDB,
                                     $CategoriePers,
-                                    $Site
+                                    $Site,
+                                    $Idemn_depl
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -899,7 +911,8 @@ class DomControl
                                             $numvehicul,
                                             $idemnDoit,
                                             $CategoriePers,
-                                            $Site
+                                            $Site,
+                                            $Idemn_depl
                                         );
                                     } else {
                                         echo '<script type="text/javascript">
@@ -964,7 +977,8 @@ class DomControl
                                 $mode,
                                 $codeAg_servDB,
                                 $CategoriePers,
-                                $Site
+                                $Site,
+                                $Idemn_depl
                             );
                             //
                             if (!empty($filename01) && !empty($filename02)) {
@@ -1016,7 +1030,8 @@ class DomControl
                                         $numvehicul,
                                         $idemnDoit,
                                         $CategoriePers,
-                                        $Site
+                                        $Site,
+                                        $Idemn_depl
                                     );
                                 } else {
                                     echo '<script type="text/javascript">

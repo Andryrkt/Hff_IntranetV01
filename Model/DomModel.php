@@ -296,18 +296,19 @@ class DomModel
         $Numvehicule,
         $doitIdemn,
         $CategoriePers,
-        $Site
+        $Site,
+        $Idemn_depl
     ) {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
                         Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
-                        NumVehicule,Doit_indemnite, Categorie, Site)
+                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl )
                        VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','". $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
                        '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
-                        '".$doitIdemn."', '".$CategoriePers."','".$Site."')";
+                        '".$doitIdemn."', '".$CategoriePers."','".$Site."','".$Idemn_depl."')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 
@@ -410,7 +411,8 @@ class DomModel
         $mode,
         $codeAg_serv,
         $CategoriePers,
-        $Site
+        $Site,
+        $Idemn_depl
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
@@ -432,8 +434,10 @@ class DomModel
         $pdf->Cell(110, 10, 'Catégorie : ' . $CategoriePers, 0, 1, 'R');
         $pdf->Cell(80, 10, 'Service: ' . $serv, 0, 0);
         $pdf->Cell(110, 10, 'Site : ' . $Site, 0, 1, 'R');
-        $pdf->Cell(60, 10, 'Matricule : ' . $matr, 0, 1);
 
+        $pdf->Cell(80, 10, 'Matricule : ' . $matr, 0, 0);
+        $pdf->Cell(110, 10, 'Ideminté de déplacement: ' . $Idemn_depl, 0, 1, 'R');
+        
         $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
         $pdf->Cell(0, 10, 'Prénoms: ' . $Prenoms, 0, 1);
         $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
