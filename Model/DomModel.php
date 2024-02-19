@@ -489,7 +489,7 @@ class DomModel
         //  $pdf->Cell(40, 10, 'LE DEMANDEUR', 1, 0, 'C');
         $pdf->Cell(60, 8, 'CHEF DE SERVICE', 1, 0, 'C');
         $pdf->Cell(60, 8, 'VISA RESP. PERSONNEL ', 1, 0, 'C');
-        $pdf->Cell(60, 8, 'VISA DIRECTION TECHNIQUE', 1, 1, 'C');
+        $pdf->Cell(60, 8, 'VISA COMPTABILITE', 1, 1, 'C');
 
 
         $pdf->Cell(60, 20, ' ', 1, 0, 'C');

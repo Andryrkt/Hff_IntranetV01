@@ -275,7 +275,7 @@ class DomControl
             $totaldep = $_POST['TotalAutredep'];
             $libmodepaie = $_POST['modepaie'];
             $valModesp = $_POST['valModesp'];
-            $valModemob = $_POST['valModemob'];
+            $valModemob =str_replace(" ", "",$_POST['valModemob']) ;
             $valModecompt = $_POST['valModecompt'];
             $valModeExt = $_POST['valModespExt'];
 

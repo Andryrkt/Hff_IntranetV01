@@ -179,11 +179,11 @@ $Agence = $LibAgence . " " . $LibServ;
                     <div class="row" id="externe">
                         <div class="col">
                             <label for="namesExt" class="label-form"> Nom</label>
-                            <input type="text" name="namesExt" id="namesExt" class="form-control">
+                            <input type="text" name="namesExt" id="namesExt" class="form-control" >
                         </div>
                         <div class="col">
-                            <label for="firstnamesExt" class="label-form"> Prénoms</label>
-                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
+                            <label for="firstnamesExt" class="label-form"> Prénoms</label >
+                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" >
                         </div>
                         <div class="col">
                             <label for="cin" class="label-form"> CIN</label>
