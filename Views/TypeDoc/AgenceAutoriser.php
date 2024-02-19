@@ -14,7 +14,7 @@
                 <h3 style="text-align: center;">Agence Service Autoriser</h3>
                 <form action="/Hffintranet/index.php?action=MoveTypeDoc" method="POST">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="TypeDoc"> Utilisateur</label>
+                        <label class="col-sm-2 control-label" for="User"> Utilisateur</label>
                         <div class="col-sm-10">
                             <!-- <input class="form-control" id="focusedInput" type="text" value="Click to focus...">-->
                             <input type="text" class="form-control" name="User" id="User">
@@ -24,7 +24,7 @@
 
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="Soutyp">Code</label>
+                        <label class="col-sm-3 control-label" for="CodeAgence">Code</label>
                         <div class="col-sm-10">
                             <input class="form-control" id="CodeAgence" type="text" name="CodeAgence" readonly>
                         </div>

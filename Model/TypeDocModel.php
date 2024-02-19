@@ -49,4 +49,9 @@ class TypeDocModel
       $exLibserv = $this->Connexion->query($Libserv);
       return $exLibserv ? odbc_fetch_array($exLibserv)['CodeAgence']: false;
    }
+   public function InsertAgenceServiceAutorise($User,$CodeAgence,$DateSyst){
+      $Insert = "INSERT INTO Agence_Service_Irium(Session_Utilisateur, Code_AgenceService_IRIUM, Date_creation)
+      VALUES('".$User."', '".$CodeAgence."', '".$DateSyst."')";
+      $excec = $this->Connexion->query($Insert);
+   }
 }
