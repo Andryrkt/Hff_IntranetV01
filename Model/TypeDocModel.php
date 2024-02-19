@@ -32,4 +32,21 @@ class TypeDocModel
       }
       return $Type;
    }
+   public function getListeServiceAgenceAll()
+   {
+      $ServAg = "SELECT  nom_agence_i100 +'-'+nom_service_i100 as Agence from Agence_Service_Irium";
+      $exServAg = $this->Connexion->query($ServAg);
+      $Serv = array();
+      while ($tabServ = odbc_fetch_array($exServAg)) {
+         $Serv[]= $tabServ;
+      }
+      return $Serv;
+   }
+
+   public function getCodeAgServ($LibAgServ){
+      $Libserv = "SELECT agence_ips +service_ips as CodeAgence FROM Agence_Service_Irium
+       WHERE nom_agence_i100+'-'+nom_service_i100 = '".$LibAgServ."'";
+      $exLibserv = $this->Connexion->query($Libserv);
+      return $exLibserv ? odbc_fetch_array($exLibserv)['CodeAgence']: false;
+   }
 }

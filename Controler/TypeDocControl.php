@@ -38,4 +38,37 @@ class TypeDocControl
 
         }
     }
+    public function showListServiceAgenceAll(){
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+        $listAll = $this->TypeDocModel->getListeServiceAgenceAll();
+        $response = "<label for='ServAg' class='label-form' id='ServAg'> Agecne-Service:</label>";
+        $response .= "<select id='ServAg' class='form-select' name='ServAg' >";
+        foreach ($listAll as $info) {
+            $categ = $info['Agence'];
+            $info = iconv('Windows-1252', 'UTF-8', $categ);
+
+            $response .= "<option value='$info'>$info</option>";
+        }
+        $response .= "</select>";
+
+        echo $response;
+    }
+    public function showListCodeagence(){
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+     $LibAgence = $_POST['libAgServ'];
+     $codeAgence = $this->TypeDocModel->getCodeAgServ($LibAgence);
+     echo $codeAgence;
+
+    }
+
 }

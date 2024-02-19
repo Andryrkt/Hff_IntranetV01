@@ -104,7 +104,7 @@ switch ($action) {
     case 'selectIdem':
         $ControlDOM->selectSiteRental();
         break;
-  
+
     case 'SelectPrixRental':
         $ControlDOM->SelectPrixRental();
         break;
@@ -120,6 +120,12 @@ switch ($action) {
     case 'MoveTypeDoc':
         $ControlType->MoveTypeDocForm();
         break;
+    case 'AgenceServiceAutoAll':
+        $ControlType->showListServiceAgenceAll();
+        break;
+    case 'CodeAgenceServiceAuto':
+        $ControlType->showListCodeagence();
+        break;    
         //    
     case 'Statut':
         $ControlStatut->ShowFormStatut();

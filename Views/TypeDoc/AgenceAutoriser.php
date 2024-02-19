@@ -20,10 +20,13 @@
                             <input type="text" class="form-control" name="User" id="User">
                         </div>
                     </div>
+                    <div class="form-group" id="AgenceAll">
+
+                    </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="Soutyp">Agence Service</label>
+                        <label class="col-sm-3 control-label" for="Soutyp">Code</label>
                         <div class="col-sm-10">
-                            <input class="form-control" id="Agence" type="text" name="Agence">
+                            <input class="form-control" id="CodeAgence" type="text" name="CodeAgence" readonly>
                         </div>
                     </div>
                     <div class="btn-group" style="margin-top: 1%;">
@@ -33,8 +36,8 @@
 
                 </form>
             </div>
-            <div class="col">
-                <table class=" table">
+            <div class="col table-responsive" style="height: 510px;">
+                <table class=" table ">
                     <thead class="table-dark">
                         <tr>
                             <th></th>
@@ -46,7 +49,7 @@
                         <?php foreach ($ListAgenceAuto as $ListAgenceAuto) : ?>
                             <tr>
                                 <td>
-                                     <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="btn btn-danger" href="/Hffintranet/index.php?action=DelAgAuto&Id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Supprimer</a> 
+                                    <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="btn btn-danger" href="/Hffintranet/index.php?action=DelAgAuto&Id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Supprimer</a>
                                 </td>
                                 <td> <?php echo $ListAgenceAuto['Session_Utilisateur'] ?></td>
                                 <td> <?php echo $ListAgenceAuto['Code_AgenceService_IRIUM'] ?></td>
@@ -60,5 +63,48 @@
 
     </div>
 </body>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Fonction pour gérer le changement du champ ServINt
+        function ShowAgenceAll() {
+            $.ajax({
+                type: 'POST',
+                url: '/Hffintranet/index.php?action=AgenceServiceAutoAll',
+                success: function(response) {
+                    $('#AgenceAll').html(response).show();
+                    ShowCodeAgence();
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function ShowCodeAgence() {
+            var LibAgence = $('#AgenceAll option:selected').text();
+            $.ajax({
+                type: 'POST',
+                url: '/Hffintranet/index.php?action=CodeAgenceServiceAuto',
+                data: {
+                    libAgServ: LibAgence
+                },
+                success: function(CodeAgServ) {
+                    $('#CodeAgence').val(CodeAgServ).show();
+
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        }
+        $('#AgenceAll').change(function() {
+            ShowCodeAgence();
+        });
+        ShowAgenceAll()
+        ShowCodeAgence()
+    });
+</script>
 
 </html>
