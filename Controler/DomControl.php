@@ -235,9 +235,9 @@ class DomControl
             $typMiss = $_POST['typeMission'];
             $Site = $_POST['SiteRental'];
             //$CatgeRent =  categ Rental
-            if(isset($_POST['categRental'])){
+            if (isset($_POST['categRental'])) {
                 $CatgeRent = $_POST['categRental'];
-            }else{
+            } else {
                 $CatgeRent =  $_POST['catego'];
             }
             $CatgeSTD = $_POST['catego']; //catgeSTD
@@ -275,7 +275,7 @@ class DomControl
             $totaldep = $_POST['TotalAutredep'];
             $libmodepaie = $_POST['modepaie'];
             $valModesp = $_POST['valModesp'];
-            $valModemob =str_replace(" ", "",$_POST['valModemob']) ;
+            $valModemob = str_replace(" ", "", $_POST['valModemob']);
             $valModecompt = $_POST['valModecompt'];
             $valModeExt = $_POST['valModespExt'];
 
@@ -311,7 +311,7 @@ class DomControl
                     } else {
                         $CategoriePers = $CatgeSTD;
                     }
-                  // echo $CategoriePers . '<\br>' . $Site;
+                    // echo $CategoriePers . '<\br>' . $Site;
 
                     if ($libmodepaie === "ESPECES") {
                         $mode =  $valModesp;
@@ -1080,7 +1080,15 @@ class DomControl
         $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
         $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
         include 'Views/Principe.php';
-        $ListDom = $this->DomModel->getListDom($UserConnect);
+        //Fichier d'accès All Consultat
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+            $ListDom = $this->DomModel->getListDomAll();
+        } else {
+            $ListDom = $this->DomModel->getListDom($UserConnect);
+        }
+        //
+
         include 'Views/DOM/ListDom.php';
     }
     public function DetailDOM()

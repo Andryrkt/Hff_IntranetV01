@@ -344,6 +344,37 @@ class DomModel
         }
         return $DomList;
     }
+    //
+    public function getListDomAll()
+    {
+        $ListDOMAll = "SELECT  ID_Demande_Ordre_Mission,
+                            LibelleCodeAgence_Service, 
+                            Nom_Session_Utilisateur,
+                            Numero_Ordre_Mission,
+                            Type_Document,
+                            Sous_type_document,
+                            Matricule, 
+                            Date_Demande, 
+                            Nombre_Jour, 
+                            Date_Debut, 
+                            Date_Fin, 
+                            Motif_Deplacement,
+                            Client, 
+                            Lieu_Intervention,
+                            Devis,
+                            Statut_demande.Description as Statut,
+                            Total_General_Payer
+                    FROM Demande_ordre_mission, Statut_demande
+                    WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                    ORDER BY ID_Demande_Ordre_Mission DESC";
+        $exec_ListDOMAll = $this->connexion->query($ListDOMAll);
+        $DomListAll = array();
+        while ($row_ListDomAll = odbc_fetch_array($exec_ListDOMAll)) {
+            $DomListAll[] = $row_ListDomAll;
+        }
+        return $DomListAll;
+    }
+    //
     public function getDetailDOMselect($NumDOM)
     {
         $SqlDetail = "SELECT Numero_Ordre_Mission, Date_Demande,
