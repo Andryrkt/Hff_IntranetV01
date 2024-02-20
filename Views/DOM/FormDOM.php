@@ -132,12 +132,15 @@ $Agence = $LibAgence . " " . $LibServ;
                                 $(document).ready(function() {
                                     $('#typeMission').change(function() {
                                         var valeurSelectionnee = $(this).val();
+                                        var Agence = $('#Serv').val();
+                                        var codeAgence = Agence.substring(0,2);
                                         if (valeurSelectionnee === "MISSION" || valeurSelectionnee === "MUTATION") {
                                             $.ajax({
                                                 type: 'POST',
                                                 url: '/Hffintranet/index.php?action=SelectCateg',
                                                 data: {
-                                                    typeMission: valeurSelectionnee
+                                                    typeMission: valeurSelectionnee,
+                                                    CodeAg: codeAgence
                                                 },
                                                 success: function(response) {
                                                     if (response.trim() === "") {

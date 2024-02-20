@@ -18,7 +18,13 @@ class DomControl
             exit();
         }
         $valeurSelect = $_POST['typeMission'];
-        $InforCatge = $this->DomModel->CategPers($valeurSelect);
+        $codeAg = $_POST['CodeAg'];
+        if($codeAg !== '50'){
+            $AgenceCode = 'STD';
+        }else{
+            $AgenceCode = '50';
+        }
+        $InforCatge = $this->DomModel->CategPers($valeurSelect,$AgenceCode);
         $response = "<label for='CategPers' class='label-form' id='labCategPers'> Catégorie:</label>";
         $response .= "<select id='categPers' class='form-select' name='categPers'>";
         foreach ($InforCatge as $info) {
@@ -505,9 +511,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl
                                     );
-                                    $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                 //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                    $this->DomModel->InsertDom(
+                                   /* $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -549,7 +555,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );
+                                    );*/
                                 } //mobile&allMont 
                                 else {
                                     echo '<script type="text/javascript">
@@ -1062,9 +1068,9 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-            echo '<script type="text/javascript">   
+           /* echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
-                </script>';
+                </script>';*/
         }
     }
     public function ShowListDom()

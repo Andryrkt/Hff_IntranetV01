@@ -209,13 +209,13 @@ class DomModel
         return $Infopers;
     }
     // categorie
-    public function CategPers($TypeMiss)
+    public function CategPers($TypeMiss, $codeAg)
     {
         $SqlTypeMiss = "SELECT DISTINCT
                         Catg 
                         FROM Idemnity 
                         WHERE Type = '" . $TypeMiss . "' 
-                        AND Rmq = 'STD'";
+                        AND Rmq = '".$codeAg."'";
         $execSqlTypeMiss = $this->connexion->query($SqlTypeMiss);
         $ListCatg = array();
         while ($TabTYpeMiss = odbc_fetch_array($execSqlTypeMiss)) {
@@ -527,9 +527,13 @@ class DomModel
         $pdf->Cell(60, 20, '  ', 1, 0, 'C');
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
-
+        //pieds de page 
+        $pdf->setY(268);
+        $pdf->SetFont('pdfatimesbi', '', 8);
+        $pdf->Cell(0, 8, 'le mail du demandeur ', 0, 1, 'R');
+        //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'F');
+        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'I');
     }
 
     // copy interne vers DOCUWARE
