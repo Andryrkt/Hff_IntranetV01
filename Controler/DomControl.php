@@ -299,7 +299,8 @@ class DomControl
             $filetemp02 = $file02['tmp_name'];
             $filename_separator02 = explode('.', $filename02);
             $file_extension02 = strtolower(end($filename_separator02));
-
+            // mail 
+            $MailUser = $this->DomModel->getmailUserConnect($_SESSION['user']);
 
             // 1
 
@@ -402,7 +403,8 @@ class DomControl
                                         $codeAg_servDB,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $MailUser
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -509,7 +511,8 @@ class DomControl
                                         $codeAg_servDB,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $MailUser
                                     );
                                  //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -611,7 +614,8 @@ class DomControl
                                     $codeAg_servDB,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $MailUser
                                 );
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -718,7 +722,8 @@ class DomControl
                                     $codeAg_servDB,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $MailUser
                                 );
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -865,7 +870,8 @@ class DomControl
                                     $codeAg_servDB,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $MailUser
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -984,7 +990,8 @@ class DomControl
                                 $codeAg_servDB,
                                 $CategoriePers,
                                 $Site,
-                                $Idemn_depl
+                                $Idemn_depl,
+                                $MailUser
                             );
                             //
                             if (!empty($filename01) && !empty($filename02)) {

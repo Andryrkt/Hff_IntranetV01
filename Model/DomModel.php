@@ -11,7 +11,11 @@ class DomModel
     {
         $this->connexion = $connexion;
     }
-
+    public function getmailUserConnect($Userconnect){
+        $sqlMail = "SELECT Mail FROM Profil_User WHERE Utilisateur = '".$Userconnect."'";
+        $exSqlMail = $this->connexion->query($sqlMail);
+        return $exSqlMail ? odbc_fetch_array($exSqlMail)['Mail']: false;
+    }
     public function getDatesystem()
     {
         $d = strtotime("now");
@@ -215,7 +219,7 @@ class DomModel
                         Catg 
                         FROM Idemnity 
                         WHERE Type = '" . $TypeMiss . "' 
-                        AND Rmq = '".$codeAg."'";
+                        AND Rmq  in('STD','".$codeAg."')";
         $execSqlTypeMiss = $this->connexion->query($SqlTypeMiss);
         $ListCatg = array();
         while ($TabTYpeMiss = odbc_fetch_array($execSqlTypeMiss)) {
@@ -444,7 +448,8 @@ class DomModel
         $codeAg_serv,
         $CategoriePers,
         $Site,
-        $Idemn_depl
+        $Idemn_depl, 
+        $MailUser
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
@@ -530,7 +535,7 @@ class DomModel
         //pieds de page 
         $pdf->setY(268);
         $pdf->SetFont('pdfatimesbi', '', 8);
-        $pdf->Cell(0, 8, 'le mail du demandeur ', 0, 1, 'R');
+        $pdf->Cell(0, 8, $MailUser, 0, 1, 'R');
         //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
         $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'I');
