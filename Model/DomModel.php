@@ -556,7 +556,7 @@ class DomModel
         $pdf->Cell(0, 8, $MailUser, 0, 1, 'R');
         //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'I');
+        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'F');
     }
 
     // copy interne vers DOCUWARE

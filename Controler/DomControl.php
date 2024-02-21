@@ -520,9 +520,9 @@ class DomControl
                                             $MailUser,
                                             $idemnDoit
                                         );
-                                        //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                           $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                        /* $this->DomModel->InsertDom(
+                                         $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -564,7 +564,7 @@ class DomControl
                                             $CategoriePers,
                                             $Site,
                                             $Idemn_depl
-                                        );*/
+                                        );
                                     } //mobile&allMont 
                                     else {
                                         echo '<script type="text/javascript">
@@ -734,9 +734,9 @@ class DomControl
                                         $MailUser,
                                         $idemnDoit
                                     );
-                                    //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                       $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                    /* $this->DomModel->InsertDom(
+                                     $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -778,7 +778,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );*/
+                                    );
                                 } //mobile&allMont 
                                 else {
                                     echo '<script type="text/javascript">
