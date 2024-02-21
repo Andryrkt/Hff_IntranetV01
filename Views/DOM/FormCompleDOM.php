@@ -470,10 +470,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="idemForfait" class="label-form"> Indemnité Forfaitaire Journalière(s)</label>
-                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" />
+                    <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" readonly />
                 </div>
                 <div class="col">
-                    <label for="idemForfait01" class="label-form"> Bonus</label>
+                    <label for="idemForfait01" class="label-form"> Bonus journalier</label>
                     <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" oninput="formatEtMettreAJour('idemForfait01');" onblur="sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" />
                 </div>
 

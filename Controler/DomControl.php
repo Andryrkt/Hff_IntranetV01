@@ -49,7 +49,7 @@ class DomControl
         $ValCodeserv = $_POST['CodeRental'];
         $CatgeRental = $this->DomModel->catgeRental($ValCodeserv);
         $RentalCatg = "<label for='CategRental' class='label-form' id='labCategRental'> Catégorie:</label>";
-        $RentalCatg .= "<select id='categRental' class='form-select' name='categRental'>";
+        $RentalCatg .= "<select id='categRental' class='form-select' name='categRental' >";
         foreach ($CatgeRental as $Catg) {
             $categ = $Catg['Catg'];
             $Catge50 = iconv('Windows-1252', 'UTF-8', $categ);
@@ -415,7 +415,8 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl,
-                                        $MailUser
+                                        $MailUser,
+                                        $idemnDoit
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -523,7 +524,8 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl,
-                                        $MailUser
+                                        $MailUser,
+                                        $idemnDoit
                                     );
                                     //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -626,7 +628,8 @@ class DomControl
                                     $CategoriePers,
                                     $Site,
                                     $Idemn_depl,
-                                    $MailUser
+                                    $MailUser,
+                                    $idemnDoit
                                 );
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -734,7 +737,8 @@ class DomControl
                                     $CategoriePers,
                                     $Site,
                                     $Idemn_depl,
-                                    $MailUser
+                                    $MailUser,
+                                    $idemnDoit
                                 );
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -882,7 +886,8 @@ class DomControl
                                     $CategoriePers,
                                     $Site,
                                     $Idemn_depl,
-                                    $MailUser
+                                    $MailUser,
+                                    $idemnDoit
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -1002,7 +1007,8 @@ class DomControl
                                 $CategoriePers,
                                 $Site,
                                 $Idemn_depl,
-                                $MailUser
+                                $MailUser,
+                                $idemnDoit
                             );
                             //
                             if (!empty($filename01) && !empty($filename02)) {

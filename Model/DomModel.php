@@ -460,7 +460,8 @@ class DomModel
         $CategoriePers,
         $Site,
         $Idemn_depl, 
-        $MailUser
+        $MailUser,
+        $Bonus
     ) {
         $pdf = new TCPDF();
         $pdf->AddPage();
@@ -499,8 +500,14 @@ class DomModel
         $pdf->Cell(0, 10, 'Lieu d intervention : ' . $lieu, 0, 1);
         $pdf->Cell(80, 10, 'Véhicule société : ' . $vehicule, 0, 0);
         $pdf->Cell(60, 10, 'N° de véhicule: ' . $numvehicul, 0, 1);
-        $pdf->Cell(80, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0);
-        $pdf->Cell(60, 10, 'Total indemnité: ' . $totalIdemn . ' ' . $Devis, 0, 1, 'L');
+
+        $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0,'L');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(35, 10, 'Bonus journalier: ' , 0, 0,'L');
+        $pdf->SetTextColor(255, 0, 0);
+        $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0,'L');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(55, 10, 'Total indemnité: ' . $totalIdemn . ' ' . $Devis, 0, 1, 'R');
 
         $pdf->setY(150);
         $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
@@ -544,7 +551,7 @@ class DomModel
         $pdf->Cell(60, 20, ' ', 1, 1, 'C');
 
         //pieds de page 
-        $pdf->setY(268);
+        $pdf->setY(0);
         $pdf->SetFont('pdfatimesbi', '', 8);
         $pdf->Cell(0, 8, $MailUser, 0, 1, 'R');
         //
