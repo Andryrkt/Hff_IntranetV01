@@ -247,18 +247,29 @@ class DomModel
         }
         return $list;
     }
-    public function SelectMUTPrixRental($TypeM,$CategPers,$Dest){
+    public function SelectMUTPrixRental($TypeM,$CategPers,$Dest,$AgCode){
      $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '".$TypeM."' 
-                    AND Catg = '".$CategPers."' AND Destination = '".$Dest."' AND Rmq = '50' ";
+                    AND Catg = '".$CategPers."' AND Destination = '".$Dest."' AND Rmq = '".$AgCode."' ";
      $exPrixRental = $this->connexion->query($PrixRental);
-     return $exPrixRental ? odbc_fetch_array($exPrixRental)['Montant_idemnite'] : false;
+     $Prix = array();
+     while($tab_prix = odbc_fetch_array($exPrixRental)){
+        $Prix[] = $tab_prix;
+     }
+     return $Prix;
     }
-    public function SelectMUTPrixSTD($TypeM,$CategPers,$Dest){
+    //count si 50 catg 
+    public function SiRentalCatg($catg){
+        $sqlcount = "SELECT count(*) as nbCount FROM Idemnity WHERE Catg ='".$catg."' and Rmq = '50' ";
+        $exsqlcount = $this->connexion->query($sqlcount);
+        return $exsqlcount ? odbc_fetch_array($exsqlcount)['nbCount'] :false;
+    }
+    //
+   /* public function SelectMUTPrixSTD($TypeM,$CategPers,$Dest){
         $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '".$TypeM."' 
                        AND Catg = '".$CategPers."' AND Destination = '".$Dest."' AND Rmq = 'STD' ";
         $exPrixRental = $this->connexion->query($PrixRental);
         return $exPrixRental ? odbc_fetch_array($exPrixRental)['Montant_idemnite'] : false;
-       }
+       }*/
     //Insert DOM 
     public function InsertDom(
         $NumDom,

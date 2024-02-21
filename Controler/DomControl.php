@@ -19,12 +19,12 @@ class DomControl
         }
         $valeurSelect = $_POST['typeMission'];
         $codeAg = $_POST['CodeAg'];
-        if($codeAg !== '50'){
+        if ($codeAg !== '50') {
             $AgenceCode = 'STD';
-        }else{
+        } else {
             $AgenceCode = '50';
         }
-        $InforCatge = $this->DomModel->CategPers($valeurSelect,$AgenceCode);
+        $InforCatge = $this->DomModel->CategPers($valeurSelect, $AgenceCode);
         $response = "<label for='CategPers' class='label-form' id='labCategPers'> Catégorie:</label>";
         $response .= "<select id='categPers' class='form-select' name='categPers'>";
         foreach ($InforCatge as $info) {
@@ -98,13 +98,24 @@ class DomControl
         $categ = $_POST['categ'];
         $sitesel = $_POST['siteselect'];
         $codeserv = $_POST['codeser'];
-        if ($codeserv === '50' && $typeMiss  === 'MUTATION') {
-            $PrixMutRental = $this->DomModel->SelectMUTPrixRental($typeMiss, $categ, $sitesel);
-            echo $PrixMutRental;
-        } else {
-            $PrixMutSTD = $this->DomModel->SelectMUTPrixSTD($typeMiss, $categ, $sitesel);
-            echo $PrixMutSTD;
+        $count = $this->DomModel->SiRentalCatg($categ);
+        $nb_count= intval($count);
+        
+        if($nb_count === 0){
+            $agserv = 'STD';
+            $Prix = $this->DomModel->SelectMUTPrixRental($typeMiss,$categ,$sitesel,$agserv);
+            //echo $agserv;
+           echo  $Prix[0]['Montant_idemnite'];
+           
+           // print_r($Prix);
+        }else{
+            $agserv = '50';
+            $Prix = $this->DomModel->SelectMUTPrixRental($typeMiss,$categ,$sitesel,$agserv);
+            //echo $agserv;
+           echo  $Prix[0]['Montant_idemnite'];
         }
+
+        
     }
     //
 
@@ -514,9 +525,9 @@ class DomControl
                                         $Idemn_depl,
                                         $MailUser
                                     );
-                                 //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    //   $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                   /* $this->DomModel->InsertDom(
+                                    /* $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1075,7 +1086,7 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-           /* echo '<script type="text/javascript">   
+            /* echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
                 </script>';*/
         }
