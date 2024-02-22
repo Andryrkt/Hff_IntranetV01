@@ -131,7 +131,7 @@
                         </div>
                         <div class="col">
                             <label for="IdemDeplac" class="label-form">indemnité de déplacement</label>
-                            <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control"  value="<?php echo $detailDom['idemnity_depl'] ?>">
+                            <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control" value="<?php echo $detailDom['idemnity_depl'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
@@ -153,6 +153,10 @@
                         <div class="col">
                             <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
                             <input type="text" name="idemForfait" id="idemForfait" class="form-control" value="<?php echo $detailDom['Indemnite_Forfaitaire'] ?>" readonly />
+                        </div>
+                        <div class="col">
+                            <label for="idemForfait01" class="label-form"> Bonus journalier</label>
+                            <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" value="<?php echo $detailDom['Doit_indemnite']?>" readonly/>
                         </div>
                         <div class="col">
                             <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>

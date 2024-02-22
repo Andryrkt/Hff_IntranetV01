@@ -321,7 +321,7 @@ class DomModel
                         NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl )
                        VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','". $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
-                       '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','O', 
+                       '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','OUV', 
                        '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
                         '".$doitIdemn."', '".$CategoriePers."','".$Site."','".$Idemn_depl."')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
@@ -409,7 +409,8 @@ class DomModel
                              Autres_depense_3,Total_Autres_Depenses, 
                              Total_General_Payer, Mode_Paiement, 
                              Piece_Jointe_1, Piece_Jointe_2,
-                             idemnity_depl
+                             idemnity_depl,
+                             Doit_indemnite
                      FROM Demande_ordre_mission
                      WHERE Numero_Ordre_Mission = '" . $NumDOM . "'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
