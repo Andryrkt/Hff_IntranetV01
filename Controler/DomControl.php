@@ -237,6 +237,7 @@ class DomControl
             $servINT = $_POST['LibServINT']; //INF info 
             $codeservINT = explode(" ", $servINT);
             $Code_ServiINT = strtolower(current($codeservINT)); // INF
+
             $ServiINT = strtolower(end($codeservINT)); // INfo
             $codeAg_servINT = $code_AgenceINT . $Code_ServiINT; //80-INF
             $LibelleCodeAg_ServINT = $AgenceINT . "-" . $ServiINT;
@@ -342,6 +343,17 @@ class DomControl
                     if ($libmodepaie === "VIREMENT BANCAIRE") {
                         $mode =  "CPT " . $valModecompt;
                         $modeDB = "VIREMENT BANCAIRE : " . $valModecompt;
+                    }
+                    //fiche Atelier
+                    $CodeserINT = strtoupper($Code_ServiINT); //codeService ATE
+                    $serviceAtelier = 'ATE, CSP , MAS';
+                    $valeur_Atelier = array_map('trim', explode(',', $serviceAtelier));
+                    if (in_array($CodeserINT, $valeur_Atelier) && !empty($fiche)) {
+                    } else {
+                        echo '<script type="text/javascript">
+                                    alert("Merci de mettre le Numéro de fiche");
+                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
+                                    </script>';
                     }
                     //numtelMOBILE
                     if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
@@ -1031,6 +1043,17 @@ class DomControl
                         $modeDB = "VIREMENT BANCAIRE : " . $valModeExt;
                     }
                     if ($typMiss !== 'COMPLEMENT') {
+                        //fiche Atelier
+                        $CodeserExt = strtoupper($Code_Servi); //codeService ATE
+                        $serviceAtelier = 'ATE, CSP , MAS';
+                        $valeur_Atelier = array_map('trim', explode(',', $serviceAtelier));
+                        if (in_array($CodeserExt, $valeur_Atelier) && !empty($fiche)) {
+                        } else {
+                            echo '<script type="text/javascript">
+                                    alert("Merci de mettre le Numéro de fiche");
+                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
+                                    </script>';
+                        }
                         if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
                         } else {
                             echo '<script type="text/javascript">
@@ -1420,9 +1443,9 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-            echo '<script type="text/javascript">   
+            /* echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
-                </script>';
+                </script>';*/
         }
     }
     public function ShowListDom()

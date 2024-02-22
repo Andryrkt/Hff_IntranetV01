@@ -291,27 +291,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
     }
 
-    function verificationForm() {
-        var Lib_servINT = document.getElementById('LibServINT').value;
-        var Lib_servExt = document.getElementById('LibServ').value;
-        var stat = document.getElementById('radiochek').value;
-        var Fiche = document.getElementById('fiche').value;
-        if (stat === 'Interne') {
-            serv = Lib_servINT;
-            codeserv = serv.substring(0, 3);
-        } else {
-            serv = Lib_servExt;
-            codeserv = serv.substring(0, 3);
-        }
-        ServiceConserner = ['ATE', 'MAS', 'CSP'];
-        if (ServiceConserner.includes(codeserv)) {
-           alert(Fiche);
-        }
-
-    }
+    
 </script>
 
-<body onload="visible_espece();Interne_externe(); typeCatge(); verificationForm()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
+<body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
             <div class="d-flex  flex-row-reverse  col">
