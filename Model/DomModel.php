@@ -330,7 +330,7 @@ class DomModel
     public function getListDom($User)
     {
         $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
-                            LibelleCodeAgence_Service, 
+                            (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
                             Nom_Session_Utilisateur,
                             Numero_Ordre_Mission,
                             Type_Document,
@@ -364,7 +364,7 @@ class DomModel
     public function getListDomAll()
     {
         $ListDOMAll = "SELECT  ID_Demande_Ordre_Mission,
-                            LibelleCodeAgence_Service, 
+                            (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
                             Nom_Session_Utilisateur,
                             Numero_Ordre_Mission,
                             Type_Document,
@@ -505,7 +505,7 @@ class DomModel
 
         $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0,'L');
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(35, 10, 'Supplément journalier: ' , 0, 0,'L');
+        $pdf->Cell(35, 10, 'Supplément /jour: ' , 0, 0,'L');
         $pdf->SetTextColor(255, 0, 0);
         $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0,'L');
         $pdf->SetTextColor(0, 0, 0);

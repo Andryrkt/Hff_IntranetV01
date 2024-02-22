@@ -481,7 +481,7 @@ class DomControl
                                     // echo 'sans PJ';
                                     if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
-                                        $this->DomModel->genererPDF(
+                                      /*  $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -521,10 +521,10 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );
-                                           $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );*/
+                                          // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                         $this->DomModel->InsertDom(
+                                      /*   $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -566,7 +566,7 @@ class DomControl
                                             $CategoriePers,
                                             $Site,
                                             $Idemn_depl
-                                        );
+                                        );*/
                                     } //mobile&allMont 
                                     else {
                                         echo '<script type="text/javascript">
@@ -695,7 +695,7 @@ class DomControl
                                 // echo 'sans PJ';
                                 if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
-                                    $this->DomModel->genererPDF(
+                                  /*  $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -735,10 +735,10 @@ class DomControl
                                         $Idemn_depl,
                                         $MailUser,
                                         $idemnDoit
-                                    );
-                                       $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    );*/
+                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                     $this->DomModel->InsertDom(
+                                   /*  $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -780,7 +780,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );
+                                    );*/
                                 } //mobile&allMont 
                                 else {
                                     echo '<script type="text/javascript">

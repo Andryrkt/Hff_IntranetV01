@@ -125,7 +125,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         }
     }
 
-    function sommeEtIndemnite(champA, champB,champC,  champ2) {
+    function sommeEtIndemnite(champA, champB, champC, champ2) {
         // Récupérer les valeurs des deux champs
         let valeurChampA = parseFloat(document.getElementById(champA).value.replace(/[^\d]/g, '')) || 0;
         let valeurChampC = parseFloat(document.getElementById(champC).value.replace(/[^\d]/g, '')) || 0;
@@ -133,7 +133,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
 
         // Calculer la somme
-        let somme = (valeurChampA + valeurChampC)  * valeurChampB;
+        let somme = (valeurChampA + valeurChampC) * valeurChampB;
 
         // Formater la somme avec des séparateurs de milliers
         let sommeFormatee = somme.toLocaleString('en-US').replace(/,/g, '.');
@@ -208,8 +208,8 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         // Mettre à jour le champ sommeTotal avec la somme formatée
         document.getElementById(TotalAll).value = sommeFormatee;
     }
-  
-  
+
+
 
     function Interne_externe() {
         var Interne = document.getElementById('Interne');
@@ -267,13 +267,15 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             catgSTD.style.display = 'bloxk';
         }
     }
+
     function negative(TotalAll) {
         let valeur_TotalAll = parseFloat(document.getElementById(TotalAll).value.replace('.', '')) || 0;
         if (valeur_TotalAll < 0) {
             document.getElementById(TotalAll).value = 0;
         }
     }
-    function sommeEtIndemniteDeplac(champA, champB, champC){
+
+    function sommeEtIndemniteDeplac(champA, champB, champC) {
         // Récupérer les valeurs des deux champs
         let valeurChampA = parseFloat(document.getElementById(champA).value.replace(/[^\d]/g, '')) || 0;
         let valeurChampB = document.getElementById(champB).value;
@@ -289,22 +291,23 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
     }
 
-    function verificationForm(){
-        var Lib_servINT  = document.getElementById('LibServINT').value;
+    function verificationForm() {
+        var Lib_servINT = document.getElementById('LibServINT').value;
         var Lib_servExt = document.getElementById('LibServ').value;
         var stat = document.getElementById('radiochek').value;
-        if(stat === 'Interne'){
+        var Fiche = document.getElementById('fiche').value;
+        if (stat === 'Interne') {
             serv = Lib_servINT;
-            codeserv = serv.substring(0,3);
-        }else{
+            codeserv = serv.substring(0, 3);
+        } else {
             serv = Lib_servExt;
-            codeserv = serv.substring(0,3);
+            codeserv = serv.substring(0, 3);
         }
-       ServiceConserner = ['ATE','MAS','CSP'];
-      if(ServiceConserner.includes(codeserv)){
-        alert(codeserv);
-      }
-       
+        ServiceConserner = ['ATE', 'MAS', 'CSP'];
+        if (ServiceConserner.includes(codeserv)) {
+           alert(Fiche);
+        }
+
     }
 </script>
 
@@ -417,7 +420,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="dateFin" class="label-form"> Date Fin</label>
-                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date();sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep', 'Alldepense') " required style="border-color: orange;">
+                    <input type="date" name="dateFin" id="dateFin" class="form-control" onblur="recupeVal();Difference_date();sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " required style="border-color: orange;">
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
