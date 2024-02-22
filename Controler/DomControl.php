@@ -270,9 +270,9 @@ class DomControl
             $NbJ = $_POST['Nbjour'];
             $motif =  str_replace("'", "''", $_POST['motif']);
 
-            $Client = str_replace("'", "''", $_POST['client']);
+            $Client = substr(str_replace("'", "''", $_POST['client']), 0, 26);
 
-            $fiche = substr($_POST['fiche'],0,26);
+            $fiche = $_POST['fiche'];
 
             $lieu = str_replace("'", "''", $_POST['lieuInterv']);
             $vehicule = $_POST['vehicule'];
@@ -343,16 +343,17 @@ class DomControl
                         $mode =  "CPT " . $valModecompt;
                         $modeDB = "VIREMENT BANCAIRE : " . $valModecompt;
                     }
+                    //numtelMOBILE
+                    if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
+                    } else {
+                        echo '<script type="text/javascript">
+                        alert("Mettre le Numéro Tel");
+                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
+                        </script>';
+                    }
                     //Type: 
                     if ($typMiss !== 'COMPLEMENT') {
-                        //numtelMOBILE
-                        if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
-                        } else {
-                            echo '<script type="text/javascript">
-                            alert("Mettre le Numéro Tel");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
-                        }
+
                         $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
                         // nvl date 
                         $DDForm = strtotime($DateDebut);
@@ -481,7 +482,7 @@ class DomControl
                                     // echo 'sans PJ';
                                     if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
-                                      /*  $this->DomModel->genererPDF(
+                                        /*  $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -522,9 +523,9 @@ class DomControl
                                             $MailUser,
                                             $idemnDoit
                                         );*/
-                                          // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      /*   $this->DomModel->InsertDom(
+                                        /*   $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -695,7 +696,7 @@ class DomControl
                                 // echo 'sans PJ';
                                 if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
-                                  /*  $this->DomModel->genererPDF(
+                                    /*  $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -736,9 +737,9 @@ class DomControl
                                         $MailUser,
                                         $idemnDoit
                                     );*/
-                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                   /*  $this->DomModel->InsertDom(
+                                    /*  $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1419,7 +1420,7 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-             echo '<script type="text/javascript">   
+            echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
                 </script>';
         }

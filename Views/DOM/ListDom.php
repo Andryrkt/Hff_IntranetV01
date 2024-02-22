@@ -54,7 +54,7 @@
                         echo $DF;
                         ?></td>
                     <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDom['Numero_Ordre_Mission'] ?> "> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
-                    <td><?php echo $ListDom['Statut'] ?></td>
+                    <td style="background-color: orange;"><?php echo $ListDom['Statut'] ?></td>
                     <td><?php echo $ListDom['Motif_Deplacement'] ?></td>
                     <td><?php echo $ListDom['Client'] ?></td>
                     <td><?php echo $ListDom['Lieu_Intervention'] ?></td>
