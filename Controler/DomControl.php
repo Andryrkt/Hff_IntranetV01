@@ -271,7 +271,9 @@ class DomControl
             $motif =  str_replace("'", "''", $_POST['motif']);
 
             $Client = str_replace("'", "''", $_POST['client']);
-            $fiche = $_POST['fiche'];
+
+            $fiche = substr($_POST['fiche'],0,26);
+
             $lieu = str_replace("'", "''", $_POST['lieuInterv']);
             $vehicule = $_POST['vehicule'];
             $numvehicul = $_POST['N_vehicule'];

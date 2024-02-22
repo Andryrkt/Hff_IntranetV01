@@ -351,6 +351,7 @@ class DomModel
                     AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
                                                                             FROM Agence_service_autorise 
                                                                             WHERE Session_Utilisateur = '" . $User . "' )
+                    AND Demande_ordre_mission.Code_Statut in('OUV','CPT')                                                        
                     ORDER BY ID_Demande_Ordre_Mission DESC";
         $exec_ListDOM = $this->connexion->query($ListDOM);
         $DomList = array();
@@ -504,7 +505,7 @@ class DomModel
 
         $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0,'L');
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(35, 10, 'Bonus journalier: ' , 0, 0,'L');
+        $pdf->Cell(35, 10, 'Supplément journalier: ' , 0, 0,'L');
         $pdf->SetTextColor(255, 0, 0);
         $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0,'L');
         $pdf->SetTextColor(0, 0, 0);
