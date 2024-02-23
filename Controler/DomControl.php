@@ -1057,9 +1057,9 @@ class DomControl
                         if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
                         } else {
                             echo '<script type="text/javascript">
-                        alert(""Mettre le Numéro Tel"");
-                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                        </script>';
+                                    alert(""Mettre le Numéro Tel"");
+                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
+                                    </script>';
                         }
                         $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
                         // nvl date 

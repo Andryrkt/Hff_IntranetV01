@@ -38,6 +38,9 @@
 <body onload="visible();Mat()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <?php foreach ($detailDom as $detailDom) : ?>
         <div class="container">
+            <div class="d-flex  flex-row-reverse  col">
+                <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=ListDom" style="text-decoration: none;color:black">Retour</a></button>
+            </div>
             <form action="#" method="POST" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col">
@@ -156,7 +159,7 @@
                         </div>
                         <div class="col">
                             <label for="idemForfait01" class="label-form"> Bonus journalier</label>
-                            <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" value="<?php echo $detailDom['Doit_indemnite']?>" readonly/>
+                            <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" value="<?php echo $detailDom['Doit_indemnite'] ?>" readonly />
                         </div>
                         <div class="col">
                             <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>

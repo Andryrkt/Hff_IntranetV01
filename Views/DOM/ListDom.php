@@ -8,7 +8,7 @@
 </head>
 
 <body>
-   
+
     <table class=" table">
         <thead class="table-dark">
             <tr>
@@ -32,7 +32,7 @@
             </tr>
         </thead>
         <tbody>
-            <?php   foreach ($ListDom as $ListDom) : ?>
+            <?php foreach ($ListDom as $ListDom) : ?>
                 <tr>
                     <td><?php echo $ListDom['ID_Demande_Ordre_Mission'] ?></td>
                     <td><?php echo iconv('Windows-1252', 'UTF-8',  $ListDom['LibelleCodeAgence_Service']) ?></td>
@@ -54,7 +54,24 @@
                         echo $DF;
                         ?></td>
                     <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDom['Numero_Ordre_Mission'] ?> "> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
-                    <td style="background-color: orange;"><?php echo $ListDom['Statut'] ?></td>
+                    <?php
+                    $color_ouvert = "#efd807";
+                    $color_compta = "#77b5fe";
+                    $color_payer = "#34c924";
+                    $statut = strtolower(trim($ListDom['Statut'])); 
+                    switch ($statut) {
+                        case 'ouvert':
+                            $color = $color_ouvert;
+                            break;
+                        case 'compta':
+                            $color = $color_compta;
+                            break;
+                        default: 
+                        $color = $color_payer;
+                    }
+                   
+                    ?>
+                    <td style="background-color: <?php echo $color; ?>;"><?php echo $ListDom['Statut']; ?></td>
                     <td><?php echo $ListDom['Motif_Deplacement'] ?></td>
                     <td><?php echo $ListDom['Client'] ?></td>
                     <td><?php echo $ListDom['Lieu_Intervention'] ?></td>
