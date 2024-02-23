@@ -390,6 +390,35 @@ class DomModel
         }
         return $DomListAll;
     }
+    public function getListDomRech($ConnectUser){
+        $rech = "SELECT  ID_Demande_Ordre_Mission,
+                        (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
+                        Nom_Session_Utilisateur,
+                        Numero_Ordre_Mission,
+                        Type_Document,
+                        Sous_type_document,
+                        Matricule, 
+                        Date_Demande, 
+                        Nombre_Jour, 
+                        Date_Debut, 
+                        Date_Fin, 
+                        Motif_Deplacement,
+                        Client, 
+                        Lieu_Intervention,
+                        Devis,
+                        Statut_demande.Description as Statut,
+                        Total_General_Payer
+                FROM Demande_ordre_mission, Statut_demande
+                WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+                                                                        FROM Agence_service_autorise 
+                                                                        WHERE Session_Utilisateur = '" . $ConnectUser . "' )
+                                                                        
+                ORDER BY ID_Demande_Ordre_Mission DESC";
+        $exRech = $this->connexion->query($rech);
+        $ListDomRech = array();
+        
+    }
     //
     public function getDetailDOMselect($NumDOM)
     {

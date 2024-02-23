@@ -290,8 +290,6 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         document.getElementById(champC).value = sommeFormatee;
 
     }
-
-    
 </script>
 
 <body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
@@ -419,23 +417,23 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col">
                     <label for="motif" class="label-form"> Motif</label>
-                    <input type="text" name="motif" id="motif" class="form-control" required style="border-color: orange;">
+                    <input type="text" name="motif" id="motif" class="form-control" required style="border-color: orange;" maxlength="100">
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="client" class="label-form"> Client</label>
-                    <input type="text" name="client" id="client" class="form-control" style="border-color: orange;">
+                    <input type="text" name="client" id="client" class="form-control" style="border-color: orange;" maxlength="100">
                 </div>
                 <div class="col">
                     <label for="fiche" class="label-form"> N°fiche</label>
-                    <input type="text" name="fiche" id="fiche" class="form-control">
+                    <input type="text" name="fiche" id="fiche" class="form-control" maxlength="50" required>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
-                    <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required style="border-color: orange;">
+                    <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" required style="border-color: orange;" maxlength="100">
                 </div>
             </div>
 
@@ -449,7 +447,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="N_vehicule" class="label-form"> N°</label>
-                    <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" />
+                    <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" maxlength="50" />
                 </div>
             </div>
             <div class="row">
@@ -477,7 +475,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <input type="text" name="idemForfait" id="idemForfait" class="form-control" oninput="formatEtMettreAJour('idemForfait', 'TotalidemForfait');" onblur="sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" readonly />
                 </div>
                 <div class="col">
-                    <label for="idemForfait01" class="label-form"> Bonus journalier</label>
+                    <label for="idemForfait01" class="label-form"> supplément journalier</label>
                     <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" oninput="formatEtMettreAJour('idemForfait01');" onblur="sommeEtIndemnite('idemForfait','Nbjour','idemForfait01','TotalidemForfait');calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense') " style="border-color: orange;" />
                 </div>
 
@@ -489,7 +487,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep" class="label-form"> Motif Autre dépense 1</label>
-                    <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control" style="border-color: orange;">
+                    <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control" style="border-color: orange;" maxlength="50">
                 </div>
                 <div class="col">
                     <label for="Autredep1" class="label-form"> Montant </label>
@@ -499,7 +497,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
-                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" style="border-color: orange;">
+                    <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" style="border-color: orange;" maxlength="50">
                 </div>
                 <div class="col">
                     <label for="Autredep2" class="label-form"> Montant </label>
@@ -509,7 +507,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
-                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" style="border-color: orange;">
+                    <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" style="border-color: orange;" maxlength="50">
                 </div>
                 <div class="col">
                     <label for="Autredep3" class="label-form"> Montant </label>
@@ -547,7 +545,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
                     <input type="text" name="valModesp" id="modeespece" class="form-control">
                     <?php foreach ($Compte as $Num) : ?>
-                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>" style="border-color: orange;">
+                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>" style="border-color: orange;" maxlength="10" required>
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Num['Numero_Compte_Bancaire'] ?>">
                     <?php endforeach; ?>
                 </div>
@@ -759,8 +757,52 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
         }
 
+        function verifiationTYpeMission() {
+            var TypeMission = $('#typeMission').val();
+            var idemite_jour = $('#idemForfait')
+            if (TypeMission === "FRAIS EXCEPTIONNEL") {
+                idemite_jour.prop("readonly", false);
+            } else {
+                idemite_jour.prop("readonly", true);
+            }
+        }
 
-        // Gérer le changement du champ ServINt lors du chargement de la page et lors de la saisie
+        function MobileMoney() {
+            var TelMobileval = $('#valModemob').val();
+            var TelMobile = $('#valModemob');
+            var typeMode = $('#modepaie option:selected').val();
+
+            if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '')) {
+                TelMobile.prop("required", true);
+            } else {
+                TelMobile.prop("required", false);
+            }
+        }
+
+        function FicheAtelier() {
+            var check = $('#radiochek').val();
+            var libservINT = $('#LibServINT').val();
+            var libservEXT = $('#LibServ').val();
+            var fiche = $('#fiche');
+
+            var servlib;
+
+            if (check === 'Interne') {
+                servlib = libservINT.substring(0, 3);
+            } else {
+                servlib = libservEXT.substring(0, 3);
+            }
+
+            var valService = ['MAS', 'ATE', 'CSP'];
+            var motTrouver = valService.some(function(mot) {
+                return servlib.includes(mot);
+            });
+
+            fiche.prop("required", motTrouver);
+            console.log(servlib);
+        }
+
+
         $('#ServINt').on('input', function() {
             handleServINtChange();
         });
@@ -771,9 +813,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         $('#SITE').change(function() {
             handlePrixRental();
         });
+
         handleServINtChange();
         handleSiteRental();
         handlePrixRental();
+        verifiationTYpeMission();
+        MobileMoney();
+        FicheAtelier();
     });
 </script>
 
