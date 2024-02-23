@@ -1500,6 +1500,12 @@ class DomControl
             session_destroy();
             exit();
         }
-
+        $UserConnect = $_SESSION['user'];
+        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+        include 'Views/Principe.php';
+        $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+        $Statut = $this->DomModel->getListStatut();
+        include 'Views/DOM/ListDomRech.php';
     }
 }

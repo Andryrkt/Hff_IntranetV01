@@ -8,7 +8,15 @@
 </head>
 
 <body>
-
+    <div class="d-flex  flex-row-reverse  col-2" style="margin-bottom: 1%;margin-left: 1%; text-align: center;">
+    
+       <select name="Statut" id="Statut" class="form-select" >
+        <?php foreach($Statut as $statut):?>
+            <option value="<?php echo $statut['LibStatut']?>"><?php echo $statut['LibStatut']?> </option>
+        <?php endforeach;?>
+       </select>
+      
+    </div>
     <table class=" table">
         <thead class="table-dark">
             <tr>
@@ -32,33 +40,33 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($ListDom as $ListDom) : ?>
+            <?php foreach ($ListDomRech as $ListDomRech) : ?>
                 <tr>
-                    <td><?php echo $ListDom['ID_Demande_Ordre_Mission'] ?></td>
-                    <td><?php echo iconv('Windows-1252', 'UTF-8',  $ListDom['LibelleCodeAgence_Service']) ?></td>
-                    <td><?php echo $ListDom['Nom_Session_Utilisateur'] ?></td>
-                    <td><?php echo $ListDom['Type_Document'] ?></td>
-                    <td><?php echo $ListDom['Sous_type_document'] ?></td>
-                    <td><?php echo $ListDom['Matricule'] ?></td>
-                    <td><?php $dateDemande = $ListDom['Date_Demande'];
+                    <td><?php echo $ListDomRech['ID_Demande_Ordre_Mission'] ?></td>
+                    <td><?php echo iconv('Windows-1252', 'UTF-8',  $ListDomRech['LibelleCodeAgence_Service']) ?></td>
+                    <td><?php echo $ListDomRech['Nom_Session_Utilisateur'] ?></td>
+                    <td><?php echo $ListDomRech['Type_Document'] ?></td>
+                    <td><?php echo $ListDomRech['Sous_type_document'] ?></td>
+                    <td><?php echo $ListDomRech['Matricule'] ?></td>
+                    <td><?php $dateDemande = $ListDomRech['Date_Demande'];
                         $DDEM = date("d/m/Y", strtotime($dateDemande));
                         echo $DDEM;
                         ?></td>
-                    <td><?php echo $ListDom['Nombre_Jour'] ?></td>
-                    <td><?php $dateDeb = $ListDom['Date_Debut'];
+                    <td><?php echo $ListDomRech['Nombre_Jour'] ?></td>
+                    <td><?php $dateDeb = $ListDomRech['Date_Debut'];
                         $DD = date("d/m/Y", strtotime($dateDeb));
                         echo $DD;
                         ?></td>
-                    <td><?php $dateFin = $ListDom['Date_Fin'];
+                    <td><?php $dateFin = $ListDomRech['Date_Fin'];
                         $DF = date("d/m/Y", strtotime($dateFin));
                         echo $DF;
                         ?></td>
-                    <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDom['Numero_Ordre_Mission'] ?> "> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
+                    <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDomRech['Numero_Ordre_Mission'] ?> "> <?php echo $ListDomRech['Numero_Ordre_Mission'] ?> </a></td>
                     <?php
                     $color_ouvert = "#efd807";
                     $color_compta = "#77b5fe";
                     $color_payer = "#34c924";
-                    $statut = strtolower(trim($ListDom['Statut'])); 
+                    $statut = strtolower(trim($ListDomRech['Statut']));
                     switch ($statut) {
                         case 'ouvert':
                             $color = $color_ouvert;
@@ -66,17 +74,17 @@
                         case 'compta':
                             $color = $color_compta;
                             break;
-                        default: 
-                        $color = $color_payer;
+                        default:
+                            $color = $color_payer;
                     }
-                   
+
                     ?>
-                    <td style="background-color: <?php echo $color; ?>;"><?php echo $ListDom['Statut']; ?></td>
-                    <td><?php echo $ListDom['Motif_Deplacement'] ?></td>
-                    <td><?php echo $ListDom['Client'] ?></td>
-                    <td><?php echo $ListDom['Lieu_Intervention'] ?></td>
-                    <td><?php echo $ListDom['Total_General_Payer'] ?></td>
-                    <td><?php echo $ListDom['Devis'] ?></td>
+                    <td style="background-color: <?php echo $color; ?>;"><?php echo $ListDomRech['Statut']; ?></td>
+                    <td><?php echo $ListDomRech['Motif_Deplacement'] ?></td>
+                    <td><?php echo $ListDomRech['Client'] ?></td>
+                    <td><?php echo $ListDomRech['Lieu_Intervention'] ?></td>
+                    <td><?php echo $ListDomRech['Total_General_Payer'] ?></td>
+                    <td><?php echo $ListDomRech['Devis'] ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

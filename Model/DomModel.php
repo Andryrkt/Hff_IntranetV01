@@ -417,7 +417,21 @@ class DomModel
                 ORDER BY ID_Demande_Ordre_Mission DESC";
         $exRech = $this->connexion->query($rech);
         $ListDomRech = array();
-        
+        while($tab_listRech = odbc_fetch_array($exRech)){
+            $ListDomRech[]=$tab_listRech;
+        }
+        return $ListDomRech;
+    }
+    public function getListStatut(){
+        $stat = "SELECT DISTINCT Code_Statut, 
+                (SELECT Description from Statut_demande WHERE Statut_demande.Code_Statut =Demande_ordre_mission.Code_Statut)  as 'LibStatut'
+                FROM Demande_ordre_mission ";
+        $exstat = $this->connexion->query($stat);
+        $ListStat = array();
+        while($tabStat = odbc_fetch_array($exstat)){
+            $ListStat[] = $tabStat;
+        }
+        return $ListStat;
     }
     //
     public function getDetailDOMselect($NumDOM)

@@ -92,6 +92,9 @@ switch ($action) {
     case 'ListDom':
         $ControlDOM->ShowListDom();
         break;
+    case 'ListDomRech':
+        $ControlDOM->ShowListDomRecherche();
+        break;
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
         break;
@@ -125,7 +128,7 @@ switch ($action) {
         break;
     case 'CodeAgenceServiceAuto':
         $ControlType->showListCodeagence();
-        break;    
+        break;
         //    
     case 'Statut':
         $ControlStatut->ShowFormStatut();
