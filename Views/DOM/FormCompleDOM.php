@@ -34,7 +34,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         document.getElementById('Nbjour').value = DiffDate;
     }
 
-    function visible_espece() {
+   function visible_espece() {
         var mode = document.getElementById('modepaie').value;
         if (mode === "ESPECES") {
             document.getElementById('modeMob').style.display = "none";
@@ -759,11 +759,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
         function verifiationTYpeMission() {
             var TypeMission = $('#typeMission').val();
-            var idemite_jour = $('#idemForfait')
+            var idemite_jour = $('#idemForfait');
+            var TelMobile = $('#modeMob');
             if (TypeMission === "FRAIS EXCEPTIONNEL") {
                 idemite_jour.prop("readonly", false);
             } else {
                 idemite_jour.prop("readonly", true);
+            }
+            if (TypeMission === "FRAIS EXCEPTIONNEL") {
+                TelMobile.prop("required", false);
+            }else{
+                TelMobile.prop("required", true);
             }
         }
 
