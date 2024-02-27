@@ -34,31 +34,31 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         document.getElementById('Nbjour').value = DiffDate;
     }
 
-   function visible_espece() {
-        var mode = document.getElementById('modepaie').value;
-        if (mode === "ESPECES") {
-            document.getElementById('modeMob').style.display = "none";
-            document.getElementById('modecompte').style.display = "none";
-            document.getElementById('modeespece').style.display = "block";
-            document.getElementById('labelMode').innerHTML = "ESPECES";
-            document.getElementById('labelMode01').innerHTML = "ESPECES";
-        }
-        if (mode === "MOBILE MONEY") {
-            document.getElementById('modeMob').style.display = "block";
-            document.getElementById('modeespece').style.display = "none";
-            document.getElementById('modecompte').style.display = 'none';
-            document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
-            document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
-        }
-        if (mode === "VIREMENT BANCAIRE") {
-            document.getElementById('modeespece').style.display = "none";
-            document.getElementById('modeMob').style.display = "none";
-            document.getElementById('modecompte').style.display = "block";
-            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
-            document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
-        }
+    function visible_espece() {
+         var mode = document.getElementById('modepaie').value;
+         if (mode === "ESPECES") {
+             document.getElementById('modeMob').style.display = "none";
+             document.getElementById('modecompte').style.display = "none";
+             document.getElementById('modeespece').style.display = "block";
+             document.getElementById('labelMode').innerHTML = "ESPECES";
+             document.getElementById('labelMode01').innerHTML = "ESPECES";
+         }
+         if (mode === "MOBILE MONEY") {
+             document.getElementById('modeMob').style.display = "block";
+             document.getElementById('modeespece').style.display = "none";
+             document.getElementById('modecompte').style.display = 'none';
+             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
+             document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
+         }
+         if (mode === "VIREMENT BANCAIRE") {
+             document.getElementById('modeespece').style.display = "none";
+             document.getElementById('modeMob').style.display = "none";
+             document.getElementById('modecompte').style.display = "block";
+             document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
+             document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
+         }
 
-    }
+     }
 
     function indemnité() {
         var idemn = document.getElementById('idemForfait').value;
@@ -768,14 +768,14 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             }
             if (TypeMission === "FRAIS EXCEPTIONNEL") {
                 TelMobile.prop("required", false);
-            }else{
+            } else {
                 TelMobile.prop("required", true);
             }
         }
 
         function MobileMoney() {
-            var TelMobileval = $('#valModemob').val();
-            var TelMobile = $('#valModemob');
+            var TelMobileval = $('#modeMob').val();
+            var TelMobile = $('#modeMob');
             var typeMode = $('#modepaie option:selected').val();
 
             if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '')) {
@@ -783,6 +783,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             } else {
                 TelMobile.prop("required", false);
             }
+            if (typeMode !== 'MOBILE MONEY') {
+                TelMobile.prop("required", false);
+            }
+            
         }
 
         function FicheAtelier() {
@@ -818,6 +822,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         });
         $('#SITE').change(function() {
             handlePrixRental();
+        });
+
+        $('#modepaie').change(function() {
+            MobileMoney();
         });
 
         handleServINtChange();

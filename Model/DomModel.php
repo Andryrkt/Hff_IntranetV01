@@ -13,17 +13,20 @@ class DomModel
     {
         $this->connexion = $connexion;
     }
+
     public function getmailUserConnect($Userconnect){
         $sqlMail = "SELECT Mail FROM Profil_User WHERE Utilisateur = '".$Userconnect."'";
         $exSqlMail = $this->connexion->query($sqlMail);
         return $exSqlMail ? odbc_fetch_array($exSqlMail)['Mail']: false;
     }
+
     public function getDatesystem()
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
     }
+
     public function DOM_autoINcriment()
     {
         //NumDOM auto
@@ -54,6 +57,7 @@ class DomModel
         $Result_Num_DOM = "DOM" . $AnneMoisOfcours . CompleteChaineCaractere($vNumSequential, 4, "0", "G");
         return $Result_Num_DOM;
     }
+    
     //TypeDOc 
     public function getTypeDoc()
     {
