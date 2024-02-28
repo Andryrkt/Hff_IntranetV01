@@ -3058,11 +3058,12 @@ class DomControl
         }
         if (isset($_GET['NumDom'])) {
             $NumDom = $_GET['NumDom'];
+            $IdDom = $_GET['Id'];
             $UserConnect = $_SESSION['user'];
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
             include 'Views/Principe.php';
-            $detailDom = $this->DomModel->getDetailDOMselect($NumDom);
+            $detailDom = $this->DomModel->getDetailDOMselect($NumDom,$IdDom);
             include 'Views/DOM/DetailDOM.php';
         }
     }

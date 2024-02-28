@@ -440,7 +440,7 @@ class DomModel
         return $ListStat;
     }
     //
-    public function getDetailDOMselect($NumDOM)
+    public function getDetailDOMselect($NumDOM,$IDDom)
     {
         $SqlDetail = "SELECT Numero_Ordre_Mission, Date_Demande,
                              Sous_Type_Document, 
@@ -460,9 +460,11 @@ class DomModel
                              Total_General_Payer, Mode_Paiement, 
                              Piece_Jointe_1, Piece_Jointe_2,
                              idemnity_depl,
-                             Doit_indemnite
+                             Doit_indemnite,
+                             ID_Demande_Ordre_Mission
                      FROM Demande_ordre_mission
-                     WHERE Numero_Ordre_Mission = '" . $NumDOM . "'";
+                     WHERE Numero_Ordre_Mission = '" . $NumDOM . "'
+                     AND ID_Demande_Ordre_Mission = '".$IDDom."'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
         $listDetail = array();
         while ($TabDetail = odbc_fetch_array($execSqlDetail)) {

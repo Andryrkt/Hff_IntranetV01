@@ -53,7 +53,7 @@
                         $DF = date("d/m/Y", strtotime($dateFin));
                         echo $DF;
                         ?></td>
-                    <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDom['Numero_Ordre_Mission'] ?> "> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
+                    <td><a href="/Hffintranet/index.php?action=DetailDOM&NumDom=<?php echo $ListDom['Numero_Ordre_Mission'] ?>&Id=<?php echo $ListDom['ID_Demande_Ordre_Mission']?> "> <?php echo $ListDom['Numero_Ordre_Mission'] ?> </a></td>
                     <?php
                     $color_ouvert = "#efd807";
                     $color_compta = "#77b5fe";
