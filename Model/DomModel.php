@@ -9,24 +9,34 @@ require_once('FPDI-2.6.0/src/autoload.php');
 class DomModel
 {
     private $connexion;
+    /**
+     * 
+     */
     public function __construct(Connexion $connexion)
     {
         $this->connexion = $connexion;
     }
-
-    public function getmailUserConnect($Userconnect){
-        $sqlMail = "SELECT Mail FROM Profil_User WHERE Utilisateur = '".$Userconnect."'";
+    /**
+     * recuperation Mail de l'utilisateur connecter
+     */
+    public function getmailUserConnect($Userconnect)
+    {
+        $sqlMail = "SELECT Mail FROM Profil_User WHERE Utilisateur = '" . $Userconnect . "'";
         $exSqlMail = $this->connexion->query($sqlMail);
-        return $exSqlMail ? odbc_fetch_array($exSqlMail)['Mail']: false;
+        return $exSqlMail ? odbc_fetch_array($exSqlMail)['Mail'] : false;
     }
-
+    /**
+     * Date Système
+     */
     public function getDatesystem()
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
     }
-
+    /**
+     * Incrimentation de Numero_DOM (DOMAnnéeMoisNuméro)
+     */
     public function DOM_autoINcriment()
     {
         //NumDOM auto
@@ -57,8 +67,11 @@ class DomModel
         $Result_Num_DOM = "DOM" . $AnneMoisOfcours . CompleteChaineCaractere($vNumSequential, 4, "0", "G");
         return $Result_Num_DOM;
     }
-    
+
     //TypeDOc 
+    /**
+     * recuperation type de document 
+     */
     public function getTypeDoc()
     {
         $Sql_TypeDoc = "SELECT Code_Document,
@@ -74,6 +87,9 @@ class DomModel
     }
     //
     //personnel
+    /***
+     * recuperation Agence Service de l'utilisateur connecter 
+     */
     public function getInfoAgenceUserofCours($Usernames)
     {
         $QueryAgence = "SELECT Utilisateur,
@@ -90,6 +106,9 @@ class DomModel
         return $ResAgence;
     }
     // Agence Sage to Irium
+    /**
+    *recuperation agenceService(Base PAiE) de l'utilisateur connecter
+     */
     public function getAgence_SageofCours($Userconnect)
     {
         $sql_Agence = "SELECT Code_AgenceService_Sage
@@ -99,7 +118,10 @@ class DomModel
         $exec_Sql_Agence = $this->connexion->query($sql_Agence);
         return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
     }
-
+/**
+ * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter 
+ * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter 
+ */
     public function getAgenceServiceIriumofcours($CodeAgenceSage, $Userconnect)
     {
         $sqlAgence_Service_Irim = "SELECT  agence_ips, 
@@ -120,6 +142,9 @@ class DomModel
     }
     //
     //code Service sage en cours
+    /**
+     * recuperation code AgenceService (BASE PAIE) de l'utilisateur Connecter
+     */
     public function getserviceofcours($Usernames)
     {
         $serviceofcours = "SELECT 
@@ -131,6 +156,9 @@ class DomModel
         return $excServofCours ? odbc_fetch_array($excServofCours)['Code_AgenceService_Sage'] : false;
     }
     // libel Agence Service 
+    /**
+     * recuperation Agence service de l'irium de l'utilisateur Connecter
+     */
     public function getLibeleAgence_Service($CodeAgenceSage)
     {
         $LibelServ = " SELECT nom_agence_i100 + '-'+  nom_service_i100 as LibAgenceService
@@ -141,7 +169,9 @@ class DomModel
         return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;
     }
 
-
+/**
+ * recupere les informations des personnels selon l'agence autoriser de l'utilisateur connecter 
+ */
     public function getInfoUserMservice($ConnectUser)
     {
         $QueryService = "SELECT  Matricule,
@@ -161,7 +191,10 @@ class DomModel
         }
         return $ResUserAllService;
     }
-    // 
+    //
+    /**
+     * recuperation le dernier n° tel du personnel dans le DOM 
+     *  */ 
     public function getInfoTelCompte($userSelect)
     {
         $QueryCompte = "SELECT
@@ -190,6 +223,9 @@ class DomModel
     }
 
     //
+    /**
+     * Chevauchement : recuperation la minimum de la date de mission et le maximum de la mission 
+     */
     public function getInfoDOMMatrSelet($Matri)
     {
         $SqlDate = "SELECT  min(Date_Debut) as DateDebutMin,
@@ -206,6 +242,9 @@ class DomModel
     }
 
     //
+    /**
+     * recuperer le nom et prenoms du matricule 
+     */
     public function getName($Matricule)
     {
         $Queryname  = "SELECT Nom, Prenoms
@@ -219,13 +258,16 @@ class DomModel
         return $Infopers;
     }
     // categorie
+    /**
+     * recuperation des catégories selon le type de mission et code agence 
+     */
     public function CategPers($TypeMiss, $codeAg)
     {
         $SqlTypeMiss = "SELECT DISTINCT
                         Catg 
                         FROM Idemnity 
                         WHERE Type = '" . $TypeMiss . "' 
-                        AND Rmq  in('STD','".$codeAg."')";
+                        AND Rmq  in('STD','" . $codeAg . "')";
         $execSqlTypeMiss = $this->connexion->query($SqlTypeMiss);
         $ListCatg = array();
         while ($TabTYpeMiss = odbc_fetch_array($execSqlTypeMiss)) {
@@ -233,6 +275,10 @@ class DomModel
         }
         return $ListCatg;
     }
+    /**
+     * recuperation catégorie Rental 
+     * @param default CodeR : 50 
+     */
     public function catgeRental($CodeR)
     {
         $SqlRentacatg = "SELECT DISTINCT Catg FROM Idemnity WHERE Type = 'MUTATION' AND Rmq = '" . $CodeR . "' ";
@@ -243,40 +289,60 @@ class DomModel
         }
         return $ListCatge;
     }
+    /**
+     * selection site (region ) 
+     * @param  TypeM: type de mission 
+     * @param catgPERs:  Catégorie du personnel selectionner 
+     */
     public function SelectSite($TypeM, $catgPERs)
     {
-        $Site = "SELECT DISTINCT Destination FROM Idemnity WHERE Type = '" . $TypeM . "' AND Catg='".$catgPERs."'  ";
+        $Site = "SELECT DISTINCT Destination FROM Idemnity WHERE Type = '" . $TypeM . "' AND Catg='" . $catgPERs . "'  ";
         $exSite = $this->connexion->query($Site);
         $list = array();
-        while($tab = odbc_fetch_array($exSite)){
+        while ($tab = odbc_fetch_array($exSite)) {
             $list[] = $tab;
         }
         return $list;
     }
-    public function SelectMUTPrixRental($TypeM,$CategPers,$Dest,$AgCode){
-     $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '".$TypeM."' 
-                    AND Catg = '".$CategPers."' AND Destination = '".$Dest."' AND Rmq = '".$AgCode."' ";
-     $exPrixRental = $this->connexion->query($PrixRental);
-     $Prix = array();
-     while($tab_prix = odbc_fetch_array($exPrixRental)){
-        $Prix[] = $tab_prix;
-     }
-     return $Prix;
+    /**
+     * recuperation Prix des idemnité
+     * @param TypeM: Type de mission
+     * @param CategPers: Catgégorie du personnel selectionner 
+     * @param Dest : site (region) selectionner
+     * @param AgCode: Code agence 
+     */
+    public function SelectMUTPrixRental($TypeM, $CategPers, $Dest, $AgCode)
+    {
+        $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '" . $TypeM . "' 
+                    AND Catg = '" . $CategPers . "' AND Destination = '" . $Dest . "' AND Rmq = '" . $AgCode . "' ";
+        $exPrixRental = $this->connexion->query($PrixRental);
+        $Prix = array();
+        while ($tab_prix = odbc_fetch_array($exPrixRental)) {
+            $Prix[] = $tab_prix;
+        }
+        return $Prix;
     }
     //count si 50 catg 
-    public function SiRentalCatg($catg){
-        $sqlcount = "SELECT count(*) as nbCount FROM Idemnity WHERE Catg ='".$catg."' and Rmq = '50' ";
+    /**
+     * test si le catgérie appartion à l'agence 50
+     */
+    public function SiRentalCatg($catg)
+    {
+        $sqlcount = "SELECT count(*) as nbCount FROM Idemnity WHERE Catg ='" . $catg . "' and Rmq = '50' ";
         $exsqlcount = $this->connexion->query($sqlcount);
-        return $exsqlcount ? odbc_fetch_array($exsqlcount)['nbCount'] :false;
+        return $exsqlcount ? odbc_fetch_array($exsqlcount)['nbCount'] : false;
     }
     //
-   /* public function SelectMUTPrixSTD($TypeM,$CategPers,$Dest){
+    /* public function SelectMUTPrixSTD($TypeM,$CategPers,$Dest){
         $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '".$TypeM."' 
                        AND Catg = '".$CategPers."' AND Destination = '".$Dest."' AND Rmq = 'STD' ";
         $exPrixRental = $this->connexion->query($PrixRental);
         return $exPrixRental ? odbc_fetch_array($exPrixRental)['Montant_idemnite'] : false;
        }*/
     //Insert DOM 
+    /**
+     * insertion dans la base 
+     */
     public function InsertDom(
         $NumDom,
         $dateS,
@@ -325,14 +391,16 @@ class DomModel
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
                         Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
                         NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl )
-                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','". $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
+                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','OUV', 
                        '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
-                        '".$doitIdemn."', '".$CategoriePers."','".$Site."','".$Idemn_depl."')";
+                        '" . $doitIdemn . "', '" . $CategoriePers . "','" . $Site . "','" . $Idemn_depl . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
-
+/**
+ * affiche  liste de Dom selon l'agence autoriser de l'utilisateur connecter 
+ */
     public function getListDom($User)
     {
         $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
@@ -367,6 +435,9 @@ class DomModel
         return $DomList;
     }
     //
+    /**
+     * affiche tous la liste (sans filtre d'agence autorise)
+     */
     public function getListDomAll()
     {
         $ListDOMAll = "SELECT  ID_Demande_Ordre_Mission,
@@ -396,7 +467,11 @@ class DomModel
         }
         return $DomListAll;
     }
-    public function getListDomRech($ConnectUser){
+    /**
+     * TODO liste DOM avec filtre date et statut 
+     */
+    public function getListDomRech($ConnectUser)
+    {
         $rech = "SELECT  ID_Demande_Ordre_Mission,
                         (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
                         Nom_Session_Utilisateur,
@@ -423,24 +498,33 @@ class DomModel
                 ORDER BY ID_Demande_Ordre_Mission DESC";
         $exRech = $this->connexion->query($rech);
         $ListDomRech = array();
-        while($tab_listRech = odbc_fetch_array($exRech)){
-            $ListDomRech[]=$tab_listRech;
+        while ($tab_listRech = odbc_fetch_array($exRech)) {
+            $ListDomRech[] = $tab_listRech;
         }
         return $ListDomRech;
     }
-    public function getListStatut(){
+    /**
+     * récupere le code Statut et libelle statut 
+     */
+    public function getListStatut()
+    {
         $stat = "SELECT DISTINCT Code_Statut, 
                 (SELECT Description from Statut_demande WHERE Statut_demande.Code_Statut =Demande_ordre_mission.Code_Statut)  as 'LibStatut'
                 FROM Demande_ordre_mission ";
         $exstat = $this->connexion->query($stat);
         $ListStat = array();
-        while($tabStat = odbc_fetch_array($exstat)){
+        while ($tabStat = odbc_fetch_array($exstat)) {
             $ListStat[] = $tabStat;
         }
         return $ListStat;
     }
     //
-    public function getDetailDOMselect($NumDOM,$IDDom)
+    /**
+     * affiche les informations correspond au NumDom selectionner et IDDom
+     * @param NumDom : Numero d'Ordre de Mission
+     * @param IDDOm : ID_demande d'ordre de mission
+     */
+    public function getDetailDOMselect($NumDOM, $IDDom)
     {
         $SqlDetail = "SELECT Numero_Ordre_Mission, Date_Demande,
                              Sous_Type_Document, 
@@ -464,7 +548,7 @@ class DomModel
                              ID_Demande_Ordre_Mission
                      FROM Demande_ordre_mission
                      WHERE Numero_Ordre_Mission = '" . $NumDOM . "'
-                     AND ID_Demande_Ordre_Mission = '".$IDDom."'";
+                     AND ID_Demande_Ordre_Mission = '" . $IDDom . "'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
         $listDetail = array();
         while ($TabDetail = odbc_fetch_array($execSqlDetail)) {
@@ -473,7 +557,9 @@ class DomModel
         return $listDetail;
     }
 
-
+/**
+ * Genere le PDF 
+ */
     //pdf
     public function genererPDF(
         $Devis,
@@ -512,7 +598,7 @@ class DomModel
         $codeAg_serv,
         $CategoriePers,
         $Site,
-        $Idemn_depl, 
+        $Idemn_depl,
         $MailUser,
         $Bonus
     ) {
@@ -554,11 +640,11 @@ class DomModel
         $pdf->Cell(80, 10, 'Véhicule société : ' . $vehicule, 0, 0);
         $pdf->Cell(60, 10, 'N° de véhicule: ' . $numvehicul, 0, 1);
 
-        $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0,'L');
+        $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0, 'L');
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(35, 10, 'Supplément /jour: ' , 0, 0,'L');
+        $pdf->Cell(35, 10, 'Supplément /jour: ', 0, 0, 'L');
         $pdf->SetTextColor(255, 0, 0);
-        $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0,'L');
+        $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0, 'L');
         $pdf->SetTextColor(0, 0, 0);
         $pdf->Cell(55, 10, 'Total indemnité: ' . $totalIdemn . ' ' . $Devis, 0, 1, 'R');
 
@@ -613,11 +699,14 @@ class DomModel
     }
 
     // copy interne vers DOCUWARE
+    /**
+     * Copie le PDF generer dans l'upload 
+     */
     public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
     {
 
 
-      // $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
+        // $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
@@ -627,6 +716,9 @@ class DomModel
             echo "sorry";
         }
     }
+    /**
+     * Fusion du Pdf avec les 2 Pièce Joints
+     */
     public function genererFusion($FichierDom, $FichierAttache01, $FichierAttache02)
     {
         $pdf01 = new Fpdi();
@@ -654,7 +746,9 @@ class DomModel
         //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
         $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
-
+/**
+     * Fusion du Pdf avec un Pièce Joint
+     */
     public function genererFusion1($FichierDom, $FichierAttache01)
     {
         $pdf01 = new Fpdi();
