@@ -1831,8 +1831,7 @@ class DomControl
                             }
                             //
                         } else {
-                            // echo 'sans PJ';
-                           
+                            // echo 'sans PJ' test gut; 
                             //
                             if($libmodepaie !== 'MOBILE MONEY'){
                                 $this->DomModel->genererPDF(
