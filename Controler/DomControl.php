@@ -8,7 +8,11 @@ class DomControl
     {
         $this->DomModel = $DomModel;
     }
-    //
+
+
+    /**
+     * selection catgégorie dans l'ajax 
+     */
     public function selectCatg()
     {
         session_start();
@@ -37,7 +41,9 @@ class DomControl
 
         echo $response;
     }
-
+    /**
+     * selection categorie Rental 
+     */
     public function selectCategRental()
     {
         session_start();
@@ -60,6 +66,9 @@ class DomControl
 
         echo $RentalCatg;
     }
+    /**
+     * selection des sites (regions) correspondant aux catégorie selectionner 
+     */
     public function selectSiteRental()
     {
         session_start();
@@ -85,7 +94,9 @@ class DomControl
 
         echo $response1;
     }
-
+    /**
+     * afficher Prix selon selection Sites 
+     */
     public function SelectPrixRental()
     {
         session_start();
@@ -116,7 +127,9 @@ class DomControl
         }
     }
     //
-
+    /**
+     * recuperation des variable ci-dessous vers les views (FormDOM) indiquer 
+     */
     public function showFormDOM()
     {
         session_start();
@@ -142,6 +155,9 @@ class DomControl
             echo "Error: " . $e->getMessage();
         }
     }
+    /**
+     * recupere les variable ci-dessous vers le views => FormCompleDOM
+     */
     public function ShowDomPDF()
     {
         session_start();
@@ -193,7 +209,13 @@ class DomControl
             include 'Views/DOM/FormCompleDOM.php';
         }
     }
-
+    /**
+     * action de bouton dans view => FormCompleDOM
+     * recupere tous les variable POSt dans le FormCompleDOM 
+     * But: S'il n'y a pas de Pièce Joint => Génerer le PDF , Copie le PDF generer danns le DOCUMENT DOCUWARE Puis Insere dans la base
+     *  S'il y en a 1 Pièce joint => Génere le PDF => Fusionne  avec le Piéce Joint => Inserer dans la Base 
+     * s'il y en a 2 (type Temporaire (Externe) Obliger 2 pièce joint ) => Fusionne  avec le Piéce Joint => Inserer dans la Base 
+     */
 
     public function EnvoieImprimeDom()
     {
@@ -798,7 +820,7 @@ class DomControl
                             } else {
                                 if (!empty($filename01) || !empty($filename02)) {
                                     echo 'avec PJ' . $filename01 . '-' . $filename02;
-                                    
+
                                     //virement ou especes 
                                     if ($libmodepaie !== 'MOBILE MONEY') {
                                         $this->DomModel->genererPDF(
@@ -899,7 +921,7 @@ class DomControl
                                             $Site,
                                             $Idemn_depl
                                         );
-                                    }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                    } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         //echo 'ie ambany 500000';
                                         $this->DomModel->genererPDF(
                                             $Devis,
@@ -1005,16 +1027,16 @@ class DomControl
                                     alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                     </script>';
-                                    var_dump($libmodepaie);
-                                    die();
+                                        var_dump($libmodepaie);
+                                        die();
                                     }
                                     //
                                 } else {
                                     // echo 'sans PJ';
-                                    
+
 
                                     // sans JP
-                                    if($libmodepaie !== 'MOBILE MONEY'){
+                                    if ($libmodepaie !== 'MOBILE MONEY') {
                                         echo 'io';
                                         /*  $this->DomModel->genererPDF(
                                             $Devis,
@@ -1102,7 +1124,7 @@ class DomControl
                                             $Site,
                                             $Idemn_depl
                                         );*/
-                                    }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                    } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
                                         /*  $this->DomModel->genererPDF(
                                             $Devis,
@@ -1198,7 +1220,6 @@ class DomControl
                                 alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                 </script>';
-                               
                                     }
                                     //
                                 }
@@ -1211,9 +1232,9 @@ class DomControl
                             //
                             if (!empty($filename01) || !empty($filename02)) {
                                 echo 'avec PJ' . $filename01 . '-' . $filename02;
-                                
+
                                 //si mode avec PJ
-                                 if($libmodepaie !== 'MOBILE MONEY'){
+                                if ($libmodepaie !== 'MOBILE MONEY') {
                                     $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
@@ -1312,7 +1333,7 @@ class DomControl
                                         $Site,
                                         $Idemn_depl
                                     );
-                                 }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
                                     $this->DomModel->genererPDF(
                                         $Devis,
@@ -1420,15 +1441,14 @@ class DomControl
                                 alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                 </script>';
-
                                 }
                                 //
                             } else {
                                 // echo 'sans PJ';
-                                
+
                                 //
-                                if($libmodepaie !== 'MOBILE MONEY'){
-                                        /*  $this->DomModel->genererPDF(
+                                if ($libmodepaie !== 'MOBILE MONEY') {
+                                    /*  $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -1514,7 +1534,7 @@ class DomControl
                                         $Site,
                                         $Idemn_depl
                                     );*/
-                                }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
                                     /*  $this->DomModel->genererPDF(
                                         $Devis,
@@ -1608,7 +1628,7 @@ class DomControl
                             alert("Assurez vous que le Montant Total est inférieur à 500.000");
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
-                            var_dump($libmodepaie);
+                                    var_dump($libmodepaie);
                                     die();
                                 }
                                 //
@@ -1621,9 +1641,9 @@ class DomControl
                         //
                         if (!empty($filename01) || !empty($filename02)) {
                             echo 'avec PJ' . $filename01 . '-' . $filename02;
-                            
+
                             //
-                            if($libmodepaie !== 'MOBILE MONEY'){
+                            if ($libmodepaie !== 'MOBILE MONEY') {
                                 $this->DomModel->genererPDF(
                                     $Devis,
                                     $Prenoms,
@@ -1722,7 +1742,7 @@ class DomControl
                                     $Site,
                                     $Idemn_depl
                                 );
-                            }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                            } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 //echo 'ie ambany 500000';
                                 $this->DomModel->genererPDF(
                                     $Devis,
@@ -1833,7 +1853,7 @@ class DomControl
                         } else {
                             // echo 'sans PJ' test gut; 
                             //
-                            if($libmodepaie !== 'MOBILE MONEY'){
+                            if ($libmodepaie !== 'MOBILE MONEY') {
                                 $this->DomModel->genererPDF(
                                     $Devis,
                                     $Prenoms,
@@ -1920,7 +1940,7 @@ class DomControl
                                     $Site,
                                     $Idemn_depl
                                 );
-                            }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                            } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 // echo 'ie ambany 500000';
                                 $this->DomModel->genererPDF(
                                     $Devis,
@@ -2305,7 +2325,7 @@ class DomControl
                                     </script>';
                             
                         }*/
-                      /*  if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
+                        /*  if ($libmodepaie === 'MOBILE MONEY' && !empty($valModemob)) {
                         } else {
                             echo '<script type="text/javascript">
                                     alert("Mettre le Numéro Tel");
@@ -2328,9 +2348,9 @@ class DomControl
                                     </script>';
                             } else {
                                 //comme d'hab
-                               
+
                                 //
-                                if($libmodepaie !== 'MOBILE MONEY'){
+                                if ($libmodepaie !== 'MOBILE MONEY') {
                                     $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
@@ -2437,7 +2457,7 @@ class DomControl
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
                                 </script>';
                                     }
-                                }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
                                     $this->DomModel->genererPDF(
                                         $Devis,
@@ -2558,8 +2578,8 @@ class DomControl
                         } else {
                             //exce
                             // Mobile& AllMont 
-                           
-                            if($libmodepaie !== 'MOBILE MONEY'){
+
+                            if ($libmodepaie !== 'MOBILE MONEY') {
                                 $this->DomModel->genererPDF(
                                     $Devis,
                                     $Prenoms,
@@ -2666,7 +2686,7 @@ class DomControl
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                                 }
-                            }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                            } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 //echo 'ie ambany 500000';
                                 $this->DomModel->genererPDF(
                                     $Devis,
@@ -2786,8 +2806,8 @@ class DomControl
                     } else {
                         //si complement sans chevauchement
                         // Mobile& AllMont 
-                        
-                        if($libmodepaie !== 'MOBILE MONEY'){
+
+                        if ($libmodepaie !== 'MOBILE MONEY') {
                             $this->DomModel->genererPDF(
                                 $Devis,
                                 $Prenoms,
@@ -2894,7 +2914,8 @@ class DomControl
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                             }
-                        }if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                        }
+                        if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                             //echo 'ie ambany 500000';
                             $this->DomModel->genererPDF(
                                 $Devis,
@@ -3024,6 +3045,9 @@ class DomControl
                 </script>';*/
         }
     }
+    /**
+     * Affiche dans ListDom la liste des DOM selon l'autorisation 
+     */
     public function ShowListDom()
     {
         session_start();
@@ -3048,6 +3072,9 @@ class DomControl
 
         include 'Views/DOM/ListDom.php';
     }
+    /**
+     * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
+     */
     public function DetailDOM()
     {
         session_start();
@@ -3063,10 +3090,13 @@ class DomControl
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
             include 'Views/Principe.php';
-            $detailDom = $this->DomModel->getDetailDOMselect($NumDom,$IdDom);
+            $detailDom = $this->DomModel->getDetailDOMselect($NumDom, $IdDom);
             include 'Views/DOM/DetailDOM.php';
         }
     }
+    /**
+     * TODO : Recherche à partir d'une date  définie et statut selectionner 
+     */
     public function ShowListDomRecherche()
     {
         session_start();
