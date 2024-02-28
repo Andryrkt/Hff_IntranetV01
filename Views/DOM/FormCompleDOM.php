@@ -545,7 +545,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <label for="modeesp" class="label-form" id="labelMode"> Mode</label>
                     <input type="text" name="valModesp" id="modeespece" class="form-control">
                     <?php foreach ($Compte as $Num) : ?>
-                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>" style="border-color: orange;" maxlength="10" required>
+                        <input type="text" name="valModemob" id="modeMob" class="form-control" value="<?php echo $Num['NumeroTel_Recente'] ?>" style="border-color: orange;" maxlength="10" minlength="10" required>
                         <input type="text" name="valModecompt" id="modecompte" class="form-control" value="<?php echo $Num['Numero_Compte_Bancaire'] ?>">
                     <?php endforeach; ?>
                 </div>
