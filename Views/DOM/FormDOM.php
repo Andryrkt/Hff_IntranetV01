@@ -72,13 +72,13 @@ $Agence = $LibAgence . " " . $LibServ;
                     <h4>Demande d'Ordre de Mission</h4>
                 </div>
                 <form method="POST" action="/Hffintranet/index.php?action=checkMatricule">
-                    <div class="row">
+                  <!--  <div class="row">
                         <div class="col">
                             <label for="NumDOM" class="label-form">N° DOM</label>
                             <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDOM ?>" readonly>
                         </div>
 
-                    </div>
+                    </div>-->
                     <div class="row">
                         <div class="col-4 ">
                             <?php foreach ($CodeServiceofCours as $CodeServiceofCours) : ?>

@@ -299,11 +299,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
             </div>
             <div class="row">
-                <div class="col">
+               <!-- <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
                     <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>" readonly>
-                </div>
-                <div class="col">
+                </div>-->
+                <div class="col-4 offset-6">
                     <label for="datesyst" class="label-form"> Date</label>
                     <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
