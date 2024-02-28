@@ -141,7 +141,7 @@ class DomControl
 
         try {
 
-            $NumDOM = $this->DomModel->DOM_autoINcriment();
+            //$NumDOM = $this->DomModel->DOM_autoINcriment();
             $UserConnect = $_SESSION['user'];
             $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
@@ -168,7 +168,7 @@ class DomControl
         }
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
             $CategPers = $_POST['categPers'];
-            $NumDom = $_POST['NumDOM'];
+            //$NumDom = $_POST['NumDOM'];
             $code_service = $_POST['Serv'];
             $service = $_POST['LibServ'];
             $typeMission = $_POST['typeMission'];
@@ -555,7 +555,7 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                        /*   $this->DomModel->InsertDom(
+                                           $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -597,7 +597,7 @@ class DomControl
                                             $CategoriePers,
                                             $Site,
                                             $Idemn_depl
-                                        );*/
+                                        );
                                     }
                                     //
                                 }
@@ -755,7 +755,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                    /*  $this->DomModel->InsertDom(
+                                      $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -797,7 +797,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );*/
+                                    );
                                 }
                                 //
                             } //chevauchement------------------
@@ -1081,7 +1081,7 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                        /*   $this->DomModel->InsertDom(
+                                           $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -1123,7 +1123,7 @@ class DomControl
                                             $CategoriePers,
                                             $Site,
                                             $Idemn_depl
-                                        );*/
+                                        );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
                                         /*  $this->DomModel->genererPDF(
@@ -1169,7 +1169,7 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                        /*   $this->DomModel->InsertDom(
+                                           $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
@@ -1211,7 +1211,7 @@ class DomControl
                                             $CategoriePers,
                                             $Site,
                                             $Idemn_depl
-                                        );*/
+                                        );
                                     } //mobile&allMont 
                                     else {
                                         var_dump($libmodepaie);
@@ -1491,7 +1491,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                    /*  $this->DomModel->InsertDom(
+                                      $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1533,7 +1533,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );*/
+                                    );
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
                                     /*  $this->DomModel->genererPDF(
@@ -1579,7 +1579,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                    /*  $this->DomModel->InsertDom(
+                                      $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1621,7 +1621,7 @@ class DomControl
                                         $CategoriePers,
                                         $Site,
                                         $Idemn_depl
-                                    );*/
+                                    );
                                 } //mobile&allMont 
                                 else {
                                     echo '<script type="text/javascript">

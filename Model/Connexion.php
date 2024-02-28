@@ -4,7 +4,7 @@
 
 class Connexion
 {
-    private $DB = "HFF_INTRANET_V01";
+    private $DB = "HFF_INTRANET_V01_TEST";
     private $User = "sa";
     private $pswd = "Hff@sql2024";
     private $conn;
