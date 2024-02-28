@@ -33,7 +33,7 @@
             pj.style.display = 'none';
         }
     }
-</script>
+</script>  
 
 <body onload="visible();Mat()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <?php foreach ($detailDom as $detailDom) : ?>
