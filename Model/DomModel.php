@@ -232,6 +232,7 @@ class DomModel
                              max(Date_Fin) as DateFinMax
                     FROM Demande_ordre_mission
                     WHERE  Matricule = '" . $Matri . "'  
+                    AND Code_Statut ='OUV'
                     GROUP BY Matricule";
         $execSqlDate = $this->connexion->query($SqlDate);
         $DateM = array();
