@@ -3108,7 +3108,12 @@ class DomControl
         $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
         $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
         include 'Views/Principe.php';
-        $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+        $ListDomRech = $this->DomModel->getListDomRechALl();
+        }else{
+            $ListDomRech = $this->DomModel->getListDomRech($UserConnect); 
+        }
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDomRech.php';
     }
