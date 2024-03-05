@@ -777,13 +777,14 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             var TelMobileval = $('#modeMob').val();
             var TelMobile = $('#modeMob');
             var typeMode = $('#modepaie option:selected').val();
+            var check = $('#radiochek').val();
 
-            if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '')) {
-                TelMobile.prop("required", true);
-            } else {
-                TelMobile.prop("required", false);
-            }
+           
             if (typeMode !== 'MOBILE MONEY') {
+                TelMobile.prop("required", false);
+            }else if(typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '') && check === 'Interne') {
+                TelMobile.prop("required", true);
+            } else{
                 TelMobile.prop("required", false);
             }
             
