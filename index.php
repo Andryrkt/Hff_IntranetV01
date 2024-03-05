@@ -142,7 +142,8 @@ switch ($action) {
     case 'DelAgAuto':
         $ControlAutorisation->deleteAgenceAuto();
         break;
-
+    case 'anaranaAction':
+        $ControlDOM->anaranaFonction();
     default:
         include 'Views/SignIn.php';
 }

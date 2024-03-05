@@ -183,7 +183,7 @@ class DomControl
             $datesyst = $this->DomModel->getDatesystem();
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
-            $codeServices = $this->DomModel->getInfoServiceAgentIrium();
+            $codeServices = $this->DomModel->RecuperationCodeServiceIrium();
 
 
             include 'Views/Principe.php';
@@ -3114,5 +3114,12 @@ class DomControl
         $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDomRech.php';
+    }
+
+    public function anaranaFonction()
+    {
+        $codeServiceIrium = $this->DomModel->RecuperationCodeServiceIrium();
+
+        $serviceIriums = $this->DomModel->RecuperationServiceIrium($codeServiceIrium[0]);
     }
 }

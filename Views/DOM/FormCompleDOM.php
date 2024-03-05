@@ -338,7 +338,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
-                    <select class="form-select " aria-label="Default select example">
+                    <select class="form-select " aria-label="Default select example" id="selectCodeServiceIrium">
                         <?php foreach ($codeServices as $codeService) : ?>
                             <option selected><?php echo $codeService['Code_serv'] ?></option>
                             <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
@@ -347,7 +347,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <select class="form-select " aria-label="Default select example">
+                    <select class="form-select " aria-label="Default select example" id="selectServiceIrium">
                         <option selected><?php echo $service ?></option>
                         <option value="<?php echo $service ?>"><?php echo $service ?></option>
                     </select>

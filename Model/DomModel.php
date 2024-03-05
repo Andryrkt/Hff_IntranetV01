@@ -222,17 +222,31 @@ class DomModel
         return $compte;
     }
 
-    public function getInfoServiceAgentIrium()
+    public function RecuperationCodeServiceIrium()
     {
         $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
         FROM Agence_Service_Irium ";
 
         $statement = $this->connexion->query($sql);
-        $debiteurs = array();
+        $codeServices = array();
         while ($tab_compt = odbc_fetch_array($statement)) {
-            $debiteurs[] = $tab_compt;
+            $codeServices[] = $tab_compt;
         }
-        return $debiteurs;
+        return $codeServices;
+    }
+
+    public function RecuperationServiceIrium(string $codeService)
+    {
+        $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 AS Serv_lib
+                FROM Agence_Service_Irium
+                WHERE Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 = '.$codeService.'";
+
+        $statement = $this->connexion->query($sql);
+        $services = array();
+        while ($tab_compt = odbc_fetch_array($statement)) {
+            $services[] = $tab_compt;
+        }
+        return $services;
     }
 
     //
