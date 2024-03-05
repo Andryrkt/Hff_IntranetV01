@@ -183,6 +183,8 @@ class DomControl
             $datesyst = $this->DomModel->getDatesystem();
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
+            $codeServices = $this->DomModel->getInfoServiceAgentIrium();
+
 
             include 'Views/Principe.php';
             //include 'Views/DOM/FormCompleAutre.php';
@@ -267,7 +269,7 @@ class DomControl
 
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
-            $NumDom = $this->DomModel->DOM_autoINcriment();//$_POST['NumDOM'];
+            $NumDom = $this->DomModel->DOM_autoINcriment(); //$_POST['NumDOM'];
 
             $Devis = $_POST['Devis'];
 
@@ -555,11 +557,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -755,7 +757,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1081,11 +1083,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -1169,11 +1171,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -1491,7 +1493,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1579,7 +1581,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,

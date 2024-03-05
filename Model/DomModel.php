@@ -107,7 +107,7 @@ class DomModel
     }
     // Agence Sage to Irium
     /**
-    *recuperation agenceService(Base PAiE) de l'utilisateur connecter
+     *recuperation agenceService(Base PAiE) de l'utilisateur connecter
      */
     public function getAgence_SageofCours($Userconnect)
     {
@@ -118,10 +118,10 @@ class DomModel
         $exec_Sql_Agence = $this->connexion->query($sql_Agence);
         return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
     }
-/**
- * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter 
- * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter 
- */
+    /**
+     * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter 
+     * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter 
+     */
     public function getAgenceServiceIriumofcours($CodeAgenceSage, $Userconnect)
     {
         $sqlAgence_Service_Irim = "SELECT  agence_ips, 
@@ -169,9 +169,9 @@ class DomModel
         return $execLibserv ? odbc_fetch_array($execLibserv)['LibAgenceService'] : false;
     }
 
-/**
- * recupere les informations des personnels selon l'agence autoriser de l'utilisateur connecter 
- */
+    /**
+     * recupere les informations des personnels selon l'agence autoriser de l'utilisateur connecter 
+     */
     public function getInfoUserMservice($ConnectUser)
     {
         $QueryService = "SELECT  Matricule,
@@ -194,7 +194,7 @@ class DomModel
     //
     /**
      * recuperation le dernier n° tel du personnel dans le DOM 
-     *  */ 
+     *  */
     public function getInfoTelCompte($userSelect)
     {
         $QueryCompte = "SELECT
@@ -220,6 +220,19 @@ class DomModel
             $compte[] = $tab_compt;
         }
         return $compte;
+    }
+
+    public function getInfoServiceAgentIrium()
+    {
+        $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
+        FROM Agence_Service_Irium ";
+
+        $statement = $this->connexion->query($sql);
+        $debiteurs = array();
+        while ($tab_compt = odbc_fetch_array($statement)) {
+            $debiteurs[] = $tab_compt;
+        }
+        return $debiteurs;
     }
 
     //
@@ -399,9 +412,9 @@ class DomModel
                         '" . $doitIdemn . "', '" . $CategoriePers . "','" . $Site . "','" . $Idemn_depl . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
-/**
- * affiche  liste de Dom selon l'agence autoriser de l'utilisateur connecter 
- */
+    /**
+     * affiche  liste de Dom selon l'agence autoriser de l'utilisateur connecter 
+     */
     public function getListDom($User)
     {
         $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
@@ -558,9 +571,9 @@ class DomModel
         return $listDetail;
     }
 
-/**
- * Genere le PDF 
- */
+    /**
+     * Genere le PDF 
+     */
     //pdf
     public function genererPDF(
         $Devis,
@@ -747,7 +760,7 @@ class DomModel
         //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
         $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
-/**
+    /**
      * Fusion du Pdf avec un Pièce Joint
      */
     public function genererFusion1($FichierDom, $FichierAttache01)

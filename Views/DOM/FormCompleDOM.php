@@ -35,30 +35,30 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     }
 
     function visible_espece() {
-         var mode = document.getElementById('modepaie').value;
-         if (mode === "ESPECES") {
-             document.getElementById('modeMob').style.display = "none";
-             document.getElementById('modecompte').style.display = "none";
-             document.getElementById('modeespece').style.display = "block";
-             document.getElementById('labelMode').innerHTML = "ESPECES";
-             document.getElementById('labelMode01').innerHTML = "ESPECES";
-         }
-         if (mode === "MOBILE MONEY") {
-             document.getElementById('modeMob').style.display = "block";
-             document.getElementById('modeespece').style.display = "none";
-             document.getElementById('modecompte').style.display = 'none';
-             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
-             document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
-         }
-         if (mode === "VIREMENT BANCAIRE") {
-             document.getElementById('modeespece').style.display = "none";
-             document.getElementById('modeMob').style.display = "none";
-             document.getElementById('modecompte').style.display = "block";
-             document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
-             document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
-         }
+        var mode = document.getElementById('modepaie').value;
+        if (mode === "ESPECES") {
+            document.getElementById('modeMob').style.display = "none";
+            document.getElementById('modecompte').style.display = "none";
+            document.getElementById('modeespece').style.display = "block";
+            document.getElementById('labelMode').innerHTML = "ESPECES";
+            document.getElementById('labelMode01').innerHTML = "ESPECES";
+        }
+        if (mode === "MOBILE MONEY") {
+            document.getElementById('modeMob').style.display = "block";
+            document.getElementById('modeespece').style.display = "none";
+            document.getElementById('modecompte').style.display = 'none';
+            document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
+            document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
+        }
+        if (mode === "VIREMENT BANCAIRE") {
+            document.getElementById('modeespece').style.display = "none";
+            document.getElementById('modeMob').style.display = "none";
+            document.getElementById('modecompte').style.display = "block";
+            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
+            document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
+        }
 
-     }
+    }
 
     function indemnité() {
         var idemn = document.getElementById('idemForfait').value;
@@ -299,7 +299,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
             </div>
             <div class="row">
-               <!-- <div class="col">
+                <!-- <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
                     <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>" readonly>
                 </div>-->
@@ -308,6 +308,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
+            <label for="" class="col-4 offset-6 fw-bold">Emétteur</label>
             <div class="row" id="ext">
                 <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
@@ -317,6 +318,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <label for="LibServ" class="label-form">Service :</label>
                     <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
                 </div>
+
             </div>
             <div class="row" id="int">
                 <?php foreach ($Compte as $Serv) : ?>
@@ -329,6 +331,28 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                         <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
                     </div>
                 <?php endforeach; ?>
+            </div>
+            <label for="" class="col-4 offset-6 fw-bold">Débiteur</label>
+            <div class="row">
+
+
+                <div class="col-4 offset-6">
+                    <label for="Serv" class="label-form">Code :</label>
+                    <select class="form-select " aria-label="Default select example">
+                        <?php foreach ($codeServices as $codeService) : ?>
+                            <option selected><?php echo $codeService['Code_serv'] ?></option>
+                            <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-4 offset-6">
+                    <label for="LibServ" class="label-form">Service :</label>
+                    <select class="form-select " aria-label="Default select example">
+                        <option selected><?php echo $service ?></option>
+                        <option value="<?php echo $service ?>"><?php echo $service ?></option>
+                    </select>
+                </div>
+
             </div>
             <div class="row">
                 <div class="col-6">
@@ -786,7 +810,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             if (typeMode !== 'MOBILE MONEY') {
                 TelMobile.prop("required", false);
             }
-            
+
         }
 
         function FicheAtelier() {
