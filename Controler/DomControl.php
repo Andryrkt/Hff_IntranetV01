@@ -3118,8 +3118,19 @@ class DomControl
 
     public function anaranaFonction()
     {
-        $codeServiceIrium = $this->DomModel->RecuperationCodeServiceIrium();
+        $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
+        // Récupérer la valeur de l'option sélectionnée
+        $selectedOption = $_GET['option'];
 
-        $serviceIriums = $this->DomModel->RecuperationServiceIrium($codeServiceIrium[0]);
+        // Vérifier si l'option existe dans le tableau des données simulées
+        if (array_key_exists($selectedOption, $codeServiceIrium)) {
+            // Afficher le contenu correspondant à l'option sélectionnée
+            for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
+                echo ' <option value="' . $codeServiceIrium[$selectedOption][$i] . '">' . $codeServiceIrium[$selectedOption][$i] . '</option>';
+            }
+        } else {
+            // Gérer le cas où l'option sélectionnée n'existe pas
+            echo 'Aucune donnée disponible pour cette option';
+        }
     }
 }

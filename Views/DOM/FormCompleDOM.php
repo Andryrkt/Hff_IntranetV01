@@ -308,7 +308,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
-            <label for="" class="col-4 offset-6 fw-bold">Emétteur</label>
+
+
+            <!-- emetteur select -->
+            <label for="" class="col-4 offset-6 fw-bold">Emetteur</label>
+            <!-- extern (temporaire) -->
             <div class="row" id="ext">
                 <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
@@ -320,6 +324,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
 
             </div>
+            <!-- interne (permanent) -->
             <div class="row" id="int">
                 <?php foreach ($Compte as $Serv) : ?>
                     <div class="col-4 offset-6">
@@ -332,28 +337,29 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     </div>
                 <?php endforeach; ?>
             </div>
+
+            <!-- Debiteur selecte -->
             <label for="" class="col-4 offset-6 fw-bold">Débiteur</label>
             <div class="row">
-
-
                 <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
-                    <select class="form-select " aria-label="Default select example" id="selectCodeServiceIrium">
+                    <select class="form-select " aria-label="Default select example" id="select1">
                         <?php foreach ($codeServices as $codeService) : ?>
-                            <option selected><?php echo $codeService['Code_serv'] ?></option>
+                            <option selected> fait votre choix</option>
                             <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <select class="form-select " aria-label="Default select example" id="selectServiceIrium">
+                    <select class="form-select " aria-label="Default select example" id="resultat">
                         <option selected><?php echo $service ?></option>
-                        <option value="<?php echo $service ?>"><?php echo $service ?></option>
                     </select>
                 </div>
 
             </div>
+
+
             <div class="row">
                 <div class="col-6">
                     <label for="typeMission" class="label-form"> Type de Mission</label>
@@ -858,6 +864,29 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         verifiationTYpeMission();
         MobileMoney();
         FicheAtelier();
+    });
+
+
+    document.getElementById('select1').addEventListener('change', function() {
+        var selectedOption = this.value;
+
+        // Configuration de la requête Fetch
+        fetch('app.php?option=' + selectedOption)
+            .then(response => {
+                // Vérification de la réponse
+                if (!response.ok) {
+                    throw new Error('Erreur de réseau');
+                }
+                // Renvoie la réponse sous forme de texte
+                return response.text();
+            })
+            .then(data => {
+                // Affichage des données dans la div "resultat"
+                document.getElementById('resultat').innerHTML = data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
     });
 </script>
 

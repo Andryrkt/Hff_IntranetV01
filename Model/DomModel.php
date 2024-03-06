@@ -222,7 +222,7 @@ class DomModel
         return $compte;
     }
 
-    public function RecuperationCodeServiceIrium()
+    public function RecuperationCodeServiceIrium(): array
     {
         $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
         FROM Agence_Service_Irium ";
@@ -235,18 +235,30 @@ class DomModel
         return $codeServices;
     }
 
-    public function RecuperationServiceIrium(string $codeService)
+    public function RecuperationCodeEtServiceIrium(): array
     {
-        $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 AS Serv_lib
-                FROM Agence_Service_Irium
-                WHERE Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 = '.$codeService.'";
+        $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 As service,
+                        Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 As codeService
+                FROM Agence_Service_Irium";
 
         $statement = $this->connexion->query($sql);
-        $services = array();
+        $services = [];
         while ($tab_compt = odbc_fetch_array($statement)) {
             $services[] = $tab_compt;
         }
-        return $services;
+        $nouveauTableau = [];
+
+        foreach ($services as $element) {
+            $codeService = $element['codeService'];
+            $service = $element['service'];
+
+            if (!isset($nouveauTableau[$codeService])) {
+                $nouveauTableau[$codeService] = array();
+            }
+
+            $nouveauTableau[$codeService][] = $service;
+        }
+        return $nouveauTableau;
     }
 
     //
