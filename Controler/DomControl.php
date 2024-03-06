@@ -183,7 +183,11 @@ class DomControl
             $datesyst = $this->DomModel->getDatesystem();
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
+
             $codeServices = $this->DomModel->RecuperationCodeServiceIrium();
+
+
+
 
 
             include 'Views/Principe.php';
@@ -3119,18 +3123,22 @@ class DomControl
     public function anaranaFonction()
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
-        // Récupérer la valeur de l'option sélectionnée
-        $selectedOption = $_GET['option'];
 
-        // Vérifier si l'option existe dans le tableau des données simulées
-        if (array_key_exists($selectedOption, $codeServiceIrium)) {
-            // Afficher le contenu correspondant à l'option sélectionnée
-            for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
-                echo ' <option value="' . $codeServiceIrium[$selectedOption][$i] . '">' . $codeServiceIrium[$selectedOption][$i] . '</option>';
+        if (isset($_GET['option'])) {
+
+            // Récupérer la valeur de l'option sélectionnée
+            $selectedOption = $_GET['option'];
+
+            // Vérifier si l'option existe dans le tableau des données simulées
+            if (array_key_exists($selectedOption, $codeServiceIrium)) {
+                // Afficher le contenu correspondant à l'option sélectionnée
+                for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
+                    echo ' <option value="' . $codeServiceIrium[$selectedOption][$i] . '">' . $codeServiceIrium[$selectedOption][$i] . '</option>';
+                }
+            } else {
+                // Gérer le cas où l'option sélectionnée n'existe pas
+                echo 'Aucune donnée disponible pour cette option';
             }
-        } else {
-            // Gérer le cas où l'option sélectionnée n'existe pas
-            echo 'Aucune donnée disponible pour cette option';
         }
     }
 }

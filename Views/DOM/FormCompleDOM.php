@@ -294,10 +294,13 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
 <body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
-            <div class="d-flex  flex-row-reverse  col">
-                <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
+        <div class="d-flex  flex-row-reverse  col">
+            <div class="tablinks p-2 btn btn-outline-warning ">
+                <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
             </div>
+        </div>
+        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
+
             <div class="row">
                 <!-- <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
@@ -340,24 +343,37 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
             <!-- Debiteur selecte -->
             <label for="" class="col-4 offset-6 fw-bold">Débiteur</label>
+
+
             <div class="row">
                 <div class="col-4 offset-6">
                     <label for="Serv" class="label-form">Code :</label>
-                    <select class="form-select " aria-label="Default select example" id="select1">
+                    <select class="form-select " aria-label="Default select example" id="select1" name="codeService">
                         <?php foreach ($codeServices as $codeService) : ?>
-                            <option selected> fait votre choix</option>
                             <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
+
                 <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <select class="form-select " aria-label="Default select example" id="resultat">
-                        <option selected><?php echo $service ?></option>
-                    </select>
+
+                    <?php if (isset($GET['option'])) { ?>
+                        <select class="form-select " aria-label="Default select example" id="serviceIrium">
+
+                        </select>
+                    <?php } else {  ?>
+                        <select class="form-select " aria-label="Default select example" id="serviceIrium">
+                        <?php } ?>
+                        </select>
+
+
                 </div>
 
             </div>
+
+
+
 
 
             <div class="row">
@@ -871,7 +887,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         var selectedOption = this.value;
 
         // Configuration de la requête Fetch
-        fetch('app.php?option=' + selectedOption)
+        fetch('http://localhost/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
             .then(response => {
                 // Vérification de la réponse
                 if (!response.ok) {
@@ -882,12 +898,27 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             })
             .then(data => {
                 // Affichage des données dans la div "resultat"
-                document.getElementById('resultat').innerHTML = data;
+                document.getElementById('serviceIrium').innerHTML = data;
             })
             .catch(error => {
                 console.error(error);
             });
     });
+
+
+    let check = document.getElementById('radiochek').value;
+
+    if (check === "Interne") {
+        const servInt = document.querySelector('#ServINt');
+        let CONSTANTE = servInt.value;
+        let option2 = document.querySelector('#select1 option[value="' + CONSTANTE + '"]');
+        option2.selected = true;
+    } else {
+        const serv = document.querySelector('#Serv');
+        let CONSTANTE = serv.value;
+        let option2 = document.querySelector('#select1 option[value="' + CONSTANTE + '"]');
+        option2.selected = true;
+    }
 </script>
 
 </html>
