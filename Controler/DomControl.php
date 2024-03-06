@@ -1038,7 +1038,7 @@ class DomControl
                                     // sans JP
                                     if ($libmodepaie !== 'MOBILE MONEY') {
                                         echo 'io';
-                                        /*  $this->DomModel->genererPDF(
+                                          $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1078,8 +1078,8 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );*/
-                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );
+                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                            $this->DomModel->InsertDom(
                                             $NumDom,
@@ -1126,7 +1126,7 @@ class DomControl
                                         );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
-                                        /*  $this->DomModel->genererPDF(
+                                          $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1166,8 +1166,8 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );*/
-                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );
+                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                            $this->DomModel->InsertDom(
                                             $NumDom,
