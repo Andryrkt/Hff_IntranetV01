@@ -3133,7 +3133,8 @@ class DomControl
             if (array_key_exists($selectedOption, $codeServiceIrium)) {
                 // Afficher le contenu correspondant à l'option sélectionnée
                 for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
-                    echo ' <option value="' . $codeServiceIrium[$selectedOption][$i] . '">' . $codeServiceIrium[$selectedOption][$i] . '</option>';
+
+                    echo ' <option value="' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '">' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '</option>';
                 }
             } else {
                 // Gérer le cas où l'option sélectionnée n'existe pas

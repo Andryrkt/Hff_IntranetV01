@@ -313,7 +313,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             </div>
 
 
-            <!-- emetteur select -->
+            <!--DEBUT emetteur select -->
             <label for="" class="col-4 offset-6 fw-bold">Emetteur</label>
             <!-- extern (temporaire) -->
             <div class="row" id="ext">
@@ -340,8 +340,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     </div>
                 <?php endforeach; ?>
             </div>
+            <!-- FIN émetteur select -->
 
-            <!-- Debiteur selecte -->
+
+            <!-- DEBUT Debiteur selecte -->
             <label for="" class="col-4 offset-6 fw-bold">Débiteur</label>
 
 
@@ -357,21 +359,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
-
-                    <?php if (isset($GET['option'])) { ?>
-                        <select class="form-select " aria-label="Default select example" id="serviceIrium">
-
-                        </select>
-                    <?php } else {  ?>
-                        <select class="form-select " aria-label="Default select example" id="serviceIrium">
-                        <?php } ?>
-                        </select>
-
-
+                    <select class="form-select " aria-label="Default select example" id="serviceIrium">
+                    </select>
                 </div>
-
             </div>
-
+            <!-- FIN Debiteur selecte -->
 
 
 
@@ -883,9 +875,42 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     });
 
 
-    document.getElementById('select1').addEventListener('change', function() {
-        var selectedOption = this.value;
 
+    // document.getElementById('select1').addEventListener('change', function() {
+    //     var selectedOption = this.value;
+
+    //     // Configuration de la requête Fetch
+    //     fetch('http://localhost/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
+    //         .then(response => {
+    //             // Vérification de la réponse
+    //             if (!response.ok) {
+    //                 throw new Error('Erreur de réseau');
+    //             }
+    //             // Renvoie la réponse sous forme de texte
+    //             return response.text();
+    //         })
+    //         .then(data => {
+    //             // Affichage des données dans la div "resultat"
+    //             document.getElementById('serviceIrium').innerHTML = data;
+    //         })
+    //         .catch(error => {
+    //             console.error(error);
+    //         });
+    // });
+
+
+    let check = document.getElementById('radiochek').value;
+
+    if (check === "Interne") {
+        const CONSTANTE = document.querySelector('#ServINt').value;
+        document.querySelector('#select1 option[value="' + CONSTANTE + '"]').selected = true;
+    } else {
+        const CONSTANTE = document.querySelector('#Serv').value;
+        document.querySelector('#select1 option[value="' + CONSTANTE + '"]').selected = true;
+    }
+
+
+    function fetchData(selectedOption) {
         // Configuration de la requête Fetch
         fetch('http://localhost/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
             .then(response => {
@@ -903,22 +928,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             .catch(error => {
                 console.error(error);
             });
-    });
-
-
-    let check = document.getElementById('radiochek').value;
-
-    if (check === "Interne") {
-        const servInt = document.querySelector('#ServINt');
-        let CONSTANTE = servInt.value;
-        let option2 = document.querySelector('#select1 option[value="' + CONSTANTE + '"]');
-        option2.selected = true;
-    } else {
-        const serv = document.querySelector('#Serv');
-        let CONSTANTE = serv.value;
-        let option2 = document.querySelector('#select1 option[value="' + CONSTANTE + '"]');
-        option2.selected = true;
     }
+
+    // Initialisation des données
+    fetchData(document.getElementById('select1').value);
+
+    // Ajout de l'écouteur d'événement de changement
+    document.getElementById('select1').addEventListener('change', function() {
+        var selectedOption = this.value;
+        // Appel de la fonction pour récupérer et afficher les données
+        fetchData(selectedOption);
+    });
 </script>
 
 </html>
