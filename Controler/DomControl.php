@@ -406,7 +406,7 @@ class DomControl
                                 //en cours
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                                if ($DDForm <= $DF) {
+                                if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
                                     echo '<script type="text/javascript">
                                     alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -518,7 +518,7 @@ class DomControl
                                         // echo 'sans PJ';
 
                                         // echo 'ie ambany 500000';
-                                        /*  $this->DomModel->genererPDF(
+                                          $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -558,8 +558,8 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );*/
-                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );
+                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -718,7 +718,7 @@ class DomControl
                                     // echo 'sans PJ';
 
                                     // echo 'ie ambany 500000';
-                                    /*  $this->DomModel->genererPDF(
+                                      $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -758,8 +758,8 @@ class DomControl
                                         $Idemn_depl,
                                         $MailUser,
                                         $idemnDoit
-                                    );*/
-                                    //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    );
+                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -818,7 +818,7 @@ class DomControl
                             //en cours
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                            if ($DDForm <= $DF) {
+                            if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
                                 echo '<script type="text/javascript">
                                     alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -1044,7 +1044,7 @@ class DomControl
                                     // sans JP
                                     if ($libmodepaie !== 'MOBILE MONEY') {
                                         echo 'io';
-                                        /*  $this->DomModel->genererPDF(
+                                          $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1084,8 +1084,8 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );*/
-                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );
+                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -1132,7 +1132,7 @@ class DomControl
                                         );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
-                                        /*  $this->DomModel->genererPDF(
+                                          $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1172,8 +1172,8 @@ class DomControl
                                             $Idemn_depl,
                                             $MailUser,
                                             $idemnDoit
-                                        );*/
-                                        // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        );
+                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -1454,7 +1454,7 @@ class DomControl
 
                                 //
                                 if ($libmodepaie !== 'MOBILE MONEY') {
-                                    /*  $this->DomModel->genererPDF(
+                                      $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -1494,8 +1494,8 @@ class DomControl
                                         $Idemn_depl,
                                         $MailUser,
                                         $idemnDoit
-                                    );*/
-                                    //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    );
+                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -1542,7 +1542,7 @@ class DomControl
                                     );
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
-                                    /*  $this->DomModel->genererPDF(
+                                      $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -1582,8 +1582,8 @@ class DomControl
                                         $Idemn_depl,
                                         $MailUser,
                                         $idemnDoit
-                                    );*/
-                                    //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    );
+                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -2083,7 +2083,7 @@ class DomControl
                                 //en cours
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                                if ($DDForm <= $DF) {
+                                if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
                                     echo '<script type="text/javascript">
                                         alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                         document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -2347,7 +2347,7 @@ class DomControl
                             //en cours
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                            if ($DDForm <= $DF) {
+                            if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
                                 echo '<script type="text/javascript">
                                     alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -2920,8 +2920,7 @@ class DomControl
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                             }
-                        }
-                        if ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                        }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                             //echo 'ie ambany 500000';
                             $this->DomModel->genererPDF(
                                 $Devis,
@@ -3046,9 +3045,9 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-            /* echo '<script type="text/javascript">   
+             echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
-                </script>';*/
+                </script>';
         }
     }
     /**
@@ -3115,7 +3114,12 @@ class DomControl
         $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
         $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
         include 'Views/Principe.php';
-        $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+        $ListDomRech = $this->DomModel->getListDomRechALl();
+        }else{
+            $ListDomRech = $this->DomModel->getListDomRech($UserConnect); 
+        }
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDomRech.php';
     }

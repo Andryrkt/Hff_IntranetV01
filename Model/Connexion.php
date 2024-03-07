@@ -1,7 +1,4 @@
 <?php
-
-
-
 class Connexion
 {
     private $DB = "HFF_INTRANET_V01_TEST";

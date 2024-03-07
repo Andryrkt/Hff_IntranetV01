@@ -512,29 +512,66 @@ class DomModel
      */
     public function getListDomRech($ConnectUser)
     {
-        $rech = "SELECT  ID_Demande_Ordre_Mission,
-                        (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
-                        Nom_Session_Utilisateur,
-                        Numero_Ordre_Mission,
-                        Type_Document,
-                        Sous_type_document,
-                        Matricule, 
-                        Date_Demande, 
-                        Nombre_Jour, 
-                        Date_Debut, 
-                        Date_Fin, 
-                        Motif_Deplacement,
-                        Client, 
-                        Lieu_Intervention,
-                        Devis,
-                        Statut_demande.Description as Statut,
-                        Total_General_Payer
+        $rech = "SELECT  Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+       ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+        Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
                 FROM Demande_ordre_mission, Statut_demande
                 WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
                 AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
                                                                         FROM Agence_service_autorise 
                                                                         WHERE Session_Utilisateur = '" . $ConnectUser . "' )
                                                                         
+                ORDER BY ID_Demande_Ordre_Mission DESC";
+        $exRech = $this->connexion->query($rech);
+        $ListDomRech = array();
+        while ($tab_listRech = odbc_fetch_array($exRech)) {
+            $ListDomRech[] = $tab_listRech;
+        }
+        return $ListDomRech;
+    }
+
+    public function getListDomRechAll()
+    {
+        $rech = "SELECT  Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+       ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+        Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
+                FROM Demande_ordre_mission, Statut_demande
+                WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                                           
                 ORDER BY ID_Demande_Ordre_Mission DESC";
         $exRech = $this->connexion->query($rech);
         $ListDomRech = array();
@@ -746,8 +783,8 @@ class DomModel
     {
 
 
-        // $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+         $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv .'.pdf';
+       // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
@@ -783,8 +820,8 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
-        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
+       // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
     /**
      * Fusion du Pdf avec un Pièce Joint
@@ -806,7 +843,7 @@ class DomModel
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        //$pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
-        $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom , 'F');
+       // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 }
