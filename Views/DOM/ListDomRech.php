@@ -57,12 +57,9 @@
                     </div>
                 </div>
                 <div class="col-2">
-                        <input type="submit" name="export" id="export" class="btn btn-success" value="Export Excel">
+                    <input type="submit" name="export" id="export" class="btn btn-success" value="Export Excel">
                 </div>
             </div>
-
-    
-
 
         </form>
 

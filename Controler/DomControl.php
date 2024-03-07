@@ -246,6 +246,8 @@ class DomControl
             $Nomext = $_POST['namesExt'];
             $PrenomExt = $_POST['firstnamesExt'];
             $MatrExt = $_POST['cin'];
+
+            //EMETTEUR
             //Serv_Ext
             $Code_serv = strtoupper($_POST['Serv']); //80 Admin
             $code = explode(" ", $Code_serv);
@@ -270,6 +272,13 @@ class DomControl
             $ServiINT = strtolower(end($codeservINT)); // INfo
             $codeAg_servINT = $code_AgenceINT . $Code_ServiINT; //80-INF
             $LibelleCodeAg_ServINT = $AgenceINT . "-" . $ServiINT;
+            //FIN Emetteur
+
+            //DEBITTEUR
+            $codeServiceDebitteur = current(explode(' ', strtoupper($_POST['codeService'])));
+            $serviceDebitteur = current(explode(' ', strtoupper($_POST['service'])));
+
+            //FIN debitteur
 
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
@@ -343,6 +352,7 @@ class DomControl
             // mail 
             $MailUser = $this->DomModel->getmailUserConnect($_SESSION['user']);
 
+
             // 1
 
             if (strtotime($DateDebut) < strtotime($DateFin) || strtotime($DateDebut) === strtotime($DateFin)) {
@@ -406,7 +416,7 @@ class DomControl
                                 //en cours
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                                if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
+                                if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
                                     echo '<script type="text/javascript">
                                     alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -455,7 +465,9 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                         $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                         move_uploaded_file($filetemp01, $Upload_file);
@@ -518,7 +530,7 @@ class DomControl
                                         // echo 'sans PJ';
 
                                         // echo 'ie ambany 500000';
-                                          $this->DomModel->genererPDF(
+                                        $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -557,9 +569,11 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
-                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -655,7 +669,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -718,7 +734,7 @@ class DomControl
                                     // echo 'sans PJ';
 
                                     // echo 'ie ambany 500000';
-                                      $this->DomModel->genererPDF(
+                                    $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -757,9 +773,11 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
-                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -818,7 +836,7 @@ class DomControl
                             //en cours
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                            if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
+                            if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
                                 echo '<script type="text/javascript">
                                     alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -868,7 +886,9 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                         $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                         move_uploaded_file($filetemp01, $Upload_file);
@@ -968,7 +988,9 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                         $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                         move_uploaded_file($filetemp01, $Upload_file);
@@ -1044,7 +1066,7 @@ class DomControl
                                     // sans JP
                                     if ($libmodepaie !== 'MOBILE MONEY') {
                                         echo 'io';
-                                          $this->DomModel->genererPDF(
+                                        $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1083,9 +1105,11 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
-                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -1132,7 +1156,7 @@ class DomControl
                                         );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
-                                          $this->DomModel->genererPDF(
+                                        $this->DomModel->genererPDF(
                                             $Devis,
                                             $Prenoms,
                                             $AllMontant,
@@ -1171,9 +1195,11 @@ class DomControl
                                             $Site,
                                             $Idemn_depl,
                                             $MailUser,
-                                            $idemnDoit
+                                            $idemnDoit,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
-                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                        $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom(
                                             $NumDom,
@@ -1220,8 +1246,6 @@ class DomControl
                                         );
                                     } //mobile&allMont 
                                     else {
-                                        var_dump($libmodepaie);
-                                        die();
                                         echo '<script type="text/javascript">
                                 alert("Assurez vous que le Montant Total est inférieur à 500.000");
                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -1280,7 +1304,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -1380,7 +1406,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                     move_uploaded_file($filetemp01, $Upload_file);
@@ -1454,7 +1482,7 @@ class DomControl
 
                                 //
                                 if ($libmodepaie !== 'MOBILE MONEY') {
-                                      $this->DomModel->genererPDF(
+                                    $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -1493,9 +1521,11 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
-                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -1542,7 +1572,7 @@ class DomControl
                                     );
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
-                                      $this->DomModel->genererPDF(
+                                    $this->DomModel->genererPDF(
                                         $Devis,
                                         $Prenoms,
                                         $AllMontant,
@@ -1581,9 +1611,11 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
-                                      $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
+                                    $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom(
                                         $NumDom,
@@ -1689,7 +1721,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -1789,7 +1823,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -1899,7 +1935,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -1987,7 +2025,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
@@ -2083,7 +2123,7 @@ class DomControl
                                 //en cours
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                                if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
+                                if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
                                     echo '<script type="text/javascript">
                                         alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                         document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -2131,7 +2171,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
@@ -2245,7 +2287,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -2347,7 +2391,7 @@ class DomControl
                             //en cours
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                            if (($DDForm >=  $DD && $DDForm <= $DF  ) && ($DFForm >= $DD && $DFForm <= $DF) ) {
+                            if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
                                 echo '<script type="text/javascript">
                                     alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -2396,7 +2440,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
@@ -2504,7 +2550,9 @@ class DomControl
                                         $Site,
                                         $Idemn_depl,
                                         $MailUser,
-                                        $idemnDoit
+                                        $idemnDoit,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
@@ -2625,7 +2673,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -2733,7 +2783,9 @@ class DomControl
                                     $Site,
                                     $Idemn_depl,
                                     $MailUser,
-                                    $idemnDoit
+                                    $idemnDoit,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
@@ -2853,7 +2905,9 @@ class DomControl
                                 $Site,
                                 $Idemn_depl,
                                 $MailUser,
-                                $idemnDoit
+                                $idemnDoit,
+                                $codeServiceDebitteur,
+                                $serviceDebitteur
                             );
                             //
                             if (!empty($filename01) && !empty($filename02)) {
@@ -2920,7 +2974,7 @@ class DomControl
                             document.location.href = "/Hffintranet/index.php?action=New_DOM";
                             </script>';
                             }
-                        }elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                        } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                             //echo 'ie ambany 500000';
                             $this->DomModel->genererPDF(
                                 $Devis,
@@ -2961,7 +3015,9 @@ class DomControl
                                 $Site,
                                 $Idemn_depl,
                                 $MailUser,
-                                $idemnDoit
+                                $idemnDoit,
+                                $codeServiceDebitteur,
+                                $serviceDebitteur
                             );
                             //
                             if (!empty($filename01) && !empty($filename02)) {
@@ -3045,7 +3101,7 @@ class DomControl
                  document.location.href = "/Hffintranet/index.php?action=New_DOM";
                 </script>';
             }
-             echo '<script type="text/javascript">   
+            echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDom";
                 </script>';
         }
@@ -3116,9 +3172,9 @@ class DomControl
         include 'Views/Principe.php';
         $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-        $ListDomRech = $this->DomModel->getListDomRechALl();
-        }else{
-            $ListDomRech = $this->DomModel->getListDomRech($UserConnect); 
+            $ListDomRech = $this->DomModel->getListDomRechALl();
+        } else {
+            $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
         }
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDomRech.php';

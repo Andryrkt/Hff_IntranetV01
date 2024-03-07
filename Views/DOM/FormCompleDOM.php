@@ -359,7 +359,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col-4 offset-6">
                     <label for="LibServ" class="label-form">Service :</label>
-                    <select class="form-select " aria-label="Default select example" id="serviceIrium">
+                    <select class="form-select" name="service" aria-label="Default select example" id="serviceIrium">
                     </select>
                 </div>
             </div>
@@ -817,12 +817,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             var typeMode = $('#modepaie option:selected').val();
             var check = $('#radiochek').val();
 
-           
+
             if (typeMode !== 'MOBILE MONEY') {
                 TelMobile.prop("required", false);
-            }else if(typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '') && check === 'Interne') {
+            } else if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '') && check === 'Interne') {
                 TelMobile.prop("required", true);
-            } else{
+            } else {
                 TelMobile.prop("required", false);
             }
 
@@ -875,40 +875,10 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         FicheAtelier();
     });
 
-
-
-    // document.getElementById('select1').addEventListener('change', function() {
-    //     var selectedOption = this.value;
-
-    //     // Configuration de la requête Fetch
-    //     fetch('http://localhost/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
-    //         .then(response => {
-    //             // Vérification de la réponse
-    //             if (!response.ok) {
-    //                 throw new Error('Erreur de réseau');
-    //             }
-    //             // Renvoie la réponse sous forme de texte
-    //             return response.text();
-    //         })
-    //         .then(data => {
-    //             // Affichage des données dans la div "resultat"
-    //             document.getElementById('serviceIrium').innerHTML = data;
-    //         })
-    //         .catch(error => {
-    //             console.error(error);
-    //         });
-    // });
-
-
+    // DEBUT javascript pour selecte debiteur
     let check = document.getElementById('radiochek').value;
 
-    if (check === "Interne") {
-        const CONSTANTE = document.querySelector('#ServINt').value;
-        document.querySelector('#select1 option[value="' + CONSTANTE + '"]').selected = true;
-    } else {
-        const CONSTANTE = document.querySelector('#Serv').value;
-        document.querySelector('#select1 option[value="' + CONSTANTE + '"]').selected = true;
-    }
+
 
 
     function fetchData(selectedOption) {
@@ -931,15 +901,42 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             });
     }
 
-    // Initialisation des données
-    fetchData(document.getElementById('select1').value);
 
+
+    if (check === "Interne") {
+        const servInt = document.querySelector('#ServINt').value;
+        //const LibServ = document.querySelector('LibServ').value;
+        document.querySelector('#select1 option[value="' + servInt + '"]').selected = true;
+        //document.querySelector('#serviceIrium option[value="' + LibServ + '"]').selected = true;
+
+    } else {
+        const serv = document.querySelector('#Serv').value;
+        //const LibServInt = document.querySelector('LibServINT').value;
+        document.querySelector('#select1 option[value="' + serv + '"]').selected = true;
+        //document.querySelector('#serviceIrium option[value="' + LibServInt + '"]').selected = true;
+    }
+    fetchData(document.getElementById('select1').value);
+    // Initialisation des données
+
+    // if (check === "Interne") {
+    //     //const servInt = document.querySelector('#ServINt').value;
+    //     const LibServ = document.querySelector('LibServ').value;
+    //     //document.querySelector('#select1 option[value="' + servInt + '"]').selected = true;
+    //     document.querySelector('#serviceIrium option[value="' + LibServ + '"]').selected = true;
+
+    // } else {
+    //     const serv = document.querySelector('#Serv').value;
+    //     //const LibServInt = document.querySelector('LibServINT').value;
+    //     document.querySelector('#select1 option[value="' + serv + '"]').selected = true;
+    //     //document.querySelector('#serviceIrium option[value="' + LibServInt + '"]').selected = true;
+    // }
     // Ajout de l'écouteur d'événement de changement
     document.getElementById('select1').addEventListener('change', function() {
         var selectedOption = this.value;
         // Appel de la fonction pour récupérer et afficher les données
         fetchData(selectedOption);
     });
+    //FIN Javascript pour le débitteur select
 </script>
 
 </html>
