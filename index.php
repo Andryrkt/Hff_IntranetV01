@@ -145,6 +145,10 @@ switch ($action) {
         break;
     case 'anaranaaction':
         $ControlDOM->anaranaFonction();
+        break;
+    case 'recherche':
+        $ControlDOM->RechercheController();
+        break;
     default:
         include 'Views/SignIn.php';
 }
