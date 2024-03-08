@@ -145,6 +145,10 @@ switch ($action) {
         break;
     case 'anaranaaction':
         $ControlDOM->anaranaFonction();
+        break;
+    case 'Dupliquer':
+        $ControlDOM->duplificationDOM();
+        break;
     default:
         include 'Views/SignIn.php';
 }

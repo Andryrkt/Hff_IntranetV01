@@ -60,6 +60,7 @@
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Recherche</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Dupliquer">Dupliquer</a></li>
                         </ul>
                     </li>
 
