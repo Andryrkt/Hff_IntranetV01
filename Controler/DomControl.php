@@ -3206,20 +3206,20 @@ class DomControl
 
     public function RechercheController()
     {
-
+        header("Content-type:application/json");
         session_start();
         if (empty($_SESSION['user'])) {
             header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
             exit();
         }
-        header("Content-type:application/json");
+
         $array_decoded = $this->DomModel->RechercheModel();
 
         //Convertir le tableau en format JSON
         $jsonData = json_encode($array_decoded);
 
-        // // Afficher le JSON
+        // Afficher le JSON
         echo $jsonData;
     }
 }

@@ -5,21 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hff INtranet</title>
+
+    <link rel="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" href="style.css">
+    <style>
+        .Contenue {
+            width: 100%;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
-
-<style>
-    .Contenue {
-        width: 100%;
-        max-height: 800px;
-        overflow-y: auto;
-    }
-
-    th {
-        position: sticky;
-        top: 0;
-        background-color: #f2f2f2;
-    }
-</style>
 
 <body>
     <div class="row">
@@ -172,7 +173,7 @@
                 // afficher les donnée du selecte statut
                 SelectStatutValue1(raw_data);
                 // Appeler la fonction de rendu des données avec les données récupérées
-                renderData(raw_data);
+                renderData1(raw_data);
 
                 //filtre les donées et l'afficher
                 ////////////////////////////////////////////////////
@@ -292,11 +293,10 @@
 
                 //export excel
                 // Sélection du bouton d'export Excel
-                const exportExcelButton = document.querySelector('button[name="exportExcel"]');
+                const exportExcelButton = document.querySelector('#export');
 
                 // Ajout d'un écouteur d'événements pour le clic sur le bouton
                 exportExcelButton.addEventListener('click', () => {
-
                     ExportExcel(raw_data);
                 });
 
@@ -337,10 +337,11 @@
 
                 // Création d'un élément de tableau
                 table = document.createElement('table');
-                table.classList.add('table');
+                table.classList.add('table table-striped');
 
                 // Création de l'en-tête du tableau
                 var thead = document.createElement('thead');
+                thead.classList.add('table-dark');
                 var headerRow = document.createElement('tr');
                 for (var key in data[0]) {
                     var th = document.createElement('th');
@@ -418,41 +419,41 @@
 
         }
 
-        function renderData(data) {
-            var container = document.getElementById('table-container');
+        // function renderData(data) {
+        //     var container = document.getElementById('table-container');
 
-            // Création d'un élément de tableau
-            var table = document.createElement('table');
-            table.classList.add('table');
+        //     // Création d'un élément de tableau
+        //     var table = document.createElement('table');
+        //     table.classList.add('table');
 
-            // Création de l'en-tête du tableau
-            var thead = document.createElement('thead');
-            var headerRow = document.createElement('tr');
-            for (var key in data[0]) {
-                var th = document.createElement('th');
-                th.textContent = key.toUpperCase();
-                headerRow.appendChild(th);
-            }
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
+        //     // Création de l'en-tête du tableau
+        //     var thead = document.createElement('thead');
+        //     var headerRow = document.createElement('tr');
+        //     for (var key in data[0]) {
+        //         var th = document.createElement('th');
+        //         th.textContent = key.toUpperCase();
+        //         headerRow.appendChild(th);
+        //     }
+        //     thead.appendChild(headerRow);
+        //     table.appendChild(thead);
 
-            // Création du corps du tableau
-            var tbody = document.createElement('tbody');
-            data.forEach(function(item) {
-                var row = document.createElement('tr');
-                for (var key in item) {
-                    var cell = document.createElement('td');
-                    cell.textContent = item[key];
-                    row.appendChild(cell);
-                }
-                tbody.appendChild(row);
-            });
-            table.appendChild(tbody);
+        //     // Création du corps du tableau
+        //     var tbody = document.createElement('tbody');
+        //     data.forEach(function(item) {
+        //         var row = document.createElement('tr');
+        //         for (var key in item) {
+        //             var cell = document.createElement('td');
+        //             cell.textContent = item[key];
+        //             row.appendChild(cell);
+        //         }
+        //         tbody.appendChild(row);
+        //     });
+        //     table.appendChild(tbody);
 
-            // Ajout du tableau au conteneur
-            container.appendChild(table);
+        //     // Ajout du tableau au conteneur
+        //     container.appendChild(table);
 
-        }
+        // }
 
         function ExportExcel(data) {
 
@@ -501,7 +502,7 @@
 
         }
     </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
