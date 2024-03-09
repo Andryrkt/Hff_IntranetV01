@@ -267,7 +267,7 @@ class DomControl
 
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
-            $NumDom = $this->DomModel->DOM_autoINcriment();//$_POST['NumDOM'];
+            $NumDom = $this->DomModel->DOM_autoINcriment(); //$_POST['NumDOM'];
 
             $Devis = $_POST['Devis'];
 
@@ -400,7 +400,7 @@ class DomControl
                                 //en cours
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                                if ($DDForm <= $DF) {
+                                if (($DDForm >= $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
                                     echo '<script type="text/javascript">
                                     alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
@@ -555,11 +555,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -755,7 +755,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1081,11 +1081,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -1169,11 +1169,11 @@ class DomControl
                                         );*/
                                         // $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                           $this->DomModel->InsertDom(
+                                        $this->DomModel->InsertDom(
                                             $NumDom,
                                             $dateSystem,
                                             $typMiss,
-    
+
                                             $matr,
                                             $usersession,
                                             $codeAg_servINT,
@@ -1491,7 +1491,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -1579,7 +1579,7 @@ class DomControl
                                     );*/
                                     //  $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
 
-                                      $this->DomModel->InsertDom(
+                                    $this->DomModel->InsertDom(
                                         $NumDom,
                                         $dateSystem,
                                         $typMiss,
@@ -2064,6 +2064,9 @@ class DomControl
                         $mode =  "CPT " . $valModeExt;
                         $modeDB = "VIREMENT BANCAIRE : " . $valModeExt;
                     }
+
+
+
                     if ($typMiss !== 'COMPLEMENT') {
                         //si frais execption
                         if ($typMiss === 'FRAIS EXCEPTIONNEL' && $Devis !== 'MGA') {
