@@ -225,7 +225,8 @@ class DomModel
     public function RecuperationCodeServiceIrium(): array
     {
         $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
-        FROM Agence_Service_Irium ";
+        FROM Agence_Service_Irium
+        WHERE societe_ios = 'HF'  ";
 
         $statement = $this->connexion->query($sql);
         $codeServices = array();
@@ -238,8 +239,9 @@ class DomModel
     public function RecuperationCodeEtServiceIrium(): array
     {
         $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 As service,
-                        Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 As codeService
-                FROM Agence_Service_Irium";
+        Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 As codeService
+FROM Agence_Service_Irium
+WHERE societe_ios = 'HF' ";
 
         $statement = $this->connexion->query($sql);
         $services = [];
@@ -905,7 +907,6 @@ class DomModel
             return $array;
         }
 
-        // Appliquer la fonction decode_entities_in_array() au tableau
-        return  decode_entities_in_array($tab);
+        return decode_entities_in_array($tab);
     }
 }

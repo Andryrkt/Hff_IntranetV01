@@ -3184,6 +3184,7 @@ class DomControl
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
+        var_dump($codeServiceIrium);
         if (isset($_GET['option'])) {
 
             // Récupérer la valeur de l'option sélectionnée
@@ -3206,20 +3207,12 @@ class DomControl
 
     public function RechercheController()
     {
-        header("Content-type:application/json");
-        session_start();
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
-        }
 
         $array_decoded = $this->DomModel->RechercheModel();
+        //var_dump($array_decoded);
 
-        //Convertir le tableau en format JSON
-        $jsonData = json_encode($array_decoded);
+        header("Content-type:application/json");
 
-        // Afficher le JSON
-        echo $jsonData;
+        echo json_encode($array_decoded);
     }
 }

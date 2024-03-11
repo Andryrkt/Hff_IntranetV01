@@ -222,18 +222,18 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
         if (checkInterne === 'Interne') {
             externe.style.display = 'none';
-            Interne.style.display = 'block'
-            IntServ.style.display = 'block';
+            // Interne.style.display = 'block'
+            // IntServ.style.display = 'block';
             ExtServ.style.display = 'none';
-            OptInt.style.display = 'block';
+            // OptInt.style.display = 'block';
             OptExt.style.display = 'none';
         } else {
-            externe.style.display = 'block';
+            // externe.style.display = 'block';
             Interne.style.display = 'none';
             IntServ.style.display = 'none';
-            ExtServ.style.display = 'Block';
+            // ExtServ.style.display = 'block';
             OptInt.style.display = 'none';
-            OptExt.style.display = 'Block';
+            // OptExt.style.display = 'Block';
         }
     }
 
@@ -312,58 +312,66 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
             </div>
 
-
-            <!--DEBUT emetteur select -->
-            <label for="" class="col-4 offset-6 fw-bold">Emetteur</label>
-            <!-- extern (temporaire) -->
-            <div class="row" id="ext">
-                <div class="col-4 offset-6">
-                    <label for="Serv" class="label-form">Code :</label>
-                    <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
-                </div>
-                <div class="col-4 offset-6">
-                    <label for="LibServ" class="label-form">Service :</label>
-                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
-                </div>
-
-            </div>
-            <!-- interne (permanent) -->
-            <div class="row" id="int">
-                <?php foreach ($Compte as $Serv) : ?>
-                    <div class="col-4 offset-6">
-                        <label for="Serv" class="label-form">Code :</label>
-                        <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
-                    </div>
-                    <div class="col-4 offset-6">
-                        <label for="LibServ" class="label-form">Service :</label>
-                        <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <!-- FIN émetteur select -->
-
-
-            <!-- DEBUT Debiteur selecte -->
-            <label for="" class="col-4 offset-6 fw-bold">Débiteur</label>
-
-
             <div class="row">
-                <div class="col-4 offset-6">
-                    <label for="Serv" class="label-form">Code :</label>
-                    <select class="form-select " aria-label="Default select example" id="select1" name="codeService">
-                        <?php foreach ($codeServices as $codeService) : ?>
-                            <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <div class="col">
 
-                <div class="col-4 offset-6">
-                    <label for="LibServ" class="label-form">Service :</label>
-                    <select class="form-select" name="service" aria-label="Default select example" id="serviceIrium">
-                    </select>
+
+                    <!-- DEBUT Debiteur selecte -->
+                    <label for="" class="col-4  fw-bold">Débiteur</label>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="Serv" class="label-form">Code :</label>
+                            <select class="form-select " aria-label="Default select example" id="select1" name="codeService">
+                                <?php foreach ($codeServices as $codeService) : ?>
+                                    <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-6 ">
+                            <label for="LibServ" class="label-form">Service :</label>
+                            <select class="form-select" name="service" aria-label="Default select example" id="serviceIrium">
+                            </select>
+                        </div>
+                    </div>
                 </div>
+                <!-- FIN Debiteur selecte -->
+
+                <!--DEBUT emetteur select -->
+                <div class="col">
+                    <label for="" class="col-4  fw-bold">Emetteur</label>
+                    <!-- extern (temporaire) -->
+                    <div class="row" id="ext">
+                        <div class="col-4 ">
+                            <label for="Serv" class="label-form">Code :</label>
+                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
+                        </div>
+                        <div class="col-4 ">
+                            <label for="LibServ" class="label-form">Service :</label>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
+                        </div>
+
+                    </div>
+                    <!-- interne (permanent) -->
+                    <div class="row" id="int">
+                        <?php foreach ($Compte as $Serv) : ?>
+                            <div class="col-4 ">
+                                <label for="Serv" class="label-form">Code :</label>
+                                <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
+                            </div>
+                            <div class="col-4 ">
+                                <label for="LibServ" class="label-form">Service :</label>
+                                <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                </div>
+                <!-- FIN émetteur select -->
+
+
             </div>
-            <!-- FIN Debiteur selecte -->
 
 
 
@@ -883,7 +891,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
     function fetchData(selectedOption) {
         // Configuration de la requête Fetch
-        fetch('http://localhost/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
+        fetch('/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
             .then(response => {
                 // Vérification de la réponse
                 if (!response.ok) {
@@ -905,31 +913,39 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
     if (check === "Interne") {
         const servInt = document.querySelector('#ServINt').value;
-        //const LibServ = document.querySelector('LibServ').value;
+
         document.querySelector('#select1 option[value="' + servInt + '"]').selected = true;
-        //document.querySelector('#serviceIrium option[value="' + LibServ + '"]').selected = true;
+
 
     } else {
         const serv = document.querySelector('#Serv').value;
-        //const LibServInt = document.querySelector('LibServINT').value;
+
         document.querySelector('#select1 option[value="' + serv + '"]').selected = true;
-        //document.querySelector('#serviceIrium option[value="' + LibServInt + '"]').selected = true;
+
     }
     fetchData(document.getElementById('select1').value);
     // Initialisation des données
 
-    // if (check === "Interne") {
-    //     //const servInt = document.querySelector('#ServINt').value;
-    //     const LibServ = document.querySelector('LibServ').value;
-    //     //document.querySelector('#select1 option[value="' + servInt + '"]').selected = true;
-    //     document.querySelector('#serviceIrium option[value="' + LibServ + '"]').selected = true;
 
-    // } else {
-    //     const serv = document.querySelector('#Serv').value;
-    //     //const LibServInt = document.querySelector('LibServINT').value;
-    //     document.querySelector('#select1 option[value="' + serv + '"]').selected = true;
-    //     //document.querySelector('#serviceIrium option[value="' + LibServInt + '"]').selected = true;
-    // }
+
+    if (check === "Interne") {
+        setTimeout(() => {
+            const LibServINT = document.querySelector('#LibServINT').value;
+            document.querySelector('#serviceIrium option[value="' + LibServINT + '"]').selected = true;
+        }, 200);
+
+    } else {
+        setTimeout(() => {
+            const serv = document.querySelector('#LibServ').value;
+
+            console.log(serv);
+            document.querySelector('#serviceIrium option[value="' + serv + '"]').selected = true;
+        }, 200);
+
+    }
+
+
+
     // Ajout de l'écouteur d'événement de changement
     document.getElementById('select1').addEventListener('change', function() {
         var selectedOption = this.value;
