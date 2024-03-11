@@ -277,7 +277,6 @@ class DomControl
             //DEBITTEUR
             $codeServiceDebitteur = current(explode(' ', strtoupper($_POST['codeService'])));
             $serviceDebitteur = current(explode(' ', strtoupper($_POST['service'])));
-            //var_dump($codeServiceDebitteur . '-' . $serviceDebitteur);
             //FIN debitteur
 
             $dateSystem = $_POST['datesyst'];

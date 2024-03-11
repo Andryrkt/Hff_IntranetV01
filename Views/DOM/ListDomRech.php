@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hff INtranet</title>
 
-    <link rel="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" href="style.css">
+
     <style>
         .Contenue {
             width: 100%;
@@ -18,6 +18,10 @@
             position: sticky;
             top: 0;
             background-color: #f2f2f2;
+        }
+
+        .statut-paye {
+            background-color: #34c924;
         }
     </style>
 </head>
@@ -160,7 +164,7 @@
     <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        fetch("http://localhost/Hffintranet/index.php?action=recherche")
+        fetch("/Hffintranet/index.php?action=recherche")
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -337,7 +341,7 @@
 
                 // Création d'un élément de tableau
                 table = document.createElement('table');
-                table.classList.add('table table-striped');
+                table.classList.add('table', 'table-striped');
 
                 // Création de l'en-tête du tableau
                 var thead = document.createElement('thead');
@@ -368,13 +372,79 @@
             data.forEach(function(item) {
                 var row = document.createElement('tr');
                 for (var key in item) {
-                    var cell = document.createElement('td');
-                    cell.textContent = item[key];
-                    row.appendChild(cell);
+                    var cellule = document.createElement('td');
+                    cellule.textContent = item[key];
+                    // Vérifier si la clé est "statut" et attribuer une classe en conséquence
+                    if (key === 'Statut') {
+                        switch (item[key]) {
+                            case 'ouvert':
+                                cellule.classList.add('statut-ouvert');
+                                break;
+                            case 'payé':
+                                cellule.classList.add('statut-paye');
+                                break;
+                            case 'Annulé':
+                                cellule.classList.add('statut-annulé');
+                                break;
+                            case 'Compta':
+                                cellule.classList.add('statut-compta');
+                                break;
+
+                        }
+                    }
+                    row.appendChild(cellule);
                 }
                 tbody.appendChild(row);
             });
         }
+
+        // function renderData1(data) {
+        //     var table = document.querySelector('.table'); // Sélectionnez le tableau existant
+
+        //     // Création du corps du tableau s'il n'existe pas encore
+        //     if (!table) {
+        //         var container = document.getElementById('table-container');
+
+        //         // Création d'un élément de tableau
+        //         table = document.createElement('table');
+        //         table.classList.add('table table-striped');
+
+        //         // Création de l'en-tête du tableau
+        //         var thead = document.createElement('thead');
+        //         thead.classList.add('table-dark');
+        //         var headerRow = document.createElement('tr');
+        //         for (var key in data[0]) {
+        //             var th = document.createElement('th');
+        //             th.textContent = key.toUpperCase();
+        //             headerRow.appendChild(th);
+        //         }
+        //         thead.appendChild(headerRow);
+        //         table.appendChild(thead);
+
+        //         // Ajout du tableau au conteneur
+        //         container.appendChild(table);
+        //     }
+
+        //     // Création du corps du tableau
+        //     var tbody = table.querySelector('tbody');
+        //     if (!tbody) {
+        //         tbody = document.createElement('tbody');
+        //         table.appendChild(tbody);
+        //     } else {
+        //         tbody.innerHTML = ''; // Effacer le contenu précédent
+        //     }
+
+        //     // Ajouter les nouvelles lignes pour les données filtrées
+        //     data.forEach(function(item) {
+        //         var row = document.createElement('tr');
+        //         for (var key in item) {
+        //             var cell = document.createElement('td');
+        //             cell.textContent = item[key];
+        //             row.appendChild(cell);
+        //         }
+        //         tbody.appendChild(row);
+        //     });
+        // }
 
 
         function filtre(data) {
@@ -502,7 +572,7 @@
 
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

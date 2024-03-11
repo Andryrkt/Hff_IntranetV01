@@ -904,7 +904,36 @@ WHERE societe_ios = 'HF' ";
 
             $tab[] = $donner;
         }
+        // Fonction pour nettoyer les valeurs en supprimant les caractères spéciaux
+        function clean_string($string)
+        {
+            return mb_convert_encoding($string, 'ASCII', 'UTF-8');
+        }
 
+        // Parcourir chaque élément du tableau $tab
+        foreach ($tab as $key => &$value) {
+            // Parcourir chaque valeur de l'élément et nettoyer les données
+            foreach ($value as &$inner_value) {
+                $inner_value = clean_string($inner_value);
+            }
+        }
+
+        function contains_special_characters($string)
+        {
+            // Expression régulière pour vérifier les caractères spéciaux
+            return preg_match('/[^\x20-\x7E\t\r\n]/', $string);
+        }
+
+        // Parcours de chaque élément du tableau $tab
+        foreach ($tab as $key => $value) {
+            // Parcours de chaque valeur de l'élément
+            foreach ($value as $inner_value) {
+                // Vérification de la présence de caractères spéciaux
+                if (contains_special_characters($inner_value)) {
+                    echo "Caractère spécial trouvé dans la valeur : $inner_value<br>";
+                }
+            }
+        }
         function decode_entities_in_array($array)
         {
             // Parcourir chaque élément du tableau
