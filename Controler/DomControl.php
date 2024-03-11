@@ -8,7 +8,18 @@ class DomControl
     {
         $this->DomModel = $DomModel;
     }
-
+    public function filterStatut()
+    {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+        $Libstatut = $_POST['LibStatut'];
+        $Statut = $this->DomModel->filterstatut($Libstatut);
+        echo json_encode($Statut);
+    }
 
     /**
      * selection catgégorie dans l'ajax 
@@ -3262,6 +3273,7 @@ class DomControl
 
 
 
+
     /**
      * @Andryrkt 
      * cette fonction transforme le tableau en json 
@@ -3279,6 +3291,7 @@ class DomControl
     }
 
 
+
     public function duplificationDOM()
     {
         session_start();
@@ -3287,6 +3300,7 @@ class DomControl
             session_destroy();
             exit();
         }
+
         $UserConnect = $_SESSION['user'];
         $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
         $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
@@ -3299,5 +3313,27 @@ class DomControl
         }
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDom_Duplifier.php';
+    }
+
+
+    public function duplificationForm()
+    {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+        if ($_SERVER['REQUEST_METHOD']  === 'GET') {
+            $numDom = $_GET['NumDOM'];
+            $idDom = $_GET['IdDOM'];
+            $datesyst = $this->DomModel->getDatesystem();
+            $UserConnect = $_SESSION['user'];
+            $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+            $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+            include 'Views/Principe.php';
+            $detailSelect = $this->DomModel->DuplicaftionDomSelect($numDom, $idDom);
+            include 'Views/DOM/FormCompleDOM_Duplifier.php';
+        }
     }
 }

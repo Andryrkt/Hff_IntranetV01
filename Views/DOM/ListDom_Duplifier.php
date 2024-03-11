@@ -36,29 +36,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-2">
-                    <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                        <span class="input-group-text">Matricule</span>
-                        <input type="text" name="Matricule" id="Matricule" class="form-control">
-                    </div>
-                </div>
-                <!-- <div class="col-3">
-                    <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                        <span class="input-group-text">Date de création</span>
-                        <input type="date" name="Date_debut" id="Date_debut" class="form-control">
-                        <input type="date" name="Date_Fin" id="Date_Fin" class="form-control">
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                        <span class="input-group-text">Date de début</span>
-                        <input type="date" name="Date_debut_D" id="Date_debut_D" class="form-control">
-                        <input type="date" name="Date_Fin_D" id="Date_Fin_D" class="form-control">
-                    </div>
-                </div>
-                <div class="col-2">
-                    <input type="submit" name="export" id="export" class="btn btn-success" value="Export Excel">
-                </div> -->
             </div>
 
         </form>
@@ -70,6 +47,7 @@
         <table class="table">
             <thead class=" table-dark">
                 <tr>
+                  <th>Action</th>
                     <th>Statut</th>
                     <th>Type document</th>
                     <th>N° Ordre Mission</th>
@@ -92,7 +70,7 @@
                     <th>Devis</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="BodyTable">
                 <?php foreach ($ListDomRech as $ListDomRech) : ?>
                     <tr>
                         <?php
@@ -112,7 +90,7 @@
                         }
 
                         ?>
-
+                        <td> <button type="button" class="btn btn-warning"><a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=<?php echo $ListDomRech['Numero_Ordre_Mission']?> & IdDOM=<?php echo $ListDomRech['ID_Demande_Ordre_Mission']?>" style="text-decoration: none;color: black;">Duplifier</a> </button></td>
                         <td style="background-color: <?php echo $color; ?>;"><?php echo $ListDomRech['Statut']; ?></td>
                         <td><?php echo $ListDomRech['Sous_type_document']; ?></td>
                         <td><?php echo $ListDomRech['Numero_Ordre_Mission']; ?></td>
@@ -122,6 +100,7 @@
                             echo $DDEM;
                             ?>
                         </td>
+
                         <td><?php echo $ListDomRech['Motif_Deplacement']; ?></td>
                         <td><?php echo $ListDomRech['Matricule']; ?></td>
                         <td><?php echo $ListDomRech['Nom']; ?></td>
@@ -154,5 +133,103 @@
         </table>
     </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        
+        function StatutFilter() {
+        var StatutLib = $('#Statut option:selected').text();
+            var Matr = $('#Matricule').val();
+        $.ajax({
+            type: 'POST',
+            url: '/Hffintranet/index.php?action=LibStatut',
+            data: {
+                LibStatut: StatutLib
+            },
+            dataType:'json',
+            success: function (data) {
+               // console.log(data);
+                updateTableData(data);
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
+
+    function updateTableData(data) {
+        // Supprimez les lignes existantes du tableau
+       $('#BodyTable').empty();
+
+        //Ajoutez les nouvelles lignes basées sur les données du serveur
+        for (var i = 0; i < data.length; i++) {
+            var color = getColorForStatut(data[i]['Statut']);
+            
+            var row = '<tr>';
+            row += '<td><button type="button" class="btn btn-warning"><a style="text-decoration: none;color: black;" href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=' + data[i]['Numero_Ordre_Mission'] + '&IdDOM=' + data[i]['ID_Demande_Ordre_Mission'] + '">Duplifier</a></button></td>';
+            row += '<td style="background-color: ' + color + ';">' + data[i]['Statut'] + '</td>';
+            row += '<td>' + data[i]['Sous_type_document'] + '</td>';
+            row += '<td>' + data[i]['Numero_Ordre_Mission'] + '</td>';
+            row += '<td>' + formatDate(data[i]['Date_Demande']) + '</td>';  // Nouvelle colonne de date
+            row += '<td>' + data[i]['Motif_Deplacement'] + '</td>';
+            row += '<td>' + data[i]['Matricule'] + '</td>';
+            row += '<td>' + data[i]['Nom'] + '</td>';
+            row += '<td>' + data[i]['Prenom'] + '</td>';
+            row += '<td>' + data[i]['Mode_Paiement'] + '</td>';
+            row += '<td>' + data[i]['LibelleCodeAgence_Service'] + '</td>';
+            row += '<td>' + formatDate(data[i]['Date_Debut']) + '</td>';
+            row += '<td>' + formatDate(data[i]['Date_Fin']) + '</td>';
+            row += '<td>' + data[i]['Nombre_Jour'] + '</td>';
+            row += '<td>' + data[i]['Client'] + '</td>';
+            row += '<td>' + data[i]['Fiche'] + '</td>';
+            row += '<td>' + data[i]['Lieu_Intervention'] + '</td>';
+            row += '<td>' + data[i]['NumVehicule'] + '</td>';
+            row += '<td>' + data[i]['Total_Autres_Depenses'] + '</td>';
+            row += '<td>' + data[i]['Total_General_Payer'] + '</td>';
+            row += '<td>' + data[i]['Devis'] + '</td>';
+            row += '</tr>';
+
+            $('#BodyTable').append(row);
+        }
+    }
+
+    function getColorForStatut(statut) {
+        var color_ouvert = "#efd807";
+        var color_compta = "#77b5fe";
+        var color_payer = "#34c924";
+        var statutLowerCase = statut.toLowerCase().trim();
+
+        switch (statutLowerCase) {
+            case 'ouvert':
+                return color_ouvert;
+            case 'compta':
+                return color_compta;
+            default:
+                return color_payer;
+        }
+    }
+
+    function formatDate(dateString) {
+        // Convertir la date formatée en objet Date
+        var date = new Date(dateString);
+        
+        // Extraire le jour, le mois et l'année
+        var day = date.getDate();
+        var month = date.getMonth() + 1; // Les mois commencent à 0, donc ajoutez 1
+        var year = date.getFullYear();
+        
+        // Ajouter un zéro devant le jour ou le mois si nécessaire (pour obtenir le format dd/mm/yyyy)
+        day = (day < 10) ? '0' + day : day;
+        month = (month < 10) ? '0' + month : month;
+        
+        // Retourner la date formatée
+        return day + '/' + month + '/' + year;
+    }
+    //StatutFilter();
+    $('#Statut').change(function() {
+        StatutFilter();
+        });
+    })
+</script>
 
 </html>
