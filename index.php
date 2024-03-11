@@ -149,6 +149,12 @@ switch ($action) {
     case 'Dupliquer':
         $ControlDOM->duplificationDOM();
         break;
+    case 'DuplifierForm':
+       $ControlDOM->duplificationForm();
+        break;
+    case 'LibStatut':
+        $ControlDOM->filterStatut();
+        break;
     default:
         include 'Views/SignIn.php';
 }

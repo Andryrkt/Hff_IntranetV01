@@ -16,6 +16,90 @@ class DomModel
     {
         $this->connexion = $connexion;
     }
+public function filterstatut($LibStatut){
+    $sqlStatut = "SELECT  
+     Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+    Statut_demande.Description AS Statut,
+    Demande_ordre_mission.Sous_type_document,
+    Demande_ordre_mission.Numero_Ordre_Mission,
+    Demande_ordre_mission.Date_Demande,
+    Demande_ordre_mission.Motif_Deplacement,
+    Demande_ordre_mission.Matricule,
+    Demande_ordre_mission.Nom, 
+    Demande_ordre_mission.Prenom,
+    Demande_ordre_mission.Mode_Paiement,
+   ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+    Demande_ordre_mission.Date_Debut, 
+    Demande_ordre_mission.Date_Fin,   
+    Demande_ordre_mission.Nombre_Jour, 
+    Demande_ordre_mission.Client,
+    Demande_ordre_mission.Fiche,
+    Demande_ordre_mission.Lieu_Intervention,
+    Demande_ordre_mission.NumVehicule,
+    Demande_ordre_mission.Total_Autres_Depenses,
+    Demande_ordre_mission.Total_General_Payer,
+    Demande_ordre_mission.Devis
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+            AND Statut_demande.Description ='".$LibStatut."'
+     ORDER BY ID_Demande_Ordre_Mission DESC        
+            ";
+    $excec = $this->connexion->query($sqlStatut);
+    $ListstatutDom = array();
+    while($tabliststatutDOM = odbc_fetch_array($excec)){
+        $ListstatutDom[] = $tabliststatutDOM;
+    }      
+    return $ListstatutDom;  
+}
+
+public function DuplicaftionDomSelect($numDom, $IdDom){
+        $Sql = "
+        SELECT 
+        (select agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
+        (select nom_agence_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_agence,
+        (select service_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_Service,
+        (select nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_service,
+        Sous_type_document,
+        Motif_Deplacement,
+        Numero_Ordre_Mission,
+        Date_Demande,
+        Matricule,
+        Nom,
+        Prenom,
+        Date_Debut,
+        Date_Fin,
+        Nombre_Jour,
+        Client,
+        Lieu_Intervention,
+        Vehicule_Societe,
+        NumVehicule,
+        Indemnite_Forfaitaire,
+        Doit_indemnite,
+        Categorie,
+        Site,
+        Motif_Autres_depense_1,
+        Autres_depense_1,
+        Motif_Autres_depense_2,
+        Autres_depense_2,
+        Motif_Autres_depense_3,
+        Autres_depense_3,
+        Total_Indemnite_Forfaitaire,
+        Total_Autres_Depenses,
+        Total_General_Payer,
+        Mode_Paiement
+        FROM Demande_ordre_mission
+        WHERE Numero_Ordre_Mission = '".$numDom."'
+        AND ID_Demande_Ordre_Mission ='".$IdDom."' 
+        ";
+        $excecSelectDom = $this->connexion->query($Sql);
+        $ListselectDom = array();
+        while($tablistselectDom = odbc_fetch_array($excecSelectDom)){
+            $ListselectDom[] = $tablistselectDom;
+        }
+        return $ListselectDom;
+        
+}
+
     /**
      * recuperation Mail de l'utilisateur connecter
      */
@@ -512,7 +596,9 @@ class DomModel
      */
     public function getListDomRech($ConnectUser)
     {
-        $rech = "SELECT  Statut_demande.Description AS Statut,
+        $rech = "SELECT  
+        Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+        Statut_demande.Description AS Statut,
         Demande_ordre_mission.Sous_type_document,
         Demande_ordre_mission.Numero_Ordre_Mission,
         Demande_ordre_mission.Date_Demande,
@@ -549,7 +635,9 @@ class DomModel
 
     public function getListDomRechAll()
     {
-        $rech = "SELECT  Statut_demande.Description AS Statut,
+        $rech = "SELECT  
+        Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+        Statut_demande.Description AS Statut,
         Demande_ordre_mission.Sous_type_document,
         Demande_ordre_mission.Numero_Ordre_Mission,
         Demande_ordre_mission.Date_Demande,
