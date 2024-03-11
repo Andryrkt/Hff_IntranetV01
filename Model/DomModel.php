@@ -773,8 +773,21 @@ WHERE societe_ios = 'HF' ";
         //pieds de page 
         $pdf->setY(0);
         $pdf->SetFont('pdfatimesbi', '', 8);
-        $pdf->Cell(0, 8, $MailUser, 0, 1, 'R');
-        $pdf->Cell(0, 8, $codeServiceDebitteur - $serviceDebitteur, 0, 1, 'L');
+
+        // Largeur de la page
+        $largeurPage = $pdf->getPageWidth();
+
+        // Largeur de chaque cellule
+        $largeurCellule1 = $largeurPage / 2; // Divise la largeur de la page en deux pour chaque cellule
+        $largeurCellule2 = $largeurPage / 3;
+
+        // Positionnement de la première cellule à gauche
+        $pdf->Cell($largeurCellule1, 8, 'Agence/Service débiteur : ' . $codeServiceDebitteur . '-' . $serviceDebitteur, 0, 0);
+
+        // Positionnement de la deuxième cellule à droite
+        $pdf->Cell($largeurCellule2, 8, $MailUser, 0, 1, 'R');
+
+
         //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
         $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'F');
