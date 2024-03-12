@@ -523,7 +523,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } else {
                                         // echo 'sans PJ';
@@ -615,7 +617,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     }
                                     //
@@ -727,7 +731,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } else {
                                     // echo 'sans PJ';
@@ -819,7 +825,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 }
                                 //
@@ -944,7 +952,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         //echo 'ie ambany 500000';
@@ -1046,7 +1056,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } //Mobile&allMOnt
                                     else {
@@ -1151,7 +1163,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // echo 'ie ambany 500000';
@@ -1241,7 +1255,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } //mobile&allMont 
                                     else {
@@ -1362,7 +1378,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
@@ -1464,7 +1482,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } //Mobile&allMOnt
                                 else {
@@ -1567,7 +1587,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // echo 'ie ambany 500000';
@@ -1657,7 +1679,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } //mobile&allMont 
                                 else {
@@ -1779,7 +1803,9 @@ class DomControl
                                     $idemnDoit,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                             } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 //echo 'ie ambany 500000';
@@ -1881,7 +1907,9 @@ class DomControl
                                     $idemnDoit,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                             } //Mobile&allMOnt
                             else {
@@ -1981,7 +2009,9 @@ class DomControl
                                     $idemnDoit,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                             } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 // echo 'ie ambany 500000';
@@ -2071,7 +2101,9 @@ class DomControl
                                     $idemnDoit,
                                     $CategoriePers,
                                     $Site,
-                                    $Idemn_depl
+                                    $Idemn_depl,
+                                    $codeServiceDebitteur,
+                                    $serviceDebitteur
                                 );
                             } //mobile&allMont 
                             else {
@@ -2225,7 +2257,9 @@ class DomControl
                                                 $idemnDoit,
                                                 $CategoriePers,
                                                 $Site,
-                                                $Idemn_depl
+                                                $Idemn_depl,
+                                                $codeServiceDebitteur,
+                                                $serviceDebitteur
                                             );
                                         } else {
                                             echo '<script type="text/javascript">
@@ -2341,7 +2375,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } else {
                                         echo '<script type="text/javascript">
@@ -2494,7 +2530,9 @@ class DomControl
                                                 $idemnDoit,
                                                 $CategoriePers,
                                                 $Site,
-                                                $Idemn_depl
+                                                $Idemn_depl,
+                                                $codeServiceDebitteur,
+                                                $serviceDebitteur
                                             );
                                         } else {
                                             echo '<script type="text/javascript">
@@ -2604,7 +2642,9 @@ class DomControl
                                                 $idemnDoit,
                                                 $CategoriePers,
                                                 $Site,
-                                                $Idemn_depl
+                                                $Idemn_depl,
+                                                $codeServiceDebitteur,
+                                                $serviceDebitteur
                                             );
                                         } else {
                                             echo '<script type="text/javascript">
@@ -2727,7 +2767,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } else {
                                         echo '<script type="text/javascript">
@@ -2837,7 +2879,9 @@ class DomControl
                                             $idemnDoit,
                                             $CategoriePers,
                                             $Site,
-                                            $Idemn_depl
+                                            $Idemn_depl,
+                                            $codeServiceDebitteur,
+                                            $serviceDebitteur
                                         );
                                     } else {
                                         echo '<script type="text/javascript">
@@ -2959,7 +3003,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } else {
                                     echo '<script type="text/javascript">
@@ -3069,7 +3115,9 @@ class DomControl
                                         $idemnDoit,
                                         $CategoriePers,
                                         $Site,
-                                        $Idemn_depl
+                                        $Idemn_depl,
+                                        $codeServiceDebitteur,
+                                        $serviceDebitteur
                                     );
                                 } else {
                                     echo '<script type="text/javascript">
@@ -3202,8 +3250,11 @@ class DomControl
             }
         }
     }
-
-
+    /**
+     * @Andryrkt 
+     * cette fonction transforme le tableau en json 
+     * pour listeDomRecherche
+     */
     public function RechercheController()
     {
 

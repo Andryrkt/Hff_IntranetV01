@@ -383,7 +383,7 @@ WHERE societe_ios = 'HF' ";
        }*/
     //Insert DOM 
     /**
-     * insertion dans la base 
+     * insertion des données dans la base de donnée
      */
     public function InsertDom(
         $NumDom,
@@ -426,7 +426,9 @@ WHERE societe_ios = 'HF' ";
         $doitIdemn,
         $CategoriePers,
         $Site,
-        $Idemn_depl
+        $Idemn_depl,
+        $codeServiceDebitteur,
+        $serviceDebitteur
     ) {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
@@ -437,7 +439,7 @@ WHERE societe_ios = 'HF' ";
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','OUV', 
                        '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
-                        '" . $doitIdemn . "', '" . $CategoriePers . "','" . $Site . "','" . $Idemn_depl . "')";
+                        '" . $doitIdemn . "', '" . $CategoriePers . "','" . $Site . "','" . $Idemn_depl . "','" . $codeServiceDebitteur . "','" . $serviceDebitteur . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
     /**
@@ -865,7 +867,13 @@ WHERE societe_ios = 'HF' ";
         // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 
-    public function RechercheModel()
+    /**
+     * @Andryrkt 
+     * cette fonction récupère les données dans la base de donnée  
+     * rectifier les caractère spéciaux et return uen tableau
+     * pour listeDomRecherhce
+     */
+    public function RechercheModel(): array
     {
         $sql = $this->connexion->query("SELECT  
             Statut_demande.Description AS Statut,
@@ -894,7 +902,8 @@ WHERE societe_ios = 'HF' ";
             INNER JOIN 
             Statut_demande ON Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
             INNER JOIN 
-            Agence_Service_Irium ON Agence_Service_Irium.agence_ips + Agence_Service_Irium.service_ips = Demande_ordre_mission.Code_AgenceService_Debiteur");
+            Agence_Service_Irium ON Agence_Service_Irium.agence_ips + Agence_Service_Irium.service_ips = Demande_ordre_mission.Code_AgenceService_Debiteur
+            ORDER BY Demande_ordre_mission.Date_Demande DESC");
 
 
         // Définir le jeu de caractères source et le jeu de caractères cible

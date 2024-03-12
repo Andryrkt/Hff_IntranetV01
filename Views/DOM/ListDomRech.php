@@ -164,6 +164,10 @@
     <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script>
+        /**
+         * @Andryrkt
+         * récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
+         */
         fetch("/Hffintranet/index.php?action=recherche")
             .then(response => {
                 if (!response.ok) {
@@ -310,7 +314,10 @@
             });
 
 
-
+        /** 
+         * @Andryrkt
+         * remplire le selecte du statu 
+         */
         function SelectStatutValue1(data) {
             const uniqueStatuts = new Set();
             data.forEach(element => uniqueStatuts.add(element.Statut));
@@ -332,6 +339,10 @@
             });
         }
 
+        /** 
+         * @Andryrkt
+         * rendre le tableau afficher sur l'écran
+         */
         function renderData1(data) {
             var table = document.querySelector('.table'); // Sélectionnez le tableau existant
 
@@ -399,55 +410,13 @@
         }
 
 
-        // function renderData1(data) {
-        //     var table = document.querySelector('.table'); // Sélectionnez le tableau existant
 
-        //     // Création du corps du tableau s'il n'existe pas encore
-        //     if (!table) {
-        //         var container = document.getElementById('table-container');
-
-        //         // Création d'un élément de tableau
-        //         table = document.createElement('table');
-        //         table.classList.add('table table-striped');
-
-        //         // Création de l'en-tête du tableau
-        //         var thead = document.createElement('thead');
-        //         thead.classList.add('table-dark');
-        //         var headerRow = document.createElement('tr');
-        //         for (var key in data[0]) {
-        //             var th = document.createElement('th');
-        //             th.textContent = key.toUpperCase();
-        //             headerRow.appendChild(th);
-        //         }
-        //         thead.appendChild(headerRow);
-        //         table.appendChild(thead);
-
-        //         // Ajout du tableau au conteneur
-        //         container.appendChild(table);
-        //     }
-
-        //     // Création du corps du tableau
-        //     var tbody = table.querySelector('tbody');
-        //     if (!tbody) {
-        //         tbody = document.createElement('tbody');
-        //         table.appendChild(tbody);
-        //     } else {
-        //         tbody.innerHTML = ''; // Effacer le contenu précédent
-        //     }
-
-        //     // Ajouter les nouvelles lignes pour les données filtrées
-        //     data.forEach(function(item) {
-        //         var row = document.createElement('tr');
-        //         for (var key in item) {
-        //             var cell = document.createElement('td');
-        //             cell.textContent = item[key];
-        //             row.appendChild(cell);
-        //         }
-        //         tbody.appendChild(row);
-        //     });
-        // }
-
-
+        /**
+         * @Andryrkt
+         * filtrer les données JSON à partir des critère entrer par l'utilisateur
+         * returner une tableau de donnée filtré
+         * 
+         */
         function filtre(data) {
 
             const statutInput = document.querySelector('#statut');
@@ -490,42 +459,10 @@
 
         }
 
-        // function renderData(data) {
-        //     var container = document.getElementById('table-container');
-
-        //     // Création d'un élément de tableau
-        //     var table = document.createElement('table');
-        //     table.classList.add('table');
-
-        //     // Création de l'en-tête du tableau
-        //     var thead = document.createElement('thead');
-        //     var headerRow = document.createElement('tr');
-        //     for (var key in data[0]) {
-        //         var th = document.createElement('th');
-        //         th.textContent = key.toUpperCase();
-        //         headerRow.appendChild(th);
-        //     }
-        //     thead.appendChild(headerRow);
-        //     table.appendChild(thead);
-
-        //     // Création du corps du tableau
-        //     var tbody = document.createElement('tbody');
-        //     data.forEach(function(item) {
-        //         var row = document.createElement('tr');
-        //         for (var key in item) {
-        //             var cell = document.createElement('td');
-        //             cell.textContent = item[key];
-        //             row.appendChild(cell);
-        //         }
-        //         tbody.appendChild(row);
-        //     });
-        //     table.appendChild(tbody);
-
-        //     // Ajout du tableau au conteneur
-        //     container.appendChild(table);
-
-        // }
-
+        /**
+         * @Andryrkt
+         * cette fonction permet d'exporter les données filtrée ou non dans une fichier excel
+         */
         function ExportExcel(data) {
 
             // Filtre les données
@@ -566,7 +503,7 @@
             XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
 
             // Télécharge le fichier Excel
-            XLSX.writeFile(workbook, "donnees_filtrees.xlsx", {
+            XLSX.writeFile(workbook, "Exportation-Excel.xlsx", {
                 compression: true
             });
 
