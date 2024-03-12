@@ -8,10 +8,13 @@
 
 
     <style>
+        body {
+            overflow-x: hidden;
+        }
+
         .Contenue {
             width: 100%;
-            max-height: 800px;
-            overflow-y: auto;
+            overflow: auto;
         }
 
         th {
@@ -20,16 +23,24 @@
             background-color: #f2f2f2;
         }
 
-        .statut-paye {
-            background-color: #34c924;
+        /* .table-plein-ecran {
+            width: 100vw;
+
+            height: 100vh;
+        } */
+
+        .table-plein-ecran td,
+        .table-plein-ecran th {
+            width: auto;
+
+            white-space: nowrap;
+
         }
     </style>
 </head>
 
 <body>
     <div class="row">
-
-
         <div class="row">
             <div class="col-2">
                 <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
@@ -54,111 +65,43 @@
             </div>
             <div class="col-3">
                 <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                    <span class="input-group-text">Date de début</span>
+                    <span class="input-group-text">Date de Mission</span>
                     <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
                     <input type="date" name="Date_Fin_D" id="dateDebutFin" class="form-control">
                     <small id="dateCreationMessage"></small>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-1">
+                <input type="submit" name="recherche" id="recherche" class="btn btn-primary" value="Recherche">
+            </div>
+            <div class="col-1">
                 <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
             </div>
         </div>
 
 
 
-        <div class="Contenue " id="table-container">
+        <nav class=col-9>
+            <ul class="pagination justify-content-center">
+                <!-- <li class="page-item disabled">
+                    <a class="page-link">Précédent</a>
+                </li>
+                <li class="page-item inty"><a class="page-link" href="#">1</a></li>
 
+                <li class="page-item">
+                    <a class="page-link" href="#">Suivant</a>
+                </li> -->
+            </ul>
+        </nav>
+
+
+        <div class="Contenue table-plein-ecran">
+            <div id="table-container"></div>
         </div>
 
+
     </div>
-    <!-- <div id="Contenue">
-        <table class="table">
-            <thead class=" table-dark">
-                <tr>
-                    <th>Statut</th>
-                    <th>Type document</th>
-                    <th>N° Ordre Mission</th>
-                    <th>Date_Demande</th>
-                    <th>Motif_Deplacement</th>
-                    <th>Matricule</th>
-                    <th>Nom</th>
-                    <th>Prenom</th>
-                    <th>Mode_Paiement</th>
-                    <th>Agence service</th>
-                    <th>Date_Debut</th>
-                    <th>Date_Fin</th>
-                    <th>Nombre_Jour</th>
-                    <th>Client</th>
-                    <th>N° OR</th>
-                    <th>Lieu_Intervention</th>
-                    <th>N° Vehicule</th>
-                    <th>Total Autres Depenses</th>
-                    <th>Total_General_Payer</th>
-                    <th>Devis</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($ListDomRech as $ListDomRech) : ?>
-                    <tr>
-                        <?php
-                        $color_ouvert = "#efd807";
-                        $color_compta = "#77b5fe";
-                        $color_payer = "#34c924";
-                        $statut = strtolower(trim($ListDomRech['Statut']));
-                        switch ($statut) {
-                            case 'ouvert':
-                                $color = $color_ouvert;
-                                break;
-                            case 'compta':
-                                $color = $color_compta;
-                                break;
-                            default:
-                                $color = $color_payer;
-                        }
 
-                        ?>
-
-                        <td style="background-color: <?php echo $color; ?>;"><?php echo $ListDomRech['Statut']; ?></td>
-                        <td><?php echo $ListDomRech['Sous_type_document']; ?></td>
-                        <td><?php echo $ListDomRech['Numero_Ordre_Mission']; ?></td>
-                        <td><?php
-                            $dateDemande = $ListDomRech['Date_Demande'];
-                            $DDEM = date("d/m/Y", strtotime($dateDemande));
-                            echo $DDEM;
-                            ?>
-                        </td>
-                        <td><?php echo $ListDomRech['Motif_Deplacement']; ?></td>
-                        <td><?php echo $ListDomRech['Matricule']; ?></td>
-                        <td><?php echo $ListDomRech['Nom']; ?></td>
-                        <td><?php echo $ListDomRech['Prenom']; ?></td>
-                        <td><?php echo $ListDomRech['Mode_Paiement']; ?></td>
-                        <td><?php echo $ListDomRech['LibelleCodeAgence_Service']; ?></td>
-                        <td><?php
-                            $dateDeb = $ListDomRech['Date_Debut'];
-                            $DD = date("d/m/Y", strtotime($dateDeb));
-                            echo $DD;
-                            ?>
-                        </td>
-                        <td><?php $dateFin = $ListDomRech['Date_Fin'];
-                            $DF = date("d/m/Y", strtotime($dateFin));
-                            echo $DF;
-                            ?></td>
-                        <td><?php echo $ListDomRech['Nombre_Jour']; ?></td>
-                        <td><?php echo $ListDomRech['Client']; ?></td>
-                        <td><?php echo $ListDomRech['Fiche']; ?></td>
-                        <td><?php echo $ListDomRech['Lieu_Intervention']; ?></td>
-                        <td><?php echo $ListDomRech['NumVehicule']; ?></td>
-                        <td><?php echo $ListDomRech['Total_Autres_Depenses']; ?></td>
-                        <td><?php echo $ListDomRech['Total_General_Payer']; ?></td>
-                        <td><?php echo $ListDomRech['Devis']; ?></td>
-
-
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div> -->
 
 
     <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -192,6 +135,7 @@
                 const dateCreationFinInput = document.querySelector('#dateCreationFin');
                 const dateDebutDebutInput = document.querySelector('#dateDebutDebut');
                 const dateDebutFinInput = document.querySelector('#dateDebutFin');
+                const recherche = document.querySelector('#recherche');
 
                 let dateCreationDebut = dateCreationDebutInput.value;
                 let dateCreationFin = dateCreationFinInput.value;
@@ -199,6 +143,7 @@
                 let dateDebutFin = dateDebutFinInput.value;
 
                 let timeoutId; // variable pour stocker l'identifiant du délai
+
 
                 // Écouteur d'événement pour le changement de statut
                 statutInput.addEventListener('change', (e) => {
@@ -215,6 +160,7 @@
                     timeoutId = setTimeout(executeFiltreEtRendu, 500);
                 });
 
+                //
                 dateCreationDebutInput.addEventListener('change', (e) => {
                     e.preventDefault();
                     // Vérifier si la date de début est supérieure à la date de fin
@@ -225,6 +171,8 @@
                         // Effacer les résultats précédents
                         // const container = document.getElementById('table-container');
                         // container.innerHTML = '';
+
+
                     } else {
                         const message = document.getElementById('dateCreationMessage');
                         message.textContent = '';
@@ -282,22 +230,183 @@
                     }
                 });
 
+                recherche.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    executeFiltreEtRendu()
+                })
+
                 function executeFiltreEtRendu() {
                     let donner = filtre(raw_data); // Filtre les données
                     console.log(donner);
                     if (donner.length > 0) {
-                        renderData1(donner); // Rend les données filtrées
+                        //renderData1(donner);
+                        // Pagination
+                        const itemsPerPage = 15; // Nombre d'éléments par page
+                        const totalPages = Math.ceil(donner.length / itemsPerPage); // Calculer le nombre total de pages
+                        let currentPage = 1; // Page actuelle
+
+                        // Affichage des données pour la page donnée
+                        const renderDataForPage = (page) => {
+                            const startIndex = (page - 1) * itemsPerPage;
+                            const endIndex = startIndex + itemsPerPage;
+                            const dataForPage = donner.slice(startIndex, endIndex);
+                            renderData1(dataForPage); // Appel de votre fonction de rendu des données avec les données de la page
+                        };
+
+
+
+                        //Affichage des boutons de pagination
+                        const renderPagination = () => {
+                            const paginationContainer = document.querySelector('.pagination');
+                            paginationContainer.innerHTML = ''; // Effacer le contenu précédent
+
+                            const previousButton = document.createElement('li');
+                            previousButton.classList.add('page-item');
+                            previousButton.innerHTML = `<a class="page-link">Précédent</a>`;
+                            previousButton.addEventListener('click', () => {
+                                if (currentPage > 1) {
+                                    currentPage--;
+                                    renderDataForPage(currentPage);
+                                    updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                                }
+                            });
+                            paginationContainer.appendChild(previousButton);
+
+                            for (let i = 1; i <= totalPages; i++) {
+                                const li = document.createElement('li');
+                                li.classList.add('page-item');
+                                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                                li.addEventListener('click', () => {
+                                    currentPage = i;
+                                    renderDataForPage(currentPage);
+                                    updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                                });
+                                paginationContainer.appendChild(li);
+                            }
+
+                            const nextButton = document.createElement('li');
+                            nextButton.classList.add('page-item');
+                            nextButton.innerHTML = `<a class="page-link" href="#">Suivant</a>`;
+                            nextButton.addEventListener('click', () => {
+                                if (currentPage < totalPages) {
+                                    currentPage++;
+                                    renderDataForPage(currentPage);
+                                    updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                                }
+                            });
+                            paginationContainer.appendChild(nextButton);
+                            updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                        };
+
+                        // Mettre à jour la classe active du bouton de pagination
+                        const updateActivePage = () => {
+                            const paginationItems = document.querySelectorAll('.pagination li');
+                            paginationItems.forEach(item => {
+                                item.classList.remove('active');
+                            });
+                            paginationItems[currentPage - 1].classList.add('active');
+                        };
+
+                        // Initialisation : afficher les données pour la première page et la pagination
+                        renderDataForPage(currentPage);
+                        renderPagination();
+                        // Rend les données filtrées
                     } else {
                         console.log(new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value))
 
-
                         // Afficher un message si le tableau est vide
                         const container = document.getElementById('table-container');
-                        container.innerHTML = "Il n'y a pas de donnée qui correspond à votre recherche.";
+                        container.innerHTML = `<p class="fw-bold" style="text-align: center;">Il n'y a pas de donnée qui correspond à votre recherche.</p>`;
+
                     }
                 }
 
                 ////////////////////////////////////////////////////
+
+                //DEBUT PAGINATION
+
+                // Traitement des données
+                console.log(raw_data);
+
+                // Pagination
+                const itemsPerPage = 15; // Nombre d'éléments par page
+                const totalPages = Math.ceil(raw_data.length / itemsPerPage); // Calculer le nombre total de pages
+                let currentPage = 1; // Page actuelle
+
+                // Fonction pour afficher les données pour la page donnée
+                const renderDataForPage = (page) => {
+                    const startIndex = (page - 1) * itemsPerPage;
+                    const endIndex = Math.min(startIndex + itemsPerPage, raw_data.length); // Correction pour gérer la dernière page avec moins d'éléments
+                    const dataForPage = raw_data.slice(startIndex, endIndex);
+                    renderData1(dataForPage); // Appel de votre fonction de rendu des données avec les données de la page
+                };
+
+                // Fonction pour mettre à jour la classe active du bouton de pagination
+                const updateActivePage = () => {
+                    const paginationItems = document.querySelectorAll('.pagination li');
+                    console.log(paginationItems);
+                    if (paginationItems.length >= currentPage) {
+                        paginationItems.forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        paginationItems[currentPage].classList.add('active');
+                    }
+                };
+
+                // Fonction pour rendre la pagination
+                //Affichage des boutons de pagination
+                const renderPagination = () => {
+                    const paginationContainer = document.querySelector('.pagination');
+                    paginationContainer.innerHTML = ''; // Effacer le contenu précédent
+
+                    const previousButton = document.createElement('li');
+                    previousButton.classList.add('page-item');
+                    previousButton.innerHTML = `<a class="page-link cursor-pointer">Précédent</a>`;
+                    previousButton.addEventListener('click', () => {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            renderDataForPage(currentPage);
+                            updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                        }
+                    });
+                    paginationContainer.appendChild(previousButton);
+
+                    for (let i = 1; i <= totalPages; i++) {
+                        const li = document.createElement('li');
+                        li.classList.add('page-item');
+                        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                        li.addEventListener('click', () => {
+                            currentPage = i;
+                            renderDataForPage(currentPage);
+                            updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                        });
+                        paginationContainer.appendChild(li);
+                    }
+
+                    const nextButton = document.createElement('li');
+                    nextButton.classList.add('page-item');
+                    nextButton.innerHTML = `<a class="page-link" href="#">Suivant</a>`;
+                    nextButton.addEventListener('click', () => {
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            renderDataForPage(currentPage);
+                            updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                        }
+                    });
+                    paginationContainer.appendChild(nextButton);
+                    updateActivePage(); // Mettre à jour la classe active du bouton de pagination
+                };
+                // Appel initial pour afficher la pagination avec le numéro de page 1 activé
+                renderPagination();
+
+                // Initialisation : afficher les données pour la première page et la pagination
+                renderDataForPage(currentPage);
+
+
+
+
+
+                //FIN PAGINATION
 
                 //export excel
                 // Sélection du bouton d'export Excel
@@ -313,6 +422,14 @@
                 console.error('There has been a problem with your fetch operation:', error);
             });
 
+
+        // pagination
+
+
+
+
+
+        // 
 
         /** 
          * @Andryrkt
@@ -349,6 +466,7 @@
             // Création du corps du tableau s'il n'existe pas encore
             if (!table) {
                 var container = document.getElementById('table-container');
+                container.innerHTML = '';
 
                 // Création d'un élément de tableau
                 table = document.createElement('table');
@@ -360,7 +478,8 @@
                 var headerRow = document.createElement('tr');
                 for (var key in data[0]) {
                     var th = document.createElement('th');
-                    th.textContent = key.toUpperCase();
+                    th.classList.add('w-25');
+                    th.textContent = key.toUpperCase().replaceAll('_', ' ');
                     headerRow.appendChild(th);
                 }
                 thead.appendChild(headerRow);
@@ -384,8 +503,15 @@
                 var row = document.createElement('tr');
                 row.classList.add(index % 2 === 0 ? 'table-dark-emphasis' : 'table-secondary'); // Alternance des couleurs de ligne
                 for (var key in item) {
+
                     var cellule = document.createElement('td');
-                    cellule.textContent = item[key];
+                    cellule.classList.add('w-50');
+                    if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
+                        cellule.textContent = item[key].split('-').reverse().join('/');
+                    } else {
+
+                        cellule.textContent = item[key];
+                    }
                     // Vérifier si la clé est "statut" et attribuer une classe en conséquence
                     if (key === 'Statut') {
                         switch (item[key]) {
@@ -403,6 +529,8 @@
                                 break;
                         }
                     }
+
+
                     row.appendChild(cellule);
                 }
                 tbody.appendChild(row);
@@ -442,20 +570,35 @@
                 // Filtrer par statut (si un critère est fourni)
                 var filtreStatut = !critereStatut || demande.Statut === critereStatut;
                 var filtreMatricule = !critereMatricule || demande.Matricule.toLowerCase().includes(critereMatricule);
+
+                // Filtrer par date de début de création (si un critère est fourni)
+                var filtreDateDebutCreation = !dateCreationDebut || demande.Date_Demande >= dateCreationDebut;
+                // Filtrer par date de fin de création (si un critère est fourni)
+                var filtreDateFinCreation = !dateCreationFin || demande.Date_Demande <= dateCreationFin;
+
+
                 // Filtrer par date de création/demande (si un critère est fourni)
-
-
                 var filtreDateCreation = !dateCreationDebut || !dateCreationFin || (demande.Date_Demande >= dateCreationDebut && demande.Date_Demande <= dateCreationFin);
+
+                // Filtrer par date de début de mission ou début (si un critère est fourni)
+                var filtreDateDebutMission = !dateDebutDebut || demande.Date_Debut >= dateDebutDebut;
+
+                // Filtrer par date de fin de mission ou début (si un critère est fourni)
+                var filtreDateFinMission = !dateDebutFin || demande.Date_Debut <= dateDebutFin;
+
                 // Filtrer par date de début (si un critère est fourni)
                 var filtreDateDebut = !dateDebutDebut || !dateDebutFin || (demande.Date_Debut >= dateDebutDebut && demande.Date_Debut <= dateDebutFin);
 
+
+
+
+
                 // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
-                //return filtreStatut && filtreMatricule && filtreDateCreation && filtreDateDebut
-                return (filtreMatricule && filtreStatut && filtreDateCreation && filtreDateDebut) || (!critereMatricule && !critereStatut && !dateCreationDebut && !dateCreationFin && !dateDebutDebut && !dateDebutFin);
+                return (filtreMatricule && filtreStatut && filtreDateCreation && filtreDateDebut && filtreDateDebutCreation && filtreDateFinCreation && filtreDateDebutMission && filtreDateFinMission) || (!critereMatricule && !critereStatut && !dateCreationDebut && !dateCreationFin && !dateDebutDebut && !dateDebutFin && !dateDebutCreation && !filtreDateFinCreation && !filtreDateDebutMission && !filtreDateFinMission);
 
             });
 
-            return resultatsFiltres
+            return resultatsFiltres;
 
         }
 

@@ -222,6 +222,9 @@ class DomModel
         return $compte;
     }
 
+    /**
+     * Recuperation du code service et nom de l'agence dans Agence_Service_Irium
+     */
     public function RecuperationCodeServiceIrium(): array
     {
         $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
@@ -236,6 +239,9 @@ class DomModel
         return $codeServices;
     }
 
+    /**
+     * Recuperation du code service, nom de l'agence, service de l'agence dans Agence_Service_Irium
+     */
     public function RecuperationCodeEtServiceIrium(): array
     {
         $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 As service,
@@ -346,6 +352,8 @@ WHERE societe_ios = 'HF' ";
         }
         return $list;
     }
+
+
     /**
      * recuperation Prix des idemnité
      * @param TypeM: Type de mission
@@ -364,6 +372,8 @@ WHERE societe_ios = 'HF' ";
         }
         return $Prix;
     }
+
+
     //count si 50 catg 
     /**
      * test si le catgérie appartion à l'agence 50
@@ -382,6 +392,8 @@ WHERE societe_ios = 'HF' ";
         return $exPrixRental ? odbc_fetch_array($exPrixRental)['Montant_idemnite'] : false;
        }*/
     //Insert DOM 
+
+
     /**
      * insertion des données dans la base de donnée
      */
@@ -434,7 +446,7 @@ WHERE societe_ios = 'HF' ";
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
                         Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
-                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl )
+                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl, Emetteur, Debiteur )
                        VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
                        '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
                        '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','OUV', 

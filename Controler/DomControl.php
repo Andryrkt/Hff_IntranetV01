@@ -3153,6 +3153,8 @@ class DomControl
                 </script>';
         }
     }
+
+
     /**
      * Affiche dans ListDom la liste des DOM selon l'autorisation 
      */
@@ -3180,6 +3182,8 @@ class DomControl
 
         include 'Views/DOM/ListDom.php';
     }
+
+
     /**
      * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
      */
@@ -3202,6 +3206,8 @@ class DomControl
             include 'Views/DOM/DetailDOM.php';
         }
     }
+
+
     /**
      * TODO : Recherche à partir d'une date  définie et statut selectionner 
      */
@@ -3227,11 +3233,13 @@ class DomControl
         include 'Views/DOM/ListDomRech.php';
     }
 
+    /**
+     * creation du débiteur (code service et service)
+     */
     public function anaranaFonction()
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
-        var_dump($codeServiceIrium);
         if (isset($_GET['option'])) {
 
             // Récupérer la valeur de l'option sélectionnée
@@ -3250,6 +3258,9 @@ class DomControl
             }
         }
     }
+
+
+
     /**
      * @Andryrkt 
      * cette fonction transforme le tableau en json 
