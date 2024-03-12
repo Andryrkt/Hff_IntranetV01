@@ -932,7 +932,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         setTimeout(() => {
             const LibServINT = document.querySelector('#LibServINT').value;
             document.querySelector('#serviceIrium option[value="' + LibServINT + '"]').selected = true;
-        }, 200);
+        }, 300);
 
     } else {
         setTimeout(() => {
@@ -940,7 +940,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
             console.log(serv);
             document.querySelector('#serviceIrium option[value="' + serv + '"]').selected = true;
-        }, 200);
+        }, 300);
 
     }
 

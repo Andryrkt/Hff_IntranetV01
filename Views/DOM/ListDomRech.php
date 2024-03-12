@@ -67,12 +67,12 @@
 
 
 
-        <div class="Contenue" id="table-container">
+        <div class="Contenue " id="table-container">
 
         </div>
 
     </div>
-    <div id="Contenue">
+    <!-- <div id="Contenue">
         <table class="table">
             <thead class=" table-dark">
                 <tr>
@@ -158,7 +158,7 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
+    </div> -->
 
 
     <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -341,7 +341,7 @@
 
                 // Création d'un élément de tableau
                 table = document.createElement('table');
-                table.classList.add('table', 'table-striped');
+                table.classList.add('table', 'table-striped', 'table-hover', 'table-shadow', 'shadow', 'bg-body-tertiary', 'rounded');
 
                 // Création de l'en-tête du tableau
                 var thead = document.createElement('thead');
@@ -369,27 +369,27 @@
             }
 
             // Ajouter les nouvelles lignes pour les données filtrées
-            data.forEach(function(item) {
+            data.forEach(function(item, index) {
                 var row = document.createElement('tr');
+                row.classList.add(index % 2 === 0 ? 'table-dark-emphasis' : 'table-secondary'); // Alternance des couleurs de ligne
                 for (var key in item) {
                     var cellule = document.createElement('td');
                     cellule.textContent = item[key];
                     // Vérifier si la clé est "statut" et attribuer une classe en conséquence
                     if (key === 'Statut') {
                         switch (item[key]) {
-                            case 'ouvert':
-                                cellule.classList.add('statut-ouvert');
+                            case 'Ouvert':
+                                cellule.style.backgroundColor = "#efd807";
                                 break;
-                            case 'payé':
-                                cellule.classList.add('statut-paye');
+                            case 'Payé':
+                                cellule.style.backgroundColor = "#34c924";
                                 break;
                             case 'Annulé':
-                                cellule.classList.add('statut-annulé');
+                                cellule.style.backgroundColor = "#FF0000";
                                 break;
                             case 'Compta':
-                                cellule.classList.add('statut-compta');
+                                cellule.style.backgroundColor = "#77b5fe";
                                 break;
-
                         }
                     }
                     row.appendChild(cellule);
@@ -397,6 +397,7 @@
                 tbody.appendChild(row);
             });
         }
+
 
         // function renderData1(data) {
         //     var table = document.querySelector('.table'); // Sélectionnez le tableau existant
