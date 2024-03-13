@@ -1,0 +1,28 @@
+body {
+    overflow-x: hidden;
+}
+
+.Contenue {
+    width: 100%;
+    overflow: auto;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+}
+
+/* .table-plein-ecran {
+    width: 100vw;
+
+    height: 100vh;
+} */
+
+.table-plein-ecran td,
+.table-plein-ecran th {
+    width: auto;
+
+    white-space: nowrap;
+
+}

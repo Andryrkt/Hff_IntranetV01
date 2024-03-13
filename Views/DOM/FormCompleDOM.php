@@ -317,11 +317,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
 
                     <!-- DEBUT Debiteur selecte -->
-                    <label for="" class="col-4  fw-bold">Débiteur</label>
+                    <label for="" class="col-4  fw-bold">Agence service débiteur</label>
 
                     <div class="row">
                         <div class="col-6">
-                            <label for="Serv" class="label-form">Code :</label>
+                            <label for="Serv" class="label-form">Agence :</label>
                             <select class="form-select " aria-label="Default select example" id="select1" name="codeService">
                                 <?php foreach ($codeServices as $codeService) : ?>
                                     <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
@@ -340,11 +340,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <!--DEBUT emetteur select -->
                 <div class="col">
-                    <label for="" class="col-4  fw-bold">Emetteur</label>
+                    <label for="" class="col-4  fw-bold">Agence service émetteur</label>
                     <!-- extern (temporaire) -->
                     <div class="row" id="ext">
                         <div class="col-4 ">
-                            <label for="Serv" class="label-form">Code :</label>
+                            <label for="Serv" class="label-form">Agence :</label>
                             <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
                         </div>
                         <div class="col-4 ">
@@ -357,7 +357,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <div class="row" id="int">
                         <?php foreach ($Compte as $Serv) : ?>
                             <div class="col-4 ">
-                                <label for="Serv" class="label-form">Code :</label>
+                                <label for="Serv" class="label-form">Agence :</label>
                                 <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
                             </div>
                             <div class="col-4 ">

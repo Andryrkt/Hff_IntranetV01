@@ -852,7 +852,7 @@ WHERE societe_ios = 'HF' ";
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom, 'I');
         // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
     /**
