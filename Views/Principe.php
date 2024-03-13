@@ -55,11 +55,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown" id="DOM">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Ordre de Mission</a>
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Recherche</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande </a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
                         </ul>
                     </li>
 

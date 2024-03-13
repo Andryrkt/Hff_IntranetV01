@@ -14,69 +14,107 @@
     <!-- DEBUT recherche -->
     <div class="row">
         <div class="row">
-            <div class="col-xxl-3 col-sm-12 col-md-6">
-                <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                    <span class="input-group-text ">Statut</span>
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Statut</span>
                     <select name="Statut" id="statut" class="form-control">
                     </select>
                 </div>
             </div>
-            <div class="col-xxl-3 col-sm-12 col-md-6">
-                <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
                     <span class="input-group-text">Matricule</span>
                     <input type="search" name="Matricule" id="matricule" class="form-control">
                 </div>
             </div>
-            <div class="col-xxl-3 col-sm-12 col-md-6">
-                <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
-                    <span class="input-group-text ">Date de création</span>
-                    <input type="date" name="Date_debut" id="dateCreationDebut" class="form-control">
+
+        </div>
+        <div class="row">
+            <!-- <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Date de création</span>
+                    <input type="date" name="Date_debut" id="dateCreationDebut" class="form-control" placeholder="(début)">
                     <input type="date" name="Date_Fin" id="dateCreationFin" class="form-control">
-                    <small id="dateCreationMessage"></small>
+                    <small class="dateCreationMessage" id="dateCreationMessage"></small>
+                </div>
+            </div> -->
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Date de création (début)</span>
+                    <input type="date" name="Date_debut" id="dateCreationDebut" class="form-control">
                 </div>
             </div>
-            <div class="col-xxl-3 col-sm-12 col-md-6">
-                <div class="input-group " style="margin-left: 2%; margin-bottom: 2%;">
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Date de création (fin)</span>
+                    <input type="date" name="Date_Fin" id="dateCreationFin" class="form-control">
+                </div>
+            </div>
+            <small class="dateCreationMessage" id="dateCreationMessage"></small>
+
+
+        </div>
+
+        <div class="row">
+            <!-- <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
                     <span class="input-group-text">Date de Mission</span>
                     <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
                     <input type="date" name="Date_Fin_D" id="dateDebutFin" class="form-control">
-                    <small id="dateCreationMessage"></small>
+                    <small class="dateCreationMessage" id="dateCreationMessage"></small>
+                </div>
+            </div> -->
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Date de Mission (début)</span>
+                    <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
                 </div>
             </div>
-
+            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Date de Mission (fin)</span>
+                    <input type="date" name="Date_Fin_D" id="dateDebutFin" class="form-control">
+                </div>
+            </div>
+            <small class="dateCreationMessage" id="dateCreationMessage"></small>
         </div>
+
+
         <!-- FIN recherche -->
 
 
 
 
         <!-- DEBUT bouton -->
-        <div class="row mx-6">
-            <div class="col-xxl-4  offset-10  col-sm-12 col-md-6">
-
+        <div class="row justify-content-center mx-6">
+            <div class="col-xxl-4">
                 <input type="submit" name="recherche" id="recherche" class="btn btn-warning fw-bold" value="Rechercher">
-
-
                 <input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-
-
                 <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-
             </div>
         </div>
         <!-- FIN bouton -->
 
 
 
+        <!-- DEBUT affichage de text no resultat -->
+        <div id="noResult">
+
+        </div>
+        <!-- FIN -->
+
+
+
         <!-- DEBUT nombre  -->
-        <div class=" row ">
+        <div class=" row justify-content-center mx-6">
             <!-- <div class="col-6 mp-8">
                 <select class="bg-dark text-white" name="nombreLigne" id="nombreLigne">
                     <option value="15">15</option>
                     <option value="100">100</option>
                 </select>
             </div> -->
-            <div class="col-4 offset-10">
+
+            <div class="col-4 ">
                 <p class="fw-bold" id="nombreResultat"></p>
             </div>
 
@@ -92,8 +130,8 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Statut</th>
-                            <th>Sous type de document</th>
-                            <th>Ordre de mission</th>
+                            <th>Sous type</th>
+                            <th>N° DOM</th>
                             <th>Date de demande</th>
                             <th>Motif de déplacement</th>
                             <th>Matricule</th>
@@ -107,6 +145,7 @@
                             <th>Client</th>
                             <th>Fiche</th>
                             <th>Lieu d'intervention</th>
+                            <th>Num vehicule</th>
                             <th>Total autres dépense</th>
                             <th>Total général payer</th>
                             <th>Devis</th>
@@ -119,7 +158,9 @@
             </div>
         </div>
         <!-- FIN tableau -->
-
+        <div class="container ">
+            <div id="pagination-wrapper"></div>
+        </div>
         <!-- DEBUT Pagination -->
         <nav class=col-9>
             <ul class="pagination justify-content-end">

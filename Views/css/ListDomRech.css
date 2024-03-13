@@ -1,10 +1,10 @@
 body {
-    overflow-x: hidden;
+     overflow: auto; 
 }
 
 .Contenue {
     width: 100%;
-    overflow: auto;
+    /* overflow: auto;  */
 }
 
 th {
@@ -26,3 +26,25 @@ th {
     white-space: nowrap;
 
 }
+
+.dateCreationMessage {
+    color: red; /* Couleur du texte en rouge */
+    font-size: 0.875rem; /* Taille de police plus petite */
+    display: block; /* Afficher comme un bloc pour occuper une ligne complète */
+    margin-top: 5px; /* Marge en haut pour séparer du champ précédent */
+}
+
+/* Styles personnalisés pour rendre les boutons réactifs */
+@media (max-width: 767.98px) {
+    .mx-6 {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .justify-content-end {
+        justify-content: center !important; /* Centrer les boutons sur les petits écrans */
+    }
+    .col-xxl-4 {
+        max-width: 100%; /* Définir la largeur maximale pour les boutons sur les petits écrans */
+    }
+}
+
