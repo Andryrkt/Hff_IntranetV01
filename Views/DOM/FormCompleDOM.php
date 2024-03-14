@@ -700,7 +700,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             }
             if (typeMission === "MISSION") {
 
-
+ 
                 $.ajax({
                     type: 'POST',
                     url: '/Hffintranet/index.php?action=selectIdem',
