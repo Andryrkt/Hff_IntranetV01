@@ -16,8 +16,9 @@ class DomModel
     {
         $this->connexion = $connexion;
     }
-public function filterstatut($LibStatut){
-    $sqlStatut = "SELECT  
+    public function filterstatut($LibStatut)
+    {
+        $sqlStatut = "SELECT  
      Demande_ordre_mission.ID_Demande_Ordre_Mission, 
     Statut_demande.Description AS Statut,
     Demande_ordre_mission.Sous_type_document,
@@ -41,18 +42,19 @@ public function filterstatut($LibStatut){
     Demande_ordre_mission.Devis
             FROM Demande_ordre_mission, Statut_demande
             WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-            AND Statut_demande.Description ='".$LibStatut."'
+            AND Statut_demande.Description ='" . $LibStatut . "'
      ORDER BY ID_Demande_Ordre_Mission DESC        
             ";
-    $excec = $this->connexion->query($sqlStatut);
-    $ListstatutDom = array();
-    while($tabliststatutDOM = odbc_fetch_array($excec)){
-        $ListstatutDom[] = $tabliststatutDOM;
-    }      
-    return $ListstatutDom;  
-}
+        $excec = $this->connexion->query($sqlStatut);
+        $ListstatutDom = array();
+        while ($tabliststatutDOM = odbc_fetch_array($excec)) {
+            $ListstatutDom[] = $tabliststatutDOM;
+        }
+        return $ListstatutDom;
+    }
 
-public function DuplicaftionDomSelect($numDom, $IdDom){
+    public function DuplicaftionDomSelect($numDom, $IdDom)
+    {
         $Sql = "
         SELECT 
         (select agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
@@ -88,17 +90,16 @@ public function DuplicaftionDomSelect($numDom, $IdDom){
         Total_General_Payer,
         Mode_Paiement
         FROM Demande_ordre_mission
-        WHERE Numero_Ordre_Mission = '".$numDom."'
-        AND ID_Demande_Ordre_Mission ='".$IdDom."' 
+        WHERE Numero_Ordre_Mission = '" . $numDom . "'
+        AND ID_Demande_Ordre_Mission ='" . $IdDom . "' 
         ";
         $excecSelectDom = $this->connexion->query($Sql);
         $ListselectDom = array();
-        while($tablistselectDom = odbc_fetch_array($excecSelectDom)){
+        while ($tablistselectDom = odbc_fetch_array($excecSelectDom)) {
             $ListselectDom[] = $tablistselectDom;
         }
         return $ListselectDom;
-        
-}
+    }
 
     /**
      * recuperation Mail de l'utilisateur connecter
@@ -973,7 +974,7 @@ WHERE societe_ios = 'HF' ";
      * rectifier les caractère spéciaux et return uen tableau
      * pour listeDomRecherhce
      */
-    public function RechercheModel(): array
+    public function RechercheModel($ConnectUser): array
     {
         $sql = $this->connexion->query("SELECT  
             Statut_demande.Description AS Statut,
@@ -1003,7 +1004,10 @@ WHERE societe_ios = 'HF' ";
             Statut_demande ON Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
             INNER JOIN 
             Agence_Service_Irium ON Agence_Service_Irium.agence_ips + Agence_Service_Irium.service_ips = Demande_ordre_mission.Code_AgenceService_Debiteur
-            ORDER BY Demande_ordre_mission.Date_Demande DESC");
+            AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+                                                                        FROM Agence_service_autorise 
+                                                                        WHERE Session_Utilisateur = '" . $ConnectUser . "' )
+            ORDER BY Numero_Ordre_Mission DESC");
 
 
         // Définir le jeu de caractères source et le jeu de caractères cible

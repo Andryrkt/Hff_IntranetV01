@@ -13,31 +13,33 @@
 <body>
     <!-- DEBUT recherche -->
     <div class="row">
-        <div class="row">
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Statut</span>
-                    <select name="Statut" id="statut" class="form-control">
-                    </select>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Statut</span>
+                        <select name="Statut" id="statut" class="form-control">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Sous Type</span>
+                        <select name="sousTypeDoc" id="sousTypeDoc" class="form-control">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Matricule</span>
+                        <input type="search" name="Matricule" id="matricule" class="form-control">
+                    </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Matricule</span>
-                    <input type="search" name="Matricule" id="matricule" class="form-control">
-                </div>
-            </div>
-
         </div>
+
         <div class="row">
-            <!-- <div class="col-12 col-md-6 col-lg-6 col-xl-3">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Date de création</span>
-                    <input type="date" name="Date_debut" id="dateCreationDebut" class="form-control" placeholder="(début)">
-                    <input type="date" name="Date_Fin" id="dateCreationFin" class="form-control">
-                    <small class="dateCreationMessage" id="dateCreationMessage"></small>
-                </div>
-            </div> -->
+            <small class="dateCreationMessage" id="dateCreationMessage"></small>
             <div class="col-12 col-md-6 col-lg-6 col-xl-3">
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date de création (début)</span>
@@ -46,28 +48,21 @@
             </div>
             <div class="col-12 col-md-6 col-lg-6 col-xl-3">
                 <div class="input-group mb-2">
-                    <span class="input-group-text">Date de création (fin)</span>
-                    <input type="date" name="Date_Fin" id="dateCreationFin" class="form-control">
+                    <span class="input-group-text">Date de Mission (début)</span>
+                    <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
                 </div>
             </div>
             <small class="dateCreationMessage" id="dateCreationMessage"></small>
 
-
         </div>
 
         <div class="row">
-            <!-- <div class="col-12 col-md-6 col-lg-6 col-xl-3">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Date de Mission</span>
-                    <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
-                    <input type="date" name="Date_Fin_D" id="dateDebutFin" class="form-control">
-                    <small class="dateCreationMessage" id="dateCreationMessage"></small>
-                </div>
-            </div> -->
+
+
             <div class="col-12 col-md-6 col-lg-6 col-xl-3">
                 <div class="input-group mb-2">
-                    <span class="input-group-text">Date de Mission (début)</span>
-                    <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
+                    <span class="input-group-text">Date de création (fin)</span>
+                    <input type="date" name="Date_Fin" id="dateCreationFin" class="form-control">
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-6 col-xl-3">
@@ -76,7 +71,7 @@
                     <input type="date" name="Date_Fin_D" id="dateDebutFin" class="form-control">
                 </div>
             </div>
-            <small class="dateCreationMessage" id="dateCreationMessage"></small>
+
         </div>
 
 

@@ -8,6 +8,8 @@ class DomControl
     {
         $this->DomModel = $DomModel;
     }
+
+
     public function filterStatut()
     {
         session_start();
@@ -3281,8 +3283,16 @@ class DomControl
      */
     public function RechercheController()
     {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
 
-        $array_decoded = $this->DomModel->RechercheModel();
+        $UserConnect = $_SESSION['user'];
+
+        $array_decoded = $this->DomModel->RechercheModel($UserConnect);
         //var_dump($array_decoded);
 
         header("Content-type:application/json");

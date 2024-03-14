@@ -1,6 +1,7 @@
 
 const statutInput = document.querySelector('#statut');
 const matriculeInput = document.querySelector('#matricule');
+const sousTypeDocInput = document.querySelector('#sousTypeDoc');
 const dateCreationDebutInput = document.querySelector('#dateCreationDebut');
 const dateCreationFinInput = document.querySelector('#dateCreationFin');
 const dateDebutDebutInput = document.querySelector('#dateDebutDebut');
@@ -34,6 +35,8 @@ fetchvaleur().then(raw_data => {
     console.log(raw_data);
     // afficher les donnée du selecte statut
     SelectStatutValue1(raw_data);
+
+    SousTypeDoc(raw_data)
    
  dateCreationDebutInput.addEventListener('change', (e) => {
     e.preventDefault();
@@ -112,6 +115,7 @@ dateDebutFinInput.addEventListener('change', (e) => {
         e.preventDefault();
         statutInput.value = "";
         matriculeInput.value = "";
+        sousTypeDocInput.value = "";
         dateCreationDebutInput.value = "";
         dateCreationFinInput.value = "";
         dateDebutDebutInput.value = "";
@@ -181,6 +185,28 @@ uniqueStatuts.forEach(statut => {
 });
 }
 
+function SousTypeDoc(data) {
+    const uniqueSousTypeDoc = new Set();
+data.forEach(element => uniqueSousTypeDoc.add(element.Sous_type_document));
+
+const select = document.getElementById('sousTypeDoc');
+
+// Ajouter une option vide
+const emptyOption = document.createElement('option');
+emptyOption.value = ""; // Valeur vide
+emptyOption.textContent = "Sélectionnez un sous type"; // Texte optionnel
+select.appendChild(emptyOption);
+
+uniqueSousTypeDoc.forEach(sousTypeDoc => {
+    const option = document.createElement('option');
+    option.value = sousTypeDoc;
+    option.textContent = sousTypeDoc;
+    // Ajouter l'option à l'élément <select>
+    select.appendChild(option);
+});
+
+}
+
 /** 
 * @Andryrkt
 * rendre le tableau afficher sur l'écran
@@ -201,6 +227,7 @@ function renderData1(data) {
 
             var cellule = document.createElement('td');
             cellule.classList.add('w-50');
+           
             if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
                 cellule.textContent = item[key].split('-').reverse().join('/');
             } else {
@@ -244,6 +271,7 @@ function filtre(data) {
 // Récupérer les valeurs des champs de saisie
 
 const critereStatutValue = statutInput.value.trim();
+const critereSousTypeDocValue = sousTypeDocInput.value.trim();
 const critereMatriculeValue = matriculeInput.value.trim().toLowerCase();
 const dateCreationDebutValue = dateCreationDebutInput.value;
 const dateCreationFinValue = dateCreationFinInput.value;
@@ -259,6 +287,7 @@ return resultatsFiltres = data.filter(function(demande) {
     // Filtrer par statut (si un critère est fourni)
     var filtreStatut = !critereStatutValue || demande.Statut === critereStatutValue;
     var filtreMatricule = !critereMatriculeValue || demande.Matricule.toLowerCase().includes(critereMatriculeValue);
+    var filtreSousTypeDoc = !critereSousTypeDocValue || demande.Sous_type_document === critereSousTypeDocValue;
 
 
 
@@ -279,7 +308,7 @@ return resultatsFiltres = data.filter(function(demande) {
     var filtreDateDebut = !dateDebutDebutValue || !dateDebutFinValue || (demande.Date_Debut >= dateDebutDebutValue && demande.Date_Debut <= dateDebutFinValue);
 
     // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
-    return (filtreMatricule && filtreStatut && filtreDateCreation && filtreDateDebut && filtreDateDebutCreation && filtreDateFinCreation && filtreDateDebutMission && filtreDateFinMission) || (!critereMatriculeValue && !critereStatutValue && !dateCreationDebutValue && !dateCreationFinValue && !dateDebutDebutValue && !dateDebutFinValue && !dateDebutCreation && !filtreDateFinCreation && !filtreDateDebutMission && !filtreDateFinMission);
+    return (filtreMatricule && filtreStatut && filtreDateCreation && filtreDateDebut && filtreDateDebutCreation && filtreDateFinCreation && filtreDateDebutMission && filtreDateFinMission && filtreSousTypeDoc) || (!critereMatriculeValue && !critereStatutValue && !dateCreationDebutValue && !dateCreationFinValue && !dateDebutDebutValue && !dateDebutFinValue && !critereSousTypeDocValue && !dateDebutCreation && !filtreDateFinCreation && !filtreDateDebutMission && !filtreDateFinMission && !filtreSousTypeDoc);
 });
  
 
