@@ -8,7 +8,18 @@ class DomControl
     {
         $this->DomModel = $DomModel;
     }
-
+    public function filterStatut()
+    {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+        $Libstatut = $_POST['LibStatut'];
+        $Statut = $this->DomModel->filterstatut($Libstatut);
+        echo json_encode($Statut);
+    }
 
     /**
      * selection catgégorie dans l'ajax 
@@ -3233,6 +3244,7 @@ class DomControl
         include 'Views/DOM/ListDomRech.php';
     }
 
+
     /**
      * creation du débiteur (code service et service)
      */
@@ -3257,23 +3269,5 @@ class DomControl
                 echo 'Aucune donnée disponible pour cette option';
             }
         }
-    }
-
-
-
-    /**
-     * @Andryrkt 
-     * cette fonction transforme le tableau en json 
-     * pour listeDomRecherche
-     */
-    public function RechercheController()
-    {
-
-        $array_decoded = $this->DomModel->RechercheModel();
-        //var_dump($array_decoded);
-
-        header("Content-type:application/json");
-
-        echo json_encode($array_decoded);
     }
 }
