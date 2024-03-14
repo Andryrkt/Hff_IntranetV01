@@ -3233,6 +3233,7 @@ class DomControl
         include 'Views/DOM/ListDomRech.php';
     }
 
+
     /**
      * creation du débiteur (code service et service)
      */
@@ -3275,5 +3276,28 @@ class DomControl
         header("Content-type:application/json");
 
         echo json_encode($array_decoded);
+    }
+
+
+    public function duplificationDOM()
+    {
+        session_start();
+        if (empty($_SESSION['user'])) {
+            header("Location:/Hffintranet/index.php?action=Logout");
+            session_destroy();
+            exit();
+        }
+        $UserConnect = $_SESSION['user'];
+        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+        include 'Views/Principe.php';
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+            $ListDomRech = $this->DomModel->getListDomRechALl();
+        } else {
+            $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+        }
+        $Statut = $this->DomModel->getListStatut();
+        include 'Views/DOM/ListDom_Duplifier.php';
     }
 }

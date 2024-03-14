@@ -148,6 +148,9 @@ switch ($action) {
         break;
     case 'recherche':
         $ControlDOM->RechercheController();
+    case 'Dupliquer':
+        $ControlDOM->duplificationDOM();
+
         break;
     default:
         include 'Views/SignIn.php';
