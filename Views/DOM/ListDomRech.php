@@ -129,7 +129,7 @@
                             <th>N° DOM</th>
                             <th>Date de demande</th>
                             <th>Motif de déplacement</th>
-                            <th>Matricule</th>
+                            <th style="text-align: center;">Matricule</th>
                             <th>Nom</th>
                             <th>Prénoms</th>
                             <th>Mode de paiement</th>

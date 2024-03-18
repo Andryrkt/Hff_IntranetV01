@@ -197,9 +197,7 @@ class DomControl
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
 
-            $codeServices = $this->DomModel->RecuperationCodeServiceIrium();
-
-
+            //$codeServices = $this->DomModel->RecuperationCodeServiceIrium();
 
 
 
@@ -3254,34 +3252,53 @@ class DomControl
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
-        if (isset($_GET['option'])) {
+        //var_dump($codeServiceIrium);
+        header("Content-type:application/json");
 
-            // Récupérer la valeur de l'option sélectionnée
-            $selectedOption = $_GET['option'];
+        echo json_encode($codeServiceIrium);
 
-            // Vérifier si l'option existe dans le tableau des données simulées
-            if (array_key_exists($selectedOption, $codeServiceIrium)) {
-                // Afficher le contenu correspondant à l'option sélectionnée
-                for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
 
-                    echo ' <option value="' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '">' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '</option>';
-                }
-            } else {
-                // Gérer le cas où l'option sélectionnée n'existe pas
-                echo 'Aucune donnée disponible pour cette option';
-            }
-        }
+        // if (isset($_GET['option'])) {
+
+        //     // Récupérer la valeur de l'option sélectionnée
+        //     $selectedOption = $_GET['option'];
+
+        //     // Vérifier si l'option existe dans le tableau des données simulées
+        //     if (array_key_exists($selectedOption, $codeServiceIrium)) {
+        //         // Afficher le contenu correspondant à l'option sélectionnée
+        //         for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
+
+        //             echo ' <option value="' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '">' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '</option>';
+        //         }
+        //     } else {
+        //         // Gérer le cas où l'option sélectionnée n'existe pas
+        //         echo 'Aucune donnée disponible pour cette option';
+        //     }
+        // }
     }
 
 
+    /**
+     * @Andryrkt 
+     * cette fonction transforme le tableau statut en json 
+     * pour listeDomRecherche
+     */
+    public function listStatutController()
+    {
 
+        $statut = $this->DomModel->getListStatut();
+
+        header("Content-type:application/json");
+
+        echo json_encode($statut);
+    }
 
     /**
      * @Andryrkt 
      * cette fonction transforme le tableau en json 
      * pour listeDomRecherche
      */
-    public function RechercheController()
+    public function rechercheController()
     {
         session_start();
         if (empty($_SESSION['user'])) {
@@ -3292,7 +3309,14 @@ class DomControl
 
         $UserConnect = $_SESSION['user'];
 
-        $array_decoded = $this->DomModel->RechercheModel($UserConnect);
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+            $array_decoded = $this->DomModel->RechercheModelAll();
+        } else {
+            $array_decoded = $this->DomModel->RechercheModel($UserConnect);
+        }
+
+
         //var_dump($array_decoded);
 
         header("Content-type:application/json");

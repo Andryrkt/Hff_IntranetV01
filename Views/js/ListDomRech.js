@@ -12,6 +12,9 @@ const resetInput = document.querySelector("#reset");
 const nombreLigneInput = document.querySelector("#nombreLigne");
 const nombreResultatInput = document.querySelector('#nombreResultat');
 
+const urlStatut = "/Hffintranet/index.php?action=listStatut"
+
+
 
     /**
      * @Andryrkt
@@ -140,7 +143,7 @@ dateDebutFinInput.addEventListener('change', (e) => {
 
             // Afficher un message si le tableau est vide
             const noResult = document.querySelector('#noResult');
-            noResult.innerHTML = `<p class="fw-bold" style="text-align: center;">Il n'y a pas de donnée qui correspond à votre recherche.</p>`;
+            noResult.innerHTML = `<p class="fw-bold" style="text-align: center;">Il n'y a pas de données correspondant à votre recherche.</p>`;
             var container = document.getElementById('table-container');
             container.innerHTML = '';
             nombreResultat.textContent = 0 + ' résultats';
@@ -227,7 +230,15 @@ function renderData1(data) {
 
             var cellule = document.createElement('td');
             cellule.classList.add('w-50');
-           
+            
+            if (key === 'Matricule' || key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin' || key === 'Nombre_Jour') {
+                cellule.style.textAlign = 'center';
+            }
+
+            if (key === 'Total_Autres_Depenses' || key === 'Total_General_Payer') {
+                cellule.style.textAlign = 'end';
+            }
+
             if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
                 cellule.textContent = item[key].split('-').reverse().join('/');
             } else {

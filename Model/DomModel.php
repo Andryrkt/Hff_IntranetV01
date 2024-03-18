@@ -312,7 +312,7 @@ class DomModel
      */
     public function RecuperationCodeServiceIrium(): array
     {
-        $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
+        $sql = "SELECT DISTINCT  CONCAT(Agence_Service_Irium.agence_ips , ' ', UPPER(LEFT(Agence_Service_Irium.nom_agence_i100, 1)) + LOWER(SUBSTRING(Agence_Service_Irium.nom_agence_i100, 2, LEN(Agence_Service_Irium.nom_agence_i100))) )AS codeService
         FROM Agence_Service_Irium
         WHERE societe_ios = 'HF'  ";
 
@@ -329,13 +329,17 @@ class DomModel
      */
     public function RecuperationCodeEtServiceIrium(): array
     {
-        $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 As service,
-        Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 As codeService
-FROM Agence_Service_Irium
-WHERE societe_ios = 'HF' ";
+        $sql = "SELECT DISTINCT 
+        CONCAT(Agence_Service_Irium.service_ips, ' ', 
+                Agence_Service_Irium.libelle_service_ips) AS service,
+        CONCAT(Agence_Service_Irium.agence_ips , ' ', UPPER(LEFT(Agence_Service_Irium.nom_agence_i100, 1)) + LOWER(SUBSTRING(Agence_Service_Irium.nom_agence_i100, 2, LEN(Agence_Service_Irium.nom_agence_i100))) )AS codeService
+    FROM Agence_Service_Irium
+    WHERE societe_ios = 'HF'
+    ORDER BY codeService ASC ";
 
         $statement = $this->connexion->query($sql);
         $services = [];
+
         while ($tab_compt = odbc_fetch_array($statement)) {
             $services[] = $tab_compt;
         }
@@ -364,7 +368,7 @@ WHERE societe_ios = 'HF' ";
                              max(Date_Fin) as DateFinMax
                     FROM Demande_ordre_mission
                     WHERE  Matricule = '" . $Matri . "'  
-                    AND Code_Statut ='OUV'
+                    AND Code_Statut IN ('OUV', 'PAY')
                     GROUP BY Matricule";
         $execSqlDate = $this->connexion->query($SqlDate);
         $DateM = array();
@@ -971,42 +975,39 @@ WHERE societe_ios = 'HF' ";
     /**
      * @Andryrkt 
      * cette fonction récupère les données dans la base de donnée  
-     * rectifier les caractère spéciaux et return uen tableau
+     * rectifier les caractère spéciaux et return un tableau
      * pour listeDomRecherhce
+     * limiter l'accées des utilisateurs
      */
     public function RechercheModel($ConnectUser): array
     {
         $sql = $this->connexion->query("SELECT  
-            Statut_demande.Description AS Statut,
-            Demande_ordre_mission.Sous_type_document,
-            Demande_ordre_mission.Numero_Ordre_Mission,
-            Demande_ordre_mission.Date_Demande,
-            Demande_ordre_mission.Motif_Deplacement,
-            Demande_ordre_mission.Matricule,
-            Demande_ordre_mission.Nom, 
-            Demande_ordre_mission.Prenom,
-            Demande_ordre_mission.Mode_Paiement,
-            Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 AS LibelleCodeAgence_Service, 
-            Demande_ordre_mission.Date_Debut, 
-            Demande_ordre_mission.Date_Fin,   
-            Demande_ordre_mission.Nombre_Jour, 
-            Demande_ordre_mission.Client,
-            Demande_ordre_mission.Fiche,
-            Demande_ordre_mission.Lieu_Intervention,
-            Demande_ordre_mission.NumVehicule,
-            Demande_ordre_mission.Total_Autres_Depenses,
-            Demande_ordre_mission.Total_General_Payer,
-            Demande_ordre_mission.Devis
-
-            FROM 
-            Demande_ordre_mission
-            INNER JOIN 
-            Statut_demande ON Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-            INNER JOIN 
-            Agence_Service_Irium ON Agence_Service_Irium.agence_ips + Agence_Service_Irium.service_ips = Demande_ordre_mission.Code_AgenceService_Debiteur
+        Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+   ( SELECT Top 1 Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+   Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
             AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
-                                                                        FROM Agence_service_autorise 
-                                                                        WHERE Session_Utilisateur = '" . $ConnectUser . "' )
+                                                                    FROM Agence_service_autorise 
+                                                                    WHERE Session_Utilisateur = '" . $ConnectUser . "' )
+                                                                    
             ORDER BY Numero_Ordre_Mission DESC");
 
 
@@ -1017,20 +1018,94 @@ WHERE societe_ios = 'HF' ";
 
             $tab[] = $donner;
         }
-        // Fonction pour nettoyer les valeurs en supprimant les caractères spéciaux
-        function clean_string($string)
-        {
-            return mb_convert_encoding($string, 'ASCII', 'UTF-8');
-        }
+
 
         // Parcourir chaque élément du tableau $tab
         foreach ($tab as $key => &$value) {
             // Parcourir chaque valeur de l'élément et nettoyer les données
             foreach ($value as &$inner_value) {
-                $inner_value = clean_string($inner_value);
+                $inner_value = $this->clean_string($inner_value);
             }
         }
 
+
+        $this->TestCaractereSpeciaux($tab);
+
+
+        return $this->decode_entities_in_array($tab);
+    }
+
+
+
+    /**
+     * @Andryrkt 
+     * cette fonction récupère les données dans la base de donnée  
+     * rectifier les caractère spéciaux et return un tableau
+     * pour listeDomRecherhce
+     * limiter l'accées des utilisateurs
+     */
+    public function RechercheModelAll(): array
+    {
+        $sql = $this->connexion->query("SELECT  
+        Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+   ( SELECT Top 1 Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+   Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                                                                              
+            ORDER BY Numero_Ordre_Mission DESC");
+
+
+        // Définir le jeu de caractères source et le jeu de caractères cible
+
+        $tab = [];
+        while ($donner = odbc_fetch_array($sql)) {
+
+            $tab[] = $donner;
+        }
+
+
+
+        // Parcourir chaque élément du tableau $tab
+        foreach ($tab as $key => &$value) {
+            // Parcourir chaque valeur de l'élément et nettoyer les données
+            foreach ($value as &$inner_value) {
+                $inner_value = $this->clean_string($inner_value);
+            }
+        }
+
+
+        $this->TestCaractereSpeciaux($tab);
+
+
+        return $this->decode_entities_in_array($tab);
+    }
+
+
+    private function clean_string($string)
+    {
+        return mb_convert_encoding($string, 'ASCII', 'UTF-8');
+    }
+
+    private function TestCaractereSpeciaux(array $tab)
+    {
         function contains_special_characters($string)
         {
             // Expression régulière pour vérifier les caractères spéciaux
@@ -1047,21 +1122,23 @@ WHERE societe_ios = 'HF' ";
                 }
             }
         }
-        function decode_entities_in_array($array)
-        {
-            // Parcourir chaque élément du tableau
-            foreach ($array as $key => $value) {
-                // Si la valeur est un tableau, appeler récursivement la fonction
-                if (is_array($value)) {
-                    $array[$key] = decode_entities_in_array($value);
-                } else {
-                    // Si la valeur est une chaîne, appliquer la fonction decode_entities()
-                    $array[$key] = html_entity_decode($value);
-                }
-            }
-            return $array;
-        }
+    }
 
-        return decode_entities_in_array($tab);
+    /**
+     * c'est une foncion qui décode les caractères speciaux en html
+     */
+    private function decode_entities_in_array($array)
+    {
+        // Parcourir chaque élément du tableau
+        foreach ($array as $key => $value) {
+            // Si la valeur est un tableau, appeler récursivement la fonction
+            if (is_array($value)) {
+                $array[$key] = $this->decode_entities_in_array($value);
+            } else {
+                // Si la valeur est une chaîne, appliquer la fonction decode_entities()
+                $array[$key] = html_entity_decode($value);
+            }
+        }
+        return $array;
     }
 }

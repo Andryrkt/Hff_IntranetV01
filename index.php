@@ -97,7 +97,6 @@ switch ($action) {
         break;
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
-
         break;
     case 'SelectCateg':
         $ControlDOM->selectCatg();
@@ -147,7 +146,10 @@ switch ($action) {
         $ControlDOM->anaranaFonction();
         break;
     case 'recherche':
-        $ControlDOM->RechercheController();
+        $ControlDOM->rechercheController();
+        break;
+    case 'listStatut':
+        $ControlDOM->listStatutController();
         break;
     case 'Dupliquer':
         $ControlDOM->duplificationDOM();
