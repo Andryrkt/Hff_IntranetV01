@@ -1,4 +1,5 @@
-/vendor/
+vendor/
 /TCPDF-main/
 /Views/tcpdf/
 /Upload/
+Controler/pdf/

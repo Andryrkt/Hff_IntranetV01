@@ -33,33 +33,46 @@
             pj.style.display = 'none';
         }
     }
-</script>  
+</script>
 
 <body onload="visible();Mat()"><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
+    <?php //var_dump($detailDom);
+    //die();
+    ?>
     <?php foreach ($detailDom as $detailDom) : ?>
         <div class="container">
             <div class="d-flex  flex-row-reverse  col">
-                <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=ListDom" style="text-decoration: none;color:black">Retour</a></button>
+                <div class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=ListDomRech" style="text-decoration: none;color:black">Retour</a></div>
             </div>
             <form action="#" method="POST" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col">
-                        <label for="NumDOM" class="label-form">N° DOM</label>
+                        <label for="NumDOM" class="label-form  fst-italic">N° DOM</label>
                         <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $detailDom['Numero_Ordre_Mission'] ?>" readonly>
                     </div>
                     <div class="col">
-                        <label for="datesyst" class="label-form"> Date</label>
+                        <label for="datesyst" class="label-form  fst-italic"> Date</label>
                         <input type="date" name="datesyst" id="modeesp" class="form-control" value="<?php echo $detailDom['Date_Demande'] ?>" readonly>
                     </div>
                 </div>
+
+
                 <div class="row">
-                    <div class="col-4">
-                        <label for="Serv" class="label-form">Agence - Service:</label>
-                        <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $detailDom['LibelleCodeAgence_Service'] ?>" readonly>
+                    <!-- DEBUT Agence Service   -->
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="Serv" class="label-form  fst-italic">Agence Service Emetteur :</label>
+                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $detailDom['Emetteur'] ?>" readonly>
+                        </div>
+                        <div class="col-4">
+                            <label for="Serv" class="label-form  fst-italic">Agence Service Débiteur :</label>
+                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $detailDom['Debiteur'] ?>" readonly>
+                        </div>
                     </div>
+
                     <div class="row">
                         <div class="col">
-                            <label for="typeMission" class="label-form"> Type de Mission</label>
+                            <label for="typeMission" class="label-form  fst-italic"> Type de Mission</label>
                             <input name="typeMission" id="typeMission" class="form-control" value="<?php echo $detailDom['Sous_Type_Document'] ?>" readonly />
                         </div>
                         <!--<div class="col">
@@ -70,15 +83,15 @@
 
                     <div class="row">
                         <div class="col">
-                            <label for="matricule" class="label-form"> Matricule</label>
+                            <label for="matricule" class="label-form  fst-italic"> Matricule</label>
                             <input type="text" name="matricule" id="matricule01" class="form-control" value="<?php echo $detailDom['Matricule'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="Nomprenoms" class="label-form"> Nom </label>
+                            <label for="Nomprenoms" class="label-form  fst-italic"> Nom </label>
                             <input name="nomprenom" id="nomprenom" class="form-control" value="<?php echo $detailDom['Nom'] ?>" readonly />
                         </div>
                         <div class="col">
-                            <label for="prenoms" class="label-form"> Prénoms </label>
+                            <label for="prenoms" class="label-form  fst-italic"> Prénoms </label>
                             <input name="prenom" id="prenom" class="form-control" value="<?php echo $detailDom['Prenom'] ?>" readonly />
                         </div>
                     </div>
@@ -87,122 +100,122 @@
 
                     <div class="row">
                         <div class="col">
-                            <label for="dateDebut" class="label-form"> Date début</label>
+                            <label for="dateDebut" class="label-form  fst-italic"> Date début</label>
                             <input type="date" name="dateDebut" id="dateDebut" class="form-control" value="<?php echo $detailDom['Date_Debut'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="heureDebut" class="label-form"> Heure début</label>
+                            <label for="heureDebut" class="label-form  fst-italic"> Heure début</label>
                             <input type="time" name="heureDebut" id="heureDebut" class="form-control" value="<?php echo $detailDom['Heure_Debut'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="dateFin" class="label-form"> Date Fin</label>
+                            <label for="dateFin" class="label-form  fst-italic"> Date Fin</label>
                             <input type="date" name="dateFin" id="dateFin" class="form-control" value="<?php echo $detailDom['Date_Fin'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="heureFin" class="label-form"> Heure Fin</label>
+                            <label for="heureFin" class="label-form  fst-italic"> Heure Fin</label>
                             <input type="time" name="heureFin" id="heureFin" class="form-control" value="<?php echo $detailDom['Heure_Fin'] ?>" readonly>
 
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="periode" class="label-form" id="nomprenom"> Période</label>
+                            <label for="periode" class="label-form  fst-italic" id="nomprenom"> Période</label>
                             <input type="text" name="Nbjour" id="Nbjour" class="form-control" value="<?php echo $detailDom['Nombre_Jour'] ?>" style="text-align: right;" readonly>
                         </div>
 
                         <div class="col">
-                            <label for="motif" class="label-form"> Motif</label>
+                            <label for="motif" class="label-form  fst-italic"> Motif</label>
                             <input type="text" name="motif" id="motif" class="form-control" value="<?php echo $detailDom['Motif_Deplacement'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="client" class="label-form"> Client</label>
+                            <label for="client" class="label-form  fst-italic"> Client</label>
                             <input type="text" name="client" id="client" class="form-control" value="<?php echo $detailDom['Client'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="fiche" class="label-form"> N°fiche</label>
+                            <label for="fiche" class="label-form  fst-italic"> N°fiche</label>
                             <input type="text" name="fiche" id="fiche" class="form-control" value="<?php echo $detailDom['Fiche'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="lieuInterv" class="label-form"> Lieu D'intervention</label>
+                            <label for="lieuInterv" class="label-form  fst-italic"> Lieu D'intervention</label>
                             <input type="text" name="lieuInterv" id="lieuInterv" class="form-control" value="<?php echo $detailDom['Lieu_Intervention'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="IdemDeplac" class="label-form">indemnité de déplacement</label>
+                            <label for="IdemDeplac" class="label-form  fst-italic">indemnité de déplacement</label>
                             <input type="text" name="IdemDeplac" id="IdemDeplac" class="form-control" value="<?php echo $detailDom['idemnity_depl'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="vehicule" class="label-form"> Véhicule Société</label>
+                            <label for="vehicule" class="label-form  fst-italic"> Véhicule Société</label>
                             <input type="text" name="vehicule" id="vehicule" class="form-control" value="<?php echo $detailDom['Vehicule_Societe'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="N_vehicule" class="label-form"> N°</label>
+                            <label for="N_vehicule" class="label-form  fst-italic"> N°</label>
                             <input type="text" name="N_vehicule" id="N_vehicule" class="form-control" value="<?php echo $detailDom['NumVehicule'] ?>" readonly />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col">
-                            <label for="Devis" class="label-form">Devise:</label>
+                            <label for="Devis" class="label-form  fst-italic">Devise:</label>
                             <input type="text" name="Devis" id="Devis" class="form-control" value="<?php echo $detailDom['Devis'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="idemForfait" class="label-form"> Indemnité Forfaitaire</label>
+                            <label for="idemForfait" class="label-form  fst-italic"> Indemnité Forfaitaire</label>
                             <input type="text" name="idemForfait" id="idemForfait" class="form-control" value="<?php echo $detailDom['Indemnite_Forfaitaire'] ?>" readonly />
                         </div>
                         <div class="col">
-                            <label for="idemForfait01" class="label-form"> Bonus journalier</label>
+                            <label for="idemForfait01" class="label-form  fst-italic"> Bonus journalier</label>
                             <input type="text" name="idemForfait01" id="idemForfait01" class="form-control" value="<?php echo $detailDom['Doit_indemnite'] ?>" readonly />
                         </div>
                         <div class="col">
-                            <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
+                            <label for="TotalidemForfait" class="label-form  fst-italic"> Total d'Indemnité Forfaitaire</label>
                             <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" value="<?php echo $detailDom['Total_Indemnite_Forfaitaire'] ?>" readonly />
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="MotifAutredep" class="label-form"> Motif Autre dépense 1</label>
+                            <label for="MotifAutredep" class="label-form  fst-italic"> Motif Autre dépense 1</label>
                             <input type="text" name="MotifAutredep" id="MotifAutredep" class="form-control" value="<?php echo $detailDom['Motif_Autres_depense_1'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="Autredep1" class="label-form"> Montant </label>
+                            <label for="Autredep1" class="label-form  fst-italic"> Montant </label>
                             <input type="text" name="Autredep1" id="Autredep1" class="form-control" value="<?php echo $detailDom['Autres_depense_1'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="MotifAutredep2" class="label-form"> Motif Autre dépense 2</label>
+                            <label for="MotifAutredep2" class="label-form  fst-italic"> Motif Autre dépense 2</label>
                             <input type="text" name="MotifAutredep2" id="MotifAutredep2" class="form-control" value="<?php echo $detailDom['Motif_Autres_depense_2'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="Autredep2" class="label-form"> Montant </label>
+                            <label for="Autredep2" class="label-form  fst-italic"> Montant </label>
                             <input type="text" name="Autredep2" id="Autredep2" class="form-control" value="<?php echo $detailDom['Autres_depense_2'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="MotifAutredep3" class="label-form"> Motif Autre dépense 3</label>
+                            <label for="MotifAutredep3" class="label-form  fst-italic"> Motif Autre dépense 3</label>
                             <input type="text" name="MotifAutredep3" id="MotifAutredep3" class="form-control" value="<?php echo $detailDom['Motif_Autres_depense_3'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="Autredep3" class="label-form"> Montant </label>
+                            <label for="Autredep3" class="label-form  fst-italic"> Montant </label>
                             <input type="text" name="Autredep3" id="Autredep3" class="form-control" value="<?php echo $detailDom['Autres_depense_3'] ?>" readonly>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
+                            <label for="TotalAutredep" class="label-form fst-italic"> Total Montant Autre Dépense</label>
                             <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" value="<?php echo $detailDom['Total_Autres_Depenses'] ?>" readonly>
                         </div>
                         <div class="col">
-                            <label for="Alldepense" class="label-form"> Montant Total</label>
+                            <label for="Alldepense" class="label-form  fst-italic"> Montant Total</label>
                             <input type="text" name="Alldepense" id="Alldepense" class="form-control" value="<?php echo $detailDom['Total_General_Payer'] ?>" readonly>
                         </div>
                     </div>

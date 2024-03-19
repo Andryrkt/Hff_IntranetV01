@@ -1,4 +1,13 @@
 <?php
+
+require_once 'vendor/autoload.php';
+
+// Configuration de Twig avec le chemin vers vos fichiers de template
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/Views/templates');
+$twig = new \Twig\Environment($loader);
+
+
+
 include 'Model/Connexion.php';
 include 'Model/LdapModel.php';
 include 'Controler/LdapControl.php';
@@ -129,7 +138,6 @@ switch ($action) {
     case 'CodeAgenceServiceAuto':
         $ControlType->showListCodeagence();
         break;
-        //    
     case 'Statut':
         $ControlStatut->ShowFormStatut();
         break;
@@ -159,6 +167,9 @@ switch ($action) {
         break;
     case 'LibStatut':
         $ControlDOM->filterStatut();
+        break;
+    case 'andrana':
+        $ControlDOM->andranaController();
         break;
     default:
         include 'Views/SignIn.php';

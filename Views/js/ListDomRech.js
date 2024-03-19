@@ -231,6 +231,8 @@ function renderData1(data) {
             var cellule = document.createElement('td');
             cellule.classList.add('w-50');
             
+           
+
             if (key === 'Matricule' || key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin' || key === 'Nombre_Jour') {
                 cellule.style.textAlign = 'center';
             }
@@ -241,10 +243,15 @@ function renderData1(data) {
 
             if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
                 cellule.textContent = item[key].split('-').reverse().join('/');
-            } else {
-
-                cellule.textContent = item[key];
+             }else if (key === 'Numero_Ordre_Mission') {
+                var lien = document.createElement('a');
+                lien.href = `/Hffintranet/index.php?action=DetailDOM&NumDom=${item[key]}&Id=${item['ID_Demande_Ordre_Mission']}`; 
+                lien.textContent = item[key];
+                cellule.appendChild(lien);
+            }else{
+                cellule.textContent = item[key]
             }
+
             // Vérifier si la clé est "statut" et attribuer une classe en conséquence
             if (key === 'Statut') {
                 switch (item[key]) {

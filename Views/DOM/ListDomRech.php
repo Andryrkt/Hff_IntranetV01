@@ -124,6 +124,7 @@
                 <table class="table  table-striped table-hover table-shadow shadow bg-body-tertiary rounded ">
                     <thead class="table-dark">
                         <tr>
+                            <th>ID</th>
                             <th>Statut</th>
                             <th>Sous type</th>
                             <th>N° DOM</th>

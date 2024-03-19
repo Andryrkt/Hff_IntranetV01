@@ -17,6 +17,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
             </div>
         </div>
+
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
 
             <div class="row">
@@ -31,6 +32,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             </div>
 
             <div class="row">
+
                 <div class="col">
 
 
