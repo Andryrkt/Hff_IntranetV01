@@ -1,3 +1,167 @@
+
+
+
+
+
+
+
+// DEBUT javascript pour selecte debiteur
+
+
+function Select1Value(data, selectedOption) {
+    const select1 = document.querySelector('#select1');
+
+    // Vider le contenu de l'élément select
+    select1.innerHTML = '';
+
+    // Ajouter les options
+    for (const key in data) {
+        select1.innerHTML += `<option value="${key}">${key}</option>`;
+    }
+
+    // Sélectionner l'option spécifiée
+    if (selectedOption !== undefined) {
+        select1.value = selectedOption;
+    }
+}
+
+function fetchData(selectOption = undefined) {
+    const url = "/Hffintranet/index.php?action=anaranaaction";
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+            return response.json();
+        })
+        .then(data => {
+            Select1Value(data, selectOption);
+            // Sélectionner l'option spécifiée
+            if (selectOption === undefined) {
+                setTimeout(() => {
+                    selectOption = document.getElementById('select1').value;
+                    console.log(selectOption);
+                }, 300);
+
+            }
+
+
+            setTimeout(() => {
+                console.log(selectOption);
+                const serviceIriumElement = document.getElementById('serviceIrium');
+                let taille = data[selectOption].length;
+                console.log(taille);
+                let optionsHTML = ''; // Chaîne pour stocker les options HTML
+                for (let i = 0; i < taille; i++) {
+                    optionsHTML += `<option value="${data[selectOption][i]}">${data[selectOption][i]}</option>`;
+                }
+                serviceIriumElement.innerHTML = optionsHTML;
+            }, 300); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+// Appel initial de fetchData sans argument
+fetchData();
+
+document.getElementById('select1').addEventListener('change', function() {
+    var selectedOption = this.value;
+    fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+});
+
+let check = document.getElementById('radiochek').value;
+if (check === "Interne") {
+    setTimeout(() => {
+        document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value}"]`).selected = true;
+    }, 300);
+} else {
+    setTimeout(() => {
+        document.querySelector(`#select1 option[value="${document.querySelector('#Serv').value}"]`).selected = true;
+    }, 300);
+}
+
+
+if (check === "Interne") {
+    setTimeout(() => {
+        document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase()}"]`).selected = true;
+    }, 600);
+
+} else {
+    setTimeout(() => {
+        console.log(document.querySelector('#LibServ').value.toUpperCase());
+        document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase()}"]`).selected = true;
+    }, 600);
+
+}
+
+
+//FIN Javascript pour le débitteur select
+
+
+//DEBUT Duplication
+
+function fetchDataDuplier() {
+    const url = "/Hffintranet/index.php?action=Dupliquer";
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+            return response.json();
+        })
+        .then(data => {
+            $donnerFiltrer = filtre(data)
+          console.log($donnerFiltrer[0].Debiteur.split('-')[0]);
+          console.log($donnerFiltrer[0].Site);
+          
+          setTimeout(() => {
+            document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0]}"]`).selected = true;
+            document.querySelector(`#SITE option[value="${$donnerFiltrer[0].Site}"]`).selected = true
+        }, 200);
+        setTimeout(() => {
+        document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[0]}"]`).selected = true;
+    }, 500);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+fetchDataDuplier();
+
+function filtre(data) {
+    // Récupérer les valeurs des champs de saisie
+    
+    numDom = document.querySelector('#NumDOM').value;
+    idDom = document.querySelector('#IdDOM').value;
+    
+      
+    // Filtrer les données en fonction des critères
+    return resultatsFiltres = data.filter(function(demande) {
+    
+        var filtreNumDom = demande.Numero_Ordre_Mission === numDom
+        var filtreIdDom = demande.ID_Demande_Ordre_Mission  === idDom
+         
+        // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
+        return (filtreNumDom && filtreIdDom);
+    });
+}
+
+//FIN Duplication
+
+
+
+
+
+
+
+
+
+
+
+
 $(document).ready(function() {
     // Fonction pour gérer le changement du champ ServINt
     function handleServINtChange() {
@@ -248,97 +412,3 @@ $(document).ready(function() {
     MobileMoney();
     FicheAtelier();
 });
-
-// DEBUT javascript pour selecte debiteur
-
-
-function Select1Value(data, selectedOption) {
-    const select1 = document.querySelector('#select1');
-
-    // Vider le contenu de l'élément select
-    select1.innerHTML = '';
-
-    // Ajouter les options
-    for (const key in data) {
-        select1.innerHTML += `<option value="${key}">${key}</option>`;
-    }
-
-    // Sélectionner l'option spécifiée
-    if (selectedOption !== undefined) {
-        select1.value = selectedOption;
-    }
-}
-
-function fetchData(selectOption = undefined) {
-    const url = "/Hffintranet/index.php?action=anaranaaction";
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur de réseau');
-            }
-            return response.json();
-        })
-        .then(data => {
-            Select1Value(data, selectOption);
-            // Sélectionner l'option spécifiée
-            if (selectOption === undefined) {
-                setTimeout(() => {
-                    selectOption = document.getElementById('select1').value;
-                    console.log(selectOption);
-                }, 300);
-
-            }
-
-
-            setTimeout(() => {
-                console.log(selectOption);
-                const serviceIriumElement = document.getElementById('serviceIrium');
-                let taille = data[selectOption].length;
-                console.log(taille);
-                let optionsHTML = ''; // Chaîne pour stocker les options HTML
-                for (let i = 0; i < taille; i++) {
-                    optionsHTML += `<option value="${data[selectOption][i]}">${data[selectOption][i]}</option>`;
-                }
-                serviceIriumElement.innerHTML = optionsHTML;
-            }, 300); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
-        })
-        .catch(error => {
-            console.error(error);
-        });
-}
-
-// Appel initial de fetchData sans argument
-fetchData();
-
-document.getElementById('select1').addEventListener('change', function() {
-    var selectedOption = this.value;
-    fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
-});
-
-let check = document.getElementById('radiochek').value;
-if (check === "Interne") {
-    setTimeout(() => {
-        document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value}"]`).selected = true;
-    }, 300);
-} else {
-    setTimeout(() => {
-        document.querySelector(`#select1 option[value="${document.querySelector('#Serv').value}"]`).selected = true;
-    }, 300);
-}
-
-
-if (check === "Interne") {
-    setTimeout(() => {
-        document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase()}"]`).selected = true;
-    }, 500);
-
-} else {
-    setTimeout(() => {
-        console.log(document.querySelector('#LibServ').value.toUpperCase());
-        document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase()}"]`).selected = true;
-    }, 500);
-
-}
-
-
-//FIN Javascript pour le débitteur select

@@ -230,6 +230,32 @@ class DomControl
             include 'Views/DOM/FormCompleDOM.php';
         }
     }
+
+
+    private function alertRedirection(string $message, string $chemin)
+    {
+        '<script type="text/javascript">
+            alert(' . $message . ');
+            document.location.href = "/HffintranetV02/index.php?action=' . $chemin . '";
+    </script>';
+    }
+
+    private function changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
+    {
+        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
+        move_uploaded_file($filetemp01, $Upload_file);
+        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
+        move_uploaded_file($filetemp02, $Upload_file02);
+        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+        if (!empty($filename02)) {
+            //echo 'fichier02';
+            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+        } else {
+            $this->DomModel->genererFusion1($FichierDom, $filename01);
+            //echo 'echo non';
+        }
+    }
+
     /**
      * action de bouton dans view => FormCompleDOM
      * recupere tous les variable POSt dans le FormCompleDOM 
@@ -369,7 +395,7 @@ class DomControl
             // mail 
             $MailUser = $this->DomModel->getmailUserConnect($_SESSION['user']);
 
-
+            $chemin = "/Hffintranet/index.php?action=New_DOM";
             // 1
 
             if (strtotime($DateDebut) <= strtotime($DateFin) || strtotime($DateDebut) === strtotime($DateFin)) {
@@ -449,6 +475,11 @@ class DomControl
                         "codeServDebiteur" => $codeServDebiteur
                     ];
 
+                    // Convertir chaque élément en majuscules
+                    foreach ($tabInsertionBdInterne as $cle => $valeur) {
+                        $tabInsertionBdInterne[$cle] = strtoupper($valeur);
+                    }
+
                     $tabInterne = [
                         "Devis" => $Devis,
                         "Prenoms" => $Prenoms,
@@ -507,10 +538,8 @@ class DomControl
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                                 if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
-                                    echo '<script type="text/javascript">
-                                    alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
-                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                    </script>';
+                                    $message = "Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+                                    echo $this->alertRedirection($message, $chemin);
                                 } else {
                                     if (!empty($filename01) || !empty($filename02)) {
                                         echo 'avec PJ' . $filename01 . '-' . $filename02;
@@ -520,18 +549,7 @@ class DomControl
                                         //echo 'ie ambany 500000';
                                         $this->DomModel->genererPDF($tabInterne);
 
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                        if (!empty($filename02)) {
-                                            //echo 'fichier02';
-                                            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                        } else {
-                                            $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                            //echo 'echo non';
-                                        }
+                                        $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } else {
                                         // echo 'sans PJ';
                                         $this->DomModel->InsertDom($tabInsertionBdInterne);
@@ -553,18 +571,7 @@ class DomControl
                                     //echo 'ie ambany 500000';
                                     $this->DomModel->genererPDF($tabInterne);
 
-                                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                    move_uploaded_file($filetemp01, $Upload_file);
-                                    $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                    move_uploaded_file($filetemp02, $Upload_file02);
-                                    $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                    if (!empty($filename02)) {
-                                        //echo 'fichier02';
-                                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                    } else {
-                                        $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                        //echo 'echo non';
-                                    }
+                                    $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } else {
                                     // echo 'sans PJ';
                                     $this->DomModel->InsertDom($tabInsertionBdInterne);
@@ -588,10 +595,10 @@ class DomControl
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                             if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
-                                echo '<script type="text/javascript">
-                                    alert("Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
-                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                    </script>';
+
+                                $message = "Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                echo $this->alertRedirection($message, $chemin);
                             } else {
                                 if (!empty($filename01) || !empty($filename02)) {
                                     echo 'avec PJ' . $filename01 . '-' . $filename02;
@@ -602,44 +609,19 @@ class DomControl
 
                                         $this->DomModel->genererPDF($tabInterne);
 
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                        if (!empty($filename02)) {
-                                            //echo 'fichier02';
-                                            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                        } else {
-                                            $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                            //echo 'echo non';
-                                        }
+                                        $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         //echo 'ie ambany 500000';
                                         $this->DomModel->InsertDom($tabInsertionBdInterne);
 
                                         $this->DomModel->genererPDF($tabInterne);
 
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                        if (!empty($filename02)) {
-                                            //echo 'fichier02';
-                                            $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                        } else {
-                                            $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                            //echo 'echo non';
-                                        }
+                                        $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } //Mobile&allMOnt
                                     else {
-                                        echo '<script type="text/javascript">
-                                    alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                    </script>';
-                                        var_dump($libmodepaie);
-                                        die();
+                                        $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                     //
                                 } else {
@@ -662,10 +644,10 @@ class DomControl
                                         $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                     } //mobile&allMont 
                                     else {
-                                        echo '<script type="text/javascript">
-                                alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
+
+                                        $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                     //
                                 }
@@ -685,44 +667,21 @@ class DomControl
 
                                     $this->DomModel->genererPDF($tabInterne);
 
-                                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                    move_uploaded_file($filetemp01, $Upload_file);
-                                    $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                    move_uploaded_file($filetemp02, $Upload_file02);
-                                    $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                    if (!empty($filename02)) {
-                                        //echo 'fichier02';
-                                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                    } else {
-                                        $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                        //echo 'echo non';
-                                    }
+                                    $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
                                     $this->DomModel->InsertDom($tabInsertionBdInterne);
 
                                     $this->DomModel->genererPDF($tabInterne);
 
-                                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                    move_uploaded_file($filetemp01, $Upload_file);
-                                    $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                    move_uploaded_file($filetemp02, $Upload_file02);
-                                    $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                    if (!empty($filename02)) {
-                                        //echo 'fichier02';
-                                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                    } else {
-                                        $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                        //echo 'echo non';
-                                    }
+                                    $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } //Mobile&allMOnt
                                 else {
+                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                     var_dump($libmodepaie);
                                     die();
-                                    echo '<script type="text/javascript">
-                                alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
                                 }
                                 //
                             } else {
@@ -744,10 +703,9 @@ class DomControl
                                     $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                 } //mobile&allMont 
                                 else {
-                                    echo '<script type="text/javascript">
-                            alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                     var_dump($libmodepaie);
                                     die();
                                 }
@@ -786,24 +744,12 @@ class DomControl
 
                                 $this->DomModel->genererPDF($tabInterne);
 
-                                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                move_uploaded_file($filetemp01, $Upload_file);
-                                $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                move_uploaded_file($filetemp02, $Upload_file02);
-                                $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                if (!empty($filename02)) {
-                                    //echo 'fichier02';
-                                    $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
-                                } else {
-                                    $this->DomModel->genererFusion1($FichierDom, $filename01);
-                                    //echo 'echo non';
-                                }
+                                $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                             } //Mobile&allMOnt
                             else {
-                                echo '<script type="text/javascript">
-                                alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
+                                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                echo $this->alertRedirection($message, $chemin);
                             }
                             //
                         } else {
@@ -823,10 +769,9 @@ class DomControl
                                 $this->DomModel->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                             } //mobile&allMont 
                             else {
-                                echo '<script type="text/javascript">
-                            alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                echo $this->alertRedirection($message, $chemin);
                             }
                             //
                         }
@@ -908,6 +853,11 @@ class DomControl
                         "codeServDebiteur" => $codeServDebiteur
                     ];
 
+                    // Convertir chaque élément en majuscules
+                    foreach ($tabInsertionBdExterne as $cle => $valeur) {
+                        $tabInsertionBdExterne[$cle] = strtoupper($valeur);
+                    }
+
                     $tabExterne = [
                         "Devis" => $Devis,
                         "Prenoms" => $Prenoms,
@@ -969,10 +919,10 @@ class DomControl
                                 $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                                 $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                                 if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
-                                    echo '<script type="text/javascript">
-                                        alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+
+                                    $message = "Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 } else {
                                     //comme d'hab
 
@@ -990,16 +940,16 @@ class DomControl
 
                                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                         } else {
-                                            echo '<script type="text/javascript">
-                                                alert("Merci de Mettre les pièce jointes en PDF");
-                                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                                </script>';
+
+                                            $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                            echo $this->alertRedirection($message, $chemin);
                                         }
                                     } else {
-                                        echo '<script type="text/javascript">
-                                    alert("Merci de Mettre les pièce jointes");
-                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                    </script>';
+
+                                        $message = "Merci de Mettre les pièce jointes";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
 
 
@@ -1024,16 +974,14 @@ class DomControl
 
                                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                     } else {
-                                        echo '<script type="text/javascript">
-                                            alert("Merci de Mettre les pièce jointes en PDF");
-                                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                            </script>';
+                                        $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                 } else {
-                                    echo '<script type="text/javascript">
-                                alert("Merci de Mettre les pièce jointes");
-                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
+                                    $message = "Merci de Mettre les pièce jointes";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
                                 $this->DomModel->genererPDF($tabExterne);
 
@@ -1054,10 +1002,10 @@ class DomControl
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
                             if (($DDForm >=  $DD && $DDForm <= $DF) && ($DFForm >= $DD && $DFForm <= $DF)) {
-                                echo '<script type="text/javascript">
-                                    alert("Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!");
-                                    document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                    </script>';
+
+                                $message = "Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                echo $this->alertRedirection($message, $chemin);
                             } else {
                                 //comme d'hab
 
@@ -1077,16 +1025,16 @@ class DomControl
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
                                         } else {
-                                            echo '<script type="text/javascript">
-                                            alert("Merci de Mettre les pièce jointes en PDF");
-                                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                            </script>';
+
+                                            $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                            echo $this->alertRedirection($message, $chemin);
                                         }
                                     } else {
-                                        echo '<script type="text/javascript">
-                                        alert("Merci de Mettre les pièce jointes");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+
+                                        $message = "Merci de Mettre les pièce jointes";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
 
                                     $this->DomModel->genererPDF($tabExterne);
@@ -1105,24 +1053,24 @@ class DomControl
 
                                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                         } else {
-                                            echo '<script type="text/javascript">
-                                            alert("Merci de Mettre les pièce jointes en PDF");
-                                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                            </script>';
+
+                                            $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                            echo $this->alertRedirection($message, $chemin);
                                         }
                                     } else {
-                                        echo '<script type="text/javascript">
-                                alert("Merci de Mettre les pièce jointes");
-                                document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
+
+                                        $message = "Merci de Mettre les pièce jointes";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                     $this->DomModel->genererPDF($tabExterne);
                                 } //mobile & AllMont 
                                 else {
-                                    echo '<script type="text/javascript">
-                                     alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                     document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                </script>';
+
+                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
                                 //
                                 //
@@ -1145,16 +1093,15 @@ class DomControl
 
                                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                     } else {
-                                        echo '<script type="text/javascript">
-                                        alert("Merci de Mettre les pièce jointes en PDF");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+
+                                        $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                 } else {
-                                    echo '<script type="text/javascript">
-                            alert("Merci de Mettre les pièce jointes");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                    $message = "Merci de Mettre les pièce jointes";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
 
                                 $this->DomModel->genererPDF($tabExterne);
@@ -1173,25 +1120,22 @@ class DomControl
 
                                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                     } else {
-                                        echo '<script type="text/javascript">
-                                        alert("Merci de Mettre les pièce jointes en PDF");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+                                        $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                        echo $this->alertRedirection($message, $chemin);
                                     }
                                 } else {
-                                    echo '<script type="text/javascript">
-                            alert("Merci de Mettre les pièce jointes");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                    $message = "Merci de Mettre les pièce jointes";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
 
                                 $this->DomModel->genererPDF($tabExterne);
                             } //mobile & AllMont 
                             else {
-                                echo '<script type="text/javascript">
-                                 alert("Assurez vous que le Montant Total est inférieur à 500.000");
-                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                echo $this->alertRedirection($message, $chemin);
                             }
                             //
                         } //chevauchement
@@ -1213,16 +1157,15 @@ class DomControl
 
                                     $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                 } else {
-                                    echo '<script type="text/javascript">
-                                        alert("Merci de Mettre les pièce jointes en PDF");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+
+                                    $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
                             } else {
-                                echo '<script type="text/javascript">
-                            alert("Merci de Mettre les pièce jointes");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                $message = "Merci de Mettre les pièce jointes";
+
+                                echo $this->alertRedirection($message, $chemin);
                             }
                             $this->DomModel->genererPDF($tabExterne);
                         } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
@@ -1240,35 +1183,31 @@ class DomControl
 
                                     $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
                                 } else {
-                                    echo '<script type="text/javascript">
-                                        alert("Merci de Mettre les pièce jointes en PDF");
-                                        document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                                        </script>';
+                                    $message = "Merci de Mettre les pièce jointes en PDF";
+
+                                    echo $this->alertRedirection($message, $chemin);
                                 }
                             } else {
-                                echo '<script type="text/javascript">
-                            alert("Merci de Mettre les pièce jointes");
-                            document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                                $message = "Merci de Mettre les pièce jointes";
+
+                                echo $this->alertRedirection($message, $chemin);
                             }
 
                             $this->DomModel->genererPDF($tabExterne);
                         } //mobile & AllMont 
                         else {
-                            echo '<script type="text/javascript">
-                                 alert("Assurer que le Montant Total est supérieur ou égale à 500.000");
-                                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                            </script>';
+                            $message = "Assurer que le Montant Total est supérieur ou égale à 500.000";
+
+                            echo $this->alertRedirection($message, $chemin);
                         }
                         //
                     } //Type
                 }
                 //  1date 
             } else {
-                echo '<script type="text/javascript">
-                alert("Merci de vérifier la date début ");
-                 document.location.href = "/Hffintranet/index.php?action=New_DOM";
-                </script>';
+                $message = "Merci de vérifier la date début ";
+
+                echo $this->alertRedirection($message, $chemin);
             }
             echo '<script type="text/javascript">   
                 document.location.href = "/Hffintranet/index.php?action=ListDomRech";
@@ -1463,7 +1402,7 @@ class DomControl
     }
 
 
-    public function duplificationForm()
+    public function duplificationFormController()
     {
         session_start();
         if (empty($_SESSION['user'])) {
@@ -1474,13 +1413,7 @@ class DomControl
         if ($_SERVER['REQUEST_METHOD']  === 'GET') {
             $numDom = $_GET['NumDOM'];
             $idDom = $_GET['IdDOM'];
-            $matricule = $_GET['check'];
-            $pattern = '/^\d{4}/';
-            if (preg_match($pattern, $matricule)) {
-                $statutSalarier = 'Interne';
-            } else {
-                $statutSalarier = 'Externe';
-            }
+
             // var_dump($numDom, $idDom, $matricule, $check);
             // die();
             $datesyst = $this->DomModel->getDatesystem();
@@ -1488,7 +1421,16 @@ class DomControl
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
             include 'Views/Principe.php';
-            $data = $this->DomModel->DuplicaftionDomSelect($numDom, $idDom);
+            $data = $this->DomModel->DuplicaftionFormModel($numDom, $idDom);
+
+            $matricule = $_GET['check'];
+            $pattern = '/^\d{4}/';
+            if (preg_match($pattern, $matricule)) {
+                $statutSalarier = 'Interne';
+            } else {
+                $statutSalarier = 'Externe';
+                $cin = explode('-', $data[0]['Matricule'])[1];
+            }
 
             if ($data[0]['Debiteur'] === null) {
                 $agentDebiteur = '';
@@ -1499,15 +1441,15 @@ class DomControl
             }
 
             if ($data[0]['Emetteur'] === null) {
-                $agentEmetteur = '';
-                $serviceEmetteur = '';
+                $agentEmetteur = $data[0]['Code_agence'] . ' ' . $data[0]['Libelle_agence'];
+                $serviceEmetteur = $data[0]['Code_Service'] . ' ' . $data[0]['Libelle_service'];
             } else {
                 $agentEmetteur = explode('-', $data[0]['Emetteur'])[0];
                 $serviceEmetteur = explode('-', $data[0]['Emetteur'])[1];
             }
 
 
-            $cin = explode('-', $data[0]['Matricule'])[1];
+
             $dateDemande = $data[0]['Date_Demande'];
             $dateDebut = date("d/m/Y", strtotime($data[0]['Date_Debut']));
             $dateFin = date("d/m/Y", strtotime($data[0]['Date_Debut']));
@@ -1525,9 +1467,22 @@ class DomControl
                 $modePaiementNumero = explode(':', trim($data[0]['Mode_Paiement']))[1];
             }
             var_dump($statutSalarier);
-            var_dump($data[0]);
-            die();
+            // var_dump($data[0]);
+            // die();
             include 'Views/DOM/FormCompleDOM.php';
         }
+    }
+
+    public function duplificationFormJsonController()
+    {
+
+
+
+
+        $data1 = $this->DomModel->DuplicaftionFormJsonModel();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data1);
     }
 }

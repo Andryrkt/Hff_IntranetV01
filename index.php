@@ -160,10 +160,12 @@ switch ($action) {
         $ControlDOM->listStatutController();
         break;
     case 'Dupliquer':
-        $ControlDOM->duplificationDOM();
+        $ControlDOM->duplificationFormJsonController();
+
         break;
     case 'DuplifierForm':
-        $ControlDOM->duplificationForm();
+        $ControlDOM->duplificationFormController();
+
         break;
     case 'LibStatut':
         $ControlDOM->filterStatut();

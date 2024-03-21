@@ -1,6 +1,3 @@
-<?php
-include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,17 +11,28 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     <div class="container">
         <div class="d-flex  flex-row-reverse  col">
             <div class="tablinks p-2 btn btn-outline-warning ">
-                <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
+                <?php if (isset($numDom) && isset($idDom)) { ?>
+                    <a href="/Hffintranet/index.php?action=ListDomRech" style="text-decoration: none;color:black">Retour</a>
+                <?php } else { ?>
+                    <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
+                <?php } ?>
             </div>
         </div>
+        <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $valeur = isset($statutSalarier) ? $statutSalarier : $check; ?>">
+        <?php if (isset($numDom) && isset($idDom)) { ?>
+
+            <input type="hidden" name="NumDOM" id="NumDOM" value="<?php echo $numDom ?>" readonly>
+            <input type="hidden" name="IdDOM" id="IdDOM" value="<?php echo $idDom ?>" readonly>
+        <?php } ?>
+
 
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
 
             <div class="row">
-                <!-- <div class="col">
-                    <label for="NumDOM" class="label-form">N° DOM</label>
-                    <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>" readonly>
-                </div>-->
+
+
+
+
                 <div class="col-4 offset-6">
                     <label for="datesyst" class="label-form"> Date</label>
                     <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $valeur = isset($dateDemande) ? $dateDemande : $datesyst; ?>" readonly>
@@ -118,7 +126,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 <!---->
             </div>
 
-            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $valeur = isset($statutSalarier) ? $statutSalarier : $check; ?>">
+
 
             <div class="row" id="Interne">
                 <div class="col-6">
@@ -170,7 +178,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="heureFin" class="label-form"> Heure Fin</label>
-                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value=" <?php echo $valeur = isset($data[0]['Heure_Fin']) ? $data[0]['Heure_Fin'] : '18:00' ?>" style="border-color: orange;">
+                    <input type="time" name="heureFin" id="heureFin" class="form-control" required value="<?php echo $valeur = isset($data[0]['Heure_Fin']) ? $data[0]['Heure_Fin'] : '18:00' ?>" style="border-color: orange;">
 
                 </div>
             </div>
@@ -205,12 +213,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="vehicule" class="label-form"> Véhicule Société</label>
-                    <?php if ($data[0]['Vehicule_Societe'] === "OUI") { ?>
+                    <?php if (isset($data[0]['Vehicule_Societe']) && $data[0]['Vehicule_Societe'] === "OUI") { ?>
                         <select name="vehicule" id="vehicule" class="form-select" style="border-color: orange;">
                             <option value="OUI" selected>OUI</option>
                             <option value="NON">NON</option>
                         </select>
-                    <?php } elseif ($data[0]['Vehicule_Societe'] === "NON") { ?>
+                    <?php } elseif (isset($data[0]['Vehicule_Societe']) && $data[0]['Vehicule_Societe'] === "NON") { ?>
                         <select name="vehicule" id="vehicule" class="form-select" style="border-color: orange;">
                             <option value="OUI">OUI</option>
                             <option value="NON">NON</option>
@@ -234,25 +242,25 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                 </div>
                 <div class="col">
                     <label for="TotalIdemDeplac" class="label-form"> Total indemnité de déplacement</label>
-                    <input type="text" name="TotalIdemDeplac" id="TotalIdemDeplac" class="form-control" style="border-color: orange;" readonly>
+                    <input type="text" name="TotalIdemDeplac" id="TotalIdemDeplac" class="form-control" style="border-color: orange;" value=" <?php echo $valeur = isset($data[0]['Nombre_Jour']) && isset($data[0]['idemnity_depl']) ? intval($data[0]['idemnity_depl']) * intval($data[0]['Nombre_Jour']) : '' ?>" readonly>
                 </div>
             </div>
             <div class="row">
                 <div class="col-2">
                     <label for="Devis" class="label-form">Devise:</label>
-                    <?php if ($data[0]['Devis'] === "MGA") { ?>
+                    <?php if (isset($data[0]['Devis']) && $data[0]['Devis'] === "MGA") { ?>
                         <select name="Devis" id="Devis" class="form-select">
                             <option value="MGA" selected>MGA</option>
                             <option value="EUR">EUR</option>
                             <option value="USD">USD</option>
                         </select>
-                    <?php } elseif ($data[0]['Devis'] === "EUR") { ?>
+                    <?php } elseif (isset($data[0]['Devis']) && $data[0]['Devis'] === "EUR") { ?>
                         <select name="Devis" id="Devis" class="form-select">
                             <option value="MGA">MGA</option>
                             <option value="EUR" selected>EUR</option>
                             <option value="USD">USD</option>
                         </select>
-                    <?php } elseif ($data[0]['Devis'] === "USD") { ?>
+                    <?php } elseif (isset($data[0]['Devis']) && $data[0]['Devis'] === "USD") { ?>
                         <select name="Devis" id="Devis" class="form-select">
                             <option value="MGA">MGA</option>
                             <option value="EUR">EUR</option>
@@ -277,7 +285,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
                 <div class="col">
                     <label for="TotalidemForfait" class="label-form"> Total d'Indemnité Forfaitaire</label>
-                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" readonly onblur='Somme();' />
+                    <input type="text" name="TotalidemForfait" id="TotalidemForfait" class="form-control" value=" <?php echo $valeur = isset($data[0]['Total_Indemnite_Forfaitaire']) ? $data[0]['Total_Indemnite_Forfaitaire'] : '' ?>" readonly onblur='Somme();' />
                 </div>
             </div>
             <div class="row">
@@ -313,11 +321,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" readonly>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" value=" <?php echo $valeur = isset($data[0]['Total_Autres_Depenses']) ? $data[0]['Total_Autres_Depenses'] : '' ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
-                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" oninput="formatEtMettreAJour('Alldepense');" readonly>
+                    <input type="text" name="Alldepense" id="Alldepense" class="form-control" oninput="formatEtMettreAJour('Alldepense');" value=" <?php echo $valeur = isset($data[0]['Total_General_Payer']) ? $data[0]['Total_General_Payer'] : '' ?>" readonly>
                 </div>
             </div>
 
@@ -331,19 +339,19 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
-                    <?php if ($modePaiement === "MOBILE MONEY") { ?>
+                    <?php if (isset($modePaiement) && $modePaiement === "MOBILE MONEY") { ?>
                         <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()" style="border-color: orange;">
                             <option value="MOBILE MONEY" selected>MOBILE MONEY</option>
                             <option value="ESPECES">ESPECES</option>
                             <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
                         </select>
-                    <?php } elseif ($modePaiement === "ESPECES") { ?>
+                    <?php } elseif (isset($modePaiement) && $modePaiement === "ESPECES") { ?>
                         <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()" style="border-color: orange;">
                             <option value="MOBILE MONEY">MOBILE MONEY</option>
                             <option value="ESPECES" selected>ESPECES</option>
                             <option value="VIREMENT BANCAIRE">VIREMENT BANCAIRE</option>
                         </select>
-                    <?php } elseif ($modePaiement === "VIREMENT BANCAIRE") { ?>
+                    <?php } elseif (isset($modePaiement) && $modePaiement === "VIREMENT BANCAIRE") { ?>
                         <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()" style="border-color: orange;">
                             <option value="MOBILE MONEY">MOBILE MONEY</option>
                             <option value="ESPECES">ESPECES</option>
@@ -378,16 +386,32 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             </div>
             <div class="row" id="PJ">
                 <div class="col">
+
                     <label for="file01" class="label-form"> Fichier joint 01 (Merci de mettre un fichier PDF):</label>
-                    <?php
-                    inputFields("", "file01", "file01", "", "file");
-                    ?>
+                    <div class="col">
+                        <?php if (isset($data[0]['Piece_Jointe_1'])) { ?>
+                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $data[0]['Piece_Jointe_1'] ?>" target="_blank">
+                                <input type="text" name="file01" id="file01" accept=".pdf" value="<?php echo  $data[0]['Piece_Jointe_1']  ?>" class="form-control" />
+                            </a>
+                        <?php } else { ?>
+                            <input type="file" name="file01" id="file01" accept=".pdf" class="form-control" />
+                        <?php } ?>
+                    </div>
                 </div>
                 <div class="col">
+
                     <label for="file02" class="label-form"> Fichier joint 02 (Merci de mettre un fichier PDF):</label>
-                    <?php
-                    inputFields("", "file02", "file02", "", "file");
-                    ?>
+
+                    <div class="col">
+
+                        <?php if (isset($data[0]['Piece_Jointe_2'])) { ?>
+                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $data[0]['Piece_Jointe_2'] ?>" target="_blank">
+                                <input type="text" name="file02" id="file02" accept=".pdf" value="<?php echo  $data[0]['Piece_Jointe_2']  ?>" class="form-control" />
+                            </a>
+                        <?php } else { ?>
+                            <input type="file" name="file02" id="file02" accept=".pdf" class="form-control" />
+                        <?php } ?>
+                    </div>
                 </div>
 
             </div>
