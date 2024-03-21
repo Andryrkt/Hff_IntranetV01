@@ -83,7 +83,7 @@
         <!-- DEBUT bouton -->
         <div class="row justify-content-center mx-6">
             <div class="col-xxl-4">
-                <input type="submit" name="recherche" id="recherche" class="btn btn-warning fw-bold" value="Rechercher">
+                <input type="submit" name="recherche" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
                 <input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
                 <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
             </div>
@@ -121,9 +121,10 @@
         <!-- DEBUT tableau -->
         <div class="Contenue table-plein-ecran">
             <div>
-                <table class="table  table-striped table-hover table-shadow shadow bg-body-tertiary rounded ">
+                <table class="table  table-striped table-shadow shadow  rounded ">
                     <thead class="table-dark">
                         <tr>
+                            <th style="text-align: center;">Action</th>
                             <th>ID</th>
                             <th>Statut</th>
                             <th>Sous type</th>
@@ -145,6 +146,7 @@
                             <th>Total autres dépense</th>
                             <th>Total général payer</th>
                             <th>Devis</th>
+
                         </tr>
                     </thead>
                     <tbody id="table-container">

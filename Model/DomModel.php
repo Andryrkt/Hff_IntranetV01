@@ -55,40 +55,46 @@ class DomModel
 
     public function DuplicaftionDomSelect($numDom, $IdDom)
     {
-        $Sql = "
-        SELECT 
-        (select agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
-        (select nom_agence_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_agence,
-        (select service_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_Service,
-        (select nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_service,
-        Sous_type_document,
-        Motif_Deplacement,
-        Numero_Ordre_Mission,
-        Date_Demande,
-        Matricule,
+        $Sql = "SELECT 
+        (select TOP 1 agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
+        (select TOP 1 nom_agence_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_agence,
+        (select TOP 1 service_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_Service,
+        (select TOP 1 nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_service,
+         Date_Demande,
+		 Debiteur,
+		 Emetteur,
+		Sous_type_document,
+		Categorie,
+        Site,
+		Matricule,
         Nom,
         Prenom,
         Date_Debut,
         Date_Fin,
-        Nombre_Jour,
+		Heure_Debut,
+		Heure_Fin,
+		Nombre_Jour,
         Client,
-        Lieu_Intervention,
-        Vehicule_Societe,
+		Motif_Deplacement,
+		Fiche,
+       Lieu_Intervention,
+	    Vehicule_Societe,
         NumVehicule,
-        Indemnite_Forfaitaire,
-        Doit_indemnite,
-        Categorie,
-        Site,
-        Motif_Autres_depense_1,
+		idemnity_depl,
+		Devis,
+		Doit_indemnite,
+		Motif_Autres_depense_1,
         Autres_depense_1,
         Motif_Autres_depense_2,
         Autres_depense_2,
         Motif_Autres_depense_3,
         Autres_depense_3,
-        Total_Indemnite_Forfaitaire,
-        Total_Autres_Depenses,
+		Total_Autres_Depenses,
         Total_General_Payer,
-        Mode_Paiement
+        Mode_Paiement,
+		Piece_Jointe_1,
+		Piece_Jointe_2
+        
         FROM Demande_ordre_mission
         WHERE Numero_Ordre_Mission = '" . $numDom . "'
         AND ID_Demande_Ordre_Mission ='" . $IdDom . "' 

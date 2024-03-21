@@ -225,13 +225,22 @@ function renderData1(data) {
     // Ajouter les nouvelles lignes pour les données filtrées
     data.forEach(function(item, index) {
         var row = document.createElement('tr');
-        row.classList.add(index % 2 === 0 ? 'table-dark-emphasis' : 'table-secondary'); // Alternance des couleurs de ligne
+        row.classList.add(index % 2 === 0 ? 'table-gray-700' : 'table-secondary'); // Alternance des couleurs de ligne
+        // Ajouter un bouton de duplication à chaque ligne
+    var duplicateButton = document.createElement('button');
+    duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item['Numero_Ordre_Mission']}&IdDOM=${item['ID_Demande_Ordre_Mission']}&check=${item['Matricule']}" style="text-decoration: none;
+    color: #000000; font-weight: 600">Dupliquer</a>`;
+    duplicateButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-2');
+    duplicateButton.style.backgroundColor = '#FBBB01';
+    
+
+    row.appendChild(duplicateButton);
+
         for (var key in item) {
 
             var cellule = document.createElement('td');
             cellule.classList.add('w-50');
-            
-           
+
 
             if (key === 'Matricule' || key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin' || key === 'Nombre_Jour') {
                 cellule.style.textAlign = 'center';
@@ -256,7 +265,7 @@ function renderData1(data) {
             if (key === 'Statut') {
                 switch (item[key]) {
                     case 'Ouvert':
-                        cellule.style.backgroundColor = "#efd807";
+                        cellule.style.backgroundColor = "#FBBB01";
                         break;
                     case 'Payé':
                         cellule.style.backgroundColor = "#34c924";
@@ -273,6 +282,8 @@ function renderData1(data) {
 
         row.appendChild(cellule);
     }
+
+   
     container.appendChild(row);
 });
 }

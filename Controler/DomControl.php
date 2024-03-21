@@ -197,8 +197,12 @@ class DomControl
             $Noms = $this->DomModel->getName($Maricule);
             $Compte = $this->DomModel->getInfoTelCompte($Maricule);
 
-            //$codeServices = $this->DomModel->RecuperationCodeServiceIrium();
-
+            $nom = $Noms[0]['Nom'];
+            $prenom = $Noms[0]['Prenoms'];
+            $codeServ = $Compte[0]['Code_serv'];
+            $servLib = $Compte[0]['Serv_lib'];
+            $numTel = $Compte[0]['NumeroTel_Recente'];
+            $numCompteBancaire = $Compte[0]['Numero_Compte_Bancaire'];
 
 
             include 'Views/Principe.php';
@@ -368,7 +372,7 @@ class DomControl
 
             // 1
 
-            if (strtotime($DateDebut) < strtotime($DateFin) || strtotime($DateDebut) === strtotime($DateFin)) {
+            if (strtotime($DateDebut) <= strtotime($DateFin) || strtotime($DateDebut) === strtotime($DateFin)) {
 
                 if ($checkext === "Interne") {
                     $Nom =  $NomINt;
@@ -1470,17 +1474,60 @@ class DomControl
         if ($_SERVER['REQUEST_METHOD']  === 'GET') {
             $numDom = $_GET['NumDOM'];
             $idDom = $_GET['IdDOM'];
+            $matricule = $_GET['check'];
+            $pattern = '/^\d{4}/';
+            if (preg_match($pattern, $matricule)) {
+                $statutSalarier = 'Interne';
+            } else {
+                $statutSalarier = 'Externe';
+            }
+            // var_dump($numDom, $idDom, $matricule, $check);
+            // die();
             $datesyst = $this->DomModel->getDatesystem();
             $UserConnect = $_SESSION['user'];
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
             include 'Views/Principe.php';
-            $detailSelect = $this->DomModel->DuplicaftionDomSelect($numDom, $idDom);
-            include 'Views/DOM/FormCompleDOM_Duplifier.php';
-        }
-    }
+            $data = $this->DomModel->DuplicaftionDomSelect($numDom, $idDom);
 
-    public function andranaController()
-    {
+            if ($data[0]['Debiteur'] === null) {
+                $agentDebiteur = '';
+                $serviceDebiteur = '';
+            } else {
+                $agentDebiteur = explode('-', $data[0]['Debiteur'])[0];
+                $serviceDebiteur = explode('-', $data[0]['Debiteur'])[1];
+            }
+
+            if ($data[0]['Emetteur'] === null) {
+                $agentEmetteur = '';
+                $serviceEmetteur = '';
+            } else {
+                $agentEmetteur = explode('-', $data[0]['Emetteur'])[0];
+                $serviceEmetteur = explode('-', $data[0]['Emetteur'])[1];
+            }
+
+
+            $cin = explode('-', $data[0]['Matricule'])[1];
+            $dateDemande = $data[0]['Date_Demande'];
+            $dateDebut = date("d/m/Y", strtotime($data[0]['Date_Debut']));
+            $dateFin = date("d/m/Y", strtotime($data[0]['Date_Debut']));
+
+
+            if (trim($data[0]['Mode_Paiement']) === 'ESPECES') {
+                if (explode(' ', trim($data[0]['Mode_Paiement']))[1] === null) {
+                    $modePaiement = explode(' ', trim($data[0]['Mode_Paiement']));
+                } else {
+                    $modePaiement = explode(' ', trim($data[0]['Mode_Paiement']))[0];
+                    $modePaiementNumero = explode(' ', trim($data[0]['Mode_Paiement']))[1];
+                }
+            } else {
+                $modePaiement = explode(':', trim($data[0]['Mode_Paiement']))[0];
+                $modePaiementNumero = explode(':', trim($data[0]['Mode_Paiement']))[1];
+            }
+            var_dump($statutSalarier);
+            var_dump($data[0]);
+            die();
+            include 'Views/DOM/FormCompleDOM.php';
+        }
     }
 }

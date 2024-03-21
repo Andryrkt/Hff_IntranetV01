@@ -168,9 +168,6 @@ switch ($action) {
     case 'LibStatut':
         $ControlDOM->filterStatut();
         break;
-    case 'andrana':
-        $ControlDOM->andranaController();
-        break;
     default:
         include 'Views/SignIn.php';
 }
