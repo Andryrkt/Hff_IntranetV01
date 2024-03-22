@@ -783,7 +783,7 @@ class DomModel
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
-            echo "ok";
+            echo "okey";
         } else {
             echo "sorry";
         }

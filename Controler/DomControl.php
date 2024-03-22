@@ -201,8 +201,15 @@ class DomControl
             $prenom = $Noms[0]['Prenoms'];
             $codeServ = $Compte[0]['Code_serv'];
             $servLib = $Compte[0]['Serv_lib'];
-            $numTel = $Compte[0]['NumeroTel_Recente'];
-            $numCompteBancaire = $Compte[0]['Numero_Compte_Bancaire'];
+            if (isset($Compte[0]['NumeroTel_Recente']) || isset($Compte[0]['Numero_Compte_Bancaire'])) {
+                $numTel = $Compte[0]['NumeroTel_Recente'];
+                $numCompteBancaire = $Compte[0]['Numero_Compte_Bancaire'];
+            } else {
+                $numTel = '';
+                $numCompteBancaire = '';
+            }
+
+
 
 
             include 'Views/Principe.php';
@@ -236,8 +243,8 @@ class DomControl
     {
         '<script type="text/javascript">
             alert(' . $message . ');
-            document.location.href = "/HffintranetV02/index.php?action=' . $chemin . '";
-    </script>';
+            document.location.href =' . $chemin . '";
+        </script>';
     }
 
     private function changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
@@ -254,6 +261,15 @@ class DomControl
             $this->DomModel->genererFusion1($FichierDom, $filename01);
             //echo 'echo non';
         }
+    }
+
+    private function changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
+    {
+        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
+        move_uploaded_file($filetemp01, $Upload_file);
+        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
+        move_uploaded_file($filetemp02, $Upload_file02);
+        return $NumDom . '_' . $codeAg_servDB . '.pdf';
     }
 
     /**
@@ -274,6 +290,10 @@ class DomControl
         }
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+
+
+            // var_dump($_POST);
+            // die();
             $AllMontant = $_POST['Alldepense'];
             $AllMont = str_replace('.', '', $AllMontant);
 
@@ -378,10 +398,33 @@ class DomControl
             $valModecompt = $_POST['valModecompt'];
             $valModeExt = $_POST['valModespExt'];
 
+
+
+
+            // Créer un fichier temporaire avec un nom unique dans le répertoire temporaire spécifié
+            // $tmp_file = tempnam(sys_get_temp_dir(), 'php');
+
+
+            // $_FILES['blabla']['tmp_name'] = $tmp_file;
+            // $_FILES['blabla']['name'] = 'doc.pdf';
+
             // FJ
             $extentsion = array('pdf', 'jpeg', 'jpg', 'png');
+
+            // if (isset($_POST['file01'])) {
+            //     $tmp_file1 = tempnam(sys_get_temp_dir(), 'php');
+            //     $tmp_file2 = tempnam(sys_get_temp_dir(), 'php');
+            //     $_FILES['file01']['name'] = $_POST["file01"];
+            //     $_FILES['file01']['tmp_name'] = $tmp_file1;
+            //     $_FILES['file02']['name'] = $_POST["file02"];
+            //     $_FILES['file02']['tmp_name'] = $tmp_file2;
+            //     $files01 = $_FILES["file01"];
+            //     $file02 = $_FILES["file02"];
+            // } else {
+
             $files01 = $_FILES["file01"];
             $file02 = $_FILES["file02"];
+            //}
 
             $filename01 = str_replace("'", "''", $files01['name']);
             $filetemp01 = $files01['tmp_name'];
@@ -392,6 +435,7 @@ class DomControl
             $filetemp02 = $file02['tmp_name'];
             $filename_separator02 = explode('.', $filename02);
             $file_extension02 = strtolower(end($filename_separator02));
+
             // mail 
             $MailUser = $this->DomModel->getmailUserConnect($_SESSION['user']);
 
@@ -925,20 +969,21 @@ class DomControl
                                     echo $this->alertRedirection($message, $chemin);
                                 } else {
                                     //comme d'hab
-
+                                    $this->DomModel->genererPDF($tabExterne);
                                     //echo 'ie ambany 500000';
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
                                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                            $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                            move_uploaded_file($filetemp01, $Upload_file);
-                                            $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                            move_uploaded_file($filetemp02, $Upload_file02);
-                                            $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
 
-                                            $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                            $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
+
 
                                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+
+                                            $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                            var_dump('08');
+                                            die();
                                         } else {
 
                                             $message = "Merci de Mettre les pièce jointes en PDF";
@@ -953,26 +998,28 @@ class DomControl
                                     }
 
 
-                                    $this->DomModel->genererPDF($tabExterne);
+
+                                    var_dump('09');
+                                    die();
                                     //
                                 }
                             } else {
                                 //exce
                                 // Mobile& AllMont 
-
+                                $this->DomModel->genererPDF($tabExterne);
                                 //echo 'ie ambany 500000';
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                                        $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
+
+                                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
 
-                                        $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+                                        var_dump('07');
+                                        die();
                                     } else {
                                         $message = "Merci de Mettre les pièce jointes en PDF";
 
@@ -983,7 +1030,9 @@ class DomControl
 
                                     echo $this->alertRedirection($message, $chemin);
                                 }
-                                $this->DomModel->genererPDF($tabExterne);
+
+                                var_dump('10');
+                                die();
 
 
                                 //
@@ -997,7 +1046,7 @@ class DomControl
                         $DDForm = strtotime($DateDebut);
                         $DFForm = strtotime($DateFin);
                         if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
-                            echo 'non null 2';
+                            //echo 'non null 2';
                             //en cours
                             $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
                             $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
@@ -1011,47 +1060,53 @@ class DomControl
 
                                 //
                                 if ($libmodepaie !== 'MOBILE MONEY') {
-
+                                    // var_dump($_FILES);
+                                    // var_dump($filename01, $filename02);
+                                    // var_dump($_SERVER['DOCUMENT_ROOT']);
+                                    $this->DomModel->genererPDF($tabExterne);
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
                                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                            $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                            move_uploaded_file($filetemp01, $Upload_file);
-                                            $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                            move_uploaded_file($filetemp02, $Upload_file02);
-                                            $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                                            $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
+
 
                                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
+
+                                            var_dump('06');
+                                            die();
                                         } else {
 
-                                            $message = "Merci de Mettre les pièce jointes en PDF";
+                                            $message = "Merci de Mettre les pièces jointes en PDF";
 
                                             echo $this->alertRedirection($message, $chemin);
                                         }
                                     } else {
 
-                                        $message = "Merci de Mettre les pièce jointes";
+                                        $message = "Merci de Mettre les pièces jointes";
 
                                         echo $this->alertRedirection($message, $chemin);
                                     }
-
-                                    $this->DomModel->genererPDF($tabExterne);
+                                    var_dump('11');
+                                    die();
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
+                                    $this->DomModel->genererPDF($tabExterne);
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
                                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                            $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                            move_uploaded_file($filetemp01, $Upload_file);
-                                            $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                            move_uploaded_file($filetemp02, $Upload_file02);
-                                            $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+
+                                            $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
 
                                             $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+                                            var_dump('05');
+                                            die();
                                         } else {
 
                                             $message = "Merci de Mettre les pièce jointes en PDF";
@@ -1064,7 +1119,9 @@ class DomControl
 
                                         echo $this->alertRedirection($message, $chemin);
                                     }
-                                    $this->DomModel->genererPDF($tabExterne);
+
+                                    var_dump('12');
+                                    die();
                                 } //mobile & AllMont 
                                 else {
 
@@ -1080,18 +1137,21 @@ class DomControl
                             // Mobile& AllMont 
 
                             if ($libmodepaie !== 'MOBILE MONEY') {
-                                //
+
+
+                                $this->DomModel->genererPDF($tabExterne);
+
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                                        $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
 
                                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+                                        var_dump('04');
+                                        die();
                                     } else {
 
                                         $message = "Merci de Mettre les pièce jointes en PDF";
@@ -1104,21 +1164,30 @@ class DomControl
                                     echo $this->alertRedirection($message, $chemin);
                                 }
 
-                                $this->DomModel->genererPDF($tabExterne);
+
+
+                                var_dump('13');
+                                die();
                             } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 //echo 'ie ambany 500000';
+                                // var_dump($_FILES);
+                                // die();
+                                $this->DomModel->genererPDF($tabExterne);
+
+                                var_dump($filename01, $filename02);
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                        move_uploaded_file($filetemp01, $Upload_file);
-                                        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                        move_uploaded_file($filetemp02, $Upload_file02);
-                                        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                                        $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
 
                                         $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+
+                                        var_dump('03');
+                                        die();
                                     } else {
                                         $message = "Merci de Mettre les pièce jointes en PDF";
 
@@ -1130,7 +1199,10 @@ class DomControl
                                     echo $this->alertRedirection($message, $chemin);
                                 }
 
-                                $this->DomModel->genererPDF($tabExterne);
+
+
+                                var_dump('14');
+                                die();
                             } //mobile & AllMont 
                             else {
                                 $message = "Assurez vous que le Montant Total est inférieur à 500.000";
@@ -1144,44 +1216,51 @@ class DomControl
                         // Mobile& AllMont 
 
                         if ($libmodepaie !== 'MOBILE MONEY') {
-                            //
+                            $this->DomModel->genererPDF($tabExterne);
                             if (!empty($filename01) && !empty($filename02)) {
                                 if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                    move_uploaded_file($filetemp01, $Upload_file);
-                                    $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                    move_uploaded_file($filetemp02, $Upload_file02);
-                                    $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+                                    $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom($tabInsertionBdExterne);
 
                                     $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+
+                                    var_dump('02');
+                                    die();
                                 } else {
 
-                                    $message = "Merci de Mettre les pièce jointes en PDF";
+                                    $message = "Merci de Mettre les pièces jointes en PDF";
 
                                     echo $this->alertRedirection($message, $chemin);
                                 }
                             } else {
-                                $message = "Merci de Mettre les pièce jointes";
+                                $message = "Merci de Mettre les pièces jointes";
 
                                 echo $this->alertRedirection($message, $chemin);
                             }
-                            $this->DomModel->genererPDF($tabExterne);
+
+
+                            var_dump('15');
+                            die();
                         } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                             //echo 'ie ambany 500000';
+                            $this->DomModel->genererPDF($tabExterne);
                             //
                             if (!empty($filename01) && !empty($filename02)) {
                                 if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                    $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                    move_uploaded_file($filetemp01, $Upload_file);
-                                    $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                    move_uploaded_file($filetemp02, $Upload_file02);
-                                    $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+
+
+                                    $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom($tabInsertionBdExterne);
 
                                     $this->DomModel->genererFusion($FichierDom, $filename01, $filename02);
+
+
+                                    var_dump('01');
+                                    die();
                                 } else {
                                     $message = "Merci de Mettre les pièce jointes en PDF";
 
@@ -1193,7 +1272,9 @@ class DomControl
                                 echo $this->alertRedirection($message, $chemin);
                             }
 
-                            $this->DomModel->genererPDF($tabExterne);
+
+                            var_dump('16');
+                            die();
                         } //mobile & AllMont 
                         else {
                             $message = "Assurer que le Montant Total est supérieur ou égale à 500.000";
@@ -1378,28 +1459,28 @@ class DomControl
 
 
 
-    public function duplificationDOM()
-    {
-        session_start();
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
-        }
+    // public function duplificationDOM()
+    // {
+    //     session_start();
+    //     if (empty($_SESSION['user'])) {
+    //         header("Location:/Hffintranet/index.php?action=Logout");
+    //         session_destroy();
+    //         exit();
+    //     }
 
-        $UserConnect = $_SESSION['user'];
-        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-        include 'Views/Principe.php';
-        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
-        // if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-        //     $ListDomRech = $this->DomModel->getListDomRechALl();
-        // } else {
-        //     $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
-        // }
-        $Statut = $this->DomModel->getListStatut();
-        include 'Views/DOM/ListDom_Duplifier.php';
-    }
+    //     $UserConnect = $_SESSION['user'];
+    //     $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+    //     $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+    //     include 'Views/Principe.php';
+    //     $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
+    //     // if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+    //     //     $ListDomRech = $this->DomModel->getListDomRechALl();
+    //     // } else {
+    //     //     $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+    //     // }
+    //     $Statut = $this->DomModel->getListStatut();
+    //     include 'Views/DOM/ListDom_Duplifier.php';
+    // }
 
 
     public function duplificationFormController()
@@ -1456,9 +1537,11 @@ class DomControl
 
 
             if (trim($data[0]['Mode_Paiement']) === 'ESPECES') {
-                if (explode(' ', trim($data[0]['Mode_Paiement']))[1] === null) {
+                if (!isset(explode(' ', trim($data[0]['Mode_Paiement']))[1]) || explode(' ', trim($data[0]['Mode_Paiement']))[1] === null || explode(' ', trim($data[0]['Mode_Paiement']))[1] === '') {
                     $modePaiement = explode(' ', trim($data[0]['Mode_Paiement']));
+                    $modePaiementNumero = '';
                 } else {
+
                     $modePaiement = explode(' ', trim($data[0]['Mode_Paiement']))[0];
                     $modePaiementNumero = explode(' ', trim($data[0]['Mode_Paiement']))[1];
                 }
@@ -1466,7 +1549,13 @@ class DomControl
                 $modePaiement = explode(':', trim($data[0]['Mode_Paiement']))[0];
                 $modePaiementNumero = explode(':', trim($data[0]['Mode_Paiement']))[1];
             }
-            var_dump($statutSalarier);
+
+
+            $_FILES['file01']['name'] = $data[0]['Piece_Jointe_1'];
+            $_FILES['file02']['name'] = $data[0]['Piece_Jointe_1'];
+
+            //var_dump($statutSalarier);
+            // var_dump(trim($data[0]['Mode_Paiement']) === 'ESPECES');
             // var_dump($data[0]);
             // die();
             include 'Views/DOM/FormCompleDOM.php';
@@ -1475,9 +1564,6 @@ class DomControl
 
     public function duplificationFormJsonController()
     {
-
-
-
 
         $data1 = $this->DomModel->DuplicaftionFormJsonModel();
 

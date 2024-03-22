@@ -8,7 +8,7 @@
 </head>
 
 <body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
-    <div class="container">
+    <div class="container mb-4">
         <div class="d-flex  flex-row-reverse  col">
             <div class="tablinks p-2 btn btn-outline-warning ">
                 <?php if (isset($numDom) && isset($idDom)) { ?>
@@ -18,20 +18,21 @@
                 <?php } ?>
             </div>
         </div>
-        <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $valeur = isset($statutSalarier) ? $statutSalarier : $check; ?>">
-        <?php if (isset($numDom) && isset($idDom)) { ?>
 
-            <input type="hidden" name="NumDOM" id="NumDOM" value="<?php echo $numDom ?>" readonly>
-            <input type="hidden" name="IdDOM" id="IdDOM" value="<?php echo $idDom ?>" readonly>
-        <?php } ?>
 
 
         <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
 
+
+
+            <input type="hidden" name="radiochek" id="radiochek" value="<?php echo $valeur = isset($statutSalarier) ? $statutSalarier : $check; ?>">
+            <?php if (isset($numDom) && isset($idDom)) { ?>
+
+                <input type="hidden" name="NumDOM" id="NumDOM" value="<?php echo $numDom ?>" readonly>
+                <input type="hidden" name="IdDOM" id="IdDOM" value="<?php echo $idDom ?>" readonly>
+            <?php } ?>
+
             <div class="row">
-
-
-
 
                 <div class="col-4 offset-6">
                     <label for="datesyst" class="label-form"> Date</label>
@@ -389,13 +390,16 @@
 
                     <label for="file01" class="label-form"> Fichier joint 01 (Merci de mettre un fichier PDF):</label>
                     <div class="col">
-                        <?php if (isset($data[0]['Piece_Jointe_1'])) { ?>
-                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $data[0]['Piece_Jointe_1'] ?>" target="_blank">
-                                <input type="text" name="file01" id="file01" accept=".pdf" value="<?php echo  $data[0]['Piece_Jointe_1']  ?>" class="form-control" />
-                            </a>
-                        <?php } else { ?>
-                            <input type="file" name="file01" id="file01" accept=".pdf" class="form-control" />
-                        <?php } ?>
+                        <?php //if (isset($data[0]['Piece_Jointe_1'])) { 
+                        ?>
+                        <!-- <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $data[0]['Piece_Jointe_1'] ?>" target="_blank">
+                                <input type="file" name="file01" id="file01" accept=".pdf" value="<?php echo  $data[0]['Piece_Jointe_1']  ?>" class="form-control" />
+                            </a> -->
+                        <?php  // } else { 
+                        ?>
+                        <input type="file" name="file01" id="file01" accept=".pdf" class="form-control" />
+                        <?php // } 
+                        ?>
                     </div>
                 </div>
                 <div class="col">
@@ -403,14 +407,7 @@
                     <label for="file02" class="label-form"> Fichier joint 02 (Merci de mettre un fichier PDF):</label>
 
                     <div class="col">
-
-                        <?php if (isset($data[0]['Piece_Jointe_2'])) { ?>
-                            <a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf=<?php echo $data[0]['Piece_Jointe_2'] ?>" target="_blank">
-                                <input type="text" name="file02" id="file02" accept=".pdf" value="<?php echo  $data[0]['Piece_Jointe_2']  ?>" class="form-control" />
-                            </a>
-                        <?php } else { ?>
-                            <input type="file" name="file02" id="file02" accept=".pdf" class="form-control" />
-                        <?php } ?>
+                        <input type="file" name="file02" id="file02" accept=".pdf" class="form-control" />
                     </div>
                 </div>
 
