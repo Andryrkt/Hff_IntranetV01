@@ -8,8 +8,6 @@ class DomControl
     {
         $this->DomModel = $DomModel;
     }
-
-
     public function filterStatut()
     {
         session_start();
@@ -22,6 +20,7 @@ class DomControl
         $Statut = $this->DomModel->filterstatut($Libstatut);
         echo json_encode($Statut);
     }
+
 
     /**
      * selection catgégorie dans l'ajax 
@@ -1375,6 +1374,7 @@ class DomControl
         $Statut = $this->DomModel->getListStatut();
         include 'Views/DOM/ListDomRech.php';
     }
+
 
     /**
      * @Andryrkt 

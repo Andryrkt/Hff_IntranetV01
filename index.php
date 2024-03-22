@@ -161,7 +161,6 @@ switch ($action) {
         break;
     case 'Dupliquer':
         $ControlDOM->duplificationFormJsonController();
-
         break;
     case 'DuplifierForm':
         $ControlDOM->duplificationFormController();

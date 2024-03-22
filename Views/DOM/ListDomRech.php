@@ -146,7 +146,6 @@
                             <th>Total autres dépense</th>
                             <th>Total général payer</th>
                             <th>Devis</th>
-
                         </tr>
                     </thead>
                     <tbody id="table-container">

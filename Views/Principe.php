@@ -59,7 +59,6 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande </a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
-
                         </ul>
                     </li>
 
