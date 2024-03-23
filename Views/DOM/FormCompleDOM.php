@@ -35,30 +35,30 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
     }
 
     function visible_espece() {
-         var mode = document.getElementById('modepaie').value;
-         if (mode === "ESPECES") {
-             document.getElementById('modeMob').style.display = "none";
-             document.getElementById('modecompte').style.display = "none";
-             document.getElementById('modeespece').style.display = "block";
-             document.getElementById('labelMode').innerHTML = "ESPECES";
-             document.getElementById('labelMode01').innerHTML = "ESPECES";
-         }
-         if (mode === "MOBILE MONEY") {
-             document.getElementById('modeMob').style.display = "block";
-             document.getElementById('modeespece').style.display = "none";
-             document.getElementById('modecompte').style.display = 'none';
-             document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
-             document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
-         }
-         if (mode === "VIREMENT BANCAIRE") {
-             document.getElementById('modeespece').style.display = "none";
-             document.getElementById('modeMob').style.display = "none";
-             document.getElementById('modecompte').style.display = "block";
-             document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
-             document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
-         }
+        var mode = document.getElementById('modepaie').value;
+        if (mode === "ESPECES") {
+            document.getElementById('modeMob').style.display = "none";
+            document.getElementById('modecompte').style.display = "none";
+            document.getElementById('modeespece').style.display = "block";
+            document.getElementById('labelMode').innerHTML = "ESPECES";
+            document.getElementById('labelMode01').innerHTML = "ESPECES";
+        }
+        if (mode === "MOBILE MONEY") {
+            document.getElementById('modeMob').style.display = "block";
+            document.getElementById('modeespece').style.display = "none";
+            document.getElementById('modecompte').style.display = 'none';
+            document.getElementById('labelMode').innerHTML = "MOBILE MONEY";
+            document.getElementById('labelMode01').innerHTML = "MOBILE MONEY";
+        }
+        if (mode === "VIREMENT BANCAIRE") {
+            document.getElementById('modeespece').style.display = "none";
+            document.getElementById('modeMob').style.display = "none";
+            document.getElementById('modecompte').style.display = "block";
+            document.getElementById('labelMode').innerHTML = "VIREMENT BANCAIRE";
+            document.getElementById('labelMode01').innerHTML = "VIREMENT BANCAIRE";
+        }
 
-     }
+    }
 
     function indemnité() {
         var idemn = document.getElementById('idemForfait').value;
@@ -222,18 +222,18 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
         if (checkInterne === 'Interne') {
             externe.style.display = 'none';
-            Interne.style.display = 'block'
-            IntServ.style.display = 'block';
+            // Interne.style.display = 'block'
+            // IntServ.style.display = 'block';
             ExtServ.style.display = 'none';
-            OptInt.style.display = 'block';
+            // OptInt.style.display = 'block';
             OptExt.style.display = 'none';
         } else {
-            externe.style.display = 'block';
+            // externe.style.display = 'block';
             Interne.style.display = 'none';
             IntServ.style.display = 'none';
-            ExtServ.style.display = 'Block';
+            // ExtServ.style.display = 'block';
             OptInt.style.display = 'none';
-            OptExt.style.display = 'Block';
+            // OptExt.style.display = 'Block';
         }
     }
 
@@ -294,12 +294,15 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
 
 <body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container">
-        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
-            <div class="d-flex  flex-row-reverse  col">
-                <button class="tablinks p-2 btn btn-outline-warning "> <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a></button>
+        <div class="d-flex  flex-row-reverse  col">
+            <div class="tablinks p-2 btn btn-outline-warning ">
+                <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
             </div>
+        </div>
+        <form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
+
             <div class="row">
-               <!-- <div class="col">
+                <!-- <div class="col">
                     <label for="NumDOM" class="label-form">N° DOM</label>
                     <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDom ?>" readonly>
                 </div>-->
@@ -308,28 +311,71 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
                     <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst ?>" readonly>
                 </div>
             </div>
-            <div class="row" id="ext">
-                <div class="col-4 offset-6">
-                    <label for="Serv" class="label-form">Code :</label>
-                    <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
-                </div>
-                <div class="col-4 offset-6">
-                    <label for="LibServ" class="label-form">Service :</label>
-                    <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
-                </div>
-            </div>
-            <div class="row" id="int">
-                <?php foreach ($Compte as $Serv) : ?>
-                    <div class="col-4 offset-6">
-                        <label for="Serv" class="label-form">Code :</label>
-                        <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
+
+            <div class="row">
+                <div class="col">
+
+
+                    <!-- DEBUT Debiteur selecte -->
+                    <label for="" class="col-4  fw-bold">Débiteur</label>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="Serv" class="label-form">Code :</label>
+                            <select class="form-select " aria-label="Default select example" id="select1" name="codeService">
+                                <?php foreach ($codeServices as $codeService) : ?>
+                                    <option value="<?php echo $codeService['Code_serv'] ?>"><?php echo $codeService['Code_serv'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-6 ">
+                            <label for="LibServ" class="label-form">Service :</label>
+                            <select class="form-select" name="service" aria-label="Default select example" id="serviceIrium">
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-4 offset-6">
-                        <label for="LibServ" class="label-form">Service :</label>
-                        <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
+                </div>
+                <!-- FIN Debiteur selecte -->
+
+                <!--DEBUT emetteur select -->
+                <div class="col">
+                    <label for="" class="col-4  fw-bold">Emetteur</label>
+                    <!-- extern (temporaire) -->
+                    <div class="row" id="ext">
+                        <div class="col-4 ">
+                            <label for="Serv" class="label-form">Code :</label>
+                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $code_service ?>" readonly>
+                        </div>
+                        <div class="col-4 ">
+                            <label for="LibServ" class="label-form">Service :</label>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $service ?>" readonly>
+                        </div>
+
                     </div>
-                <?php endforeach; ?>
+                    <!-- interne (permanent) -->
+                    <div class="row" id="int">
+                        <?php foreach ($Compte as $Serv) : ?>
+                            <div class="col-4 ">
+                                <label for="Serv" class="label-form">Code :</label>
+                                <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $Serv['Code_serv'] ?>" readonly>
+                            </div>
+                            <div class="col-4 ">
+                                <label for="LibServ" class="label-form">Service :</label>
+                                <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $Serv['Serv_lib'] ?>" readonly>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                </div>
+                <!-- FIN émetteur select -->
+
+
             </div>
+
+
+
+
             <div class="row">
                 <div class="col-6">
                     <label for="typeMission" class="label-form"> Type de Mission</label>
@@ -777,16 +823,17 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
             var TelMobileval = $('#modeMob').val();
             var TelMobile = $('#modeMob');
             var typeMode = $('#modepaie option:selected').val();
+            var check = $('#radiochek').val();
 
-            if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '')) {
+
+            if (typeMode !== 'MOBILE MONEY') {
+                TelMobile.prop("required", false);
+            } else if (typeMode === 'MOBILE MONEY' && (TelMobileval === undefined || TelMobileval.trim() === '') && check === 'Interne') {
                 TelMobile.prop("required", true);
             } else {
                 TelMobile.prop("required", false);
             }
-            if (typeMode !== 'MOBILE MONEY') {
-                TelMobile.prop("required", false);
-            }
-            
+
         }
 
         function FicheAtelier() {
@@ -835,6 +882,77 @@ include($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/DOM/FormPJ.php');
         MobileMoney();
         FicheAtelier();
     });
+
+    // DEBUT javascript pour selecte debiteur
+    let check = document.getElementById('radiochek').value;
+
+
+
+
+    function fetchData(selectedOption) {
+        // Configuration de la requête Fetch
+        fetch('/Hffintranet/index.php?action=anaranaaction&option=' + selectedOption)
+            .then(response => {
+                // Vérification de la réponse
+                if (!response.ok) {
+                    throw new Error('Erreur de réseau');
+                }
+                // Renvoie la réponse sous forme de texte
+                return response.text();
+            })
+            .then(data => {
+                // Affichage des données dans la div "resultat"
+                document.getElementById('serviceIrium').innerHTML = data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+
+
+    if (check === "Interne") {
+        const servInt = document.querySelector('#ServINt').value;
+
+        document.querySelector('#select1 option[value="' + servInt + '"]').selected = true;
+
+
+    } else {
+        const serv = document.querySelector('#Serv').value;
+
+        document.querySelector('#select1 option[value="' + serv + '"]').selected = true;
+
+    }
+    fetchData(document.getElementById('select1').value);
+    // Initialisation des données
+
+
+
+    if (check === "Interne") {
+        setTimeout(() => {
+            const LibServINT = document.querySelector('#LibServINT').value;
+            document.querySelector('#serviceIrium option[value="' + LibServINT + '"]').selected = true;
+        }, 200);
+
+    } else {
+        setTimeout(() => {
+            const serv = document.querySelector('#LibServ').value;
+
+            console.log(serv);
+            document.querySelector('#serviceIrium option[value="' + serv + '"]').selected = true;
+        }, 200);
+
+    }
+
+
+
+    // Ajout de l'écouteur d'événement de changement
+    document.getElementById('select1').addEventListener('change', function() {
+        var selectedOption = this.value;
+        // Appel de la fonction pour récupérer et afficher les données
+        fetchData(selectedOption);
+    });
+    //FIN Javascript pour le débitteur select
 </script>
 
 </html>

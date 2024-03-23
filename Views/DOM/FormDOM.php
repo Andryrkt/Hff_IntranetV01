@@ -72,7 +72,7 @@ $Agence = $LibAgence . " " . $LibServ;
                     <h4>Demande d'Ordre de Mission</h4>
                 </div>
                 <form method="POST" action="/Hffintranet/index.php?action=checkMatricule">
-                  <!--  <div class="row">
+                    <!--  <div class="row">
                         <div class="col">
                             <label for="NumDOM" class="label-form">N° DOM</label>
                             <input type="text" class="form-control" name="NumDOM" id="NumDOM" value="<?php echo $NumDOM ?>" readonly>
@@ -133,7 +133,7 @@ $Agence = $LibAgence . " " . $LibServ;
                                     $('#typeMission').change(function() {
                                         var valeurSelectionnee = $(this).val();
                                         var Agence = $('#Serv').val();
-                                        var codeAgence = Agence.substring(0,2);
+                                        var codeAgence = Agence.substring(0, 2);
                                         if (valeurSelectionnee === "MISSION" || valeurSelectionnee === "MUTATION") {
                                             $.ajax({
                                                 type: 'POST',
@@ -182,11 +182,11 @@ $Agence = $LibAgence . " " . $LibServ;
                     <div class="row" id="externe">
                         <div class="col">
                             <label for="namesExt" class="label-form"> Nom</label>
-                            <input type="text" name="namesExt" id="namesExt" class="form-control" >
+                            <input type="text" name="namesExt" id="namesExt" class="form-control">
                         </div>
                         <div class="col">
-                            <label for="firstnamesExt" class="label-form"> Prénoms</label >
-                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control" >
+                            <label for="firstnamesExt" class="label-form"> Prénoms</label>
+                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
                         </div>
                         <div class="col">
                             <label for="cin" class="label-form"> CIN</label>

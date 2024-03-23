@@ -97,6 +97,7 @@ switch ($action) {
         break;
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
+
         break;
     case 'SelectCateg':
         $ControlDOM->selectCatg();
@@ -142,7 +143,12 @@ switch ($action) {
     case 'DelAgAuto':
         $ControlAutorisation->deleteAgenceAuto();
         break;
-
+    case 'anaranaaction':
+        $ControlDOM->anaranaFonction();
+        break;
+    case 'recherche':
+        $ControlDOM->RechercheController();
+        break;
     default:
         include 'Views/SignIn.php';
 }
