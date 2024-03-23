@@ -16,6 +16,45 @@ class DomModel
     {
         $this->connexion = $connexion;
     }
+    public function filterstatut($LibStatut)
+    {
+        $sqlStatut = "SELECT  
+     Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+    Statut_demande.Description AS Statut,
+    Demande_ordre_mission.Sous_type_document,
+    Demande_ordre_mission.Numero_Ordre_Mission,
+    Demande_ordre_mission.Date_Demande,
+    Demande_ordre_mission.Motif_Deplacement,
+    Demande_ordre_mission.Matricule,
+    Demande_ordre_mission.Nom, 
+    Demande_ordre_mission.Prenom,
+    Demande_ordre_mission.Mode_Paiement,
+   ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+    Demande_ordre_mission.Date_Debut, 
+    Demande_ordre_mission.Date_Fin,   
+    Demande_ordre_mission.Nombre_Jour, 
+    Demande_ordre_mission.Client,
+    Demande_ordre_mission.Fiche,
+    Demande_ordre_mission.Lieu_Intervention,
+    Demande_ordre_mission.NumVehicule,
+    Demande_ordre_mission.Total_Autres_Depenses,
+    Demande_ordre_mission.Total_General_Payer,
+    Demande_ordre_mission.Devis
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+            AND Statut_demande.Description ='" . $LibStatut . "'
+     ORDER BY ID_Demande_Ordre_Mission DESC        
+            ";
+        $excec = $this->connexion->query($sqlStatut);
+        $ListstatutDom = array();
+        while ($tabliststatutDOM = odbc_fetch_array($excec)) {
+            $ListstatutDom[] = $tabliststatutDOM;
+        }
+        return $ListstatutDom;
+    }
+
+
+
     /**
      * recuperation Mail de l'utilisateur connecter
      */
@@ -222,9 +261,12 @@ class DomModel
         return $compte;
     }
 
+    /**
+     * Recuperation du code service et nom de l'agence dans Agence_Service_Irium
+     */
     public function RecuperationCodeServiceIrium(): array
     {
-        $sql = "SELECT DISTINCT  Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 AS Code_serv
+        $sql = "SELECT DISTINCT  CONCAT(Agence_Service_Irium.agence_ips , ' ', UPPER(LEFT(Agence_Service_Irium.nom_agence_i100, 1)) + LOWER(SUBSTRING(Agence_Service_Irium.nom_agence_i100, 2, LEN(Agence_Service_Irium.nom_agence_i100))) )AS codeService
         FROM Agence_Service_Irium
         WHERE societe_ios = 'HF'  ";
 
@@ -236,15 +278,22 @@ class DomModel
         return $codeServices;
     }
 
+    /**
+     * Recuperation du code service, nom de l'agence, service de l'agence dans Agence_Service_Irium
+     */
     public function RecuperationCodeEtServiceIrium(): array
     {
-        $sql = "SELECT Agence_Service_Irium.service_ips + ' ' + Agence_Service_Irium.nom_service_i100 As service,
-        Agence_Service_Irium.agence_ips + ' ' + Agence_Service_Irium.nom_agence_i100 As codeService
-FROM Agence_Service_Irium
-WHERE societe_ios = 'HF' ";
+        $sql = "SELECT DISTINCT 
+        CONCAT(Agence_Service_Irium.service_ips, ' ', 
+                Agence_Service_Irium.libelle_service_ips) AS service,
+        CONCAT(Agence_Service_Irium.agence_ips , ' ', UPPER(LEFT(Agence_Service_Irium.nom_agence_i100, 1)) + LOWER(SUBSTRING(Agence_Service_Irium.nom_agence_i100, 2, LEN(Agence_Service_Irium.nom_agence_i100))) )AS codeService
+    FROM Agence_Service_Irium
+    WHERE societe_ios = 'HF'
+    ORDER BY codeService ASC ";
 
         $statement = $this->connexion->query($sql);
         $services = [];
+
         while ($tab_compt = odbc_fetch_array($statement)) {
             $services[] = $tab_compt;
         }
@@ -273,7 +322,7 @@ WHERE societe_ios = 'HF' ";
                              max(Date_Fin) as DateFinMax
                     FROM Demande_ordre_mission
                     WHERE  Matricule = '" . $Matri . "'  
-                    AND Code_Statut ='OUV'
+                    AND Code_Statut IN ('OUV', 'PAY')
                     GROUP BY Matricule";
         $execSqlDate = $this->connexion->query($SqlDate);
         $DateM = array();
@@ -346,6 +395,8 @@ WHERE societe_ios = 'HF' ";
         }
         return $list;
     }
+
+
     /**
      * recuperation Prix des idemnité
      * @param TypeM: Type de mission
@@ -364,6 +415,8 @@ WHERE societe_ios = 'HF' ";
         }
         return $Prix;
     }
+
+
     //count si 50 catg 
     /**
      * test si le catgérie appartion à l'agence 50
@@ -382,62 +435,23 @@ WHERE societe_ios = 'HF' ";
         return $exPrixRental ? odbc_fetch_array($exPrixRental)['Montant_idemnite'] : false;
        }*/
     //Insert DOM 
-    /**
-     * insertion dans la base 
-     */
-    public function InsertDom(
-        $NumDom,
-        $dateS,
-        $typMiss,
 
-        $matr,
-        $usersession,
-        $codeAg_serv,
-        $DateDebut,
-        $heureD,
-        $DateFin,
-        $heureF,
-        $NbJ,
-        $motif,
-        $Client,
-        $fiche,
-        $lieu,
-        $vehicule,
-        $idemn,
-        $totalIdemn,
-        $motifdep01,
-        $montdep01,
-        $motifdep02,
-        $montdep02,
-        $motifdep03,
-        $montdep03,
-        $totaldep,
-        $AllMontant,
-        $modeDB,
-        $valModemob,
-        $Nom,
-        $Prenoms,
-        $Devis,
-        $filename01,
-        $filename02,
-        $usersessionCre,
-        $LibCodeAg_serv,
-        $Numvehicule,
-        $doitIdemn,
-        $CategoriePers,
-        $Site,
-        $Idemn_depl
-    ) {
+
+    /**
+     * insertion des données dans la base de donnée
+     */
+    public function InsertDom(array $tab)
+    {
         $Insert_DOM = "INSERT INTO Demande_ordre_mission(Numero_Ordre_Mission, Date_Demande, Type_Document, Sous_Type_Document, Matricule,
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
                         Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
-                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl )
-                       VALUES('" . $NumDom . "','" . $dateS . "','ORM','" . $typMiss . "','" . $matr . "','" . $usersession . "','" . $codeAg_serv . "','" . $DateDebut . "','" . $heureD . "','" . $DateFin . "',
-                       '" . $heureF . "','" . $NbJ . "','" . $motif . "','" . $Client . "','" . $lieu . "','" . $vehicule . "','" . $idemn . "','" . $totalIdemn . "','" . $motifdep01 . "','" . $montdep01 . "',
-                       '" . $motifdep02 . "','" . $montdep02 . "','" . $motifdep03 . "','" . $montdep03 . "','" . $totaldep . "','" . $AllMontant . "','" . $modeDB . "','" . $valModemob . "','OUV', 
-                       '" . $Nom . "','" . $Prenoms . "','" . $Devis . "','" . $filename01 . "','" . $filename02 . "','" . $usersession . "','" . $LibCodeAg_serv . "', '" . $fiche . "', '" . $Numvehicule . "',
-                        '" . $doitIdemn . "', '" . $CategoriePers . "','" . $Site . "','" . $Idemn_depl . "')";
+                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl, Emetteur, Debiteur )
+                       VALUES('" . $tab['NumDom'] . "','" . $tab['dateS'] . "','ORM','" . $tab['typMiss'] . "','" . $tab['matr'] . "','" . $tab['usersession'] . "','" . $tab['codeAg_serv'] . "','" . $tab['DateDebut'] . "','" . $tab['heureD'] . "','" . $tab['DateFin'] . "',
+                       '" . $tab['heureF'] . "','" . $tab['NbJ'] . "','" . $tab['motif'] . "','" . $tab['Client'] . "','" . $tab['lieu'] . "','" . $tab['vehicule'] . "','" . $tab['idemn'] . "','" . $tab['totalIdemn'] . "','" . $tab['motifdep01'] . "','" . $tab['montdep01'] . "',
+                       '" . $tab['motifdep02'] . "','" . $tab['montdep02'] . "','" . $tab['motifdep03'] . "','" . $tab['montdep03'] . "','" . $tab['totaldep'] . "','" . $tab['AllMontant'] . "','" . $tab['modeDB'] . "','" . $tab['valModemob'] . "','OUV', 
+                       '" . $tab['Nom'] . "','" . $tab['Prenoms'] . "','" . $tab['Devis'] . "','" . $tab['filename01'] . "','" . $tab['filename02'] . "','" . $tab['usersession'] . "','" . $tab['LibCodeAg_serv'] . "', '" . $tab['fiche'] . "', '" . $tab['Numvehicule'] . "',
+                        '" . $tab['doitIdemn'] . "', '" . $tab['CategoriePers'] . "','" . $tab['Site'] . "','" . $tab['Idemn_depl'] . "','" . $tab['codeServEmeteur'] . "','" . $tab['codeServDebiteur'] . "')";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
     /**
@@ -512,76 +526,80 @@ WHERE societe_ios = 'HF' ";
     /**
      * TODO liste DOM avec filtre date et statut 
      */
-    public function getListDomRech($ConnectUser)
-    {
-        $rech = "SELECT  Statut_demande.Description AS Statut,
-        Demande_ordre_mission.Sous_type_document,
-        Demande_ordre_mission.Numero_Ordre_Mission,
-        Demande_ordre_mission.Date_Demande,
-        Demande_ordre_mission.Motif_Deplacement,
-        Demande_ordre_mission.Matricule,
-        Demande_ordre_mission.Nom, 
-        Demande_ordre_mission.Prenom,
-        Demande_ordre_mission.Mode_Paiement,
-       ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
-        Demande_ordre_mission.Date_Debut, 
-        Demande_ordre_mission.Date_Fin,   
-        Demande_ordre_mission.Nombre_Jour, 
-        Demande_ordre_mission.Client,
-        Demande_ordre_mission.Fiche,
-        Demande_ordre_mission.Lieu_Intervention,
-        Demande_ordre_mission.NumVehicule,
-        Demande_ordre_mission.Total_Autres_Depenses,
-        Demande_ordre_mission.Total_General_Payer,
-        Demande_ordre_mission.Devis
-                FROM Demande_ordre_mission, Statut_demande
-                WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
-                                                                        FROM Agence_service_autorise 
-                                                                        WHERE Session_Utilisateur = '" . $ConnectUser . "' )
-                                                                        
-                ORDER BY ID_Demande_Ordre_Mission DESC";
-        $exRech = $this->connexion->query($rech);
-        $ListDomRech = array();
-        while ($tab_listRech = odbc_fetch_array($exRech)) {
-            $ListDomRech[] = $tab_listRech;
-        }
-        return $ListDomRech;
-    }
+    // public function getListDomRech($ConnectUser)
+    // {
+    //     $rech = "SELECT  
+    //     Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+    //     Statut_demande.Description AS Statut,
+    //     Demande_ordre_mission.Sous_type_document,
+    //     Demande_ordre_mission.Numero_Ordre_Mission,
+    //     Demande_ordre_mission.Date_Demande,
+    //     Demande_ordre_mission.Motif_Deplacement,
+    //     Demande_ordre_mission.Matricule,
+    //     Demande_ordre_mission.Nom, 
+    //     Demande_ordre_mission.Prenom,
+    //     Demande_ordre_mission.Mode_Paiement,
+    //    ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+    //     Demande_ordre_mission.Date_Debut, 
+    //     Demande_ordre_mission.Date_Fin,   
+    //     Demande_ordre_mission.Nombre_Jour, 
+    //     Demande_ordre_mission.Client,
+    //     Demande_ordre_mission.Fiche,
+    //     Demande_ordre_mission.Lieu_Intervention,
+    //     Demande_ordre_mission.NumVehicule,
+    //     Demande_ordre_mission.Total_Autres_Depenses,
+    //     Demande_ordre_mission.Total_General_Payer,
+    //     Demande_ordre_mission.Devis
+    //             FROM Demande_ordre_mission, Statut_demande
+    //             WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+    //             AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+    //                                                                     FROM Agence_service_autorise 
+    //                                                                     WHERE Session_Utilisateur = '" . $ConnectUser . "' )
 
-    public function getListDomRechAll()
-    {
-        $rech = "SELECT  Statut_demande.Description AS Statut,
-        Demande_ordre_mission.Sous_type_document,
-        Demande_ordre_mission.Numero_Ordre_Mission,
-        Demande_ordre_mission.Date_Demande,
-        Demande_ordre_mission.Motif_Deplacement,
-        Demande_ordre_mission.Matricule,
-        Demande_ordre_mission.Nom, 
-        Demande_ordre_mission.Prenom,
-        Demande_ordre_mission.Mode_Paiement,
-       ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
-        Demande_ordre_mission.Date_Debut, 
-        Demande_ordre_mission.Date_Fin,   
-        Demande_ordre_mission.Nombre_Jour, 
-        Demande_ordre_mission.Client,
-        Demande_ordre_mission.Fiche,
-        Demande_ordre_mission.Lieu_Intervention,
-        Demande_ordre_mission.NumVehicule,
-        Demande_ordre_mission.Total_Autres_Depenses,
-        Demande_ordre_mission.Total_General_Payer,
-        Demande_ordre_mission.Devis
-                FROM Demande_ordre_mission, Statut_demande
-                WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                                           
-                ORDER BY ID_Demande_Ordre_Mission DESC";
-        $exRech = $this->connexion->query($rech);
-        $ListDomRech = array();
-        while ($tab_listRech = odbc_fetch_array($exRech)) {
-            $ListDomRech[] = $tab_listRech;
-        }
-        return $ListDomRech;
-    }
+    //             ORDER BY ID_Demande_Ordre_Mission DESC";
+    //     $exRech = $this->connexion->query($rech);
+    //     $ListDomRech = array();
+    //     while ($tab_listRech = odbc_fetch_array($exRech)) {
+    //         $ListDomRech[] = $tab_listRech;
+    //     }
+    //     return $ListDomRech;
+    // }
+
+    // public function getListDomRechAll()
+    // {
+    //     $rech = "SELECT  
+    //     Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+    //     Statut_demande.Description AS Statut,
+    //     Demande_ordre_mission.Sous_type_document,
+    //     Demande_ordre_mission.Numero_Ordre_Mission,
+    //     Demande_ordre_mission.Date_Demande,
+    //     Demande_ordre_mission.Motif_Deplacement,
+    //     Demande_ordre_mission.Matricule,
+    //     Demande_ordre_mission.Nom, 
+    //     Demande_ordre_mission.Prenom,
+    //     Demande_ordre_mission.Mode_Paiement,
+    //    ( SELECT  Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+    //     Demande_ordre_mission.Date_Debut, 
+    //     Demande_ordre_mission.Date_Fin,   
+    //     Demande_ordre_mission.Nombre_Jour, 
+    //     Demande_ordre_mission.Client,
+    //     Demande_ordre_mission.Fiche,
+    //     Demande_ordre_mission.Lieu_Intervention,
+    //     Demande_ordre_mission.NumVehicule,
+    //     Demande_ordre_mission.Total_Autres_Depenses,
+    //     Demande_ordre_mission.Total_General_Payer,
+    //     Demande_ordre_mission.Devis
+    //             FROM Demande_ordre_mission, Statut_demande
+    //             WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+
+    //             ORDER BY ID_Demande_Ordre_Mission DESC";
+    //     $exRech = $this->connexion->query($rech);
+    //     $ListDomRech = array();
+    //     while ($tab_listRech = odbc_fetch_array($exRech)) {
+    //         $ListDomRech[] = $tab_listRech;
+    //     }
+    //     return $ListDomRech;
+    // }
     /**
      * récupere le code Statut et libelle statut 
      */
@@ -608,7 +626,7 @@ WHERE societe_ios = 'HF' ";
         $SqlDetail = "SELECT Numero_Ordre_Mission, Date_Demande,
                              Sous_Type_Document, 
                              Matricule, Nom_Session_Utilisateur,  
-                             LibelleCodeAgence_Service, Matricule, 
+                             Emetteur, Debiteur, Matricule, 
                              Nom, Prenom, 
                              Date_Debut, Heure_Debut, 
                              Date_Fin, Heure_Fin,
@@ -640,49 +658,8 @@ WHERE societe_ios = 'HF' ";
      * Genere le PDF 
      */
     //pdf
-    public function genererPDF(
-        $Devis,
-        $Prenoms,
-        $AllMontant,
-        $Code_serv,
-        $dateS,
-        $NumDom,
-        $serv,
-        $matr,
-        $typMiss,
-
-        $Nom,
-        $NbJ,
-        $dateD,
-        $heureD,
-        $dateF,
-        $heureF,
-        $motif,
-        $Client,
-        $fiche,
-        $lieu,
-        $vehicule,
-        $numvehicul,
-        $idemn,
-        $totalIdemn,
-        $motifdep01,
-        $montdep01,
-        $motifdep02,
-        $montdep02,
-        $motifdep03,
-        $montdep03,
-        $totaldep,
-        $libmodepaie,
-        $mode,
-        $codeAg_serv,
-        $CategoriePers,
-        $Site,
-        $Idemn_depl,
-        $MailUser,
-        $Bonus,
-        $codeServiceDebitteur,
-        $serviceDebitteur
-    ) {
+    public function genererPDF(array $tab)
+    {
         $pdf = new TCPDF();
         $pdf->AddPage();
         $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
@@ -691,43 +668,43 @@ WHERE societe_ios = 'HF' ";
         $pdf->SetFont('pdfatimesbi', 'B', 16);
         $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 1, 'C');
         $pdf->SetFont('pdfatimesbi', '', 12);
-        $pdf->Cell(0, 10, $NumDom, 0, 1, 'R');
+        $pdf->Cell(0, 10, $tab['NumDom'], 0, 1, 'R');
         $pdf->Ln(10);
         $pdf->SetFont('pdfatimesbi', '', 12);
 
         $pdf->setY(30);
-        $pdf->Cell(80, 10, 'Type  : ' . $typMiss, 0, 0);
+        $pdf->Cell(80, 10, 'Type  : ' . $tab['typMiss'], 0, 0);
         // $pdf->Cell(80, 10,  $autrTyp, 0, 0, 'L');
-        $pdf->Cell(110, 10, 'Le: ' . $dateS, 0, 1, 'R');
-        $pdf->Cell(80, 10, 'Agence: ' . $Code_serv, 0, 0);
-        $pdf->Cell(110, 10, 'Catégorie : ' . $CategoriePers, 0, 1, 'R');
-        $pdf->Cell(80, 10, 'Service: ' . $serv, 0, 0);
-        $pdf->Cell(110, 10, 'Site : ' . $Site, 0, 1, 'R');
+        $pdf->Cell(110, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
+        $pdf->Cell(80, 10, 'Agence: ' . $tab['Code_serv'], 0, 0);
+        $pdf->Cell(110, 10, 'Catégorie : ' . $tab['CategoriePers'], 0, 1, 'R');
+        $pdf->Cell(80, 10, 'Service: ' . $tab['serv'], 0, 0);
+        $pdf->Cell(110, 10, 'Site : ' . $tab['Site'], 0, 1, 'R');
 
-        $pdf->Cell(80, 10, 'Matricule : ' . $matr, 0, 0);
-        $pdf->Cell(110, 10, 'Ideminté de déplacement: ' . $Idemn_depl, 0, 1, 'R');
+        $pdf->Cell(80, 10, 'Matricule : ' . $tab['matr'], 0, 0);
+        $pdf->Cell(110, 10, 'Ideminté de déplacement: ' . $tab['Idemn_depl'], 0, 1, 'R');
 
-        $pdf->Cell(0, 10, 'Nom : ' . $Nom, 0, 1);
-        $pdf->Cell(0, 10, 'Prénoms: ' . $Prenoms, 0, 1);
-        $pdf->Cell(40, 10, 'Période: ' . $NbJ . ' Jour(s)', 0, 0);
-        $pdf->Cell(50, 10, 'Soit du ' . $dateD, 0, 0, 'C');
-        $pdf->Cell(30, 10, 'à  ' . $heureD . ' Heures ', 0, 0);
-        $pdf->Cell(30, 10, ' au  ' . $dateF, 0, 0);
-        $pdf->Cell(30, 10, '  à ' . $heureF . ' Heures ', 0, 1);
-        $pdf->Cell(0, 10, 'Motif : ' . $motif, 0, 1);
-        $pdf->Cell(80, 10, 'Client : ' . $Client, 0, 0);
-        $pdf->Cell(30, 10, 'N° fiche : ' . $fiche, 0, 1);
-        $pdf->Cell(0, 10, 'Lieu d intervention : ' . $lieu, 0, 1);
-        $pdf->Cell(80, 10, 'Véhicule société : ' . $vehicule, 0, 0);
-        $pdf->Cell(60, 10, 'N° de véhicule: ' . $numvehicul, 0, 1);
+        $pdf->Cell(0, 10, 'Nom : ' . $tab['Nom'], 0, 1);
+        $pdf->Cell(0, 10, 'Prénoms: ' . $tab['Prenoms'], 0, 1);
+        $pdf->Cell(40, 10, 'Période: ' . $tab['NbJ'] . ' Jour(s)', 0, 0);
+        $pdf->Cell(50, 10, 'Soit du ' . $tab['dateD'], 0, 0, 'C');
+        $pdf->Cell(30, 10, 'à  ' . $tab['heureD'] . ' Heures ', 0, 0);
+        $pdf->Cell(30, 10, ' au  ' . $tab['dateF'], 0, 0);
+        $pdf->Cell(30, 10, '  à ' . $tab['heureF'] . ' Heures ', 0, 1);
+        $pdf->Cell(0, 10, 'Motif : ' . $tab['motif'], 0, 1);
+        $pdf->Cell(80, 10, 'Client : ' . $tab['Client'], 0, 0);
+        $pdf->Cell(30, 10, 'N° fiche : ' . $tab['fiche'], 0, 1);
+        $pdf->Cell(0, 10, 'Lieu d intervention : ' . $tab['lieu'], 0, 1);
+        $pdf->Cell(80, 10, 'Véhicule société : ' . $tab['vehicule'], 0, 0);
+        $pdf->Cell(60, 10, 'N° de véhicule: ' . $tab['numvehicul'], 0, 1);
 
-        $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $idemn . ' ' . $Devis . '/j', 0, 0, 'L');
+        $pdf->Cell(70, 10, 'Indemnité Forfaitaire: ' . $tab['idemn'] . ' ' . $tab['Devis'] . '/j', 0, 0, 'L');
         $pdf->SetTextColor(0, 0, 0);
         $pdf->Cell(35, 10, 'Supplément /jour: ', 0, 0, 'L');
         $pdf->SetTextColor(255, 0, 0);
-        $pdf->Cell(35, 10,  $Bonus . ' ' . $Devis . '/j', 0, 0, 'L');
+        $pdf->Cell(35, 10,  $tab['Bonus'] . ' ' . $tab['Devis'] . '/j', 0, 0, 'L');
         $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(55, 10, 'Total indemnité: ' . $totalIdemn . ' ' . $Devis, 0, 1, 'R');
+        $pdf->Cell(55, 10, 'Total indemnité: ' . $tab['totalIdemn'] . ' ' . $tab['Devis'], 0, 1, 'R');
 
         $pdf->setY(150);
         $pdf->Cell(20, 10, 'Autres: ', 0, 1, 'R');
@@ -736,25 +713,25 @@ WHERE societe_ios = 'HF' ";
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '   ' . $motifdep01, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep01 . ' ' . $Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '   ' . $tab['motifdep01'], 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $tab['montdep01'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '  ' . $motifdep02, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep02 . ' ' . $Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '  ' . $tab['motifdep02'], 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $tab['montdep02'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '   ' . $motifdep03, 1, 0, 'L');
-        $pdf->Cell(80, 10, '' . $montdep03 . ' ' . $Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,  '   ' . $tab['motifdep03'], 1, 0, 'L');
+        $pdf->Cell(80, 10, '' . $tab['montdep03'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'Total autre ', 1, 0, 'C');
-        $pdf->Cell(80, 10,   $totaldep . ' ' . $Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,   $tab['totaldep'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'MONTANT TOTAL A PAYER ', 1, 0, 'C');
-        $pdf->Cell(80, 10,   $AllMontant . ' ' . $Devis, 1, 1, 'C');
+        $pdf->Cell(80, 10,   $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
         $pdf->setY(230);
         $pdf->Cell(60, 10, 'Mode de paiement : ', 0, 0);
-        $pdf->Cell(60, 10, $libmodepaie, 0, 0);
-        $pdf->Cell(60, 10, $mode, 0, 1);
+        $pdf->Cell(60, 10, $tab['libmodepaie'], 0, 0);
+        $pdf->Cell(60, 10, $tab['mode'], 0, 1);
 
 
         $pdf->SetFont('pdfatimesbi', '', 10);
@@ -782,15 +759,15 @@ WHERE societe_ios = 'HF' ";
         $largeurCellule2 = $largeurPage / 3;
 
         // Positionnement de la première cellule à gauche
-        $pdf->Cell($largeurCellule1, 8, 'Agence/Service débiteur : ' . $codeServiceDebitteur . '-' . $serviceDebitteur, 0, 0);
+        $pdf->Cell($largeurCellule1, 8, 'Agence/Service débiteur : ' . $tab['codeServiceDebitteur'] . '-' . $tab['serviceDebitteur'], 0, 0);
 
         // Positionnement de la deuxième cellule à droite
-        $pdf->Cell($largeurCellule2, 8, $MailUser, 0, 1, 'R');
+        $pdf->Cell($largeurCellule2, 8, $tab['MailUser'], 0, 1, 'R');
 
 
         //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $NumDom . '_' . $codeAg_serv . '.pdf', 'F');
+        $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 
     // copy interne vers DOCUWARE
@@ -806,7 +783,7 @@ WHERE societe_ios = 'HF' ";
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
-            echo "ok";
+            echo "okey";
         } else {
             echo "sorry";
         }
@@ -838,7 +815,7 @@ WHERE societe_ios = 'HF' ";
         $pdf01->useTemplate($templateId);
 
         // Sauvegarder le PDF fusionné
-        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom, 'F');
+        $pdf01->Output($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Fusion/' . $FichierDom, 'I');
         // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
     /**
@@ -865,36 +842,43 @@ WHERE societe_ios = 'HF' ";
         // $pdf01->Output('C:/DOCUWARE/ORDRE_DE_MISSION/' . $FichierDom, 'F');
     }
 
-    public function RechercheModel()
+    /**
+     * @Andryrkt 
+     * cette fonction récupère les données dans la base de donnée  
+     * rectifier les caractère spéciaux et return un tableau
+     * pour listeDomRecherhce
+     * limiter l'accées des utilisateurs
+     */
+    public function RechercheModel($ConnectUser): array
     {
         $sql = $this->connexion->query("SELECT  
-            Statut_demande.Description AS Statut,
-            Demande_ordre_mission.Sous_type_document,
-            Demande_ordre_mission.Numero_Ordre_Mission,
-            Demande_ordre_mission.Date_Demande,
-            Demande_ordre_mission.Motif_Deplacement,
-            Demande_ordre_mission.Matricule,
-            Demande_ordre_mission.Nom, 
-            Demande_ordre_mission.Prenom,
-            Demande_ordre_mission.Mode_Paiement,
-            Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 AS LibelleCodeAgence_Service, 
-            Demande_ordre_mission.Date_Debut, 
-            Demande_ordre_mission.Date_Fin,   
-            Demande_ordre_mission.Nombre_Jour, 
-            Demande_ordre_mission.Client,
-            Demande_ordre_mission.Fiche,
-            Demande_ordre_mission.Lieu_Intervention,
-            Demande_ordre_mission.NumVehicule,
-            Demande_ordre_mission.Total_Autres_Depenses,
-            Demande_ordre_mission.Total_General_Payer,
-            Demande_ordre_mission.Devis
-
-            FROM 
-            Demande_ordre_mission
-            INNER JOIN 
-            Statut_demande ON Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-            INNER JOIN 
-            Agence_Service_Irium ON Agence_Service_Irium.agence_ips + Agence_Service_Irium.service_ips = Demande_ordre_mission.Code_AgenceService_Debiteur");
+        Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+   ( SELECT Top 1 Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+   Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+            AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+                                                                    FROM Agence_service_autorise 
+                                                                    WHERE Session_Utilisateur = '" . $ConnectUser . "' )
+                                                                    
+            ORDER BY Numero_Ordre_Mission DESC");
 
 
         // Définir le jeu de caractères source et le jeu de caractères cible
@@ -904,20 +888,96 @@ WHERE societe_ios = 'HF' ";
 
             $tab[] = $donner;
         }
-        // Fonction pour nettoyer les valeurs en supprimant les caractères spéciaux
-        function clean_string($string)
-        {
-            return mb_convert_encoding($string, 'ASCII', 'UTF-8');
-        }
+
 
         // Parcourir chaque élément du tableau $tab
         foreach ($tab as $key => &$value) {
             // Parcourir chaque valeur de l'élément et nettoyer les données
             foreach ($value as &$inner_value) {
-                $inner_value = clean_string($inner_value);
+                $inner_value = $this->clean_string($inner_value);
             }
         }
 
+
+        $this->TestCaractereSpeciaux($tab);
+
+
+        return $this->decode_entities_in_array($tab);
+    }
+
+
+
+    /**
+     * @Andryrkt 
+     * cette fonction récupère les données dans la base de donnée  
+     * rectifier les caractère spéciaux et return un tableau
+     * pour listeDomRecherhce
+     * limiter l'accées des utilisateurs
+     */
+    public function RechercheModelAll(): array
+    {
+        $sql = $this->connexion->query("SELECT 
+        Demande_ordre_mission.ID_Demande_Ordre_Mission, 
+        Statut_demande.Description AS Statut,
+        Demande_ordre_mission.Sous_type_document,
+        Demande_ordre_mission.Numero_Ordre_Mission,
+        Demande_ordre_mission.Date_Demande,
+        Demande_ordre_mission.Motif_Deplacement,
+        Demande_ordre_mission.Matricule,
+        Demande_ordre_mission.Nom, 
+        Demande_ordre_mission.Prenom,
+        Demande_ordre_mission.Mode_Paiement,
+   ( SELECT Top 1 Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
+   Demande_ordre_mission.Date_Debut, 
+        Demande_ordre_mission.Date_Fin,   
+        Demande_ordre_mission.Nombre_Jour, 
+        Demande_ordre_mission.Client,
+        Demande_ordre_mission.Fiche,
+        Demande_ordre_mission.Lieu_Intervention,
+        Demande_ordre_mission.NumVehicule,
+        Demande_ordre_mission.Total_Autres_Depenses,
+        Demande_ordre_mission.Total_General_Payer,
+        Demande_ordre_mission.Devis
+        
+            FROM Demande_ordre_mission, Statut_demande
+            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+                                                                              
+            ORDER BY Numero_Ordre_Mission DESC");
+
+
+        // Définir le jeu de caractères source et le jeu de caractères cible
+
+        $tab = [];
+        while ($donner = odbc_fetch_array($sql)) {
+
+            $tab[] = $donner;
+        }
+
+
+
+        // Parcourir chaque élément du tableau $tab
+        foreach ($tab as $key => &$value) {
+            // Parcourir chaque valeur de l'élément et nettoyer les données
+            foreach ($value as &$inner_value) {
+                $inner_value = $this->clean_string($inner_value);
+            }
+        }
+
+
+        $this->TestCaractereSpeciaux($tab);
+
+
+        return $this->decode_entities_in_array($tab);
+    }
+
+
+    private function clean_string($string)
+    {
+        return mb_convert_encoding($string, 'ASCII', 'UTF-8');
+    }
+
+    private function TestCaractereSpeciaux(array $tab)
+    {
         function contains_special_characters($string)
         {
             // Expression régulière pour vérifier les caractères spéciaux
@@ -934,21 +994,110 @@ WHERE societe_ios = 'HF' ";
                 }
             }
         }
-        function decode_entities_in_array($array)
-        {
-            // Parcourir chaque élément du tableau
-            foreach ($array as $key => $value) {
-                // Si la valeur est un tableau, appeler récursivement la fonction
-                if (is_array($value)) {
-                    $array[$key] = decode_entities_in_array($value);
-                } else {
-                    // Si la valeur est une chaîne, appliquer la fonction decode_entities()
-                    $array[$key] = html_entity_decode($value);
-                }
+    }
+
+    /**
+     * c'est une foncion qui décode les caractères speciaux en html
+     */
+    private function decode_entities_in_array($array)
+    {
+        // Parcourir chaque élément du tableau
+        foreach ($array as $key => $value) {
+            // Si la valeur est un tableau, appeler récursivement la fonction
+            if (is_array($value)) {
+                $array[$key] = $this->decode_entities_in_array($value);
+            } else {
+                // Si la valeur est une chaîne, appliquer la fonction decode_entities()
+                $array[$key] = html_entity_decode($value);
             }
-            return $array;
+        }
+        return $array;
+    }
+
+
+    public function DuplicaftionFormModel($numDom, $IdDom)
+    {
+        $Sql = "SELECT 
+        (select TOP 1 agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
+        (select TOP 1 nom_agence_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_agence,
+        (select TOP 1 service_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_Service,
+        (select TOP 1 nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_service,
+         Date_Demande,
+		 Debiteur,
+		 Emetteur,
+		Sous_type_document,
+		Categorie,
+        Site,
+		Matricule,
+        Nom,
+        Prenom,
+        Date_Debut,
+        Date_Fin,
+		Heure_Debut,
+		Heure_Fin,
+		Nombre_Jour,
+        Client,
+		Motif_Deplacement,
+		Fiche,
+       Lieu_Intervention,
+	    Vehicule_Societe,
+        NumVehicule,
+		idemnity_depl,
+		Devis,
+		Doit_indemnite,
+		Motif_Autres_depense_1,
+        Autres_depense_1,
+        Motif_Autres_depense_2,
+        Autres_depense_2,
+        Motif_Autres_depense_3,
+        Autres_depense_3,
+		Total_Autres_Depenses,
+        Total_General_Payer,
+        Mode_Paiement,
+		Piece_Jointe_1,
+		Piece_Jointe_2,
+        Total_Indemnite_Forfaitaire
+        
+        FROM Demande_ordre_mission
+        WHERE Numero_Ordre_Mission = '" . $numDom . "'
+        AND ID_Demande_Ordre_Mission ='" . $IdDom . "' 
+        ";
+        $excecSelectDom = $this->connexion->query($Sql);
+        $ListselectDom = array();
+        while ($tablistselectDom = odbc_fetch_array($excecSelectDom)) {
+            $ListselectDom[] = $tablistselectDom;
+        }
+        return $ListselectDom;
+    }
+
+
+    public function DuplicaftionFormJsonModel()
+    {
+        $Sql = "SELECT 
+        (select TOP 1 agence_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_agence,
+        (select TOP 1 nom_agence_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_agence,
+        (select TOP 1 service_ips from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Code_Service,
+        (select TOP 1 nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur) as Libelle_service,		 Debiteur,
+		 Emetteur,
+        Site,
+        Numero_Ordre_Mission,
+        ID_Demande_Ordre_Mission       
+        FROM Demande_ordre_mission 
+        ";
+        $excecDuplication = $this->connexion->query($Sql);
+        $listDuplication = [];
+        while ($tabDuplication = odbc_fetch_array($excecDuplication)) {
+            $listDuplication[] = $tabDuplication;
         }
 
-        return decode_entities_in_array($tab);
+        // Parcourir chaque élément du tableau $tab
+        foreach ($listDuplication as $key => &$value) {
+            // Parcourir chaque valeur de l'élément et nettoyer les données
+            foreach ($value as &$inner_value) {
+                $inner_value = $this->clean_string($inner_value);
+            }
+        }
+
+        return $this->decode_entities_in_array($listDuplication);
     }
 }

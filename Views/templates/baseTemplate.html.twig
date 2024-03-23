@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css" />
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+    
+<section id="content">
+{% block content %}{% endblock %}
+</section>
+</body>
+</html>

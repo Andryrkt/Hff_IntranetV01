@@ -31,17 +31,17 @@
 
     #DOM {
         <?php
-       foreach($infoUserCours as $infoUserCours):
-        $infoUserCours['App'];
-        $infoUserCours['Utilisateur'];
-       endforeach;
-       $App = $infoUserCours['App'];
-       $findApp = strpos($App, 'DOM');
-       if($findApp !== false){
-        echo 'display:block';
-       } else{
-         echo 'display:none';
-       }
+        foreach ($infoUserCours as $infoUserCours) :
+            $infoUserCours['App'];
+            $infoUserCours['Utilisateur'];
+        endforeach;
+        $App = $infoUserCours['App'];
+        $findApp = strpos($App, 'DOM');
+        if ($findApp !== false) {
+            echo 'display:block';
+        } else {
+            echo 'display:none';
+        }
         ?>
     }
 </style>
@@ -55,11 +55,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown" id="DOM">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" > Demande d'Ordre de Mission</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" >
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDom">Liste des demandes d'Ordre</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Recherche</a></li>
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande </a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
                         </ul>
                     </li>
 
@@ -94,7 +93,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                           <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
+                            <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
@@ -112,10 +111,10 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#" id="Perso">Personnels</a></li>
                             <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" >Type de Document</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" >Statut App</a></li>
-                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser" >Autorisation AgenceService</a></li>
-                            
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc">Type de Document</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut">Statut App</a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser">Autorisation AgenceService</a></li>
+
                         </ul>
                     </li>
 
