@@ -1,13 +1,4 @@
 
-
-
-
-
-
-
-// DEBUT javascript pour selecte debiteur
-
-
 function Select1Value(data, selectedOption) {
     const select1 = document.querySelector('#select1');
 
@@ -16,12 +7,12 @@ function Select1Value(data, selectedOption) {
 
     // Ajouter les options
     for (const key in data) {
-        select1.innerHTML += `<option value="${key}">${key}</option>`;
+        select1.innerHTML += `<option value="${key.toUpperCase()}">${key.toUpperCase()}</option>`;
     }
 
     // Sélectionner l'option spécifiée
     if (selectedOption !== undefined) {
-        select1.value = selectedOption;
+        select1.value = selectedOption.toUpperCase();
     }
 }
 
@@ -35,14 +26,15 @@ function fetchData(selectOption = undefined) {
             return response.json();
         })
         .then(data => {
+
+            console.log(data);
             Select1Value(data, selectOption);
-            // Sélectionner l'option spécifiée
+            //Sélectionner l'option spécifiée
             if (selectOption === undefined) {
                 setTimeout(() => {
-                    selectOption = document.getElementById('select1').value;
+                    selectOption = document.getElementById('select1').value.toUpperCase();
                     console.log(selectOption);
                 }, 300);
-
             }
 
 
@@ -53,7 +45,7 @@ function fetchData(selectOption = undefined) {
                 console.log(taille);
                 let optionsHTML = ''; // Chaîne pour stocker les options HTML
                 for (let i = 0; i < taille; i++) {
-                    optionsHTML += `<option value="${data[selectOption][i]}">${data[selectOption][i]}</option>`;
+                    optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
                 }
                 serviceIriumElement.innerHTML = optionsHTML;
             }, 300); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
@@ -63,22 +55,36 @@ function fetchData(selectOption = undefined) {
         });
 }
 
-// Appel initial de fetchData sans argument
-fetchData();
+//DEBUT Duplication
 
-document.getElementById('select1').addEventListener('change', function() {
-    var selectedOption = this.value;
-    fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
-});
+
+
+
+console.log(document.querySelector('#NumDOM'));
+
+    // Vérifier si les données sont déjà disponibles
+if ( document.querySelector('#NumDOM') === null  ) {
+       // DEBUT javascript pour selecte debiteur
+
+
+// Appel initial de fetchData sans argument
+    fetchData();
+
+    document.getElementById('select1').addEventListener('change', function() {
+        var selectedOption = this.value.toUpperCase();
+        fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+    });
+
+
 
 let check = document.getElementById('radiochek').value;
 if (check === "Interne") {
     setTimeout(() => {
-        document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value}"]`).selected = true;
+        document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).selected = true;
     }, 300);
 } else {
     setTimeout(() => {
-        document.querySelector(`#select1 option[value="${document.querySelector('#Serv').value}"]`).selected = true;
+        document.querySelector(`#select1 option[value="${document.querySelector('#Serv').value.toUpperCase()}"]`).selected = true;
     }, 300);
 }
 
@@ -98,56 +104,97 @@ if (check === "Interne") {
 
 
 //FIN Javascript pour le débitteur select
+    } else {
+
+        function fetchDataDuplier() {
+            const url = "/Hffintranet/index.php?action=Dupliquer";
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur de réseau');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    //console.log(data);
+                    $donnerFiltrer = filtre(data);
+                    console.log($donnerFiltrer);
+
+                console.log($donnerFiltrer[0].Debiteur.toUpperCase());
+                  console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
+                  console.log($donnerFiltrer[0].Debiteur.split('-')[1].toUpperCase());
+        
+                  console.log($donnerFiltrer[0].Site.toUpperCase());
+                  
+                  setTimeout(() => {
+                    if ($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase() === '60 PNEU ') {
+                        document.querySelector(`#select1 option[value="60 PNEU - OUTIL - LUB"]`).selected = true;
+                    } else {
+                        document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`).selected = true;
+                    }
+                    
+                    
+                    document.querySelector(`#SITE option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`).selected = true
+                }, 200);
 
 
-//DEBUT Duplication
+                
+                
+                // Appel initial de fetchData sans argument
+                fetchData();
+                
+                document.getElementById('select1').addEventListener('change', function() {
+                    var selectedOption = this.value.toUpperCase();
+                    fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+                });
 
-function fetchDataDuplier() {
-    const url = "/Hffintranet/index.php?action=Dupliquer";
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur de réseau');
-            }
-            return response.json();
-        })
-        .then(data => {
-            $donnerFiltrer = filtre(data)
-          console.log($donnerFiltrer[0].Debiteur.split('-')[0]);
-          console.log($donnerFiltrer[0].Site);
-          
-          setTimeout(() => {
-            document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0]}"]`).selected = true;
-            document.querySelector(`#SITE option[value="${$donnerFiltrer[0].Site}"]`).selected = true
-        }, 200);
-        setTimeout(() => {
-        document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[0]}"]`).selected = true;
-    }, 500);
-        })
-        .catch(error => {
-            console.error(error);
-        });
-}
 
-fetchDataDuplier();
+                setTimeout(() => {
+                    if ($donnerFiltrer[0].Debiteur.split('-')[1] === ' OUTIL ') {
+                        document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[3]}"]`).selected = true;
+                        
+                    } else {
+                        
+                        document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[1]}"]`).selected = true;
+                    }
+            }, 500);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
 
-function filtre(data) {
-    // Récupérer les valeurs des champs de saisie
-    
-    numDom = document.querySelector('#NumDOM').value;
-    idDom = document.querySelector('#IdDOM').value;
-    
-      
-    // Filtrer les données en fonction des critères
-    return resultatsFiltres = data.filter(function(demande) {
-    
-        var filtreNumDom = demande.Numero_Ordre_Mission === numDom
-        var filtreIdDom = demande.ID_Demande_Ordre_Mission  === idDom
-         
-        // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
-        return (filtreNumDom && filtreIdDom);
-    });
-}
+
+        fetchDataDuplier();
+
+        // document.getElementById('select1').addEventListener('change', function() {
+        //     var selectedOption = this.value.toUpperCase();
+        //     fetchDataDuplier(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+        // });
+
+        function filtre(data) {
+            // Récupérer les valeurs des champs de saisie
+           
+            numDom = document.querySelector('#NumDOM').value;
+            idDom = document.querySelector('#IdDOM').value;
+            
+              
+            // Filtrer les données en fonction des critères
+            return resultatsFiltres = data.filter(function(demande) {
+            
+                var filtreNumDom = demande.Numero_Ordre_Mission === numDom
+                var filtreIdDom = demande.ID_Demande_Ordre_Mission  === idDom
+                 
+                // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
+                return (filtreNumDom && filtreIdDom);
+            });
+        }
+    }
+
+
+
+
+
 
 //FIN Duplication
 

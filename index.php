@@ -1,57 +1,80 @@
 <?php
 
-require_once 'vendor/autoload.php';
+use App\Model\DomModel;
+use App\Model\Connexion;
+use App\Model\LdapModel;
+use App\Model\ProfilModel;
+use App\Model\StatutModel;
+use App\Model\TypeDocModel;
+use App\Model\PersonnelModel;
+use App\Controller\DomControl;
+use App\Controller\ProfilControl;
+use App\Controller\StatutControl;
+use App\Controller\MainController;
+use App\Controller\TypeDocControl;
+use App\Controller\PersonnelControl;
+use App\Model\AgenceServAutoriserModel;
+use App\Controller\AgenceServAutoriserControl;
+
+
+
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
 // Configuration de Twig avec le chemin vers vos fichiers de template
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/Views/templates');
-$twig = new \Twig\Environment($loader);
 
 
 
-include 'Model/Connexion.php';
-include 'Model/LdapModel.php';
-include 'Controler/LdapControl.php';
-//---Profil---
-include 'Model/ProfilModel.php';
-include 'Controler/ProfilControl.php';
+
+// include 'Model/Connexion.php';
+// include 'Model/LdapModel.php';
+// include 'Controler/LdapControl.php';
+// //---Profil---
+// include 'Model/ProfilModel.php';
+// include 'Controler/ProfilControl.php';
 $Conn_IntranetV01 =  new Connexion();
-$ModelProfil = new ProfilModel($Conn_IntranetV01);
-$ControlProfil = new ProfilControl($ModelProfil);
+$ModelProfil = new ProfilModel();
+$ControlProfil = new ProfilControl();
 
-//----
-//Personnel
-include 'Model/PersonnelModel.php';
-include 'Controler/PersonnelControl.php';
-$ModelPers = new PersonnelModel($Conn_IntranetV01);
-$ControlPers = new PersonnelControl($ModelPers);
+// //----
+// //Personnel
+// include 'Model/PersonnelModel.php';
+// include 'Controler/PersonnelControl.php';
+$ModelPers = new PersonnelModel();
+$ControlPers = new PersonnelControl();
 //---
-//DOM
-include 'Model/DomModel.php';
-include 'Controler/DomControl.php';
-$ModelDOM = new DomModel($Conn_IntranetV01);
-$ControlDOM = new DomControl($ModelDOM);
-//----
-// TypeDoc
-include 'Model/TypeDocModel.php';
-include 'Controler/TypeDocControl.php';
-$ModelType = new TypeDocModel($Conn_IntranetV01);
-$ControlType = new TypeDocControl($ModelType);
-//----
-//Statut
-include 'Model/StatutModel.php';
-include 'Controler/StatutControl.php';
-$ModelStatut = new StatutModel($Conn_IntranetV01);
-$ControlStatut = new StatutControl($ModelStatut);
-//----
-//Autorisation
-include 'Model/AgenceServAutoriserModel.php';
-include 'Controler/AgenceServAutoriserControl.php';
-$ModelAutorisation = new AgenceServAutoriserModel($Conn_IntranetV01);
-$ControlAutorisation = new AgenceServAutoriserControl($ModelAutorisation);
+// //DOM
+// include 'Model/DomModel.php';
+// include 'Controler/DomControl.php';
+$ModelDOM = new DomModel();
+$ControlDOM = new DomControl();
+// //----
+// // TypeDoc
+// include 'Model/TypeDocModel.php';
+// include 'Controler/TypeDocControl.php';
+$ModelType = new TypeDocModel();
+$ControlType = new TypeDocControl();
+// //----
+// //Statut
+// include 'Model/StatutModel.php';
+// include 'Controler/StatutControl.php';
+$ModelStatut = new StatutModel();
+$ControlStatut = new StatutControl();
+// //----
+// //Autorisation
+// include 'Model/AgenceServAutoriserModel.php';
+// include 'Controler/AgenceServAutoriserControl.php';
+$ModelAutorisation = new AgenceServAutoriserModel();
+$ControlAutorisation = new AgenceServAutoriserControl();
+
+// include '/Service/GenererPdf.php';
+// $genererPdf = new GenererPdf();
+$MainController = new MainController();
+
+
 //
 $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
 $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
-$Ldap = new LdapConnect();
+$Ldap = new LdapModel();
 $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
 //$Ldap->searchLdapUser();
 
@@ -88,7 +111,6 @@ switch ($action) {
     case 'Propos':
         $ControlProfil->showinfoAllUsercours();
         break;
-
     case 'Personnels':
         $ControlPers->showPersonnelForm();
         break;
@@ -164,10 +186,12 @@ switch ($action) {
         break;
     case 'DuplifierForm':
         $ControlDOM->duplificationFormController();
-
         break;
     case 'LibStatut':
         $ControlDOM->filterStatut();
+        break;
+    case 'twig':
+        $MainController->index();
         break;
     default:
         include 'Views/SignIn.php';

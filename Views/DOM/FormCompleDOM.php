@@ -9,15 +9,27 @@
 
 <body onload="visible_espece();Interne_externe(); typeCatge(); "><!--/Hffintranet/Views/tcpdf/examples/Flight_brief_pdf.php-->
     <div class="container mb-4">
-        <div class="d-flex  flex-row-reverse  col">
-            <div class="tablinks p-2 btn btn-outline-warning ">
-                <?php if (isset($numDom) && isset($idDom)) { ?>
-                    <a href="/Hffintranet/index.php?action=ListDomRech" style="text-decoration: none;color:black">Retour</a>
+        <div class="row">
+
+            <div class="col-8">
+                <?php if (isset($data)) { ?>
+                    <h2 class="fw-bold">Duplication de demande d'ordre de mission</h2>
                 <?php } else { ?>
-                    <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
+                    <h2 class="fw-bold">Nouvelle demande d'ordre de mission</h2>
                 <?php } ?>
             </div>
+
+            <div class="d-flex  flex-row-reverse  col-4">
+                <div class="tablinks p-2 btn btn-outline-warning ">
+                    <?php if (isset($numDom) && isset($idDom)) { ?>
+                        <a href="/Hffintranet/index.php?action=ListDomRech" style="text-decoration: none;color:black">Retour</a>
+                    <?php } else { ?>
+                        <a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
+                    <?php } ?>
+                </div>
+            </div>
         </div>
+
 
 
 
@@ -36,7 +48,7 @@
 
                 <div class="col-4 offset-6">
                     <label for="datesyst" class="label-form"> Date</label>
-                    <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $valeur = isset($dateDemande) ? $dateDemande : $datesyst; ?>" readonly>
+                    <input type="date" name="datesyst" id="datesyst" class="form-control" value="<?php echo $datesyst; ?>" readonly>
                 </div>
             </div>
 
@@ -72,11 +84,11 @@
                     <div class="row" id="ext">
                         <div class="col-4 ">
                             <label for="Serv" class="label-form">Agence :</label>
-                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $valeur = isset($agentEmetteur) ? $agentEmetteur : $code_service ?>" readonly>
+                            <input type="text" name="Serv" class="form-control" id="Serv" value="<?php echo $valeur = isset($agentEmetteur) ? strtoupper($agentEmetteur) : strtoupper($code_service) ?>" readonly>
                         </div>
                         <div class="col-4 ">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $valeur = isset($serviceEmetteur) ? $serviceEmetteur : $service ?>" readonly>
+                            <input type="text" name="LibServ" class="form-control" id="LibServ" value="<?php echo $valeur = isset($serviceEmetteur) ? strtoupper($serviceEmetteur) : strtoupper($service) ?>" readonly>
                         </div>
 
                     </div>
@@ -85,11 +97,11 @@
 
                         <div class="col-4 ">
                             <label for="Serv" class="label-form">Agence :</label>
-                            <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $valeur = isset($agentEmetteur) ? $agentEmetteur : $codeServ ?>" readonly>
+                            <input type="text" name="ServINt" class="form-control" id="ServINt" value="<?php echo $valeur = isset($agentEmetteur) ? strtoupper($agentEmetteur) : strtoupper($codeServ) ?>" readonly>
                         </div>
                         <div class="col-4 ">
                             <label for="LibServ" class="label-form">Service :</label>
-                            <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $valeur = isset($serviceEmetteur) ? $serviceEmetteur : $servLib ?>" readonly>
+                            <input type="text" name="LibServINT" class="form-control" id="LibServINT" value="<?php echo $valeur = isset($serviceEmetteur) ? strtoupper($serviceEmetteur) : strtoupper($servLib) ?>" readonly>
                         </div>
 
                     </div>
@@ -322,7 +334,7 @@
             <div class="row">
                 <div class="col">
                     <label for="TotalAutredep" class="label-form"> Total Montant Autre Dépense</label>
-                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" value=" <?php echo $valeur = isset($data[0]['Total_Autres_Depenses']) ? $data[0]['Total_Autres_Depenses'] : '' ?>" readonly>
+                    <input type="text" name="TotalAutredep" id="TotalAutredep" class="form-control" oninput="formatEtMettreAJour('TotalAutredep');" onblur="calculerSommeAll('TotalidemForfait', 'TotalAutredep','TotalIdemDeplac', 'Alldepense');negative('Alldepense')" value=" <?php echo $valeur = isset($data[0]['Total_Autres_Depenses']) ? $data[0]['Total_Autres_Depenses'] : '' ?>" readonly>
                 </div>
                 <div class="col">
                     <label for="Alldepense" class="label-form"> Montant Total</label>
@@ -340,6 +352,9 @@
             <div class="row">
                 <div class="col">
                     <label for="modepaie" class="label-form"> Mode paiement</label>
+                    <?php //var_dump(isset($modePaiement), $modePaiement);
+                    //die(); 
+                    ?>
                     <?php if (isset($modePaiement) && $modePaiement === "MOBILE MONEY") { ?>
                         <select name="modepaie" id="modepaie" class="form-select" onchange="visible_espece()" onfocus="Somme(); Interne_externe()" style="border-color: orange;">
                             <option value="MOBILE MONEY" selected>MOBILE MONEY</option>
