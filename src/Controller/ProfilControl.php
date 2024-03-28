@@ -5,12 +5,13 @@ namespace App\Controller;
 use Exception;
 use App\Model\ProfilModel;
 
-class ProfilControl
+class ProfilControl extends Controller
 {
     private $ProfilModel;
 
     public function __construct()
     {
+        parent::__construct();
         $this->ProfilModel = new ProfilModel();
     }
 
@@ -22,14 +23,31 @@ class ProfilControl
             exit();
         }
 
-        try {
-            $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-            $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
-            include 'Views/Principe.php';
-            include 'Views/Acceuil.php';
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
+
+        $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+        $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        //$app = $infoUserCours[0]['App'];
+
+        $this->twig->display(
+            'main/Principe.html.twig',
+            [
+                'infoUserCours' => $infoUserCours,
+                'UserConnect' => $UserConnect,
+                'boolean' => $boolean
+            ]
+        );
+        // $this->twig->display(
+        //     'main/accueil.html.twig'
+        // );
+
+        //include 'Views/Principe.php';
+        //include 'Views/Acceuil.php';
+
     }
 
     public function showinfoAllUsercours()
@@ -43,8 +61,11 @@ class ProfilControl
 
         try {
             $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-            include 'Views/Principe.php';
             $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+
+
+            //include 'Views/Principe.php';
+
             include 'Views/Propos_page.php';
         } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
@@ -60,12 +81,19 @@ class ProfilControl
             exit();
         }
 
-        try {
-            $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-            include 'Views/Principe.php';
-            include 'Views/Acceuil.php';
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
+
+        $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+
+        $this->twig->display(
+            'main/accueil.html.twig',
+            [
+                'UserConnect' => $UserConnect,
+            ]
+        );
+
+
+        // include 'Views/Principe.php';
+        //include 'Views/Acceuil.php';
+
     }
 }

@@ -1,0 +1,67 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+
+{% block content %}
+{{ include('/main/Principe.html.twig') }}
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="col" style="text-align: right;font-weight: bold;">
+                    <h4>Bordereau d’acquisition et de Mouvement Matériel</h4>
+                </div>
+                <form method="POST" action="/Hffintranet/index.php?action=checkMatricule">
+                    {{ include('/partials/_code_service.html.twig') }}
+                    <div class="row">
+                        <div class="col">
+                            <label for="typeMission" class="label-form"> Type de Mouvement</label>
+                            <select name="typeMission" id="typeMission" class="form-select">
+                                {% for item in TypeDocument %}
+                                    <option value="{{ item.Code_Sous_type }}">{{ item.Code_Sous_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row" >
+                        <div class="col">
+                            <label for="Nomprenoms" class="label-form"> ID matériel</label>
+                            <select name="nomprenom" id="nomprenom" class="form-control" >
+                                {% for item in PersonelServOfCours %}
+                                    <option value="{{item.Matricule}} - {{ item.Nom}} "> {{item.Matricule}} - {{ item.Nom}}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="Nomprenoms" class="label-form"> Numéro parc  </label>
+                            <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
+                                {% for item in PersonelServOfCours %}
+                                    <option value="{{item.Matricule}} - {{ item.Nom}} "> {{item.Matricule}} - {{ item.Nom}}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col">
+                            <label for="Nomprenoms" class="label-form"> Numéro de série  </label>
+                            <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
+                                {% for item in PersonelServOfCours %}
+                                    <option value="{{item.Matricule}} - {{ item.Nom}} "> {{item.Matricule}} - {{ item.Nom}}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-info"> Suivant</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/Hffintranet/Views/js/FormDOM.js"></script>
+{% endblock %}

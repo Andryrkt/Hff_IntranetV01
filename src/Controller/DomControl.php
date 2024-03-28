@@ -126,7 +126,23 @@ class DomControl extends Controller
         }
     }
 
-    //
+
+    private function conversionCaratere(string $chaine): string
+    {
+        return iconv('Windows-1252', 'UTF-8', $chaine);
+    }
+
+    private function conversionTabCaractere(array $tab): array
+    {
+        $array = [];
+        foreach ($tab as $key => $values) {
+            foreach ($values as $key => $value) {
+                $array[$key] = iconv('Windows-1252', 'UTF-8', $value);
+            }
+        }
+        return $array;
+    }
+
     /**
      * recuperation des variable ci-dessous vers les views (FormDOM) indiquer 
      */
@@ -134,21 +150,48 @@ class DomControl extends Controller
     {
         $this->SessionStart();
 
-        try {
 
-            //$NumDOM = $this->DomModel->DOM_autoINcriment();
-            $UserConnect = $_SESSION['user'];
-            $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-            // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-            $PersonelServOfCours = $this->DomModel->getInfoUserMservice($_SESSION['user']);
-            $TypeDocument = $this->DomModel->getTypeDoc();
 
-            include 'Views/Principe.php';
-            include 'Views/DOM/FormDOM.php';
-        } catch (\Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
+        //$NumDOM = $this->DomModel->DOM_autoINcriment();
+        $UserConnect = $_SESSION['user'];
+        $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
+        $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+        // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        $PersonelServOfCours = $this->DomModel->getInfoUserMservice($_SESSION['user']);
+        $TypeDocument = $this->DomModel->getTypeDoc();
+
+
+        $CodeServiceofCours = $this->conversionTabCaractere($CodeServiceofCours);
+        //$PersonelServOfCours  = $this->conversionTabCaractere($PersonelServOfCours);
+        //$TypeDocument = $this->conversionTabCaractere($TypeDocument);
+
+        // var_dump($CodeServiceofCours, $PersonelServOfCours);
+        // var_dump($TypeDocument);
+        // die();
+
+        $fichier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/Acces/Agence.txt';
+        // var_dump($fichier);
+        // die();
+
+        $LibAgence = $CodeServiceofCours['nom_agence_i100'];
+        $LibServ = $CodeServiceofCours['service_ips'];
+
+        $Agence = $LibAgence . " " . $LibServ;
+        $boolean = strpos(file_get_contents($fichier), $Agence);
+
+        $this->twig->display(
+            'dom/FormDOM.html.twig',
+            [
+                'CodeServiceofCours' => $CodeServiceofCours,
+                'PersonelServOfCours' => $PersonelServOfCours,
+                'TypeDocument' => $TypeDocument,
+                'boolean' => $boolean
+            ]
+        );
+
+        //include 'Views/Principe.php';
+        //include 'Views/DOM/FormDOM.php';
+
     }
 
 
@@ -189,32 +232,54 @@ class DomControl extends Controller
                 $numCompteBancaire = '';
             }
 
-            include 'Views/Principe.php';
+            $this->twig->display(
+                'dom/FormCompleDOM.html.twig',
+                [
+                    'CategPers' => $CategPers,
+                    'code_service' => $code_service,
+                    'service' => $service,
+                    'typeMission' => $typeMission,
+                    'Maricule' => $Maricule,
+                    'UserConnect' => $UserConnect,
+                    'check' => $check,
+                    'nomExt' => $nomExt,
+                    'prenomExt' => $prenomExt,
+                    'CINext' => $CINext,
+                    'datesyst' => $datesyst,
+                    'nom' => $nom,
+                    'prenom' => $prenom,
+                    'codeServ' => $codeServ,
+                    'servLib' => $servLib,
+                    'numTel' => $numTel,
+                    'numCompteBancaire' => $numCompteBancaire
+                ]
+            );
+            //include 'Views/Principe.php';
             //include 'Views/DOM/FormCompleAutre.php';
-            include 'Views/DOM/FormCompleDOM.php';
+            //include 'Views/DOM/FormCompleDOM.php';
         }
 
 
-        if ($_SERVER['REQUEST_METHOD']  === 'GET') {
-            $NumDom = $_GET['NumDomget'];
-            $code_service = $_GET['code_service'];
-            $service = $_GET['service'];
-            $Maricule = $_GET['Matricule'];
-            $check = $_GET['check'];
-            $typeMission = $_GET['TypeMission'];
-            $nomExt = $_GET['nom'];
-            $prenomExt = $_GET['prenoms'];
-            $CINext = $_GET['cin'];
-            //$autrTyp = $_GET['autreType'];
-            $UserConnect = $_SESSION['user'];
-            $datesyst = $this->DomModel->getDatesystem();
-            $Noms = $this->DomModel->getName($Maricule);
-            $Compte = $this->DomModel->getInfoTelCompte($Maricule);
+        // if ($_SERVER['REQUEST_METHOD']  === 'GET') {
+        //     $NumDom = $_GET['NumDomget'];
+        //     $code_service = $_GET['code_service'];
+        //     $service = $_GET['service'];
+        //     $Maricule = $_GET['Matricule'];
+        //     $check = $_GET['check'];
+        //     $typeMission = $_GET['TypeMission'];
+        //     $nomExt = $_GET['nom'];
+        //     $prenomExt = $_GET['prenoms'];
+        //     $CINext = $_GET['cin'];
+        //     //$autrTyp = $_GET['autreType'];
+        //     $UserConnect = $_SESSION['user'];
+        //     $datesyst = $this->DomModel->getDatesystem();
+        //     $Noms = $this->DomModel->getName($Maricule);
+        //     $Compte = $this->DomModel->getInfoTelCompte($Maricule);
 
-            include 'Views/Principe.php';
-            //include 'Views/DOM/FormCompleAutre.php';
-            include 'Views/DOM/FormCompleDOM.php';
-        }
+        //     include 'Views/Principe.php';
+        //     //include 'Views/DOM/FormCompleAutre.php';
+        //     include 'Views/DOM/FormCompleDOM.php';
+        // }
     }
 
 
@@ -1513,7 +1578,7 @@ class DomControl extends Controller
             $UserConnect = $_SESSION['user'];
             $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-            include 'Views/Principe.php';
+            //include 'Views/Principe.php';
             $data = $this->DomModel->DuplicaftionFormModel($numDom, $idDom);
 
             $matricule = $_GET['check'];
@@ -1568,16 +1633,42 @@ class DomControl extends Controller
                 // var_dump('03 :' . $modePaiement);
                 // die();
             }
+            $idemnityDepl = (int)$data[0]['idemnity_depl'];
+            $nombreJour = (int)$data[0]['Nombre_Jour'];
 
+            foreach ($data as $key => $value) {
+                $data = $value;
+            }
 
-            $_FILES['file01']['name'] = $data[0]['Piece_Jointe_1'];
-            $_FILES['file02']['name'] = $data[0]['Piece_Jointe_1'];
+            // var_dump($data);
+            // die();
+
+            $this->twig->display(
+                'dom/FormCompleDOM.html.twig',
+                [
+                    'data' => $data,
+                    'numDom' => $numDom,
+                    'idDom' => $idDom,
+                    'statutSalarier' => $statutSalarier,
+                    'datesyst' => $datesyst,
+                    'agentEmetteur' => $agentEmetteur,
+                    'serviceEmetteur' => $serviceEmetteur,
+                    'cin' => $cin,
+                    'modePaiement' => $modePaiement,
+                    'modePaiementNumero' => $modePaiementNumero,
+                    'idemnityDepl' => $idemnityDepl,
+                    'nombreJour' => $nombreJour
+
+                ]
+            );
+            // $_FILES['file01']['name'] = $data[0]['Piece_Jointe_1'];
+            // $_FILES['file02']['name'] = $data[0]['Piece_Jointe_1'];
 
             //var_dump($statutSalarier);
             // var_dump(trim($data[0]['Mode_Paiement']) === 'ESPECES');
             // var_dump($data[0]);
             // die();
-            include 'Views/DOM/FormCompleDOM.php';
+            //include 'Views/DOM/FormCompleDOM.php';
         }
     }
 

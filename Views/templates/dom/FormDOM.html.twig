@@ -1,0 +1,81 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+
+{% block content %}
+{{ include('/main/Principe.html.twig') }}
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="col" style="text-align: right;font-weight: bold;">
+                    <h4>Demande d'Ordre de Mission</h4>
+                </div>
+                <form method="POST" action="/Hffintranet/index.php?action=checkMatricule">
+                    {{ include('/partials/_code_service.html.twig') }}
+                    <div class="row">
+                        <div class="col">
+                            <label for="typeMission" class="label-form"> Type de Mission</label>
+                            <select name="typeMission" id="typeMission" class="form-select">
+                                {% for item in TypeDocument %}
+                                    <option value="{{ item.Code_Sous_type }}">{{ item.Code_Sous_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if bookean != true %}
+                        <div class="col-4" id="chek">
+                            <label for="AutreType" class="label-form" id="labSalarie"> Salarié:</label>
+                            <select name="radiochek" id="radiochek" class="form-select" onchange="Interne_externe()">
+                                <option value="Interne">Permanent</option>
+                                <option value="Externe">Temporaire</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div id="affichage_container">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="Interne">
+                        <div class="col">
+                            <label for="Nomprenoms" class="label-form"> Matricule et Nom</label>
+                            <select name="nomprenom" id="nomprenom" class="form-control" onchange="Matricule()" onblur="envoyerDonnees()">
+                                {% for item in PersonelServOfCours %}
+                                    <option value="{{item.Matricule}} - {{ item.Nom}} "> {{item.Matricule}} - {{ item.Nom}}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="matricule" class="label-form"> Matricule</label>
+                            <input type="text" name="matricule" id="matricule" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="row" id="externe">
+                        <div class="col">
+                            <label for="namesExt" class="label-form"> Nom</label>
+                            <input type="text" name="namesExt" id="namesExt" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="firstnamesExt" class="label-form"> Prénoms</label>
+                            <input type="text" name="firstnamesExt" id="firstnamesExt" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="cin" class="label-form"> CIN</label>
+                            <input type="text" name="cin" id="cin" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-info"> Suivant</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/Hffintranet/Views/js/FormDOM.js"></script>
+{% endblock %}

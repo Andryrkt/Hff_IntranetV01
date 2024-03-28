@@ -1,41 +1,7 @@
 {% extends "baseTemplate.html.twig"%}
-<style>
-    #Setting {
-        {%
-            
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        if ((file_exists($fichier)) && (is_readable($fichier))) {
-            $text = file_get_contents($fichier);
-            //echo $text;
-            if (strpos($text, $_SESSION['user']) !== false) {
-                echo 'display:block';
-            } else {
-                echo 'display:none';
-            }
-        } else {
-            echo 'Le fichier ' . $fichier . ' n\'existe pas ou n\'est pas disponible en ouverture';
-        }
-        %}
-    }
 
-    #DOM {
-        <?php
-        foreach ($infoUserCours as $infoUserCours) :
-            $infoUserCours['App'];
-            $infoUserCours['Utilisateur'];
-        endforeach;
-        $App = $infoUserCours['App'];
-        $findApp = strpos($App, 'DOM');
-        if ($findApp !== false) {
-            echo 'display:block';
-        } else {
-            echo 'display:none';
-        }
-        ?>
-    }
-</style>
 
-<body>
+{% block content %}
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
         <div class="container">
@@ -45,6 +11,7 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
                     <!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
+                    {% if infoUserCours[1].App == 'BDM' %}
                     <li class="nav-item dropdown" id="BDM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -52,9 +19,13 @@
                             <li><a class="dropdown-item" href="#">Consultation</a></li>
                         </ul>
                     </li>
+                    {% endif %}
                     <!-- FIN Bordereau d’acquisition et de Mouvement Matériel -->
 
+
+                    
                     <!-- DEBUT Demande d'odre de mission -->
+                    {% if infoUserCours[0].App == 'DOM' %}
                     <li class="nav-item dropdown" id="DOM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -62,6 +33,7 @@
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
                         </ul>
                     </li>
+                    {% endif %}
                     <!-- FIN Demande d'odre de mission -->
 
                     <li class="nav-item dropdown">
@@ -93,7 +65,7 @@
 
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;"><?php echo $UserConnect ?></a>
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ UserConnect }}</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
@@ -108,6 +80,8 @@
                         </ul>
                     </li>
 
+
+                    {% if boolean %}
                     <li class="nav-item dropdown" id="Setting">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -119,13 +93,10 @@
 
                         </ul>
                     </li>
-
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-
-</body>
-
-</html>
+   {% endblock %}

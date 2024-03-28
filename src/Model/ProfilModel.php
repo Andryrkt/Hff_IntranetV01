@@ -29,7 +29,7 @@ class ProfilModel extends Model
                                 App
                                 FROM Profil_user
                                 WHERE Utilisateur = '" . $Username . "'
-                                AND App = 'DOM'
+                                
                                 ";
         $exec_InfoAllUserCours = $this->connexion->query($sql_infoAllUsercous);
         $InfoAllUsercours = array();
