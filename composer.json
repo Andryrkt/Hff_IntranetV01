@@ -1,6 +1,23 @@
-{
+{    "name": "lanto/hffintranet",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "App\\Controller\\": "src/Controller/",
+            "App\\Model\\": "src/Model/",
+            "App\\Service\\": "src/Service"
+        }
+    },
+    "authors": [
+        {
+            "name": "Andryrkt",
+            "email": "andryrkt08@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
     "require": {
         "setasign/fpdi": "^2.6",
-        "twig/twig": "3.0"
+        "twig/twig": "3.0",
+        "tecnickcom/tcpdf": "^6.7"
     }
+   
 }

@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => '__root__',
+        'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '52ac87be7a3e6e11a8c4470275b0dff67b72de3d',
+        'reference' => '24ee0f743887074b05a7a84a65ddeeeee132f660',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        '__root__' => array(
+        'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '52ac87be7a3e6e11a8c4470275b0dff67b72de3d',
+            'reference' => '24ee0f743887074b05a7a84a65ddeeeee132f660',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -43,6 +43,15 @@
             'reference' => '9773676c8a1bb1f8d4340a62efe641cf76eda7ec',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/polyfill-mbstring',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'tecnickcom/tcpdf' => array(
+            'pretty_version' => '6.7.4',
+            'version' => '6.7.4.0',
+            'reference' => 'd4adef47ca21c90e6483d59dcb9e5b1023696937',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../tecnickcom/tcpdf',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

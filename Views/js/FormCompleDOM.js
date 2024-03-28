@@ -1,3 +1,5 @@
+
+
 function visible() {
     var select = document.getElementById('typeMission');
     var labelINput = document.getElementById('labAutre');
@@ -278,3 +280,11 @@ function sommeEtIndemniteDeplac(champA, champB, champC) {
     document.getElementById(champC).value = sommeFormatee;
 
 }
+
+
+
+window.addEventListener('load', function() {
+    visible_espece();
+    Interne_externe(); 
+    typeCatge();
+});

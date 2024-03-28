@@ -2,15 +2,30 @@
 <html lang="fr">
 <head>
     {% block head %}
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="style.css" />
-    <title>{% block title %}{% endblock %}</title>
+        <meta charset="utf-8">
+        {% block stylesheets%} 
+            <link href="/Hffintranet/Views/css/styles.css" rel="stylesheet" />
+        {% endblock%}
+    
+        
+            {% block title %}
+            <title>  Hff Intranet </title>
+            {% endblock %}
+        
     {% endblock %}
+
+    
 </head>
 <body>
     
 <section id="content">
 {% block content %}{% endblock %}
 </section>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="/Hffintranet/Views/js/scripts.js"></script> -->
+    {% block javascript %}{% endblock %}
 </body>
 </html>
