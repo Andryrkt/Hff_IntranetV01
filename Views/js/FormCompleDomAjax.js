@@ -1,12 +1,5 @@
 
-
-
-
-
-
-
 // DEBUT javascript pour selecte debiteur
-
 
 function Select1Value(data, selectedOption) {
     const select1 = document.querySelector('#select1');
@@ -42,7 +35,6 @@ function fetchData(selectOption = undefined) {
                     selectOption = document.getElementById('select1').value;
                     console.log(selectOption);
                 }, 300);
-
             }
 
 
@@ -150,15 +142,6 @@ function filtre(data) {
 }
 
 //FIN Duplication
-
-
-
-
-
-
-
-
-
 
 
 
