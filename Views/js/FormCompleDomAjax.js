@@ -1,9 +1,4 @@
 
-<<<<<<< HEAD
-// DEBUT javascript pour selecte debiteur
-=======
-
->>>>>>> d36fae9f585e44304bd209849241405eae60b465
 
 function Select1Value(data, selectedOption) {
     const select1 = document.querySelector('#select1');

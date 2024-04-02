@@ -1,9 +1,5 @@
 /vendor/
-<<<<<<< HEAD
 /TCPDF-main/
-=======
-/src/Service/TCPDF-main/
->>>>>>> d36fae9f585e44304bd209849241405eae60b465
 /Views/tcpdf/
 /Upload/
 /Controler/pdf/
