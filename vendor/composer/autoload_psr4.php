@@ -10,6 +10,8 @@ return array(
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
+    'FastRoute\\' => array($vendorDir . '/nikic/fast-route/src'),
+    'Config\\' => array($baseDir . '/config'),
     'App\\Service\\' => array($baseDir . '/src/Service'),
     'App\\Model\\' => array($baseDir . '/src/Model'),
     'App\\Controller\\' => array($baseDir . '/src/Controller'),

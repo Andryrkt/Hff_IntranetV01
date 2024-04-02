@@ -11,14 +11,17 @@ class LdapModel
     private $ldap_Dn = "OU=HFF Users,DC=fraise,DC=hff,DC=mg";
     private $Users;
     private $Password;
+
     public function __construct()
     {
         $this->ldapconn = ldap_connect($this->ldapHost, $this->ldapPort);
     }
+
     public function showconnect()
     {
         return $this->ldapconn;
     }
+
     public function userConnect($user, $password)
     {
         $this->Users = $user;
@@ -27,6 +30,7 @@ class LdapModel
         $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
         return $bind;
     }
+
     public function searchLdapUser()
     {
         // Requête LDAP pour récupérer tous les utilisateurs

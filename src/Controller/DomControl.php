@@ -6,8 +6,6 @@ use DateTime;
 use App\Controller\Controller;
 
 
-
-
 class DomControl extends Controller
 {
 
@@ -51,6 +49,7 @@ class DomControl extends Controller
 
         echo $response;
     }
+
     /**
      * selection categorie Rental 
      */
@@ -72,6 +71,8 @@ class DomControl extends Controller
 
         echo $RentalCatg;
     }
+
+
     /**
      * selection des sites (regions) correspondant aux catégorie selectionner 
      */
@@ -127,21 +128,7 @@ class DomControl extends Controller
     }
 
 
-    private function conversionCaratere(string $chaine): string
-    {
-        return iconv('Windows-1252', 'UTF-8', $chaine);
-    }
 
-    private function conversionTabCaractere(array $tab): array
-    {
-        $array = [];
-        foreach ($tab as $key => $values) {
-            foreach ($values as $key => $value) {
-                $array[$key] = iconv('Windows-1252', 'UTF-8', $value);
-            }
-        }
-        return $array;
-    }
 
     /**
      * recuperation des variable ci-dessous vers les views (FormDOM) indiquer 
@@ -154,6 +141,14 @@ class DomControl extends Controller
 
         //$NumDOM = $this->DomModel->DOM_autoINcriment();
         $UserConnect = $_SESSION['user'];
+
+
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+
         $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
@@ -177,7 +172,7 @@ class DomControl extends Controller
         $LibServ = $CodeServiceofCours['service_ips'];
 
         $Agence = $LibAgence . " " . $LibServ;
-        $boolean = strpos(file_get_contents($fichier), $Agence);
+        $boolean2 = strpos(file_get_contents($fichier), $Agence);
 
         $this->twig->display(
             'dom/FormDOM.html.twig',
@@ -185,6 +180,8 @@ class DomControl extends Controller
                 'CodeServiceofCours' => $CodeServiceofCours,
                 'PersonelServOfCours' => $PersonelServOfCours,
                 'TypeDocument' => $TypeDocument,
+                'boolean2' => $boolean2,
+                'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean
             ]
         );
@@ -203,6 +200,12 @@ class DomControl extends Controller
         $this->SessionStart();
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
+
+            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+            $text = file_get_contents($fichier);
+            $boolean = strpos($text, $_SESSION['user']);
+
             $CategPers = $_POST['categPers'];
             //$NumDom = $_POST['NumDOM'];
             $code_service = $_POST['Serv'];
@@ -251,7 +254,9 @@ class DomControl extends Controller
                     'codeServ' => $codeServ,
                     'servLib' => $servLib,
                     'numTel' => $numTel,
-                    'numCompteBancaire' => $numCompteBancaire
+                    'numCompteBancaire' => $numCompteBancaire,
+                    'infoUserCours' => $infoUserCours,
+                    'boolean' => $boolean
                 ]
             );
             //include 'Views/Principe.php';

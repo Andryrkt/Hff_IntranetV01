@@ -2,6 +2,9 @@
 
 
 {% block content %}
+
+    
+
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
         <div class="container">
@@ -15,7 +18,7 @@
                     <li class="nav-item dropdown" id="BDM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Nouvelle Demande </a></li>
+                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
                             <li><a class="dropdown-item" href="#">Consultation</a></li>
                         </ul>
                     </li>
@@ -65,7 +68,10 @@
 
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ UserConnect }}</a>
+                        
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
+                        
+                        
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
                             <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>

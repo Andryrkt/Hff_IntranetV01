@@ -4,41 +4,59 @@ namespace App\Model;
 
 class DatabaseInformix
 {
+
+    private $dsn = 'IPS_HFFPROD';
+    private $user = 'informix';
+    private $password = 'informix';
     private $conn;
 
-    public function __construct($hostname, $port, $database, $username, $password)
+    // Constructeur
+    public function __construct()
     {
-        // Construire la chaîne de connexion ODBC
-        $dsn = "Driver={Informix};Server=$hostname;Port=$port;Database=$database;PROTOCOL=onsoctcp;UID=$username;PWD=$password";
-
-        // Établir la connexion à la base de données
-        $this->conn = odbc_connect($dsn, 'informix', 'informix');
-
+        $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
         if (!$this->conn) {
-            die("Impossible de se connecter à la base de données Informix");
+            throw new \Exception("ODBC Conenction failed:" . odbc_error());
         }
     }
 
-    public function query($sql)
+    // Méthode pour établir la connexion à la base de données
+    public function connect()
     {
-        // Exécuter la requête
-        $result = odbc_exec($this->conn, $sql);
+        return $this->conn;
+    }
 
-        // Vérifier si la requête a réussi
-        if ($result) {
-            $data = array();
-            while ($row = odbc_fetch_array($result)) {
-                $data[] = $row;
-            }
-            return $data;
+    // Méthode pour exécuter une requête SQL
+    public function executeQuery($query)
+    {
+        if ($this->conn) {
+            $result = odbc_exec($this->conn, $query);
+            return $result;
         } else {
+            echo "La connexion à la base de données n'est pas établie.";
             return false;
         }
     }
 
+    // Méthode pour récupérer les résultats d'une requête
+    public function fetchResults($result)
+    {
+        $rows = array();
+        if ($result) {
+            while ($row = odbc_fetch_array($result)) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
+
+    // Méthode pour fermer la connexion à la base de données
     public function close()
     {
-        // Fermer la connexion à la base de données
-        odbc_close($this->conn);
+        if ($this->conn) {
+            odbc_close($this->conn);
+            echo "Connexion fermée.\n";
+        } else {
+            echo "La connexion à la base de données n'est pas établie.";
+        }
     }
 }

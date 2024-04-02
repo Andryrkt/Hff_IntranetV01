@@ -4,7 +4,8 @@
             "App\\": "src/",
             "App\\Controller\\": "src/Controller/",
             "App\\Model\\": "src/Model/",
-            "App\\Service\\": "src/Service"
+            "App\\Service\\": "src/Service/",
+            "Config\\": "config/"
         }
     },
     "authors": [
@@ -17,7 +18,8 @@
     "require": {
         "setasign/fpdi": "^2.6",
         "twig/twig": "3.0",
-        "tecnickcom/tcpdf": "^6.7"
+        "tecnickcom/tcpdf": "^6.7",
+        "nikic/fast-route": "^1.3"
     }
    
 }

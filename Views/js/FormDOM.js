@@ -1,4 +1,6 @@
 
+
+
 function Matricule() {
     var names = document.getElementById('nomprenom').value;
     let result = names.substring(0, 4);

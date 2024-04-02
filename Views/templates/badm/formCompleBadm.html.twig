@@ -1,10 +1,10 @@
-
 {% extends "baseTemplate.html.twig" %}
 
 {% import "badm/macroForm.html.twig" as form %}
 
 {% block content %}
-{# {{ include('/main/Principe.html.twig', { 'infoUserCours': infoUserCours, 'boolean': boolean }) }} #}
+{# {{ include('/main/Principe.html.twig', { 'infoUserCours': infoUserCours, 'boolean': boolean }) }}#}
+
 
 <!-- Responsive navbar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
@@ -106,37 +106,124 @@
 
 
 
+    <div class="container my-5">
 
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            <div class="col" style="text-align: right;font-weight: bold;">
-                <h4>Demande matériel</h4>
+        <h2>Nouvelle demande Bordereau d’Acquisition et de Mouvement Matériel</h2>
+
+        <form action="#" method="post" name="form">
+
+            <div class="row">    
+              {{ form.inputReadonly('dateDemande', 'Date', '24/03/2024', {endpoint: '2', class: 'offset-10'}) }}
             </div>
-            <form method="POST" action="">
-                <div class="row">
-                    <div class="col-4">
-                        <label for="Serv" class="label-form">Code :</label>
-                        <input type="text" name="Serv" class="form-control" id="Serv" value="{{ CodeServiceofCours.agence_ips }} {{ CodeServiceofCours.nom_agence_i100 }}" readonly>
-                    </div>
-                    <div class="col-4">
-                        <label for="LibServ" class="label-form">Service :</label>
-                        <input type="text" name="LibServ" class="form-control" id="LibServ" value="{{ CodeServiceofCours.service_ips }} {{ CodeServiceofCours.nom_service_i100 }}" readonly>
-                    </div>
-                </div>
-                <div class="row">
-                    {{ form.select('typeMission', 'Type de Mission', {ENTREE_EN_PARC: 'ENTREE EN PARC', CHANGEMENT_AGENCE_SERVICE: "CHANGEMENT D’AGENCE/SERVICE", CHANGEMENT_DE_CASIER: 'CHANGEMENT DE CASIER', MISE_AU_REBUT: 'MISE AU REBUT', CESSION_ACTIF: "CESSION D’ACTIF" })}}
-                </div>
-                <div class="row">
-                    {{form.inputNumber('idMateriel', 'ID matériel',null, {endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                   {{form.inputText('numeroParc', 'Numéro parc', null, {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
-                   {{form.inputText('numeroSerie', 'Numéro de série', null,  {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
-                </div>
-                <div class="row mt-2">
-                    {{ form.button('submit', 'Suivant','enregistrer', 'info')}}
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock content %}
+
+            <div class="row">
+                {{ form.sousTitre('Caractéristiques du matériel')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('designation', 'Désignation ', 'Exemple Designation',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', 'Exemple ID matériel',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', 'Exemple N° Série',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', 'Exemple N° Parc ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('groupe', 'Groupe ', 'Exemple Groupe',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', 'Exemple Constructeur',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('modele', 'Modèle ', 'Exemple Modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('anneeModele', 'Année du modèle', 'Exemple Année du modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('dateAchat', 'Date d’achat ', 'Exemple Date d’achat ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Service émetteur')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('agenceEmetteur', 'Agence','01 Tana',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('serviceEmetteur', 'Service', '80 Admin',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('casierEmetteur', 'Casier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Service destinataire')}}
+            </div>
+            <div class="row">
+                {{form.select('agenceDestinataire', 'Agence', {tana :'01 Tana', bira : '02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('casierDestinataireAgence', 'Casier Agence ou CLient', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('casierDestinataireChantier', 'Casier Chantier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('casierDestinataireStd', 'Casier STD', {'':'', STD_BY: 'STD BY', ATE: 'ATE', PANNE: 'PANNE'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', 'Exemple Motif de service déstinataire ',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Entrée en parc')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', '',{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Valeur (MGA)')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', 'Exemple Coût d’acquisition',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('amortissement', 'Amortissement', 'Exemple Amort',{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+                {{form.inputReadonly('valeurNetComptable', 'VNC', 'Exemple VNC',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Cession d’actif')}}
+            </div>
+            <div class="row">
+                {{form.inputText('nomClient', 'Nom client', 'Exemple Nom client',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Mise au rebut')}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', 'Exemple Motif de mise au rebut',{endpoint: '12', maxlength: '100'})}}     
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Etat machine')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('heuresMachine', 'Heures machine', 'Exemple Heures machine',{endpoint: '12', class: 'col-md-6'})}}
+                {{form.inputReadonly('kilometrage', 'Kilométrage', 'Exemple Kilométrage',{endpoint: '12', class: ' col-md-6'})}}    
+            </div>
+
+
+
+            <div class="row mt-5">
+                {{form.button('submit', 'Envoyer', 'enregistrer', 'primary')}}
+                {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
+            </div>
+        </form>
+    </div>    
+    {% endblock content %}
