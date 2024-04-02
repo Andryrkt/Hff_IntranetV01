@@ -1,58 +1,113 @@
 <?php
 
-require_once 'vendor/autoload.php';
+use App\Model\DomModel;
+use App\Model\Connexion;
+use App\Model\LdapModel;
+use App\Model\ProfilModel;
+use App\Model\StatutModel;
+use App\Model\TypeDocModel;
+use App\Model\PersonnelModel;
+use App\Controller\DomControl;
+use App\Controller\ProfilControl;
+use App\Controller\StatutControl;
+use App\Controller\MainController;
+use App\Controller\TypeDocControl;
+use App\Controller\PersonnelControl;
+use App\Model\AgenceServAutoriserModel;
+use App\Controller\AgenceServAutoriserControl;
+use App\Controller\BadmController;
 
-// Configuration de Twig avec le chemin vers vos fichiers de template
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/Views/templates');
-$twig = new \Twig\Environment($loader);
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
+// $routes = require_once __DIR__ . '/config/routes.php';
+// //var_dump($routes);
+
+// $dispatcher = FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) use ($routes) {
+//     foreach ($routes as $route) {
+//         $r->addRoute($route['method'], $route['path'], $route['controller']);
+//     }
+// });
+
+// // Fetch method and URI from somewhere
+// $httpMethod = $_SERVER['REQUEST_METHOD'];
+// $uri = $_SERVER['REQUEST_URI'];
+// //var_dump($uri);
+// // Strip query string (?foo=bar) and decode URI
+// if (false !== $pos = strpos($uri, '?')) {
+//     $uri = substr($uri, 0, $pos);
+// }
+// $uri = rawurldecode($uri);
+// //var_dump($httpMethod);
+// $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
+// //var_dump($routeInfo);
+// switch ($routeInfo[0]) {
+//     case \FastRoute\Dispatcher::FOUND:
+//         $explode = explode(':', $routeInfo[1]);
+
+//         call_user_func_array([new $explode[0], $explode[1]], [$routeInfo[2]]);
+//         break;
+//     case \FastRoute\Dispatcher::NOT_FOUND:
+//         //Route not found
+//         header("HTTP/1.0 404 Not Found");
+//         echo "404 Not Found";
+//         break;
+// }
 
 
 
-include 'Model/Connexion.php';
-include 'Model/LdapModel.php';
-include 'Controler/LdapControl.php';
-//---Profil---
-include 'Model/ProfilModel.php';
-include 'Controler/ProfilControl.php';
+
+// include 'Model/Connexion.php';
+// include 'Model/LdapModel.php';
+// include 'Controler/LdapControl.php';
+// //---Profil---
+// include 'Model/ProfilModel.php';
+// include 'Controler/ProfilControl.php';
 $Conn_IntranetV01 =  new Connexion();
-$ModelProfil = new ProfilModel($Conn_IntranetV01);
-$ControlProfil = new ProfilControl($ModelProfil);
+$ModelProfil = new ProfilModel();
+$ControlProfil = new ProfilControl();
 
-//----
-//Personnel
-include 'Model/PersonnelModel.php';
-include 'Controler/PersonnelControl.php';
-$ModelPers = new PersonnelModel($Conn_IntranetV01);
-$ControlPers = new PersonnelControl($ModelPers);
+// //----
+// //Personnel
+// include 'Model/PersonnelModel.php';
+// include 'Controler/PersonnelControl.php';
+$ModelPers = new PersonnelModel();
+$ControlPers = new PersonnelControl();
 //---
-//DOM
-include 'Model/DomModel.php';
-include 'Controler/DomControl.php';
-$ModelDOM = new DomModel($Conn_IntranetV01);
-$ControlDOM = new DomControl($ModelDOM);
-//----
-// TypeDoc
-include 'Model/TypeDocModel.php';
-include 'Controler/TypeDocControl.php';
-$ModelType = new TypeDocModel($Conn_IntranetV01);
-$ControlType = new TypeDocControl($ModelType);
-//----
-//Statut
-include 'Model/StatutModel.php';
-include 'Controler/StatutControl.php';
-$ModelStatut = new StatutModel($Conn_IntranetV01);
-$ControlStatut = new StatutControl($ModelStatut);
-//----
-//Autorisation
-include 'Model/AgenceServAutoriserModel.php';
-include 'Controler/AgenceServAutoriserControl.php';
-$ModelAutorisation = new AgenceServAutoriserModel($Conn_IntranetV01);
-$ControlAutorisation = new AgenceServAutoriserControl($ModelAutorisation);
+// //DOM
+// include 'Model/DomModel.php';
+// include 'Controler/DomControl.php';
+$ModelDOM = new DomModel();
+$ControlDOM = new DomControl();
+// //----
+// // TypeDoc
+// include 'Model/TypeDocModel.php';
+// include 'Controler/TypeDocControl.php';
+$ModelType = new TypeDocModel();
+$ControlType = new TypeDocControl();
+// //----
+// //Statut
+// include 'Model/StatutModel.php';
+// include 'Controler/StatutControl.php';
+$ModelStatut = new StatutModel();
+$ControlStatut = new StatutControl();
+// //----
+// //Autorisation
+// include 'Model/AgenceServAutoriserModel.php';
+// include 'Controler/AgenceServAutoriserControl.php';
+$ModelAutorisation = new AgenceServAutoriserModel();
+$ControlAutorisation = new AgenceServAutoriserControl();
+
+// include '/Service/GenererPdf.php';
+// $genererPdf = new GenererPdf();
+$MainController = new MainController();
+$BadmController = new BadmController();
+
+
 //
-$Username = isset($_POST['Username']) ? $_POST['Username'] : '';
-$Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
-$Ldap = new LdapConnect();
-$Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+// $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
+// $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
+// $Ldap = new LdapModel();
+// $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
 //$Ldap->searchLdapUser();
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'default';
@@ -61,17 +116,16 @@ switch ($action) {
         $ControlProfil->showPageAcceuil();
         break;
     case 'Authentification':
-
-        if (!$Connexion_Ldap_User) {
-            echo '<script type="text/javascript">
-                alert("Merci de vérifier votre session LDAP");
-                document.location.href = "/Hffintranet";
-            </script>';
-        } else {
-            session_start();
-            $_SESSION['user'] = $Username;
-            $ControlProfil->showInfoProfilUser();
-        }
+        $ControlProfil->showInfoProfilUser();
+        // if (!$Connexion_Ldap_User) {
+        //     echo '<script type="text/javascript">
+        //         alert("Merci de vérifier votre session LDAP");
+        //         document.location.href = "/Hffintranet";
+        //     </script>';
+        // } else {
+        //     session_start();
+        //     $_SESSION['user'] = $Username;
+        // }
         break;
 
     case 'Logout':
@@ -88,7 +142,6 @@ switch ($action) {
     case 'Propos':
         $ControlProfil->showinfoAllUsercours();
         break;
-
     case 'Personnels':
         $ControlPers->showPersonnelForm();
         break;
@@ -164,11 +217,49 @@ switch ($action) {
         break;
     case 'DuplifierForm':
         $ControlDOM->duplificationFormController();
-
         break;
     case 'LibStatut':
         $ControlDOM->filterStatut();
         break;
+    case 'twig':
+        $MainController->index();
+        break;
+    case 'formBadm':
+        $BadmController->formBadm();
+        break;
+    case 'formCompleBadm':
+        $BadmController->formBadm();
+        break;
     default:
         include 'Views/SignIn.php';
 }
+
+
+
+
+// use App\Model\DatabaseInformix;
+
+// $hostname = 'IPS_HFFPROD';
+// $port = '9088';
+// $database = 'ol_iriumprod';
+// $username = 'informix';
+// $password = 'informix';
+
+// // Exemple d'utilisation de la classe
+// $informixDB = new DatabaseInformix($hostname, $username, $password);
+// $informixDB->connect();
+
+// // Exemple de requête SQL
+// $query = "select MMAT_DESI, MMAT_NUMMAT, MMAT_NUMSERIE, MMAT_RECALPH, MMAT_MARQMAT, MMAT_DATENTR, YEAR(MMAT_DATEMSER) As Annee_model, MMAT_TYPMAT, MMAT_NUMPARC, MMAT_NOUO from MAT_MAT ";
+//select MIMM_SUCLIEU , MIMM_SERVICE   from MMO_IMM // agence service emetteur
+//select MHIR_COMPTEUR, MHIR_CUMCOMP  from MAT_HIR // heures et kilométrage machine
+//select SUM(MOFI_MT) AS somme_totale   from MAT_OFI
+// // Exécuter la requête
+// $result = $informixDB->executeQuery($query);
+
+// // Afficher les résultats
+// $rows = $informixDB->fetchResults($result);
+// print_r($rows);
+
+// // Fermer la connexion
+// $informixDB->close();

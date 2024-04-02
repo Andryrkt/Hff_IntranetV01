@@ -98,10 +98,6 @@ dateDebutFinInput.addEventListener('change', (e) => {
 });
 
 
-
-
-
-
     /* 
         bouton de recherche
     */
@@ -249,6 +245,10 @@ function renderData1(data) {
             if (key === 'Total_Autres_Depenses' || key === 'Total_General_Payer') {
                 cellule.style.textAlign = 'end';
             }
+
+            // if(key==='ID_Demande_Ordre_Mission'){
+            //     cellule.style.display = 'none';
+            // }
 
             if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
                 cellule.textContent = item[key].split('-').reverse().join('/');

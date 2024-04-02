@@ -7,6 +7,7 @@
     <title>Hff intranet</title>
 
 </head>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     /*function visible() {
         var select = document.getElementById('typeMission');
@@ -42,6 +43,46 @@
             Interne.style.display = 'none';
         }
     }
+
+
+    window.addEventListener('load', function() {
+        Matricule();
+        Interne_externe();
+    });
+
+
+
+
+    $(document).ready(function() {
+        $('#typeMission').change(function() {
+            var valeurSelectionnee = $(this).val();
+            var Agence = $('#Serv').val();
+            var codeAgence = Agence.substring(0, 2);
+            if (valeurSelectionnee === "MISSION" || valeurSelectionnee === "MUTATION") {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Hffintranet/index.php?action=SelectCateg',
+                    data: {
+                        typeMission: valeurSelectionnee,
+                        CodeAg: codeAgence
+                    },
+                    success: function(response) {
+                        if (response.trim() === "") {
+                            $('#affichage_container').hide();
+                        } else {
+                            $('#affichage_container').html(response).show();
+                        }
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#affichage_container').hide();
+            }
+        });
+        $('#typeMission').change();
+    });
 </script>
 <?php
 $fichier = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Views/Acces/Agence.txt';
@@ -64,7 +105,7 @@ $Agence = $LibAgence . " " . $LibServ;
     }
 </style>
 
-<body onload=" Matricule();Interne_externe() ">
+<body>
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -124,43 +165,8 @@ $Agence = $LibAgence . " " . $LibServ;
                     <!---->
                     <div class="row">
                         <div class="col-6">
-
                             <div id="affichage_container">
                             </div>
-                            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-                            <script>
-                                $(document).ready(function() {
-                                    $('#typeMission').change(function() {
-                                        var valeurSelectionnee = $(this).val();
-                                        var Agence = $('#Serv').val();
-                                        var codeAgence = Agence.substring(0, 2);
-                                        if (valeurSelectionnee === "MISSION" || valeurSelectionnee === "MUTATION") {
-                                            $.ajax({
-                                                type: 'POST',
-                                                url: '/Hffintranet/index.php?action=SelectCateg',
-                                                data: {
-                                                    typeMission: valeurSelectionnee,
-                                                    CodeAg: codeAgence
-                                                },
-                                                success: function(response) {
-                                                    if (response.trim() === "") {
-                                                        $('#affichage_container').hide();
-                                                    } else {
-                                                        $('#affichage_container').html(response).show();
-                                                    }
-                                                },
-                                                error: function(error) {
-                                                    console.error(error);
-                                                }
-                                            });
-                                        } else {
-                                            $('#affichage_container').hide();
-                                        }
-                                    });
-                                    $('#typeMission').change();
-                                });
-                            </script>
-
                         </div>
 
                     </div>

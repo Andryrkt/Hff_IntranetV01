@@ -1,0 +1,229 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% import "badm/macroForm.html.twig" as form %}
+
+{% block content %}
+{# {{ include('/main/Principe.html.twig', { 'infoUserCours': infoUserCours, 'boolean': boolean }) }}#}
+
+
+<!-- Responsive navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
+    <div class="container">
+       <a class="navbar-brand" href="/Hffintranet/index.php?action=Acceuil"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
+       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+       <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
+           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+               <!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
+               {% if infoUserCours.1.App == 'BDM' %}
+               <li class="nav-item dropdown" id="BDM">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
+                       <li><a class="dropdown-item" href="#">Consultation</a></li>
+                   </ul>
+               </li>
+               {% endif %}
+               <!-- FIN Bordereau d’acquisition et de Mouvement Matériel -->
+
+
+               
+               <!-- DEBUT Demande d'odre de mission -->
+               {% if infoUserCours.0.App == 'DOM' %}
+               <li class="nav-item dropdown" id="DOM">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande </a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
+                   </ul>
+               </li>
+               {% endif %}
+               <!-- FIN Demande d'odre de mission -->
+
+               <li class="nav-item dropdown">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Intervention</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="#">Nouvelle Demande d'Intervention</a></li>
+                       <li><a class="dropdown-item" href="#">Liste des demandes d'Intervention </a></li>
+
+                   </ul>
+               </li>
+
+               <li class="nav-item dropdown">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Appro</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a></li>
+                       <li><a class="dropdown-item" href="#">Liste des demandes d'Appro</a></li>
+
+                   </ul>
+               </li>
+
+               <li class="nav-item dropdown">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Support Info</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="#">Nouveau Support</a></li>
+                       <li><a class="dropdown-item" href="#">Liste de Support </a></li>
+
+                   </ul>
+               </li>
+
+
+               <li class="nav-item dropdown">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
+                       <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
+                       <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
+                       <li>
+                           <hr class="dropdown-divider" />
+                       </li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Logout">Déconnection</a></li>
+                   </ul>
+               </li>
+
+
+               {% if boolean %}
+               <li class="nav-item dropdown" id="Setting">
+                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
+                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                       <li><a class="dropdown-item" href="#" id="Perso">Personnels</a></li>
+                       <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc">Type de Document</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut">Statut App</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser">Autorisation AgenceService</a></li>
+
+                   </ul>
+               </li>
+               {% endif %}
+           </ul>
+       </div>
+   </div>
+</nav> 
+
+
+
+
+    <div class="container my-5">
+
+        <h2>Nouvelle demande Bordereau d’Acquisition et de Mouvement Matériel</h2>
+
+        <form action="#" method="post" name="form">
+
+            <div class="row">    
+              {{ form.inputReadonly('dateDemande', 'Date', '24/03/2024', {endpoint: '2', class: 'offset-10'}) }}
+            </div>
+
+            <div class="row">
+                {{ form.sousTitre('Caractéristiques du matériel')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('designation', 'Désignation ', 'Exemple Designation',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', 'Exemple ID matériel',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', 'Exemple N° Série',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', 'Exemple N° Parc ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('groupe', 'Groupe ', 'Exemple Groupe',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', 'Exemple Constructeur',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('modele', 'Modèle ', 'Exemple Modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('anneeModele', 'Année du modèle', 'Exemple Année du modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('dateAchat', 'Date d’achat ', 'Exemple Date d’achat ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Service émetteur')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('agenceEmetteur', 'Agence','01 Tana',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('serviceEmetteur', 'Service', '80 Admin',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('casierEmetteur', 'Casier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Service destinataire')}}
+            </div>
+            <div class="row">
+                {{form.select('agenceDestinataire', 'Agence', {tana :'01 Tana', bira : '02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('casierDestinataireAgence', 'Casier Agence ou CLient', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('casierDestinataireChantier', 'Casier Chantier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('casierDestinataireStd', 'Casier STD', {'':'', STD_BY: 'STD BY', ATE: 'ATE', PANNE: 'PANNE'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', 'Exemple Motif de service déstinataire ',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Entrée en parc')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', '',{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Valeur (MGA)')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', 'Exemple Coût d’acquisition',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.inputReadonly('amortissement', 'Amortissement', 'Exemple Amort',{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+                {{form.inputReadonly('valeurNetComptable', 'VNC', 'Exemple VNC',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            </div>
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Cession d’actif')}}
+            </div>
+            <div class="row">
+                {{form.inputText('nomClient', 'Nom client', 'Exemple Nom client',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Mise au rebut')}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', 'Exemple Motif de mise au rebut',{endpoint: '12', maxlength: '100'})}}     
+            </div>
+
+
+
+
+            <div class="row">
+                {{ form.sousTitre('Etat machine')}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('heuresMachine', 'Heures machine', 'Exemple Heures machine',{endpoint: '12', class: 'col-md-6'})}}
+                {{form.inputReadonly('kilometrage', 'Kilométrage', 'Exemple Kilométrage',{endpoint: '12', class: ' col-md-6'})}}    
+            </div>
+
+
+
+            <div class="row mt-5">
+                {{form.button('submit', 'Envoyer', 'enregistrer', 'primary')}}
+                {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
+            </div>
+        </form>
+    </div>    
+    {% endblock content %}
