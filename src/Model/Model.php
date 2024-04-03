@@ -18,9 +18,9 @@ class Model
         $this->connect = new DatabaseInformix();
     }
 
-    public function RecupereNumDom($colonne)
+    public function RecupereNum($colonne, $nomTable)
     {
-        $NumDOM_Max = "SELECT  MAX(Numero_Ordre_Mission) FROM Demande_ordre_mission ";
+        $NumDOM_Max = "SELECT  MAX($colonne) FROM $nomTable ";
         $exec_NumDOM_Max = $this->connexion->query($NumDOM_Max);
         if ($exec_NumDOM_Max === null) {
             echo "null";

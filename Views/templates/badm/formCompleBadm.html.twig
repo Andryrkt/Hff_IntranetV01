@@ -106,124 +106,133 @@
 
 
 
-    <div class="container my-5">
+<div class="container my-5">
 
-        <h2>Nouvelle demande Bordereau d’Acquisition et de Mouvement Matériel</h2>
+    <h2>Nouvelle demande Bordereau d’Acquisition et de Mouvement Matériel</h2>
 
-        <form action="#" method="post" name="form">
+    <form action="index.php?action=envoiFormCompleBadm" method="post" name="form">
+        <input type="hidden" name="codeMouvement" value="{{codeMouvement}}">
+        <div class="row">    
+          {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y'), {endpoint: '2', class: 'offset-10'}) }}
+        </div>
 
-            <div class="row">    
-              {{ form.inputReadonly('dateDemande', 'Date', '24/03/2024', {endpoint: '2', class: 'offset-10'}) }}
-            </div>
-
-            <div class="row">
-                {{ form.sousTitre('Caractéristiques du matériel')}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('designation', 'Désignation ', 'Exemple Designation',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('idMateriel', 'ID matériel ', 'Exemple ID matériel',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numSerie', 'N° Série ', 'Exemple N° Série',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numParc', 'N° Parc  ', 'Exemple N° Parc ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('groupe', 'Groupe ', 'Exemple Groupe',{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('constructeur', 'Constructeur', 'Exemple Constructeur',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('modele', 'Modèle ', 'Exemple Modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('anneeModele', 'Année du modèle', 'Exemple Année du modèle ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('dateAchat', 'Date d’achat ', 'Exemple Date d’achat ',{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            </div>
-
-
-
-            <div class="row">
-                {{ form.sousTitre('Service émetteur')}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('agenceEmetteur', 'Agence','01 Tana',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.inputReadonly('serviceEmetteur', 'Service', '80 Admin',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.inputReadonly('casierEmetteur', 'Casier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            </div>
+        <div class="row">
+            {{ form.sousTitre('Caractéristiques du matériel')}}
+        </div>
+        <div class="row">
+            {% for item in items %}
+                {{form.inputReadonly('designation', 'Désignation ', item.mmat_desi,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', item.mmat_nummat,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', item.mmat_numserie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', item.mmat_recalph,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                
+            {% endfor %}
+        </div>
+        <div class="row">
+            {% for item in items %}
+                {{form.inputReadonly('groupe', 'Groupe ', item.atab_lib,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', item.mmat_marqmat,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('modele', 'Modèle ', item.mmat_typmat,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('anneeModele', 'Année du modèle', item.Annee_model,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            {% endfor %}
+        </div>
+        <div class="row">
+            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.mmat_datentr,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+        </div>
 
 
 
-            <div class="row">
-                {{ form.sousTitre('Service destinataire')}}
-            </div>
-            <div class="row">
-                {{form.select('agenceDestinataire', 'Agence', {tana :'01 Tana', bira : '02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('casierDestinataireAgence', 'Casier Agence ou CLient', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.inputReadonly('casierDestinataireChantier', 'Casier Chantier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.select('casierDestinataireStd', 'Casier STD', {'':'', STD_BY: 'STD BY', ATE: 'ATE', PANNE: 'PANNE'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            </div>
-            <div class="row">
-                {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', 'Exemple Motif de service déstinataire ',{required: 'required', endpoint: '12', maxlength: '100' } )}}
-            </div>
+        <div class="row">
+            {{ form.sousTitre('Service émetteur')}}
+        </div>
+        <div class="row">
+            {% for item in items %}
+            {{form.inputReadonly('agenceEmetteur', 'Agence','01 Tana',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.inputReadonly('serviceEmetteur', 'Service', '80 Admin',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.inputReadonly('casierEmetteur', 'Casier', item.mmat_numparc,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {% endfor %}
+        </div>
 
 
 
-
-            <div class="row">
-                {{ form.sousTitre('Entrée en parc')}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', '',{required: 'required', endpoint: '12', class: ' col-md-6'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
-            </div>
-
-
-
-            <div class="row">
-                {{ form.sousTitre('Valeur (MGA)')}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', 'Exemple Coût d’acquisition',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.inputReadonly('amortissement', 'Amortissement', 'Exemple Amort',{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
-                {{form.inputReadonly('valeurNetComptable', 'VNC', 'Exemple VNC',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
-            </div>
-
-
-
-            <div class="row">
-                {{ form.sousTitre('Cession d’actif')}}
-            </div>
-            <div class="row">
-                {{form.inputText('nomClient', 'Nom client', 'Exemple Nom client',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
-                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
-            </div>
+        <div class="row">
+            {{ form.sousTitre('Service destinataire')}}
+        </div>
+        <div class="row">
+            {{form.select('agenceDestinataire', 'Agence', {tana :'01 Tana', bira : '02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            
+        </div>
+        <div class="row">
+            {{form.inputReadonly('casierDestinataireAgence', 'Casier Agence ou CLient', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.inputReadonly('casierDestinataireChantier', 'Casier Chantier', 'Exemple Casier',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.select('casierDestinataireStd', 'Casier STD', {'':'', STD_BY: 'STD BY', ATE: 'ATE', PANNE: 'PANNE'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+        </div>
+        <div class="row">
+            {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', 'Exemple Motif de service déstinataire ',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+        </div>
 
 
 
 
-            <div class="row">
-                {{ form.sousTitre('Mise au rebut')}}
-            </div>
-            <div class="row">
-                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', 'Exemple Motif de mise au rebut',{endpoint: '12', maxlength: '100'})}}     
-            </div>
+        <div class="row">
+            {{ form.sousTitre('Entrée en parc')}}
+        </div>
+        <div class="row">
+
+            {{form.inputReadonly('etatAchat', 'Etat à l’achat:', items.0.mmat_nouo,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+            {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
+        </div>
+
+
+
+        <div class="row">
+            {{ form.sousTitre('Valeur (MGA)')}}
+        </div>
+        <div class="row">
+            {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', 'Exemple Coût d’acquisition',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.inputReadonly('amortissement', 'Amortissement', amortissement.0.somme_totale,{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+            {{form.inputReadonly('valeurNetComptable', 'VNC', 'Exemple VNC',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+        </div>
+
+
+
+        <div class="row">
+            {{ form.sousTitre('Cession d’actif')}}
+        </div>
+        <div class="row">
+            {{form.inputText('nomClient', 'Nom client', 'Exemple Nom client',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+            {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+        </div>
 
 
 
 
-            <div class="row">
-                {{ form.sousTitre('Etat machine')}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('heuresMachine', 'Heures machine', 'Exemple Heures machine',{endpoint: '12', class: 'col-md-6'})}}
-                {{form.inputReadonly('kilometrage', 'Kilométrage', 'Exemple Kilométrage',{endpoint: '12', class: ' col-md-6'})}}    
-            </div>
+        <div class="row">
+            {{ form.sousTitre('Mise au rebut')}}
+        </div>
+        <div class="row">
+            {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', 'Exemple Motif de mise au rebut',{endpoint: '12', maxlength: '100'})}}     
+        </div>
 
 
 
-            <div class="row mt-5">
-                {{form.button('submit', 'Envoyer', 'enregistrer', 'primary')}}
-                {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
-            </div>
-        </form>
-    </div>    
+
+        <div class="row">
+            {{ form.sousTitre('Etat machine')}}
+        </div>
+        <div class="row">
+            {{form.inputReadonly('heuresMachine', 'Heures machine', 'Exemple Heures machine',{endpoint: '12', class: 'col-md-6'})}}
+            {{form.inputReadonly('kilometrage', 'Kilométrage', 'Exemple Kilométrage',{endpoint: '12', class: ' col-md-6'})}}    
+        </div>
+
+
+
+        <div class="row mt-5">
+            {{form.button('submit', 'Envoyer', 'enregistrer', 'primary')}}
+            {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
+        </div>
+    </form>
+</div>        
     {% endblock content %}

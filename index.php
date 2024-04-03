@@ -230,6 +230,12 @@ switch ($action) {
     case 'formCompleBadm':
         $BadmController->formBadm();
         break;
+    case 'envoiFormCompleBadm':
+        $BadmController->formCompleBadm();
+        break;
+    case 'donneeFiltrer':
+        $BadmController->envoiDonnerFiltrerInformix();
+        break;
     default:
         include 'Views/SignIn.php';
 }
