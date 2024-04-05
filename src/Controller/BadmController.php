@@ -41,8 +41,16 @@ class BadmController extends Controller
                 $coutAcquisition = $data[0]['charge_entretien'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
                 $agences = $this->badm->recupAgence();
+
                 $agenceDestinataire = [];
                 foreach ($agences as  $value) {
+
+                    if (trim($value['asuc_lib']) == 'PNEUMATIQUE-OUTILLAGE-LUBRIF') {
+                        $value['asuc_lib'] = 'PNEU - OUTIL - LUB';
+                    }
+                    if (trim($value['asuc_lib']) == 'COMM ENERGIE') {
+                        $value['asuc_lib'] = 'COMM.ENERGIE';
+                    }
                     $agenceDestinataire[] = trim($value['asuc_num'] . ' ' . $value['asuc_lib']);
                 }
                 // var_dump($agenceDestinataire);

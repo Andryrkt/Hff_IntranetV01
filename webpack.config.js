@@ -1,10 +1,13 @@
 module.exports = {
     // Point d'entrée
-    entry: './Views/js/app.js',
+    entry: {
+      badm: './Views/js/badm.js',
+      dom: './Views/js/dom.js'
+    },
     // Sortie
     output: {
       path: __dirname + '/Views/dist',
-      filename: 'bundle.js'
+      filename: '[name].bundle.js'
     },
     // Règles de module
     module: {

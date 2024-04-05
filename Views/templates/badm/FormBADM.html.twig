@@ -112,17 +112,17 @@
             </div>
             <form method="POST" action="">
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-12 col-md-4">
                         <label for="Serv" class="label-form">Code :</label>
                         <input type="text" name="Serv" class="form-control" id="Serv" value="{{ CodeServiceofCours.0.agence_ips }} {{ CodeServiceofCours.0.nom_agence_i100 }}" readonly>
                     </div>
-                    <div class="col-4">
+                    <div class="col-12 col-md-4">
                         <label for="LibServ" class="label-form">Service :</label>
                         <input type="text" name="LibServ" class="form-control" id="LibServ" value="{{ CodeServiceofCours.0.service_ips }} {{ CodeServiceofCours.0.nom_service_i100 }}" readonly>
                     </div>
                 </div>
                 <div class="row">
-                    {{ form.select('typeMission', 'Type de Mission', {ENTREE_EN_PARC: 'ENTREE EN PARC', CHANGEMENT_AGENCE_SERVICE: "CHANGEMENT D’AGENCE/SERVICE", CHANGEMENT_DE_CASIER: 'CHANGEMENT DE CASIER', MISE_AU_REBUT: 'MISE AU REBUT', CESSION_ACTIF: "CESSION D’ACTIF" })}}
+                    {{ form.select('typeMission', 'Type de Mission', {ENTREE_EN_PARC: 'ENTREE EN PARC', CHANGEMENT_AGENCE_SERVICE: "CHANGEMENT D’AGENCE/SERVICE", CHANGEMENT_DE_CASIER: 'CHANGEMENT DE CASIER', MISE_AU_REBUT: 'MISE AU REBUT', CESSION_ACTIF: "CESSION D’ACTIF" }, {endpoint: '12', class: 'col-lg-8 col-md-6'})}}
                 </div>
                 <div class="row">
                     {{form.inputNumber('idMateriel', 'ID matériel',null, {endpoint: '12', class: 'col-lg-4 col-md-6'})}}
