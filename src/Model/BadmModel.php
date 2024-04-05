@@ -74,10 +74,29 @@ class BadmModel extends Model
     //     return $this->connect->fetchResults($result);
     // }
 
-
-    public function recupAgence()
+    /**
+     * sql server
+     */
+    public function recupTypeMouvement(): array
     {
-        $statement = "select asuc_num, asuc_lib from agr_succ where asuc_numsoc = 'HF' order by asuc_num";
+        $statement  = "SELECT Description FROM Type_Mouvement";
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
+
+
+    /**
+     * informix
+     */
+    public function recupAgence(): array
+    {
+        $statement = "SELECT DISTINCT asuc_num, asuc_lib 
+        from agr_succ  where asuc_numsoc = 'HF' AND asuc_num IN ('01', '40', '50','90','91','92')
+        order by asuc_num";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -85,7 +104,70 @@ class BadmModel extends Model
         return $this->connect->fetchResults($result);
     }
 
-    public function findAll($matricule = '', $numParc = '', $numSerie = '')
+    function convertirEnUtf8($element)
+    {
+        if (is_array($element)) {
+            foreach ($element as $key => $value) {
+                $element[$key] = $this->convertirEnUtf8($value);
+            }
+        } elseif (is_string($element)) {
+            return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
+        }
+        return $element;
+    }
+
+    /**
+     * informix
+     */
+    public function recupeCasierDestinataire()
+    {
+        $statement = "SELECT distinct
+        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
+         trim(mmat_numparc) as casier
+       
+         
+         from mat_mat, agr_succ
+         WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+         
+         
+          and trim(MMAT_ETSTOCK) in ('ST','AT')
+          and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
+         and mmat_soc = 'HF'
+         -- and mmat_marqmat not like 'Z%'
+         and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
+         and mmat_datedisp < '12/31/2999'
+         and  trim(mmat_numparc) IS NOT NULL
+         ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $services = $this->connect->fetchResults($result);
+
+        $tableauUtf8 = $this->convertirEnUtf8($services);
+
+        $nouveauTableau = [];
+
+        foreach ($tableauUtf8 as $element) {
+            $codeService = $element['agence'];
+            $service = $element['casier'];
+
+            if (!isset($nouveauTableau[$codeService])) {
+                $nouveauTableau[$codeService] = array();
+            }
+
+            $nouveauTableau[$codeService][] = $service;
+        }
+        return $nouveauTableau;
+
+        //return $services;
+    }
+
+
+    /**
+     * informix
+     */
+    public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
     {
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,

@@ -51,6 +51,8 @@
 </div>
 {% endmacro %}
 
+
+
 {% macro button(type, label, id=null, color, option = []) %}
     <div class="col-3 col-md-2 col-lg-1">
         <button type="{{type}}" class="btn btn-{{color}}" name="{{ id }}" onclick="{{option.onclick}}" >{{label}}</button>

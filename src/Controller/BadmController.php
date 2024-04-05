@@ -19,8 +19,13 @@ class BadmController extends Controller
             $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
             $text = file_get_contents($fichier);
             $boolean = strpos($text, $_SESSION['user']);
+
             $data = $this->badm->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
 
+            $agences = $this->badm->recupAgence();
+
+            // var_dump($agences);
+            // die();
 
             if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
                 $message = "il faut renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
@@ -40,7 +45,7 @@ class BadmController extends Controller
                 $serviceEmetteur = substr(explode('-', $data[0]['service'])[1], 0, 3) . ' ' . explode('-', $data[0]['service'])[1];
                 $coutAcquisition = $data[0]['charge_entretien'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
-                $agences = $this->badm->recupAgence();
+
 
                 $agenceDestinataire = [];
                 foreach ($agences as  $value) {
@@ -58,13 +63,9 @@ class BadmController extends Controller
                 // die();
             }
 
-            //var_dump($data[0]);
-            // die();
 
-            //$amortissement = $this->badm->amortissement();
-            //var_dump($amortissement);
-            // $heurekilometreMachine = $this->badm->recupheureKilomettreMachine();
-            // var_dump($heurekilometreMachine);
+
+
 
             $this->twig->display(
                 'badm/formCompleBadm.html.twig',
@@ -79,6 +80,7 @@ class BadmController extends Controller
                     'coutAcquisition' => $coutAcquisition,
                     'vnc' => $vnc,
                     'agenceDestinataire' => $agenceDestinataire
+
                 ]
             );
         } else {
@@ -100,6 +102,14 @@ class BadmController extends Controller
             $text = file_get_contents($fichier);
             $boolean = strpos($text, $_SESSION['user']);
 
+            $typeMouvements = $this->badm->recupTypeMouvement();
+
+            $typeMouvement = [];
+            foreach ($typeMouvements as  $values) {
+                foreach ($values as $value) {
+                    $typeMouvement[] = $value;
+                }
+            };
 
 
             $this->twig->display(
@@ -108,52 +118,53 @@ class BadmController extends Controller
                     'infoUserCours' => $infoUserCours,
                     'boolean' => $boolean,
                     'CodeServiceofCours' => $CodeServiceofCours,
+                    'typeMouvement' => $typeMouvement
                 ]
             );
         }
     }
 
-    // public function envoiDonnerFiltrerInformix()
-    // {
+
+    public function casierDestinataire()
+    {
+        $casierDestinataire = $this->badm->recupeCasierDestinataire();
+
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($casierDestinataire);
 
 
-    //     $data1 = $this->badm->recuperationCaracterMaterielAll();
-    //     // Debug: vérifier si $data1 contient des données
-    //     error_log(print_r($data1, true)); // ou utilisez var_dump($data1);
 
-    //     header("Content-Type: application/json");
-    //     $json = json_encode($data1);
-
-    //     // Debug: vérifier si json_encode renvoie une erreur
-    //     error_log(json_last_error_msg());
-
-    //     echo $json;
-    // }
-
-    // public function showFormCompleBadm()
-    // {
-    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    //         var_dump($_POST);
-    //         $dateDemande = $this->getDatesystem();
-
-    //         $this->SessionStart();
-    //         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    //         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    //         $text = file_get_contents($fichier);
-    //         $boolean = strpos($text, $_SESSION['user']);
-
-
-    //         $this->twig->display(
-    //             'badm/formCompleBadm.html.twig',
-    //             [
-    //                 'codeMouvement' => $_POST['typeMission'],
-    //                 'infoUserCours' => $infoUserCours,
-    //                 'boolean' => $boolean,
-    //                 'dateDemande' => $dateDemande
-    //             ]
-    //         );
-    //     }
-    // }
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
+        }
+    }
 
     public function formCompleBadm()
     {
@@ -188,10 +199,7 @@ class BadmController extends Controller
             $serviceDestinataire = explode(' ', $_POST['serviceDestinataire'])[0];
             $agenceServiceDestinataire = $agenceDestinataire . '-' . $serviceDestinataire;
 
-            $casierDestinataireAgence = $_POST['casierDestinataireAgence'];
-            $casierDestinataireChantier = $_POST['casierDestinataireChantier'];
-            $casierDestinataireStd = $_POST['casierDestinataireStd'];
-            $casierDestinataire = $casierDestinataireAgence . ' ' . $casierDestinataireChantier . ' ' . $casierDestinataireStd;
+            $casierDestinataire = $_POST['casierDestinataire'];
 
 
             $coutAcquisition = 0;

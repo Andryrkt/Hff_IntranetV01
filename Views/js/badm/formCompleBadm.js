@@ -11,10 +11,7 @@ let casierEmetteur = form.casierEmetteur.value;
 let agenceDestinataire = form.agenceDestinataire.value.split(' ')[0];
 let serviceDestinataire = form.serviceDestinataire.value.split(' ')[0];
 let agenceServiceDestinataire = `${agenceDestinataire}-${serviceDestinataire}`;
-let casierDestinataireAgence = form.casierDestinataireAgence.value || '';
-let casierDestinataireChantier = form.casierDestinataireChantier.value || '';
-let casierDestinataireStd = form.casierDestinataireStd.value || '';
-let casierDestinataire = `${casierDestinataireAgence} ${casierDestinataireChantier} ${casierDestinataireStd}`;
+
 let motifArretMateriel = form.motifArretMateriel.value;
 let etatAchat = form.etatAchat.value;
 let dateMiseLocation = form.dateMiseLocation.value;
@@ -58,30 +55,30 @@ export const send =  (event) => {
     
     if (validation.passes()) {
         console.log('Validation avec succes');
-        const dataToPost = {
-            Date_Demande: dateDemande,
-            ID_Materiel: idMateriel,
-            Agence_Service_Emetteur:  agenceServiceEmetteur,
-            Casier_Emetteur: casierEmetteur,
-            Agence_Service_Destinataire: agenceServiceDestinataire,
-            Casier_Destinataire: casierDestinataire,
-            Motif_Arret_Materiel: motifArretMateriel,
-            Etat_Achat: etatAchat,
-            Date_Mise_Location: dateMiseLocation,
-            Cout_Acquisition: coutAcquisition,
-            Amortissement: amortissement,
-            Valeur_Net_Comptable: valeurNetComptable,
-            Nom_Client : nomClient,
-            Modalite_Paiement : modalitePaiement,
-            Prix_Vente_HT : prixHt,
-            Motif_Mise_Rebut : motifMiseRebut,
-            Heure_machine : heuresMachine,
-            KM_machine : kilometrage
-        };
-        console.log(dataToPost);
-        fetchManager.post('index.php?action=envoiFormCompleBadm', dataToPost)
-        .then(data => console.log(data))
-        .catch(error => console.error(error));
+        // const dataToPost = {
+        //     Date_Demande: dateDemande,
+        //     ID_Materiel: idMateriel,
+        //     Agence_Service_Emetteur:  agenceServiceEmetteur,
+        //     Casier_Emetteur: casierEmetteur,
+        //     Agence_Service_Destinataire: agenceServiceDestinataire,
+        //     Casier_Destinataire: casierDestinataire,
+        //     Motif_Arret_Materiel: motifArretMateriel,
+        //     Etat_Achat: etatAchat,
+        //     Date_Mise_Location: dateMiseLocation,
+        //     Cout_Acquisition: coutAcquisition,
+        //     Amortissement: amortissement,
+        //     Valeur_Net_Comptable: valeurNetComptable,
+        //     Nom_Client : nomClient,
+        //     Modalite_Paiement : modalitePaiement,
+        //     Prix_Vente_HT : prixHt,
+        //     Motif_Mise_Rebut : motifMiseRebut,
+        //     Heure_machine : heuresMachine,
+        //     KM_machine : kilometrage
+        // };
+        // console.log(dataToPost);
+        // fetchManager.post('index.php?action=envoiFormCompleBadm', dataToPost)
+        // .then(data => console.log(data))
+        // .catch(error => console.error(error));
     } else {
         console.log('Validation failed');
         const errors = validation.errors.all();
@@ -93,6 +90,9 @@ export const send =  (event) => {
     }
 
 };
+
+
+
 
 
 export function fetchData(selectOption = undefined) {
@@ -135,3 +135,37 @@ export function fetchData(selectOption = undefined) {
         });
 }
 
+
+
+export function fetchCasier(selectOption = undefined)
+{
+    const fetchManager = new FetchManager('/Hffintranet/');
+fetchManager.get('index.php?action=casierDestinataire')
+.then(data => 
+    {
+        console.log(data);
+  //Sélectionner l'option spécifiée
+  if (selectOption === undefined) {
+    setTimeout(() => {
+        selectOption = document.getElementById('agenceDestinataire').value.toUpperCase();
+        console.log(selectOption);
+    }, 300);
+}
+
+
+setTimeout(() => {
+    //console.log(selectOption);
+    console.log('okey');
+    const casierDestinataire = document.getElementById('casierDestinataire');
+    let taille = data[selectOption].length;
+    //console.log(taille);
+    let optionsHTML = ''; // Chaîne pour stocker les options HTML
+    for (let i = 0; i < taille; i++) {
+        optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
+    }
+    casierDestinataire.innerHTML = optionsHTML;
+}, 300);
+
+})
+.catch(error => console.error(error));
+}

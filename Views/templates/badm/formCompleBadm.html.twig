@@ -163,13 +163,9 @@
         <div class="row">
             {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
             {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            
+            {{form.select('casierDestinataire', 'Casier Destinataire', {Tana:'01 Tana',  bira :'02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
         </div>
-        <div class="row">
-            {{form.select('casierDestinataireAgence', 'Casier Agence ou CLient', {Tana:'01 Tana',  bira :'02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.inputText('casierDestinataireChantier', 'Casier Chantier', '',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.select('casierDestinataireStd', 'Casier STD', {'':'', STD_BY: 'STD BY', ATE: 'ATE', PANNE: 'PANNE'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-        </div>
+        
         <div class="row">
             {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', '',{required: 'required', endpoint: '12', maxlength: '100' } )}}
         </div>
@@ -192,9 +188,9 @@
             {{ form.sousTitre('Valeur (MGA)')}}
         </div>
         <div class="row">
-            {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', coutAcquisition,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.inputReadonly('amortissement', 'Amortissement', items.0.amortissement,{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
-            {{form.inputReadonly('valeurNetComptable', 'VNC', vnc,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', coutAcquisition|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            {{form.inputReadonly('amortissement', 'Amortissement', items.0.amortissement|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
+            {{form.inputReadonly('valeurNetComptable', 'VNC', vnc|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
         </div>
 
 
@@ -225,14 +221,14 @@
             {{ form.sousTitre('Etat machine')}}
         </div>
         <div class="row">
-            {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure,{endpoint: '12', class: 'col-md-6'})}}
-            {{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km,{endpoint: '12', class: ' col-md-6'})}}    
+            {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
+            {{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km|number_format(2,',', '.'),{endpoint: '12', class: ' col-md-6'})}}    
         </div>
 
 
 
         <div class="row mt-5">
-            {{form.button('submit', 'Envoyer', 'enregistrer', 'primary')}}
+            {{form.button('submit', 'Envoyer', 'badmComplet', 'primary')}}
             {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
         </div>
     </form>

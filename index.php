@@ -233,9 +233,9 @@ switch ($action) {
     case 'envoiFormCompleBadm':
         $BadmController->formCompleBadm();
         break;
-        // case 'donneeFiltrer':
-        //     $BadmController->envoiDonnerFiltrerInformix();
-        //     break;
+    case 'casierDestinataire':
+        $BadmController->casierDestinataire();
+        break;
     default:
         include 'Views/SignIn.php';
 }

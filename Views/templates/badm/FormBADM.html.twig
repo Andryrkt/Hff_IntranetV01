@@ -122,7 +122,11 @@
                     </div>
                 </div>
                 <div class="row">
-                    {{ form.select('typeMission', 'Type de Mission', {ENTREE_EN_PARC: 'ENTREE EN PARC', CHANGEMENT_AGENCE_SERVICE: "CHANGEMENT D’AGENCE/SERVICE", CHANGEMENT_DE_CASIER: 'CHANGEMENT DE CASIER', MISE_AU_REBUT: 'MISE AU REBUT', CESSION_ACTIF: "CESSION D’ACTIF" }, {endpoint: '12', class: 'col-lg-8 col-md-6'})}}
+                     {# {{ dump(typeMouvement) }}  #}
+                    
+                            {{ form.select('typeMission', 'Type de Mission', typeMouvement  , {endpoint: '12', class: 'col-lg-8 col-md-6'})}}
+                   
+                    
                 </div>
                 <div class="row">
                     {{form.inputNumber('idMateriel', 'ID matériel',null, {endpoint: '12', class: 'col-lg-4 col-md-6'})}}

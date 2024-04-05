@@ -1541,7 +1541,7 @@ class DomControl extends Controller
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
-        //var_dump($codeServiceIrium);
+
         header("Content-type:application/json");
 
         echo json_encode($codeServiceIrium);
