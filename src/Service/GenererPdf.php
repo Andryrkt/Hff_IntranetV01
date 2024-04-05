@@ -31,7 +31,7 @@ class GenererPdf
         $pdf->Cell(110, 6, 'BORDEREAU DE MOUVEMENT DE MATERIEL', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $tab['NUM_BDM'], 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $tab['Num_BDM'], 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
 
         $pdf->setFont('helvetica', 'B', 12);
@@ -44,9 +44,9 @@ class GenererPdf
         $pdf->Ln(10, true);
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(70, 28);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
         $pdf->Ln(10, true);
@@ -87,9 +87,9 @@ class GenererPdf
         $pdf->Ln(10, true);
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Service émetteur', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(50, 80);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
         $pdf->Ln(10, true);
@@ -107,9 +107,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Service destinataire', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(54, 102);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 147, 3, 'F');
         $pdf->Ln(10, true);
@@ -132,9 +132,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Entrée en parc', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(43, 134);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 158, 3, 'F');
         $pdf->Ln(10, true);
@@ -152,9 +152,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(41, 156);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
@@ -181,9 +181,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Cession d’actif', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(44, 189);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 158, 3, 'F');
         $pdf->Ln(10, true);
@@ -203,9 +203,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Mise au rebut', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(41, 221);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
@@ -221,9 +221,9 @@ class GenererPdf
 
 
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(0, 0, 255);
+        $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(0, 0, 255);
+        $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(40, 243);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
@@ -247,7 +247,7 @@ class GenererPdf
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'I');
 
         //$pdf->Output('exemple.pdf', 'I');
     }

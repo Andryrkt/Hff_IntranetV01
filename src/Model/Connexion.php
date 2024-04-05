@@ -31,4 +31,16 @@ class Connexion
         }
         return $result;
     }
+
+    public function prepareAndExecute($sql, $params)
+    {
+        $stmt = odbc_prepare($this->conn, $sql);
+        if (!$stmt) {
+            throw new \Exception("ODBC Prepare failed: " . odbc_errormsg($this->conn));
+        }
+        if (!odbc_execute($stmt, $params)) {
+            throw new \Exception("ODBC Execute failed: " . odbc_errormsg($this->conn));
+        }
+        return $stmt;
+    }
 }
