@@ -1,29 +1,28 @@
 import { FetchManager } from "./../FetchManager.js";
 import Validator from 'validatorjs';
 
- export const form = document.form;
-let dateDemande = form.dateDemande.value;
-let idMateriel = form.idMateriel.value;
-let agenceEmetteur = form.agenceEmetteur.value.split(' ')[0];
-let serviceEmetteur = form.serviceEmetteur.value.split(' ')[0];
-let agenceServiceEmetteur = `${agenceEmetteur}-${serviceEmetteur}`;
-let casierEmetteur = form.casierEmetteur.value;
-let agenceDestinataire = form.agenceDestinataire.value.split(' ')[0];
-let serviceDestinataire = form.serviceDestinataire.value.split(' ')[0];
-let agenceServiceDestinataire = `${agenceDestinataire}-${serviceDestinataire}`;
-
-let motifArretMateriel = form.motifArretMateriel.value;
-let etatAchat = form.etatAchat.value;
-let dateMiseLocation = form.dateMiseLocation.value;
-let coutAcquisition = form.coutAcquisition.value;
-let amortissement = form.amortissement.value;
-let valeurNetComptable = form.valeurNetComptable.value;
-let nomClient = form.nomClient.value;
-let modalitePaiement = form.modalitePaiement.value;
-let prixHt = form.prixHt.value;
-let motifMiseRebut = form.motifMiseRebut.value;
-let heuresMachine = form.heuresMachine.value;
-let kilometrage = form.kilometrage.value;
+export const form = document.form;
+// let dateDemande = form.dateDemande.value;
+// let idMateriel = form.idMateriel.value;
+// let agenceEmetteur = form.agenceEmetteur.value.split(' ')[0];
+// let serviceEmetteur = form.serviceEmetteur.value.split(' ')[0];
+// let agenceServiceEmetteur = `${agenceEmetteur}-${serviceEmetteur}`;
+// let casierEmetteur = form.casierEmetteur.value;
+// let agenceDestinataire = form.agenceDestinataire.value.split(' ')[0];
+// let serviceDestinataire = form.serviceDestinataire.value.split(' ')[0];
+// let agenceServiceDestinataire = `${agenceDestinataire}-${serviceDestinataire}`;
+// let motifArretMateriel = form.motifArretMateriel.value;
+// let etatAchat = form.etatAchat.value;
+// let dateMiseLocation = form.dateMiseLocation.value;
+// let coutAcquisition = form.coutAcquisition.value;
+// let amortissement = form.amortissement.value;
+// let valeurNetComptable = form.valeurNetComptable.value;
+// let nomClient = form.nomClient.value;
+// let modalitePaiement = form.modalitePaiement.value;
+// let prixHt = form.prixHt.value;
+// let motifMiseRebut = form.motifMiseRebut.value;
+// let heuresMachine = form.heuresMachine.value;
+// let kilometrage = form.kilometrage.value;
 
 
 const fetchManager = new FetchManager('/Hffintranet/');
@@ -155,7 +154,7 @@ fetchManager.get('index.php?action=casierDestinataire')
 
 setTimeout(() => {
     //console.log(selectOption);
-    console.log('okey');
+    //console.log('okey');
     const casierDestinataire = document.getElementById('casierDestinataire');
     let taille = data[selectOption].length;
     //console.log(taille);
@@ -169,3 +168,26 @@ setTimeout(() => {
 })
 .catch(error => console.error(error));
 }
+
+/*
+changement de couleur pour le code de mouvemnet ou type de demande
+
+*/
+export function typeDemandeChangementCouleur(typeDemande){
+
+
+    const codeMouvement = document.querySelector('#codeMouvement')
+    
+    if (typeDemande === 'ENTREE EN PARC') {
+        codeMouvement.classList.add('codeMouvementParc')
+    } else if (typeDemande === 'CHANGEMENT AGENCE/SERVICE') {
+        codeMouvement.classList.add('codeMouvementAgenceService')
+    } else if(typeDemande === 'CHANGEMENT DE CASIER') {
+        codeMouvement.classList.add('codeMouvementCasier')
+    } else if(typeDemande === 'CESSION D\'ACTIF') {
+        codeMouvement.classList.add('codeMouvementActif')
+    } else if(typeDemande === 'MISE AU REBUT') {
+        codeMouvement.classList.add('codeMouvementRebut')
+    }
+    }
+

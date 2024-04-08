@@ -1,6 +1,12 @@
 {% extends "baseTemplate.html.twig" %}
 
+        {% block stylesheets%} 
+            <link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet" />
+        {% endblock%}
+
 {% import "badm/macroForm.html.twig" as form %}
+
+
 
 {% block content %}
 {# {{ include('/main/Principe.html.twig', { 'infoUserCours': infoUserCours, 'boolean': boolean }) }}#}
@@ -108,40 +114,63 @@
 
 <div class="container my-5">
 
-    <h2>Nouvelle Bordereau d’Acquisition et de Mouvement Matériel</h2>
+    <div class="row">
+        <div class="col-12 col-md-11">
+            <h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
+        </div>
+        
+        <div class=" col-12 col-md-1">     
+            <a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+        </div>
+    </div>
+    <div class="row">
+        
+    </div>
+
 
     <form action="/Hffintranet/index.php?action=envoiFormCompleBadm" method="post" name="form">
         <input type="hidden" name="codeMouvement" value="{{codeMouvement}}">
         <input type="hidden" name="idMateriel" value="{{items.0.num_matricule}}">
 
         <div class="row">    
-          {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y'), {endpoint: '2', class: 'offset-10'}) }}
+          {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y'), {endpoint: '12', class:'col-md-3'}) }}
+            <div class="col-12 col-md-6 offset-6">
+                <h3 class="codeMouvement" id="codeMouvement" >{{codeMouvement}}</h3>
+            </div>
         </div>
 
         <div class="row">
             {{ form.sousTitre('Caractéristiques du matériel')}}
         </div>
         <div class="row">
-            {% for item in items %}
-                {{form.inputReadonly('designation', 'Désignation ', item.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('idMateriel', 'ID matériel ', item.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numSerie', 'N° Série ', item.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numParc', 'N° Parc  ', item.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                
-            {% endfor %}
+           
+                {{form.inputReadonly('designation', 'Désignation ', items.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}   
+           
         </div>
         <div class="row">
-            {% for item in items %}
-                {{form.inputReadonly('groupe', 'Groupe ', item.groupe2,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('constructeur', 'Constructeur', item.constructeur ,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('modele', 'Modèle ', item.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('anneeModele', 'Année du modèle', item.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            {% endfor %}
+            
+                {{form.inputReadonly('groupe', 'Groupe ', items.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('modele', 'Modèle ', items.0.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('anneeModele', 'Année du modèle', items.0.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+           
         </div>
-        <div class="row">
-            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("m/d/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+        <div class="row d-flex">
+            {{form.inputReadonly('affectation', ' Affectation', items.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("m/d/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
         </div>
 
+
+        <div class="row">
+            {{ form.sousTitre('Etat machine')}}
+        </div>
+        <div class="row">
+            {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
+            {{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km|number_format(2,',', '.'),{endpoint: '12', class: ' col-md-6'})}}    
+        </div>
 
 
         <div class="row">
@@ -178,7 +207,7 @@
         </div>
         <div class="row">
 
-            {{form.inputReadonly('etatAchat', 'Etat à l’achat:', items.0.mmat_nouo,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+            {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
             {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
         </div>
 
@@ -212,17 +241,6 @@
         </div>
         <div class="row">
             {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100'})}}     
-        </div>
-
-
-
-
-        <div class="row">
-            {{ form.sousTitre('Etat machine')}}
-        </div>
-        <div class="row">
-            {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
-            {{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km|number_format(2,',', '.'),{endpoint: '12', class: ' col-md-6'})}}    
         </div>
 
 

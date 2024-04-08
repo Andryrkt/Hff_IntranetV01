@@ -11,9 +11,6 @@ class BadmController extends Controller
 
             // var_dump($this->badm->findAll());
             // die();
-
-
-
             $this->SessionStart();
             $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
             $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
@@ -21,7 +18,8 @@ class BadmController extends Controller
             $boolean = strpos($text, $_SESSION['user']);
 
             $data = $this->badm->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
-
+            // var_dump($data);
+            // die();
             $agences = $this->badm->recupAgence();
 
             // var_dump($agences);
@@ -42,8 +40,8 @@ class BadmController extends Controller
                 $dateDemande = $this->getDatesystem();
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 // 
-                $serviceEmetteur = substr(explode('-', $data[0]['service'])[1], 0, 3) . ' ' . explode('-', $data[0]['service'])[1];
-                $coutAcquisition = $data[0]['charge_entretien'];
+                $serviceEmetteur = $data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1];
+                $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
 
 
@@ -57,6 +55,13 @@ class BadmController extends Controller
                         $value['asuc_lib'] = 'COMM.ENERGIE';
                     }
                     $agenceDestinataire[] = trim($value['asuc_num'] . ' ' . $value['asuc_lib']);
+                }
+
+
+                if ($data[0]['mmat_nouo'] === 'N') {
+                    $etatAchat = 'Neuf';
+                } else {
+                    $etatAchat = 'Occasion';
                 }
                 // var_dump($agenceDestinataire);
 
@@ -79,7 +84,8 @@ class BadmController extends Controller
                     'serviceEmetteur' => $serviceEmetteur,
                     'coutAcquisition' => $coutAcquisition,
                     'vnc' => $vnc,
-                    'agenceDestinataire' => $agenceDestinataire
+                    'agenceDestinataire' => $agenceDestinataire,
+                    'etatAchat' => $etatAchat
 
                 ]
             );
@@ -166,12 +172,57 @@ class BadmController extends Controller
         }
     }
 
+
+    private function formatNumber($number)
+    {
+
+        // Convertit le nombre en chaîne de caractères pour manipulation
+        $numberStr = (string)$number;
+        $numberStr = str_replace('.', ',', $numberStr);
+        // Sépare la partie entière et la partie décimale
+        if (strpos($numberStr, ',') !== false) {
+            list($intPart, $decPart) = explode(',', $numberStr);
+        } else {
+            $intPart = $numberStr;
+            $decPart = '';
+        }
+
+        // Convertit la partie entière en float pour éviter l'avertissement
+        $intPart = floatval(str_replace('.', '', $intPart));
+
+        // Formate la partie entière avec des points pour les milliers
+        $intPartWithDots = number_format($intPart, 0, ',', '.');
+
+        // Réassemble le nombre
+        if ($decPart !== '') {
+            return $intPartWithDots . ',' . $decPart;
+        } else {
+            return $intPartWithDots;
+        }
+    }
+
+
+
+
+    private function convertirEnUtf8($element)
+    {
+        if (is_array($element)) {
+            foreach ($element as $key => $value) {
+                $element[$key] = $this->convertirEnUtf8($value);
+            }
+        } elseif (is_string($element)) {
+            return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
+        }
+        return $element;
+    }
+
     public function formCompleBadm()
     {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->SessionStart();
-            //var_dump($_POST);
+            // var_dump($_POST);
+            // die();
             //var_dump($this->badm->findAll());
             $data = $this->badm->findAll($_POST['idMateriel']);
 
@@ -202,9 +253,17 @@ class BadmController extends Controller
             $casierDestinataire = $_POST['casierDestinataire'];
 
 
-            $coutAcquisition = 0;
+            $coutAcquisition = $data[0]['droits_taxe'];
             $vnc = $coutAcquisition - $data[0]['amortissement'];
             //var_dump($_POST);
+
+            if ($data[0]['mmat_nouo'] === 'N') {
+                $etatAchat = 'Neuf';
+            } else {
+                $etatAchat = 'Occasion';
+            }
+
+
 
             $insertDbBadm = [
                 'Numero_Demande_BADM' => $NumBDM,
@@ -219,7 +278,7 @@ class BadmController extends Controller
                 'Agence_Service_Destinataire' => $agenceServiceDestinataire,
                 'Casier_Destinataire' => $casierDestinataire,
                 'Motif_Arret_Materiel' => $_POST['motifArretMateriel'],
-                'Etat_Achat' => $data[0]['mmat_nouo'],
+                'Etat_Achat' => $etatAchat,
                 'Date_Mise_Location' => $_POST['dateMiseLocation'],
                 'Cout_Acquisition' => (float)$coutAcquisition,
                 'Amortissement' => (float)$data[0]['amortissement'],
@@ -237,16 +296,23 @@ class BadmController extends Controller
             }
             //var_dump($insertDbBadm);
             // die();
+
+            $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
             $this->badm->insererDansBaseDeDonnees($insertDbBadm);
 
+
+
+
             $generPdfBadm = [
+                'typeMouvement' => $_POST['codeMouvement'],
                 'Num_BDM' => $NumBDM,
                 'Date_Demande' => implode('/', array_reverse(explode('-', $dateDemande))),
                 'Designation' => $data[0]['designation'],
                 'Num_ID' => $data[0]['num_matricule'],
                 'Num_Serie' => $data[0]['num_serie'],
-                'Groupe' => $data[0]['groupe2'],
+                'Groupe' => $data[0]['famille'],
                 'Num_Parc' => $data[0]['num_parc'],
+                'Affectation' => $data[0]['affectation'],
                 'Constructeur' => $data[0]['constructeur'],
                 'Date_Achat' => implode('/', array_reverse(explode('-', $data[0]['date_achat']))),
                 'Annee_Model' => $data[0]['annee'],
@@ -256,22 +322,92 @@ class BadmController extends Controller
                 'Agence_Service_Destinataire' => $agenceServiceDestinataire,
                 'Casier_Destinataire' => $casierDestinataire,
                 'Motif_Arret_Materiel' => $_POST['motifArretMateriel'],
-                'Etat_Achat' => $data[0]['mmat_nouo'],
+                'Etat_Achat' => $etatAchat,
                 'Date_Mise_Location' => implode('/', array_reverse(explode('-', $_POST['dateMiseLocation']))),
-                'Cout_Acquisition' => $coutAcquisition,
-                'Amort' => $data[0]['amortissement'],
-                'VNC' => $vnc,
+                'Cout_Acquisition' => $this->formatNumber($coutAcquisition),
+                'Amort' => $this->formatNumber($data[0]['amortissement']),
+                'VNC' => $this->formatNumber($vnc),
                 'Nom_Client' => $_POST['nomClient'],
                 'Modalite_Paiement' => $_POST['modalitePaiement'],
-                'Prix_HT' => $_POST['prixHt'],
+                'Prix_HT' => $this->formatNumber($_POST['prixHt']),
                 'Motif_Mise_Rebut' => $_POST['motifMiseRebut'],
-                'Heures_Machine' => $data[0]['heure'],
-                'Kilometrage' => $data[0]['km'],
+                'Heures_Machine' => $this->formatNumber($data[0]['heure']),
+                'Kilometrage' => $this->formatNumber($data[0]['km']),
                 'Email_Emetteur' => $MailUser,
                 'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
             ];
             $this->genererPdf->genererPdfBadm($generPdfBadm);
             $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
+        }
+    }
+
+
+    public function AffichageListeBadm()
+    {
+        $this->SessionStart();
+
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        $typeMouvements = $this->badm->recupTypeMouvement();
+
+        $typeMouvement = [];
+        foreach ($typeMouvements as  $values) {
+            foreach ($values as $value) {
+                $typeMouvement[] = $value;
+            }
+        };
+
+        $this->twig->display(
+            'badm/listBadm.html.twig',
+            [
+                'infoUserCours' => $infoUserCours,
+                'boolean' => $boolean,
+                'typeMouvement' => $typeMouvement
+            ]
+        );
+    }
+
+    public function envoiListJsonBadm()
+    {
+        $badmJson = $this->badm->RechercheBadmModelAll();
+
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($badmJson);
+
+
+
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
         }
     }
 }

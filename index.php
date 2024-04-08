@@ -236,6 +236,12 @@ switch ($action) {
     case 'casierDestinataire':
         $BadmController->casierDestinataire();
         break;
+    case 'listBadm':
+        $BadmController->AffichageListeBadm();
+        break;
+    case 'listJson':
+        $BadmController->envoiListJsonBadm();
+        break;
     default:
         include 'Views/SignIn.php';
 }

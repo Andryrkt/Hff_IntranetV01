@@ -1,0 +1,44 @@
+.codeMouvementCasier{
+    background-color: rgb(155, 155, 155);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.codeMouvementRebut{
+    background-color: rgb(255, 69, 0);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.codeMouvementActif{
+    background-color: rgb(240, 0, 32);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.codeMouvementParc{
+    background-color: rgb(0, 86, 27);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.codeMouvementAgenceService{
+    background-color: rgb(0, 128, 255);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}

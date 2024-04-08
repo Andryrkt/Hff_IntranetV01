@@ -1,4 +1,4 @@
- import { form as formCompleBadm, send , fetchData, fetchCasier} from "./badm/formCompleBadm";
+ import { form as formCompleBadm, send , fetchData, fetchCasier, typeDemandeChangementCouleur} from "./badm/formCompleBadm";
  import { FetchManager } from "./FetchManager.js";
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
@@ -18,8 +18,8 @@ document.getElementById('agenceDestinataire').addEventListener('change', functio
     fetchCasier(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
 });
 
-
-formCompleBadm.badmComplet.addEventListener('submit', (e) => {
+//console.log(formCompleBadm.badmComplet);
+formCompleBadm.badmComplet.addEventListener('click', (e) => {
     e.preventDefault(); // Empêcher la soumission du formulaire immédiatement
     Swal.fire({
         title: "Vous confirmez ?",
@@ -37,12 +37,14 @@ formCompleBadm.badmComplet.addEventListener('submit', (e) => {
                 icon: "success"
             }).then(() => {
                 // Soumettre le formulaire manuellement après confirmation
-                formCompleBadm.badmComplet.submit();
+                formCompleBadm.submit();
             });
         }
     });
 });
 
-
-
-
+/**
+ * changement de coueleur type de mouvemnt
+ */
+const typeDemande = formCompleBadm.codeMouvement.value
+typeDemandeChangementCouleur(typeDemande);
