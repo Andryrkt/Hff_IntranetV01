@@ -4,12 +4,12 @@ import Validator from 'validatorjs';
 export const form = document.form;
 // let dateDemande = form.dateDemande.value;
 // let idMateriel = form.idMateriel.value;
-// let agenceEmetteur = form.agenceEmetteur.value.split(' ')[0];
-// let serviceEmetteur = form.serviceEmetteur.value.split(' ')[0];
+//let agenceEmetteur = form.agenceEmetteur.value;
+ //let serviceEmetteur = form.serviceEmetteur.value;
 // let agenceServiceEmetteur = `${agenceEmetteur}-${serviceEmetteur}`;
 // let casierEmetteur = form.casierEmetteur.value;
-// let agenceDestinataire = form.agenceDestinataire.value.split(' ')[0];
-// let serviceDestinataire = form.serviceDestinataire.value.split(' ')[0];
+//let agenceDestinataire = form.agenceDestinataire.value;
+//let serviceDestinataire = form.serviceDestinataire.value;
 // let agenceServiceDestinataire = `${agenceDestinataire}-${serviceDestinataire}`;
 // let motifArretMateriel = form.motifArretMateriel.value;
 // let etatAchat = form.etatAchat.value;
@@ -95,15 +95,10 @@ export const send =  (event) => {
 
 
 export function fetchData(selectOption = undefined) {
-    const url = "/Hffintranet/index.php?action=anaranaaction";
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur de réseau');
-            }
-            return response.json();
-        })
-        .then(data => {
+    const fetchManager = new FetchManager('/Hffintranet/');
+fetchManager.get('index.php?action=serviceDestinataire')
+.then(data => 
+     {
 
             console.log(data);
 
@@ -122,7 +117,7 @@ export function fetchData(selectOption = undefined) {
                 const serviceDestinataire = document.getElementById('serviceDestinataire');
                 let taille = data[selectOption].length;
                 console.log(taille);
-                let optionsHTML = ''; // Chaîne pour stocker les options HTML
+                let optionsHTML = '';
                 for (let i = 0; i < taille; i++) {
                     optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
                 }
@@ -189,5 +184,5 @@ export function typeDemandeChangementCouleur(typeDemande){
     } else if(typeDemande === 'MISE AU REBUT') {
         codeMouvement.classList.add('codeMouvementRebut')
     }
-    }
+}
 

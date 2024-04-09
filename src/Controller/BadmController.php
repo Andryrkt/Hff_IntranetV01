@@ -4,13 +4,29 @@ namespace App\Controller;
 
 class BadmController extends Controller
 {
+
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
+    {
+        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
+    }
+
+    private function changeEtatAchat($dataEtatAchat)
+    {
+        if ($dataEtatAchat === 'N') {
+            return 'Neuf';
+        } else {
+            return 'Occasion';
+        }
+    }
+
+
     public function formBadm()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //var_dump($_POST);
 
             // var_dump($this->badm->findAll());
-            // die();
+            //die();
             $this->SessionStart();
             $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
             $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
@@ -18,77 +34,82 @@ class BadmController extends Controller
             $boolean = strpos($text, $_SESSION['user']);
 
             $data = $this->badm->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
-            // var_dump($data);
-            // die();
             $agences = $this->badm->recupAgence();
 
-            // var_dump($agences);
-            // die();
+            $dateDemande = $this->getDatesystem();
 
-            if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
-                $message = "il faut renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
-                $chemin = "/Hffintranet/index.php?action=formBadm";
-                echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
-            } elseif (empty($data)) {
-                $message = "Ce matériel peut être dejà vendu";
-                $chemin = "/Hffintranet/index.php?action=formBadm";
-                echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
-            } else {
+            // if (explode('-', $data[0]['service'])[0] === 'COMM ENERGIE') {
 
-                // var_dump($data);
-                // die();
-                $dateDemande = $this->getDatesystem();
-                $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
-                // 
-                $serviceEmetteur = $data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1];
-                $coutAcquisition = $data[0]['droits_taxe'];
-                $vnc = $coutAcquisition - $data[0]['amortissement'];
+            //     $agenceEmetteur = $data[0]['agence'] . ' ' . 'COMM.ENERGIE';
+            // } else {
+            $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
+            //}
 
+            $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
 
-                $agenceDestinataire = [];
-                foreach ($agences as  $value) {
+            $coutAcquisition = $data[0]['droits_taxe'];
+            $vnc = $coutAcquisition - $data[0]['amortissement'];
 
-                    if (trim($value['asuc_lib']) == 'PNEUMATIQUE-OUTILLAGE-LUBRIF') {
-                        $value['asuc_lib'] = 'PNEU - OUTIL - LUB';
-                    }
-                    if (trim($value['asuc_lib']) == 'COMM ENERGIE') {
-                        $value['asuc_lib'] = 'COMM.ENERGIE';
-                    }
-                    $agenceDestinataire[] = trim($value['asuc_num'] . ' ' . $value['asuc_lib']);
-                }
+            $agenceDestinataire = [];
+            foreach ($agences as  $value) {
 
-
-                if ($data[0]['mmat_nouo'] === 'N') {
-                    $etatAchat = 'Neuf';
-                } else {
-                    $etatAchat = 'Occasion';
-                }
-                // var_dump($agenceDestinataire);
-
-                // die();
+                // if (trim($value['asuc_lib']) == 'PNEUMATIQUE-OUTILLAGE-LUBRIF') {
+                //     $value['asuc_lib'] = 'PNEU - OUTIL - LUB';
+                // }
+                // if (trim($value['asuc_lib']) == 'COMM ENERGIE') {
+                //     $value['asuc_lib'] = 'COMM.ENERGIE';
+                // }
+                $agenceDestinataire[] = trim($value['asuc_num'] . ' ' . $value['asuc_lib']);
             }
 
 
+            $etatAchat = $this->ChangeEtatAchat($data[0]['mmat_nouo']);
+
+            // var_dump($data);
+            // var_dump($_POST);
+            // var_dump($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE');
+            // die('ENTREE en PARC');
 
 
+            if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
+                $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
+                $this->alertRedirection($message);
+            } elseif (empty($data)) {
+                $message = "Ce matériel peut être dejà vendu";
+                $this->alertRedirection($message);
+            } elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
+                $message = 'ENTREE en PARC';
+                $this->alertRedirection($message);
+            } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
+                $message = 'CHANGEMENT AGENCE SERVICE';
+                $this->alertRedirection($message);
+            } elseif ($_POST['typeMission'] === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+                $message = 'CESSION ACTIF';
+                $this->alertRedirection($message);
+            } elseif ($_POST['typeMission'] === 'MISE AU REBUT' && $data[0]['code_affect'] === 'CAS') {
+                $message = 'MISE AU REBUT';
+                $this->alertRedirection($message);
+            } else {
 
-            $this->twig->display(
-                'badm/formCompleBadm.html.twig',
-                [
-                    'codeMouvement' => $_POST['typeMission'],
-                    'infoUserCours' => $infoUserCours,
-                    'boolean' => $boolean,
-                    'dateDemande' => $dateDemande,
-                    'items' => $data,
-                    'agenceEmetteur' => $agenceEmetteur,
-                    'serviceEmetteur' => $serviceEmetteur,
-                    'coutAcquisition' => $coutAcquisition,
-                    'vnc' => $vnc,
-                    'agenceDestinataire' => $agenceDestinataire,
-                    'etatAchat' => $etatAchat
 
-                ]
-            );
+                $this->twig->display(
+                    'badm/formCompleBadm.html.twig',
+                    [
+                        'codeMouvement' => $_POST['typeMission'],
+                        'infoUserCours' => $infoUserCours,
+                        'boolean' => $boolean,
+                        'dateDemande' => $dateDemande,
+                        'items' => $data,
+                        'agenceEmetteur' => $agenceEmetteur,
+                        'serviceEmetteur' => $serviceEmetteur,
+                        'coutAcquisition' => $coutAcquisition,
+                        'vnc' => $vnc,
+                        'agenceDestinataire' => $agenceDestinataire,
+                        'etatAchat' => $etatAchat
+
+                    ]
+                );
+            }
         } else {
 
 
@@ -131,13 +152,86 @@ class BadmController extends Controller
     }
 
 
+    public function serviceDestinataire()
+    {
+        $serviceDestinataires = $this->badm->recupeServiceDestinataire();
+        //var_dump($serviceDestinataires);
+        $nouveauTableau = [];
+        foreach ($serviceDestinataires as  $serviceDestinataire) {
+            $agenceDestinataire = $serviceDestinataire['agence'] . ' ' . explode('-', $serviceDestinataire['service'])[0];
+            $serviceDestinataire = trim($serviceDestinataire['code_service'] . ' ' . explode('-', $serviceDestinataire['service'])[1]);
+            if (!isset($nouveauTableau[$agenceDestinataire])) {
+                $nouveauTableau[$agenceDestinataire] = [];
+            }
+            $nouveauTableau[$agenceDestinataire][] = $serviceDestinataire;
+        }
+        //var_dump($nouveauTableau);
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($nouveauTableau);
+
+
+
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
+        }
+    }
+
     public function casierDestinataire()
     {
         $casierDestinataire = $this->badm->recupeCasierDestinataire();
 
+        $nouveauTableau = [];
+
+        foreach ($casierDestinataire as $element) {
+
+            // if ($element['agence'] === '90 COMM ENERGIE') {
+            //     $agence = '90 COMM.ENERGIE';
+            // } else {
+            $agence = $element['agence'];
+            //}
+            $casier = $element['casier'];
+
+            if (!isset($nouveauTableau[$agence])) {
+
+
+                $nouveauTableau[$agence] = array();
+            }
+
+            $nouveauTableau[$agence][] = $casier;
+        }
+
+
+
         header("Content-type:application/json");
 
-        $jsonData = json_encode($casierDestinataire);
+        $jsonData = json_encode($nouveauTableau);
 
 
 
@@ -221,14 +315,13 @@ class BadmController extends Controller
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->SessionStart();
-            // var_dump($_POST);
-            // die();
+            //var_dump($_POST);
+            //die();
             //var_dump($this->badm->findAll());
             $data = $this->badm->findAll($_POST['idMateriel']);
 
-            //var_dump($data);
-
-
+            var_dump($data);
+            die();
             $NumBDM = $this->autoINcriment('BDM');
             $heureDemande = $this->getTime();
             $dateDemande = $this->getDatesystem();
@@ -239,11 +332,7 @@ class BadmController extends Controller
             $MailUser = $this->DomModel->getmailUserConnect($_SESSION['user']);
 
             $agenceEmetteur = $data[0]['agence'];
-
-            $serviceEmetteur = substr(explode('-', $data[0]['service'])[1], 0, 3);
-
-
-            //$serviceEmetteur = str_split(explode('-', $data[0]['service'])[1], 3);
+            $serviceEmetteur = $data[0]['code_service'];
             $agenceServiceEmetteur = $agenceEmetteur . '-' . $serviceEmetteur;
 
             $agenceDestinataire = explode(' ', $_POST['agenceDestinataire'])[0];
@@ -257,17 +346,14 @@ class BadmController extends Controller
             $vnc = $coutAcquisition - $data[0]['amortissement'];
             //var_dump($_POST);
 
-            if ($data[0]['mmat_nouo'] === 'N') {
-                $etatAchat = 'Neuf';
-            } else {
-                $etatAchat = 'Occasion';
-            }
+            $etatAchat = $this->ChangeEtatAchat($data[0]['mmat_nouo']);
 
+            $codeMouvement = $_POST['codeMouvement'];
 
 
             $insertDbBadm = [
                 'Numero_Demande_BADM' => $NumBDM,
-                'Code_Mouvement' => $_POST['codeMouvement'],
+                'Code_Mouvement' => $codeMouvement,
                 'ID_Materiel' => (int)$data[0]['num_matricule'],
                 'Nom_Session_Utilisateur' => $_SESSION['user'],
                 'Date_Demande' => $dateDemande,
@@ -297,14 +383,13 @@ class BadmController extends Controller
             //var_dump($insertDbBadm);
             // die();
 
-            $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
-            $this->badm->insererDansBaseDeDonnees($insertDbBadm);
+
 
 
 
 
             $generPdfBadm = [
-                'typeMouvement' => $_POST['codeMouvement'],
+                'typeMouvement' => $codeMouvement,
                 'Num_BDM' => $NumBDM,
                 'Date_Demande' => implode('/', array_reverse(explode('-', $dateDemande))),
                 'Designation' => $data[0]['designation'],
@@ -336,8 +421,20 @@ class BadmController extends Controller
                 'Email_Emetteur' => $MailUser,
                 'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
             ];
-            $this->genererPdf->genererPdfBadm($generPdfBadm);
-            $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
+            $conditionAgenceService = ($_POST['agenceDestinataire'] === '' && $_POST['serviceDestinataire'] === '') || $agenceEmetteur === $agenceDestinataire || $serviceEmetteur === $serviceDestinataire;
+            $conditionVide = $_POST['agenceDestinataire'] === '' && $_POST['serviceDestinataire'] === '' && $_POST['casierDestinataire'] === '' && $_POST['dateMiseLocation'] === '';
+            if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
+                $message = 'compléter tous les champs obligatoires';
+                $this->alertRedirection($message);
+            } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $conditionAgenceService) {
+                $message = 'le choix du type devrait être Changement de Casier';
+                $this->alertRedirection($message);
+            } else {
+                $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
+                $this->badm->insererDansBaseDeDonnees($insertDbBadm);
+                $this->genererPdf->genererPdfBadm($generPdfBadm);
+                $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
+            }
         }
     }
 

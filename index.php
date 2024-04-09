@@ -233,6 +233,9 @@ switch ($action) {
     case 'envoiFormCompleBadm':
         $BadmController->formCompleBadm();
         break;
+    case 'serviceDestinataire':
+        $BadmController->serviceDestinataire();
+        break;
     case 'casierDestinataire':
         $BadmController->casierDestinataire();
         break;

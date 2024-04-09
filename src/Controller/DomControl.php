@@ -290,9 +290,6 @@ class DomControl extends Controller
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=New_DOM")
     {
-        // var_dump('alert');
-        // die();
-        //echo 'ok';
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
 

@@ -134,13 +134,13 @@
 
         <div class="row">    
           {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y'), {endpoint: '12', class:'col-md-3'}) }}
-            <div class="col-12 col-md-6 offset-6">
-                <h3 class="codeMouvement" id="codeMouvement" >{{codeMouvement}}</h3>
+            <div class="codeMouvement">
+                <h3  id="codeMouvement" >{{codeMouvement}}</h3>
             </div>
         </div>
 
         <div class="row">
-            {{ form.sousTitre('Caractéristiques du matériel')}}
+            {{ form.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}
         </div>
         <div class="row">
            
@@ -160,12 +160,12 @@
         </div>
         <div class="row d-flex">
             {{form.inputReadonly('affectation', ' Affectation', items.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("m/d/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
+            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("d/m/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
         </div>
 
 
         <div class="row">
-            {{ form.sousTitre('Etat machine')}}
+            {{ form.sousTitre('Etat machine', {class: 'sousTitre'})}}
         </div>
         <div class="row">
             {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
@@ -174,7 +174,7 @@
 
 
         <div class="row">
-            {{ form.sousTitre('Service émetteur')}}
+            {{ form.sousTitre('Service émetteur', {class: 'sousTitre'})}}
         </div>
         <div class="row">
             
@@ -187,12 +187,14 @@
 
 
         <div class="row">
-            {{ form.sousTitre('Service destinataire')}}
+            {{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
         </div>
         <div class="row">
-            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.select('serviceDestinataire', 'Service',{Admin:'80 Admin', Energie: '90 Energie'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.select('casierDestinataire', 'Casier Destinataire', {Tana:'01 Tana',  bira :'02 Bira'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+            
+            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
+            {{form.select('serviceDestinataire', 'Service','',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
+                        
+            {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
         </div>
         
         <div class="row">
@@ -201,20 +203,31 @@
 
 
 
+        {% if codeMouvement == 'CHANGEMENT AGENCE/SERVICE' or codeMouvement == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+            <div class="row">
+                {{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6' , disabled: 'disabled'})}}
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6', disabled: 'disabled'})}}    
+            </div>
+
+        {% else %}
+            <div class="row">
+                {{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
+            </div>
+            <div class="row">
+                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
+            </div>
+        {% endif %}
+
+        
+
+
 
         <div class="row">
-            {{ form.sousTitre('Entrée en parc')}}
-        </div>
-        <div class="row">
-
-            {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
-            {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
-        </div>
-
-
-
-        <div class="row">
-            {{ form.sousTitre('Valeur (MGA)')}}
+            {{ form.sousTitre('Valeur (MGA)', {class: 'sousTitre'})}}
         </div>
         <div class="row">
             {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', coutAcquisition|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
@@ -223,25 +236,48 @@
         </div>
 
 
-
-        <div class="row">
-            {{ form.sousTitre('Cession d’actif')}}
-        </div>
-        <div class="row">
-            {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
-            {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
-        </div>
-
-
+        {% if codeMouvement == 'ENTREE EN PARC' or codeMouvement == 'CHANGEMENT AGENCE/SERVICE' or codeMouvement == 'CHANGEMENT DE CASIER' %}
+            <div class="row">
+                {{ form.sousTitre('Cession d’actif', {class: 'sosuTitreGiser'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', disabled: 'disabled'})}} 
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}   
+            </div>
 
 
-        <div class="row">
-            {{ form.sousTitre('Mise au rebut')}}
-        </div>
-        <div class="row">
-            {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100'})}}     
-        </div>
+            <div class="row">
+                {{ form.sousTitre('Mise au rebut', {class: 'sosuTitreGiser'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100', disabled: 'disabled'})}}     
+            </div>
+        {% else %}
+            <div class="row">
+                {{ form.sousTitre('Cession d’actif', {class: 'sousTitre'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}} 
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+            </div>
+
+
+            <div class="row">
+                {{ form.sousTitre('Mise au rebut', {class: 'sousTitre'})}}
+            </div>
+            <div class="row">
+                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100'})}}     
+            </div>
+            {% if codeMouvement == 'MISE AU REBUT' %}
+                <div class="row">
+                    {{form.inputFile('imageRebut', 'Image du matériel', {accept:'.jpg, .jpeg'})}}
+                </div>
+            {% endif %}
+        {% endif %}
+
+        
 
 
 
