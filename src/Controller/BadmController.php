@@ -316,10 +316,82 @@ class BadmController extends Controller
         return $element;
     }
 
+    private function changementDossierFusion($filename01, $filetemp01, $NumDom, $codeAg_servDB)
+    {
+        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
+        move_uploaded_file($filetemp01, $Upload_file);
+        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
+        $this->fusionPdf->genererFusion1($FichierDom, $filename01);
+    }
+
+    private function imageDansDossier($image, string $chemin)
+    {
+        $target_dir = $chemin;  // Spécifiez le dossier où l'image sera enregistrée.
+        $target_file = $target_dir . basename($image["name"]);
+        $uploadOk = 1;
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Vérifier si le fichier image est une image réelle ou une fausse image
+        if (isset($_POST["submit"])) {
+            $check = getimagesize($image["tmp_name"]);
+            if ($check !== false) {
+                echo "Le fichier est une image - " . $check["mime"] . ".";
+                $uploadOk = 1;
+            } else {
+                echo "Le fichier n'est pas une image.";
+                $uploadOk = 0;
+            }
+        }
+
+        // Vérifier si le fichier existe déjà
+        if (file_exists($target_file)) {
+            echo "Désolé, le fichier existe déjà.";
+            $uploadOk = 0;
+        }
+
+        // Vérifier la taille du fichier
+        if ($image["size"] > 5000000) {  // Limite de taille de 5MB
+            echo "Désolé, votre fichier est trop volumineux.";
+            $uploadOk = 0;
+        }
+
+        // Autoriser certains formats de fichier
+        if (
+            $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+            && $imageFileType != "gif"
+        ) {
+            echo "Désolé, seuls les fichiers JPG, JPEG, PNG & GIF sont autorisés.";
+            $uploadOk = 0;
+        }
+
+        // Vérifier si $uploadOk est mis à 0 par une erreur
+        if ($uploadOk == 0) {
+            echo "Désolé, votre fichier n'a pas été téléchargé.";
+            // si tout est correct, essayer de télécharger le fichier
+        } else {
+            if (move_uploaded_file($image["tmp_name"], $target_file)) {
+                echo "Le fichier " . htmlspecialchars(basename($_FILES["image"]["name"])) . " a été téléchargé.";
+            } else {
+                echo "Désolé, il y a eu une erreur lors du téléchargement de votre fichier.";
+            }
+        }
+    }
+
     public function formCompleBadm()
     {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // var_dump($_POST);
+            // var_dump($_FILES);
+            // $error = $_FILES['imageRebut']['error'];
+            // if ($error != UPLOAD_ERR_OK) {
+            //     // Gérer l'erreur
+            //     echo "Erreur lors du téléchargement du fichier: " . $error;
+            // }
+            // die();
+
+
+
             $this->SessionStart();
             // var_dump($_POST);
             // die();
@@ -401,6 +473,14 @@ class BadmController extends Controller
             } else {
                 $motifMiseRebut = '';
             }
+
+            if (isset($_FILES["imageRebut"])) {
+
+                $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
+                $chemin = "/Hffintranet/Views/images/";
+                $this->imageDansDossier($_FILES['imageRebut'], $chemin);
+            }
+
 
             $conditionAgenceService = ($agenceDestinataire === '' && $serviceDestinataire === '') || $agenceEmetteur === $agenceDestinataire || $serviceEmetteur === $serviceDestinataire;
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';

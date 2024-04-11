@@ -497,7 +497,8 @@ class DomControl extends Controller
             //     $files01 = $_FILES["file01"];
             //     $file02 = $_FILES["file02"];
             // } else {
-
+            // var_dump($_FILES);
+            // die();
             $files01 = $_FILES["file01"];
             $file02 = $_FILES["file02"];
             //}
