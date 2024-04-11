@@ -191,10 +191,10 @@
         </div>
         <div class="row">
             
-            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
-            {{form.select('serviceDestinataire', 'Service','',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
+            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
+            {{form.select('serviceDestinataire', 'Service','',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
                         
-            {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}}
+            {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
         </div>
         
         <div class="row">
@@ -218,7 +218,7 @@
             </div>
             <div class="row">
                 {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6'})}}    
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation,{endpoint: '12', class: ' col-md-6',  disabled: 'disabled'})}}    
             </div>
         {% endif %}
 
@@ -258,9 +258,9 @@
                 {{ form.sousTitre('Cession d’actif', {class: 'sousTitre'})}}
             </div>
             <div class="row">
-                {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                {{form.select('modalitePaiement', 'Modalité de paiement', {Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true'})}} 
-                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
+                {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}} 
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}   
             </div>
 
 
@@ -268,7 +268,7 @@
                 {{ form.sousTitre('Mise au rebut', {class: 'sousTitre'})}}
             </div>
             <div class="row">
-                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100'})}}     
+                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', '',{endpoint: '12', maxlength: '100', required: 'required'})}}     
             </div>
             {% if codeMouvement == 'MISE AU REBUT' %}
                 <div class="row">

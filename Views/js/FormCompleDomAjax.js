@@ -82,27 +82,27 @@ if ( document.querySelector('#NumDOM') === null  ) {
     let check = document.getElementById('radiochek').value;
     if (check === "Interne") {
         setTimeout(() => {
+            console.log( document.querySelector(`#select1 option`));
             document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).selected = true;
-        }, 300);
-    } else {
-        setTimeout(() => {
-            document.querySelector(`#select1 option[value="${document.querySelector('#Serv').value.toUpperCase()}"]`).selected = true;
-        }, 300);
-    }
-
-
-    if (check === "Interne") {
+        }, 500);
         setTimeout(() => {
             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase()}"]`).selected = true;
-        }, 600);
-
+        }, 1000);
     } else {
         setTimeout(() => {
-            console.log(document.querySelector('#LibServ').value.toUpperCase());
+             const serv = document.querySelector('#Serv').value.toUpperCase().trim();
+             console.log(serv);
+            console.log(document.querySelector(`#select1 option[value="${serv}"]`));
+            document.querySelector(`#select1 option[value="${serv}"]`).selected = true;
+        }, 500);
+        setTimeout(() => {
+            console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase()}"]`).selected = true;
-        }, 600);
-
+        }, 1000);
     }
+
+console.log(check);
+   
 //FIN Javascript pour le débitteur select
 } else {
 

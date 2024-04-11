@@ -295,9 +295,9 @@ class DomControl extends Controller
 
     private function changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
     {
-        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
+        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
         move_uploaded_file($filetemp01, $Upload_file);
-        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
+        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename02;
         move_uploaded_file($filetemp02, $Upload_file02);
         $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
         if (!empty($filename02)) {
@@ -311,9 +311,9 @@ class DomControl extends Controller
 
     private function changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
     {
-        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
+        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
         move_uploaded_file($filetemp01, $Upload_file);
-        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
+        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename02;
         move_uploaded_file($filetemp02, $Upload_file02);
         return $NumDom . '_' . $codeAg_servDB . '.pdf';
     }
@@ -1147,15 +1147,15 @@ class DomControl extends Controller
                             } else {
                                 //exce
                                 // Mobile& AllMont 
-                                var_dump('05');
-                                die();
+                                // var_dump('05');
+                                // die();
                                 $this->genererPdf->genererPDF($tabExterne);
                                 //echo 'ie ambany 500000';
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        var_dump('06');
-                                        die();
+                                        // var_dump('06');
+                                        // die();
                                         $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
@@ -1200,16 +1200,16 @@ class DomControl extends Controller
                                 //
                                 if ($libmodepaie !== 'MOBILE MONEY') {
                                     // var_dump($_FILES);
-                                    var_dump($filename01, $filename02);
+                                    //var_dump($filename01, $filename02);
                                     // var_dump($_SERVER['DOCUMENT_ROOT']);
-                                    var_dump('10');
-                                    die();
+                                    // var_dump('10');
+                                    // die();
                                     $this->genererPdf->genererPDF($tabExterne);
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
                                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                            var_dump('11');
-                                            die();
+                                            // var_dump('11');
+                                            // die();
                                             $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
 
@@ -1230,15 +1230,15 @@ class DomControl extends Controller
                                     }
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     //echo 'ie ambany 500000';
-                                    var_dump('12');
-                                    die();
+                                    // var_dump('12');
+                                    // die();
                                     $this->genererPdf->genererPDF($tabExterne);
                                     //
                                     if (!empty($filename01) && !empty($filename02)) {
                                         if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
 
-                                            var_dump('13');
-                                            die();
+                                            // var_dump('13');
+                                            // die();
                                             $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
@@ -1282,8 +1282,8 @@ class DomControl extends Controller
 
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        var_dump('16');
-                                        die();
+                                        // var_dump('16');
+                                        // die();
                                         $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
@@ -1304,16 +1304,16 @@ class DomControl extends Controller
                                 //echo 'ie ambany 500000';
                                 // var_dump($_FILES);
                                 // die();
-                                var_dump('17');
-                                die();
+                                // var_dump('17');
+                                // die();
                                 $this->genererPdf->genererPDF($tabExterne);
 
                                 //var_dump($filename01, $filename02);
                                 //
                                 if (!empty($filename01) && !empty($filename02)) {
                                     if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                        var_dump('18');
-                                        die();
+                                        // var_dump('18');
+                                        // die();
                                         $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
@@ -1340,12 +1340,12 @@ class DomControl extends Controller
                     } else {
                         //si complement sans chevauchement
                         // Mobile& AllMont 
-                        var_dump('19');
-                        die();
+                        // var_dump('19');
+                        // die();
 
                         if ($libmodepaie !== 'MOBILE MONEY') {
-                            var_dump('20');
-                            die();
+                            // var_dump('20');
+                            // die();
                             $this->genererPdf->genererPDF($tabExterne);
                             if (!empty($filename01) && !empty($filename02)) {
                                 if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
@@ -1369,15 +1369,15 @@ class DomControl extends Controller
                             }
                         } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                             //echo 'ie ambany 500000';
-                            var_dump('22');
-                            die();
+                            // var_dump('22');
+                            // die();
                             $this->genererPdf->genererPDF($tabExterne);
 
                             //
                             if (!empty($filename01) && !empty($filename02)) {
                                 if (in_array($file_extension01, $extentsion) && in_array($file_extension02, $extentsion)) {
-                                    var_dump('23');
-                                    die();
+                                    // var_dump('23');
+                                    // die();
 
                                     $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 

@@ -16,6 +16,7 @@ use App\Controller\PersonnelControl;
 use App\Model\AgenceServAutoriserModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\BadmController;
+use App\Controller\BadmListeController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -101,7 +102,7 @@ $ControlAutorisation = new AgenceServAutoriserControl();
 // $genererPdf = new GenererPdf();
 $MainController = new MainController();
 $BadmController = new BadmController();
-
+$BadmListeController = new BadmListeController();
 
 //
 // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
@@ -240,10 +241,10 @@ switch ($action) {
         $BadmController->casierDestinataire();
         break;
     case 'listBadm':
-        $BadmController->AffichageListeBadm();
+        $BadmListeController->AffichageListeBadm();
         break;
     case 'listJson':
-        $BadmController->envoiListJsonBadm();
+        $BadmListeController->envoiListJsonBadm();
         break;
     default:
         include 'Views/SignIn.php';

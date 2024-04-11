@@ -1,5 +1,5 @@
  import { form as formCompleBadm, send , fetchData, fetchCasier, typeDemandeChangementCouleur} from "./badm/formCompleBadm";
- import { FetchManager } from "./FetchManager.js";
+ //import { FetchManager } from "./FetchManager.js";
  const typeDemande = formCompleBadm.codeMouvement.value
  const agenceDestinataire = formCompleBadm.agenceDestinataire;
     const serviceDestinataire = formCompleBadm.serviceDestinataire;
@@ -94,27 +94,29 @@ document.getElementById('agenceDestinataire').addEventListener('change', functio
 
 //console.log(formCompleBadm.badmComplet);
 formCompleBadm.badmComplet.addEventListener('click', (e) => {
-    e.preventDefault(); 
-    Swal.fire({
-        title: "Vous confirmez ?",
-        text: "Veuillez vérifier attentivement avant d'envoyer.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Oui"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: "Envoyer!",
-                text: "Votre demande a été bien enregistrée",
-                icon: "success"
-            }).then(() => {
+
+    alert("Veuillez vérifier attentivement avant d'envoyer.");
+    // e.preventDefault(); 
+    // Swal.fire({
+    //     title: "Vous confirmez ?",
+    //     text: "Veuillez vérifier attentivement avant d'envoyer.",
+    //     icon: "warning",
+    //     showCancelButton: true,
+    //     confirmButtonColor: "#3085d6",
+    //     cancelButtonColor: "#d33",
+    //     confirmButtonText: "Oui"
+    // }).then((result) => {
+    //     if (result.isConfirmed) {
+    //         Swal.fire({
+    //             title: "Envoyer!",
+    //             text: "Votre demande a été bien enregistrée",
+    //             icon: "success"
+    //         }).then(() => {
                
-                formCompleBadm.submit();
-            });
-        }
-    });
+    //             formCompleBadm.submit();
+    //         });
+    //     }
+    // });
 });
 
 

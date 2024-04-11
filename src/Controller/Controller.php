@@ -8,6 +8,7 @@ namespace App\Controller;
 use Twig\Environment;
 use App\Model\DomModel;
 use App\Model\BadmModel;
+use App\Model\BadmRechercheModel;
 use App\Model\LdapModel;
 use App\Model\OdbcCrudModel;
 use App\Model\ProfilModel;
@@ -30,6 +31,7 @@ class Controller
     protected $ldap;
     protected $profilModel;
     protected $badm;
+    protected $badmRech;
     protected $odbcCrud;
 
 
@@ -49,6 +51,8 @@ class Controller
         $this->profilModel = new ProfilModel;
 
         $this->badm = new BadmModel();
+
+        $this->badmRech = new BadmRechercheModel();
 
         $this->odbcCrud = new OdbcCrudModel();
     }

@@ -4,6 +4,8 @@
         <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
     {% endblock%}
 
+    {% import "badm/macroForm.html.twig" as form %}
+
     {% block content %}
 
     <!-- Responsive navbar-->
@@ -112,13 +114,14 @@
     <div class="row">
         <div class="container">
             <div class="row">
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                     <div class="input-group mb-2">
                         <span class="input-group-text">Type de mouvement</span>
                         <select name="typeMouvement" id="typeMouvement" class="form-control">
                         </select>
                     </div>
-                </div>
+                </div> --> 
+                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3'})}}
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                     <div class="input-group mb-2">
                         <span class="input-group-text">Id matériel</span>
@@ -202,24 +205,26 @@
                             <th>ID</th>
                             <th>Statut</th>
                             <th>Sous type</th>
-                            <th>N° DOM</th>
-                            <th>Date de demande</th>
-                            <th>Motif de déplacement</th>
-                            <th style="text-align: center;">Matricule</th>
-                            <th>Nom</th>
-                            <th>Prénoms</th>
-                            <th>Mode de paiement</th>
-                            <th>Agence - Service</th>
-                            <th>Date de début</th>
-                            <th>Date de fin</th>
-                            <th>Nbr jours</th>
-                            <th>Client</th>
-                            <th>Fiche</th>
-                            <th>Lieu d'intervention</th>
-                            <th>Num vehicule</th>
-                            <th>Total autres dépense</th>
-                            <th>Total général payer</th>
-                            <th>Devis</th>
+                            <th>N° BDM</th>
+                            <th>Code de Mouvement</th>
+                            <th>ID Materiel</th>
+                            <th>Date de Demande</th>
+                            <th>Agence/Service Emetteur</th>
+                            <th>Casier Emetteur</th>
+                            <th>Agence/Service Destinataire</th>
+                            <th>Casier Destinataire</th>
+                            <th>Motif d'Arret</th>
+                            <th>Etat_Achat</th>
+                            <th>Date Mise Location</th>
+                            <th>Cout d'Acquisition</th>
+                            <th>Amortissement</th>
+                            <th>VNC</th>
+                            <th>Nom de Client</th>
+                            <th>Modalite de Paiement</th>
+                            <th>Prix de Vente HT</th>
+                            <th>Motif de Mise au Rebut</th>
+                            <th>Heure machine</th>
+                            <th>KM_machine</th>
                         </tr>
                     </thead>
                     <tbody id="table-container">
@@ -241,9 +246,10 @@
         <!-- FIN Pagination -->
 
     </div>
-
+    {% endblock %}
 
     {% block javascript %}
         <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-        <script src="/Hffintranet/Views/js/ListBadm.js"></script>
+         <script src="/Hffintranet/Views/js/badm/listBadm.js"></script> 
+        
     {% endblock %}

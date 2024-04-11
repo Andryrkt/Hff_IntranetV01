@@ -270,13 +270,13 @@ class GenererPdf
         // entête email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
-        $pdf->SetXY(120, 2); // Déplace le curseur à la position absolue X=170, Y=0
+        $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'I');
+        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');
     }
@@ -391,7 +391,7 @@ class GenererPdf
 
         //
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'I');
+        $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 
     // copy interne vers DOCUWARE
@@ -401,9 +401,14 @@ class GenererPdf
     public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
     {
 
+        if (substr($NumDom, 0, 3) === 'DOM') {
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        } else if (substr($NumDom, 0, 3) === 'BDM') {
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        }
 
-        $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
 
         $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
