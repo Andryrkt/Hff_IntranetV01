@@ -20,6 +20,7 @@ class BadmController extends Controller
     }
 
 
+
     public function formBadm()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -161,20 +162,13 @@ class BadmController extends Controller
     public function serviceDestinataire()
     {
         $serviceDestinataires = $this->badm->recupeServiceDestinataire();
-        //var_dump($serviceDestinataires);
-        $nouveauTableau = [];
-        foreach ($serviceDestinataires as  $serviceDestinataire) {
-            $agenceDestinataire = $serviceDestinataire['agence'] . ' ' . explode('-', $serviceDestinataire['service'])[0];
-            $serviceDestinataire = trim($serviceDestinataire['code_service'] . ' ' . explode('-', $serviceDestinataire['service'])[1]);
-            if (!isset($nouveauTableau[$agenceDestinataire])) {
-                $nouveauTableau[$agenceDestinataire] = [];
-            }
-            $nouveauTableau[$agenceDestinataire][] = $serviceDestinataire;
-        }
+
+
+
         //var_dump($nouveauTableau);
         header("Content-type:application/json");
 
-        $jsonData = json_encode($nouveauTableau);
+        $jsonData = json_encode($serviceDestinataires);
 
 
 
@@ -304,7 +298,7 @@ class BadmController extends Controller
 
 
 
-    private function convertirEnUtf8(array $element): array
+    private function convertirEnUtf8($element)
     {
         if (is_array($element)) {
             foreach ($element as $key => $value) {
@@ -324,10 +318,13 @@ class BadmController extends Controller
         $this->fusionPdf->genererFusion1($FichierDom, $filename01);
     }
 
-    private function imageDansDossier($image, string $chemin)
+    private function imageDansDossier($image, $imagename, string $chemin)
     {
         $target_dir = $chemin;  // Spécifiez le dossier où l'image sera enregistrée.
-        $target_file = $target_dir . basename($image["name"]);
+        //$image["name"] = $NumBDM . '_' . $agenceService . '.jpg';
+        // var_dump($image["name"]);
+        // die();
+        $target_file = $target_dir . basename($imagename);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -335,44 +332,56 @@ class BadmController extends Controller
         if (isset($_POST["submit"])) {
             $check = getimagesize($image["tmp_name"]);
             if ($check !== false) {
-                echo "Le fichier est une image - " . $check["mime"] . ".";
+                //echo "Le fichier est une image - " . $check["mime"] . ".";
                 $uploadOk = 1;
             } else {
-                echo "Le fichier n'est pas une image.";
+                //echo "";
+                $message = "Le fichier n'est pas une image.";
+                $this->alertRedirection($message);
                 $uploadOk = 0;
             }
         }
 
         // Vérifier si le fichier existe déjà
         if (file_exists($target_file)) {
-            echo "Désolé, le fichier existe déjà.";
+            //echo "";
+            $message = "Désolé, le fichier existe déjà.";
+            $this->alertRedirection($message);
             $uploadOk = 0;
         }
 
         // Vérifier la taille du fichier
-        if ($image["size"] > 5000000) {  // Limite de taille de 5MB
-            echo "Désolé, votre fichier est trop volumineux.";
+        if ($image["size"] > 307200) {  // Limite de taille de 300KB
+            //echo "";
+            $message = "Désolé, votre fichier est trop volumineux (>300KB).";
+            $this->alertRedirection($message);
             $uploadOk = 0;
         }
 
         // Autoriser certains formats de fichier
         if (
-            $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-            && $imageFileType != "gif"
+            $imageFileType != "jpg"  && $imageFileType != "jpeg"
+
         ) {
-            echo "Désolé, seuls les fichiers JPG, JPEG, PNG & GIF sont autorisés.";
+            // echo "Désolé, seuls les fichiers JPG est autorisés.";
+            $message = "Désolé, seuls les fichiers JPG est autorisés.";
+            $this->alertRedirection($message);
             $uploadOk = 0;
         }
 
         // Vérifier si $uploadOk est mis à 0 par une erreur
         if ($uploadOk == 0) {
-            echo "Désolé, votre fichier n'a pas été téléchargé.";
+            //echo "";
+            $message = "Désolé, votre fichier n'a pas été téléchargé.";
+            $this->alertRedirection($message);
             // si tout est correct, essayer de télécharger le fichier
         } else {
             if (move_uploaded_file($image["tmp_name"], $target_file)) {
-                echo "Le fichier " . htmlspecialchars(basename($_FILES["image"]["name"])) . " a été téléchargé.";
+                //echo "Le fichier " . htmlspecialchars(basename($image["name"])) . " a été téléchargé.";
             } else {
-                echo "Désolé, il y a eu une erreur lors du téléchargement de votre fichier.";
+                //echo ;
+                $message = "Désolé, il y a eu une erreur lors du téléchargement de votre fichier.";
+                $this->alertRedirection($message);
             }
         }
     }
@@ -381,14 +390,7 @@ class BadmController extends Controller
     {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // var_dump($_POST);
-            // var_dump($_FILES);
-            // $error = $_FILES['imageRebut']['error'];
-            // if ($error != UPLOAD_ERR_OK) {
-            //     // Gérer l'erreur
-            //     echo "Erreur lors du téléchargement du fichier: " . $error;
-            // }
-            // die();
+
 
 
 
@@ -477,14 +479,15 @@ class BadmController extends Controller
             if (isset($_FILES["imageRebut"])) {
 
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
-                $chemin = "/Hffintranet/Views/images/";
-                $this->imageDansDossier($_FILES['imageRebut'], $chemin);
+                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/images/";
+                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.jpg';
+                $this->imageDansDossier($_FILES['imageRebut'], $imagename, $chemin);
             }
 
-            // var_dump($data[0]['designation']);
+            // var_dump($_FILES);
             // die();
 
-            $conditionAgenceService = ($agenceDestinataire === '' && $serviceDestinataire === '') || $agenceEmetteur === $agenceDestinataire || $serviceEmetteur === $serviceDestinataire;
+            $conditionAgenceService = $agenceDestinataire === '' && $serviceDestinataire === '';
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
@@ -557,11 +560,12 @@ class BadmController extends Controller
                     'Heures_Machine' => $this->formatNumber($data[0]['heure']),
                     'Kilometrage' => $this->formatNumber($data[0]['km']),
                     'Email_Emetteur' => $MailUser,
-                    'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
+                    'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur,
+                    'image' => $_FILES['imageRebut']['name']
                 ];
-                $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
-                var_dump($generPdfBadm);
-                die();
+                // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
+                // var_dump($this->convertirEnUtf8($insertDbBadm));
+                // die();
 
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);

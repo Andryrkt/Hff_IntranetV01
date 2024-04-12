@@ -275,6 +275,12 @@ class GenererPdf
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
 
+        if ($tab['typeMouvement'] === 'MISE AU REBUT') {
+            $pdf->AddPage();
+            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/images/' . $tab['image'];
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        }
+
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');

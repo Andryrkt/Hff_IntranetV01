@@ -124,39 +124,62 @@ class BadmModel extends Model
 
     public function recupeServiceDestinataire()
     {
-        $statement = "SELECT DISTINCT
-         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
-        trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
-        when null then 'COMMERCIAL' 
-        else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = 'HF' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
-        end as service,
-        
-        case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'COM' 
-        else(select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat)
-        end as code_service
+        // $statement = "SELECT DISTINCT
+        //  case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
+        // trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
+        // when null then 'COMMERCIAL' 
+        // else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = 'HF' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
+        // end as service,
 
-        from mat_mat, agr_succ, outer mat_bil
-        WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
-        
-        
-         and trim(MMAT_ETSTOCK) in ('ST','AT')
-         and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-        and mmat_soc = 'HF'
-        -- and mmat_marqmat not like 'Z%'
-        and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
-        and mmat_nummat = mbil_nummat
-        and mbil_dateclot = '12/31/1899'
-        and mmat_datedisp < '12/31/2999'
-        ";
+        // case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'COM' 
+        // else(select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat)
+        // end as code_service
+
+        // from mat_mat, agr_succ, outer mat_bil
+        // WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+
+
+        //  and trim(MMAT_ETSTOCK) in ('ST','AT')
+        //  and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
+        // and mmat_soc = 'HF'
+        // -- and mmat_marqmat not like 'Z%'
+        // and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
+        // and mmat_nummat = mbil_nummat
+        // and mbil_dateclot = '12/31/1899'
+        // and mmat_datedisp < '12/31/2999'
+        // ";
+
+        $statement = "SELECT DISTINCT 
+        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
+        trim(trim(atab_code)||' '|| trim(atab_lib)) as service
+        from
+        agr_succ , agr_tab a
+        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
+        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
+        order by 1";
 
         $result = $this->connect->executeQuery($statement);
 
 
         $services = $this->connect->fetchResults($result);
 
-        $tableauUtf8 = $this->convertirEnUtf8($services);
 
-        return $tableauUtf8;
+
+        $nouveauTableau = [];
+
+        foreach ($services as $element) {
+            $codeService = $element['agence'];
+            $service = $element['service'];
+
+            if (!isset($nouveauTableau[$codeService])) {
+                $nouveauTableau[$codeService] = array();
+            }
+
+            $nouveauTableau[$codeService][] = $service;
+        }
+        return $this->convertirEnUtf8($nouveauTableau);
+
+        //return $tableauUtf8;
     }
 
     /**
@@ -246,7 +269,8 @@ class BadmModel extends Model
         (select mtxt_comment from mat_txt where mtxt_code = 'PRI' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
         (select mtxt_comment from mat_txt where mtxt_code = 'FLA' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
         trim((select atab_lib from agr_tab where atab_code = mmat_natmat and atab_nom = 'NAT')) as famille,
-        trim(mmat_affect) as code_affect
+        trim(mmat_affect) as code_affect,
+        (select mmo_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
         
         from mat_mat, agr_succ, outer mat_bil
         WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))

@@ -23,7 +23,7 @@ if (typeDemande === 'CHANGEMENT DE CASIER') {
     
     setTimeout(() => {
         document.querySelector(`#serviceDestinataire option[value="${document.querySelector('#serviceEmetteur').value.toUpperCase()}"]`).selected = true;
-    }, 600);
+    }, 1000);
 
 
     agenceDestinataire.disabled = true;
@@ -47,14 +47,14 @@ if(typeDemande === 'CESSION D\'ACTIF'){
         }, 300);
         setTimeout(() => {
             document.querySelector(`#serviceDestinataire option[value='COM COMMERCIAL']`).selected = true;
-        }, 600);
+        }, 1000);
     } else {
         setTimeout(() => {
             document.querySelector(`#agenceDestinataire option[value="01 ANTANANARIVO"]`).selected = true;
         }, 300);
         setTimeout(() => {
             document.querySelector(`#serviceDestinataire option[value='COM COMMERCIAL']`).selected = true;
-        }, 600);
+        }, 1000);
     }
     agenceDestinataire.disabled = true;
     serviceDestinataire.disabled = true;
