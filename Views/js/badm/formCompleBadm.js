@@ -164,10 +164,12 @@ setTimeout(() => {
 .catch(error => console.error(error));
 }
 
-/*
-changement de couleur pour le code de mouvemnet ou type de demande
 
-*/
+
+/**
+ * changement de couleur pour le code de mouvemnet ou type de demande
+ * @param {*} typeDemande 
+ */
 export function typeDemandeChangementCouleur(typeDemande){
 
 
@@ -186,3 +188,48 @@ export function typeDemandeChangementCouleur(typeDemande){
     }
 }
 
+
+
+
+/**
+ * informer l'utilisateur si le type de fichier et la taille de l'image ne  correspond pas à ce qu'on attend
+ * @param {*} event 
+ */
+export function verifierTailleEtType(event) {
+    const fichier = event.target.files[0]; // On obtient le fichier sélectionné
+    if (fichier) {
+      // Taille maximale en octets 
+      const tailleMax = 1*1024* 1024; // 1MB
+      const typesValides = ['image/jpeg', 'image/png'];
+
+      if (!typesValides.includes(fichier.type)) {
+        alert("Erreur : Le fichier doit être au format PNG, JPG ou JPEG.");
+        event.target.value = ''; // Réinitialise le champ de sélection de fichier
+      } else if (fichier.size > tailleMax) {
+        alert(`Erreur : La taille du fichier doit être inférieure à ${tailleMax / 1024/1024 } MB.`);
+        event.target.value = ''; // Réinitialise le champ de sélection de fichier
+      } else {
+        // Le fichier est valide, vous pouvez procéder à l'upload ou à d'autres traitements ici
+        console.log("Fichier valide. Procéder à l'upload ou autre.");
+      }
+    }
+  }
+
+
+/**
+ * permet de formater le nombre en limitant 2 chiffre après la virgule et séparer les millier par un point
+ */
+export function formatNumber() {
+    let input = document.getElementById('numberInput').value;
+    let number = parseFloat(input);
+    if (!isNaN(number)) {
+        // Formater le nombre en utilisant la locale fr-FR
+        let formatted = number.toLocaleString('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        // Remplacer les espaces par des points pour les séparateurs de milliers
+        formatted = formatted.replace(/\s/g, '.');
+        document.getElementById('formattedNumber').textContent = formatted;
+    }
+}

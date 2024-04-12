@@ -1,10 +1,10 @@
- import { form as formCompleBadm, send , fetchData, fetchCasier, typeDemandeChangementCouleur} from "./badm/formCompleBadm";
+ import { form as formCompleBadm, send , fetchData, fetchCasier, typeDemandeChangementCouleur, formatNumber, verifierTailleEtType} from "./badm/formCompleBadm";
  //import { FetchManager } from "./FetchManager.js";
- const typeDemande = formCompleBadm.codeMouvement.value
- const agenceDestinataire = formCompleBadm.agenceDestinataire;
-    const serviceDestinataire = formCompleBadm.serviceDestinataire;
-    const motifArretMateriel = formCompleBadm.motifArretMateriel;
-   const agenceEmetteur = formCompleBadm.agenceEmetteur
+const typeDemande = formCompleBadm.codeMouvement.value
+const agenceDestinataire = formCompleBadm.agenceDestinataire;
+const serviceDestinataire = formCompleBadm.serviceDestinataire;
+const motifArretMateriel = formCompleBadm.motifArretMateriel;
+const agenceEmetteur = formCompleBadm.agenceEmetteur;
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
 
@@ -74,10 +74,10 @@ if(typeDemande === 'MISE AU REBUT'){
         document.querySelector(`#serviceDestinataire option[value="${document.querySelector('#serviceEmetteur').value.toUpperCase().trim()}"]`).selected = true;
     }, 1000);
 
-   form.nomClient.disabled =true;
-     form.modalitePaiement.disabled = true;
-   form.prixHt.disabled = true;
-   agenceDestinataire.disabled = true;
+    form.nomClient.disabled =true;
+    form.modalitePaiement.disabled = true;
+    form.prixHt.disabled = true;
+    agenceDestinataire.disabled = true;
     serviceDestinataire.disabled = true;
     motifArretMateriel.disabled = true;
 }
@@ -90,7 +90,9 @@ document.getElementById('agenceDestinataire').addEventListener('change', functio
 });
 
 
-
+/**
+ * ecouter sur le button et affiche une verification
+ */
 
 //console.log(formCompleBadm.badmComplet);
 formCompleBadm.badmComplet.addEventListener('click', (e) => {
@@ -127,38 +129,14 @@ formCompleBadm.badmComplet.addEventListener('click', (e) => {
 typeDemandeChangementCouleur(typeDemande);
 
 
-// const sousTitreInput = [...document.querySelectorAll('.sousTitre')]
-
-// if(typeDemande === 'ENTREE EN PARC'){
-//     sousTitreInput.forEach(element => {
-//         console.log(element.id);
-//         if (element.id === "Cession d’actif" || element.id === "Mise au rebut") {
-//             element.classList.remove('sousTitre')
-//             element.classList.add('sosuTitreGiser')
-//         }
-//     });
-// }
+/**
+ * filtre le taille de l'image entrer par l'utilisateur
+ */
 
 formCompleBadm.imageRebut.addEventListener('change', verifierTailleEtType)
 
-
-function verifierTailleEtType(event) {
-    const fichier = event.target.files[0]; // On obtient le fichier sélectionné
-    if (fichier) {
-      // Taille maximale en octets (ex: 2MB)
-      const tailleMax = 1 * 1024 * 1024; // 2MB
-      const typesValides = ['image/jpeg', 'image/png'];
-
-      if (!typesValides.includes(fichier.type)) {
-        alert("Erreur : Le fichier doit être au format PNG, JPG ou JPEG.");
-        event.target.value = ''; // Réinitialise le champ de sélection de fichier
-      } else if (fichier.size > tailleMax) {
-        alert(`Erreur : La taille du fichier doit être inférieure à ${tailleMax / 1024 / 1024} MB.`);
-        event.target.value = ''; // Réinitialise le champ de sélection de fichier
-      } else {
-        // Le fichier est valide, vous pouvez procéder à l'upload ou à d'autres traitements ici
-        console.log("Fichier valide. Procéder à l'upload ou autre.");
-      }
-    }
-  }
+/**
+ * formater le prix
+ */
+formCompleBadm.prixHt.addEventListener('input', formatNumber)
 

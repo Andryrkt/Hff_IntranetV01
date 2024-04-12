@@ -198,7 +198,7 @@
         </div>
         
         <div class="row">
-            {{form.inputText('motifArretMateriel', 'Motif Arrêt Materiel', '',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+            {{form.inputText('motifArretMateriel', 'Motif', '',{required: 'required', endpoint: '12', maxlength: '100' } )}}
         </div>
 
 
@@ -218,7 +218,7 @@
             </div>
             <div class="row">
                 {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation,{endpoint: '12', class: ' col-md-6',  disabled: 'disabled'})}}    
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation,{endpoint: '12', class: ' col-md-6'})}}    
             </div>
         {% endif %}
 

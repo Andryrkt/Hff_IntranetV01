@@ -304,14 +304,14 @@ class BadmController extends Controller
 
 
 
-    private function convertirEnUtf8($element)
+    private function convertirEnUtf8(array $element): array
     {
         if (is_array($element)) {
             foreach ($element as $key => $value) {
                 $element[$key] = $this->convertirEnUtf8($value);
             }
         } elseif (is_string($element)) {
-            return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
+            return mb_convert_encoding($element, 'UTF-8', 'Windows-1252');
         }
         return $element;
     }
@@ -481,6 +481,8 @@ class BadmController extends Controller
                 $this->imageDansDossier($_FILES['imageRebut'], $chemin);
             }
 
+            // var_dump($data[0]['designation']);
+            // die();
 
             $conditionAgenceService = ($agenceDestinataire === '' && $serviceDestinataire === '') || $agenceEmetteur === $agenceDestinataire || $serviceEmetteur === $serviceDestinataire;
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';
@@ -499,7 +501,6 @@ class BadmController extends Controller
                     'Nom_Session_Utilisateur' => $_SESSION['user'],
                     'Date_Demande' => $dateDemande,
                     'Heure_Demande' => $heureDemande,
-
                     'Agence_Service_Emetteur' => $agenceServiceEmetteur,
                     'Casier_Emetteur' => $data[0]['casier_emetteur'],
                     'Agence_Service_Destinataire' => $agenceServiceDestinataire,
@@ -558,6 +559,9 @@ class BadmController extends Controller
                     'Email_Emetteur' => $MailUser,
                     'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
                 ];
+                $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
+                var_dump($generPdfBadm);
+                die();
 
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);

@@ -86,7 +86,9 @@ if ( document.querySelector('#NumDOM') === null  ) {
             document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).selected = true;
         }, 500);
         setTimeout(() => {
-            document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase()}"]`).selected = true;
+            console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase());
+            libserv = document.querySelector('#LibServINT').value.toUpperCase().trim();
+             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase().trim()}"]`).selected = true;
         }, 1000);
     } else {
         setTimeout(() => {
