@@ -5,6 +5,12 @@ const agenceDestinataire = formCompleBadm.agenceDestinataire;
 const serviceDestinataire = formCompleBadm.serviceDestinataire;
 const motifArretMateriel = formCompleBadm.motifArretMateriel;
 const agenceEmetteur = formCompleBadm.agenceEmetteur;
+const casierDestinataire = formCompleBadm.casierDestinataire;
+const motifMiseRebut = formCompleBadm.motifMiseRebut;
+const casierEmetteur = formCompleBadm.casierEmetteur;
+console.log(casierEmetteur.value);
+
+
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
 
@@ -14,6 +20,13 @@ fetchData();
 document.getElementById('agenceDestinataire').addEventListener('change', function() {
     var selectedOption = this.value.toUpperCase();
     fetchData(selectedOption); 
+});
+
+fetchCasier();
+
+document.getElementById('agenceDestinataire').addEventListener('change', function() {
+    var selectedOption = this.value.toUpperCase();
+    fetchCasier(selectedOption); 
 });
 
 if (typeDemande === 'CHANGEMENT DE CASIER') {
@@ -28,7 +41,6 @@ if (typeDemande === 'CHANGEMENT DE CASIER') {
 
     agenceDestinataire.disabled = true;
     serviceDestinataire.disabled = true;
-    motifArretMateriel.disabled = true;
     //console.log(agenceDestinataire, serviceDestinataire);
 
   
@@ -48,6 +60,9 @@ if(typeDemande === 'CESSION D\'ACTIF'){
         setTimeout(() => {
             document.querySelector(`#serviceDestinataire option[value='COM COMMERCIAL']`).selected = true;
         }, 1000);
+        setTimeout(() => {
+            document.querySelector(`#casierDestinataire`).value = "";
+        }, 1000);
     } else {
         setTimeout(() => {
             document.querySelector(`#agenceDestinataire option[value="01 ANTANANARIVO"]`).selected = true;
@@ -55,10 +70,16 @@ if(typeDemande === 'CESSION D\'ACTIF'){
         setTimeout(() => {
             document.querySelector(`#serviceDestinataire option[value='COM COMMERCIAL']`).selected = true;
         }, 1000);
+        setTimeout(() => {
+            document.querySelector(`#casierDestinataire`).value = "";
+        }, 1000);
     }
+
     agenceDestinataire.disabled = true;
     serviceDestinataire.disabled = true;
     motifArretMateriel.disabled = true;
+    motifMiseRebut.disabled = true;
+    casierDestinataire.disabled = true;
 }
 
 
@@ -74,20 +95,27 @@ if(typeDemande === 'MISE AU REBUT'){
         document.querySelector(`#serviceDestinataire option[value="${document.querySelector('#serviceEmetteur').value.toUpperCase().trim()}"]`).selected = true;
     }, 1000);
 
+    setTimeout(() => {
+        document.querySelector(`#casierDestinataire option[value="${casierEmetteur.value}"]`).selected = true;
+    }, 1000);
+
     form.nomClient.disabled =true;
     form.modalitePaiement.disabled = true;
     form.prixHt.disabled = true;
     agenceDestinataire.disabled = true;
     serviceDestinataire.disabled = true;
     motifArretMateriel.disabled = true;
+    casierDestinataire.disabled = true;
+
+    /**
+ * filtre le taille de l'image entrer par l'utilisateur
+ */
+
+formCompleBadm.imageRebut.addEventListener('change', verifierTailleEtType)
+
 }
 
-fetchCasier();
 
-document.getElementById('agenceDestinataire').addEventListener('change', function() {
-    var selectedOption = this.value.toUpperCase();
-    fetchCasier(selectedOption); 
-});
 
 
 /**
@@ -129,11 +157,6 @@ formCompleBadm.badmComplet.addEventListener('click', (e) => {
 typeDemandeChangementCouleur(typeDemande);
 
 
-/**
- * filtre le taille de l'image entrer par l'utilisateur
- */
-
-formCompleBadm.imageRebut.addEventListener('change', verifierTailleEtType)
 
 /**
  * formater le prix

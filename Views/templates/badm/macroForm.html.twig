@@ -26,7 +26,7 @@
 {% macro inputDate(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
-    <input class="form-control" type="date" id="{{ name }}" name="{{ name }}" value="{{ value }}" {{option.required}} {{option.disabled}}/>
+    <input class="form-control" type="date" id="{{ name }}" name="{{ name }}" value='{{ value}}' {{option.required}} {{option.disabled}}/>
     <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
 </div>
 {% endmacro %}
@@ -60,6 +60,9 @@
         <div class="input-group mb-2">
             <span class="input-group-text">{{label}}</span>
             <select class="form-control" id="{{ name }}" name="{{ name }}" >
+                {% if option.default %}
+                    <option value=""  selected>{{option.valueDefault}}</option>
+                {% endif %}
                 {% for row in array %}
                     <option value="{{row}}" >{{row}}</option>
                 {% endfor %}

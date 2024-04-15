@@ -26,7 +26,7 @@
                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                        <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
-                       <li><a class="dropdown-item" href="#">Consultation</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=listBadm">Consultation</a></li>
                    </ul>
                </li>
                {% endif %}
@@ -147,8 +147,11 @@
                 {{form.inputReadonly('designation', 'Désignation ', items.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
                 {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
                 {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}   
-           
+            {% if codeMouvement == 'ENTREE EN PARC'  %}  
+                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}   
+            {% else %}
+                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            {% endif %}
         </div>
         <div class="row">
             
@@ -209,7 +212,7 @@
             </div>
             <div class="row">
                 {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat,{required: 'required', endpoint: '12', class: ' col-md-6' , disabled: 'disabled'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', '',{endpoint: '12', class: ' col-md-6', disabled: 'disabled'})}}    
+                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation,{endpoint: '12', class: ' col-md-6', disabled: 'disabled'})}}    
             </div>
 
         {% else %}

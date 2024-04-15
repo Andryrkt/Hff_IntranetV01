@@ -40,7 +40,7 @@ fetchvaleur().then(raw_data => {
     dateDemandeDebutInput.addEventListener('change', (e) => {
         e.preventDefault();
         // Vérifier si la date de début est supérieure à la date de fin
-        if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
+        if (new Date(dateDemandeDebutInput.value) > new Date(dateDemandeFinInput.value)) {
      
             const message = document.getElementById('dateCreationMessage');
             message.textContent = "La date de début doit être inférieure à la date de fin.";
@@ -55,7 +55,7 @@ fetchvaleur().then(raw_data => {
     dateDemandeFinInput.addEventListener('change', (e) => {
         e.preventDefault();
     
-        if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
+        if (new Date(dateDemandeDebutInput.value) > new Date(dateDemandeFinInput.value)) {
         
             const message = document.getElementById('dateCreationMessage');
             message.textContent = "La date de début doit être inférieure à la date de fin.";
@@ -208,6 +208,7 @@ function renderData1(data) {
 
         for (var key in item) {
 
+        
             var cellule = document.createElement('td');
             cellule.classList.add('w-50');
 
@@ -224,17 +225,17 @@ function renderData1(data) {
             //     cellule.style.display = 'none';
             // }
 
-            // if (key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin') {
-            //     cellule.textContent = item[key].split('-').reverse().join('/');
-            //  }else if (key === 'Numero_Ordre_Mission') {
-            //     var lien = document.createElement('a');
-            //     lien.href = `/Hffintranet/index.php?action=DetailDOM&NumDom=${item[key]}&Id=${item['ID_Demande_Ordre_Mission']}`; 
-            //     lien.textContent = item[key];
-            //     cellule.appendChild(lien);
-            // }else{
-            //     cellule.textContent = item[key]
-            // }
-
+            if (key === 'Date_Demande' || key === 'Date_Mise_Location') {
+                cellule.textContent = item[key].split('-').reverse().join('/');
+             }else if (key === 'Numero_Ordre_Mission') {
+                var lien = document.createElement('a');
+                lien.href = `/Hffintranet/index.php?action=DetailDOM&NumDom=${item[key]}&Id=${item['ID_Demande_Ordre_Mission']}`; 
+                lien.textContent = item[key];
+                cellule.appendChild(lien);
+            }else{
+                cellule.textContent = item[key]
+            }
+            
             // Vérifier si la clé est "statut" et attribuer une classe en conséquence
             if (key === 'Statut') {
                 switch (item[key]) {
@@ -301,7 +302,7 @@ return resultatsFiltres = data.filter(function(demande) {
    
 
     // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
-    return (filtreTypeMouvemnet && filtreIdMateriel && filtreDateCreation && filtreDateDebutDemande && filtreDateFinDemande && filtreDateDemande) || (!critereTypeMouvemnetValue && !critereIdMaterielValue && !dateDemandeDebutValue && !dateDemandeFinValue  &&!filtreTypeMouvemnet && !filtreIdMateriel && !filtreDateCreation && !filtreDateDebutDemande && !filtreDateFinDemande);
+    return (filtreTypeMouvemnet && filtreIdMateriel  && filtreDateDebutDemande && filtreDateFinDemande && filtreDateDemande) || (!critereTypeMouvemnetValue && !critereIdMaterielValue && !dateDemandeDebutValue && !dateDemandeFinValue  &&!filtreTypeMouvemnet && !filtreIdMateriel  && !filtreDateDebutDemande && !filtreDateFinDemande);
 });
  
 

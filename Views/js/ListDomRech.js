@@ -358,6 +358,7 @@ const workbook = XLSX.utils.book_new();
 
 // Ajoute les en-têtes à la feuille Excel
 const headers = [
+    'Id',
     'Statut',
     'type document',
     'Numéro d\'Ordre de Mission',

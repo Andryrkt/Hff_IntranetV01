@@ -22,7 +22,7 @@
                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                        <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
-                       <li><a class="dropdown-item" href="#">Consultation</a></li>
+                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=listBadm">Consultation</a></li>
                    </ul>
                </li>
                {% endif %}
@@ -121,7 +121,7 @@
                         </select>
                     </div>
                 </div> --> 
-                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3'})}}
+                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3', default: 'true', valueDefault:'Sélectionnez un type'})}}
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                     <div class="input-group mb-2">
                         <span class="input-group-text">Id matériel</span>
