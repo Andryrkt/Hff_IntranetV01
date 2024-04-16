@@ -19,6 +19,9 @@ class BadmController extends Controller
         }
     }
 
+    /**
+     * transforme en une seul tableau
+     */
     private function transformEnSeulTableau($tabs)
     {
         $tab = [];
@@ -99,13 +102,13 @@ class BadmController extends Controller
                 $message = 'Ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
-                $message = 'Ce matériel est en vente';
+                $message = 'L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.';
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
-                $message = 'Cession d\actif ';
+                $message = 'Cession d\'actif ';
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'MISE AU REBUT' && $data[0]['code_affect'] === 'CAS') {
-                $message = 'Ce matériel ne peut pas MIS AU REBUT';
+                $message = 'Ce matériel ne peut pas être mis au rebut';
                 $this->alertRedirection($message);
             } else {
 

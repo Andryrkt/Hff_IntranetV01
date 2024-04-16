@@ -3,110 +3,7 @@
 
 
 {% block content %}
-{# {{ include('/main/Principe.html.twig', { 'infoUserCours': infoUserCours, 'boolean': boolean }) }} #}
-
-
-<!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
-    <div class="container">
-       <a class="navbar-brand" href="/Hffintranet/index.php?action=Acceuil"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
-       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-       <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
-           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-
-               <!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
-               {% if infoUserCours.1.App == 'BDM' %}
-               <li class="nav-item dropdown" id="BDM">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
-                       <li><a class="dropdown-item" href="#">Consultation</a></li>
-                   </ul>
-               </li>
-               {% endif %}
-               <!-- FIN Bordereau d’acquisition et de Mouvement Matériel -->
-
-
-               
-               <!-- DEBUT Demande d'odre de mission -->
-               {% if infoUserCours.0.App == 'DOM' %}
-               <li class="nav-item dropdown" id="DOM">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=New_DOM">Nouvelle Demande </a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=ListDomRech">Consultation</a></li>
-                   </ul>
-               </li>
-               {% endif %}
-               <!-- FIN Demande d'odre de mission -->
-
-               <li class="nav-item dropdown">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Intervention</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="#">Nouvelle Demande d'Intervention</a></li>
-                       <li><a class="dropdown-item" href="#">Liste des demandes d'Intervention </a></li>
-
-                   </ul>
-               </li>
-
-               <li class="nav-item dropdown">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Appro</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a></li>
-                       <li><a class="dropdown-item" href="#">Liste des demandes d'Appro</a></li>
-
-                   </ul>
-               </li>
-
-               <li class="nav-item dropdown">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Support Info</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="#">Nouveau Support</a></li>
-                       <li><a class="dropdown-item" href="#">Liste de Support </a></li>
-
-                   </ul>
-               </li>
-
-
-               <li class="nav-item dropdown">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
-                       <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
-                       <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
-                       <li>
-                           <hr class="dropdown-divider" />
-                       </li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Logout">Déconnection</a></li>
-                   </ul>
-               </li>
-
-
-               {% if boolean %}
-               <li class="nav-item dropdown" id="Setting">
-                   <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
-                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                       <li><a class="dropdown-item" href="#" id="Perso">Personnels</a></li>
-                       <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc">Type de Document</a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut">Statut App</a></li>
-                       <li><a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser">Autorisation AgenceService</a></li>
-
-                   </ul>
-               </li>
-               {% endif %}
-           </ul>
-       </div>
-   </div>
-</nav> 
-
-
-
-
-
+{% include "/main/Principe.html.twig" %}
 
     <div class="container">
         <div class="card">
@@ -181,5 +78,5 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="/Hffintranet/Views/js/FormDOM.js"></script>
+    <script src="/Hffintranet/Views/js/dom/FormDOM.js"></script>
 {% endblock %}

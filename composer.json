@@ -5,7 +5,9 @@
             "App\\Controller\\": "src/Controller/",
             "App\\Model\\": "src/Model/",
             "App\\Service\\": "src/Service/",
-            "Config\\": "config/"
+            "Config\\": "config/",
+            "App\\Controller\\dom\\": "src/Controller/dom",
+            "App\\Model\\dom\\": "src/Model/dom"
         }
     },
     "authors": [
@@ -16,6 +18,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "php": ">=7.2.5",
         "setasign/fpdi": "^2.6",
         "twig/twig": "3.0",
         "tecnickcom/tcpdf": "^6.7",

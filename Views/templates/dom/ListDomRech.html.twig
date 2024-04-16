@@ -1,34 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "baseTemplate.html.twig" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hff INtranet</title>
+{% block stylesheets %} <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">{% endblock %}
 
-    <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+{% block title %}<title>Liste d'Ordre de Mission</title>{% endblock %}
 
-</head>
+{% import "macroForm.html.twig" as form %}
 
-<body>
+
+{% block content %}
+
+    {% include "/main/Principe.html.twig" %}
+
+
     <!-- DEBUT recherche -->
     <div class="row">
         <div class="container">
             <div class="row">
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                    <div class="input-group mb-2">
-                        <span class="input-group-text">Statut</span>
-                        <select name="Statut" id="statut" class="form-control">
-                        </select>
-                    </div>
+                <div class="col">
+                    <h2> Liste de la demande d'ordre de mission </h2>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                    <div class="input-group mb-2">
-                        <span class="input-group-text">Sous Type</span>
-                        <select name="sousTypeDoc" id="sousTypeDoc" class="form-control">
-                        </select>
-                    </div>
-                </div>
+            </div>
+            <div class="row">
+                {{form.select_1('statut', 'Statut', '',{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3'})}}
+
+                {{form.select_1('sousTypeDoc', 'Sous Type', '',{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3'})}}
+
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                     <div class="input-group mb-2">
                         <span class="input-group-text">Matricule</span>
@@ -40,20 +36,24 @@
 
         <div class="row">
             <small class="dateCreationMessage" id="dateCreationMessage"></small>
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date de création (début)</span>
                     <input type="date" name="Date_debut" id="dateCreationDebut" class="form-control">
                 </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date de Mission (début)</span>
                     <input type="date" name="Date_debut_D" id="dateDebutDebut" class="form-control">
                 </div>
             </div>
-            <small class="dateCreationMessage" id="dateCreationMessage"></small>
-
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">N° DOM</span>
+                    <input type="search" name="numDom" id="numDom" class="form-control" minlength="11">
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -72,6 +72,10 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="row">
+            <small class="dateCreationMessage" id="dateCreationMessage"></small>
         </div>
 
 
@@ -169,9 +173,9 @@
     </div>
 
 
+    {% endblock %}
 
+    {% block javascript %}
     <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <script src="/Hffintranet/Views/js/ListDomRech.js"></script>
-</body>
-
-</html>
+    <script src="/Hffintranet/Views/js/dom/ListDomRech.js"></script>
+    {% endblock %}

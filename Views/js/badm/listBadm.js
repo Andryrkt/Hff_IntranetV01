@@ -108,7 +108,7 @@ fetchvaleur().then(raw_data => {
             renderData1(donner);
             nombreResultat.textContent = donner.length + ' résultats';
         } else {
-            console.log(new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value))
+            //console.log(new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value))
 
             // Afficher un message si le tableau est vide
             const noResult = document.querySelector('#noResult');

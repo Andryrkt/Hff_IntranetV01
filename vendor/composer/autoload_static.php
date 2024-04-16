@@ -37,7 +37,9 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'A' => 
         array (
             'App\\Service\\' => 12,
+            'App\\Model\\dom\\' => 14,
             'App\\Model\\' => 10,
+            'App\\Controller\\dom\\' => 19,
             'App\\Controller\\' => 15,
             'App\\' => 4,
         ),
@@ -72,9 +74,17 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/../..' . '/src/Service',
         ),
+        'App\\Model\\dom\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Model/dom',
+        ),
         'App\\Model\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Model',
+        ),
+        'App\\Controller\\dom\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/dom',
         ),
         'App\\Controller\\' => 
         array (

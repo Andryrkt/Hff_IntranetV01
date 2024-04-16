@@ -1,7 +1,7 @@
 {% macro inputReadonly(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
-    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}" {{option.required}} disabled readonly />
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
     <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
 </div>
 {% endmacro %}

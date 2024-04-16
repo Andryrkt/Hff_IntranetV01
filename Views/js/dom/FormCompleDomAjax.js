@@ -99,7 +99,7 @@ if ( document.querySelector('#NumDOM') === null  ) {
         }, 500);
         setTimeout(() => {
             console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
-            document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase()}"]`).selected = true;
+            document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase().trim()}"]`).selected = true;
         }, 1000);
     }
 
@@ -132,12 +132,12 @@ console.log(check);
                     if ($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase() === '60 PNEU ') {
                         document.querySelector(`#select1 option[value="60 PNEU - OUTIL - LUB"]`).selected = true;
                     } else {
+                        //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
                         document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`).selected = true;
-                    }
-                    
-                    
-                    document.querySelector(`#SITE option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`).selected = true
-                }, 200);
+                    }   
+                    //console.log(document.querySelector(`#SiteRental`));
+                    document.querySelector(`#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`).selected = true
+                }, 500);
 
 
                 
@@ -159,7 +159,7 @@ console.log(check);
                         
                         document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[1]}"]`).selected = true;
                     }
-            }, 500);
+            }, 1000);
                 })
                 .catch(error => {
                     console.error(error);

@@ -17,6 +17,8 @@ use App\Model\AgenceServAutoriserModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\BadmController;
 use App\Controller\BadmListeController;
+use App\Controller\dom\DomDetailController;
+use App\Controller\dom\DomListController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -79,6 +81,8 @@ $ControlPers = new PersonnelControl();
 // include 'Controler/DomControl.php';
 $ModelDOM = new DomModel();
 $ControlDOM = new DomControl();
+$DomListeController = new DomListController();
+$DomDetailController = new DomDetailController();
 // //----
 // // TypeDoc
 // include 'Model/TypeDocModel.php';
@@ -156,7 +160,7 @@ switch ($action) {
         $ControlDOM->ShowListDom();
         break;
     case 'ListDomRech':
-        $ControlDOM->ShowListDomRecherche();
+        $DomListeController->ShowListDomRecherche();
         break;
     case 'checkMatricule':
         $ControlDOM->ShowDomPDF();
@@ -175,7 +179,7 @@ switch ($action) {
         $ControlDOM->SelectPrixRental();
         break;
     case 'DetailDOM':
-        $ControlDOM->DetailDOM();
+        $DomDetailController->DetailDOM();
         break;
     case 'EnvoyerImprime':
         $ControlDOM->EnvoieImprimeDom();
@@ -205,13 +209,13 @@ switch ($action) {
         $ControlAutorisation->deleteAgenceAuto();
         break;
     case 'anaranaaction':
-        $ControlDOM->anaranaFonction();
+        $ControlDOM->agenceServiceJson();
         break;
     case 'recherche':
-        $ControlDOM->rechercheController();
+        $DomListeController->rechercheController();
         break;
     case 'listStatut':
-        $ControlDOM->listStatutController();
+        $DomListeController->listStatutController();
         break;
     case 'Dupliquer':
         $ControlDOM->duplificationFormJsonController();

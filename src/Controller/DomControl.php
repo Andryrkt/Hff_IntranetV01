@@ -1422,120 +1422,29 @@ class DomControl extends Controller
      */
     public function ShowListDom()
     {
-        $this->SessionStart();
+        // $this->SessionStart();
 
-        $UserConnect = $_SESSION['user'];
-        $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-        $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-        include 'Views/Principe.php';
-        //Fichier d'accès All Consultat
-        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
-        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $ListDom = $this->DomModel->getListDomAll();
-        } else {
-            $ListDom = $this->DomModel->getListDom($UserConnect);
-        }
-        //
-
-        include 'Views/DOM/ListDom.php';
-    }
-
-
-    /**
-     * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
-     */
-    public function DetailDOM()
-    {
-        $this->SessionStart();
-
-        if (isset($_GET['NumDom'])) {
-            $NumDom = $_GET['NumDom'];
-            $IdDom = $_GET['Id'];
-            $UserConnect = $_SESSION['user'];
-            $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-            $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-            include 'Views/Principe.php';
-            $detailDom = $this->DomModel->getDetailDOMselect($NumDom, (int) $IdDom);
-
-            include 'Views/DOM/DetailDOM.php';
-        }
-    }
-
-
-    /**
-     * TODO : Recherche à partir d'une date  définie et statut selectionner 
-     */
-    public function ShowListDomRecherche()
-    {
-        session_start();
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
-        }
-        $UserConnect = $_SESSION['user'];
-        //$Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-        //$LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-        include 'Views/Principe.php';
+        // $UserConnect = $_SESSION['user'];
+        // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
+        // $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
+        // include 'Views/Principe.php';
+        // //Fichier d'accès All Consultat
         // $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
         // if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-        //     $ListDomRech = $this->DomModel->getListDomRechALl();
+        //     $ListDom = $this->DomModel->getListDomAll();
         // } else {
-        //     $ListDomRech = $this->DomModel->getListDomRech($UserConnect);
+        //     $ListDom = $this->DomModel->getListDom($UserConnect);
         // }
-        $Statut = $this->DomModel->getListStatut();
-        include 'Views/DOM/ListDomRech.php';
+        // //
+
+        // include 'Views/DOM/ListDom.php';
     }
 
-
-    /**
-     * @Andryrkt 
-     * cette fonction transforme le tableau statut en json 
-     * pour listeDomRecherche
-     */
-    public function listStatutController()
-    {
-
-        $statut = $this->DomModel->getListStatut();
-
-        header("Content-type:application/json");
-
-        echo json_encode($statut);
-    }
-
-    /**
-     * @Andryrkt 
-     * cette fonction transforme le tableau en json 
-     * pour listeDomRecherche
-     */
-    public function rechercheController()
-    {
-        $this->SessionStart();
-
-        $UserConnect = $_SESSION['user'];
-
-        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
-        // var_dump($FichierAccès);
-        // die();
-        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $array_decoded = $this->DomModel->RechercheModelAll();
-        } else {
-            $array_decoded = $this->DomModel->RechercheModel($UserConnect);
-        }
-
-        // var_dump($array_decoded);
-        // die();
-        //var_dump($array_decoded);
-
-        header("Content-type:application/json");
-
-        echo json_encode($array_decoded);
-    }
 
     /**
      * creation du débiteur (code service et service)
      */
-    public function anaranaFonction()
+    public function agenceServiceJson()
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
@@ -1543,25 +1452,6 @@ class DomControl extends Controller
         header("Content-type:application/json");
 
         echo json_encode($codeServiceIrium);
-
-
-        // if (isset($_GET['option'])) {
-
-        //     // Récupérer la valeur de l'option sélectionnée
-        //     $selectedOption = $_GET['option'];
-
-        //     // Vérifier si l'option existe dans le tableau des données simulées
-        //     if (array_key_exists($selectedOption, $codeServiceIrium)) {
-        //         // Afficher le contenu correspondant à l'option sélectionnée
-        //         for ($i = 0; $i < count($codeServiceIrium[$selectedOption]); $i++) {
-
-        //             echo ' <option value="' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '">' . iconv('Windows-1252', 'UTF-8', $codeServiceIrium[$selectedOption][$i]) . '</option>';
-        //         }
-        //     } else {
-        //         // Gérer le cas où l'option sélectionnée n'existe pas
-        //         echo 'Aucune donnée disponible pour cette option';
-        //     }
-        // }
     }
 
 

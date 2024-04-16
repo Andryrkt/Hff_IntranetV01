@@ -454,72 +454,72 @@ class DomModel extends Model
     /**
      * affiche  liste de Dom selon l'agence autoriser de l'utilisateur connecter 
      */
-    public function getListDom($User)
-    {
-        $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
-                            (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
-                            Nom_Session_Utilisateur,
-                            Numero_Ordre_Mission,
-                            Type_Document,
-                            Sous_type_document,
-                            Matricule, 
-                            Date_Demande, 
-                            Nombre_Jour, 
-                            Date_Debut, 
-                            Date_Fin, 
-                            Motif_Deplacement,
-                            Client, 
-                            Lieu_Intervention,
-                            Devis,
-                            Statut_demande.Description as Statut,
-                            Total_General_Payer
-                    FROM Demande_ordre_mission, Statut_demande
-                    WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                    AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
-                                                                            FROM Agence_service_autorise 
-                                                                            WHERE Session_Utilisateur = '" . $User . "' )
-                    AND Demande_ordre_mission.Code_Statut in('OUV','CPT')                                                        
-                    ORDER BY ID_Demande_Ordre_Mission DESC";
-        $exec_ListDOM = $this->connexion->query($ListDOM);
-        $DomList = array();
-        while ($row_ListDom = odbc_fetch_array($exec_ListDOM)) {
-            $DomList[] = $row_ListDom;
-        }
-        return $DomList;
-    }
+    // public function getListDom($User)
+    // {
+    //     $ListDOM = "SELECT  ID_Demande_Ordre_Mission,
+    //                         (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
+    //                         Nom_Session_Utilisateur,
+    //                         Numero_Ordre_Mission,
+    //                         Type_Document,
+    //                         Sous_type_document,
+    //                         Matricule, 
+    //                         Date_Demande, 
+    //                         Nombre_Jour, 
+    //                         Date_Debut, 
+    //                         Date_Fin, 
+    //                         Motif_Deplacement,
+    //                         Client, 
+    //                         Lieu_Intervention,
+    //                         Devis,
+    //                         Statut_demande.Description as Statut,
+    //                         Total_General_Payer
+    //                 FROM Demande_ordre_mission, Statut_demande
+    //                 WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+    //                 AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+    //                                                                         FROM Agence_service_autorise 
+    //                                                                         WHERE Session_Utilisateur = '" . $User . "' )
+    //                 AND Demande_ordre_mission.Code_Statut in('OUV','CPT')                                                        
+    //                 ORDER BY ID_Demande_Ordre_Mission DESC";
+    //     $exec_ListDOM = $this->connexion->query($ListDOM);
+    //     $DomList = array();
+    //     while ($row_ListDom = odbc_fetch_array($exec_ListDOM)) {
+    //         $DomList[] = $row_ListDom;
+    //     }
+    //     return $DomList;
+    // }
     //
     /**
      * affiche tous la liste (sans filtre d'agence autorise)
      */
-    public function getListDomAll()
-    {
-        $ListDOMAll = "SELECT  ID_Demande_Ordre_Mission,
-                            (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
-                            Nom_Session_Utilisateur,
-                            Numero_Ordre_Mission,
-                            Type_Document,
-                            Sous_type_document,
-                            Matricule, 
-                            Date_Demande, 
-                            Nombre_Jour, 
-                            Date_Debut, 
-                            Date_Fin, 
-                            Motif_Deplacement,
-                            Client, 
-                            Lieu_Intervention,
-                            Devis,
-                            Statut_demande.Description as Statut,
-                            Total_General_Payer
-                    FROM Demande_ordre_mission, Statut_demande
-                    WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-                    ORDER BY ID_Demande_Ordre_Mission DESC";
-        $exec_ListDOMAll = $this->connexion->query($ListDOMAll);
-        $DomListAll = array();
-        while ($row_ListDomAll = odbc_fetch_array($exec_ListDOMAll)) {
-            $DomListAll[] = $row_ListDomAll;
-        }
-        return $DomListAll;
-    }
+    // public function getListDomAll()
+    // {
+    //     $ListDOMAll = "SELECT  ID_Demande_Ordre_Mission,
+    //                         (select nom_agence_i100+'-'+nom_service_i100 from Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur ) as LibelleCodeAgence_Service, 
+    //                         Nom_Session_Utilisateur,
+    //                         Numero_Ordre_Mission,
+    //                         Type_Document,
+    //                         Sous_type_document,
+    //                         Matricule, 
+    //                         Date_Demande, 
+    //                         Nombre_Jour, 
+    //                         Date_Debut, 
+    //                         Date_Fin, 
+    //                         Motif_Deplacement,
+    //                         Client, 
+    //                         Lieu_Intervention,
+    //                         Devis,
+    //                         Statut_demande.Description as Statut,
+    //                         Total_General_Payer
+    //                 FROM Demande_ordre_mission, Statut_demande
+    //                 WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
+    //                 ORDER BY ID_Demande_Ordre_Mission DESC";
+    //     $exec_ListDOMAll = $this->connexion->query($ListDOMAll);
+    //     $DomListAll = array();
+    //     while ($row_ListDomAll = odbc_fetch_array($exec_ListDOMAll)) {
+    //         $DomListAll[] = $row_ListDomAll;
+    //     }
+    //     return $DomListAll;
+    // }
     /**
      * TODO liste DOM avec filtre date et statut 
      */
@@ -597,23 +597,7 @@ class DomModel extends Model
     //     }
     //     return $ListDomRech;
     // }
-    /**
-     * récupere le code Statut et libelle statut 
-     */
-    public function getListStatut()
-    {
-        $stat = "SELECT DISTINCT Code_Statut, 
-                (SELECT Description FROM Statut_demande SD 
-                WHERE SD.Code_Statut = DOM.Code_Statut 
-                AND SD.Code_Application = 'DOM')  as 'LibStatut'
-                FROM Demande_ordre_mission DOM ";
-        $exstat = $this->connexion->query($stat);
-        $ListStat = array();
-        while ($tabStat = odbc_fetch_array($exstat)) {
-            $ListStat[] = $tabStat;
-        }
-        return $ListStat;
-    }
+
     //
     /**
      * affiche les informations correspond au NumDom selectionner et IDDom

@@ -114,7 +114,7 @@ class BadmModel extends Model
         return $this->convertirEnUtf8($services);
     }
 
-    function convertirEnUtf8($element)
+    private function convertirEnUtf8($element)
     {
         if (is_array($element)) {
             foreach ($element as $key => $value) {
