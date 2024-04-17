@@ -664,7 +664,8 @@ class DomModel extends Model
      */
     public function RechercheModel($ConnectUser): array
     {
-        $sql = $this->connexion->query("SELECT  
+        $sql = $this->connexion->query("SELECT
+        Demande_ordre_mission.ID_Demande_Ordre_Mission  
         Statut_demande.Description AS Statut,
         Demande_ordre_mission.Sous_type_document,
         Demande_ordre_mission.Numero_Ordre_Mission,
