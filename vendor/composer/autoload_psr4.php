@@ -14,8 +14,13 @@ return array(
     'Config\\' => array($baseDir . '/config'),
     'App\\Service\\' => array($baseDir . '/src/Service'),
     'App\\Model\\dom\\' => array($baseDir . '/src/Model/dom'),
+    'App\\Model\\badm\\' => array($baseDir . '/src/Model/badm'),
+    'App\\Model\\admin\\personnel\\' => array($baseDir . '/src/Model/admin/personnel'),
     'App\\Model\\' => array($baseDir . '/src/Model'),
     'App\\Controller\\dom\\' => array($baseDir . '/src/Controller/dom'),
+    'App\\Controller\\admin\\personnel\\' => array($baseDir . '/src/Controller/admin/personnel'),
+    'App\\Controller\\Traits\\' => array($baseDir . '/src/Controller/Traits'),
     'App\\Controller\\' => array($baseDir . '/src/Controller'),
+    'App\\Controler\\badm\\' => array($baseDir . '/src/Controller/badm'),
     'App\\' => array($baseDir . '/src'),
 );

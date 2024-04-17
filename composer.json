@@ -7,7 +7,12 @@
             "App\\Service\\": "src/Service/",
             "Config\\": "config/",
             "App\\Controller\\dom\\": "src/Controller/dom",
-            "App\\Model\\dom\\": "src/Model/dom"
+            "App\\Model\\dom\\": "src/Model/dom",
+            "App\\Controler\\badm\\": "src/Controller/badm",
+            "App\\Model\\badm\\" : "src/Model/badm",
+            "App\\Controller\\admin\\personnel\\": "src/Controller/admin/personnel",
+            "App\\Model\\admin\\personnel\\": "src/Model/admin/personnel",
+            "App\\Controller\\Traits\\": "src/Controller/Traits"
         }
     },
     "authors": [

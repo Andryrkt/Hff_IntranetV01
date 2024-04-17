@@ -38,9 +38,14 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             'App\\Service\\' => 12,
             'App\\Model\\dom\\' => 14,
+            'App\\Model\\badm\\' => 15,
+            'App\\Model\\admin\\personnel\\' => 26,
             'App\\Model\\' => 10,
             'App\\Controller\\dom\\' => 19,
+            'App\\Controller\\admin\\personnel\\' => 31,
+            'App\\Controller\\Traits\\' => 22,
             'App\\Controller\\' => 15,
+            'App\\Controler\\badm\\' => 19,
             'App\\' => 4,
         ),
     );
@@ -78,6 +83,14 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/../..' . '/src/Model/dom',
         ),
+        'App\\Model\\badm\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Model/badm',
+        ),
+        'App\\Model\\admin\\personnel\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Model/admin/personnel',
+        ),
         'App\\Model\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Model',
@@ -86,9 +99,21 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/dom',
         ),
+        'App\\Controller\\admin\\personnel\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/admin/personnel',
+        ),
+        'App\\Controller\\Traits\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/Traits',
+        ),
         'App\\Controller\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Controller',
+        ),
+        'App\\Controler\\badm\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/badm',
         ),
         'App\\' => 
         array (

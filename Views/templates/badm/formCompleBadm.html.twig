@@ -50,7 +50,7 @@
                 {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
                 {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
             {% if codeMouvement == 'ENTREE EN PARC'  %}  
-                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}   
+                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}   
             {% else %}
                 {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
             {% endif %}
@@ -164,7 +164,7 @@
             </div>
             <div class="row">
                 {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}
-                {{form.select('modalitePaiement', 'Modalité de paiement', {Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}} 
+                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'TRAITE', Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}} 
                 {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}   
             </div>
 

@@ -1,24 +1,27 @@
 <?php
 
-use App\Model\DomModel;
+
 use App\Model\Connexion;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Model\StatutModel;
+use App\Model\dom\DomModel;
 use App\Model\TypeDocModel;
-use App\Model\PersonnelModel;
-use App\Controller\DomControl;
 use App\Controller\ProfilControl;
+
 use App\Controller\StatutControl;
+use App\Controller\dom\DomControl;
 use App\Controller\MainController;
 use App\Controller\TypeDocControl;
-use App\Controller\PersonnelControl;
+use App\Controller\badm\BadmController;
 use App\Model\AgenceServAutoriserModel;
-use App\Controller\AgenceServAutoriserControl;
-use App\Controller\BadmController;
-use App\Controller\BadmListeController;
-use App\Controller\dom\DomDetailController;
 use App\Controller\dom\DomListController;
+use App\Controller\dom\DomDetailController;
+use App\Controller\badm\BadmListeController;
+use App\Model\admin\personnel\PersonnelModel;
+use App\Controller\AgenceServAutoriserControl;
+use App\Controller\dom\DomDuplicationController;
+use App\Controller\admin\personnel\PersonnelControl;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -83,6 +86,7 @@ $ModelDOM = new DomModel();
 $ControlDOM = new DomControl();
 $DomListeController = new DomListController();
 $DomDetailController = new DomDetailController();
+$DomDuplicationController = new DomDuplicationController();
 // //----
 // // TypeDoc
 // include 'Model/TypeDocModel.php';
@@ -153,6 +157,9 @@ switch ($action) {
     case 'PersonnelList':
         $ControlPers->showListePersonnel();
         break;
+    case 'updatePersonnel':
+        $ControlPers->updatePersonnel();
+        break;
     case 'New_DOM':
         $ControlDOM->showFormDOM();
         break;
@@ -218,10 +225,10 @@ switch ($action) {
         $DomListeController->listStatutController();
         break;
     case 'Dupliquer':
-        $ControlDOM->duplificationFormJsonController();
+        $DomDuplicationController->duplificationFormJsonController();
         break;
     case 'DuplifierForm':
-        $ControlDOM->duplificationFormController();
+        $DomDuplicationController->duplificationFormController();
         break;
     case 'LibStatut':
         $ControlDOM->filterStatut();

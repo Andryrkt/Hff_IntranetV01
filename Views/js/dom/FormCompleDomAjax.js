@@ -83,13 +83,15 @@ if ( document.querySelector('#NumDOM') === null  ) {
     if (check === "Interne") {
         setTimeout(() => {
             console.log( document.querySelector(`#select1 option`));
-            document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).selected = true;
+            selectedOption = document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).value;
+            console.log('valiny :' + selectedOption);
+            fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
-            console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase());
+            console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
             libserv = document.querySelector('#LibServINT').value.toUpperCase().trim();
-             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServINT').value.toUpperCase().trim()}"]`).selected = true;
-        }, 1000);
+             document.querySelector(`#serviceIrium option[value="${libserv}"]`).selected = true;
+        }, 1500);
     } else {
         setTimeout(() => {
              const serv = document.querySelector('#Serv').value.toUpperCase().trim();

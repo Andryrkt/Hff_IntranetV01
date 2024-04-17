@@ -1,9 +1,14 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\badm;
+
+use App\Model\Model;
 
 class BadmRechercheModel extends Model
 {
+
+    use BadmModelTrait;
+
     /**
      * @Andryrkt 
      * cette fonction récupère les données dans la base de donnée  

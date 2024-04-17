@@ -55,7 +55,8 @@ if(typeDemande === 'CESSION D\'ACTIF'){
     console.log(condition);
     if(condition){
         setTimeout(() => {
-            document.querySelector(`#agenceDestinataire option[value="90 COMM.ENERGIE"]`).selected = true;
+            console.log(document.querySelector(`#agenceDestinataire`));
+            document.querySelector(`#agenceDestinataire option[value="90 COMM ENERGIE"]`).selected = true;
         }, 300);
         setTimeout(() => {
             document.querySelector(`#serviceDestinataire option[value='COM COMMERCIAL']`).selected = true;
@@ -125,8 +126,13 @@ formCompleBadm.imageRebut.addEventListener('change', verifierTailleEtType)
 //console.log(formCompleBadm.badmComplet);
 formCompleBadm.badmComplet.addEventListener('click', (e) => {
 
-    alert("Veuillez vérifier attentivement avant d'envoyer.");
-    // e.preventDefault(); 
+    e.preventDefault(); 
+    if(confirm("Veuillez vérifier attentivement avant d'envoyer."))
+    {
+        formCompleBadm.submit();
+    }
+
+
     // Swal.fire({
     //     title: "Vous confirmez ?",
     //     text: "Veuillez vérifier attentivement avant d'envoyer.",

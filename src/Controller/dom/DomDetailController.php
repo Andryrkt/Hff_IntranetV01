@@ -3,9 +3,17 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use App\Model\dom\DomDetailModel;
 
 class DomDetailController extends Controller
 {
+    private $detailModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->detailModel = new DomDetailModel();
+    }
     /**
      * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
      */
@@ -17,7 +25,7 @@ class DomDetailController extends Controller
             $NumDom = $_GET['NumDom'];
             $IdDom = $_GET['Id'];
 
-            $detailDom = $this->DomModel->getDetailDOMselect($NumDom, (int) $IdDom);
+            $detailDom = $this->detailModel->getDetailDOMselect($NumDom, (int) $IdDom);
 
             // var_dump($detailDom);
             // die();

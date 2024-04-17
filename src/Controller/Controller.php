@@ -6,14 +6,14 @@ namespace App\Controller;
 
 
 use Twig\Environment;
-use App\Model\DomModel;
-use App\Model\BadmModel;
-use App\Model\BadmRechercheModel;
+
+
 use App\Model\LdapModel;
-use App\Model\OdbcCrudModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
+use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
+use App\Model\OdbcCrudModel;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 
@@ -22,22 +22,22 @@ include dirname(__DIR__) . '/Service/GenererPdf.php';
 
 class Controller
 {
-    protected $DomModel;
-    private $PersonnelModel;
+
+
     protected $fusionPdf;
     protected $genererPdf;
     protected $twig;
     protected $loader;
     protected $ldap;
     protected $profilModel;
-    protected $badm;
-    protected $badmRech;
+
+
     protected $odbcCrud;
 
 
     public function __construct()
     {
-        $this->DomModel = new DomModel();
+
         $this->fusionPdf = new FusionPdf();
         $this->genererPdf = new GenererPdf();
 
@@ -48,11 +48,8 @@ class Controller
 
         $this->ldap = new LdapModel();
 
-        $this->profilModel = new ProfilModel;
+        $this->profilModel = new ProfilModel();
 
-        $this->badm = new BadmModel();
-
-        $this->badmRech = new BadmRechercheModel();
 
         $this->odbcCrud = new OdbcCrudModel();
     }
@@ -92,40 +89,7 @@ class Controller
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
     }
-    /**
-     * Incrimentation de Numero_DOM (DOMAnnéeMoisNuméro)
-     */
-    public function autoINcriment(string $nomDemande)
-    {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
-        $Max_Num = $this->badm->RecupereNumBDM();
-        //var_dump($Max_Num);
-        //$Max_Num = 'BDM24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //var_dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //var_dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //var_dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 1;
-            }
-        }
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
-        //var_dump($Result_Num);
 
-        return $Result_Num;
-    }
 
     function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
     {

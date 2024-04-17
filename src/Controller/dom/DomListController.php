@@ -92,9 +92,9 @@ class DomListController extends Controller
 
 
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $array_decoded = $this->DomModel->RechercheModelAll();
+            $array_decoded = $this->domList->RechercheModelAll();
         } else {
-            $array_decoded = $this->DomModel->RechercheModel($UserConnect);
+            $array_decoded = $this->domList->RechercheModel($UserConnect);
         }
 
 
