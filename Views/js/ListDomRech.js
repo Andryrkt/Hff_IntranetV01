@@ -29,7 +29,7 @@ const urlStatut = "/Hffintranet/index.php?action=listStatut"
                 }
                 return response.json();
             })
-        }
+    }
 
 
 fetchvaleur().then(raw_data => {
@@ -41,61 +41,63 @@ fetchvaleur().then(raw_data => {
 
     SousTypeDoc(raw_data)
    
- dateCreationDebutInput.addEventListener('change', (e) => {
-    e.preventDefault();
-    // Vérifier si la date de début est supérieure à la date de fin
-    if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
+    dateCreationDebutInput.addEventListener('change', (e) => {
+        e.preventDefault();
+        // Vérifier si la date de début est supérieure à la date de fin
+        if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
      
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = "La date de début doit être inférieure à la date de fin.";
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = "La date de début doit être inférieure à la date de fin.";
        
-    } else {
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = '';
-    }
-});
+        } else {
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = '';
+        }
+    });
 
 
-dateCreationFinInput.addEventListener('change', (e) => {
-    e.preventDefault();
+    dateCreationFinInput.addEventListener('change', (e) => {
+        e.preventDefault();
     
-    if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
+        if (new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value)) {
         
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = "La date de début doit être inférieure à la date de fin.";
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = "La date de début doit être inférieure à la date de fin.";
        
-    } else {
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = '';
+        } else {
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = '';
         
-    }
+        }
 
-});
+    });
 
-dateDebutDebutInput.addEventListener('change', (e) => {
-    e.preventDefault();
-    if (new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)) {
+    dateDebutDebutInput.addEventListener('change', (e) => {
+        e.preventDefault();
+        if (new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)) {
        
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = "La date de début doit être inférieure à la date de fin.";
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = "La date de début doit être inférieure à la date de fin.";
        
-    } else {
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = '';  
-    }
-});
-dateDebutFinInput.addEventListener('change', (e) => {
-    e.preventDefault();
-    if (new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)) {
+        } else {
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = '';  
+        }
+    });
+
+
+    dateDebutFinInput.addEventListener('change', (e) => {
+        e.preventDefault();
+        if (new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)) {
         
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = "La date de début doit être inférieure à la date de fin.";
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = "La date de début doit être inférieure à la date de fin.";
         
-    } else {
-        const message = document.getElementById('dateCreationMessage');
-        message.textContent = '';
-    }
-});
+        } else {
+            const message = document.getElementById('dateCreationMessage');
+            message.textContent = '';
+        }
+    });
 
 
     /* 

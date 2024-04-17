@@ -756,7 +756,7 @@ class DomModel extends Model
         DOM.Total_Autres_Depenses,
         DOM.Total_General_Payer,
         DOM.Devis
-    FROM Demande_ordre_mission DOM
+    FROM Demande_ordre_mission DOM 
                                                                            
             ORDER BY Numero_Ordre_Mission DESC");
 
