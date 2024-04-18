@@ -78,11 +78,28 @@ class BadmListeController extends Controller
 
     public function envoiListJsonBadm()
     {
-        $badmJson = $this->badmRech->RechercheBadmModelAll();
-        //var_dump($badmJson);
+
+
+        // Pagination
+        $itemsPerPage = 10;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($page - 1) * $itemsPerPage;
+
+
+        $badmJson = $this->badmRech->RechercheBadmModelAll((int)$offset, (int)$itemsPerPage);
+        $totalRows = $this->badmRech->recupNombreLigne();
+
+        $response = [
+            'page' => $page,
+            'per_page' => $itemsPerPage,
+            'total' => $totalRows,
+            'total_pages' => ceil($totalRows / $itemsPerPage),
+            'data' => $badmJson
+        ];
+
         header("Content-type:application/json");
 
-        $jsonData = json_encode($badmJson);
+        $jsonData = json_encode($response);
 
 
         $this->testJson($jsonData);

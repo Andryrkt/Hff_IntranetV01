@@ -117,6 +117,11 @@ class BadmController extends Controller
 
             $etatAchat = $this->ChangeEtatAchat($data[0]['mmat_nouo']);
 
+            if ($data[0]['code_affect'] === 'LCD') {
+                $dateMiseLocation = $data[0]['date_location'];
+            } else {
+                $dateMiseLocation = '';
+            }
 
 
             // var_dump($data);
@@ -151,30 +156,48 @@ class BadmController extends Controller
                 //         $this->alertRedirection($message);
                 // }
 
+                if ($boolean) {
 
-                if ($data[0]['code_affect'] === 'LCD') {
-                    $dateMiseLocation = $data[0]['date_location'];
+                    $this->twig->display(
+                        'badm/formCompleBadm.html.twig',
+                        [
+                            'codeMouvement' => $_POST['typeMission'],
+                            'infoUserCours' => $infoUserCours,
+                            'boolean' => $boolean,
+                            'dateDemande' => $dateDemande,
+                            'items' => $data,
+                            'agenceEmetteur' => $agenceEmetteur,
+                            'serviceEmetteur' => $serviceEmetteur,
+                            'coutAcquisition' => $coutAcquisition,
+                            'vnc' => $vnc,
+                            'agenceDestinataire' => $agenceDestinataire,
+                            'etatAchat' => $etatAchat,
+                            'dateMiseLocation' => $dateMiseLocation
+                        ]
+                    );
+                } elseif (in_array($codeAgenceService, $agenceServiceAutoriser)) {
+
+                    $this->twig->display(
+                        'badm/formCompleBadm.html.twig',
+                        [
+                            'codeMouvement' => $_POST['typeMission'],
+                            'infoUserCours' => $infoUserCours,
+                            'boolean' => $boolean,
+                            'dateDemande' => $dateDemande,
+                            'items' => $data,
+                            'agenceEmetteur' => $agenceEmetteur,
+                            'serviceEmetteur' => $serviceEmetteur,
+                            'coutAcquisition' => $coutAcquisition,
+                            'vnc' => $vnc,
+                            'agenceDestinataire' => $agenceDestinataire,
+                            'etatAchat' => $etatAchat,
+                            'dateMiseLocation' => $dateMiseLocation
+                        ]
+                    );
                 } else {
-                    $dateMiseLocation = '';
+                    $message = "vous n\'êtes pas autoriser à consulter ce matériel";
+                    $this->alertRedirection($message);
                 }
-
-                $this->twig->display(
-                    'badm/formCompleBadm.html.twig',
-                    [
-                        'codeMouvement' => $_POST['typeMission'],
-                        'infoUserCours' => $infoUserCours,
-                        'boolean' => $boolean,
-                        'dateDemande' => $dateDemande,
-                        'items' => $data,
-                        'agenceEmetteur' => $agenceEmetteur,
-                        'serviceEmetteur' => $serviceEmetteur,
-                        'coutAcquisition' => $coutAcquisition,
-                        'vnc' => $vnc,
-                        'agenceDestinataire' => $agenceDestinataire,
-                        'etatAchat' => $etatAchat,
-                        'dateMiseLocation' => $dateMiseLocation
-                    ]
-                );
             }
         } else {
 

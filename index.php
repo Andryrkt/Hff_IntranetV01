@@ -25,6 +25,9 @@ use App\Controller\admin\personnel\PersonnelControl;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 // $routes = require_once __DIR__ . '/config/routes.php';
 // //var_dump($routes);
 
@@ -260,6 +263,42 @@ switch ($action) {
     default:
         include 'Views/SignIn.php';
 }
+
+
+
+
+
+// $dsn = $_ENV['DB_DNS_PDO']; 
+// $username = $_ENV['DB_USERNAME_PDO'];
+// $password = $_ENV['DB_PASSWORD_PDO']; 
+
+// try {
+//     $pdo = new PDO($dsn, $username, $password);
+//     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//     echo "Connexion réussie!";
+// } catch (PDOException $e) {
+//     die("Erreur de connexion : " . $e->getMessage());
+// }
+
+// // Exécution d'une requête
+// $stmt = $pdo->query("SELECT * FROM Personnel"); // Remplacez 'your_table' par le nom de votre table
+// while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+//     print_r($row);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,3 +1,8 @@
+
+import { FetchManager } from "./../FetchManager.js";
+
+let page = 1;
+let donner;
 const typeMouvemnetInput = document.querySelector('#typeMouvement');
 const idMaterielInput = document.querySelector('#idMateriel');
 
@@ -10,102 +15,111 @@ const resetInput = document.querySelector("#reset");
 const nombreLigneInput = document.querySelector("#nombreLigne");
 const nombreResultatInput = document.querySelector('#nombreResultat');
 
-const urlStatut = "/Hffintranet/index.php?action=listStatut"
+// const urlStatut = "/Hffintranet/index.php?action=listStatut"
+console.log('okey');
+/**
+* @Andryrkt
+* récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
+*/
+function fetchvaleur(){
+    const fetchManager = new FetchManager('/Hffintranet/');
+    fetchManager.get('index.php?action=listJson')
+        .then(raw_data => {
 
-    /**
-     * @Andryrkt
-     * récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
-     */
-     async function fetchvaleur(){
-        const url = "/Hffintranet/index.php?action=listJson";
-        return  await fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
+            console.log(raw_data);
+    
+            validateDateRange('#dateDemandeDebut', '#dateDemandeFin', 'dateCreationMessage');
+
+            /* 
+            bouton de recherche
+            */
+            recherche.addEventListener('click', (e) => {
+                e.preventDefault();
+                donner = filtre(raw_data);
+                executeFiltreEtRendu(donner, page)
+            });
+
+
+            /*
+             bouton effacer tous les recherches
+            */
+            reset.addEventListener('click', (e) => {
+                e.preventDefault();
+                statutInput.value = "";
+                matriculeInput.value = "";
+                sousTypeDocInput.value = "";
+                dateCreationDebutInput.value = "";
+                dateCreationFinInput.value = "";
+                dateDebutDebutInput.value = "";
+                dateDebutFinInput.value = "";
             })
+
+   
+
+            //export excel
+            exportExcelButton.addEventListener('click', () => {
+                ExportExcel(raw_data);
+            });
+
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
     }
 
+    fetchvaleur();
+function validateDateRange(startDateSelector, endDateSelector, messageElementId) {
+    const startDateInput = document.querySelector(startDateSelector);
+    const endDateInput = document.querySelector(endDateSelector);
+    const messageDisplay = document.getElementById(messageElementId);
 
-fetchvaleur().then(raw_data => {
+    function validateDates() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        if (startDate > endDate) {
+            messageDisplay.textContent = "La date de début doit être inférieure à la date de fin.";
+        } else {
+            messageDisplay.textContent = '';
+        }
+    }
 
-
-    console.log(raw_data);
-    // afficher les donnée du selecte statut
-    //SelectStatutValue1(raw_data);
-
-    //SousTypeDoc(raw_data)
-   
-    dateDemandeDebutInput.addEventListener('change', (e) => {
+    startDateInput.addEventListener('change', (e) => {
         e.preventDefault();
-        // Vérifier si la date de début est supérieure à la date de fin
-        if (new Date(dateDemandeDebutInput.value) > new Date(dateDemandeFinInput.value)) {
+        validateDates();
+    });
+
+    endDateInput.addEventListener('change', (e) => {
+        e.preventDefault();
+        validateDates();
+    });
+}
+
      
-            const message = document.getElementById('dateCreationMessage');
-            message.textContent = "La date de début doit être inférieure à la date de fin.";
-       
-        } else {
-            const message = document.getElementById('dateCreationMessage');
-            message.textContent = '';
-        }
-    });
-
-
-    dateDemandeFinInput.addEventListener('change', (e) => {
-        e.preventDefault();
-    
-        if (new Date(dateDemandeDebutInput.value) > new Date(dateDemandeFinInput.value)) {
-        
-            const message = document.getElementById('dateCreationMessage');
-            message.textContent = "La date de début doit être inférieure à la date de fin.";
-       
-        } else {
-            const message = document.getElementById('dateCreationMessage');
-            message.textContent = '';
-        
-        }
-
-    });
-
-   
-
-
-    /* 
-        bouton de recherche
-    */
-    recherche.addEventListener('click', (e) => {
-        e.preventDefault();
-        executeFiltreEtRendu()
-    });
-
-
-   /*
-        bouton effacer tous les recherches
-   */
-    reset.addEventListener('click', (e) => {
-        e.preventDefault();
-        statutInput.value = "";
-        matriculeInput.value = "";
-        sousTypeDocInput.value = "";
-        dateCreationDebutInput.value = "";
-        dateCreationFinInput.value = "";
-        dateDebutDebutInput.value = "";
-        dateDebutFinInput.value = "";
-    })
 
     /**
-     *fonction qui rendre 
+     *fonction qui rendre les données filtrée
      *
      */
-    function executeFiltreEtRendu() {
-        let donner = filtre(raw_data);
+     function executeFiltreEtRendu(raw_data, page) {
+        
+
+        var state = {
+        'querySet': donner,
+
+        'page': page,
+        'rows': 5,
+        'window': 5,
+        }
+        console.log(state.page);
+        var data = pagination(state.querySet, state.page, state.rows)
+        var myList = data.querySet
         // Filtre les données
-        console.log(donner);
-        if (donner.length > 0) {
+        console.log(myList);
+        if (myList.length > 0) {
             const container = document.querySelector('#noResult');
             container.innerHTML = '';
-            renderData1(donner);
+            renderData1(myList);
+            pageButtons(data.pages, state)
             nombreResultat.textContent = donner.length + ' résultats';
         } else {
             //console.log(new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value))
@@ -119,17 +133,6 @@ fetchvaleur().then(raw_data => {
 
         }
     }
-
-    //export excel
-    exportExcelButton.addEventListener('click', () => {
-        ExportExcel(raw_data);
-    });
-
-})
-.catch(error => {
-    console.error('There has been a problem with your fetch operation:', error);
-});
-
 
 
 /** 
@@ -179,32 +182,111 @@ fetchvaleur().then(raw_data => {
 
 //}
 
+
+
+
+
+function pagination(querySet, page, rows) {
+
+    var trimStart = (page - 1) * rows
+    var trimEnd = trimStart + rows
+
+    var trimmedData = querySet.slice(trimStart, trimEnd)
+
+    var pages = Math.round(querySet.length / rows);
+
+    return {
+        'querySet': trimmedData,
+        'pages': pages,
+    }
+}
+
+function pageButtons(pages, state) {
+    var wrapper = document.getElementById('pagination-wrapper')
+
+    wrapper.innerHTML = ``
+	console.log('Pages:', pages)
+console.log(state);
+    var maxLeft = (state.page - Math.floor(state.window / 2))
+    var maxRight = (state.page + Math.floor(state.window / 2))
+
+    if (maxLeft < 1) {
+        maxLeft = 1
+        maxRight = state.window
+    }
+
+    if (maxRight > pages) {
+        maxLeft = pages - (state.window - 1)
+        
+        if (maxLeft < 1){
+        	maxLeft = 1
+        }
+        maxRight = pages
+    }
+    
+    
+
+    for (var page = maxLeft; page <= maxRight; page++) {
+    	wrapper.innerHTML += `<button value=${page} class="page btn btn-sm btn-info">${page}</button>`
+    }
+
+    if (state.page != 1) {
+        wrapper.innerHTML = `<button value=${1} class="page btn btn-sm btn-info">&#171; First</button>` + wrapper.innerHTML
+    }
+
+    if (state.page != pages) {
+        wrapper.innerHTML += `<button value=${pages} class="page btn btn-sm btn-info">Last &#187;</button>`
+    }
+
+    document.querySelectorAll('.page').forEach(function(element) {
+        element.addEventListener('click', function() {
+            // Vide le conteneur de la table
+            document.getElementById('table-container').innerHTML = '';
+    
+            // Met à jour l'état de la page
+            state.page = Number(this.value);
+    console.log(state.page);
+            executeFiltreEtRendu(state.querySet, state.page)
+            // Reconstruit la table
+           // buildTable();
+        });
+    });
+
+}
+
+
+
+
 /** 
 * @Andryrkt
 * rendre le tableau afficher sur l'écran
 */
 function renderData1(data) {
+
+    
+
+
     const trCorps = document.querySelector('#trCorps');
 
     // Création du corps du tableau s'il n'existe pas encore
 
-    var container = document.getElementById('table-container');
+    const container = document.getElementById('table-container');
     container.innerHTML = '';
 
     // Ajouter les nouvelles lignes pour les données filtrées
     data.forEach(function(item, index) {
-        var row = document.createElement('tr');
+        const row = document.createElement('tr');
         row.classList.add(index % 2 === 0 ? 'table-gray-700' : 'table-secondary'); // Alternance des couleurs de ligne
         // Ajouter un bouton de duplication à chaque ligne
-    var duplicateButton = document.createElement('button');
-    duplicateButton.innerHTML = `<a href="#" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+        const duplicateButton = document.createElement('button');
+        duplicateButton.innerHTML = `<a href="#" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
         //duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item['Numero_Ordre_Mission']}&IdDOM=${item['ID_Demande_Ordre_Mission']}&check=${item['Matricule']}" style="text-decoration: none;
-    //color: #000000; font-weight: 600">Dupliquer</a>`;
-    duplicateButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-2');
-    duplicateButton.style.backgroundColor = '#FBBB01';
+        //color: #000000; font-weight: 600">Dupliquer</a>`;
+        duplicateButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-2');
+        duplicateButton.style.backgroundColor = '#FBBB01';
     
 
-    row.appendChild(duplicateButton);
+        row.appendChild(duplicateButton);
 
         for (var key in item) {
 
@@ -260,6 +342,7 @@ function renderData1(data) {
 
    
     container.appendChild(row);
+    
 });
 }
 
@@ -272,34 +355,24 @@ function renderData1(data) {
 * 
 */
 function filtre(data) {
-// Récupérer les valeurs des champs de saisie
+    
+    const critereTypeMouvemnetValue = typeMouvemnetInput.value.trim();
+    const critereIdMaterielValue = idMaterielInput.value;
+    const dateDemandeDebutValue = dateDemandeDebutInput.value;
+    const dateDemandeFinValue = dateDemandeFinInput.value;
 
-//const critereStatutValue = statutInput.value.trim();
-const critereTypeMouvemnetValue = typeMouvemnetInput.value.trim();
-const critereIdMaterielValue = idMaterielInput.value;
-const dateDemandeDebutValue = dateDemandeDebutInput.value;
-const dateDemandeFinValue = dateDemandeFinInput.value;
-   
   
-// Filtrer les données en fonction des critères
-return resultatsFiltres = data.filter(function(demande) {
+    // Filtrer les données en fonction des critères
+    return  data.data.filter(function(demande) {
 
     // Filtrer par statut (si un critère est fourni)
     var filtreTypeMouvemnet = !critereTypeMouvemnetValue || demande.Code_Mouvement === critereTypeMouvemnetValue;
     var filtreIdMateriel = !critereIdMaterielValue || demande.ID_Materiel;
     
-
-
-    // Filtrer par date de début de création (si un critère est fourni)
     var filtreDateDebutDemande = !dateDemandeDebutValue || demande.Date_Demande >= dateDemandeDebutValue;
-    // Filtrer par date de fin de création (si un critère est fourni)
     var filtreDateFinDemande = !dateDemandeFinValue || demande.Date_Demande <= dateDemandeFinValue;
-    // Filtrer par date de création/demande (si un critère est fourni)
     var filtreDateDemande = !dateDemandeDebutValue || !dateDemandeFinValue || (demande.Date_Demande >= dateDemandeDebutValue && demande.Date_Demande <= dateDemandeFinValue);
 
-
-
-   
 
     // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
     return (filtreTypeMouvemnet && filtreIdMateriel  && filtreDateDebutDemande && filtreDateFinDemande && filtreDateDemande) || (!critereTypeMouvemnetValue && !critereIdMaterielValue && !dateDemandeDebutValue && !dateDemandeFinValue  &&!filtreTypeMouvemnet && !filtreIdMateriel  && !filtreDateDebutDemande && !filtreDateFinDemande);
@@ -338,18 +411,18 @@ function ExportExcel(data) {
         'Amortissement', 
         'Valeur_Net_Comptable', 
         'Nom_Client'
-];
-XLSX.utils.sheet_add_aoa(worksheet, [headers], {
-    origin: "A1"
-});
+    ];
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], {
+        origin: "A1"
+    });
 
-// Ajoute la feuille Excel au classeur
-XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
+    // Ajoute la feuille Excel au classeur
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
 
-// Télécharge le fichier Excel
-XLSX.writeFile(workbook, "Exportation-Excel.xlsx", {
-    compression: true
-});
+    // Télécharge le fichier Excel
+    XLSX.writeFile(workbook, "Exportation-Excel.xlsx", {
+        compression: true
+    });
 
 
 }

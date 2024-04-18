@@ -2,18 +2,23 @@
 
 namespace App\Model;
 
+
+
 class Model
 {
     protected $connexion;
     protected $connect;
     protected $informixDB;
+    protected $sqlServer;
+    protected $informix;
 
-    // $port = '9088';
-    // $database = 'ol_iriumprod';
+
 
 
     public function __construct()
     {
+        $this->sqlServer = new SqlServerConnect();
+        $this->informix = new InformixConnect();
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
     }
