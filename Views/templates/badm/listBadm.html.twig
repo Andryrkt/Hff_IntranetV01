@@ -11,21 +11,23 @@
   
     {% include "/main/Principe.html.twig" %}
 
+<div class="container">
 
 
-    <div class="row">
-        <div class="col">
+
+    <div class="row ">
+        
             <h2> Liste de mouvement matériel </h2>
-        </div>
+        
     </div>
 
     <!-- DEBUT recherche -->
-    <div class="row">
+ 
         
-            <div class="row">
+        <div class="row">
                
-                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: 'col-lg-4 col-md-6 col-xl-3', default: 'true', valueDefault:'Sélectionnez un type'})}}
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
+                <div class="col-12 col-md-6  ">
                     <div class="input-group mb-2">
                         <span class="input-group-text">Id matériel</span>
                         <input type="search" name="idMateriel" id="idMateriel" class="form-control">
@@ -36,7 +38,7 @@
 
         <div class="row">
             <small class="dateCreationMessage" id="dateCreationMessage"></small>
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+            <div class="col-12 col-md-6 ">
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date de demande (début)</span>
                     <input type="date" name="dateDemandeDebut" id="dateDemandeDebut" class="form-control">
@@ -46,7 +48,7 @@
         </div>
 
         <div class="row">
-            <div class="col-12 col-md-6 col-lg-6 col-xl-3">
+            <div class="col-12 col-md-6 ">
                 <div class="input-group mb-2">
                     <span class="input-group-text">Date de demande (fin)</span>
                     <input type="date" name="dateDemandeFin" id="dateDemandeFin" class="form-control">
@@ -61,12 +63,20 @@
 
 
         <!-- DEBUT bouton -->
-        <div class="row justify-content-center mx-6">
-            <div class="col-xxl-4">
+        <div class="row justify-content-center my-4">
+            <div class="col-12 col-md-6 col-lg-4 ">
                 <input type="submit" name="recherche" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
                 <input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
                 <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
             </div>
+            <div class="col-12 col-md-6 col-lg-4  mt-1">
+                <p class="fw-bold" id="nombreResultat"></p>
+            </div>
+              <!-- DEBUT Pagination -->
+        <div class="col-12 col-md-12 col-lg-4  mt-1">
+            <div id="pagination-wrapper"></div>
+        </div>
+        <!-- FIN Pagination -->
         </div>
         <!-- FIN bouton -->
 
@@ -81,7 +91,7 @@
 
 
         <!-- DEBUT nombre  -->
-        <div class=" row justify-content-center mx-6">
+        <div class=" row ">
             <!-- <div class="col-6 mp-8">
                 <select class="bg-dark text-white" name="nombreLigne" id="nombreLigne">
                     <option value="15">15</option>
@@ -89,14 +99,10 @@
                 </select>
             </div> -->
 
-            <div class="col-4 ">
-                <p class="fw-bold" id="nombreResultat"></p>
-            </div>
-
         </div>
         <!-- FIN nombre-->
 
-
+    </div>
 
         <!-- DEBUT tableau -->
         <div class="Contenue table-plein-ecran">
@@ -136,18 +142,10 @@
             </div>
         </div>
         <!-- FIN tableau -->
-        <div class="container ">
-            <div id="pagination-wrapper"></div>
-        </div>
-        <!-- DEBUT Pagination -->
-        <nav class=col-9>
-            <ul class="pagination justify-content-end">
+        
+        
 
-            </ul>
-        </nav>
-        <!-- FIN Pagination -->
-
-    </div>
+ 
     {% endblock %}
 
     {% block javascript %}

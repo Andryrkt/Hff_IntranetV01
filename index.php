@@ -22,6 +22,7 @@ use App\Model\admin\personnel\PersonnelModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;
+use App\Controller\badm\CasierController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -114,6 +115,7 @@ $ControlAutorisation = new AgenceServAutoriserControl();
 $MainController = new MainController();
 $BadmController = new BadmController();
 $BadmListeController = new BadmListeController();
+$CasierController = new CasierController();
 
 //
 // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
@@ -248,6 +250,9 @@ switch ($action) {
     case 'envoiFormCompleBadm':
         $BadmController->formCompleBadm();
         break;
+    case 'DetailBADM':
+        $BadmController->detailBadm();
+        break;
     case 'serviceDestinataire':
         $BadmController->serviceDestinataire();
         break;
@@ -259,6 +264,15 @@ switch ($action) {
         break;
     case 'listJson':
         $BadmListeController->envoiListJsonBadm();
+        break;
+    case 'nouveauCasier':
+        $CasierController->NouveauCasier();
+        break;
+    case 'formCasier':
+        $CasierController->FormulaireCasier();
+        break;
+    case 'listCasier':
+        $CasierController->AffichageListeCasier();
         break;
     default:
         include 'Views/SignIn.php';

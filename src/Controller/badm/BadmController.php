@@ -4,6 +4,7 @@ namespace App\Controller\badm;
 
 use App\Model\badm\BadmModel;
 use App\Controller\Controller;
+use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\Transformation;
 
 class BadmController extends Controller
@@ -19,6 +20,7 @@ class BadmController extends Controller
 
 
     use Transformation;
+    use ConversionTrait;
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
     {
@@ -36,40 +38,7 @@ class BadmController extends Controller
 
 
 
-    /**
-     * Incrimentation de Numero_DOM (DOMAnnéeMoisNuméro)
-     */
-    private function autoINcriment(string $nomDemande)
-    {
-        //NumDOM auto
-        $YearsOfcours = date('y'); //24
-        $MonthOfcours = date('m'); //01
-        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
-        //var_dump($AnneMoisOfcours);
-        // dernier NumDOM dans la base
-        $Max_Num = $this->badm->RecupereNumBDM();
-        //var_dump($Max_Num);
-        //$Max_Num = 'BDM24040000';
-        //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
-        //var_dump($vNumSequential);
-        $DateAnneemoisnum = substr($Max_Num, -8);
-        //var_dump($DateAnneemoisnum);
-        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
-        //var_dump($DateYearsMonthOfMax);
-        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
-        } else {
-            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
-                $vNumSequential = 1;
-            }
-        }
-        //var_dump($vNumSequential);
-        $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
-        //var_dump($Result_Num);
 
-        return $Result_Num;
-    }
 
     public function formBadm()
     {
@@ -211,8 +180,6 @@ class BadmController extends Controller
 
 
             $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-
-
             $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
             $text = file_get_contents($fichier);
             $boolean = strpos($text, $_SESSION['user']);
@@ -354,17 +321,7 @@ class BadmController extends Controller
 
 
 
-    private function convertirEnUtf8($element)
-    {
-        if (is_array($element)) {
-            foreach ($element as $key => $value) {
-                $element[$key] = $this->convertirEnUtf8($value);
-            }
-        } elseif (is_string($element)) {
-            return mb_convert_encoding($element, 'UTF-8', 'Windows-1252');
-        }
-        return $element;
-    }
+
 
     private function changementDossierFusion($filename01, $filetemp01, $NumDom, $codeAg_servDB)
     {
@@ -646,6 +603,31 @@ class BadmController extends Controller
                 exit();
             }
         }
+    }
+
+
+    public function detailBadm()
+    {
+
+        $this->SessionStart();
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+        $NumBDM = $_GET['NumBDM'];
+        $id = $_GET['Id'];
+
+        $badmJson = $this->badm->RechercheBadmModelAll();
+
+
+        $this->twig->display(
+            'badm/formCompleBadm.html.twig',
+            [
+                'infoUserCours' => $infoUserCours,
+                'boolean' => $boolean,
+
+            ]
+        );
     }
 }
 

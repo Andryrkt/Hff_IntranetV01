@@ -45,13 +45,10 @@ function fetchvaleur(){
             */
             reset.addEventListener('click', (e) => {
                 e.preventDefault();
-                statutInput.value = "";
-                matriculeInput.value = "";
-                sousTypeDocInput.value = "";
-                dateCreationDebutInput.value = "";
-                dateCreationFinInput.value = "";
-                dateDebutDebutInput.value = "";
-                dateDebutFinInput.value = "";
+                idMaterielInput.value = "";
+                typeMouvemnetInput.value = "";
+                dateDemandeDebutInput.value = "";
+                dateDemandeFinInput.value = "";
             })
 
    
@@ -107,7 +104,7 @@ function validateDateRange(startDateSelector, endDateSelector, messageElementId)
         'querySet': donner,
 
         'page': page,
-        'rows': 5,
+        'rows': 10,
         'window': 5,
         }
         console.log(state.page);
@@ -118,8 +115,9 @@ function validateDateRange(startDateSelector, endDateSelector, messageElementId)
         if (myList.length > 0) {
             const container = document.querySelector('#noResult');
             container.innerHTML = '';
+            
+            pageButtons(data.pages, state);
             renderData1(myList);
-            pageButtons(data.pages, state)
             nombreResultat.textContent = donner.length + ' résultats';
         } else {
             //console.log(new Date(dateCreationDebutInput.value) > new Date(dateCreationFinInput.value))
@@ -227,15 +225,15 @@ console.log(state);
     
 
     for (var page = maxLeft; page <= maxRight; page++) {
-    	wrapper.innerHTML += `<button value=${page} class="page btn btn-sm btn-info">${page}</button>`
+    	wrapper.innerHTML += `<button value=${page} class="page btn btn-sm bg-black text-warning">${page}</button>`
     }
 
     if (state.page != 1) {
-        wrapper.innerHTML = `<button value=${1} class="page btn btn-sm btn-info">&#171; First</button>` + wrapper.innerHTML
+        wrapper.innerHTML = `<button value=${1} class="page btn btn-sm bg-black text-warning">&#171; First</button>` + wrapper.innerHTML
     }
 
     if (state.page != pages) {
-        wrapper.innerHTML += `<button value=${pages} class="page btn btn-sm btn-info">Last &#187;</button>`
+        wrapper.innerHTML += `<button value=${pages} class="page btn btn-sm bg-black text-warning">Last &#187;</button>`
     }
 
     document.querySelectorAll('.page').forEach(function(element) {
@@ -309,9 +307,9 @@ function renderData1(data) {
 
             if (key === 'Date_Demande' || key === 'Date_Mise_Location') {
                 cellule.textContent = item[key].split('-').reverse().join('/');
-             }else if (key === 'Numero_Ordre_Mission') {
+             }else if (key === 'Numero_Demande_BADM') {
                 var lien = document.createElement('a');
-                lien.href = `/Hffintranet/index.php?action=DetailDOM&NumDom=${item[key]}&Id=${item['ID_Demande_Ordre_Mission']}`; 
+                lien.href = `/Hffintranet/index.php?action=DetailBADM&NumBDM=${item[key]}&Id=${item['ID_Demande_Mouvement_Materiel']}`; 
                 lien.textContent = item[key];
                 cellule.appendChild(lien);
             }else{
@@ -357,17 +355,22 @@ function renderData1(data) {
 function filtre(data) {
     
     const critereTypeMouvemnetValue = typeMouvemnetInput.value.trim();
-    const critereIdMaterielValue = idMaterielInput.value;
+    const critereIdMaterielValue = idMaterielInput.value.trim();
     const dateDemandeDebutValue = dateDemandeDebutInput.value;
     const dateDemandeFinValue = dateDemandeFinInput.value;
+
+    console.log(critereIdMaterielValue);
+    console.log(dateDemandeDebutValue);
+    console.log(dateDemandeFinValue);
 
   
     // Filtrer les données en fonction des critères
     return  data.data.filter(function(demande) {
 
+        console.log(demande.Date_Demande);
     // Filtrer par statut (si un critère est fourni)
     var filtreTypeMouvemnet = !critereTypeMouvemnetValue || demande.Code_Mouvement === critereTypeMouvemnetValue;
-    var filtreIdMateriel = !critereIdMaterielValue || demande.ID_Materiel;
+    var filtreIdMateriel = !critereIdMaterielValue || demande.ID_Materiel.includes(critereIdMaterielValue);
     
     var filtreDateDebutDemande = !dateDemandeDebutValue || demande.Date_Demande >= dateDemandeDebutValue;
     var filtreDateFinDemande = !dateDemandeFinValue || demande.Date_Demande <= dateDemandeFinValue;

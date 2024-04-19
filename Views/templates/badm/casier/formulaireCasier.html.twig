@@ -1,0 +1,93 @@
+{% extends "baseTemplate.html.twig" %}
+
+        {% block stylesheets%} 
+            <link href="/Hffintranet/Views/css/badm/formulaireCasier.css" rel="stylesheet" />
+        {% endblock%}
+
+{% import "macroForm.html.twig" as form %}
+
+
+
+{% block content %}
+{% include "/main/Principe.html.twig" %}
+
+
+
+
+<div class="container my-5">
+
+    <div class="row">
+        <div class="col-12 col-md-11">
+            <h2 class="fw-bold fs-1 titre" >Nouvelle Casier Matériel</h2>
+        </div>
+        
+        <div class=" col-12 col-md-1">     
+            <a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning btnRetour">Retour</a>
+        </div>
+    </div>
+    <div class="row">
+        
+    </div>
+
+
+    <form action="/Hffintranet/index.php?action=formCasier" method="post" name="form" enctype="multipart/form-data">
+        <input type="hidden" name="idMateriel" value="{{items.0.num_matricule}}">
+
+        <div class="row">    
+          {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y'), {endpoint: '12', class:'col-md-3'}) }}
+            <div class="codeMouvement">
+                <h3  id="codeMouvement" >{{codeMouvement}}</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            {{ form.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}
+        </div>
+        <div class="row">
+                {{form.inputReadonly('designation', 'Désignation ', items.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+         
+        </div>
+        <div class="row">
+            
+                {{form.inputReadonly('groupe', 'Groupe ', items.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('modele', 'Modèle ', items.0.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('anneeModele', 'Année du modèle', items.0.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+           
+        </div>
+        <div class="row d-flex">
+            {{form.inputReadonly('affectation', ' Affectation', items.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("d/m/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
+        </div>
+
+
+        <div class="row">
+            {{ form.sousTitre('Nouveau casier', {class: 'sousTitre'})}}
+        </div>
+        <div class="row">
+            {{form.select('agenceRattachementCasier', 'Agence de rattachement du Casier', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
+        </div>
+        <div class="row">
+            {{form.inputText('motifCreation', 'Motif de Création', '',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+        </div>
+        <div class="row">
+            {{form.inputText('client', 'Client', '', {required: 'required', endpoint:'12', maxlength:'8', class:'col-md-6'})}}
+            {{form.inputText('chantier', 'Chantier', '', {required: 'required', endpoint:'12', maxlength:'8', class:'col-md-6'})}}
+        </div>
+
+
+        <div class="row mt-5">
+            {{form.button('submit', 'Envoyer', 'casComplet', 'primary')}}
+            
+        </div>
+    </form>
+</div>        
+    {% endblock content %}
+
+
+    {% block javascript %}
+    <script type="module" src="/Hffintranet/Views/dist/badm.bundle.js"></script>
+    {% endblock %}

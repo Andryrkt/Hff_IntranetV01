@@ -3,6 +3,7 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use App\Controller\Traits\ConversionTrait;
 use App\Model\dom\DomListModel;
 
 class DomListController extends Controller
@@ -14,6 +15,9 @@ class DomListController extends Controller
         parent::__construct();
         $this->domList = new DomListModel();
     }
+
+    use ConversionTrait;
+
 
     private function transformEnSeulTableau($tabs)
     {

@@ -92,4 +92,14 @@ class Model
         }
         return $Tab_AgenceServiceIrium;
     }
+
+    /**
+     * Date Système
+     */
+    public function getDatesystem()
+    {
+        $d = strtotime("now");
+        $Date_system = date("Y-m-d", $d);
+        return $Date_system;
+    }
 }

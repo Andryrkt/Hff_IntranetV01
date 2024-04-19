@@ -18,7 +18,7 @@
 {% macro inputText(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
-    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}" {{option.maxlength}}  {{option.required}} {{option.disabled}}/>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}" maxlength="{{option.maxlength}}"  {{option.required}} {{option.disabled}}/>
     <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
 </div>
 {% endmacro %}

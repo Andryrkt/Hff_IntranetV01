@@ -1,5 +1,5 @@
 
-
+let selectedOption;
 
 function Select1Value(data, selectedOption) {
     const select1 = document.querySelector('#select1');
@@ -29,7 +29,7 @@ function fetchData(selectOption = undefined) {
         })
         .then(data => {
 
-            console.log(data);
+            console.log(data, selectOption);
             Select1Value(data, selectOption);
             //Sélectionner l'option spécifiée
             if (selectOption === undefined) {
@@ -41,7 +41,7 @@ function fetchData(selectOption = undefined) {
 
 
             setTimeout(() => {
-                console.log(selectOption);
+                console.log('jereo :'+selectOption);
                 const serviceIriumElement = document.getElementById('serviceIrium');
                 let taille = data[selectOption].length;
                 console.log(taille);
@@ -50,7 +50,7 @@ function fetchData(selectOption = undefined) {
                     optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
                 }
                 serviceIriumElement.innerHTML = optionsHTML;
-            }, 300); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+            }, 800); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
         })
         .catch(error => {
             console.error(error);
@@ -73,7 +73,8 @@ if ( document.querySelector('#NumDOM') === null  ) {
     fetchData();
 
     document.getElementById('select1').addEventListener('change', function() {
-        var selectedOption = this.value.toUpperCase();
+        selectedOption = this.value.toUpperCase();
+        console.log('inty no mandefa :' +selectedOption);
         fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
     });
 
@@ -83,21 +84,24 @@ if ( document.querySelector('#NumDOM') === null  ) {
     if (check === "Interne") {
         setTimeout(() => {
             console.log( document.querySelector(`#select1 option`));
-            selectedOption = document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase()}"]`).value;
+            console.log(document.querySelector('#ServINt').value.toUpperCase().trim());
+            selectedOption = document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase().trim()}"]`).value;
             console.log('valiny :' + selectedOption);
             fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
             console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
             libserv = document.querySelector('#LibServINT').value.toUpperCase().trim();
+            console.log(document.querySelector(`#serviceIrium`));
              document.querySelector(`#serviceIrium option[value="${libserv}"]`).selected = true;
-        }, 1500);
+        }, 2000);
     } else {
         setTimeout(() => {
              const serv = document.querySelector('#Serv').value.toUpperCase().trim();
              console.log(serv);
             console.log(document.querySelector(`#select1 option[value="${serv}"]`));
             document.querySelector(`#select1 option[value="${serv}"]`).selected = true;
+            fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
             console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
@@ -124,18 +128,19 @@ console.log(check);
                     $donnerFiltrer = filtre(data);
                     console.log($donnerFiltrer);
 
-                console.log($donnerFiltrer[0].Debiteur.toUpperCase());
-                  console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
+                // console.log($donnerFiltrer[0].Debiteur.toUpperCase());
+                //   console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
                   console.log($donnerFiltrer[0].Debiteur.split('-')[1].toUpperCase());
         
-                  console.log($donnerFiltrer[0].Site.toUpperCase());
+                //   console.log($donnerFiltrer[0].Site.toUpperCase());
                   
                   setTimeout(() => {
                     if ($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase() === '60 PNEU ') {
                         document.querySelector(`#select1 option[value="60 PNEU - OUTIL - LUB"]`).selected = true;
                     } else {
                         //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
-                        document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`).selected = true;
+                        selectedOption = document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`).value;
+                        fetchData(selectedOption)
                     }   
                     //console.log(document.querySelector(`#SiteRental`));
                     document.querySelector(`#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`).selected = true
@@ -148,7 +153,7 @@ console.log(check);
                 fetchData();
                 
                 document.getElementById('select1').addEventListener('change', function() {
-                    var selectedOption = this.value.toUpperCase();
+                     selectedOption = this.value.toUpperCase();
                     fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
                 });
 
@@ -158,10 +163,11 @@ console.log(check);
                         document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[3]}"]`).selected = true;
                         
                     } else {
-                        
-                        document.querySelector(`#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split('-')[1]}"]`).selected = true;
+                        console.log($donnerFiltrer[0].Debiteur.split('-')[1]);
+                        console.log(document.querySelector(`#serviceIrium`));
+                        document.querySelector(`#serviceIrium option[value="${($donnerFiltrer[0].Debiteur.split('-')[1]).trim()}"]`).selected = true;
                     }
-            }, 1000);
+            }, 2000);
                 })
                 .catch(error => {
                     console.error(error);

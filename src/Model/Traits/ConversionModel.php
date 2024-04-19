@@ -4,7 +4,7 @@ namespace App\Model\Traits;
 
 trait ConversionModel
 {
-    private function convertirEnUtf8($element)
+    public function convertirEnUtf8($element)
     {
         if (is_array($element)) {
             foreach ($element as $key => $value) {
@@ -17,12 +17,12 @@ trait ConversionModel
         return $element;
     }
 
-    private function clean_string($string)
+    public function clean_string($string)
     {
         return mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');
     }
 
-    private function TestCaractereSpeciaux(array $tab)
+    public function TestCaractereSpeciaux(array $tab)
     {
         function contains_special_characters($string)
         {
@@ -45,7 +45,7 @@ trait ConversionModel
     /**
      * c'est une foncion qui décode les caractères speciaux en html
      */
-    private function decode_entities_in_array($array)
+    public function decode_entities_in_array($array)
     {
         // Parcourir chaque élément du tableau
         foreach ($array as $key => $value) {
