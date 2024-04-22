@@ -3,18 +3,12 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Model\badm\BadmRechercheModel;
+
 
 class BadmListeController extends Controller
 {
 
-    protected $badmRech;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->badmRech = new BadmRechercheModel();
-    }
     private function testJson($jsonData)
     {
         if ($jsonData === false) {
@@ -87,19 +81,13 @@ class BadmListeController extends Controller
 
 
         $badmJson = $this->badmRech->RechercheBadmModelAll((int)$offset, (int)$itemsPerPage);
-        $totalRows = $this->badmRech->recupNombreLigne();
 
-        $response = [
-            'page' => $page,
-            'per_page' => $itemsPerPage,
-            'total' => $totalRows,
-            'total_pages' => ceil($totalRows / $itemsPerPage),
-            'data' => $badmJson
-        ];
+
+
 
         header("Content-type:application/json");
 
-        $jsonData = json_encode($response);
+        $jsonData = json_encode($badmJson);
 
 
         $this->testJson($jsonData);

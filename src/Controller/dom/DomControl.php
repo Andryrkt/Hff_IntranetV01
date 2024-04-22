@@ -3,19 +3,13 @@
 namespace App\Controller\dom;
 
 use DateTime;
-use App\Model\dom\DomModel;
 use App\Controller\Controller;
 
 
 class DomControl extends Controller
 {
-    protected $DomModel;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->DomModel = new DomModel();
-    }
+
 
 
     public function filterStatut()

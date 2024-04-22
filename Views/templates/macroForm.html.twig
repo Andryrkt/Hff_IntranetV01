@@ -46,9 +46,12 @@
         {% if option.default %}
             <option value=""  selected></option>
         {% endif %}
+       
         {% for row in array %}
-            <option value="{{row}}" >{{row}}</option>
+                <option value="{{row}}" >{{row}}</option>
         {% endfor %}
+      
+       
     </select>
     <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
 </div>

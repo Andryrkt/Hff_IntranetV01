@@ -22,12 +22,13 @@ use App\Model\admin\personnel\PersonnelModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;
+use App\Controller\badm\BadmDetailController;
 use App\Controller\badm\CasierController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+// $dotenv->load();
 
 // $routes = require_once __DIR__ . '/config/routes.php';
 // //var_dump($routes);
@@ -72,21 +73,21 @@ $dotenv->load();
 // //---Profil---
 // include 'Model/ProfilModel.php';
 // include 'Controler/ProfilControl.php';
-$Conn_IntranetV01 =  new Connexion();
-$ModelProfil = new ProfilModel();
+// $Conn_IntranetV01 =  new Connexion();
+// $ModelProfil = new ProfilModel();
 $ControlProfil = new ProfilControl();
 
 // //----
 // //Personnel
 // include 'Model/PersonnelModel.php';
 // include 'Controler/PersonnelControl.php';
-$ModelPers = new PersonnelModel();
+// $ModelPers = new PersonnelModel();
 $ControlPers = new PersonnelControl();
 //---
 // //DOM
 // include 'Model/DomModel.php';
 // include 'Controler/DomControl.php';
-$ModelDOM = new DomModel();
+// $ModelDOM = new DomModel();
 $ControlDOM = new DomControl();
 $DomListeController = new DomListController();
 $DomDetailController = new DomDetailController();
@@ -95,26 +96,27 @@ $DomDuplicationController = new DomDuplicationController();
 // // TypeDoc
 // include 'Model/TypeDocModel.php';
 // include 'Controler/TypeDocControl.php';
-$ModelType = new TypeDocModel();
+// $ModelType = new TypeDocModel();
 $ControlType = new TypeDocControl();
 // //----
 // //Statut
 // include 'Model/StatutModel.php';
 // include 'Controler/StatutControl.php';
-$ModelStatut = new StatutModel();
+// $ModelStatut = new StatutModel();
 $ControlStatut = new StatutControl();
 // //----
 // //Autorisation
 // include 'Model/AgenceServAutoriserModel.php';
 // include 'Controler/AgenceServAutoriserControl.php';
-$ModelAutorisation = new AgenceServAutoriserModel();
+// $ModelAutorisation = new AgenceServAutoriserModel();
 $ControlAutorisation = new AgenceServAutoriserControl();
 
 // include '/Service/GenererPdf.php';
 // $genererPdf = new GenererPdf();
-$MainController = new MainController();
+
 $BadmController = new BadmController();
 $BadmListeController = new BadmListeController();
+$BadmDetailController = new BadmDetailController();
 $CasierController = new CasierController();
 
 //
@@ -251,7 +253,7 @@ switch ($action) {
         $BadmController->formCompleBadm();
         break;
     case 'DetailBADM':
-        $BadmController->detailBadm();
+        $BadmDetailController->detailBadm();
         break;
     case 'serviceDestinataire':
         $BadmController->serviceDestinataire();

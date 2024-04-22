@@ -3,17 +3,11 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
-use App\Model\dom\DomDuplicationModel;
+
 
 class DomDuplicationController extends Controller
 {
-    private $duplicata;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->duplicata = new DomDuplicationModel();
-    }
 
     public function duplificationFormController()
     {

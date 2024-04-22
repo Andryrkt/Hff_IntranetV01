@@ -14,7 +14,7 @@ class FusionPdf
     public function genererFusion($FichierDom, $FichierAttache01, $FichierAttache02)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
@@ -44,7 +44,7 @@ class FusionPdf
     public function genererFusion1($FichierDom, $FichierAttache01)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();

@@ -128,7 +128,7 @@ class GenererPdf
 
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/cas/';
         $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
     }
 
@@ -397,14 +397,14 @@ class GenererPdf
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
 
-        if ($tab['typeMouvement'] === 'MISE AU REBUT') {
+        if ($tab['typeMouvement'] === 'MISE AU REBUT' && $tab['image'] !== '') {
             $pdf->AddPage();
             $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/images/' . $tab['image'];
             $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
         }
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');
@@ -519,7 +519,7 @@ class GenererPdf
 
 
         //
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/';
         $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 
@@ -537,12 +537,12 @@ class GenererPdf
             $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         } else if (substr($NumDom, 0, 3) === 'CAS') {
-            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         }
 
 
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {

@@ -100,13 +100,14 @@ if ( document.querySelector('#NumDOM') === null  ) {
              const serv = document.querySelector('#Serv').value.toUpperCase().trim();
              console.log(serv);
             console.log(document.querySelector(`#select1 option[value="${serv}"]`));
-            document.querySelector(`#select1 option[value="${serv}"]`).selected = true;
+            selectedOption = document.querySelector(`#select1 option[value="${serv}"]`).value;
+            console.log(selectedOption)
             fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
             console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase().trim()}"]`).selected = true;
-        }, 1000);
+        }, 2000);
     }
 
 console.log(check);

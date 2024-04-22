@@ -2,129 +2,16 @@
 
 namespace App\Model\badm;
 
-use PDO;
-use PDOException;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-
-class BadmModel extends Model
+class BadmDetailModel extends Model
 {
-
-
-    use BadmModelTrait;
     use ConversionModel;
-
-
     /**
      * informix
      */
-    public function recupAgence(): array
-    {
-        $statement = "SELECT DISTINCT 
-        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
-        from
-        agr_succ , agr_tab a
-        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
-        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
-        and asuc_num in ('01', '40', '50','90','91','92') 
-        order by 1";
-
-        $result = $this->connect->executeQuery($statement);
-
-
-        $services = $this->connect->fetchResults($result);
-
-
-
-
-        return $this->convertirEnUtf8($services);
-    }
-
-    private function convertirEnUtf8($element)
-    {
-        if (is_array($element)) {
-            foreach ($element as $key => $value) {
-                $element[$key] = $this->convertirEnUtf8($value);
-            }
-        } elseif (is_string($element)) {
-            return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
-        }
-        return $element;
-    }
-
-
-    /**
-     * Informix
-     */
-
-
-    public function recupeAgenceServiceDestinataire()
-    {
-
-
-        $statement = "SELECT DISTINCT 
-        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
-        trim(trim(atab_code)||' '|| trim(atab_lib)) as service
-        from
-        agr_succ , agr_tab a
-        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
-        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
-        order by 1";
-
-        $result = $this->connect->executeQuery($statement);
-
-
-        $services = $this->connect->fetchResults($result);
-
-
-
-
-        return $this->convertirEnUtf8($services);
-
-        //return $tableauUtf8;
-    }
-
-    /**
-     * informix
-     */
-    public function recupeCasierDestinataire()
-    {
-        $statement = "SELECT distinct
-        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
-         trim(mmat_numparc) as casier
-       
-         
-         from mat_mat, agr_succ
-         WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
-         
-         
-          and trim(MMAT_ETSTOCK) in ('ST','AT')
-          and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-         and mmat_soc = 'HF'
-         -- and mmat_marqmat not like 'Z%'
-         and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
-         and mmat_datedisp < '12/31/2999'
-         and  trim(mmat_numparc) IS NOT NULL
-         ";
-
-        $result = $this->connect->executeQuery($statement);
-
-
-        $services = $this->connect->fetchResults($result);
-
-        $tableauUtf8 = $this->convertirEnUtf8($services);
-
-        return $tableauUtf8;
-
-        //return $services;
-    }
-
-
-    /**
-     * informix
-     */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
+    public function findAll($matricule = ''): array
     {
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
@@ -187,7 +74,7 @@ class BadmModel extends Model
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-         and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
+        and mmat_nummat ='" . $matricule . "'
       ";
 
         $result = $this->connect->executeQuery($statement);
@@ -198,66 +85,60 @@ class BadmModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
-
-
-    function insererDansBaseDeDonnees($tab)
+    public function DetailBadmModelAll($NumBDM, $id): array
     {
-        $sql = "INSERT INTO Demande_Mouvement_Materiel (
-            Numero_Demande_BADM,
-            Code_Mouvement,
-            ID_Materiel,
-            Nom_Session_Utilisateur,
-            Date_Demande,
-            Heure_Demande,
-            Agence_Service_Emetteur,
-            Casier_Emetteur,
-            Agence_Service_Destinataire,
-            Casier_Destinataire,
-            Motif_Arret_Materiel,
-            Etat_Achat,
-            Date_Mise_Location,
-            Cout_Acquisition,
-            Amortissement,
-            Valeur_Net_Comptable,
-            Nom_Client,
-            Modalite_Paiement,
-            Prix_Vente_HT,
-            Motif_Mise_Rebut,
-            Heure_machine,
-            KM_machine,
-            Code_Statut,
-            Num_Parc
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->connect(), $sql);
-        if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->connect());
-            return;
-        }
+        $sql = $this->connexion->query("SELECT 
+        dmm.ID_Demande_Mouvement_Materiel, 
+        sd.Description AS Statut,
+        dmm.Numero_Demande_BADM, 
+        dmm.Code_Mouvement, 
+        dmm.ID_Materiel,
+        dmm.Date_Demande,
+        dmm.Agence_Service_Emetteur, 
+        dmm.Casier_Emetteur,
+        dmm.Agence_Service_Destinataire,
+        dmm.Casier_Destinataire, 
+        dmm.Motif_Arret_Materiel, 
+        dmm.Etat_Achat, 
+        dmm.Date_Mise_Location, 
+        dmm.Cout_Acquisition, 
+        dmm.Amortissement, 
+        dmm.Valeur_Net_Comptable, 
+        dmm.Nom_Client, 
+        dmm.Modalite_Paiement, 
+        dmm.Prix_Vente_HT, 
+        dmm.Motif_Mise_Rebut, 
+        dmm.Heure_machine, 
+        dmm.KM_machine
+    FROM Demande_Mouvement_Materiel dmm
+    JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+    WHERE sd.Code_Application = 'BDM'
+    AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
+    AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
+    ORDER BY Numero_Demande_BADM DESC
+    
+    ");
 
-        $success = odbc_execute($stmt, array_values($tab));
-
-        // if ($success) {
-        //     echo "Données insérées avec succès.";
-        // } else {
-        //     echo "Erreur lors de l'insertion des données : " . odbc_errormsg($this->connexion->connect());
-        // }
-    }
-
-
-    public function recupCodeAgenceServiceAutoriser($user)
-    {
-        $statement = "SELECT UPPER(Code_AgenceService_IRIUM)
-        FROM Agence_service_autorise 
-		where Session_Utilisateur = '" . $user . "'";
-
-        $execTypeDoc = $this->connexion->query($statement);
         $tab = [];
-        while ($donnee = odbc_fetch_array($execTypeDoc)) {
-            $tab[] = $donnee;
+        while ($donner = odbc_fetch_array($sql)) {
+
+            $tab[] = $donner;
         }
-        return $tab;
+
+
+        // Parcourir chaque élément du tableau $tab
+        foreach ($tab as $key => &$value) {
+            // Parcourir chaque valeur de l'élément et nettoyer les données
+            foreach ($value as &$inner_value) {
+                $inner_value = $this->clean_string_1($inner_value);
+            }
+        }
+
+
+        $this->TestCaractereSpeciaux($tab);
+
+
+        return $this->decode_entities_in_array($tab);
     }
 }

@@ -46,25 +46,25 @@
         </div>
         <div class="row">
            
-                {{form.inputReadonly('designation', 'Désignation ', items.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('designation', 'Désignation ', items.0.designation ?: Informix.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule ?: Server.0.ID_Materiel,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie ?: Informix.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
             {% if codeMouvement == 'ENTREE EN PARC'  %}  
-                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}   
+                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}   
             {% else %}
-                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
             {% endif %}
         </div>
         <div class="row">
             
-                {{form.inputReadonly('groupe', 'Groupe ', items.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.inputReadonly('groupe', 'Groupe ', items.0.famille ?: Informix.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+                {{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ?: Informix.0.constructeur,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
                 {{form.inputReadonly('modele', 'Modèle ', items.0.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
                 {{form.inputReadonly('anneeModele', 'Année du modèle', items.0.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
            
         </div>
         <div class="row d-flex">
-            {{form.inputReadonly('affectation', ' Affectation', items.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+            {{form.inputReadonly('affectation', ' Affectation', items.0.affectation ?: Informix.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
             {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("d/m/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
         </div>
 
@@ -165,7 +165,7 @@
             <div class="row">
                 {{form.inputText('nomClient', 'Nom client', '',{endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}
                 {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'TRAITE', Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}} 
-                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}   
+                {{form.inputNumber('prixHt', 'Prix HT', '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
             </div>
 
 

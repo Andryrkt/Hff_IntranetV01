@@ -22,6 +22,11 @@ trait ConversionModel
         return mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');
     }
 
+    private function clean_string_1($string)
+    {
+        return mb_convert_encoding($string, 'ASCII', 'UTF-8');
+    }
+
     public function TestCaractereSpeciaux(array $tab)
     {
         function contains_special_characters($string)

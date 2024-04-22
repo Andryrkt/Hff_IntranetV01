@@ -2,22 +2,13 @@
 
 namespace App\Controller\badm;
 
-use App\Model\badm\BadmModel;
+
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\Transformation;
 
 class BadmController extends Controller
 {
-
-    protected $badm;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->badm = new BadmModel();
-    }
-
 
     use Transformation;
     use ConversionTrait;
@@ -35,9 +26,6 @@ class BadmController extends Controller
             return 'Occasion';
         }
     }
-
-
-
 
 
     public function formBadm()
@@ -144,28 +132,32 @@ class BadmController extends Controller
                             'dateMiseLocation' => $dateMiseLocation
                         ]
                     );
-                } elseif (in_array($codeAgenceService, $agenceServiceAutoriser)) {
-
-                    $this->twig->display(
-                        'badm/formCompleBadm.html.twig',
-                        [
-                            'codeMouvement' => $_POST['typeMission'],
-                            'infoUserCours' => $infoUserCours,
-                            'boolean' => $boolean,
-                            'dateDemande' => $dateDemande,
-                            'items' => $data,
-                            'agenceEmetteur' => $agenceEmetteur,
-                            'serviceEmetteur' => $serviceEmetteur,
-                            'coutAcquisition' => $coutAcquisition,
-                            'vnc' => $vnc,
-                            'agenceDestinataire' => $agenceDestinataire,
-                            'etatAchat' => $etatAchat,
-                            'dateMiseLocation' => $dateMiseLocation
-                        ]
-                    );
                 } else {
-                    $message = "vous n\'êtes pas autoriser à consulter ce matériel";
-                    $this->alertRedirection($message);
+
+
+                    if (in_array($codeAgenceService, $agenceServiceAutoriser)) {
+
+                        $message = "vous n\'êtes pas autoriser à consulter ce matériel";
+                        $this->alertRedirection($message);
+                    } else {
+                        $this->twig->display(
+                            'badm/formCompleBadm.html.twig',
+                            [
+                                'codeMouvement' => $_POST['typeMission'],
+                                'infoUserCours' => $infoUserCours,
+                                'boolean' => $boolean,
+                                'dateDemande' => $dateDemande,
+                                'items' => $data,
+                                'agenceEmetteur' => $agenceEmetteur,
+                                'serviceEmetteur' => $serviceEmetteur,
+                                'coutAcquisition' => $coutAcquisition,
+                                'vnc' => $vnc,
+                                'agenceDestinataire' => $agenceDestinataire,
+                                'etatAchat' => $etatAchat,
+                                'dateMiseLocation' => $dateMiseLocation
+                            ]
+                        );
+                    }
                 }
             }
         } else {
@@ -321,16 +313,6 @@ class BadmController extends Controller
 
 
 
-
-
-    private function changementDossierFusion($filename01, $filetemp01, $NumDom, $codeAg_servDB)
-    {
-        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
-        move_uploaded_file($filetemp01, $Upload_file);
-        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-        $this->fusionPdf->genererFusion1($FichierDom, $filename01);
-    }
-
     private function imageDansDossier($image, $imagename, string $chemin)
     {
         $target_dir = $chemin;  // Spécifiez le dossier où l'image sera enregistrée.
@@ -362,11 +344,11 @@ class BadmController extends Controller
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
-
+        $taille = 1 * 1024 * 1024;
         // Vérifier la taille du fichier
-        if ($image["size"] > 307200) {  // Limite de taille de 300KB
+        if ($image["size"] > $taille) {  // Limite de taille de 300KB
             //echo "";
-            $message = "Désolé, votre fichier est trop volumineux (>300KB).";
+            $message = "Désolé, votre fichier est trop volumineux (>1MB).";
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
@@ -403,9 +385,6 @@ class BadmController extends Controller
     {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-
-
 
             $this->SessionStart();
             // var_dump($_POST);
@@ -510,12 +489,17 @@ class BadmController extends Controller
                 $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/images/";
                 $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.jpg';
                 $this->imageDansDossier($_FILES['imageRebut'], $imagename, $chemin);
+                $image = $_FILES['imageRebut']['name'];
+            } else {
+                $image = '';
             }
 
             // var_dump($_FILES);
             // die();
 
-            $conditionAgenceService = $agenceDestinataire === '' && $serviceDestinataire === '';
+            // var_dump($agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire);
+            // die();
+            $conditionAgenceService = $agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire;
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
@@ -548,7 +532,8 @@ class BadmController extends Controller
                     'Motif_Mise_Rebut'  => $motifMiseRebut,
                     'Heure_machine'  => (int)$data[0]['heure'],
                     'KM_machine'  => (int)$data[0]['km'],
-                    'Code_Statut' => 'OUV'
+                    'Code_Statut' => 'OUV',
+                    'Num_Parc' => $numParc
                 ];
                 foreach ($insertDbBadm as $cle => $valeur) {
                     $insertDbBadm[$cle] = strtoupper($valeur);
@@ -589,7 +574,7 @@ class BadmController extends Controller
                     'Kilometrage' => $this->formatNumber($data[0]['km']),
                     'Email_Emetteur' => $MailUser,
                     'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur,
-                    'image' => $_FILES['imageRebut']['name']
+                    'image' => $image
                 ];
                 // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
                 // var_dump($this->convertirEnUtf8($insertDbBadm));
@@ -603,31 +588,6 @@ class BadmController extends Controller
                 exit();
             }
         }
-    }
-
-
-    public function detailBadm()
-    {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-        $NumBDM = $_GET['NumBDM'];
-        $id = $_GET['Id'];
-
-        $badmJson = $this->badm->RechercheBadmModelAll();
-
-
-        $this->twig->display(
-            'badm/formCompleBadm.html.twig',
-            [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-
-            ]
-        );
     }
 }
 

@@ -11,11 +11,19 @@ use Twig\Environment;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
-use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
+use App\Model\badm\CasierModel;
+use App\Model\badm\BadmRechercheModel;
+use App\Model\badm\BadmModel;
+use App\Model\admin\personnel\PersonnelModel;
+use App\Model\badm\BadmDetailModel;
+use App\Model\dom\DomModel;
+use App\Model\dom\DomDetailModel;
+use App\Model\dom\DomDuplicationModel;
+use App\Model\dom\DomListModel;
 
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
@@ -30,7 +38,16 @@ class Controller
     protected $loader;
     protected $ldap;
     protected $profilModel;
-
+    protected $casier;
+    protected $badmRech;
+    protected $badm;
+    protected $Person;
+    protected $DomModel;
+    protected $detailModel;
+    protected $duplicata;
+    protected $domList;
+    protected $ProfilModel;
+    protected $badmDetail;
 
     protected $odbcCrud;
 
@@ -50,8 +67,22 @@ class Controller
 
         $this->profilModel = new ProfilModel();
 
-
         $this->odbcCrud = new OdbcCrudModel();
+
+        $this->casier = new CasierModel();
+        $this->badmRech = new BadmRechercheModel();
+        $this->badm = new BadmModel();
+
+        $this->Person = new PersonnelModel();
+
+        $this->DomModel = new DomModel();
+        $this->detailModel = new DomDetailModel();
+        $this->duplicata = new DomDuplicationModel();
+
+        $this->domList = new DomListModel();
+        $this->ProfilModel = new ProfilModel();
+
+        $this->badmDetail = new BadmDetailModel();
     }
 
     protected function SessionStart()

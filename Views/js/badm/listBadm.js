@@ -365,9 +365,9 @@ function filtre(data) {
 
   
     // Filtrer les données en fonction des critères
-    return  data.data.filter(function(demande) {
+    return  data.filter(function(demande) {
 
-        console.log(demande.Date_Demande);
+        // console.log(demande.Date_Demande);
     // Filtrer par statut (si un critère est fourni)
     var filtreTypeMouvemnet = !critereTypeMouvemnetValue || demande.Code_Mouvement === critereTypeMouvemnetValue;
     var filtreIdMateriel = !critereIdMaterielValue || demande.ID_Materiel.includes(critereIdMaterielValue);

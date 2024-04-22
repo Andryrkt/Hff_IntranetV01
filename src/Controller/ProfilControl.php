@@ -8,17 +8,6 @@ use App\Model\ProfilModel;
 
 class ProfilControl extends Controller
 {
-    private $ProfilModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->ProfilModel = new ProfilModel();
-    }
-
-
-
-
 
     public function showInfoProfilUser()
     {
@@ -37,6 +26,8 @@ class ProfilControl extends Controller
                 $_SESSION['user'] = $Username;
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+
+
                 $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
                 $text = file_get_contents($fichier);
                 $boolean = strpos($text, $_SESSION['user']);

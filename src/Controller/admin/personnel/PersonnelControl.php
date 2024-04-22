@@ -5,19 +5,11 @@ namespace App\Controller\admin\personnel;
 use App\Controller\Controller;
 
 use App\Controller\Traits\Transformation;
-use App\Model\admin\personnel\PersonnelModel;
+
 
 
 class PersonnelControl extends Controller
 {
-    private $Person;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->Person = new PersonnelModel();
-    }
-
 
     use Transformation;
 

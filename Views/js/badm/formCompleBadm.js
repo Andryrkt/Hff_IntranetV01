@@ -199,14 +199,14 @@ export function verifierTailleEtType(event) {
     const fichier = event.target.files[0]; // On obtient le fichier sélectionné
     if (fichier) {
       // Taille maximale en octets 
-      const tailleMax = 300*1024; // 1MB
+      const tailleMax = 1*1024*1024; // 1MB
       const typesValides = ['image/jpeg', 'image/png'];
 
       if (!typesValides.includes(fichier.type)) {
         alert("Erreur : Le fichier doit être au format PNG, JPG ou JPEG.");
         event.target.value = ''; // Réinitialise le champ de sélection de fichier
       } else if (fichier.size > tailleMax) {
-        alert(`Erreur : La taille du fichier doit être inférieure à ${tailleMax / 1024} MB.`);
+        alert(`Erreur : La taille du fichier doit être inférieure à ${tailleMax / (1024 * 1024)} MB.`);
         event.target.value = ''; // Réinitialise le champ de sélection de fichier
       } else {
         // Le fichier est valide, vous pouvez procéder à l'upload ou à d'autres traitements ici

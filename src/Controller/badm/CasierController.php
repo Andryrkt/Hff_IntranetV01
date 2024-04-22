@@ -5,17 +5,10 @@ namespace App\Controller\badm;
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\Transformation;
-use App\Model\badm\CasierModel;
+
 
 class CasierController extends Controller
 {
-    private $casier;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->casier = new CasierModel();
-    }
 
     use Transformation;
     use ConversionTrait;
