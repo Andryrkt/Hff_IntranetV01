@@ -1,3 +1,6 @@
+/**
+*input pour lire les données seulement
+*/
 {% macro inputReadonly(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
@@ -39,19 +42,17 @@
 </div>
 {% endmacro %}
 
-{% macro select(name, label, array, option = []) %}
+{% macro select(name, label, array, option = [],  selectedValue = '') %}
 <div class="col-{{option.endpoint}} {{option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{label}}</label>
-    <select class="form-select " id="{{ name }}" name="{{ name }}" {{option.disabled}} {{ option.required}}>
+    <select class="form-select " id="{{ name }}" name="{{ name }}" {{ option.required}} {{ option.disabled }} >
         {% if option.default %}
-            <option value=""  selected></option>
+            <option value=""  {{ selectedValue?: 'selected'}}></option>
         {% endif %}
        
         {% for row in array %}
-                <option value="{{row}}" >{{row}}</option>
+                <option value="{{row}}" {{ row == selectedValue ? 'selected' : '' }} >{{row}}</option>
         {% endfor %}
-      
-       
     </select>
     <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
 </div>

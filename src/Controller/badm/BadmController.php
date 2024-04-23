@@ -321,6 +321,7 @@ class BadmController extends Controller
         // die();
         $target_file = $target_dir . basename($imagename);
         $uploadOk = 1;
+        $quality = 75;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // Vérifier si le fichier image est une image réelle ou une fausse image
@@ -344,8 +345,9 @@ class BadmController extends Controller
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
-        $taille = 1 * 1024 * 1024;
+
         // Vérifier la taille du fichier
+        $taille = 1 * 1024 * 1024;
         if ($image["size"] > $taille) {  // Limite de taille de 300KB
             //echo "";
             $message = "Désolé, votre fichier est trop volumineux (>1MB).";
@@ -355,14 +357,51 @@ class BadmController extends Controller
 
         // Autoriser certains formats de fichier
         if (
-            $imageFileType != "jpg"  && $imageFileType != "jpeg"
+            $imageFileType != "jpg"  && $imageFileType != "jpeg" && $imageFileType != "png"
 
         ) {
             // echo "Désolé, seuls les fichiers JPG est autorisés.";
-            $message = "Désolé, seuls les fichiers JPG est autorisés.";
+            $message = "Désolé, seuls les fichiers JPG, JPEG, et PNG sont autorisés.";
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
+
+        // Vérifier si le fichier est une image
+        $check = getimagesize($image['tmp_name']);
+        if ($check !== false) {
+            // Traiter selon le type de l'image
+            switch ($imageFileType) {
+                case 'jpg':
+                case 'jpeg':
+                    $image = imagecreatefromjpeg($image['tmp_name']);
+                    imagejpeg($image, $target_file, $quality);
+                    break;
+                case 'png':
+                    $image = imagecreatefrompng($image['tmp_name']);
+                    // Convertir PNG en JPEG
+                    $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
+                    imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+                    imagealphablending($bg, TRUE);
+                    imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+                    imagedestroy($image);
+                    imagejpeg($bg,  $target_file, $quality);
+                    imagedestroy($bg);
+                    break;
+                default:
+                    echo "Seuls les fichiers JPG, JPEG, et PNG sont autorisés.";
+                    exit;
+            }
+
+            // Libérer la mémoire
+            if (isset($image)) {
+                imagedestroy($image);
+            }
+
+            echo 'Image compressée et sauvegardée avec succès.';
+        } else {
+            echo "Le fichier n'est pas une image.";
+        }
+
 
         // Vérifier si $uploadOk est mis à 0 par une erreur
         if ($uploadOk == 0) {
@@ -412,7 +451,7 @@ class BadmController extends Controller
 
             $agenceEmetteur = $data[0]['agence'];
             $serviceEmetteur = $data[0]['code_service'];
-            $agenceServiceEmetteur = $agenceEmetteur . '-' . $serviceEmetteur;
+            $agenceServiceEmetteur = $agenceEmetteur . $serviceEmetteur;
             $casierEmetteur = $data[0]['casier_emetteur'];
 
 
@@ -434,7 +473,7 @@ class BadmController extends Controller
                 }
                 $motifArretMateriel = '';
             }
-            $agenceServiceDestinataire = $agenceDestinataire . '-' . $serviceDestinataire;
+            $agenceServiceDestinataire = $agenceDestinataire . $serviceDestinataire;
 
             if (isset($_POST['casierDestinataire'])) {
                 $casierDestinataire = $_POST['casierDestinataire'];
@@ -494,6 +533,10 @@ class BadmController extends Controller
                 $image = '';
             }
 
+            $idTypeMouvement = $this->badm->recupIdtypeMouvemnet($codeMouvement);
+
+
+
             // var_dump($_FILES);
             // die();
 
@@ -511,7 +554,7 @@ class BadmController extends Controller
 
                 $insertDbBadm = [
                     'Numero_Demande_BADM' => $NumBDM,
-                    'Code_Mouvement' => $codeMouvement,
+                    'Code_Mouvement' => $idTypeMouvement['ID_Type_Mouvement'],
                     'ID_Materiel' => (int)$data[0]['num_matricule'],
                     'Nom_Session_Utilisateur' => $_SESSION['user'],
                     'Date_Demande' => $dateDemande,
@@ -556,9 +599,9 @@ class BadmController extends Controller
                     'Date_Achat' => implode('/', array_reverse(explode('-', $data[0]['date_achat']))),
                     'Annee_Model' => $data[0]['annee'],
                     'Modele' => $data[0]['modele'],
-                    'Agence_Service_Emetteur' => $agenceServiceEmetteur,
+                    'Agence_Service_Emetteur' => $agenceEmetteur . '-' . $serviceEmetteur,
                     'Casier_Emetteur' => $casierEmetteur,
-                    'Agence_Service_Destinataire' => $agenceServiceDestinataire,
+                    'Agence_Service_Destinataire' => $agenceDestinataire . '-' . $serviceDestinataire,
                     'Casier_Destinataire' => $casierDestinataire,
                     'Motif_Arret_Materiel' => $motifArretMateriel,
                     'Etat_Achat' => $etatAchat,

@@ -92,7 +92,7 @@ class BadmDetailModel extends Model
         dmm.ID_Demande_Mouvement_Materiel, 
         sd.Description AS Statut,
         dmm.Numero_Demande_BADM, 
-        dmm.Code_Mouvement, 
+        tm.Description, 
         dmm.ID_Materiel,
         dmm.Date_Demande,
         dmm.Agence_Service_Emetteur, 
@@ -113,6 +113,7 @@ class BadmDetailModel extends Model
         dmm.KM_machine
     FROM Demande_Mouvement_Materiel dmm
     JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+    JOIN Type_Mouvement tm On dmm.Code_Mouvement = tm.ID_Type_Mouvement
     WHERE sd.Code_Application = 'BDM'
     AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
     AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
@@ -140,5 +141,37 @@ class BadmDetailModel extends Model
 
 
         return $this->decode_entities_in_array($tab);
+    }
+
+    /**
+     * Informix
+     */
+
+
+    public function recupeAgenceServiceInformix($agenceService)
+    {
+
+
+        $statement = "SELECT DISTINCT 
+         trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
+         trim(trim(atab_code)||' '|| trim(atab_lib)) as service
+         from
+         agr_succ , agr_tab a
+         where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
+         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
+         and trim(asuc_num)||''||trim(atab_code) = '" . $agenceService . "'
+         order by 1";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $services = $this->connect->fetchResults($result);
+
+
+
+
+        return $this->convertirEnUtf8($services);
+
+        //return $tableauUtf8;
     }
 }

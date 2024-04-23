@@ -23,17 +23,23 @@ class BadmDetailController extends Controller
 
         $badmDetailSqlServer = $this->badmDetail->DetailBadmModelAll($NumBDM, $id);
         $badmDetailInformix = $this->badmDetail->findAll($badmDetailSqlServer[0]['ID_Materiel']);
+        $agenceServiceEmetteur = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Emetteur']);
+        $agenceServiceDestinataire = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Destinataire']);
 
-        var_dump($badmDetailSqlServer, $badmDetailInformix);
+        // $agenceDestinataire = $badmDetailSqlServer['agencedestinataire'] .' '.$badmDetailInformix[''];
+        // var_dump($badmDetailSqlServer, $badmDetailInformix);
 
-        die();
+        // die();
         $this->twig->display(
             'badm/formCompleBadm.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
                 'Server' => $badmDetailSqlServer,
-                'Informix' => $badmDetailInformix
+                'Informix' => $badmDetailInformix,
+                'detail' => 'disabled',
+                'Emetteur' => $agenceServiceEmetteur,
+                'Destinataire' => $agenceServiceDestinataire
 
             ]
         );

@@ -10,8 +10,9 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
+                    {% for item in infoUserCours %}
                     <!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
-                    {% if infoUserCours[1].App == 'BDM' %}
+                    {% if item.App == 'BDM' %}
                     <li class="nav-item dropdown" id="BDM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Mouvement matériel (BADM)</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -27,7 +28,7 @@
 
                     
                     <!-- DEBUT Demande d'odre de mission -->
-                    {% if infoUserCours[0].App == 'DOM' %}
+                    {% if item.App == 'DOM' %}
                     <li class="nav-item dropdown" id="DOM">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Ordre de Mission</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -37,7 +38,7 @@
                     </li>
                     {% endif %}
                     <!-- FIN Demande d'odre de mission -->
-
+                    {% endfor %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Demande d'Intervention</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
