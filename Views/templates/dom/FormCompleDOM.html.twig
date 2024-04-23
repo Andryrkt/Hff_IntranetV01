@@ -5,7 +5,8 @@
 
 
 {% block content %}
-{{ include('/main/Principe.html.twig') }}
+{% include "/main/Principe.html.twig" %}
+
     <div class="container mb-4">
         <div class="row">
 
@@ -37,7 +38,7 @@
 
 
 
-            <input type="hidden" name="radiochek" id="radiochek" value="{% set valeur = statutSalarier is defined ? statutSalarier : check %}" />
+            <input type="hidden" name="radiochek" id="radiochek" value="{% set valeur = statutSalarier is defined ? statutSalarier : check %}{{valeur}}" />
             {% if numDom is defined and numDom is not null and idDom is defined and idDom is not null  %}
                 <input type="hidden" name="NumDOM" id="NumDOM" value="{{  numDom }}" readonly>
                 <input type="hidden" name="IdDOM" id="IdDOM" value="{{ idDom }}" readonly>
@@ -426,6 +427,6 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="/Hffintranet/Views/js/FormCompleDom.js"></script>
-    <script src="/Hffintranet/Views/js/FormCompleDomAjax.js"></script>
+    <script src="/Hffintranet/Views/js/dom/FormCompleDom.js"></script>
+    <script src="/Hffintranet/Views/js/dom/FormCompleDomAjax.js"></script>
 {% endblock %}

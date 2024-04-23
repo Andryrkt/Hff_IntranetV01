@@ -1,0 +1,140 @@
+.sousTitre h3{
+    color: #0e4194;
+    font-weight: bold;
+}
+
+.sousTitre div {
+    width: 100%; 
+    height: 15px; 
+    background-color: #0e4194; 
+    border-radius: 2px; 
+    margin-top: 10px;
+    border: none;
+}
+
+.sosuTitreGiser h3{
+    color: #aaa;
+    font-weight: bold;
+}
+
+.sosuTitreGiser div{
+    width: 100%; 
+    height: 15px; 
+    background-color:#aaa;
+    border-radius: 2px; 
+    margin-top: 10px;
+    border: none;
+}
+
+
+
+
+.codeMouvement{
+    display: flex;
+    flex-direction: row-reverse;
+    
+}
+
+.codeMouvementCasier{
+    background-color: rgb(155, 155, 155);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 50%;
+}
+
+.codeMouvementRebut{
+    background-color: rgb(255, 69, 0);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 50%;
+}
+
+.codeMouvementActif{
+    background-color: rgb(240, 0, 32);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 50%;
+}
+
+.codeMouvementParc{
+    background-color: rgb(0, 86, 27);
+    text-align: center;
+    color: whitesmoke;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 50%;
+}
+
+.codeMouvementAgenceService{
+    background-color: rgb(0, 128, 255);
+    text-align: center;
+    /* margin-top: 22px; */
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 50%;
+} 
+
+@media (max-width: 768px) {
+    .codeMouvementCasier{
+        background-color: rgb(155, 155, 155);
+        text-align: center;
+        /* margin-top: 22px; */
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+        width: 100%;
+    }
+    
+    .codeMouvementRebut{
+        background-color: rgb(255, 69, 0);
+        text-align: center;
+        /* margin-top: 22px; */
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+        width: 100%;
+    }
+    
+    .codeMouvementActif{
+        background-color: rgb(240, 0, 32);
+        text-align: center;
+        /* margin-top: 22px; */
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+        width: 100%;
+    }
+    
+    .codeMouvementParc{
+        background-color: rgb(0, 86, 27);
+        text-align: center;
+        /* margin-top: 22px; */
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+        width: 100%;
+    }
+    
+    .codeMouvementAgenceService{
+        background-color: rgb(0, 128, 255);
+        text-align: center;
+        /* margin-top: 22px; */
+        padding: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+        width: 100%;
+    } 
+  }
+    

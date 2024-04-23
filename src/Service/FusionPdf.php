@@ -14,20 +14,20 @@ class FusionPdf
     public function genererFusion($FichierDom, $FichierAttache01, $FichierAttache02)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache01;
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $FichierAttache01;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin03 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache02;
+        $chemin03 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $FichierAttache02;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin03);
         $templateId = $pdf01->importPage(1);
@@ -44,13 +44,13 @@ class FusionPdf
     public function genererFusion1($FichierDom, $FichierAttache01)
     {
         $pdf01 = new Fpdi();
-        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $FichierDom;
+        $chemin01 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/' . $FichierDom;
         $pdf01->setSourceFile($chemin01);
         $templateId = $pdf01->importPage(1);
         $pdf01->addPage();
         $pdf01->useTemplate($templateId);
 
-        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $FichierAttache01;
+        $chemin02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $FichierAttache01;
         // Ajouter le deuxième fichier PDF
         $pdf01->setSourceFile($chemin02);
         $templateId = $pdf01->importPage(1);

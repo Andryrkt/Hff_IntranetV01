@@ -3,44 +3,48 @@
 namespace App\Controller;
 
 use Exception;
+use App\Model\LdapModel;
 use App\Model\ProfilModel;
 
 class ProfilControl extends Controller
 {
-    private $ProfilModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->ProfilModel = new ProfilModel();
-    }
 
     public function showInfoProfilUser()
     {
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
+            $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
+            $Ldap = new LdapModel();
+            $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+            if (!$Connexion_Ldap_User) {
+                echo '<script type="text/javascript">
+                    alert("Merci de vérifier votre session LDAP");
+                    document.location.href = "/Hffintranet";
+                </script>';
+            } else {
+                session_start();
+                $_SESSION['user'] = $Username;
+                //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+                $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+
+
+                $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+                $text = file_get_contents($fichier);
+                $boolean = strpos($text, $_SESSION['user']);
+
+                $this->twig->display(
+                    'main/accueil.html.twig',
+                    [
+                        'infoUserCours' => $infoUserCours,
+                        'boolean' => $boolean
+                    ]
+                );
+            }
         }
 
 
-        $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-        $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
 
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
-        //$app = $infoUserCours[0]['App'];
-
-        $this->twig->display(
-            'main/Principe.html.twig',
-            [
-                'infoUserCours' => $infoUserCours,
-                'UserConnect' => $UserConnect,
-                'boolean' => $boolean
-            ]
-        );
         // $this->twig->display(
         //     'main/accueil.html.twig'
         // );
@@ -52,15 +56,10 @@ class ProfilControl extends Controller
 
     public function showinfoAllUsercours()
     {
-        session_start();
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
-        }
+        $this->SessionStart();
 
         try {
-            $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+            //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
             $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 
 
@@ -74,20 +73,20 @@ class ProfilControl extends Controller
 
     public function showPageAcceuil()
     {
-        session_start();
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
-            session_destroy();
-            exit();
-        }
+        $this->SessionStart();
 
 
-        $UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+        $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
 
         $this->twig->display(
             'main/accueil.html.twig',
             [
-                'UserConnect' => $UserConnect,
+                'infoUserCours' => $infoUserCours,
+                'boolean' => $boolean
             ]
         );
 

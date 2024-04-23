@@ -4,7 +4,16 @@
             "App\\": "src/",
             "App\\Controller\\": "src/Controller/",
             "App\\Model\\": "src/Model/",
-            "App\\Service\\": "src/Service"
+            "App\\Service\\": "src/Service/",
+            "Config\\": "config/",
+            "App\\Controller\\dom\\": "src/Controller/dom",
+            "App\\Model\\dom\\": "src/Model/dom",
+            "App\\Controler\\badm\\": "src/Controller/badm",
+            "App\\Model\\badm\\" : "src/Model/badm",
+            "App\\Controller\\admin\\personnel\\": "src/Controller/admin/personnel",
+            "App\\Model\\admin\\personnel\\": "src/Model/admin/personnel",
+            "App\\Controller\\Traits\\": "src/Controller/Traits",
+            "App\\Model\\Traits\\": "src/Model/Traits"
         }
     },
     "authors": [
@@ -15,9 +24,12 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "php": ">=7.2.5",
         "setasign/fpdi": "^2.6",
         "twig/twig": "3.0",
-        "tecnickcom/tcpdf": "^6.7"
+        "tecnickcom/tcpdf": "^6.7",
+        "nikic/fast-route": "^1.3",
+        "vlucas/phpdotenv": "^5.6"
     }
    
 }

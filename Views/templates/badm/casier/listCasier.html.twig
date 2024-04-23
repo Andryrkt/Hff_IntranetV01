@@ -1,0 +1,32 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+{% endblock%}
+
+{% import "macroForm.html.twig" as form %}
+
+
+{% block content %}
+{% include "/main/Principe.html.twig" %}
+   
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <div class="col" style="text-align: right;font-weight: bold;">
+                    <h2>LISTE DES CASIERS</h2>
+                </div>
+                <div class="d-flex flex-row ">
+                    <div class="p-2">
+                        <a href="/Hffintranet/index.php?action=nouveauCasier" class="btn btn-success fw-bold">
+                            Nouveau
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
