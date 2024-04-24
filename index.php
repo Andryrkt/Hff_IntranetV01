@@ -255,6 +255,9 @@ switch ($action) {
     case 'DetailBADM':
         $BadmDetailController->detailBadm();
         break;
+    case 'detailJson':
+        $BadmDetailController->envoiDetailBdmJson();
+        break;
     case 'serviceDestinataire':
         $BadmController->serviceDestinataire();
         break;
