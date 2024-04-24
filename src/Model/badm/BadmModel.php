@@ -260,4 +260,19 @@ class BadmModel extends Model
         }
         return $tab;
     }
+
+    public function recupeSessionAutoriser($utilisateur)
+    {
+        $statement = "SELECT DISTINCT Session_Utilisateur AS utilisateur
+        FROM Agence_service_autorise 
+        WHERE Session_Utilisateur = '" . $utilisateur . "'
+		";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
 }

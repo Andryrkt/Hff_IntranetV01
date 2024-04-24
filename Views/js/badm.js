@@ -11,6 +11,7 @@ const casierEmetteur = formCompleBadm.casierEmetteur;
 console.log(casierEmetteur.value);
 
 
+
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
 
@@ -159,7 +160,6 @@ formCompleBadm.badmComplet.addEventListener('click', (e) => {
 /**
  * changement de coueleur type de mouvemnt
  */
-
 typeDemandeChangementCouleur(typeDemande);
 
 

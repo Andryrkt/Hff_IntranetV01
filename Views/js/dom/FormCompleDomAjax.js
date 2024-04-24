@@ -83,29 +83,29 @@ if ( document.querySelector('#NumDOM') === null  ) {
     let check = document.getElementById('radiochek').value;
     if (check === "Interne") {
         setTimeout(() => {
-            console.log( document.querySelector(`#select1 option`));
-            console.log(document.querySelector('#ServINt').value.toUpperCase().trim());
+            // console.log( document.querySelector(`#select1 option`));
+            // console.log(document.querySelector('#ServINt').value.toUpperCase().trim());
             selectedOption = document.querySelector(`#select1 option[value="${document.querySelector('#ServINt').value.toUpperCase().trim()}"]`).value;
-            console.log('valiny :' + selectedOption);
+            //console.log('valiny :' + selectedOption);
             fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
-            console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
+            //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
             libserv = document.querySelector('#LibServINT').value.toUpperCase().trim();
-            console.log(document.querySelector(`#serviceIrium`));
+            //console.log(document.querySelector(`#serviceIrium`));
              document.querySelector(`#serviceIrium option[value="${libserv}"]`).selected = true;
         }, 2000);
     } else {
         setTimeout(() => {
              const serv = document.querySelector('#Serv').value.toUpperCase().trim();
-             console.log(serv);
-            console.log(document.querySelector(`#select1 option[value="${serv}"]`));
+             //console.log(serv);
+            //console.log(document.querySelector(`#select1 option[value="${serv}"]`));
             selectedOption = document.querySelector(`#select1 option[value="${serv}"]`).value;
-            console.log(selectedOption)
+            //console.log(selectedOption)
             fetchData(selectedOption);
         }, 500);
         setTimeout(() => {
-            console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
+            //console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
             document.querySelector(`#serviceIrium option[value="${document.querySelector('#LibServ').value.toUpperCase().trim()}"]`).selected = true;
         }, 2000);
     }

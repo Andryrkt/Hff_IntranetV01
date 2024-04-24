@@ -25,7 +25,13 @@ class BadmDetailController extends Controller
         $badmDetailInformix = $this->badmDetail->findAll($badmDetailSqlServer[0]['ID_Materiel']);
         $agenceServiceEmetteur = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Emetteur']);
         $agenceServiceDestinataire = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Destinataire']);
-
+        $agence = $this->badmDetail->recupAgence();
+        $agenceDestinataire = [];
+        foreach ($agence as $values) {
+            foreach ($values as $value) {
+                $agenceDestinataire[] = $value;
+            }
+        }
         // $agenceDestinataire = $badmDetailSqlServer['agencedestinataire'] .' '.$badmDetailInformix[''];
         // var_dump($badmDetailSqlServer, $badmDetailInformix);
 
@@ -39,7 +45,8 @@ class BadmDetailController extends Controller
                 'Informix' => $badmDetailInformix,
                 'detail' => 'disabled',
                 'Emetteur' => $agenceServiceEmetteur,
-                'Destinataire' => $agenceServiceDestinataire
+                'Destinataire' => $agenceServiceDestinataire,
+                'agenceDestinataire' => $agenceDestinataire
 
             ]
         );

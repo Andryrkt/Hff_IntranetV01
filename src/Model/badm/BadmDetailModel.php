@@ -144,14 +144,12 @@ class BadmDetailModel extends Model
     }
 
     /**
-     * Informix
+     * Informix: recupération agence service
      */
 
 
     public function recupeAgenceServiceInformix($agenceService)
     {
-
-
         $statement = "SELECT DISTINCT 
          trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
          trim(trim(atab_code)||' '|| trim(atab_lib)) as service
@@ -173,5 +171,29 @@ class BadmDetailModel extends Model
         return $this->convertirEnUtf8($services);
 
         //return $tableauUtf8;
+    }
+
+
+    /**
+     * informix: recuperation agence
+     */
+    public function recupAgence(): array
+    {
+        $statement = "SELECT DISTINCT 
+        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
+        from
+        agr_succ , agr_tab a
+        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
+        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
+        and asuc_num in ('01', '40', '50','90','91','92') 
+        order by 1";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $services = $this->connect->fetchResults($result);
+
+
+        return $this->convertirEnUtf8($services);
     }
 }

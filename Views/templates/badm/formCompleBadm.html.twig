@@ -9,9 +9,6 @@
 
 
 {% block content %}
-{% include "/main/Principe.html.twig" %}
-
-
 
 
 <div class="container my-5">
@@ -31,7 +28,7 @@
 
 
     <form action="/Hffintranet/index.php?action=envoiFormCompleBadm" method="post" name="form" enctype="multipart/form-data">
-        <input type="hidden" name="codeMouvement" value="{{codeMouvement ? codeMouvemnt: Server.0.Description}}">
+        <input type="hidden" name="codeMouvement" value="{{codeMouvement ? : Server.0.Description}}">
         <input type="hidden" name="idMateriel" value="{{items.0.num_matricule ?: Server.0.ID_Materiel}}">
 
         <div class="row">    
@@ -95,11 +92,9 @@
             {{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
         </div>
         <div class="row">
-            {{ dump(Destinataire.0.agence) }}
             {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
-            {{form.select('serviceDestinataire', 'Service', Destinataire.0.service?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
-                        
-            {{form.select('casierDestinataire', 'Casier Destinataire', Server.0.Casier_Destinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
+            {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'}, Destinataire.0.service)}}
+            {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'}, Server.0.Casier_Destinataire)}}
         </div>
         
         <div class="row">

@@ -1,7 +1,7 @@
-{% extends "baseTemplate.html.twig"%}
 
 
-{% block content %}
+
+
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
         <div class="container">
@@ -18,8 +18,10 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=formBadm">Nouvelle Demande </a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=listBadm">Consultation</a></li>
+                            {% if boolean %}
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=nouveauCasier">Nouvelle Casier</a></li>
                             <li><a class="dropdown-item" href="/Hffintranet/index.php?action=listCasier">Consultation Casier</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                     {% endif %}
@@ -104,10 +106,3 @@
             </div>
         </div>
     </nav>
-
-   {% endblock %}
-
-   {% block javascript %}
-   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-   {% endblock  %}
