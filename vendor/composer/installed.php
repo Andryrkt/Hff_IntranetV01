@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'baf7bb67262eade558633b282e73740f5d4e7ce4',
+        'reference' => '90fe6ee42c923385bdd70046a89fd54033860ea1',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'baf7bb67262eade558633b282e73740f5d4e7ce4',
+            'reference' => '90fe6ee42c923385bdd70046a89fd54033860ea1',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -36,6 +36,69 @@
             'install_path' => __DIR__ . '/../nikic/fast-route',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'pagerfanta/core' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/doctrine-collections-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/doctrine-dbal-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/doctrine-mongodb-odm-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/doctrine-orm-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/doctrine-phpcr-odm-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/elastica-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/pagerfanta' => array(
+            'pretty_version' => 'v3.8.0',
+            'version' => '3.8.0.0',
+            'reference' => 'a07c84296e491add39d103b812129de77610c33b',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../pagerfanta/pagerfanta',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'pagerfanta/solarium-adapter' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
+        ),
+        'pagerfanta/twig' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.8.0',
+            ),
         ),
         'phpoption/phpoption' => array(
             'pretty_version' => '1.9.2',
@@ -52,6 +115,15 @@
             'reference' => 'a6db878129ec6c7e141316ee71872923e7f1b7ad',
             'type' => 'library',
             'install_path' => __DIR__ . '/../setasign/fpdi',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/deprecation-contracts' => array(
+            'pretty_version' => 'v2.5.3',
+            'version' => '2.5.3.0',
+            'reference' => '80d075412b557d41002320b96a096ca65aa2c98d',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/deprecation-contracts',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

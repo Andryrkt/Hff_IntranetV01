@@ -115,14 +115,16 @@ class BadmDetailModel extends Model
     JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
     JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
     WHERE sd.Code_Application = 'BDM'
-    
+    AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
+       AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
     ORDER BY Numero_Demande_BADM DESC
     ");
 
-        if ($NumBDM !== null && $id !== null) {
-            $sql .= "AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
-        AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'";
-        }
+        // if ($NumBDM !== null && $id !== null) {
+        //     $sql .= "
+
+        //      ";
+        // }
 
         $tab = [];
         while ($donner = odbc_fetch_array($sql)) {

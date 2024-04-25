@@ -4,11 +4,8 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 
-
-class BadmDetailController extends Controller
+class BadmDupliController extends Controller
 {
-
-
     private function rendreSeultableau(array $tabs): array
     {
         $tab = [];
@@ -20,9 +17,8 @@ class BadmDetailController extends Controller
         return $tab;
     }
 
-    public function detailBadm()
+    public function dupliBadm()
     {
-
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
@@ -37,27 +33,21 @@ class BadmDetailController extends Controller
         $agenceServiceDestinataire = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Destinataire']);
         $agence = $this->badmDetail->recupAgence();
         $agenceDestinataire = $this->rendreSeultableau($agence);
-        //$codeAgence = substr(trim($agenceServiceDestinataire[0]['agence']), 0, 2);
-        // $service = $this->badmDetail->recupService($codeAgence);
-        // $serviceDestinataire = $this->rendreSeultableau($service);
-        // var_dump($serviceDestinataire);
-        // die();
-        // $agenceDestinataire = $badmDetailSqlServer['agencedestinataire'] .' '.$badmDetailInformix[''];
-        // var_dump($badmDetailSqlServer, $badmDetailInformix);
 
-        // die();
+
         $this->twig->display(
             'badm/formCompleBadm.html.twig',
             [
+                'codeMouvement' => $badmDetailSqlServer[0]['Description'],
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
                 'Server' => $badmDetailSqlServer,
                 'Informix' => $badmDetailInformix,
-                'detail' => 'disabled',
                 'Emetteur' => $agenceServiceEmetteur,
                 'Destinataire' => $agenceServiceDestinataire,
                 'agenceDestinataire' => $agenceDestinataire,
-                'numBdm' => $NumBDM
+                'numBdm' => $NumBDM,
+                'duplication' => true
             ]
         );
     }

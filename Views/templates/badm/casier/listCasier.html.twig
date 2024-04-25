@@ -8,25 +8,109 @@
 
 
 {% block content %}
+    <div class="container">
 
+
+
+<div class="row ">
+    
+        <h2> LISTE DES CASIERS </h2>
+    
+</div>
+
+<!-- DEBUT recherche -->
+
+    
+    <div class="row">
+         
+            <div class="col-12 col-md-6  ">
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Id matériel</span>
+                    <input type="search" name="idMateriel" id="idMateriel" class="form-control">
+                </div>
+            </div>
+    </div>
    
 
-    <div class="container">
-        <div class="card">
-            <div class="card-body">
-                <div class="col" style="text-align: right;font-weight: bold;">
-                    <h2>LISTE DES CASIERS</h2>
-                </div>
-                <div class="d-flex flex-row ">
-                    <div class="p-2">
-                        <a href="/Hffintranet/index.php?action=nouveauCasier" class="btn btn-success fw-bold">
-                            Nouveau
-                        </a>
+    <div class="row">
+        <small class="dateCreationMessage" id="dateCreationMessage"></small>
+        <div class="col-12 col-md-6 ">
+            <div class="input-group mb-2">
+                <span class="input-group-text">Date de demande (début)</span>
+                <input type="date" name="dateDemandeDebut" id="dateDemandeDebut" class="form-control">
+            </div>
+        </div>
+        <small class="dateCreationMessage" id="dateCreationMessage"></small>
+    </div>
 
-                    </div>
-                </div>
-
+    <div class="row">
+        <div class="col-12 col-md-6 ">
+            <div class="input-group mb-2">
+                <span class="input-group-text">Date de demande (fin)</span>
+                <input type="date" name="dateDemandeFin" id="dateDemandeFin" class="form-control">
             </div>
         </div>
     </div>
+
+
+    <!-- FIN recherche -->
+
+
+
+
+    <!-- DEBUT bouton -->
+    <div class="row justify-content-center my-4">
+        <div class="col-12 col-md-6 col-lg-4 ">
+            <input type="submit" name="recherche" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
+            <input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
+            <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
+        </div>
+        <div class="col-12 col-md-6 col-lg-4  mt-1">
+            <p class="fw-bold" id="nombreResultat"></p>
+        </div>
+          <!-- DEBUT Pagination -->
+    <div class="col-12 col-md-12 col-lg-4  mt-1">
+        <div id="pagination-wrapper"></div>
+    </div>
+    <!-- FIN Pagination -->
+    </div>
+    <!-- FIN bouton -->
+
+
+
+
+</div>
+
+    <!-- DEBUT tableau -->
+    <div class="container ">
+        <div>
+            <table class="table  table-striped table-shadow shadow  rounded " style="text-align: center;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                            <th>Agence rattaché</th>
+                            <th>Casier</th>
+                            <th>Date de création</th>
+                            <th>Numero Casier</th>
+                    </tr>
+                </thead>
+                <tbody id="table-container" >
+                    {% for item in casier %}
+                            <tr>
+                                <td>{{item.Id_Materiel}}</td>
+                                <td>{{item.Agence_Rattacher}}</td>
+                                <td>{{item.Casier}}</td>
+                                <td>{{item.Date_Creation|date("d/m/Y")}}</td>
+                                <td>{{item.Numero_CAS}}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- FIN tableau -->
+    
+   
+
+    
 {% endblock %}

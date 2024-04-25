@@ -10,20 +10,23 @@ use App\Model\TypeDocModel;
 use App\Controller\ProfilControl;
 
 use App\Controller\StatutControl;
+use App\Controller\badm\BadmDupli;
 use App\Controller\dom\DomControl;
 use App\Controller\MainController;
 use App\Controller\TypeDocControl;
 use App\Controller\badm\BadmController;
 use App\Model\AgenceServAutoriserModel;
+use App\Controller\badm\CasierController;
 use App\Controller\dom\DomListController;
 use App\Controller\dom\DomDetailController;
+use App\Controller\badm\BadmDupliController;
 use App\Controller\badm\BadmListeController;
+use App\Controller\badm\BadmDetailController;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;
-use App\Controller\badm\BadmDetailController;
-use App\Controller\badm\CasierController;
+use App\Controller\badm\CasierListController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -117,7 +120,9 @@ $ControlAutorisation = new AgenceServAutoriserControl();
 $BadmController = new BadmController();
 $BadmListeController = new BadmListeController();
 $BadmDetailController = new BadmDetailController();
+$BadmDupliController = new BadmDupliController();
 $CasierController = new CasierController();
+$CasierListController = new CasierListController();
 
 //
 // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
@@ -255,8 +260,8 @@ switch ($action) {
     case 'DetailBADM':
         $BadmDetailController->detailBadm();
         break;
-    case 'detailJson':
-        $BadmDetailController->envoiDetailBdmJson();
+    case 'dupliBADM':
+        $BadmDupliController->dupliBadm();
         break;
     case 'serviceDestinataire':
         $BadmController->serviceDestinataire();
@@ -277,15 +282,16 @@ switch ($action) {
         $CasierController->FormulaireCasier();
         break;
     case 'listCasier':
-        $CasierController->AffichageListeCasier();
+        $CasierListController->AffichageListeCasier();
         break;
+
     default:
         include 'Views/SignIn.php';
 }
 
 
 
-
+phpinfo();
 
 
 

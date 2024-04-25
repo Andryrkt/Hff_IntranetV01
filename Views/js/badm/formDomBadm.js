@@ -1,3 +1,5 @@
+const form = document.form;
+
 /**
  * informer l'utilisateur si le type de fichier et la taille de l'image ne  correspond pas à ce qu'on attend
  * @param {*} event 
@@ -68,7 +70,7 @@ export function envoieformulaire(e)
     e.preventDefault(); 
     if(confirm("Veuillez vérifier attentivement avant d'envoyer."))
     {
-        formCompleBadm.submit();
+        form.submit();
     }
 
 

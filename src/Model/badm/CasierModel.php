@@ -132,7 +132,7 @@ class CasierModel extends Model
 
     public function RecupereNumCAS()
     {
-        $sql = "SELECT Numero_CAS FROM Casier_Materiels";
+        $sql = "SELECT DISTINCT MAX(Numero_CAS)as numCas FROM Casier_Materiels";
 
         $result = $this->connexion->query($sql);
 

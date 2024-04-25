@@ -17,6 +17,9 @@
         <div class="col-12 col-md-11">
             {% if detail == 'disabled' %}
                 <h2 class="fw-bold fs-1" style="color:#0e4194;">Détail Bordereau d’Acquisition et de Mouvement Matériel</h2>
+            {% elseif duplication %}
+                <h2 class="fw-bold fs-1" style="color:#0e4194;">Duplication Bordereau d’Acquisition et de Mouvement Matériel</h2>
+
             {% else %}
                 
                 <h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
@@ -101,14 +104,32 @@
             {{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
         </div>
         <div class="row">
-            {# {{ dump(Destinataire.0.service) }} #}
-            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
-            {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
-            {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
+             {# {{ dump(codeMouvment == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT') }}  #}
+          
+            {% if codeMouvment == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+                {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'}, Destinataire.0.agence)}}
+                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}
+            {% else %}
+                {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
+                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}
+                
+            {% endif %}
+            {% if codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+                    {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}
+            {% else %}
+                    {{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}
+            {% endif %}
+            
         </div>
         
         <div class="row">
-            {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: detail } )}}
+            {% if codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+                {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: 'disabled' } )}}
+                
+            {% else %}
+                {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: detail } )}}
+                
+            {% endif %}
         </div>
 
 
@@ -178,8 +199,15 @@
             <div class="row">
                 {{ form.sousTitre('Mise au rebut', {class: 'sousTitre'})}}
             </div>
+            
             <div class="row">
-                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required',  disabled: detail})}}     
+                {% if codeMouvement == 'CESSION D\'ACTIF' %}
+                    {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required',  disabled: 'disabled'})}}     
+                
+                {% else %}
+                    {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required',  disabled: detail})}}     
+                    
+                {% endif %}
             </div>
             {% if codeMouvement == 'MISE AU REBUT' %}
                 <div class="row">

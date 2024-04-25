@@ -273,11 +273,12 @@ function renderData1(data) {
 
     // Ajouter les nouvelles lignes pour les données filtrées
     data.forEach(function(item, index) {
+        console.log('les items:'+index);
         const row = document.createElement('tr');
         row.classList.add(index % 2 === 0 ? 'table-gray-700' : 'table-secondary'); // Alternance des couleurs de ligne
         // Ajouter un bouton de duplication à chaque ligne
         const duplicateButton = document.createElement('button');
-        duplicateButton.innerHTML = `<a href="#" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+        duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=dupliBADM&NumBDM=${item['Numero_Demande_BADM']}&Id=${item['ID_Demande_Mouvement_Materiel']}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
         //duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item['Numero_Ordre_Mission']}&IdDOM=${item['ID_Demande_Ordre_Mission']}&check=${item['Matricule']}" style="text-decoration: none;
         //color: #000000; font-weight: 600">Dupliquer</a>`;
         duplicateButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-2');

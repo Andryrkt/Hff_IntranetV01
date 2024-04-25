@@ -23,13 +23,18 @@ const motifMiseRebut = formCompleBadm.motifMiseRebut;
 const casierEmetteur = formCompleBadm.casierEmetteur;
 const prixHt = formCompleBadm.prixHt;
 const button = formCompleBadm.badmComplet;
+const agenceDestinataireDetail = formCompleBadm.agenceDestinataireDetail;
+const casierDestinataireDetail = formCompleBadm.casierDestinataireDetail;
 
-console.log(serviceDestinataire);
+// console.log(agenceDestinataireDetail.value, casierDestinataireDetail.value);
+// console.log(document.querySelector( `#agenceDestinataire option`).value);
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
+console.log(formCompleBadm.numBdm.value);
 if (formCompleBadm.numBdm.value === '') {
   fetchData();
 
+console.log('oui');
   document
     .getElementById("agenceDestinataire")
     .addEventListener("change", changeService);
@@ -147,13 +152,23 @@ if (formCompleBadm.numBdm.value === '') {
     formCompleBadm.imageRebut.addEventListener("change", verifierTailleEtType);
   }
 } else {
+console.log('non');
+ fetchData();
+ fetchCasier();
 
-
-    
-
-  
+  setTimeout(() => {
+    document.querySelector(
+      `#serviceDestinataire option[value='${agenceDestinataireDetail.value}']`
+    ).selected = true;
+  }, 1000);
+  setTimeout(() => {
+    document.querySelector(`#casierDestinataire option[value='${casierDestinataireDetail.value}']`).selected = true;
+  }, 1000);
 
 }
+
+
+
 
 /**
  * ecouter sur le button et affiche une verification

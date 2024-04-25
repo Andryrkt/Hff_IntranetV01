@@ -32,11 +32,11 @@ trait Transformation
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
         if ($nomDemande === 'BDM') {
-
             $Max_Num = $this->badm->RecupereNumBDM();
         } elseif ($nomDemande === 'CAS') {
-            $Max_Num = ($this->casier->RecupereNumCAS())['Numero_CAS'];
+            $Max_Num = $this->casier->RecupereNumCAS()['numCas'];
         }
+
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
         //num_sequentielless

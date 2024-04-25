@@ -8,6 +8,57 @@ use App\Controller\Controller;
 class BadmListeController extends Controller
 {
 
+    public function AffichageListeBadm()
+    {
+        $this->SessionStart();
+
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        $typeMouvements = $this->badmRech->recupTypeMouvement();
+
+        $typeMouvement = [];
+        foreach ($typeMouvements as  $values) {
+            foreach ($values as $value) {
+                $typeMouvement[] = $value;
+            }
+        };
+
+        $this->twig->display(
+            'badm/listBadm.html.twig',
+            [
+                'infoUserCours' => $infoUserCours,
+                'boolean' => $boolean,
+                'typeMouvement' => $typeMouvement
+            ]
+        );
+    }
+
+    public function envoiListJsonBadm()
+    {
+        $this->SessionStart();
+
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        if ($boolean) {
+            $badmJson = $this->badmRech->RechercheBadmModelAll();
+        } else {
+            $badmJson = $this->badmRech->RechercheBadmMode($_SESSION['user']);
+        }
+
+
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($badmJson);
+
+
+        $this->testJson($jsonData);
+    }
+
 
     private function testJson($jsonData)
     {
@@ -40,56 +91,5 @@ class BadmListeController extends Controller
             // L'encodage a réussi
             echo $jsonData;
         }
-    }
-
-    public function AffichageListeBadm()
-    {
-        $this->SessionStart();
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-        $typeMouvements = $this->badmRech->recupTypeMouvement();
-
-        $typeMouvement = [];
-        foreach ($typeMouvements as  $values) {
-            foreach ($values as $value) {
-                $typeMouvement[] = $value;
-            }
-        };
-
-        $this->twig->display(
-            'badm/listBadm.html.twig',
-            [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-                'typeMouvement' => $typeMouvement
-            ]
-        );
-    }
-
-    public function envoiListJsonBadm()
-    {
-
-
-        // Pagination
-        $itemsPerPage = 10;
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $offset = ($page - 1) * $itemsPerPage;
-
-
-        $badmJson = $this->badmRech->RechercheBadmModelAll((int)$offset, (int)$itemsPerPage);
-
-
-
-
-        header("Content-type:application/json");
-
-        $jsonData = json_encode($badmJson);
-
-
-        $this->testJson($jsonData);
     }
 }

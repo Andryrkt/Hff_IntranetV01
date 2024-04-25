@@ -11,9 +11,10 @@ error_reporting(E_ALL);
 
 
 
+use Exception;
 use App\Controller\Controller;
-use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\ConversionTrait;
 
 class BadmController extends Controller
 {
@@ -334,7 +335,7 @@ class BadmController extends Controller
 
 
 
-    private function imageDansDossier($image, $imagename, string $chemin)
+    private function imageDansDossier0($image, $imagename, string $chemin)
     {
         $target_dir = $chemin;  // Spécifiez le dossier où l'image sera enregistrée.
         //$image["name"] = $NumBDM . '_' . $agenceService . '.jpg';
@@ -441,6 +442,71 @@ class BadmController extends Controller
         }
     }
 
+
+    private function imageDansDossier($image, $imagename, string $chemin)
+    {
+        $target_dir = $chemin; // Spécifiez le dossier où l'image sera enregistrée.
+        $target_file = $target_dir . basename($imagename);
+        $maxFileSize = 1 * 1024 * 1024; // 1MB
+        $allowedTypes = ['jpg', 'jpeg', 'png'];
+        $quality = 75;
+        $uploadOk = true;
+
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Vérifier si le fichier image est une image réelle ou une fausse image
+        $check = getimagesize($image["tmp_name"]);
+        if ($check === false) {
+            throw new Exception("Le fichier n'est pas une image.");
+        }
+
+        // Vérifier si le fichier existe déjà
+        if (file_exists($target_file)) {
+            throw new Exception("Désolé, le fichier existe déjà.");
+        }
+
+        // Vérifier la taille du fichier
+        if ($image["size"] > $maxFileSize) {
+            throw new Exception("Désolé, votre fichier est trop volumineux (>1MB).");
+        }
+
+        // Autoriser certains formats de fichier
+        if (!in_array($imageFileType, $allowedTypes)) {
+            throw new Exception("Désolé, seuls les fichiers JPG, JPEG, et PNG sont autorisés.");
+        }
+
+        // Traitement et enregistrement de l'image selon le type
+        switch ($imageFileType) {
+            case 'jpg':
+            case 'jpeg':
+                $image = imagecreatefromjpeg($image['tmp_name']);
+                imagejpeg($image, $target_file, $quality);
+                break;
+            case 'png':
+                $image = imagecreatefrompng($image['tmp_name']);
+                $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
+                imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+                imagealphablending($bg, TRUE);
+                imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+                imagedestroy($image);
+                imagejpeg($bg, $target_file, $quality);
+                imagedestroy($bg);
+                break;
+        }
+
+        // Libérer la mémoire
+        if (isset($image)) {
+            imagedestroy($image);
+        }
+
+        // Essayer de télécharger le fichier
+        if (!move_uploaded_file($image["tmp_name"], $target_file)) {
+            throw new Exception("Désolé, il y a eu une erreur lors du téléchargement de votre fichier.");
+        }
+
+        echo 'Image compressée et sauvegardée avec succès.';
+    }
+
     public function formCompleBadm()
     {
 
@@ -452,6 +518,9 @@ class BadmController extends Controller
             //var_dump($this->badm->findAll());
             $data = $this->badm->findAll($_POST['idMateriel']);
             $codeMouvement = $_POST['codeMouvement'];
+
+            // var_dump($codeMouvement);
+            // die();
             // var_dump($data);
             // die();
             $NumBDM = $this->autoINcriment('BDM');
@@ -475,6 +544,7 @@ class BadmController extends Controller
             $agenceServiceEmetteur = $agenceEmetteur . $serviceEmetteur;
             $casierEmetteur = $data[0]['casier_emetteur'];
 
+            var_dump($_POST);
 
             if (isset($_POST['agenceDestinataire']) && isset($_POST['serviceDestinataire']) && isset($_POST['motifArretMateriel'])) {
                 $agenceDestinataire = explode(' ', $_POST['agenceDestinataire'])[0];
@@ -554,6 +624,10 @@ class BadmController extends Controller
                 $image = '';
             }
 
+
+            if ($codeMouvement === 'CESSION D\'ACTIF') {
+                $codeMouvement = 'CESSION D\'\'ACTIF';
+            }
             $idTypeMouvement = $this->badm->recupIdtypeMouvemnet($codeMouvement);
 
 
