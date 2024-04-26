@@ -83,7 +83,9 @@
 {% endmacro %}
 
 {% macro inputFile(name, label, option = [])%}
-<label for="formFile" class="form-label fw-bold">{{label}}</label>
-<input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
 
+<div class="col-12 {{ option.class}}">
+    <label for="formFile" class="form-label fw-bold">{{label}}</label>
+    <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
+</div>
 {% endmacro %}

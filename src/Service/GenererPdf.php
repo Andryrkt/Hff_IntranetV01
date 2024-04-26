@@ -135,7 +135,7 @@ class GenererPdf
     /**
      * Generer pdf badm 
      */
-    function genererPdfBadm(array $tab)
+    function genererPdfBadm(array $tab, array $data1 = [], array $data2 = [])
     {
 
         $pdf = new TCPDF();
@@ -244,10 +244,13 @@ class GenererPdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(35, 6, "Heures :", 0, 'L', false, 0);
-        $pdf->cell(63, 6, $tab['Heures_Machine'], 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(110);
-        $pdf->cell(24, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(25, 6, "Heures :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $tab['Heures_Machine'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->MultiCell(25, 6, "OR :", 0, 'L', false, 0);
+        $pdf->cell(35, 6, $tab['OR'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(135);
+        $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $tab['Kilometrage'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -388,8 +391,6 @@ class GenererPdf
 
 
 
-
-
         // entête email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
@@ -397,15 +398,83 @@ class GenererPdf
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
 
+
+        //2ème pages
+
         if ($tab['typeMouvement'] === 'MISE AU REBUT' && $tab['image'] !== '') {
             $pdf->AddPage();
-            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/images/' . $tab['image'];
-            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/templates/badm/mise_rebut/images/' . $tab['image'];
+            if ($tab['extension'] === 'JPG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['extension'] === 'JEPG' ) {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['estension'] === 'PNG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+            }
         }
+
+        $pdf->AddPage('L');
+
+$header1 = [ 'Agence', 'Service', 'Slor_numor', 'Date', 'seor_refdem_lib', 'stiv_interv', 'stiv_comment', 'agence_service'];
+$header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
+// Données pour le tableau
+
+// Commencer le tableau HTML
+$html = '<h2 style="text-align:center">Liste OR</h2>';
+
+$html .= '<table border="1" cellpadding="5" cellspacing="0" align="center">';
+$html .= '<thead>';
+$html .= '<tr>';
+foreach ($header1 as  $value) {
+   $html .= "<td>$value</td>";
+}
+$html .= '</tr>';
+$html .= '</thead>';
+$html .= '<tbody>';
+// Ajouter les lignes du tableau
+foreach ($data1 as $row) {
+    $html .= '<tr>';
+    foreach ($row as $cell) {
+        $html .= "<td>$cell</td>";
+    }
+    $html .= '</tr>';
+}
+$html .= '</tbody>';
+$html .= '</table>';
+
+
+
+
+
+$html .= '<table border="1" cellpadding="5" cellspacing="0" align="center">';
+$html .= '<thead>';
+$html .= '<tr>';
+
+foreach ($header2 as  $value) {
+   $html .= "<td>$value</td>";
+}
+
+$html .= '</tr>';
+$html .= '</thead>';
+
+$html .= '<tbody>';
+// Ajouter les lignes du tableau
+foreach ($data2 as $row) {
+    $html .= '<tr>';
+    foreach ($row as $cell) {
+        $html .= "<td>$cell</td>";
+    }
+    $html .= '</tr>';
+}
+$html .= '</tbody>';
+// Fermer le tableau HTML
+$html .= '</table>';
+// Écrire le contenu HTML dans le PDF
+$pdf->writeHTML($html, true, false, true, false, '');
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
-        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'I');
 
         //$pdf->Output('exemple.pdf', 'I');
     }

@@ -291,7 +291,7 @@ switch ($action) {
 
 
 
-phpinfo();
+
 
 
 

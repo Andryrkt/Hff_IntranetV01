@@ -291,14 +291,32 @@ class BadmController extends Controller
 
     public function casierDestinataire()
     {
-        $casierDestinataire = $this->badm->recupeCasierDestinataire();
+        $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
+        $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
 
-        $nouveauTableau = $this->agenceCleServiceValeur($casierDestinataire, 'agence', 'casier');
+        // Combinaison des deux tableaux
+        $resultat = [];
+
+        foreach ($casierDestinataireInformix as $agence) {
+            foreach ($casierDestinataireSqlServer as $casier) {
+
+                if ($casier['Agence_Rattacher'] == $agence['code_agence']) {
+
+                    $resultat[$agence['agence']][] = $casier['Casier'];
+                }
+            }
+
+            //Assurez-vous que chaque agence est présente même si elle n'a pas de casiers
+            if (!array_key_exists($agence['agence'], $resultat)) {
+                $resultat[$agence['agence']] = [];
+            }
+        }
+
 
 
         header("Content-type:application/json");
 
-        $jsonData = json_encode($nouveauTableau);
+        $jsonData = json_encode($resultat);
 
         $this->testJson($jsonData);
     }
@@ -335,7 +353,7 @@ class BadmController extends Controller
 
 
 
-    private function imageDansDossier0($image, $imagename, string $chemin)
+    private function imageDansDossier($image, string $imagename, string $chemin)
     {
         $target_dir = $chemin;  // Spécifiez le dossier où l'image sera enregistrée.
         //$image["name"] = $NumBDM . '_' . $agenceService . '.jpg';
@@ -343,7 +361,6 @@ class BadmController extends Controller
         // die();
         $target_file = $target_dir . basename($imagename);
         $uploadOk = 1;
-        $quality = 75;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // Vérifier si le fichier image est une image réelle ou une fausse image
@@ -367,12 +384,11 @@ class BadmController extends Controller
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
-
+        $taille = 1.5 * 1024 * 1024;
         // Vérifier la taille du fichier
-        $taille = 1 * 1024 * 1024;
         if ($image["size"] > $taille) {  // Limite de taille de 300KB
             //echo "";
-            $message = "Désolé, votre fichier est trop volumineux (>1MB).";
+            $message = "Désolé, votre fichier est trop volumineux (>1,5MB).";
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
@@ -383,47 +399,10 @@ class BadmController extends Controller
 
         ) {
             // echo "Désolé, seuls les fichiers JPG est autorisés.";
-            $message = "Désolé, seuls les fichiers JPG, JPEG, et PNG sont autorisés.";
+            $message = "Désolé, seuls les fichiers JPG, JEPG et PNG sont autorisés.";
             $this->alertRedirection($message);
             $uploadOk = 0;
         }
-
-        // Vérifier si le fichier est une image
-        $check = getimagesize($image['tmp_name']);
-        if ($check !== false) {
-            // Traiter selon le type de l'image
-            switch ($imageFileType) {
-                case 'jpg':
-                case 'jpeg':
-                    $image = imagecreatefromjpeg($image['tmp_name']);
-                    imagejpeg($image, $target_file, $quality);
-                    break;
-                case 'png':
-                    $image = imagecreatefrompng($image['tmp_name']);
-                    // Convertir PNG en JPEG
-                    $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
-                    imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
-                    imagealphablending($bg, TRUE);
-                    imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
-                    imagedestroy($image);
-                    imagejpeg($bg,  $target_file, $quality);
-                    imagedestroy($bg);
-                    break;
-                default:
-                    echo "Seuls les fichiers JPG, JPEG, et PNG sont autorisés.";
-                    exit;
-            }
-
-            // Libérer la mémoire
-            if (isset($image)) {
-                imagedestroy($image);
-            }
-
-            echo 'Image compressée et sauvegardée avec succès.';
-        } else {
-            echo "Le fichier n'est pas une image.";
-        }
-
 
         // Vérifier si $uploadOk est mis à 0 par une erreur
         if ($uploadOk == 0) {
@@ -433,6 +412,59 @@ class BadmController extends Controller
             // si tout est correct, essayer de télécharger le fichier
         } else {
             if (move_uploaded_file($image["tmp_name"], $target_file)) {
+                echo "Le fichier " . htmlspecialchars(basename($image["name"])) . " a été téléchargé.";
+            } else {
+                //echo ;
+                $message = "Désolé, il y a eu une erreur lors du téléchargement de votre fichier.";
+                $this->alertRedirection($message);
+            }
+        }
+    }
+
+    public function fichierDansDossier($fichier, string $fichiername, string $chemin)
+    {
+        $target_dir = $chemin;  
+        $target_file = $target_dir . basename($fichiername);
+        $uploadOk = 1;
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+       
+
+        // Vérifier si le fichier existe déjà
+        if (file_exists($target_file)) {
+            //echo "";
+            $message = "Désolé, le fichier existe déjà.";
+            $this->alertRedirection($message);
+            $uploadOk = 0;
+        }
+        $taille = 1.5 * 1024 * 1024;
+        // Vérifier la taille du fichier
+        if ($fichier["size"] > $taille) {  // Limite de taille de 300KB
+            //echo "";
+            $message = "Désolé, votre fichier est trop volumineux (>1,5MB).";
+            $this->alertRedirection($message);
+            $uploadOk = 0;
+        }
+
+        // Autoriser certains formats de fichier
+        if (
+            $imageFileType != "pdf"  && $imageFileType != "doc" && $imageFileType != "docx"
+
+        ) {
+            // echo "Désolé, seuls les fichiers JPG est autorisés.";
+            $message = "Désolé, seuls les fichiers PDF, DOC et DOCX sont autorisés.";
+            $this->alertRedirection($message);
+            $uploadOk = 0;
+        }
+
+        // Vérifier si $uploadOk est mis à 0 par une erreur
+        if ($uploadOk == 0) {
+            //echo "";
+            $message = "Désolé, votre fichier n'a pas été téléchargé.";
+            $this->alertRedirection($message);
+            // si tout est correct, essayer de télécharger le fichier
+        } else {
+            if (move_uploaded_file($fichier["tmp_name"], $target_file)) {
                 //echo "Le fichier " . htmlspecialchars(basename($image["name"])) . " a été téléchargé.";
             } else {
                 //echo ;
@@ -442,70 +474,6 @@ class BadmController extends Controller
         }
     }
 
-
-    private function imageDansDossier($image, $imagename, string $chemin)
-    {
-        $target_dir = $chemin; // Spécifiez le dossier où l'image sera enregistrée.
-        $target_file = $target_dir . basename($imagename);
-        $maxFileSize = 1 * 1024 * 1024; // 1MB
-        $allowedTypes = ['jpg', 'jpeg', 'png'];
-        $quality = 75;
-        $uploadOk = true;
-
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Vérifier si le fichier image est une image réelle ou une fausse image
-        $check = getimagesize($image["tmp_name"]);
-        if ($check === false) {
-            throw new Exception("Le fichier n'est pas une image.");
-        }
-
-        // Vérifier si le fichier existe déjà
-        if (file_exists($target_file)) {
-            throw new Exception("Désolé, le fichier existe déjà.");
-        }
-
-        // Vérifier la taille du fichier
-        if ($image["size"] > $maxFileSize) {
-            throw new Exception("Désolé, votre fichier est trop volumineux (>1MB).");
-        }
-
-        // Autoriser certains formats de fichier
-        if (!in_array($imageFileType, $allowedTypes)) {
-            throw new Exception("Désolé, seuls les fichiers JPG, JPEG, et PNG sont autorisés.");
-        }
-
-        // Traitement et enregistrement de l'image selon le type
-        switch ($imageFileType) {
-            case 'jpg':
-            case 'jpeg':
-                $image = imagecreatefromjpeg($image['tmp_name']);
-                imagejpeg($image, $target_file, $quality);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($image['tmp_name']);
-                $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
-                imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
-                imagealphablending($bg, TRUE);
-                imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
-                imagedestroy($image);
-                imagejpeg($bg, $target_file, $quality);
-                imagedestroy($bg);
-                break;
-        }
-
-        // Libérer la mémoire
-        if (isset($image)) {
-            imagedestroy($image);
-        }
-
-        // Essayer de télécharger le fichier
-        if (!move_uploaded_file($image["tmp_name"], $target_file)) {
-            throw new Exception("Désolé, il y a eu une erreur lors du téléchargement de votre fichier.");
-        }
-
-        echo 'Image compressée et sauvegardée avec succès.';
-    }
 
     public function formCompleBadm()
     {
@@ -544,7 +512,7 @@ class BadmController extends Controller
             $agenceServiceEmetteur = $agenceEmetteur . $serviceEmetteur;
             $casierEmetteur = $data[0]['casier_emetteur'];
 
-            var_dump($_POST);
+      
 
             if (isset($_POST['agenceDestinataire']) && isset($_POST['serviceDestinataire']) && isset($_POST['motifArretMateriel'])) {
                 $agenceDestinataire = explode(' ', $_POST['agenceDestinataire'])[0];
@@ -613,17 +581,60 @@ class BadmController extends Controller
                 $motifMiseRebut = '';
             }
 
-            if (isset($_FILES["imageRebut"])) {
+            // var_dump($_FILES);
+            //  var_dump(getimagesize($_FILES["imageRebut"]["tmp_name"]));
+            //  var_dump(basename($_FILES["imageRebut"]["name"]));
+            //  die();
 
+
+            if (isset($_FILES["imageRebut"]) && $_FILES["imageRebut"]['error'] === 0) {
+                
+                $extension = strtolower(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION));
+           
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
-                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/images/";
-                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.jpg';
+                
+                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/images/";
+                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer .'.'. $extension;
+             
                 $this->imageDansDossier($_FILES['imageRebut'], $imagename, $chemin);
                 $image = $_FILES['imageRebut']['name'];
+                
             } else {
+          
                 $image = '';
             }
+            
+            if (isset($_FILES["fichierRebut"]) && $_FILES["fichierRebut"]['error'] === 0) {
+                $extension = strtolower(pathinfo($_FILES['fichierRebut']['name'], PATHINFO_EXTENSION));
+                $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
+                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/fichiers/";
+                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.'. $extension;
+                $this->fichierDansDossier($_FILES['fichierRebut'], $imagename, $chemin);
+                $fichier = $_FILES['fichierRebut']['name'];
+            } else {
+                $fichier ='';
+            }
+            $orDb = $this->badm->recupeOr();
 
+if (empty($orDb)) {
+    $OR = 'NON';
+} else {
+    $OR = 'OUI';
+}
+$position = 8; // Couper après le deuxième élément
+
+$OR1 =  array_slice($orDb, 0, $position);
+$OR2 = array_slice($orDb, $position);
+
+          
+
+            
+            
+            // var_dump(strtolower(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION)));
+            // var_dump(strtolower(pathinfo($_FILES['fichierRebut']['name'], PATHINFO_EXTENSION)));
+            // var_dump($image);
+            // var_dump($fichier);
+            // die();
 
             if ($codeMouvement === 'CESSION D\'ACTIF') {
                 $codeMouvement = 'CESSION D\'\'ACTIF';
@@ -632,8 +643,7 @@ class BadmController extends Controller
 
 
 
-            // var_dump($_FILES);
-            // die();
+           
 
             // var_dump($agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire);
             // die();
@@ -671,14 +681,18 @@ class BadmController extends Controller
                     'Heure_machine'  => (int)$data[0]['heure'],
                     'KM_machine'  => (int)$data[0]['km'],
                     'Code_Statut' => 'OUV',
-                    'Num_Parc' => $numParc
+                    'Num_Parc' => $numParc,
+                    'Nom_Image' => $image,
+                    'Nom_Fichier' => $fichier
                 ];
                 foreach ($insertDbBadm as $cle => $valeur) {
                     $insertDbBadm[$cle] = strtoupper($valeur);
                 }
                 //var_dump($insertDbBadm);
                 // die();
-
+                if ($codeMouvement === 'CESSION D\'\'ACTIF') {
+                    $codeMouvement = 'CESSION D\'ACTIF';
+                }
 
                 $generPdfBadm = [
                     'typeMouvement' => $codeMouvement,
@@ -712,7 +726,9 @@ class BadmController extends Controller
                     'Kilometrage' => $this->formatNumber($data[0]['km']),
                     'Email_Emetteur' => $MailUser,
                     'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur,
-                    'image' => $image
+                    'image' => $image,
+                    'extension' => strtoupper(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION)),
+                    'OR' => 'OUI'
                 ];
                 // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
                 // var_dump($this->convertirEnUtf8($insertDbBadm));
@@ -720,7 +736,7 @@ class BadmController extends Controller
 
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);
-                $this->genererPdf->genererPdfBadm($generPdfBadm);
+                $this->genererPdf->genererPdfBadm($generPdfBadm, $OR1, $OR2);
                 $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
                 header('Location: /Hffintranet/index.php?action=listBadm');
                 exit();

@@ -88,17 +88,49 @@ class BadmModel extends Model
     /**
      * informix
      */
-    public function recupeCasierDestinataire()
+    // public function recupeCasierDestinataire()
+    // {
+    //     $statement = "SELECT distinct
+    //     trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
+    //      trim(mmat_numparc) as casier
+
+
+    //      from mat_mat, agr_succ
+    //      WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+
+
+    //       and trim(MMAT_ETSTOCK) in ('ST','AT')
+    //       and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
+    //      and mmat_soc = 'HF'
+    //      -- and mmat_marqmat not like 'Z%'
+    //      and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
+    //      and mmat_datedisp < '12/31/2999'
+    //      and  trim(mmat_numparc) IS NOT NULL
+    //      ";
+
+    //     $result = $this->connect->executeQuery($statement);
+
+
+    //     $services = $this->connect->fetchResults($result);
+
+    //     $tableauUtf8 = $this->convertirEnUtf8($services);
+
+    //     return $tableauUtf8;
+
+    //     //return $services;
+    // }
+
+
+    public function recupeCasierDestinataireInformix()
     {
         $statement = "SELECT distinct
-        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
-         trim(mmat_numparc) as casier
-       
-         
+        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)) as code_agence,
+        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence
+        
          from mat_mat, agr_succ
          WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
-         
-         
+
+
           and trim(MMAT_ETSTOCK) in ('ST','AT')
           and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
          and mmat_soc = 'HF'
@@ -120,6 +152,28 @@ class BadmModel extends Model
         //return $services;
     }
 
+
+    /**
+     * sqlServer: recupération casier
+     */
+    public function recupeCasierDestinataireSqlServer()
+    {
+        $sql = "SELECT 
+        cm.Agence_Rattacher, 
+        cm.Casier
+        FROM 
+        Casier_Materiels cm
+        WHERE 
+        cm.Agence_Rattacher IN ('01', '40', '50', '90', '91', '92')";
+
+        $execTypeDoc = $this->connexion->query($sql);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        $tableauUtf8 = $this->convertirEnUtf8($tab);
+        return $tableauUtf8;
+    }
 
     /**
      * informix
@@ -227,8 +281,10 @@ class BadmModel extends Model
             Heure_machine,
             KM_machine,
             Code_Statut,
-            Num_Parc
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            Num_Parc,
+            Nom_Image,
+            Nom_Fichier
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Exécution de la requête
         $stmt = odbc_prepare($this->connexion->connect(), $sql);
@@ -274,5 +330,90 @@ class BadmModel extends Model
             $tab[] = $donnee;
         }
         return $tab;
+    }
+
+
+
+    /**
+     * récupération de OR
+     */
+    public function recupeOr()
+    {
+        $statement = " SELECT 
+        trim(asuc_lib) AS agence, 
+        trim(ser.atab_lib) As Service, 
+        slor_numor,
+         sitv_datdeb As Date, 
+        (trim(seor_refdem)||' - '||trim(seor_lib)) As Seor_refdem_lib, 
+        sitv_interv,
+        trim(sitv_comment) As stiv_comment,
+                (CASE seor_natop
+                WHEN 'VTE' THEN trim(to_char(seor_numcli)||' - '||trim(seor_nomcli))
+                WHEN 'CES' THEN (select trim(sitv_succdeb)||trim(sitv_servdeb)||' - '||trim(asuc_lib)||' / '||trim(atab_lib) from agr_succ, agr_tab WHERE asuc_num = sitv_succdeb AND atab_nom = 'SER' AND atab_code = sitv_servdeb)
+                END) AS Agence_Service,
+                Sum
+                (
+                CASE WHEN slor_typlig = 'P' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END
+                *
+                CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+                ) as Montant_Total,
+                Sum
+                (
+                CASE WHEN slor_typlig = 'M' THEN slor_qterea END
+                *
+                CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+                ) AS Main_D_Oeuvre,
+                Sum
+                (
+CASE WHEN slor_constp <> 'ZST' and slor_constp like 'Z%' THEN slor_qterea END
+*
+CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+) AS Montant_Divers,
+Sum
+(
+CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
+*
+CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+) AS Montant_Pieces,
+Sum
+(
+CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
+*
+CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+) AS Montant_Pieces_Livrees,
+
+Sum
+(
+CASE WHEN slor_constp = 'ZST' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) END
+*
+CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+) AS Montant_ST,
+Sum
+(
+CASE WHEN slor_constp = 'ZST' THEN slor_qterea END
+*
+CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+) AS Montant_ST_Livrees
+
+from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
+WHERE seor_numor = slor_numor
+AND seor_serv <> 'DEV'
+AND sitv_numor = slor_numor
+AND sitv_interv = slor_nogrp/100
+AND (seor_succ = asuc_num)
+AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+AND sitv_pos NOT IN ('FC','FE','CP','ST')
+AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+AND (seor_nummat = mmat_nummat)
+and seor_nummat = 15899
+group by 1,2,3,4,5,6,7,8
+order by slor_numor, sitv_interv";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
     }
 }
