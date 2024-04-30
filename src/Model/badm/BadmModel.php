@@ -337,7 +337,7 @@ class BadmModel extends Model
     /**
      * récupération de OR
      */
-    public function recupeOr()
+    public function recupeOr($numMat)
     {
         $statement = " SELECT 
         trim(asuc_lib) AS agence, 
@@ -357,18 +357,8 @@ class BadmModel extends Model
                 *
                 CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
                 ) as Montant_Total,
-                Sum
-                (
-                CASE WHEN slor_typlig = 'M' THEN slor_qterea END
-                *
-                CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-                ) AS Main_D_Oeuvre,
-                Sum
-                (
-CASE WHEN slor_constp <> 'ZST' and slor_constp like 'Z%' THEN slor_qterea END
-*
-CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_Divers,
+                
+               
 Sum
 (
 CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
@@ -380,20 +370,7 @@ Sum
 CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
 *
 CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_Pieces_Livrees,
-
-Sum
-(
-CASE WHEN slor_constp = 'ZST' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) END
-*
-CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_ST,
-Sum
-(
-CASE WHEN slor_constp = 'ZST' THEN slor_qterea END
-*
-CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_ST_Livrees
+) AS Montant_Pieces_Livrees
 
 from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
 WHERE seor_numor = slor_numor
@@ -405,7 +382,7 @@ AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
 AND sitv_pos NOT IN ('FC','FE','CP','ST')
 AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
 AND (seor_nummat = mmat_nummat)
-and seor_nummat = 15899
+and seor_nummat = $numMat
 group by 1,2,3,4,5,6,7,8
 order by slor_numor, sitv_interv";
 

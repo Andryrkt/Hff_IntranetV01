@@ -108,8 +108,7 @@
                 {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}
             {% else %}
                 {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
-                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}
-                
+                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}  
             {% endif %}
             {% if codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
 				{{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}

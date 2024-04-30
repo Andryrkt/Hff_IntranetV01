@@ -135,7 +135,7 @@ class GenererPdf
     /**
      * Generer pdf badm 
      */
-    function genererPdfBadm(array $tab, array $data1 = [], array $data2 = [])
+    function genererPdfBadm(array $tab, array $orDb = [], array $or2 = [])
     {
 
         $pdf = new TCPDF();
@@ -404,38 +404,65 @@ class GenererPdf
         if ($tab['typeMouvement'] === 'MISE AU REBUT' && $tab['image'] !== '') {
             $pdf->AddPage();
             $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/templates/badm/mise_rebut/images/' . $tab['image'];
+            // var_dump($tab['extension']);
+            // var_dump($imagePath);
             if ($tab['extension'] === 'JPG') {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
             } elseif ($tab['extension'] === 'JEPG' ) {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['estension'] === 'PNG') {
+            } elseif ($tab['extension'] === 'PNG') {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
             }
         }
 
         $pdf->AddPage('L');
 
-$header1 = [ 'Agence', 'Service', 'Slor_numor', 'Date', 'seor_refdem_lib', 'stiv_interv', 'stiv_comment', 'agence_service'];
-$header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
+       
+
+$header1 = [ 'Agence', 'Service', 'numor', 'Date', 'ref', 'interv', 'travaux', 'Ag/Serv débiteur', 'montant total', 'montant pièces', 'montant piece livrées'];
+// $header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
 // Données pour le tableau
 
 // Commencer le tableau HTML
-$html = '<h2 style="text-align:center">Liste OR</h2>';
+$html = '<h2 style="text-align:center">Listes OR</h2>';
 
-$html .= '<table border="1" cellpadding="5" cellspacing="0" align="center">';
+
+$html .= '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+
+
+$html .= '</colgroup>';
 $html .= '<thead>';
 $html .= '<tr>';
-foreach ($header1 as  $value) {
-   $html .= "<td>$value</td>";
+foreach ($header1 as $key=>$value) {
+
+    if ($key === 5) {
+        $html .= '<th style="width: 30px" >'.$value.'</th>';
+    } elseif($key === 6) {
+        $html .= '<th style="width: 120px" >'.$value.'</th>';
+    } else {
+        $html .= '<th >'.$value.'</th>';
+    }
+    
 }
 $html .= '</tr>';
 $html .= '</thead>';
 $html .= '<tbody>';
 // Ajouter les lignes du tableau
-foreach ($data1 as $row) {
+foreach ($orDb as $row) {
     $html .= '<tr>';
-    foreach ($row as $cell) {
-        $html .= "<td>$cell</td>";
+    foreach ($row as $key=>$cell) {
+
+   
+        if ($key ==='sitv_interv') {
+            $html .= '<td style="width: 30px"  >'.$cell.'</td>';
+            
+        } elseif($key ==='stiv_comment'){
+            $html .= '<td style="width: 120px"  >'.$cell.'</td>';
+        } else {
+            $html .= '<td  >'.$cell.'</td>';
+
+        }
+        
     }
     $html .= '</tr>';
 }
@@ -443,34 +470,38 @@ $html .= '</tbody>';
 $html .= '</table>';
 
 
-
-
-
-$html .= '<table border="1" cellpadding="5" cellspacing="0" align="center">';
-$html .= '<thead>';
-$html .= '<tr>';
-
-foreach ($header2 as  $value) {
-   $html .= "<td>$value</td>";
-}
-
-$html .= '</tr>';
-$html .= '</thead>';
-
-$html .= '<tbody>';
-// Ajouter les lignes du tableau
-foreach ($data2 as $row) {
-    $html .= '<tr>';
-    foreach ($row as $cell) {
-        $html .= "<td>$cell</td>";
-    }
-    $html .= '</tr>';
-}
-$html .= '</tbody>';
-// Fermer le tableau HTML
-$html .= '</table>';
-// Écrire le contenu HTML dans le PDF
 $pdf->writeHTML($html, true, false, true, false, '');
+//$pdf->Ln(5, true);
+// $pdf->AddPage('L');
+
+
+
+
+// $html1 = '<table border="1" cellpadding="2" cellspacing="0" align="right" >';
+// $html1 .= '<thead>';
+// $html1 .= '<tr>';
+
+// foreach ($header2 as  $value) {
+//    $html1 .= "<th>$value</th>";
+// }
+
+// $html1 .= '</tr>';
+// $html1 .= '</thead>';
+
+// $html1 .= '<tbody>';
+// // Ajouter les lignes du tableau
+// foreach ($or2 as $row) {
+//     $html1 .= '<tr>';
+//     foreach ($row as $cell) {
+//         $html1 .= "<td>$cell</td>";
+//     }
+//     $html1 .= '</tr>';
+// }
+// $html1 .= '</tbody>';
+// // Fermer le tableau HTML
+// $html1 .= '</table>';
+// // Écrire le contenu HTML dans le PDF
+// $pdf->writeHTML($html1, true, false, true, false, '');
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';

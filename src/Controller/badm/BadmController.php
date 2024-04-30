@@ -412,7 +412,7 @@ class BadmController extends Controller
             // si tout est correct, essayer de télécharger le fichier
         } else {
             if (move_uploaded_file($image["tmp_name"], $target_file)) {
-                echo "Le fichier " . htmlspecialchars(basename($image["name"])) . " a été téléchargé.";
+                //echo "Le fichier " . htmlspecialchars(basename($image["name"])) . " a été téléchargé.";
             } else {
                 //echo ;
                 $message = "Désolé, il y a eu une erreur lors du téléchargement de votre fichier.";
@@ -423,12 +423,12 @@ class BadmController extends Controller
 
     public function fichierDansDossier($fichier, string $fichiername, string $chemin)
     {
-        $target_dir = $chemin;  
+        $target_dir = $chemin;
         $target_file = $target_dir . basename($fichiername);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-       
+
 
         // Vérifier si le fichier existe déjà
         if (file_exists($target_file)) {
@@ -512,7 +512,7 @@ class BadmController extends Controller
             $agenceServiceEmetteur = $agenceEmetteur . $serviceEmetteur;
             $casierEmetteur = $data[0]['casier_emetteur'];
 
-      
+
 
             if (isset($_POST['agenceDestinataire']) && isset($_POST['serviceDestinataire']) && isset($_POST['motifArretMateriel'])) {
                 $agenceDestinataire = explode(' ', $_POST['agenceDestinataire'])[0];
@@ -588,53 +588,74 @@ class BadmController extends Controller
 
 
             if (isset($_FILES["imageRebut"]) && $_FILES["imageRebut"]['error'] === 0) {
-                
+
                 $extension = strtolower(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION));
-           
+
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
-                
+
                 $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/images/";
-                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer .'.'. $extension;
-             
+                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.' . $extension;
+
                 $this->imageDansDossier($_FILES['imageRebut'], $imagename, $chemin);
-                $image = $_FILES['imageRebut']['name'];
-                
+                $image = $imagename;
+                $extension = strtoupper(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION));
             } else {
-          
+
                 $image = '';
+                $extension = '';
             }
-            
+
             if (isset($_FILES["fichierRebut"]) && $_FILES["fichierRebut"]['error'] === 0) {
                 $extension = strtolower(pathinfo($_FILES['fichierRebut']['name'], PATHINFO_EXTENSION));
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
                 $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/fichiers/";
-                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.'. $extension;
+                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.' . $extension;
                 $this->fichierDansDossier($_FILES['fichierRebut'], $imagename, $chemin);
                 $fichier = $_FILES['fichierRebut']['name'];
             } else {
-                $fichier ='';
+                $fichier = '';
             }
-            $orDb = $this->badm->recupeOr();
 
-if (empty($orDb)) {
-    $OR = 'NON';
-} else {
-    $OR = 'OUI';
-}
-$position = 8; // Couper après le deuxième élément
 
-$OR1 =  array_slice($orDb, 0, $position);
-$OR2 = array_slice($orDb, $position);
+            $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
 
-          
+            if (empty($orDb)) {
+                $OR = 'NON';
+            } else {
+                $OR = 'OUI';
 
-            
-            
-            // var_dump(strtolower(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION)));
-            // var_dump(strtolower(pathinfo($_FILES['fichierRebut']['name'], PATHINFO_EXTENSION)));
-            // var_dump($image);
-            // var_dump($fichier);
-            // die();
+                // $position = 8; // Couper après le deuxième élément
+
+                // for ($i=0; $i < count($orDb) ; $i++) { 
+                //     $or1[] = array_slice($orDb[$i], 0, $position);
+                //     $or2[] = array_slice($orDb[$i], $position);
+                // }
+
+
+                foreach ($orDb as $keys => $values) {
+                    foreach ($values as $key => $value) {
+                        //var_dump($key === 'date');
+                        if ($key == "date") {
+                            // $or1["Date"] = implode('/', array_reverse(explode("-", $value)));
+                            $orDb[$keys]['date'] = implode('/', array_reverse(explode("-", $value)));
+                        } elseif ($key == 'agence_service') {
+                            $orDb[$keys]['agence_service'] = trim(explode('-', $value)[0]);
+                        } elseif ($key === 'montant_total' || $key === 'montant_pieces' || $key === 'montant_pieces_livrees') {
+                            $orDb[$keys][$key] = explode( ',' , $this->formatNumber($value))[0];
+                        }
+                    }
+                }
+
+                // foreach ($or2 as $keys => $values) {
+                //     foreach ($values as $key => $value) {
+                //         $or2[$keys][$key] = $this->formatNumber($value);
+                //     } 
+                // }
+            }
+
+
+
+
 
             if ($codeMouvement === 'CESSION D\'ACTIF') {
                 $codeMouvement = 'CESSION D\'\'ACTIF';
@@ -643,7 +664,7 @@ $OR2 = array_slice($orDb, $position);
 
 
 
-           
+
 
             // var_dump($agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire);
             // die();
@@ -727,8 +748,8 @@ $OR2 = array_slice($orDb, $position);
                     'Email_Emetteur' => $MailUser,
                     'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur,
                     'image' => $image,
-                    'extension' => strtoupper(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION)),
-                    'OR' => 'OUI'
+                    'extension' => $extension,
+                    'OR' => $OR
                 ];
                 // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
                 // var_dump($this->convertirEnUtf8($insertDbBadm));
@@ -736,7 +757,7 @@ $OR2 = array_slice($orDb, $position);
 
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);
-                $this->genererPdf->genererPdfBadm($generPdfBadm, $OR1, $OR2);
+                $this->genererPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
                 header('Location: /Hffintranet/index.php?action=listBadm');
                 exit();

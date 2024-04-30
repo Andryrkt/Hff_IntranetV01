@@ -360,6 +360,8 @@ function filtre(data) {
     const dateDemandeDebutValue = dateDemandeDebutInput.value;
     const dateDemandeFinValue = dateDemandeFinInput.value;
 
+   
+    console.log(typeMouvemnetInput.value.trim());
     console.log(critereIdMaterielValue);
     console.log(dateDemandeDebutValue);
     console.log(dateDemandeFinValue);
@@ -368,9 +370,9 @@ function filtre(data) {
     // Filtrer les données en fonction des critères
     return  data.filter(function(demande) {
 
-        // console.log(demande.Date_Demande);
+         console.log(demande.Code_Mouvement);
     // Filtrer par statut (si un critère est fourni)
-    var filtreTypeMouvemnet = !critereTypeMouvemnetValue || demande.Code_Mouvement === critereTypeMouvemnetValue;
+    var filtreTypeMouvemnet = !critereTypeMouvemnetValue || demande.Description === critereTypeMouvemnetValue;
     var filtreIdMateriel = !critereIdMaterielValue || demande.ID_Materiel.includes(critereIdMaterielValue);
     
     var filtreDateDebutDemande = !dateDemandeDebutValue || demande.Date_Demande >= dateDemandeDebutValue;
