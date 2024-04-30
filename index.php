@@ -1,28 +1,17 @@
 <?php
 
 
-use App\Model\Connexion;
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use App\Model\StatutModel;
-use App\Model\dom\DomModel;
-use App\Model\TypeDocModel;
 use App\Controller\ProfilControl;
-
 use App\Controller\StatutControl;
-use App\Controller\badm\BadmDupli;
 use App\Controller\dom\DomControl;
-use App\Controller\MainController;
 use App\Controller\TypeDocControl;
 use App\Controller\badm\BadmController;
-use App\Model\AgenceServAutoriserModel;
 use App\Controller\badm\CasierController;
 use App\Controller\dom\DomListController;
 use App\Controller\dom\DomDetailController;
 use App\Controller\badm\BadmDupliController;
 use App\Controller\badm\BadmListeController;
 use App\Controller\badm\BadmDetailController;
-use App\Model\admin\personnel\PersonnelModel;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;

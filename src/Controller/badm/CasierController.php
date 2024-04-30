@@ -4,6 +4,8 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\IncrementationTrait;
 use App\Controller\Traits\Transformation;
 
 
@@ -12,6 +14,8 @@ class CasierController extends Controller
 
     use Transformation;
     use ConversionTrait;
+    use IncrementationTrait;
+    use FormatageTrait;
 
 
 
@@ -38,17 +42,21 @@ class CasierController extends Controller
                     $agenceDestinataire[] = $value;
                 }
             }
-
-            $this->twig->display(
-                'badm/casier/formulaireCasier.html.twig',
-                [
-                    'infoUserCours' => $infoUserCours,
-                    'boolean' => $boolean,
-                    'dateDemande' => $dateDemande,
-                    'items' => $data,
-                    'agenceDestinataire' => $agenceDestinataire
-                ]
-            );
+            if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
+                $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
+                $this->alertRedirection($message);
+            } else {
+                $this->twig->display(
+                    'badm/casier/formulaireCasier.html.twig',
+                    [
+                        'infoUserCours' => $infoUserCours,
+                        'boolean' => $boolean,
+                        'dateDemande' => $dateDemande,
+                        'items' => $data,
+                        'agenceDestinataire' => $agenceDestinataire
+                    ]
+                );
+            }
         } else {
             $this->SessionStart();
             $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
@@ -100,10 +108,7 @@ class CasierController extends Controller
         $serviceEmetteur = $data[0]['code_service'];
 
 
-        if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
-            $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
-            $this->alertRedirection($message);
-        } else {
+        
             $insertDbCasier = [
                 'Agence' => $agenceRattacher,
                 'Casier' => $casier,
@@ -119,7 +124,7 @@ class CasierController extends Controller
             $generPdfCasier = [
 
                 'Num_CAS' => $NumCAS,
-                'Date_Demande' => implode('/', array_reverse(explode('-', $dateDemande))),
+                'Date_Demande' => $this->formatageDate($dateDemande),
                 'Designation' => $data[0]['designation'],
                 'Num_ID' => $data[0]['num_matricule'],
                 'Num_Serie' => $data[0]['num_serie'],
@@ -127,7 +132,7 @@ class CasierController extends Controller
                 'Num_Parc' => $numParc,
                 'Affectation' => $data[0]['affectation'],
                 'Constructeur' => $data[0]['constructeur'],
-                'Date_Achat' => implode('/', array_reverse(explode('-', $data[0]['date_achat']))),
+                'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
                 'Annee_Model' => $data[0]['annee'],
                 'Modele' => $data[0]['modele'],
                 'Agence' => $agenceRattacher,
@@ -144,7 +149,7 @@ class CasierController extends Controller
             $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
             header('Location: /Hffintranet/index.php?action=listCasier');
             exit();
-        }
+        
     }
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")

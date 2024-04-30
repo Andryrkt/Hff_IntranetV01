@@ -15,12 +15,16 @@ use Exception;
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\IncrementationTrait;
 
 class BadmController extends Controller
 {
 
     use Transformation;
     use ConversionTrait;
+    use IncrementationTrait;
+    use FormatageTrait;
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
     {
@@ -109,11 +113,7 @@ class BadmController extends Controller
                 $this->alertRedirection($message);
             } else {
 
-                // if(!in_array($codeAgenceService, $agenceServiceAutoriser)){
-
-                //         $message = "vous n\'êtes pas autoriser à consulter ce matériel";
-                //         $this->alertRedirection($message);
-                // }
+               
 
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
@@ -322,33 +322,6 @@ class BadmController extends Controller
     }
 
 
-    private function formatNumber($number)
-    {
-
-        // Convertit le nombre en chaîne de caractères pour manipulation
-        $numberStr = (string)$number;
-        $numberStr = str_replace('.', ',', $numberStr);
-        // Sépare la partie entière et la partie décimale
-        if (strpos($numberStr, ',') !== false) {
-            list($intPart, $decPart) = explode(',', $numberStr);
-        } else {
-            $intPart = $numberStr;
-            $decPart = '';
-        }
-
-        // Convertit la partie entière en float pour éviter l'avertissement
-        $intPart = floatval(str_replace('.', '', $intPart));
-
-        // Formate la partie entière avec des points pour les milliers
-        $intPartWithDots = number_format($intPart, 0, ',', '.');
-
-        // Réassemble le nombre
-        if ($decPart !== '') {
-            return $intPartWithDots . ',' . $decPart;
-        } else {
-            return $intPartWithDots;
-        }
-    }
 
 
 
@@ -475,6 +448,24 @@ class BadmController extends Controller
     }
 
 
+    
+
+/**
+ *cette function permet de tester s'il y a une valeur dans le $_POST et retourne une valeur selon la condeition
+ *
+ * @param string $name c'est le name dans le formulaire
+ * @param string $valeurNon si le name n'existe pas, la variable va prendre cette valeur
+ * @return void
+ */
+    private function donneValeurExisteOuNon (string $name, $valeurNon = '')
+    {
+        if (isset($_POST[$name])) {
+            return $_POST[$name];
+        } else {
+            return $valeurNon;
+        }
+    }
+
     public function formCompleBadm()
     {
 
@@ -500,11 +491,9 @@ class BadmController extends Controller
 
             $MailUser = $this->badm->getmailUserConnect($_SESSION['user']);
 
-            if (isset($_POST['numParc'])) {
-                $numParc = $_POST['numParc'];
-            } else {
-                $numParc = $data[0]['num_parc'];
-            }
+
+            $numParc = $this->donneValeurExisteOuNon('numParc', $data[0]['num_parc']);
+           
 
 
             $agenceEmetteur = $data[0]['agence'];
@@ -550,36 +539,17 @@ class BadmController extends Controller
 
             $etatAchat = $this->ChangeEtatAchat($data[0]['mmat_nouo']);
 
-            if (isset($_POST['dateMiseLocation'])) {
-                $dateMiseLocation = $_POST['dateMiseLocation'];
-            } else {
-                $dateMiseLocation = $data[0]['date_location'];
-            }
+            $dateMiseLocation = $this->donneValeurExisteOuNon('dateMiseLocation', $data[0]['date_location']);
+           
+            $nomClient = $this->donneValeurExisteOuNon('nomClient');
 
-            if (isset($_POST['nomClient'])) {
-                $nomClient = $_POST['nomClient'];
-            } else {
-                $nomClient = '';
-            }
+            $modalitePaiement =$this->donneValeurExisteOuNon('modalitePaiement');
+           
+            $prixHt = (float)$this->donneValeurExisteOuNon('prixHt', 0);
 
-            if (isset($_POST['modalitePaiement'])) {
-                $modalitePaiement = $_POST['modalitePaiement'];
-            } else {
-                $modalitePaiement = '';
-            }
-
-            if (isset($_POST['prixHt'])) {
-                $prixHt = (float)$_POST['prixHt'];
-            } else {
-                $prixHt = 0;
-            }
-
-
-            if (isset($_POST['motifMiseRebut'])) {
-                $motifMiseRebut =  $_POST['motifMiseRebut'];
-            } else {
-                $motifMiseRebut = '';
-            }
+            
+            $motifMiseRebut = $this->donneValeurExisteOuNon('motifMiseRebut');
+           
 
             // var_dump($_FILES);
             //  var_dump(getimagesize($_FILES["imageRebut"]["tmp_name"]));
@@ -593,12 +563,11 @@ class BadmController extends Controller
 
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
 
-                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/images/";
+                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Upload/bdm/images/";
                 $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.' . $extension;
 
                 $this->imageDansDossier($_FILES['imageRebut'], $imagename, $chemin);
                 $image = $imagename;
-                $extension = strtoupper(pathinfo($_FILES['imageRebut']['name'], PATHINFO_EXTENSION));
             } else {
 
                 $image = '';
@@ -608,10 +577,10 @@ class BadmController extends Controller
             if (isset($_FILES["fichierRebut"]) && $_FILES["fichierRebut"]['error'] === 0) {
                 $extension = strtolower(pathinfo($_FILES['fichierRebut']['name'], PATHINFO_EXTENSION));
                 $nomAgenceServiceNonSeparer = $agenceEmetteur . $serviceEmetteur;
-                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Views/templates/badm/mise_rebut/fichiers/";
-                $imagename = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.' . $extension;
-                $this->fichierDansDossier($_FILES['fichierRebut'], $imagename, $chemin);
-                $fichier = $_FILES['fichierRebut']['name'];
+                $chemin = $_SERVER['DOCUMENT_ROOT'] . "/Hffintranet/Upload/bdm/fichiers/";
+                $fichierName = $NumBDM . '_' . $nomAgenceServiceNonSeparer . '.' . $extension;
+                $this->fichierDansDossier($_FILES['fichierRebut'], $fichierName, $chemin);
+                $fichier = $fichierName;
             } else {
                 $fichier = '';
             }
@@ -646,6 +615,7 @@ class BadmController extends Controller
                     }
                 }
 
+                // var_dump($orDb);
                 // foreach ($or2 as $keys => $values) {
                 //     foreach ($values as $key => $value) {
                 //         $or2[$keys][$key] = $this->formatNumber($value);
@@ -718,7 +688,7 @@ class BadmController extends Controller
                 $generPdfBadm = [
                     'typeMouvement' => $codeMouvement,
                     'Num_BDM' => $NumBDM,
-                    'Date_Demande' => implode('/', array_reverse(explode('-', $dateDemande))),
+                    'Date_Demande' => $this->formatageDate($dateDemande),
                     'Designation' => $data[0]['designation'],
                     'Num_ID' => $data[0]['num_matricule'],
                     'Num_Serie' => $data[0]['num_serie'],
@@ -726,7 +696,7 @@ class BadmController extends Controller
                     'Num_Parc' => $numParc,
                     'Affectation' => $data[0]['affectation'],
                     'Constructeur' => $data[0]['constructeur'],
-                    'Date_Achat' => implode('/', array_reverse(explode('-', $data[0]['date_achat']))),
+                    'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
                     'Annee_Model' => $data[0]['annee'],
                     'Modele' => $data[0]['modele'],
                     'Agence_Service_Emetteur' => $agenceEmetteur . '-' . $serviceEmetteur,
@@ -735,7 +705,7 @@ class BadmController extends Controller
                     'Casier_Destinataire' => $casierDestinataire,
                     'Motif_Arret_Materiel' => $motifArretMateriel,
                     'Etat_Achat' => $etatAchat,
-                    'Date_Mise_Location' => $dateMiseLocation,
+                    'Date_Mise_Location' => $this->formatageDate($dateMiseLocation),
                     'Cout_Acquisition' => $this->formatNumber($coutAcquisition),
                     'Amort' => $this->formatNumber($data[0]['amortissement']),
                     'VNC' => $this->formatNumber($vnc),
@@ -769,15 +739,6 @@ class BadmController extends Controller
 
 
 // echo json_encode($tab);
-
-            
-
-
-
-
-
-
-
 
               // $jsonsata = file_get_contents("php://input");
             // $data = json_decode($jsonsata, true);

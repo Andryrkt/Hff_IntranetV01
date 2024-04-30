@@ -142,7 +142,6 @@ class BadmModel extends Model
 
         $result = $this->connect->executeQuery($statement);
 
-
         $services = $this->connect->fetchResults($result);
 
         $tableauUtf8 = $this->convertirEnUtf8($services);
