@@ -22,7 +22,14 @@ class LdapModel
         return $this->ldapconn;
     }
 
-    public function userConnect($user, $password)
+    /**
+     * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
+     *
+     * @param string $user
+     * @param string $password
+     * @return boolean
+     */
+    public function userConnect(string $user, string $password): bool
     {
         $this->Users = $user;
         $this->Password = $password;

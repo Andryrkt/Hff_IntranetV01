@@ -44,9 +44,7 @@ function fetchData(selectOption = undefined) {
         console.log(taille);
         let optionsHTML = ""; // Chaîne pour stocker les options HTML
         for (let i = 0; i < taille; i++) {
-          optionsHTML += `<option value="${data[selectOption][
-            i
-          ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
+          optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
         }
         serviceIriumElement.innerHTML = optionsHTML;
       }, 800); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
@@ -160,12 +158,12 @@ if (document.querySelector("#NumDOM") === null) {
             ).value;
             fetchData(selectedOption);
           }
-          //console.log(document.querySelector(`#SiteRental`));
-          document.querySelector(
-            `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
-          ).selected = true;
+          
         }, 500);
-
+        //console.log(document.querySelector(`#SiteRental`));
+        document.querySelector(
+          `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
+        ).selected = true;
         // Appel initial de fetchData sans argument
         fetchData();
 
@@ -269,8 +267,10 @@ $(document).ready(function () {
             TypeMiss: typeMission,
           },
           success: function (response1) {
+            setTimeout(() => {
             $("#SITE").html(response1).show();
             handlePrixRental();
+            },2000)
           },
           error: function (error) {
             console.error(error);
@@ -335,7 +335,9 @@ $(document).ready(function () {
             codeser: codeServ,
           },
           success: function (PrixRental) {
+            
             $("#idemForfait").val(PrixRental).show();
+          
           },
           error: function (error) {
             console.error(error);

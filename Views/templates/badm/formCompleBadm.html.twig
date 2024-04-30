@@ -56,9 +56,9 @@
 			{{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule ?: Server.0.ID_Materiel,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
 			{{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie ?: Informix.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
 			{% if codeMouvement == 'ENTREE EN PARC'  %}
-				{{form.inputText('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}
+				{{form.inputText('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.Num_Parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}
 			{% else %}
-				{{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6',  disabled: detail} )}}
+				{{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.Num_Parc,{endpoint: '12', class: 'col-lg-3 col-md-6',  disabled: detail} )}}
 			{% endif %}
 		</div>
 		<div class="row">

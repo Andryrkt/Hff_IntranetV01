@@ -110,21 +110,18 @@ class BadmDetailModel extends Model
         dmm.Prix_Vente_HT, 
         dmm.Motif_Mise_Rebut, 
         dmm.Heure_machine, 
-        dmm.KM_machine
-    FROM Demande_Mouvement_Materiel dmm
-    JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
-    JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
-    WHERE sd.Code_Application = 'BDM'
-    AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
-       AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
-    ORDER BY Numero_Demande_BADM DESC
-    ");
+        dmm.KM_machine,
+        dmm.Num_Parc
+        FROM Demande_Mouvement_Materiel dmm
+        JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+        JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
+        WHERE sd.Code_Application = 'BDM'
+        AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
+        AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
+        ORDER BY Numero_Demande_BADM DESC
+        ");
 
-        // if ($NumBDM !== null && $id !== null) {
-        //     $sql .= "
-
-        //      ";
-        // }
+       
 
         $tab = [];
         while ($donner = odbc_fetch_array($sql)) {
