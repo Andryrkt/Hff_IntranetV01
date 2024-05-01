@@ -1,0 +1,37 @@
+.titre{
+    color:#0e4194;
+}
+
+.btnRetour{
+    text-decoration: none;
+    color:black;
+}
+
+
+.sousTitre h3{
+    color: #0e4194;
+    font-weight: bold;
+}
+
+.sousTitre div {
+    width: 100%; 
+    height: 15px; 
+    background-color: #0e4194; 
+    border-radius: 2px; 
+    margin-top: 10px;
+    border: none;
+}
+
+.sosuTitreGiser h3{
+    color: #aaa;
+    font-weight: bold;
+}
+
+.sosuTitreGiser div{
+    width: 100%; 
+    height: 15px; 
+    background-color:#aaa;
+    border-radius: 2px; 
+    margin-top: 10px;
+    border: none;
+}

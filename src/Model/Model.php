@@ -2,18 +2,22 @@
 
 namespace App\Model;
 
+
+
 class Model
 {
     protected $connexion;
     protected $connect;
-    protected $informixDB;
+    protected $sqlServer;
+    protected $informix;
 
-    // $port = '9088';
-    // $database = 'ol_iriumprod';
+
 
 
     public function __construct()
     {
+        $this->sqlServer = new SqlServerConnect();
+
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
     }
@@ -86,5 +90,15 @@ class Model
             $Tab_AgenceServiceIrium[] = $row_Irium;
         }
         return $Tab_AgenceServiceIrium;
+    }
+
+    /**
+     * Date Système
+     */
+    public function getDatesystem()
+    {
+        $d = strtotime("now");
+        $Date_system = date("Y-m-d", $d);
+        return $Date_system;
     }
 }

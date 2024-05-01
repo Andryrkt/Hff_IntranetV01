@@ -10,10 +10,132 @@ use TCPDF;
 class GenererPdf
 {
 
+    function genererPdfCasier(array $tab)
+    {
+        $pdf = new TCPDF();
+
+
+        $pdf->AddPage();
+
+
+        $pdf->setFont('helvetica', 'B', 14);
+        $pdf->setAbsY(11);
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henrifraise.jpg';
+        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->setAbsX(55);
+        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(110, 12, 'CREATION DE CASIER', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(170);
+        $pdf->setFont('helvetica', 'B', 10);
+
+
+
+        $pdf->Cell(35, 6, $tab['Num_CAS'], 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->Ln(6, true);
+
+        //$pdf->setFont('helvetica', 'B', 12);
+        // $pdf->setAbsX(55);
+        // $pdf->SetTextColor(0, 0, 0);
+        // $pdf->cell(110, 6, $tab['typeMouvement'], 0, 0, 'C', true, '', 0, false, 'T', 'M');
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->setAbsX(170);
+        $pdf->cell(35, 6, 'Le : ' . $tab['Date_Demande'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(70, 28);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+
+        $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(70, 6, $tab['Designation'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(150);
+        $pdf->cell(12, 6, 'N° ID :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Num_ID'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->cell(25, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(70, 6, $tab['Num_Serie'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(20, 6, 'Groupe :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Groupe'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+
+        $pdf->cell(25, 6, 'N° Parc :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $tab['Num_Parc'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->cell(23, 6, 'Affectation:', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, $tab['Affectation'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(30, 6, 'Constructeur :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Constructeur'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->cell(25, 6, 'Date d’achat :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $tab['Date_Achat'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->MultiCell(23, 6, "Année :", 0, 'L', false, 0);
+        $pdf->cell(35, 6, $tab['Annee_Model'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(140);
+        $pdf->cell(20, 6, 'Modèle :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Modele'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, 'Nouveau casier', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(45, 80);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 155, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->MultiCell(30, 6, "Agence de rattachement", 0, 'L', false, 0);
+        $pdf->cell(63, 6, $tab['Agence'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+        $pdf->cell(30, 6, 'Motif de Création', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Motif_Creation'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+
+        $pdf->MultiCell(30, 6, "Client :", 0, 'L', false, 0);
+        $pdf->cell(63, 6, $tab['Client'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(110);
+        $pdf->cell(24, 6, 'Chantier :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $tab['Chantier'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        // // entête email
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetXY(118, 2);
+        $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
+
+
+
+
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/cas/';
+        $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+    }
+
     /**
      * Generer pdf badm 
      */
-    function genererPdfBadm(array $tab)
+    function genererPdfBadm(array $tab, array $orDb = [], array $or2 = [])
     {
 
         $pdf = new TCPDF();
@@ -122,10 +244,13 @@ class GenererPdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(35, 6, "Heures :", 0, 'L', false, 0);
-        $pdf->cell(63, 6, $tab['Heures_Machine'], 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(110);
-        $pdf->cell(24, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(25, 6, "Heures :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $tab['Heures_Machine'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->MultiCell(25, 6, "OR :", 0, 'L', false, 0);
+        $pdf->cell(35, 6, $tab['OR'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(135);
+        $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $tab['Kilometrage'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -266,8 +391,6 @@ class GenererPdf
 
 
 
-
-
         // entête email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
@@ -275,15 +398,143 @@ class GenererPdf
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
 
-        if ($tab['typeMouvement'] === 'MISE AU REBUT') {
+
+        //2ème pages
+
+        if ($tab['typeMouvement'] === 'MISE AU REBUT' && $tab['image'] !== '') {
             $pdf->AddPage();
-            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/images/' . $tab['image'];
-            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/templates/badm/mise_rebut/images/' . $tab['image'];
+            // var_dump($tab['extension']);
+            // var_dump($imagePath);
+            if ($tab['extension'] === 'JPG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['extension'] === 'JEPG' ) {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+            } elseif ($tab['extension'] === 'PNG') {
+                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+            }
         }
 
+        $pdf->AddPage('L');
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
-        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        if ($tab['OR'] === 'OUI') {      
+
+$header1 = [ 'Agence', 'Service', 'numor', 'Date', 'ref', 'interv', 'intitulé travaux', 'Ag/Serv débiteur', 'montant total', 'montant pièces', 'montant piece livrées'];
+// $header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
+// Données pour le tableau
+
+// Commencer le tableau HTML
+$html = '<h2 style="text-align:center">Liste OR encours</h2>';
+
+
+$html .= '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+
+
+$html .= '</colgroup>';
+$html .= '<thead>';
+$html .= '<tr>';
+foreach ($header1 as $key=>$value) {
+    if ($key === 0) {
+        $html .= '<th style="width: 75px" >'.$value.'</th>';
+    } elseif ($key === 2) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    } elseif ($key === 3) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    } elseif ($key === 4) {
+        $html .= '<th style="width: 90px" >'.$value.'</th>';
+    } elseif ($key === 5) {
+        $html .= '<th style="width: 30px" >'.$value.'</th>';
+    } elseif($key === 6) {
+        $html .= '<th style="width: 230px;" >'.$value.'</th>';
+    }  elseif($key === 7) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    }  elseif($key === 8) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    }  elseif($key === 9) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    } elseif($key === 10) {
+        $html .= '<th style="width: 50px" >'.$value.'</th>';
+    } else {
+        $html .= '<th >'.$value.'</th>';
+    }
+    
+}
+$html .= '</tr>';
+$html .= '</thead>';
+$html .= '<tbody>';
+// Ajouter les lignes du tableau
+foreach ($orDb as $row) {
+    $html .= '<tr>';
+    foreach ($row as $key=>$cell) {
+
+        if ($key === 'agence' ) {
+            $html .= '<td style="width: 75px"  >'.$cell.'</td>';
+        } elseif ($key === 'slor_numor') {
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
+        }elseif ($key === 'date') {
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>'; 
+        }elseif ($key ==='seor_refdem_lib') {
+            $html .= '<td style="width: 90px"  >'.$cell.'</td>'; 
+        }
+        elseif ($key ==='sitv_interv') {
+            $html .= '<td style="width: 30px"  >'.$cell.'</td>'; 
+        } elseif($key ==='stiv_comment'){
+            $html .= '<td style="width: 230px; text-align: left;"  >'.$cell.'</td>';
+        } elseif($key === 'agence_service'){
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
+        } elseif ($key === 'montant_total') {
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
+        } elseif ($key === 'montant_pieces') {
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
+        } elseif($key === 'montant_pieces_livrees'){
+            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
+        } else {
+            $html .= '<td  >'.$cell.'</td>';
+        }
+        
+    }
+    $html .= '</tr>';
+}
+$html .= '</tbody>';
+$html .= '</table>';
+
+
+$pdf->writeHTML($html, true, false, true, false, '');
+//$pdf->Ln(5, true);
+// $pdf->AddPage('L');
+
+
+
+
+// $html1 = '<table border="1" cellpadding="2" cellspacing="0" align="right" >';
+// $html1 .= '<thead>';
+// $html1 .= '<tr>';
+
+// foreach ($header2 as  $value) {
+//    $html1 .= "<th>$value</th>";
+// }
+
+// $html1 .= '</tr>';
+// $html1 .= '</thead>';
+
+// $html1 .= '<tbody>';
+// // Ajouter les lignes du tableau
+// foreach ($or2 as $row) {
+//     $html1 .= '<tr>';
+//     foreach ($row as $cell) {
+//         $html1 .= "<td>$cell</td>";
+//     }
+//     $html1 .= '</tr>';
+// }
+// $html1 .= '</tbody>';
+// // Fermer le tableau HTML
+// $html1 .= '</table>';
+// // Écrire le contenu HTML dans le PDF
+// $pdf->writeHTML($html1, true, false, true, false, '');
+
+        }
+    $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
+    $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'I');
 
         //$pdf->Output('exemple.pdf', 'I');
     }
@@ -397,7 +648,7 @@ class GenererPdf
 
 
         //
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/';
         $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 
@@ -414,10 +665,13 @@ class GenererPdf
         } else if (substr($NumDom, 0, 3) === 'BDM') {
             $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        } else if (substr($NumDom, 0, 3) === 'CAS') {
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         }
 
 
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {

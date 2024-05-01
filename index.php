@@ -1,29 +1,26 @@
 <?php
 
 
-use App\Model\Connexion;
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use App\Model\StatutModel;
-use App\Model\dom\DomModel;
-use App\Model\TypeDocModel;
 use App\Controller\ProfilControl;
-
 use App\Controller\StatutControl;
 use App\Controller\dom\DomControl;
-use App\Controller\MainController;
 use App\Controller\TypeDocControl;
 use App\Controller\badm\BadmController;
-use App\Model\AgenceServAutoriserModel;
+use App\Controller\badm\CasierController;
 use App\Controller\dom\DomListController;
 use App\Controller\dom\DomDetailController;
+use App\Controller\badm\BadmDupliController;
 use App\Controller\badm\BadmListeController;
-use App\Model\admin\personnel\PersonnelModel;
+use App\Controller\badm\BadmDetailController;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;
+use App\Controller\badm\CasierListController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+// $dotenv->load();
 
 // $routes = require_once __DIR__ . '/config/routes.php';
 // //var_dump($routes);
@@ -68,21 +65,21 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 // //---Profil---
 // include 'Model/ProfilModel.php';
 // include 'Controler/ProfilControl.php';
-$Conn_IntranetV01 =  new Connexion();
-$ModelProfil = new ProfilModel();
+// $Conn_IntranetV01 =  new Connexion();
+// $ModelProfil = new ProfilModel();
 $ControlProfil = new ProfilControl();
 
 // //----
 // //Personnel
 // include 'Model/PersonnelModel.php';
 // include 'Controler/PersonnelControl.php';
-$ModelPers = new PersonnelModel();
+// $ModelPers = new PersonnelModel();
 $ControlPers = new PersonnelControl();
 //---
 // //DOM
 // include 'Model/DomModel.php';
 // include 'Controler/DomControl.php';
-$ModelDOM = new DomModel();
+// $ModelDOM = new DomModel();
 $ControlDOM = new DomControl();
 $DomListeController = new DomListController();
 $DomDetailController = new DomDetailController();
@@ -91,26 +88,30 @@ $DomDuplicationController = new DomDuplicationController();
 // // TypeDoc
 // include 'Model/TypeDocModel.php';
 // include 'Controler/TypeDocControl.php';
-$ModelType = new TypeDocModel();
+// $ModelType = new TypeDocModel();
 $ControlType = new TypeDocControl();
 // //----
 // //Statut
 // include 'Model/StatutModel.php';
 // include 'Controler/StatutControl.php';
-$ModelStatut = new StatutModel();
+// $ModelStatut = new StatutModel();
 $ControlStatut = new StatutControl();
 // //----
 // //Autorisation
 // include 'Model/AgenceServAutoriserModel.php';
 // include 'Controler/AgenceServAutoriserControl.php';
-$ModelAutorisation = new AgenceServAutoriserModel();
+// $ModelAutorisation = new AgenceServAutoriserModel();
 $ControlAutorisation = new AgenceServAutoriserControl();
 
 // include '/Service/GenererPdf.php';
 // $genererPdf = new GenererPdf();
-$MainController = new MainController();
+
 $BadmController = new BadmController();
 $BadmListeController = new BadmListeController();
+$BadmDetailController = new BadmDetailController();
+$BadmDupliController = new BadmDupliController();
+$CasierController = new CasierController();
+$CasierListController = new CasierListController();
 
 //
 // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
@@ -245,6 +246,12 @@ switch ($action) {
     case 'envoiFormCompleBadm':
         $BadmController->formCompleBadm();
         break;
+    case 'DetailBADM':
+        $BadmDetailController->detailBadm();
+        break;
+    case 'dupliBADM':
+        $BadmDupliController->dupliBadm();
+        break;
     case 'serviceDestinataire':
         $BadmController->serviceDestinataire();
         break;
@@ -257,9 +264,58 @@ switch ($action) {
     case 'listJson':
         $BadmListeController->envoiListJsonBadm();
         break;
+    case 'nouveauCasier':
+        $CasierController->NouveauCasier();
+        break;
+    case 'formCasier':
+        $CasierController->FormulaireCasier();
+        break;
+    case 'listCasier':
+        $CasierListController->AffichageListeCasier();
+        break;
+
     default:
         include 'Views/SignIn.php';
 }
+
+
+
+
+
+
+
+
+// $dsn = $_ENV['DB_DNS_PDO']; 
+// $username = $_ENV['DB_USERNAME_PDO'];
+// $password = $_ENV['DB_PASSWORD_PDO']; 
+
+// try {
+//     $pdo = new PDO($dsn, $username, $password);
+//     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//     echo "Connexion réussie!";
+// } catch (PDOException $e) {
+//     die("Erreur de connexion : " . $e->getMessage());
+// }
+
+// // Exécution d'une requête
+// $stmt = $pdo->query("SELECT * FROM Personnel"); // Remplacez 'your_table' par le nom de votre table
+// while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+//     print_r($row);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

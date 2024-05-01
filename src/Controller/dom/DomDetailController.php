@@ -3,17 +3,12 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
-use App\Model\dom\DomDetailModel;
+
 
 class DomDetailController extends Controller
 {
-    private $detailModel;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->detailModel = new DomDetailModel();
-    }
+
     /**
      * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
      */

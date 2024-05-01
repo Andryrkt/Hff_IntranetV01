@@ -50,7 +50,8 @@ class DomDuplicationModel extends Model
         Mode_Paiement,
 		Piece_Jointe_1,
 		Piece_Jointe_2,
-        Total_Indemnite_Forfaitaire
+        Total_Indemnite_Forfaitaire,
+        Indemnite_Forfaitaire
         
         FROM Demande_ordre_mission
         WHERE Numero_Ordre_Mission = '" . $numDom . "'

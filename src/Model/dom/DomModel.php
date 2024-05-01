@@ -47,24 +47,28 @@ class DomModel extends Model
     }
 
 
-
-
-    /**
-     * Date Système
-     */
-    public function getDatesystem()
+    private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
     {
-        $d = strtotime("now");
-        $Date_system = date("Y-m-d", $d);
-        return $Date_system;
+        for ($i = 1; $i < $LongerVoulu; $i++) {
+            if (strlen($ChaineComplet) < $LongerVoulu) {
+                if ($PositionComplet = "G") {
+                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
+                } else {
+                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
+                }
+            }
+        }
+        return $ChaineComplet;
     }
+
+
     /**
      * Incrimentation de Numero_DOM (DOMAnnéeMoisNuméro)
      */
     public function DOM_autoINcriment()
     {
         //NumDOM auto
-        include('FunctionChaine.php');
+        // include('../FunctionChaine.php');
         $YearsOfcours = date('y'); //24
         $MonthOfcours = date('m'); //01
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
@@ -88,7 +92,7 @@ class DomModel extends Model
             }
         }
         strlen($vNumSequential);
-        $Result_Num_DOM = "DOM" . $AnneMoisOfcours . CompleteChaineCaractere($vNumSequential, 4, "0", "G");
+        $Result_Num_DOM = "DOM" . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
         return $Result_Num_DOM;
     }
 

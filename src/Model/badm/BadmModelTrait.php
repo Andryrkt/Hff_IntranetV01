@@ -17,4 +17,13 @@ trait BadmModelTrait
         }
         return $tab;
     }
+
+    public function recupIdtypeMouvemnet($codeMouvemnet)
+    {
+        $statement  = "SELECT ID_Type_Mouvement  FROM Type_Mouvement WHERE Description = '" . $codeMouvemnet . "'";
+        $execTypeDoc = $this->connexion->query($statement);
+
+        $donner = odbc_fetch_array($execTypeDoc);
+        return $donner;
+    }
 }
