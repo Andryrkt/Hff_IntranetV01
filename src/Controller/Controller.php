@@ -21,6 +21,7 @@ use App\Model\badm\BadmModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
+use App\Model\badm\CasierListTemporaireModel;
 use App\Model\dom\DomModel;
 use App\Model\dom\DomDetailModel;
 use App\Model\dom\DomDuplicationModel;
@@ -50,6 +51,7 @@ class Controller
     protected $ProfilModel;
     protected $badmDetail;
     protected $casierList;
+    protected $caiserListTemporaire;
 
     protected $odbcCrud;
 
@@ -73,6 +75,7 @@ class Controller
 
         $this->casier = new CasierModel();
         $this->casierList = new CasierListModel();
+        $this->caiserListTemporaire = new CasierListTemporaireModel();
 
         $this->badmRech = new BadmRechercheModel();
         $this->badm = new BadmModel();

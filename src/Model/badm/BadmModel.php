@@ -85,40 +85,7 @@ class BadmModel extends Model
         //return $tableauUtf8;
     }
 
-    /**
-     * informix
-     */
-    // public function recupeCasierDestinataire()
-    // {
-    //     $statement = "SELECT distinct
-    //     trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
-    //      trim(mmat_numparc) as casier
 
-
-    //      from mat_mat, agr_succ
-    //      WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
-
-
-    //       and trim(MMAT_ETSTOCK) in ('ST','AT')
-    //       and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-    //      and mmat_soc = 'HF'
-    //      -- and mmat_marqmat not like 'Z%'
-    //      and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
-    //      and mmat_datedisp < '12/31/2999'
-    //      and  trim(mmat_numparc) IS NOT NULL
-    //      ";
-
-    //     $result = $this->connect->executeQuery($statement);
-
-
-    //     $services = $this->connect->fetchResults($result);
-
-    //     $tableauUtf8 = $this->convertirEnUtf8($services);
-
-    //     return $tableauUtf8;
-
-    //     //return $services;
-    // }
 
 
     public function recupeCasierDestinataireInformix()
@@ -301,7 +268,12 @@ class BadmModel extends Model
         // }
     }
 
-
+    /**
+     * recupère tous les agence service autoriser
+     *
+     * @param string $user
+     * @return array
+     */
     public function recupCodeAgenceServiceAutoriser($user)
     {
         $statement = "SELECT UPPER(Code_AgenceService_IRIUM)
@@ -391,5 +363,38 @@ order by slor_numor, sitv_interv";
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    /**
+     * recupérer tous l'id materiel dans sql server
+     *
+     * @return array
+     */
+    public function recupeIdMateriel()
+    {
+        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
+    /**
+     * recupérer l'agence et service destinataire selon l'id materiel
+     *
+     * @return array
+     */
+    public function recupAgenceServDest($id_materiel)
+    {
+        $statement = "SELECT DISTINCT  Agence_Service_Destinataire from Demande_Mouvement_Materiel WHERE ID_Materiel='{$id_materiel}'";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
     }
 }

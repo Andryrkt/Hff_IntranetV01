@@ -113,7 +113,7 @@ class BadmController extends Controller
                 $this->alertRedirection($message);
             } else {
 
-               
+
 
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
@@ -448,16 +448,16 @@ class BadmController extends Controller
     }
 
 
-    
 
-/**
- *cette function permet de tester s'il y a une valeur dans le $_POST et retourne une valeur selon la condeition
- *
- * @param string $name c'est le name dans le formulaire
- * @param string $valeurNon si le name n'existe pas, la variable va prendre cette valeur
- * @return void
- */
-    private function donneValeurExisteOuNon (string $name, $valeurNon = '')
+
+    /**
+     *cette function permet de tester s'il y a une valeur dans le $_POST et retourne une valeur selon la condeition
+     *
+     * @param string $name c'est le name dans le formulaire
+     * @param string $valeurNon si le name n'existe pas, la variable va prendre cette valeur
+     * @return void
+     */
+    private function donneValeurExisteOuNon(string $name, $valeurNon = '')
     {
         if (isset($_POST[$name])) {
             return $_POST[$name];
@@ -493,7 +493,7 @@ class BadmController extends Controller
 
 
             $numParc = $this->donneValeurExisteOuNon('numParc', $data[0]['num_parc']);
-           
+
 
 
             $agenceEmetteur = $data[0]['agence'];
@@ -540,16 +540,16 @@ class BadmController extends Controller
             $etatAchat = $this->ChangeEtatAchat($data[0]['mmat_nouo']);
 
             $dateMiseLocation = $this->donneValeurExisteOuNon('dateMiseLocation', $data[0]['date_location']);
-           
+
             $nomClient = $this->donneValeurExisteOuNon('nomClient');
 
-            $modalitePaiement =$this->donneValeurExisteOuNon('modalitePaiement');
-           
+            $modalitePaiement = $this->donneValeurExisteOuNon('modalitePaiement');
+
             $prixHt = (float)$this->donneValeurExisteOuNon('prixHt', 0);
 
-            
+
             $motifMiseRebut = $this->donneValeurExisteOuNon('motifMiseRebut');
-           
+
 
             // var_dump($_FILES);
             //  var_dump(getimagesize($_FILES["imageRebut"]["tmp_name"]));
@@ -610,7 +610,7 @@ class BadmController extends Controller
                         } elseif ($key == 'agence_service') {
                             $orDb[$keys]['agence_service'] = trim(explode('-', $value)[0]);
                         } elseif ($key === 'montant_total' || $key === 'montant_pieces' || $key === 'montant_pieces_livrees') {
-                            $orDb[$keys][$key] = explode( ',' , $this->formatNumber($value))[0];
+                            $orDb[$keys][$key] = explode(',', $this->formatNumber($value))[0];
                         }
                     }
                 }
@@ -624,15 +624,19 @@ class BadmController extends Controller
             }
 
 
-
-
-
             if ($codeMouvement === 'CESSION D\'ACTIF') {
                 $codeMouvement = 'CESSION D\'\'ACTIF';
             }
             $idTypeMouvement = $this->badm->recupIdtypeMouvemnet($codeMouvement);
 
+            $idMateriel = (int)$data[0]['num_matricule'];
 
+            $idMateriels = $this->transformEnSeulTableau($this->badm->recupeIdMateriel());
+
+            /**
+             * TODO: eliminer le doublon du changemnet AGENCE/SERVICE, changement de CASIER, ...
+             */
+            $agenceServDest = $this->transformEnSeulTableau($this->badm->recupAgenceServDest($idMateriel));
 
 
 
@@ -643,6 +647,12 @@ class BadmController extends Controller
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
                 $this->alertRedirection($message);
+            } elseif ($codeMouvement === 'ENTREE EN PARC' && in_array($idMateriel, $idMateriels)) {
+                $message = 'ce matériel est déjà en PARC';
+                $this->alertRedirection($message);
+            } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && in_array($idMateriel, $idMateriels)) {
+                $message = 'le choix du type devrait être Changement de Casier';
+                $this->alertRedirection($message);
             } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $conditionAgenceService) {
                 $message = 'le choix du type devrait être Changement de Casier';
                 $this->alertRedirection($message);
@@ -651,7 +661,7 @@ class BadmController extends Controller
                 $insertDbBadm = [
                     'Numero_Demande_BADM' => $NumBDM,
                     'Code_Mouvement' => $idTypeMouvement['ID_Type_Mouvement'],
-                    'ID_Materiel' => (int)$data[0]['num_matricule'],
+                    'ID_Materiel' => $idMateriel,
                     'Nom_Session_Utilisateur' => $_SESSION['user'],
                     'Date_Demande' => $dateDemande,
                     'Heure_Demande' => $heureDemande,

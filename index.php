@@ -12,10 +12,11 @@ use App\Controller\dom\DomDetailController;
 use App\Controller\badm\BadmDupliController;
 use App\Controller\badm\BadmListeController;
 use App\Controller\badm\BadmDetailController;
+use App\Controller\badm\CasierListController;
 use App\Controller\AgenceServAutoriserControl;
 use App\Controller\dom\DomDuplicationController;
 use App\Controller\admin\personnel\PersonnelControl;
-use App\Controller\badm\CasierListController;
+use App\Controller\badm\CasierListTemporaireController;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -112,6 +113,7 @@ $BadmDetailController = new BadmDetailController();
 $BadmDupliController = new BadmDupliController();
 $CasierController = new CasierController();
 $CasierListController = new CasierListController();
+$CasierListTemporaireController = new CasierListTemporaireController();
 
 //
 // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
@@ -273,7 +275,12 @@ switch ($action) {
     case 'listCasier':
         $CasierListController->AffichageListeCasier();
         break;
-
+    case 'listTemporaireCasier':
+        $CasierListTemporaireController->AffichageListeCasier();
+        break;
+    case 'formValide':
+        $CasierListTemporaireController->tratitementBtnValide();
+        break;
     default:
         include 'Views/SignIn.php';
 }

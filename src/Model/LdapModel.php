@@ -23,6 +23,8 @@ class LdapModel
     }
 
     /**
+     * @Andryrkt
+     * 
      * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
      *
      * @param string $user

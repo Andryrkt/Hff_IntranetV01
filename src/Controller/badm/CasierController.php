@@ -35,9 +35,9 @@ class CasierController extends Controller
             $data = $this->casier->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
 
 
-            $agence = $this->casier->recupAgence();
+            $agenceLibele = $this->casier->recupAgence();
             $agenceDestinataire = [];
-            foreach ($agence as $values) {
+            foreach ($agenceLibele as $values) {
                 foreach ($values as $value) {
                     $agenceDestinataire[] = $value;
                 }
@@ -97,59 +97,62 @@ class CasierController extends Controller
             $numParc = $data[0]['num_parc'];
         }
 
+
         $agenceRattacher = explode(' ', $_POST['agenceRattachementCasier'])[0];
+        $serviceRattacher = explode(' ', $_POST['agenceRattachementCasier'])[1];
+        $agenceServiceRattacher = $agenceRattacher . '-' . $serviceRattacher;
+
         $motifCreation = $_POST['motifCreation'];
         $client = $_POST['client'];
         $chantier = $_POST['chantier'];
 
-        $casier = $client . ' ' . $chantier;
+        $casier = $client . ' - ' . $chantier;
 
         $agenceEmetteur = $data[0]['agence'];
         $serviceEmetteur = $data[0]['code_service'];
 
 
-        
-            $insertDbCasier = [
-                'Agence' => $agenceRattacher,
-                'Casier' => $casier,
-                'Nom_Session_Utilisateur' => $_SESSION['user'],
-                'Date_Creation' => $dateDemande,
-                'Numero_CAS' => $NumCAS
 
-            ];
-            foreach ($insertDbCasier as $cle => $valeur) {
-                $insertDbCasier[$cle] = strtoupper($valeur);
-            }
+        $insertDbCasier = [
+            'Agence' => $agenceRattacher,
+            'Casier' => $casier,
+            'Nom_Session_Utilisateur' => $_SESSION['user'],
+            'Date_Creation' => $dateDemande,
+            'Numero_CAS' => $NumCAS
 
-            $generPdfCasier = [
+        ];
+        foreach ($insertDbCasier as $cle => $valeur) {
+            $insertDbCasier[$cle] = strtoupper($valeur);
+        }
 
-                'Num_CAS' => $NumCAS,
-                'Date_Demande' => $this->formatageDate($dateDemande),
-                'Designation' => $data[0]['designation'],
-                'Num_ID' => $data[0]['num_matricule'],
-                'Num_Serie' => $data[0]['num_serie'],
-                'Groupe' => $data[0]['famille'],
-                'Num_Parc' => $numParc,
-                'Affectation' => $data[0]['affectation'],
-                'Constructeur' => $data[0]['constructeur'],
-                'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
-                'Annee_Model' => $data[0]['annee'],
-                'Modele' => $data[0]['modele'],
-                'Agence' => $agenceRattacher,
-                'Motif_Creation' => $motifCreation,
-                'Client' => $client,
-                'Chantier' => $chantier,
-                'Email_Emetteur' => $MailUser,
-                'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
-            ];
+        $generPdfCasier = [
 
-            $insertDbBadm = $this->convertirEnUtf8($insertDbCasier);
-            $this->casier->insererDansBaseDeDonnees($insertDbBadm);
-            $this->genererPdf->genererPdfCasier($generPdfCasier);
-            $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
-            header('Location: /Hffintranet/index.php?action=listCasier');
-            exit();
-        
+            'Num_CAS' => $NumCAS,
+            'Date_Demande' => $this->formatageDate($dateDemande),
+            'Designation' => $data[0]['designation'],
+            'Num_ID' => $data[0]['num_matricule'],
+            'Num_Serie' => $data[0]['num_serie'],
+            'Groupe' => $data[0]['famille'],
+            'Num_Parc' => $numParc,
+            'Affectation' => $data[0]['affectation'],
+            'Constructeur' => $data[0]['constructeur'],
+            'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
+            'Annee_Model' => $data[0]['annee'],
+            'Modele' => $data[0]['modele'],
+            'Agence' => $agenceServiceRattacher,
+            'Motif_Creation' => $motifCreation,
+            'Client' => $client,
+            'Chantier' => $chantier,
+            'Email_Emetteur' => $MailUser,
+            'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
+        ];
+
+        $insertDbBadm = $this->convertirEnUtf8($insertDbCasier);
+        $this->casier->insererDansBaseDeDonnees($insertDbBadm);
+        $this->genererPdf->genererPdfCasier($generPdfCasier);
+        $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+        header('Location: /Hffintranet/index.php?action=listTemporaireCasier');
+        exit();
     }
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
