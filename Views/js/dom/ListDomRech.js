@@ -217,23 +217,28 @@ function renderData1(data) {
   data.forEach(function (item, index) {
     const row = document.createElement("tr");
     row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
-    //Ajouter un bouton d'annulation à chasue ligne
+
+    // Créer une cellule pour les boutons
+    const buttonCell = document.createElement("td");
+
+    // Ajouter un bouton d'annulation à chaque ligne
     const annulationButton = document.createElement("button");
-    annulationButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none;
-        color: #000000; font-weight: 600">Dupliquer</a>`;
-    annulationButton.classList.add("btn", "btn-warning", "mx-2", "my-2");
-    annulationButton.style.color = "#fff";
+    annulationButton.innerHTML = `<a href="/Hffintranet/index.php?action=annuler&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none; color:red; font-weight: 600">Annuler</a>`;
+    annulationButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
     annulationButton.style.backgroundColor = "#000";
-    row.appendChild(annulationButton);
+    annulationButton.style.borderStyle = "none";
+
+    buttonCell.appendChild(annulationButton);
 
     // Ajouter un bouton de duplication à chaque ligne
     const duplicateButton = document.createElement("button");
-    duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none;
-        color: #000000; font-weight: 600">Dupliquer</a>`;
-    duplicateButton.classList.add("btn", "btn-warning", "mx-2", "my-2");
+    duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+    duplicateButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
     duplicateButton.style.backgroundColor = "#FBBB01";
+    buttonCell.appendChild(duplicateButton);
 
-    row.appendChild(duplicateButton);
+    // Ajouter la cellule des boutons à la ligne
+    row.appendChild(buttonCell);
 
     for (var key in item) {
       const cellule = document.createElement("td");

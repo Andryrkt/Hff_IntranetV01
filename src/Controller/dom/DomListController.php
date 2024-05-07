@@ -58,7 +58,7 @@ class DomListController extends Controller
 
 
     /**
-     * @Andryrkt 
+     * 
      * cette fonction transforme le tableau statut en json 
      * pour listeDomRecherche
      */
@@ -75,7 +75,7 @@ class DomListController extends Controller
 
 
     /**
-     * @Andryrkt 
+     * 
      * cette fonction transforme le tableau en json 
      * pour listeDomRecherche
      */
@@ -98,5 +98,13 @@ class DomListController extends Controller
         header("Content-type:application/json");
 
         echo json_encode($array_decoded);
+    }
+
+    public function annulationController()
+    {
+
+        $this->domList->annulationCodestatut($_GET['NumDOM']);
+        header('Location: /Hffintranet/index.php?action=ListDomRech');
+        exit();
     }
 }

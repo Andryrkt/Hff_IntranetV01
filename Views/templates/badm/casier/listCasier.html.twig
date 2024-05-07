@@ -2,6 +2,7 @@
 
 {% block stylesheets%}
 <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+<link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
 {% endblock%}
 
 {% import "macroForm.html.twig" as form %}
@@ -21,23 +22,21 @@
 
 		<!-- DEBUT recherche -->
 
-		<form action="/Hffintranet/index.php?action=listCasier" method="get">
-			<div class="row">
-				{{form.select_1('agence', 'Agence', agence,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
-				<div class="col-12 col-md-6  ">
-					<div class="input-group mb-2">
-						<span class="input-group-text">Casier</span>
-						<input type="search" name="casier" id="casier" class="form-control">
-					</div>
+
+		<div class="row">
+			{{form.select_1('agence', 'Agence', agence,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
+			<div class="col-12 col-md-6  ">
+				<div class="input-group mb-2">
+					<span class="input-group-text">Casier</span>
+					<input type="search" name="casier" id="casier" class="form-control">
 				</div>
 			</div>
-			<div class="col-12 col-md-6 col-lg-4 ">
-				<input type="submit" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-				<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-				<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-			</div>
-
-		</form>
+		</div>
+		<div class="boutonRecherche">
+			<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
+			<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
+			<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
+		</div>
 
 
 		<!-- FIN recherche -->
@@ -63,6 +62,7 @@
 	<div class="container ">
 		<div class="row">
 			<div class="col-12 col-md-6 col-lg-4">
+				<a href="/Hffintranet/index.php?action=nouveauCasier" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
 				<a href="/Hffintranet/index.php?action=listTemporaireCasier" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-4  mt-1">
@@ -95,4 +95,8 @@
 	<!-- FIN tableau -->
 
 
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="/Hffintranet/Views/js/badm/listCasier.js"></script>
 {% endblock %}

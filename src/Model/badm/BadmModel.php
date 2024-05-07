@@ -17,9 +17,11 @@ class BadmModel extends Model
 
 
     /**
-     * informix
+     * Informix: recupère l'agence
+     *
+     * @return array
      */
-    public function recupAgence(): array
+    public function recupAgence()
     {
         $statement = "SELECT DISTINCT 
         trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
@@ -41,6 +43,12 @@ class BadmModel extends Model
         return $this->convertirEnUtf8($services);
     }
 
+    /**
+     * convertir en UTF_8
+     *
+     * @param [type] $element
+     * @return void
+     */
     private function convertirEnUtf8($element)
     {
         if (is_array($element)) {
@@ -54,14 +62,14 @@ class BadmModel extends Model
     }
 
 
+
     /**
      * Informix
+     *
+     * @return array
      */
-
-
     public function recupeAgenceServiceDestinataire()
     {
-
 
         $statement = "SELECT DISTINCT 
         trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
@@ -74,11 +82,7 @@ class BadmModel extends Model
 
         $result = $this->connect->executeQuery($statement);
 
-
         $services = $this->connect->fetchResults($result);
-
-
-
 
         return $this->convertirEnUtf8($services);
 
@@ -87,7 +91,11 @@ class BadmModel extends Model
 
 
 
-
+    /**
+     * INformix | recupère le code et le libeler agence
+     *
+     * @return array
+     */
     public function recupeCasierDestinataireInformix()
     {
         $statement = "SELECT distinct
@@ -121,6 +129,7 @@ class BadmModel extends Model
 
     /**
      * sqlServer: recupération casier
+     * @return  array
      */
     public function recupeCasierDestinataireSqlServer()
     {
@@ -144,7 +153,7 @@ class BadmModel extends Model
     /**
      * informix
      */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
+    public function findAll($matricule = '',  $numParc = '', $numSerie = '')
     {
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
@@ -220,7 +229,12 @@ class BadmModel extends Model
 
 
 
-
+    /**
+     * insertion dans le base de donner
+     *
+     * @param [type] $tab
+     * @return void
+     */
     function insererDansBaseDeDonnees($tab)
     {
         $sql = "INSERT INTO Demande_Mouvement_Materiel (
@@ -249,8 +263,9 @@ class BadmModel extends Model
             Code_Statut,
             Num_Parc,
             Nom_Image,
-            Nom_Fichier
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            Nom_Fichier,
+            ID_Statut_Demande
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Exécution de la requête
         $stmt = odbc_prepare($this->connexion->connect(), $sql);
@@ -307,6 +322,8 @@ class BadmModel extends Model
 
     /**
      * récupération de OR
+     * 
+     * @return array
      */
     public function recupeOr($numMat)
     {
@@ -330,32 +347,33 @@ class BadmModel extends Model
                 ) as Montant_Total,
                 
                
-Sum
-(
-CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
-*
-CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_Pieces,
-Sum
-(
-CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
-*
-CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-) AS Montant_Pieces_Livrees
+        Sum
+        (
+        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
+        *
+        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+        ) AS Montant_Pieces,
+        Sum
+        (
+        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
+        *
+        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+        ) AS Montant_Pieces_Livrees
 
-from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
-WHERE seor_numor = slor_numor
-AND seor_serv <> 'DEV'
-AND sitv_numor = slor_numor
-AND sitv_interv = slor_nogrp/100
-AND (seor_succ = asuc_num)
-AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
-AND sitv_pos NOT IN ('FC','FE','CP','ST')
-AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
-AND (seor_nummat = mmat_nummat)
-and seor_nummat = $numMat
-group by 1,2,3,4,5,6,7,8
-order by slor_numor, sitv_interv";
+        from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
+        WHERE seor_numor = slor_numor
+        AND seor_serv <> 'DEV'
+        AND sitv_numor = slor_numor
+        AND sitv_interv = slor_nogrp/100
+        AND (seor_succ = asuc_num)
+        AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+        AND sitv_pos NOT IN ('FC','FE','CP','ST')
+        AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+        AND (seor_nummat = mmat_nummat)
+        and seor_nummat = $numMat
+        group by 1,2,3,4,5,6,7,8
+        order by slor_numor, sitv_interv
+";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -381,6 +399,8 @@ order by slor_numor, sitv_interv";
         }
         return $tab;
     }
+
+
     /**
      * recupérer l'agence et service destinataire selon l'id materiel
      *
@@ -396,5 +416,15 @@ order by slor_numor, sitv_interv";
             $tab[] = $donnee;
         }
         return $tab;
+    }
+
+
+    public function idOuvertStatutDemande()
+    {
+        $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";
+
+        $execTypeDoc = $this->connexion->query($statement);
+
+        return odbc_fetch_array($execTypeDoc);
     }
 }

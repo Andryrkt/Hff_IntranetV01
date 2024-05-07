@@ -20,6 +20,10 @@ class CasierListTemporaireController extends Controller
 
         $casier = $this->caiserListTemporaire->recuperToutesCasier();
 
+        $nombreLigne = $this->caiserListTemporaire->NombreDeLigne();
+        if (!$nombreLigne) {
+            $nombreLigne = 0;
+        }
 
 
         $this->twig->display(
@@ -27,7 +31,8 @@ class CasierListTemporaireController extends Controller
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
-                'casier' => $casier
+                'casier' => $casier,
+                'nombreLigne' => $nombreLigne
             ]
         );
     }
@@ -44,7 +49,7 @@ class CasierListTemporaireController extends Controller
             'Numero_CAS' => $CasierSeul[0]['Numero_CAS']
         ];
         $this->caiserListTemporaire->insererDansBaseDeDonnees($casier);
-        $this->caiserListTemporaire->Delete($_GET['id']);
+        //$this->caiserListTemporaire->Delete($_GET['id']);
         header('Location: /Hffintranet/index.php?action=listTemporaireCasier');
         exit();
     }

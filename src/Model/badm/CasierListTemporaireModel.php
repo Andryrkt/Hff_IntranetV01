@@ -115,4 +115,10 @@ class CasierListTemporaireModel extends Model
             'SELECT COUNT(Id_Materiel) FROM Casier_Materiels'
         );
     }
+
+    public function NombreDeLigne()
+    {
+        $sql = $this->connexion->query("SELECT COUNT(*) As nbrLigne FROM Casier_Materiels_Temporaire ");
+        return odbc_fetch_array($sql);
+    }
 }

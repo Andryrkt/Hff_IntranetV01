@@ -46,11 +46,12 @@ class BadmRechercheModel extends Model
         dmm.Motif_Mise_Rebut, 
         dmm.Heure_machine, 
         dmm.KM_machine,
+		dmm.ID_Statut_Demande
         FROM Demande_Mouvement_Materiel dmm  
-        INNER JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+		LEFT JOIN Statut_demande sd ON  sd.ID_Statut_Demande = dmm.ID_Statut_Demande 
         INNER JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
-        WHERE sd.Code_Application = 'BDM' 
-		AND dmm.Nom_Session_Utilisateur = '" . $user . "'
+		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%'                                                                 
+		AND dmm.Nom_Session_Utilisateur = '{$user}'
         ORDER BY Numero_Demande_BADM DESC
 
     ");
@@ -82,7 +83,6 @@ class BadmRechercheModel extends Model
      * cette fonction récupère les données dans la base de donnée  
      * rectifier les caractère spéciaux et return un tableau
      * pour listeDomRecherhce
-     * limiter l'accées des utilisateurs
      */
     public function RechercheBadmModelAll(): array
     {
@@ -108,11 +108,12 @@ class BadmRechercheModel extends Model
         dmm.Prix_Vente_HT, 
         dmm.Motif_Mise_Rebut, 
         dmm.Heure_machine, 
-        dmm.KM_machine
+        dmm.KM_machine,
+		dmm.ID_Statut_Demande
         FROM Demande_Mouvement_Materiel dmm  
-        INNER JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+		LEFT JOIN Statut_demande sd ON  sd.ID_Statut_Demande = dmm.ID_Statut_Demande 
         INNER JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
-        WHERE sd.Code_Application = 'BDM'                                                                 
+		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%'                                                                 
         ORDER BY Numero_Demande_BADM DESC
 
     ");

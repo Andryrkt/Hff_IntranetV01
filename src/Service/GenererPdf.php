@@ -408,7 +408,7 @@ class GenererPdf
             // var_dump($imagePath);
             if ($tab['extension'] === 'JPG') {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'JEPG' ) {
+            } elseif ($tab['extension'] === 'JEPG') {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
             } elseif ($tab['extension'] === 'PNG') {
                 $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
@@ -417,124 +417,89 @@ class GenererPdf
 
         $pdf->AddPage('L');
 
-        if ($tab['OR'] === 'OUI') {      
+        if ($tab['OR'] === 'OUI') {
 
-$header1 = [ 'Agence', 'Service', 'numor', 'Date', 'ref', 'interv', 'intitulé travaux', 'Ag/Serv débiteur', 'montant total', 'montant pièces', 'montant piece livrées'];
-// $header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
-// Données pour le tableau
+            $header1 = ['Agence', 'Service', 'numor', 'Date', 'ref', 'interv', 'intitulé travaux', 'Ag/Serv débiteur', 'montant total', 'montant pièces', 'montant piece livrées'];
+            // $header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
+            // Données pour le tableau
 
-// Commencer le tableau HTML
-$html = '<h2 style="text-align:center">Liste OR encours</h2>';
-
-
-$html .= '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+            // Commencer le tableau HTML
+            $html = '<h2 style="text-align:center">Liste OR encours</h2>';
 
 
-$html .= '</colgroup>';
-$html .= '<thead>';
-$html .= '<tr>';
-foreach ($header1 as $key=>$value) {
-    if ($key === 0) {
-        $html .= '<th style="width: 75px" >'.$value.'</th>';
-    } elseif ($key === 2) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    } elseif ($key === 3) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    } elseif ($key === 4) {
-        $html .= '<th style="width: 90px" >'.$value.'</th>';
-    } elseif ($key === 5) {
-        $html .= '<th style="width: 30px" >'.$value.'</th>';
-    } elseif($key === 6) {
-        $html .= '<th style="width: 230px;" >'.$value.'</th>';
-    }  elseif($key === 7) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    }  elseif($key === 8) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    }  elseif($key === 9) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    } elseif($key === 10) {
-        $html .= '<th style="width: 50px" >'.$value.'</th>';
-    } else {
-        $html .= '<th >'.$value.'</th>';
-    }
-    
-}
-$html .= '</tr>';
-$html .= '</thead>';
-$html .= '<tbody>';
-// Ajouter les lignes du tableau
-foreach ($orDb as $row) {
-    $html .= '<tr>';
-    foreach ($row as $key=>$cell) {
+            $html .= '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
-        if ($key === 'agence' ) {
-            $html .= '<td style="width: 75px"  >'.$cell.'</td>';
-        } elseif ($key === 'slor_numor') {
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
-        }elseif ($key === 'date') {
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>'; 
-        }elseif ($key ==='seor_refdem_lib') {
-            $html .= '<td style="width: 90px"  >'.$cell.'</td>'; 
+
+            $html .= '</colgroup>';
+            $html .= '<thead>';
+            $html .= '<tr>';
+            foreach ($header1 as $key => $value) {
+                if ($key === 0) {
+                    $html .= '<th style="width: 75px" >' . $value . '</th>';
+                } elseif ($key === 2) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } elseif ($key === 3) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } elseif ($key === 4) {
+                    $html .= '<th style="width: 90px" >' . $value . '</th>';
+                } elseif ($key === 5) {
+                    $html .= '<th style="width: 30px" >' . $value . '</th>';
+                } elseif ($key === 6) {
+                    $html .= '<th style="width: 230px;" >' . $value . '</th>';
+                } elseif ($key === 7) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } elseif ($key === 8) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } elseif ($key === 9) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } elseif ($key === 10) {
+                    $html .= '<th style="width: 50px" >' . $value . '</th>';
+                } else {
+                    $html .= '<th >' . $value . '</th>';
+                }
+            }
+            $html .= '</tr>';
+            $html .= '</thead>';
+            $html .= '<tbody>';
+            // Ajouter les lignes du tableau
+            foreach ($orDb as $row) {
+                $html .= '<tr>';
+                foreach ($row as $key => $cell) {
+
+                    if ($key === 'agence') {
+                        $html .= '<td style="width: 75px"  >' . $cell . '</td>';
+                    } elseif ($key === 'slor_numor') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'date') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'seor_refdem_lib') {
+                        $html .= '<td style="width: 90px"  >' . $cell . '</td>';
+                    } elseif ($key === 'sitv_interv') {
+                        $html .= '<td style="width: 30px"  >' . $cell . '</td>';
+                    } elseif ($key === 'stiv_comment') {
+                        $html .= '<td style="width: 230px; text-align: left;"  >' . $cell . '</td>';
+                    } elseif ($key === 'agence_service') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'montant_total') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'montant_pieces') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'montant_pieces_livrees') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } else {
+                        $html .= '<td  >' . $cell . '</td>';
+                    }
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody>';
+            $html .= '</table>';
+
+
+            $pdf->writeHTML($html, true, false, true, false, '');
         }
-        elseif ($key ==='sitv_interv') {
-            $html .= '<td style="width: 30px"  >'.$cell.'</td>'; 
-        } elseif($key ==='stiv_comment'){
-            $html .= '<td style="width: 230px; text-align: left;"  >'.$cell.'</td>';
-        } elseif($key === 'agence_service'){
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
-        } elseif ($key === 'montant_total') {
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
-        } elseif ($key === 'montant_pieces') {
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
-        } elseif($key === 'montant_pieces_livrees'){
-            $html .= '<td style="width: 50px"  >'.$cell.'</td>';
-        } else {
-            $html .= '<td  >'.$cell.'</td>';
-        }
-        
-    }
-    $html .= '</tr>';
-}
-$html .= '</tbody>';
-$html .= '</table>';
-
-
-$pdf->writeHTML($html, true, false, true, false, '');
-//$pdf->Ln(5, true);
-// $pdf->AddPage('L');
-
-
-
-
-// $html1 = '<table border="1" cellpadding="2" cellspacing="0" align="right" >';
-// $html1 .= '<thead>';
-// $html1 .= '<tr>';
-
-// foreach ($header2 as  $value) {
-//    $html1 .= "<th>$value</th>";
-// }
-
-// $html1 .= '</tr>';
-// $html1 .= '</thead>';
-
-// $html1 .= '<tbody>';
-// // Ajouter les lignes du tableau
-// foreach ($or2 as $row) {
-//     $html1 .= '<tr>';
-//     foreach ($row as $cell) {
-//         $html1 .= "<td>$cell</td>";
-//     }
-//     $html1 .= '</tr>';
-// }
-// $html1 .= '</tbody>';
-// // Fermer le tableau HTML
-// $html1 .= '</table>';
-// // Écrire le contenu HTML dans le PDF
-// $pdf->writeHTML($html1, true, false, true, false, '');
-
-        }
-    $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
-    $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'I');
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
+        $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');
     }

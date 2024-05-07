@@ -13,10 +13,11 @@ error_reporting(E_ALL);
 
 use Exception;
 use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\IncrementationTrait;
+use Symfony\Component\Routing\Annotation\Route;
 
 class BadmController extends Controller
 {
@@ -40,7 +41,9 @@ class BadmController extends Controller
         }
     }
 
-
+    /**
+     * @Route("/formBadm", name="formBadm")
+     */
     public function formBadm()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -124,7 +127,6 @@ class BadmController extends Controller
 
 
                 $codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
-
 
                 $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
@@ -633,6 +635,8 @@ class BadmController extends Controller
 
             $idMateriels = $this->transformEnSeulTableau($this->badm->recupeIdMateriel());
 
+            $idStatut = $this->badm->idOuvertStatutDemande();
+
             /**
              * TODO: eliminer le doublon du changemnet AGENCE/SERVICE, changement de CASIER, ...
              */
@@ -684,7 +688,8 @@ class BadmController extends Controller
                     'Code_Statut' => 'OUV',
                     'Num_Parc' => $numParc,
                     'Nom_Image' => $image,
-                    'Nom_Fichier' => $fichier
+                    'Nom_Fichier' => $fichier,
+                    'ID_Statut_Demande' => (int)$idStatut
                 ];
                 foreach ($insertDbBadm as $cle => $valeur) {
                     $insertDbBadm[$cle] = strtoupper($valeur);

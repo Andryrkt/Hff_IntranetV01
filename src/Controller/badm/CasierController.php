@@ -45,6 +45,9 @@ class CasierController extends Controller
             if ($_POST['idMateriel'] === '' &&  $_POST['numeroParc'] === '' && $_POST['numeroSerie'] === '') {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
                 $this->alertRedirection($message);
+            } elseif (empty($data)) {
+                $message = "Matériel déjà vendu";
+                $this->alertRedirection($message);
             } else {
                 $this->twig->display(
                     'badm/casier/formulaireCasier.html.twig',
@@ -155,7 +158,7 @@ class CasierController extends Controller
         exit();
     }
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=nouveauCasier")
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
