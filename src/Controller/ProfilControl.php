@@ -5,10 +5,13 @@ namespace App\Controller;
 use Exception;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ProfilControl extends Controller
 {
-
+    /**
+     * @Route("/Hffintranet/Authentification", name="profil_sigin")
+     */
     public function showInfoProfilUser()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -41,17 +44,6 @@ class ProfilControl extends Controller
                 );
             }
         }
-
-
-
-
-        // $this->twig->display(
-        //     'main/accueil.html.twig'
-        // );
-
-        //include 'Views/Principe.php';
-        //include 'Views/Acceuil.php';
-
     }
 
     public function showinfoAllUsercours()
@@ -71,6 +63,9 @@ class ProfilControl extends Controller
         }
     }
 
+    /**
+     * @Route("/Hffintranet/Acceuil", name="profil_acceuil")
+     */
     public function showPageAcceuil()
     {
         $this->SessionStart();
@@ -89,10 +84,5 @@ class ProfilControl extends Controller
                 'boolean' => $boolean
             ]
         );
-
-
-        // include 'Views/Principe.php';
-        //include 'Views/Acceuil.php';
-
     }
 }

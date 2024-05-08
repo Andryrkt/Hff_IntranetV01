@@ -217,6 +217,7 @@ function renderData1(data) {
   data.forEach(function (item, index) {
     const row = document.createElement("tr");
     row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
+    console.log(item.Client);
 
     // Créer une cellule pour les boutons
     const buttonCell = document.createElement("td");

@@ -9,6 +9,9 @@ use TCPDF;
 
 class GenererPdf
 {
+    /**
+     * generer pdf Casier
+     */
 
     function genererPdfCasier(array $tab)
     {
@@ -33,11 +36,6 @@ class GenererPdf
         $pdf->Cell(35, 6, $tab['Num_CAS'], 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
-
-        //$pdf->setFont('helvetica', 'B', 12);
-        // $pdf->setAbsX(55);
-        // $pdf->SetTextColor(0, 0, 0);
-        // $pdf->cell(110, 6, $tab['typeMouvement'], 0, 0, 'C', true, '', 0, false, 'T', 'M');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -415,20 +413,18 @@ class GenererPdf
             }
         }
 
-        $pdf->AddPage('L');
+
 
         if ($tab['OR'] === 'OUI') {
 
+            $pdf->AddPage('L');
+
             $header1 = ['Agence', 'Service', 'numor', 'Date', 'ref', 'interv', 'intitulé travaux', 'Ag/Serv débiteur', 'montant total', 'montant pièces', 'montant piece livrées'];
-            // $header2 = [ 'montant_total', 'main d\'oeuvre', 'montant divers', 'montant_pièces', 'montant piece livrees', 'montant st', 'montant_st_livrees'];        
-            // Données pour le tableau
 
             // Commencer le tableau HTML
             $html = '<h2 style="text-align:center">Liste OR encours</h2>';
 
-
             $html .= '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
-
 
             $html .= '</colgroup>';
             $html .= '<thead>';

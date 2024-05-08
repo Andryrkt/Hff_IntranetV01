@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Rediriger toutes les requêtes non fichiers vers index.php pour un traitement ultérieur
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+
+

@@ -5,7 +5,6 @@ use App\Controller\ProfilControl;
 use App\Controller\StatutControl;
 use App\Controller\dom\DomControl;
 use App\Controller\TypeDocControl;
-use Symfony\Component\Routing\Route;
 use App\Controller\badm\BadmController;
 use App\Controller\badm\CasierController;
 use App\Controller\dom\DomListController;
@@ -18,15 +17,12 @@ use App\Controller\badm\BadmDetailController;
 use App\Controller\badm\CasierListController;
 use Symfony\Component\Routing\RequestContext;
 use App\Controller\AgenceServAutoriserControl;
-use Symfony\Component\Routing\RouteCollection;
 use App\Controller\dom\DomDuplicationController;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\Loader\PhpFileLoader;
 use App\Controller\admin\personnel\PersonnelControl;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use App\Controller\badm\CasierListTemporaireController;
-use Symfony\Component\Routing\Loader\AnnotationFileLoader;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
@@ -70,41 +66,41 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 // }
 
 
-$loader = new AnnotationDirectoryLoader(
-    new FileLocator(__DIR__ . '/src/Controller/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
+// $loader = new AnnotationDirectoryLoader(
+//     new FileLocator(__DIR__ . '/src/Controller/'),
+//     new CustomAnnotationClassLoader(new AnnotationReader())
+// );
 
-$collection = $loader->load(__DIR__ . '/src/Controller/');
+// $collection = $loader->load(__DIR__ . '/src/Controller/');
 
-$matcher = new UrlMatcher($collection, new RequestContext('', $_SERVER['REQUEST_METHOD']));
+// $matcher = new UrlMatcher($collection, new RequestContext('', $_SERVER['REQUEST_METHOD']));
 
-$generator = new UrlGenerator($collection, new RequestContext());
+// $generator = new UrlGenerator($collection, new RequestContext());
 
-//$pathInfo = $_SERVER['PATH_INFO'] ?? '/';
+// //$pathInfo = $_SERVER['PATH_INFO'] ?? '/';
 
-$pathInfo = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/';
-
-
-
-try {
-    $curentRoute = $matcher->match($pathInfo);
+// $pathInfo = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/';
 
 
-    $controller = $curentRoute['_controller'];
 
-    $curentRoute['generator'] = $generator;
+// try {
+//     $curentRoute = $matcher->match($pathInfo);
 
-    $className = substr($controller, 0, strpos($controller, '::'));
 
-    $methodName = substr($controller, strpos($controller, '::') + 2);
+//     $controller = $curentRoute['_controller'];
 
-    $instance = new $className();
+//     $curentRoute['generator'] = $generator;
 
-    call_user_func([$instance, $methodName], $curentRoute);
-} catch (ResourceNotFoundException $e) {
-    echo 'page 404';
-}
+//     $className = substr($controller, 0, strpos($controller, '::'));
+
+//     $methodName = substr($controller, strpos($controller, '::') + 2);
+
+//     $instance = new $className();
+
+//     call_user_func([$instance, $methodName], $curentRoute);
+// } catch (ResourceNotFoundException $e) {
+//     echo 'page 404';
+// }
 
 
 
