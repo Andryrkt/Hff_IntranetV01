@@ -26,7 +26,7 @@ use App\Controller\badm\CasierListTemporaireController;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+require __DIR__ . '/config/bootstrap.php';
 
 // $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 // $dotenv->load();
@@ -66,41 +66,27 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 // }
 
 
-// $loader = new AnnotationDirectoryLoader(
-//     new FileLocator(__DIR__ . '/src/Controller/'),
-//     new CustomAnnotationClassLoader(new AnnotationReader())
-// );
-
-// $collection = $loader->load(__DIR__ . '/src/Controller/');
-
-// $matcher = new UrlMatcher($collection, new RequestContext('', $_SERVER['REQUEST_METHOD']));
-
-// $generator = new UrlGenerator($collection, new RequestContext());
-
-// //$pathInfo = $_SERVER['PATH_INFO'] ?? '/';
-
-// $pathInfo = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/';
 
 
 
-// try {
-//     $curentRoute = $matcher->match($pathInfo);
 
+try {
+    $curentRoute = $matcher->match($pathInfo);
 
-//     $controller = $curentRoute['_controller'];
+    $controller = $curentRoute['_controller'];
 
-//     $curentRoute['generator'] = $generator;
+    $curentRoute['generator'] = $generator;
 
-//     $className = substr($controller, 0, strpos($controller, '::'));
+    $className = substr($controller, 0, strpos($controller, '::'));
 
-//     $methodName = substr($controller, strpos($controller, '::') + 2);
+    $methodName = substr($controller, strpos($controller, '::') + 2);
 
-//     $instance = new $className();
+    $instance = new $className();
 
-//     call_user_func([$instance, $methodName], $curentRoute);
-// } catch (ResourceNotFoundException $e) {
-//     echo 'page 404';
-// }
+    call_user_func([$instance, $methodName], $curentRoute);
+} catch (ResourceNotFoundException $e) {
+    echo 'page 404';
+}
 
 
 
@@ -120,228 +106,228 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 // include 'Controler/ProfilControl.php';
 // $Conn_IntranetV01 =  new Connexion();
 // $ModelProfil = new ProfilModel();
-$ControlProfil = new ProfilControl();
+// $ControlProfil = new ProfilControl();
 
-// //----
-// //Personnel
-// include 'Model/PersonnelModel.php';
-// include 'Controler/PersonnelControl.php';
-// $ModelPers = new PersonnelModel();
-$ControlPers = new PersonnelControl();
-//---
-// //DOM
-// include 'Model/DomModel.php';
-// include 'Controler/DomControl.php';
-// $ModelDOM = new DomModel();
-$ControlDOM = new DomControl();
-$DomListeController = new DomListController();
-$DomDetailController = new DomDetailController();
-$DomDuplicationController = new DomDuplicationController();
-// //----
-// // TypeDoc
-// include 'Model/TypeDocModel.php';
-// include 'Controler/TypeDocControl.php';
-// $ModelType = new TypeDocModel();
-$ControlType = new TypeDocControl();
-// //----
-// //Statut
-// include 'Model/StatutModel.php';
-// include 'Controler/StatutControl.php';
-// $ModelStatut = new StatutModel();
-$ControlStatut = new StatutControl();
-// //----
-// //Autorisation
-// include 'Model/AgenceServAutoriserModel.php';
-// include 'Controler/AgenceServAutoriserControl.php';
-// $ModelAutorisation = new AgenceServAutoriserModel();
-$ControlAutorisation = new AgenceServAutoriserControl();
+// // //----
+// // //Personnel
+// // include 'Model/PersonnelModel.php';
+// // include 'Controler/PersonnelControl.php';
+// // $ModelPers = new PersonnelModel();
+// $ControlPers = new PersonnelControl();
+// //---
+// // //DOM
+// // include 'Model/DomModel.php';
+// // include 'Controler/DomControl.php';
+// // $ModelDOM = new DomModel();
+// $ControlDOM = new DomControl();
+// $DomListeController = new DomListController();
+// $DomDetailController = new DomDetailController();
+// $DomDuplicationController = new DomDuplicationController();
+// // //----
+// // // TypeDoc
+// // include 'Model/TypeDocModel.php';
+// // include 'Controler/TypeDocControl.php';
+// // $ModelType = new TypeDocModel();
+// $ControlType = new TypeDocControl();
+// // //----
+// // //Statut
+// // include 'Model/StatutModel.php';
+// // include 'Controler/StatutControl.php';
+// // $ModelStatut = new StatutModel();
+// $ControlStatut = new StatutControl();
+// // //----
+// // //Autorisation
+// // include 'Model/AgenceServAutoriserModel.php';
+// // include 'Controler/AgenceServAutoriserControl.php';
+// // $ModelAutorisation = new AgenceServAutoriserModel();
+// $ControlAutorisation = new AgenceServAutoriserControl();
 
-// include '/Service/GenererPdf.php';
-// $genererPdf = new GenererPdf();
+// // include '/Service/GenererPdf.php';
+// // $genererPdf = new GenererPdf();
 
-$BadmController = new BadmController();
-$BadmListeController = new BadmListeController();
-$BadmDetailController = new BadmDetailController();
-$BadmDupliController = new BadmDupliController();
-$CasierController = new CasierController();
-$CasierListController = new CasierListController();
-$CasierListTemporaireController = new CasierListTemporaireController();
+// $BadmController = new BadmController();
+// $BadmListeController = new BadmListeController();
+// $BadmDetailController = new BadmDetailController();
+// $BadmDupliController = new BadmDupliController();
+// $CasierController = new CasierController();
+// $CasierListController = new CasierListController();
+// $CasierListTemporaireController = new CasierListTemporaireController();
 
-//
-// $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
-// $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
-// $Ldap = new LdapModel();
-// $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
-//$Ldap->searchLdapUser();
+// //
+// // $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
+// // $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
+// // $Ldap = new LdapModel();
+// // $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+// //$Ldap->searchLdapUser();
 
-$action = isset($_GET['action']) ? $_GET['action'] : 'default';
-switch ($action) {
-    case 'Acceuil':
-        $ControlProfil->showPageAcceuil();
-        break;
-    case 'Authentification':
-        $ControlProfil->showInfoProfilUser();
-        // if (!$Connexion_Ldap_User) {
-        //     echo '<script type="text/javascript">
-        //         alert("Merci de vérifier votre session LDAP");
-        //         document.location.href = "/Hffintranet";
-        //     </script>';
-        // } else {
-        //     session_start();
-        //     $_SESSION['user'] = $Username;
-        // }
-        break;
+// $action = isset($_GET['action']) ? $_GET['action'] : 'default';
+// switch ($action) {
+//     case 'Acceuil':
+//         $ControlProfil->showPageAcceuil();
+//         break;
+//     case 'Authentification':
+//         $ControlProfil->showInfoProfilUser();
+//         // if (!$Connexion_Ldap_User) {
+//         //     echo '<script type="text/javascript">
+//         //         alert("Merci de vérifier votre session LDAP");
+//         //         document.location.href = "/Hffintranet";
+//         //     </script>';
+//         // } else {
+//         //     session_start();
+//         //     $_SESSION['user'] = $Username;
+//         // }
+//         break;
 
-    case 'Logout':
-        session_start();
-        $_SESSION['user'] = $Username;
-        unset($_SESSION['user']);
-        session_destroy();
-        session_unset();
-        header("Location:/Hffintranet/");
-        exit();
-        session_write_close();
-        break;
+//     case 'Logout':
+//         session_start();
+//         $_SESSION['user'] = $Username;
+//         unset($_SESSION['user']);
+//         session_destroy();
+//         session_unset();
+//         header("Location:/Hffintranet/");
+//         exit();
+//         session_write_close();
+//         break;
 
-    case 'Propos':
-        $ControlProfil->showinfoAllUsercours();
-        break;
-    case 'Personnels':
-        $ControlPers->showPersonnelForm();
-        break;
-    case 'PersonnelList':
-        $ControlPers->showListePersonnel();
-        break;
-    case 'updatePersonnel':
-        $ControlPers->updatePersonnel();
-        break;
-    case 'New_DOM':
-        $ControlDOM->showFormDOM();
-        break;
-    case 'ListDom':
-        $ControlDOM->ShowListDom();
-        break;
-    case 'ListDomRech':
-        $DomListeController->ShowListDomRecherche();
-        break;
-    case 'checkMatricule':
-        $ControlDOM->ShowDomPDF();
-        break;
-    case 'SelectCateg':
-        $ControlDOM->selectCatg();
-        break;
-    case 'SelectCatgeRental':
-        $ControlDOM->selectCategRental();
-        break;
-    case 'selectIdem':
-        $ControlDOM->selectSiteRental();
-        break;
+//     case 'Propos':
+//         $ControlProfil->showinfoAllUsercours();
+//         break;
+//     case 'Personnels':
+//         $ControlPers->showPersonnelForm();
+//         break;
+//     case 'PersonnelList':
+//         $ControlPers->showListePersonnel();
+//         break;
+//     case 'updatePersonnel':
+//         $ControlPers->updatePersonnel();
+//         break;
+//     case 'New_DOM':
+//         $ControlDOM->showFormDOM();
+//         break;
+//     case 'ListDom':
+//         $ControlDOM->ShowListDom();
+//         break;
+//     case 'ListDomRech':
+//         $DomListeController->ShowListDomRecherche();
+//         break;
+//     case 'checkMatricule':
+//         $ControlDOM->ShowDomPDF();
+//         break;
+//     case 'SelectCateg':
+//         $ControlDOM->selectCatg();
+//         break;
+//     case 'SelectCatgeRental':
+//         $ControlDOM->selectCategRental();
+//         break;
+//     case 'selectIdem':
+//         $ControlDOM->selectSiteRental();
+//         break;
 
-    case 'SelectPrixRental':
-        $ControlDOM->SelectPrixRental();
-        break;
-    case 'DetailDOM':
-        $DomDetailController->DetailDOM();
-        break;
-    case 'EnvoyerImprime':
-        $ControlDOM->EnvoieImprimeDom();
-        break;
-    case 'TypeDoc':
-        $ControlType->showTypeDocForm();
-        break;
-    case 'MoveTypeDoc':
-        $ControlType->MoveTypeDocForm();
-        break;
-    case 'AgenceServiceAutoAll':
-        $ControlType->showListServiceAgenceAll();
-        break;
-    case 'CodeAgenceServiceAuto':
-        $ControlType->showListCodeagence();
-        break;
-    case 'Statut':
-        $ControlStatut->ShowFormStatut();
-        break;
-    case 'MoveStatut':
-        $ControlStatut->MoveStatut();
-        break;
-    case 'AgenceAutoriser':
-        $ControlAutorisation->showListAgenceService();
-        break;
-    case 'DelAgAuto':
-        $ControlAutorisation->deleteAgenceAuto();
-        break;
-    case 'anaranaaction':
-        $ControlDOM->agenceServiceJson();
-        break;
-    case 'recherche':
-        $DomListeController->rechercheController();
-        break;
-    case 'listStatut':
-        $DomListeController->listStatutController();
-        break;
-    case 'annuler':
-        $DomListeController->annulationController();
-        break;
-    case 'Dupliquer':
-        $DomDuplicationController->duplificationFormJsonController();
-        break;
-    case 'DuplifierForm':
-        $DomDuplicationController->duplificationFormController();
-        break;
-    case 'LibStatut':
-        $ControlDOM->filterStatut();
-        break;
-    case 'twig':
-        $MainController->index();
-        break;
-    case 'formBadm':
-        $BadmController->formBadm();
-        break;
-    case 'formCompleBadm':
-        $BadmController->formBadm();
-        break;
-    case 'envoiFormCompleBadm':
-        $BadmController->formCompleBadm();
-        break;
-    case 'DetailBADM':
-        $BadmDetailController->detailBadm();
-        break;
-    case 'dupliBADM':
-        $BadmDupliController->dupliBadm();
-        break;
-    case 'serviceDestinataire':
-        $BadmController->serviceDestinataire();
-        break;
-    case 'casierDestinataire':
-        $BadmController->casierDestinataire();
-        break;
-    case 'listBadm':
-        $BadmListeController->AffichageListeBadm();
-        break;
-    case 'listJson':
-        $BadmListeController->envoiListJsonBadm();
-        break;
-    case 'nouveauCasier':
-        $CasierController->NouveauCasier();
-        break;
-    case 'formCasier':
-        $CasierController->FormulaireCasier();
-        break;
-    case 'listCasier':
-        $CasierListController->AffichageListeCasier();
-        break;
-    case 'dataRech':
-        //$CasierListController->obetuDonneeJson();
-        break;
-    case 'listTemporaireCasier':
-        $CasierListTemporaireController->AffichageListeCasier();
-        break;
-    case 'formValide':
-        $CasierListTemporaireController->tratitementBtnValide();
-        break;
-    default:
-        include 'Views/SignIn.php';
-}
+//     case 'SelectPrixRental':
+//         $ControlDOM->SelectPrixRental();
+//         break;
+//     case 'DetailDOM':
+//         $DomDetailController->DetailDOM();
+//         break;
+//     case 'EnvoyerImprime':
+//         $ControlDOM->EnvoieImprimeDom();
+//         break;
+//     case 'TypeDoc':
+//         $ControlType->showTypeDocForm();
+//         break;
+//     case 'MoveTypeDoc':
+//         $ControlType->MoveTypeDocForm();
+//         break;
+//     case 'AgenceServiceAutoAll':
+//         $ControlType->showListServiceAgenceAll();
+//         break;
+//     case 'CodeAgenceServiceAuto':
+//         $ControlType->showListCodeagence();
+//         break;
+//     case 'Statut':
+//         $ControlStatut->ShowFormStatut();
+//         break;
+//     case 'MoveStatut':
+//         $ControlStatut->MoveStatut();
+//         break;
+//     case 'AgenceAutoriser':
+//         $ControlAutorisation->showListAgenceService();
+//         break;
+//     case 'DelAgAuto':
+//         $ControlAutorisation->deleteAgenceAuto();
+//         break;
+//     case 'anaranaaction':
+//         $ControlDOM->agenceServiceJson();
+//         break;
+//     case 'recherche':
+//         $DomListeController->rechercheController();
+//         break;
+//     case 'listStatut':
+//         $DomListeController->listStatutController();
+//         break;
+//     case 'annuler':
+//         $DomListeController->annulationController();
+//         break;
+//     case 'Dupliquer':
+//         $DomDuplicationController->duplificationFormJsonController();
+//         break;
+//     case 'DuplifierForm':
+//         $DomDuplicationController->duplificationFormController();
+//         break;
+//     case 'LibStatut':
+//         $ControlDOM->filterStatut();
+//         break;
+//     case 'twig':
+//         $MainController->index();
+//         break;
+//     case 'formBadm':
+//         $BadmController->formBadm();
+//         break;
+//     case 'formCompleBadm':
+//         $BadmController->formBadm();
+//         break;
+//     case 'envoiFormCompleBadm':
+//         $BadmController->formCompleBadm();
+//         break;
+//     case 'DetailBADM':
+//         $BadmDetailController->detailBadm();
+//         break;
+//     case 'dupliBADM':
+//         $BadmDupliController->dupliBadm();
+//         break;
+//     case 'serviceDestinataire':
+//         $BadmController->serviceDestinataire();
+//         break;
+//     case 'casierDestinataire':
+//         $BadmController->casierDestinataire();
+//         break;
+//     case 'listBadm':
+//         $BadmListeController->AffichageListeBadm();
+//         break;
+//     case 'listJson':
+//         $BadmListeController->envoiListJsonBadm();
+//         break;
+//     case 'nouveauCasier':
+//         $CasierController->NouveauCasier();
+//         break;
+//     case 'formCasier':
+//         $CasierController->FormulaireCasier();
+//         break;
+//     case 'listCasier':
+//         $CasierListController->AffichageListeCasier();
+//         break;
+//     case 'dataRech':
+//         //$CasierListController->obetuDonneeJson();
+//         break;
+//     case 'listTemporaireCasier':
+//         $CasierListTemporaireController->AffichageListeCasier();
+//         break;
+//     case 'formValide':
+//         $CasierListTemporaireController->tratitementBtnValide();
+//         break;
+//     default:
+//         include 'Views/SignIn.php';
+// }
 
 
 

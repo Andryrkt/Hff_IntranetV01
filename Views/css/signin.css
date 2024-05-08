@@ -1,0 +1,13 @@
+#intro {
+    background-image: url("../assets/Hff.png");
+    height: 100vh;
+}
+
+#Logo {
+    margin-left: 10%;
+    margin-bottom: 5%;
+}
+
+.navbar .nav-link {
+    color: #fff !important;
+}

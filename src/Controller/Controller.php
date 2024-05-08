@@ -11,21 +11,25 @@ use Twig\Environment;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
+use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
+use App\Model\badm\BadmModel;
+use App\Model\badm\CasierModel;
+use App\Model\dom\DomListModel;
+use App\Model\dom\DomDetailModel;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
-use App\Model\badm\CasierModel;
-use App\Model\badm\BadmRechercheModel;
-use App\Model\badm\BadmModel;
-use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
-use App\Model\badm\CasierListTemporaireModel;
-use App\Model\dom\DomModel;
-use App\Model\dom\DomDetailModel;
+use Symfony\Component\Asset\Package;
+use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
-use App\Model\dom\DomListModel;
+use App\Model\admin\personnel\PersonnelModel;
+use App\Model\badm\CasierListTemporaireModel;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
@@ -36,8 +40,7 @@ class Controller
 
     protected $fusionPdf;
     protected $genererPdf;
-    protected $twig;
-    protected $loader;
+
     protected $ldap;
     protected $profilModel;
     protected $casier;
@@ -55,6 +58,12 @@ class Controller
 
     protected $odbcCrud;
 
+    protected static $generator;
+    protected $twig;
+    protected $loader;
+    private $package;
+    private $strategy;
+
 
     public function __construct()
     {
@@ -66,6 +75,10 @@ class Controller
         //$this->twig = new Environment($this->loader);
         $this->twig = new Environment($this->loader, ['debug' => true]);
         $this->twig->addExtension(new DebugExtension());
+        $this->twig->addExtension(new RoutingExtension(self::$generator));
+        // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
+        // $this->package = new Package($this->strategy);
+        // $this->twig->addExtension(new AssetExtension($this->package));
 
         $this->ldap = new LdapModel();
 
@@ -91,6 +104,20 @@ class Controller
 
         $this->badmDetail = new BadmDetailModel();
     }
+
+
+
+
+    public static function setTwig($generator)
+    {
+        self::$generator = $generator;
+    }
+
+    // public static function twig()
+    // {
+    //     return self::$generator;
+    // }
+
 
     protected function SessionStart()
     {

@@ -9,11 +9,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProfilControl extends Controller
 {
+
     /**
-     * @Route("/Hffintranet/Authentification", name="profil_sigin")
+     * @Route("/Hffintranet/Authentification", name="profil_authentification")
      */
     public function showInfoProfilUser()
     {
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
@@ -39,7 +41,7 @@ class ProfilControl extends Controller
                     'main/accueil.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
-                        'boolean' => $boolean
+                        'boolean' => $boolean,
                     ]
                 );
             }

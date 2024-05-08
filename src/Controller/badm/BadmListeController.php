@@ -3,11 +3,14 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class BadmListeController extends Controller
 {
-
+    /**
+     * @Route("/Hffintranet/listBadm", name="badmListe_AffichageListeBadm")
+     */
     public function AffichageListeBadm()
     {
         $this->SessionStart();
@@ -36,6 +39,9 @@ class BadmListeController extends Controller
         );
     }
 
+    /**
+     * @Route("/Hffintranet/ListJsonBadm")
+     */
     public function envoiListJsonBadm()
     {
         $this->SessionStart();

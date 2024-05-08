@@ -42,7 +42,7 @@ class BadmController extends Controller
     }
 
     /**
-     * @Route("/formBadm", name="formBadm")
+     * @Route("Hffintranet/formBadm", name="badm_formBadm", methods={"GET","POST"})
      */
     public function formBadm()
     {
@@ -454,7 +454,7 @@ class BadmController extends Controller
 
     /**
      *cette function permet de tester s'il y a une valeur dans le $_POST et retourne une valeur selon la condeition
-     *
+     * 
      * @param string $name c'est le name dans le formulaire
      * @param string $valeurNon si le name n'existe pas, la variable va prendre cette valeur
      * @return void
@@ -468,6 +468,9 @@ class BadmController extends Controller
         }
     }
 
+    /**
+     * @Route("/Hffintranet/formCompleBadm", name="badm_formCompleBadm", methods={"POST"})
+     */
     public function formCompleBadm()
     {
 

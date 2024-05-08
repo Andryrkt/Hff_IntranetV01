@@ -400,12 +400,12 @@ class DomModel extends Model
                         Nom_Session_Utilisateur, Code_AgenceService_Debiteur, Date_Debut, Heure_Debut, Date_Fin, Heure_Fin,Nombre_Jour, Motif_Deplacement, Client, Lieu_Intervention,Vehicule_Societe,
                         Indemnite_Forfaitaire,Total_Indemnite_Forfaitaire,Motif_Autres_depense_1,Autres_depense_1,Motif_Autres_depense_2,Autres_depense_2,Motif_Autres_depense_3,Autres_depense_3,
                         Total_Autres_Depenses, Total_General_Payer,Mode_Paiement,Numero_Tel, Code_Statut, Nom, Prenom, Devis, Piece_Jointe_1, Piece_Jointe_2, Utilisateur_Creation, LibelleCodeAgence_Service, Fiche, 
-                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl, Emetteur, Debiteur )
+                        NumVehicule,Doit_indemnite, Categorie, Site,idemnity_depl, Emetteur, Debiteur, ID_Statut_Demande )
                        VALUES('" . $tab['NumDom'] . "','" . $tab['dateS'] . "','ORM','" . $tab['typMiss'] . "','" . $tab['matr'] . "','" . $tab['usersession'] . "','" . $tab['codeAg_serv'] . "','" . $tab['DateDebut'] . "','" . $tab['heureD'] . "','" . $tab['DateFin'] . "',
                        '" . $tab['heureF'] . "','" . $tab['NbJ'] . "','" . $tab['motif'] . "','" . $tab['Client'] . "','" . $tab['lieu'] . "','" . $tab['vehicule'] . "','" . $tab['idemn'] . "','" . $tab['totalIdemn'] . "','" . $tab['motifdep01'] . "','" . $tab['montdep01'] . "',
-                       '" . $tab['motifdep02'] . "','" . $tab['montdep02'] . "','" . $tab['motifdep03'] . "','" . $tab['montdep03'] . "','" . $tab['totaldep'] . "','" . $tab['AllMontant'] . "','" . $tab['modeDB'] . "','" . $tab['valModemob'] . "','OUV', 
+                       '" . $tab['motifdep02'] . "','" . $tab['montdep02'] . "','" . $tab['motifdep03'] . "','" . $tab['montdep03'] . "','" . $tab['totaldep'] . "','" . $tab['AllMontant'] . "','" . $tab['modeDB'] . "','" . $tab['valModemob'] . "', 'OUV' , 
                        '" . $tab['Nom'] . "','" . $tab['Prenoms'] . "','" . $tab['Devis'] . "','" . $tab['filename01'] . "','" . $tab['filename02'] . "','" . $tab['usersession'] . "','" . $tab['LibCodeAg_serv'] . "', '" . $tab['fiche'] . "', '" . $tab['Numvehicule'] . "',
-                        '" . $tab['doitIdemn'] . "', '" . $tab['CategoriePers'] . "','" . $tab['Site'] . "','" . $tab['Idemn_depl'] . "','" . $tab['codeServEmeteur'] . "','" . $tab['codeServDebiteur'] . "')";
+                        '" . $tab['doitIdemn'] . "', '" . $tab['CategoriePers'] . "','" . $tab['Site'] . "','" . $tab['Idemn_depl'] . "','" . $tab['codeServEmeteur'] . "','" . $tab['codeServDebiteur'] . "', 1)";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
 }

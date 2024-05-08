@@ -17,7 +17,9 @@
 	</head>
 	<body style="background-color: #f8f9fa;">
 		<section id="content">
-			{% include "/main/Principe.html.twig" %}
+			{% block nav %}
+				{% include "/main/Principe.html.twig" %}
+			{% endblock %}
 			{% block content %}{% endblock %}
 		</section>
 
