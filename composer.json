@@ -40,7 +40,8 @@
         "doctrine/annotations": "^2.0",
         "doctrine/cache": "^2.2",
         "symfony/twig-bridge": "^5.4",
-        "symfony/asset": "^5.4"
+        "symfony/asset": "^5.4",
+        "symfony/http-kernel": "^5.4"
     }
    
 }

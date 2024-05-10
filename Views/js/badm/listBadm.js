@@ -21,7 +21,7 @@ console.log("okey");
  * récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
  */
 function fetchvaleur() {
-  const fetchManager = new FetchManager("/Hffintranet/");
+  const fetchManager = new FetchManager("/Hffintranet");
   fetchManager
     .get("ListJsonBadm")
     .then((raw_data) => {
@@ -33,18 +33,14 @@ function fetchvaleur() {
         "dateCreationMessage"
       );
 
-      /* 
-            bouton de recherche
-            */
+      // bouton de recherche
       recherche.addEventListener("click", (e) => {
         e.preventDefault();
         donner = filtre(raw_data);
         executeFiltreEtRendu(donner, page);
       });
 
-      /*
-             bouton effacer tous les recherches
-            */
+      //bouton effacer tous les recherches
       reset.addEventListener("click", (e) => {
         e.preventDefault();
         idMaterielInput.value = "";
@@ -266,7 +262,7 @@ function renderData1(data) {
     row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
     // Ajouter un bouton de duplication à chaque ligne
     const duplicateButton = document.createElement("button");
-    duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=dupliBADM&NumBDM=${item["Numero_Demande_BADM"]}&Id=${item["ID_Demande_Mouvement_Materiel"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+    duplicateButton.innerHTML = `<a href="/Hffintranet/dupliBADM/${item["Numero_Demande_BADM"]}/${item["ID_Demande_Mouvement_Materiel"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
     //duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item['Numero_Ordre_Mission']}&IdDOM=${item['ID_Demande_Ordre_Mission']}&check=${item['Matricule']}" style="text-decoration: none;
     //color: #000000; font-weight: 600">Dupliquer</a>`;
     duplicateButton.classList.add("btn", "btn-warning", "mx-2", "my-2");
@@ -294,7 +290,7 @@ function renderData1(data) {
         cellule.textContent = item[key].split("-").reverse().join("/");
       } else if (key === "Numero_Demande_BADM") {
         var lien = document.createElement("a");
-        lien.href = `/Hffintranet/index.php?action=DetailBADM&NumBDM=${item[key]}&Id=${item["ID_Demande_Mouvement_Materiel"]}`;
+        lien.href = `/Hffintranet/detailBadm/${item[key]}/${item["ID_Demande_Mouvement_Materiel"]}`;
         lien.textContent = item[key];
         cellule.appendChild(lien);
       } else {
@@ -345,7 +341,7 @@ function filtre(data) {
 
   // Filtrer les données en fonction des critères
   return data.filter(function (demande) {
-    console.log(demande.Code_Mouvement);
+    //console.log(demande.Code_Mouvement);
     // Filtrer par statut (si un critère est fourni)
     var filtreTypeMouvemnet =
       !critereTypeMouvemnetValue ||

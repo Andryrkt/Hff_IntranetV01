@@ -3,19 +3,26 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomDuplicationController extends Controller
 {
 
-
-    public function duplificationFormController()
+    /**
+     * @Route("/duplifierForm/{numDom}/{id}/{matricule}", name="domDuplication_duplificationForm")
+     */
+    public function duplificationFormController($numDom, $id, $matricule)
     {
         $this->SessionStart();
 
-        if ($_SERVER['REQUEST_METHOD']  === 'GET') {
-            $numDom = $_GET['NumDOM'];
-            $idDom = $_GET['IdDOM'];
+       
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+            // $numDom = $_GET['NumDOM'];
+            // $idDom = $_GET['IdDOM'];
 
             // var_dump($numDom, $idDom, $matricule, $check);
             // die();
@@ -24,9 +31,9 @@ class DomDuplicationController extends Controller
             // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
             // $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
             //include 'Views/Principe.php';
-            $data = $this->duplicata->DuplicaftionFormModel($numDom, $idDom);
+            $data = $this->duplicata->DuplicaftionFormModel($numDom, $id);
 
-            $matricule = $_GET['check'];
+            // $matricule = $_GET['check'];
             $pattern = '/^\d{4}/';
             if (preg_match($pattern, $matricule)) {
                 $statutSalarier = 'Interne';
@@ -92,9 +99,11 @@ class DomDuplicationController extends Controller
             $this->twig->display(
                 'dom/FormCompleDOM.html.twig',
                 [
+                    'infoUserCours' => $infoUserCours,
+                'boolean' => $boolean,
                     'data' => $data,
                     'numDom' => $numDom,
-                    'idDom' => $idDom,
+                    'idDom' => $id,
                     'statutSalarier' => $statutSalarier,
                     'datesyst' => $datesyst,
                     'agentEmetteur' => $agentEmetteur,
@@ -115,9 +124,12 @@ class DomDuplicationController extends Controller
             // var_dump($data[0]);
             // die();
             //include 'Views/DOM/FormCompleDOM.php';
-        }
+        
     }
 
+    /**
+     * @Route("/dupliquer", name= "domDuplication_duplificationFormJsonController")
+     */
     public function duplificationFormJsonController()
     {
 

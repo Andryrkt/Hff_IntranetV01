@@ -17,13 +17,13 @@
 		</div>
 
 		<div class=" col-12 col-md-1">
-			<a href="/Hffintranet/index.php?action=nouveauCasier" class="tablinks p-2 btn btn-outline-warning btnRetour">Retour</a>
+			<a href="{{ path("casier_nouveau")}}" class="tablinks p-2 btn btn-outline-warning btnRetour">Retour</a>
 		</div>
 	</div>
 	<div class="row"></div>
 
 
-	<form action="/Hffintranet/index.php?action=formCasier" method="post" name="form" enctype="multipart/form-data">
+	<form action="{{ path("casiser_formulaireCasier")}}" method="post" name="form" enctype="multipart/form-data">
 		<input type="hidden" name="idMateriel" value="{{items.0.num_matricule}}">
 
 		<div class="row">

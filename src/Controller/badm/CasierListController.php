@@ -4,12 +4,16 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\Routing\Annotation\Route;
 
 class CasierListController extends Controller
 {
 
     use Transformation;
-
+    
+/**
+ * @Route("/listCasier", name="liste_affichageListeCasier")
+ */
     public function AffichageListeCasier()
     {
 

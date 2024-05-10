@@ -32,7 +32,7 @@
 	<div class="row"></div>
 
 
-	<form action="/Hffintranet/index.php?action=envoiFormCompleBadm" method="post" name="form" enctype="multipart/form-data">
+	<form action="/Hffintranet/formCompleBadm" method="post" name="form" enctype="multipart/form-data">
 		<input type="hidden" name="codeMouvement" value="{{codeMouvement ? : Server.0.Description}}">
 		<input type="hidden" name="idMateriel" value="{{items.0.num_matricule ?: Server.0.ID_Materiel}}">
 		<input type="hidden" name="numBdm" value="{{ numBdm }}">

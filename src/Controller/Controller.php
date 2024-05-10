@@ -27,10 +27,11 @@ use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
-
+use Symfony\Component\HttpFoundation\Response;
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
 
@@ -63,6 +64,9 @@ class Controller
     protected $loader;
     private $package;
     private $strategy;
+
+    protected $request;
+    protected $response;
 
 
     public function __construct()
@@ -103,6 +107,11 @@ class Controller
         $this->ProfilModel = new ProfilModel();
 
         $this->badmDetail = new BadmDetailModel();
+
+
+        $this->request = Request::createFromGlobals();
+
+    $this->response = new Response();
     }
 
 

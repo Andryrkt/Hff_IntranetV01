@@ -3,6 +3,7 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class BadmDetailController extends Controller
@@ -20,7 +21,10 @@ class BadmDetailController extends Controller
         return $tab;
     }
 
-    public function detailBadm()
+    /**
+     * @Route("/detailBadm/{numBadm}/{id}", name="BadmDetail_detailBadm")
+     */
+    public function detailBadm($numBadm, $id)
     {
 
         $this->SessionStart();
@@ -28,10 +32,10 @@ class BadmDetailController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
-        $NumBDM = $_GET['NumBDM'];
-        $id = $_GET['Id'];
+        // $NumBDM = $_GET['NumBDM'];
+        // $id = $_GET['Id'];
 
-        $badmDetailSqlServer = $this->badmDetail->DetailBadmModelAll($NumBDM, $id);
+        $badmDetailSqlServer = $this->badmDetail->DetailBadmModelAll($numBadm, $id);
         $badmDetailInformix = $this->badmDetail->findAll($badmDetailSqlServer[0]['ID_Materiel']);
         $agenceServiceEmetteur = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Emetteur']);
         $agenceServiceDestinataire = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Destinataire']);
@@ -57,7 +61,7 @@ class BadmDetailController extends Controller
                 'Emetteur' => $agenceServiceEmetteur,
                 'Destinataire' => $agenceServiceDestinataire,
                 'agenceDestinataire' => $agenceDestinataire,
-                'numBdm' => $NumBDM
+                'numBdm' => $numBadm
             ]
         );
     }

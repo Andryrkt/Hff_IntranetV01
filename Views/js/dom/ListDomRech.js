@@ -12,14 +12,14 @@ const resetInput = document.querySelector("#reset");
 const nombreLigneInput = document.querySelector("#nombreLigne");
 const nombreResultatInput = document.querySelector("#nombreResultat");
 
-const urlStatut = "/Hffintranet/index.php?action=listStatut";
+const urlStatut = "/Hffintranet/listStatut";
 
 /**
  * @Andryrkt
  * récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
  */
 async function fetchvaleur() {
-  const url = "/Hffintranet/index.php?action=recherche";
+  const url = "/Hffintranet/recherche";
   return await fetch(url).then((response) => {
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -217,7 +217,6 @@ function renderData1(data) {
   data.forEach(function (item, index) {
     const row = document.createElement("tr");
     row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
-    console.log(item.Client);
 
     // Créer une cellule pour les boutons
     const buttonCell = document.createElement("td");
@@ -228,12 +227,11 @@ function renderData1(data) {
     annulationButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
     annulationButton.style.backgroundColor = "#000";
     annulationButton.style.borderStyle = "none";
-
     buttonCell.appendChild(annulationButton);
 
     // Ajouter un bouton de duplication à chaque ligne
     const duplicateButton = document.createElement("button");
-    duplicateButton.innerHTML = `<a href="/Hffintranet/index.php?action=DuplifierForm&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+    duplicateButton.innerHTML = `<a href="/Hffintranet/duplifierForm/${item["Numero_Ordre_Mission"]}/${item["ID_Demande_Ordre_Mission"]}/${item["Matricule"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
     duplicateButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
     duplicateButton.style.backgroundColor = "#FBBB01";
     buttonCell.appendChild(duplicateButton);
@@ -271,7 +269,7 @@ function renderData1(data) {
         cellule.textContent = item[key].split("-").reverse().join("/");
       } else if (key === "Numero_Ordre_Mission") {
         var lien = document.createElement("a");
-        lien.href = `/Hffintranet/index.php?action=DetailDOM&NumDom=${item[key]}&Id=${item["ID_Demande_Ordre_Mission"]}`;
+        lien.href = `/Hffintranet/detailDom/${item[key]}/${item["ID_Demande_Ordre_Mission"]}`;
         lien.textContent = item[key];
         cellule.appendChild(lien);
       } else {

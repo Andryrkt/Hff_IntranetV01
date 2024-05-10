@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SiginSecurity extends Controller
 {
     /**
-     * @Route("/Hffintranet/", name="security_signin")
+     * @Route("/", name="security_signin")
      */
     public function affichageSingnin()
     {

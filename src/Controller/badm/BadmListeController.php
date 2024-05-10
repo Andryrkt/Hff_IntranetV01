@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class BadmListeController extends Controller
 {
     /**
-     * @Route("/Hffintranet/listBadm", name="badmListe_AffichageListeBadm")
+     * @Route("/listBadm", name="badmListe_AffichageListeBadm")
      */
     public function AffichageListeBadm()
     {
@@ -40,7 +40,7 @@ class BadmListeController extends Controller
     }
 
     /**
-     * @Route("/Hffintranet/ListJsonBadm")
+     * @Route("/ListJsonBadm")
      */
     public function envoiListJsonBadm()
     {

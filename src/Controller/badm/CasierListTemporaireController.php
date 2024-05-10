@@ -4,11 +4,15 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\Routing\Annotation\Route;
 
 class CasierListTemporaireController extends Controller
 {
     use Transformation;
 
+    /**
+     * @Route("/listTemporaireCasier", name="listeTemporaire_affichageListeCasier")
+     */
     public function AffichageListeCasier()
     {
 
@@ -37,9 +41,13 @@ class CasierListTemporaireController extends Controller
         );
     }
 
-    public function tratitementBtnValide()
+    /**
+     * @Route("/btnValide/{id}", name="CasierListTemporaire_btnValide")
+     */
+    public function tratitementBtnValide($id)
     {
-        $CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($_GET['id']);
+       
+        $CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
         $casier = [
             'Agence' => $CasierSeul[0]['Agence_Rattacher'],
@@ -50,7 +58,9 @@ class CasierListTemporaireController extends Controller
         ];
         $this->caiserListTemporaire->insererDansBaseDeDonnees($casier);
         //$this->caiserListTemporaire->Delete($_GET['id']);
-        header('Location: /Hffintranet/index.php?action=listTemporaireCasier');
+        header('Location: /Hffintranet/listCasier');
         exit();
+
+        
     }
 }

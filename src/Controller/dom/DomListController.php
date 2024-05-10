@@ -4,6 +4,7 @@ namespace App\Controller\dom;
 
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomListController extends Controller
@@ -26,6 +27,7 @@ class DomListController extends Controller
 
     /**
      * affichage de l'architecture de la liste du DOM
+     * @Route("/listDomRech", name="domList_ShowListDomRecherche")
      */
     public function ShowListDomRecherche()
     {
@@ -61,6 +63,7 @@ class DomListController extends Controller
      * 
      * cette fonction transforme le tableau statut en json 
      * pour listeDomRecherche
+     * @Route("/listStatut", name="domList_listStatut")
      */
     public function listStatutController()
     {
@@ -78,6 +81,7 @@ class DomListController extends Controller
      * 
      * cette fonction transforme le tableau en json 
      * pour listeDomRecherche
+     * @Route("/recherche", name="domList_recherche")
      */
     public function rechercheController()
     {

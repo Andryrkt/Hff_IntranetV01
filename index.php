@@ -15,8 +15,10 @@ use App\Controller\badm\BadmDupliController;
 use App\Controller\badm\BadmListeController;
 use App\Controller\badm\BadmDetailController;
 use App\Controller\badm\CasierListController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use App\Controller\AgenceServAutoriserControl;
+use Symfony\Component\HttpFoundation\Response;
 use App\Controller\dom\DomDuplicationController;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -69,24 +71,31 @@ require __DIR__ . '/config/bootstrap.php';
 
 
 
+//dd($request->getPathInfo());
+//dd($pathInfo);
 
 try {
-    $curentRoute = $matcher->match($pathInfo);
+    $curentRoute = $matcher->match($request->getPathInfo());
+    $request->attributes->add($curentRoute);
+    
+    $controller = $controllerResolver->getController($request);
+    $arguments = $argumentResolver->getArguments($request, $controller);
+    //dd($controller);
+    // $controller = $curentRoute['_controller'];
 
-    $controller = $curentRoute['_controller'];
+    // //$curentRoute['generator'] = $generator;
 
-    $curentRoute['generator'] = $generator;
+    // $className = substr($controller, 0, strpos($controller, '::'));
 
-    $className = substr($controller, 0, strpos($controller, '::'));
+    // $methodName = substr($controller, strpos($controller, '::') + 2);
 
-    $methodName = substr($controller, strpos($controller, '::') + 2);
-
-    $instance = new $className();
-
-    call_user_func([$instance, $methodName], $curentRoute);
+    // $instance = new $className();
+//$controller =[$instance, $methodName];
+    call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
-    echo 'page 404';
-}
+    // $response->setContent("La page demandée n'existe pas");
+    // $response->setStatusCode(404);
+} 
 
 
 

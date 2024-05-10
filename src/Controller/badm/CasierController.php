@@ -3,10 +3,11 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Controller\Traits\IncrementationTrait;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\IncrementationTrait;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class CasierController extends Controller
@@ -18,7 +19,9 @@ class CasierController extends Controller
     use FormatageTrait;
 
 
-
+    /**
+     * @Route("/nouveauCasier", name="casier_nouveau")
+     */
     public function NouveauCasier()
     {
 
@@ -81,7 +84,9 @@ class CasierController extends Controller
         }
     }
 
-
+    /**
+     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"POST"})
+     */
     public function FormulaireCasier()
     {
         $this->SessionStart();
@@ -154,12 +159,84 @@ class CasierController extends Controller
         $this->casier->insererDansBaseDeDonnees($insertDbBadm);
         $this->genererPdf->genererPdfCasier($generPdfCasier);
         $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
-        header('Location: /Hffintranet/index.php?action=listTemporaireCasier');
+        header('Location: /Hffintranet/listTemporaireCasier');
         exit();
     }
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=nouveauCasier")
+
+
+    
+    /**
+     * @Route("/casierDestinataire", name="badm_casierDestinataire")
+     */
+    public function casierDestinataire()
+    {
+        $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
+        $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+
+        // Combinaison des deux tableaux
+        $resultat = [];
+
+        foreach ($casierDestinataireInformix as $agence) {
+            foreach ($casierDestinataireSqlServer as $casier) {
+
+                if ($casier['Agence_Rattacher'] == $agence['code_agence']) {
+
+                    $resultat[$agence['agence']][] = $casier['Casier'];
+                }
+            }
+
+            //Assurez-vous que chaque agence est présente même si elle n'a pas de casiers
+            if (!array_key_exists($agence['agence'], $resultat)) {
+                $resultat[$agence['agence']] = [];
+            }
+        }
+
+
+
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($resultat);
+
+        $this->testJson($jsonData);
+    }
+
+
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/nouveauCasier")
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
+    }
+
+    private function testJson($jsonData)
+    {
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
+        }
     }
 }

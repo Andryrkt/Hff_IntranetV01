@@ -11,7 +11,7 @@ class ProfilControl extends Controller
 {
 
     /**
-     * @Route("/Hffintranet/Authentification", name="profil_authentification")
+     * @Route("/Authentification", name="profil_authentification")
      */
     public function showInfoProfilUser()
     {
@@ -66,7 +66,7 @@ class ProfilControl extends Controller
     }
 
     /**
-     * @Route("/Hffintranet/Acceuil", name="profil_acceuil")
+     * @Route("/Acceuil", name="profil_acceuil")
      */
     public function showPageAcceuil()
     {

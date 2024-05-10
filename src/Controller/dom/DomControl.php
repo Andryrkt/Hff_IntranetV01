@@ -4,6 +4,7 @@ namespace App\Controller\dom;
 
 use DateTime;
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomControl extends Controller
@@ -24,6 +25,7 @@ class DomControl extends Controller
 
     /**
      * selection catgégorie dans l'ajax 
+     * @Route("/selectCateg")
      */
     public function selectCatg()
     {
@@ -53,6 +55,7 @@ class DomControl extends Controller
 
     /**
      * selection categorie Rental 
+     * @Route("/selectCatgeRental", name="")
      */
     public function selectCategRental()
     {
@@ -76,6 +79,7 @@ class DomControl extends Controller
 
     /**
      * selection des sites (regions) correspondant aux catégorie selectionner 
+     * @Route("/selectIdem", name="dom_selectSiteRental")
      */
     public function selectSiteRental()
     {
@@ -101,6 +105,7 @@ class DomControl extends Controller
 
     /**
      * afficher Prix selon selection Sites 
+     * @Route("/selectPrixRental", name="selectPrixRental")
      */
     public function SelectPrixRental()
     {
@@ -133,16 +138,11 @@ class DomControl extends Controller
 
     /**
      * recuperation des variable ci-dessous vers les views (FormDOM) indiquer 
+     * @Route("/newDom", name="dom_newDom", methods={"GET", "POST"})
      */
-    public function showFormDOM()
+    public function newDom()
     {
         $this->SessionStart();
-
-
-
-        //$NumDOM = $this->DomModel->DOM_autoINcriment();
-        $UserConnect = $_SESSION['user'];
-
 
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
@@ -186,15 +186,13 @@ class DomControl extends Controller
                 'boolean' => $boolean
             ]
         );
-
-        //include 'Views/Principe.php';
-        //include 'Views/DOM/FormDOM.php';
-
+    
     }
 
 
     /**
      * recupere les variable ci-dessous vers le views => FormCompleDOM
+     * @Route("/checkMatricule", name="dom_showDomPdf")
      */
     public function ShowDomPDF()
     {
@@ -260,36 +258,12 @@ class DomControl extends Controller
                     'boolean' => $boolean
                 ]
             );
-            //include 'Views/Principe.php';
-            //include 'Views/DOM/FormCompleAutre.php';
-            //include 'Views/DOM/FormCompleDOM.php';
+            
         }
-
-
-        // if ($_SERVER['REQUEST_METHOD']  === 'GET') {
-        //     $NumDom = $_GET['NumDomget'];
-        //     $code_service = $_GET['code_service'];
-        //     $service = $_GET['service'];
-        //     $Maricule = $_GET['Matricule'];
-        //     $check = $_GET['check'];
-        //     $typeMission = $_GET['TypeMission'];
-        //     $nomExt = $_GET['nom'];
-        //     $prenomExt = $_GET['prenoms'];
-        //     $CINext = $_GET['cin'];
-        //     //$autrTyp = $_GET['autreType'];
-        //     $UserConnect = $_SESSION['user'];
-        //     $datesyst = $this->DomModel->getDatesystem();
-        //     $Noms = $this->DomModel->getName($Maricule);
-        //     $Compte = $this->DomModel->getInfoTelCompte($Maricule);
-
-        //     include 'Views/Principe.php';
-        //     //include 'Views/DOM/FormCompleAutre.php';
-        //     include 'Views/DOM/FormCompleDOM.php';
-        // }
     }
 
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=New_DOM")
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/newDom")
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
@@ -350,6 +324,8 @@ class DomControl extends Controller
      * But: S'il n'y a pas de Pièce Joint => Génerer le PDF , Copie le PDF generer danns le DOCUMENT DOCUWARE Puis Insere dans la base
      *  S'il y en a 1 Pièce joint => Génere le PDF => Fusionne  avec le Piéce Joint => Inserer dans la Base 
      * s'il y en a 2 (type Temporaire (Externe) Obliger 2 pièce joint ) => Fusionne  avec le Piéce Joint => Inserer dans la Base 
+     * 
+     * @Route("/envoieImprimeDom", name="dom_envoieImprimeDom")
      */
 
     public function EnvoieImprimeDom()
@@ -1412,7 +1388,7 @@ class DomControl extends Controller
                 $this->alertRedirection($message);
             }
             echo '<script type="text/javascript">   
-                document.location.href = "/Hffintranet/index.php?action=ListDomRech";
+                document.location.href = "/Hffintranet/listDomRech";
                 </script>';
         }
     }
@@ -1444,6 +1420,7 @@ class DomControl extends Controller
 
     /**
      * creation du débiteur (code service et service)
+     * @Route("/agServDest", name="dom_agenceServiceJson")
      */
     public function agenceServiceJson()
     {

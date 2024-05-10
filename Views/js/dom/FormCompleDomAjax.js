@@ -18,7 +18,7 @@ function Select1Value(data, selectedOption) {
 }
 
 function fetchData(selectOption = undefined) {
-  const url = "/Hffintranet/index.php?action=anaranaaction";
+  const url = "/Hffintranet/agServDest";
   fetch(url)
     .then((response) => {
       if (!response.ok) {
@@ -44,7 +44,9 @@ function fetchData(selectOption = undefined) {
         console.log(taille);
         let optionsHTML = ""; // Chaîne pour stocker les options HTML
         for (let i = 0; i < taille; i++) {
-          optionsHTML += `<option value="${data[selectOption][i].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
+          optionsHTML += `<option value="${data[selectOption][
+            i
+          ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
         }
         serviceIriumElement.innerHTML = optionsHTML;
       }, 800); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
@@ -74,7 +76,9 @@ if (document.querySelector("#NumDOM") === null) {
   if (check === "Interne") {
     setTimeout(() => {
       // console.log( document.querySelector(`#select1 option`));
-      // console.log(document.querySelector('#ServINt').value.toUpperCase().trim());
+      console.log(
+        document.querySelector("#ServINt").value.toUpperCase().trim()
+      );
       selectedOption = document.querySelector(
         `#select1 option[value="${document
           .querySelector("#ServINt")
@@ -90,7 +94,7 @@ if (document.querySelector("#NumDOM") === null) {
         .querySelector("#LibServINT")
         .value.toUpperCase()
         .trim();
-      //console.log(document.querySelector(`#serviceIrium`));
+      console.log(document.querySelector(`#serviceIrium`));
       document.querySelector(
         `#serviceIrium option[value="${libserv}"]`
       ).selected = true;
@@ -122,7 +126,7 @@ if (document.querySelector("#NumDOM") === null) {
   //FIN Javascript pour le débitteur select
 } else {
   function fetchDataDuplier() {
-    const url = "/Hffintranet/index.php?action=Dupliquer";
+    const url = "/Hffintranet/dupliquer";
     fetch(url)
       .then((response) => {
         if (!response.ok) {
@@ -158,7 +162,6 @@ if (document.querySelector("#NumDOM") === null) {
             ).value;
             fetchData(selectedOption);
           }
-          
         }, 500);
         //console.log(document.querySelector(`#SiteRental`));
         document.querySelector(
@@ -232,7 +235,7 @@ $(document).ready(function () {
     if (typeMission === "MUTATION" && codeServ === "50") {
       $.ajax({
         type: "POST",
-        url: "/Hffintranet/index.php?action=SelectCatgeRental",
+        url: "/Hffintranet/selectCatgeRental",
         data: {
           CodeRental: codeServ,
         },
@@ -261,16 +264,16 @@ $(document).ready(function () {
       if (typeMission === "MUTATION" && codeServ === "50") {
         $.ajax({
           type: "POST",
-          url: "/Hffintranet/index.php?action=selectIdem",
+          url: "/Hffintranet/selectIdem",
           data: {
             CategPers: MutaRental,
             TypeMiss: typeMission,
           },
           success: function (response1) {
             setTimeout(() => {
-            $("#SITE").html(response1).show();
-            handlePrixRental();
-            },2000)
+              $("#SITE").html(response1).show();
+              handlePrixRental();
+            }, 2000);
           },
           error: function (error) {
             console.error(error);
@@ -282,7 +285,7 @@ $(document).ready(function () {
     if (typeMission === "MUTATION" && codeServ !== "50") {
       $.ajax({
         type: "POST",
-        url: "/Hffintranet/index.php?action=selectIdem",
+        url: "/Hffintranet/selectIdem",
         data: {
           CategPers: CatgePers,
           TypeMiss: typeMission,
@@ -299,7 +302,7 @@ $(document).ready(function () {
     if (typeMission === "MISSION") {
       $.ajax({
         type: "POST",
-        url: "/Hffintranet/index.php?action=selectIdem",
+        url: "/Hffintranet/selectIdem",
         data: {
           CategPers: CatgePers,
           TypeMiss: typeMission,
@@ -327,7 +330,7 @@ $(document).ready(function () {
       if (typeMission === "MUTATION" && codeServ === "50") {
         $.ajax({
           type: "POST",
-          url: "/Hffintranet/index.php?action=SelectPrixRental",
+          url: "/Hffintranet/selectPrixRental",
           data: {
             typeMiss: typeMission,
             categ: MutaRental,
@@ -335,9 +338,7 @@ $(document).ready(function () {
             codeser: codeServ,
           },
           success: function (PrixRental) {
-            
             $("#idemForfait").val(PrixRental).show();
-          
           },
           error: function (error) {
             console.error(error);
@@ -350,7 +351,7 @@ $(document).ready(function () {
       CatgePers = catgePErs.replace(/\+/g, " ");
       $.ajax({
         type: "POST",
-        url: "/Hffintranet/index.php?action=SelectPrixRental",
+        url: "/Hffintranet/selectPrixRental",
         data: {
           typeMiss: typeMission,
           categ: CatgePers,
@@ -371,7 +372,7 @@ $(document).ready(function () {
       CatgePers = catgePErs.replace(/\+/g, " ");
       $.ajax({
         type: "POST",
-        url: "/Hffintranet/index.php?action=SelectPrixRental",
+        url: "/Hffintranet/selectPrixRental",
         data: {
           typeMiss: typeMission,
           categ: CatgePers,

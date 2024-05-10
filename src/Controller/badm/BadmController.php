@@ -27,7 +27,7 @@ class BadmController extends Controller
     use IncrementationTrait;
     use FormatageTrait;
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/index.php?action=formBadm")
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/formBadm")
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
@@ -42,7 +42,7 @@ class BadmController extends Controller
     }
 
     /**
-     * @Route("Hffintranet/formBadm", name="badm_formBadm", methods={"GET","POST"})
+     * @Route("/formBadm", name="badm_formBadm", methods={"GET","POST"})
      */
     public function formBadm()
     {
@@ -256,6 +256,14 @@ class BadmController extends Controller
         }
     }
 
+    /**
+     * agence devient la clé du tableaut et le service devient la valeur
+     *
+     * @param [type] $tab
+     * @param [type] $agences
+     * @param [type] $services
+     * @return void
+     */
     private function agenceCleServiceValeur($tab, $agences, $services)
     {
         $nouveauTableau = [];
@@ -277,6 +285,10 @@ class BadmController extends Controller
         return $nouveauTableau;
     }
 
+
+    /**
+     * @Route("/serviceDestinataire", name="badm_serviceDestinataire")
+     */
     public function serviceDestinataire()
     {
         $serviceDestinataires = $this->badm->recupeAgenceServiceDestinataire();
@@ -291,37 +303,6 @@ class BadmController extends Controller
         $this->testJson($jsonData);
     }
 
-    public function casierDestinataire()
-    {
-        $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
-        $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
-
-        // Combinaison des deux tableaux
-        $resultat = [];
-
-        foreach ($casierDestinataireInformix as $agence) {
-            foreach ($casierDestinataireSqlServer as $casier) {
-
-                if ($casier['Agence_Rattacher'] == $agence['code_agence']) {
-
-                    $resultat[$agence['agence']][] = $casier['Casier'];
-                }
-            }
-
-            //Assurez-vous que chaque agence est présente même si elle n'a pas de casiers
-            if (!array_key_exists($agence['agence'], $resultat)) {
-                $resultat[$agence['agence']] = [];
-            }
-        }
-
-
-
-        header("Content-type:application/json");
-
-        $jsonData = json_encode($resultat);
-
-        $this->testJson($jsonData);
-    }
 
 
 
@@ -469,7 +450,7 @@ class BadmController extends Controller
     }
 
     /**
-     * @Route("/Hffintranet/formCompleBadm", name="badm_formCompleBadm", methods={"POST"})
+     * @Route("/formCompleBadm", name="badm_formCompleBadm", methods={"POST"})
      */
     public function formCompleBadm()
     {
@@ -747,7 +728,7 @@ class BadmController extends Controller
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);
                 $this->genererPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
-                header('Location: /Hffintranet/index.php?action=listBadm');
+                header('Location: /Hffintranet/listBadm');
                 exit();
             }
         }

@@ -14,7 +14,6 @@
 
 			<div class="col-8">
 				{% if data is defined and data is not null %}
-
 					<h2 class="fw-bold">Duplication de demande d'ordre de mission</h2>
 				{% else %}
 					<h2 class="fw-bold">Nouvelle demande d'ordre de mission</h2>
@@ -24,17 +23,16 @@
 			<div class="d-flex  flex-row-reverse  col-4">
 				<div class="tablinks p-2 btn btn-outline-warning ">
 					{% if numDom is defined and numDom is not null and idDom is defined and idDom is not null  %}
-
-						<a href="/Hffintranet/index.php?action=ListDomRech" style="text-decoration: none;color:black">Retour</a>
+						<a href="{{ path("domList_ShowListDomRecherche")}}" style="text-decoration: none;color:black">Retour</a>
 					{% else %}
-						<a href="/Hffintranet/index.php?action=New_DOM" style="text-decoration: none;color:black">Retour</a>
+						<a href="{{ path("dom_newDom")}}" style="text-decoration: none;color:black">Retour</a>
 					{% endif %}
 				</div>
 			</div>
 		</div>
 
 
-		<form action="/Hffintranet/index.php?action=EnvoyerImprime" method="POST" enctype="multipart/form-data" id="Formulaire">
+		<form action="{{ path("dom_envoieImprimeDom")}}" method="POST" enctype="multipart/form-data" id="Formulaire">
 
 
 			<input type="hidden" name="radiochek" id="radiochek" value="{% set valeur = statutSalarier is defined ? statutSalarier : check %}{{valeur}}"/>
@@ -443,8 +441,7 @@
 				</div>
 				<div class="col">
 
-					<label for="file02" class="label-form">
-						Fichier joint 02 (Merci de mettre un fichier PDF):</label>
+					<label for="file02" class="label-form">Fichier joint 02 (Merci de mettre un fichier PDF):</label>
 
 					<div class="col">
 						<input type="file" name="file02" id="file02" accept=".pdf" class="form-control"/>
@@ -456,8 +453,7 @@
 				<div class="mt-2 ">
 					<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
 						<button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip">
-							<i class="fa fa-print">
-								Envoyer</i>
+							<i class="fa fa-print">Envoyer</i>
 						</button>
 					</a>
 				</div>
