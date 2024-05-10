@@ -5,12 +5,17 @@ namespace App\Controller;
 use Exception;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ProfilControl extends Controller
 {
 
+    /**
+     * @Route("/Authentification", name="profil_authentification")
+     */
     public function showInfoProfilUser()
     {
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
@@ -36,22 +41,11 @@ class ProfilControl extends Controller
                     'main/accueil.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
-                        'boolean' => $boolean
+                        'boolean' => $boolean,
                     ]
                 );
             }
         }
-
-
-
-
-        // $this->twig->display(
-        //     'main/accueil.html.twig'
-        // );
-
-        //include 'Views/Principe.php';
-        //include 'Views/Acceuil.php';
-
     }
 
     public function showinfoAllUsercours()
@@ -71,6 +65,9 @@ class ProfilControl extends Controller
         }
     }
 
+    /**
+     * @Route("/Acceuil", name="profil_acceuil")
+     */
     public function showPageAcceuil()
     {
         $this->SessionStart();
@@ -89,10 +86,5 @@ class ProfilControl extends Controller
                 'boolean' => $boolean
             ]
         );
-
-
-        // include 'Views/Principe.php';
-        //include 'Views/Acceuil.php';
-
     }
 }

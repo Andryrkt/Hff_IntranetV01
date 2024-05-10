@@ -11,20 +11,27 @@ use Twig\Environment;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
+use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
+use App\Model\badm\BadmModel;
+use App\Model\badm\CasierModel;
+use App\Model\dom\DomListModel;
+use App\Model\dom\DomDetailModel;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
-use App\Model\badm\CasierModel;
-use App\Model\badm\BadmRechercheModel;
-use App\Model\badm\BadmModel;
-use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\BadmDetailModel;
-use App\Model\dom\DomModel;
-use App\Model\dom\DomDetailModel;
+use App\Model\badm\CasierListModel;
+use Symfony\Component\Asset\Package;
+use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
-use App\Model\dom\DomListModel;
-
+use App\Model\admin\personnel\PersonnelModel;
+use App\Model\badm\CasierListTemporaireModel;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use Symfony\Component\HttpFoundation\Response;
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
 
@@ -34,8 +41,7 @@ class Controller
 
     protected $fusionPdf;
     protected $genererPdf;
-    protected $twig;
-    protected $loader;
+
     protected $ldap;
     protected $profilModel;
     protected $casier;
@@ -48,8 +54,19 @@ class Controller
     protected $domList;
     protected $ProfilModel;
     protected $badmDetail;
+    protected $casierList;
+    protected $caiserListTemporaire;
 
     protected $odbcCrud;
+
+    protected static $generator;
+    protected $twig;
+    protected $loader;
+    private $package;
+    private $strategy;
+
+    protected $request;
+    protected $response;
 
 
     public function __construct()
@@ -62,6 +79,10 @@ class Controller
         //$this->twig = new Environment($this->loader);
         $this->twig = new Environment($this->loader, ['debug' => true]);
         $this->twig->addExtension(new DebugExtension());
+        $this->twig->addExtension(new RoutingExtension(self::$generator));
+        // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
+        // $this->package = new Package($this->strategy);
+        // $this->twig->addExtension(new AssetExtension($this->package));
 
         $this->ldap = new LdapModel();
 
@@ -70,6 +91,9 @@ class Controller
         $this->odbcCrud = new OdbcCrudModel();
 
         $this->casier = new CasierModel();
+        $this->casierList = new CasierListModel();
+        $this->caiserListTemporaire = new CasierListTemporaireModel();
+
         $this->badmRech = new BadmRechercheModel();
         $this->badm = new BadmModel();
 
@@ -83,7 +107,26 @@ class Controller
         $this->ProfilModel = new ProfilModel();
 
         $this->badmDetail = new BadmDetailModel();
+
+
+        $this->request = Request::createFromGlobals();
+
+    $this->response = new Response();
     }
+
+
+
+
+    public static function setTwig($generator)
+    {
+        self::$generator = $generator;
+    }
+
+    // public static function twig()
+    // {
+    //     return self::$generator;
+    // }
+
 
     protected function SessionStart()
     {

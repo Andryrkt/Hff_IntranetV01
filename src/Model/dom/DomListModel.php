@@ -45,11 +45,13 @@ class DomListModel extends Model
      */
     public function getListStatut()
     {
-        $stat = "SELECT DISTINCT Code_Statut, 
-                (SELECT Description FROM Statut_demande SD 
-                WHERE SD.Code_Statut = DOM.Code_Statut 
-                AND SD.Code_Application = 'DOM')  as 'LibStatut'
-                FROM Demande_ordre_mission DOM ";
+        $stat = "SELECT DISTINCT 
+        SD.Code_Statut,  
+        SD.Description 
+        FROM Demande_ordre_mission DOM 
+        LEFT JOIN Statut_demande SD  ON SD.Code_Statut = DOM.Code_Statut 
+         AND SD.Code_Application = 'DOM'
+                ";
 
 
         $exstat = $this->connexion->query($stat);
@@ -86,35 +88,36 @@ class DomListModel extends Model
      */
     public function RechercheModel($ConnectUser): array
     {
-        $sql = $this->connexion->query("SELECT  
-         Demande_ordre_mission.ID_Demande_Ordre_Mission,
-        Statut_demande.Description AS Statut,
-        Demande_ordre_mission.Sous_type_document,
-        Demande_ordre_mission.Numero_Ordre_Mission,
-        Demande_ordre_mission.Date_Demande,
-        Demande_ordre_mission.Motif_Deplacement,
-        Demande_ordre_mission.Matricule,
-        Demande_ordre_mission.Nom, 
-        Demande_ordre_mission.Prenom,
-        Demande_ordre_mission.Mode_Paiement,
-   ( SELECT Top 1 Agence_Service_Irium.nom_agence_i100 + ' - ' + Agence_Service_Irium.nom_service_i100 FROM Agence_Service_Irium where agence_ips+service_ips = Code_AgenceService_Debiteur)AS LibelleCodeAgence_Service, 
-   Demande_ordre_mission.Date_Debut, 
-        Demande_ordre_mission.Date_Fin,   
-        Demande_ordre_mission.Nombre_Jour, 
-        Demande_ordre_mission.Client,
-        Demande_ordre_mission.Fiche,
-        Demande_ordre_mission.Lieu_Intervention,
-        Demande_ordre_mission.NumVehicule,
-        Demande_ordre_mission.Total_Autres_Depenses,
-        Demande_ordre_mission.Total_General_Payer,
-        Demande_ordre_mission.Devis
-            FROM Demande_ordre_mission, Statut_demande
-            WHERE Demande_ordre_mission.Code_Statut = Statut_demande.Code_Statut
-            AND Demande_ordre_mission.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
-                                                                    FROM Agence_service_autorise 
-                                                                    WHERE Session_Utilisateur = '" . $ConnectUser . "' )
-                                                                    
-            ORDER BY Numero_Ordre_Mission DESC");
+        $sql = $this->connexion->query("SELECT 
+        DOM.ID_Demande_Ordre_Mission, 
+        SD.Description,
+        DOM.Sous_type_document,
+        DOM.Numero_Ordre_Mission,
+        DOM.Date_Demande,
+        DOM.Motif_Deplacement,
+        DOM.Matricule,
+        DOM.Nom, 
+        DOM.Prenom,
+        DOM.Mode_Paiement,
+        (nom_agence_i100 + ' - ' + nom_service_i100) AS LibelleCodeAgence_Service, 
+        DOM.Date_Debut, 
+        DOM.Date_Fin,   
+        DOM.Nombre_Jour, 
+        DOM.Client,
+        DOM.Fiche,
+        DOM.Lieu_Intervention,
+        DOM.NumVehicule,
+        DOM.Total_Autres_Depenses,
+        DOM.Total_General_Payer,
+        DOM.Devis
+        FROM Demande_ordre_mission DOM 
+		LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
+		LEFT JOIN Agence_Service_Irium ON agence_ips + service_ips = DOM.Code_AgenceService_Debiteur
+        WHERE DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+                                                FROM Agence_service_autorise 
+                                                WHERE Session_Utilisateur = '" . $ConnectUser . "' )                      
+        ORDER BY Numero_Ordre_Mission DESC
+            ");
 
 
         // Définir le jeu de caractères source et le jeu de caractères cible
@@ -154,10 +157,7 @@ class DomListModel extends Model
     {
         $sql = $this->connexion->query("SELECT 
         DOM.ID_Demande_Ordre_Mission, 
-        (SELECT TOP 1 SD.Description 
-        FROM Statut_demande SD 
-        WHERE SD.Code_Application = 'DOM' 
-        AND DOM.Code_Statut = SD.Code_Statut) AS Statut,
+        SD.Description,
         DOM.Sous_type_document,
         DOM.Numero_Ordre_Mission,
         DOM.Date_Demande,
@@ -166,9 +166,7 @@ class DomListModel extends Model
         DOM.Nom, 
         DOM.Prenom,
         DOM.Mode_Paiement,
-        (SELECT TOP 1 nom_agence_i100 + ' - ' + nom_service_i100 
-         FROM Agence_Service_Irium 
-         WHERE agence_ips + service_ips = DOM.Code_AgenceService_Debiteur) AS LibelleCodeAgence_Service, 
+        (nom_agence_i100 + ' - ' + nom_service_i100) AS LibelleCodeAgence_Service, 
         DOM.Date_Debut, 
         DOM.Date_Fin,   
         DOM.Nombre_Jour, 
@@ -179,9 +177,10 @@ class DomListModel extends Model
         DOM.Total_Autres_Depenses,
         DOM.Total_General_Payer,
         DOM.Devis
-    FROM Demande_ordre_mission DOM
-                                                                           
-            ORDER BY Numero_Ordre_Mission DESC");
+        FROM Demande_ordre_mission DOM 
+		LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
+		LEFT JOIN Agence_Service_Irium ON agence_ips + service_ips = DOM.Code_AgenceService_Debiteur
+        ORDER BY Numero_Ordre_Mission DESC");
 
 
         // Définir le jeu de caractères source et le jeu de caractères cible
@@ -232,5 +231,14 @@ class DomListModel extends Model
                 }
             }
         }
+    }
+
+
+    public function annulationCodestatut($numDom)
+    {
+        $sql = "UPDATE Demande_ordre_mission SET Code_Statut = ?, ID_Statut_Demande = ? WHERE Numero_Ordre_Mission = ?";
+        $params = array('ANN', 9,$numDom);
+
+        $this->connexion->prepareAndExecute($sql, $params);
     }
 }

@@ -47,7 +47,7 @@
     <label for="{{ name }}" class="label-form fw-bold">{{label}}</label>
     <select class="form-select " id="{{ name }}" name="{{ name }}" {{ option.required}} {{ option.disabled }} >
         {% if option.default %}
-            <option value=""  {{ selectedValue?: 'selected'}}></option>
+            <option value="{{selectedValue}}"></option>
         {% endif %}
        
         {% for row in array %}
@@ -83,7 +83,9 @@
 {% endmacro %}
 
 {% macro inputFile(name, label, option = [])%}
-<label for="formFile" class="form-label fw-bold">{{label}}</label>
-<input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" onchange="" required>
 
+<div class="col-12 {{ option.class}}">
+    <label for="formFile" class="form-label fw-bold">{{label}}</label>
+    <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
+</div>
 {% endmacro %}

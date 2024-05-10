@@ -74,7 +74,9 @@ class CasierModel extends Model
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-         and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
+        and mmat_affect in ('LCD','IMM','VTE','SDO')
+        and (MMAT_ETACHAT = 'FA' and MMAT_ETVENTE = '--')
+        and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
       ";
 
         $result = $this->connect->executeQuery($statement);
@@ -111,7 +113,7 @@ class CasierModel extends Model
 
     public function insererDansBaseDeDonnees($tab)
     {
-        $sql = "INSERT INTO Casier_Materiels (
+        $sql = "INSERT INTO Casier_Materiels_Temporaire (
             Agence_Rattacher,
             Casier,
             Nom_Session_Utilisateur,
@@ -132,7 +134,7 @@ class CasierModel extends Model
 
     public function RecupereNumCAS()
     {
-        $sql = "SELECT Numero_CAS FROM Casier_Materiels";
+        $sql = "SELECT DISTINCT MAX(Numero_CAS)as numCas FROM Casier_Materiels_Temporaire";
 
         $result = $this->connexion->query($sql);
 

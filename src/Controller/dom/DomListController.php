@@ -4,6 +4,7 @@ namespace App\Controller\dom;
 
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomListController extends Controller
@@ -26,6 +27,7 @@ class DomListController extends Controller
 
     /**
      * affichage de l'architecture de la liste du DOM
+     * @Route("/listDomRech", name="domList_ShowListDomRecherche")
      */
     public function ShowListDomRecherche()
     {
@@ -58,9 +60,10 @@ class DomListController extends Controller
 
 
     /**
-     * @Andryrkt 
+     * 
      * cette fonction transforme le tableau statut en json 
      * pour listeDomRecherche
+     * @Route("/listStatut", name="domList_listStatut")
      */
     public function listStatutController()
     {
@@ -75,9 +78,10 @@ class DomListController extends Controller
 
 
     /**
-     * @Andryrkt 
+     * 
      * cette fonction transforme le tableau en json 
      * pour listeDomRecherche
+     * @Route("/recherche", name="domList_recherche")
      */
     public function rechercheController()
     {
@@ -98,5 +102,18 @@ class DomListController extends Controller
         header("Content-type:application/json");
 
         echo json_encode($array_decoded);
+    }
+
+    /**
+     * boutton annuler pour pour change le code statut et id statut demande
+     *
+     * @return void
+     */
+    public function annulationController()
+    {
+
+        $this->domList->annulationCodestatut($_GET['NumDOM']);
+        header('Location: /Hffintranet/index.php?action=ListDomRech');
+        exit();
     }
 }

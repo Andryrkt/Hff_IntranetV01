@@ -3,6 +3,7 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomDetailController extends Controller
@@ -10,17 +11,18 @@ class DomDetailController extends Controller
 
 
     /**
-     * Afficher les details du Numero_DOM selectionnne dans DetailDOM  
+     * Afficher les details du Numero_DOM selectionnne dans DetailDOM 
+     * @Route("/detailDom/{numDom}/{id}", name="domDetail_detailDom") 
      */
-    public function DetailDOM()
+    public function DetailDOM($numDom, $id)
     {
         $this->SessionStart();
 
-        if (isset($_GET['NumDom'])) {
-            $NumDom = $_GET['NumDom'];
-            $IdDom = $_GET['Id'];
+        
+            // $NumDom = $_GET['NumDom'];
+            // $IdDom = $_GET['Id'];
 
-            $detailDom = $this->detailModel->getDetailDOMselect($NumDom, (int) $IdDom);
+            $detailDom = $this->detailModel->getDetailDOMselect($numDom, (int) $id);
 
             // var_dump($detailDom);
             // die();
@@ -40,6 +42,6 @@ class DomDetailController extends Controller
 
                 ]
             );
-        }
+        
     }
 }

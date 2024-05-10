@@ -85,7 +85,7 @@ class BadmDetailModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function DetailBadmModelAll($NumBDM, $id): array
+    public function DetailBadmModelAll($NumBDM = null, $id = null): array
     {
 
         $sql = $this->connexion->query("SELECT 
@@ -110,16 +110,18 @@ class BadmDetailModel extends Model
         dmm.Prix_Vente_HT, 
         dmm.Motif_Mise_Rebut, 
         dmm.Heure_machine, 
-        dmm.KM_machine
-    FROM Demande_Mouvement_Materiel dmm
-    JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
-    JOIN Type_Mouvement tm On dmm.Code_Mouvement = tm.ID_Type_Mouvement
-    WHERE sd.Code_Application = 'BDM'
-    AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
-    AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
-    ORDER BY Numero_Demande_BADM DESC
-    
-    ");
+        dmm.KM_machine,
+        dmm.Num_Parc
+        FROM Demande_Mouvement_Materiel dmm
+        JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
+        JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
+        WHERE sd.Code_Application = 'BDM'
+        AND dmm.ID_Demande_Mouvement_Materiel = '" . $id . "'
+        AND dmm.Numero_Demande_BADM = '" . $NumBDM . "'
+        ORDER BY Numero_Demande_BADM DESC
+        ");
+
+       
 
         $tab = [];
         while ($donner = odbc_fetch_array($sql)) {
@@ -144,14 +146,12 @@ class BadmDetailModel extends Model
     }
 
     /**
-     * Informix
+     * Informix: recupération agence service
      */
 
 
     public function recupeAgenceServiceInformix($agenceService)
     {
-
-
         $statement = "SELECT DISTINCT 
          trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
          trim(trim(atab_code)||' '|| trim(atab_lib)) as service
@@ -173,5 +173,55 @@ class BadmDetailModel extends Model
         return $this->convertirEnUtf8($services);
 
         //return $tableauUtf8;
+    }
+
+
+    /**
+     * informix: recuperation agence
+     */
+    public function recupAgence(): array
+    {
+        $statement = "SELECT DISTINCT 
+        
+        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
+        from
+        agr_succ , agr_tab a
+        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
+        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
+        and asuc_num in ('01', '40', '50','90','91','92') 
+        
+        order by 1";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $services = $this->connect->fetchResults($result);
+
+
+        return $this->convertirEnUtf8($services);
+    }
+
+    /**
+     * informix: recuperation service
+     */
+    public function recupService($codeAgence)
+    {
+        $statement = "SELECT DISTINCT 
+       trim(trim(atab_code)||' '|| trim(atab_lib)) as service
+        from
+        agr_succ , agr_tab a
+        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
+        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
+        and asuc_num in ('01', '40', '50','90','91','92')
+        and trim(asuc_num)= '" . $codeAgence . "'
+        order by 1";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $services = $this->connect->fetchResults($result);
+
+
+        return $this->convertirEnUtf8($services);
     }
 }

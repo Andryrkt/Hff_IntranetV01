@@ -17,9 +17,11 @@ class BadmModel extends Model
 
 
     /**
-     * informix
+     * Informix: recupère l'agence
+     *
+     * @return array
      */
-    public function recupAgence(): array
+    public function recupAgence()
     {
         $statement = "SELECT DISTINCT 
         trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
@@ -41,6 +43,12 @@ class BadmModel extends Model
         return $this->convertirEnUtf8($services);
     }
 
+    /**
+     * convertir en UTF_8
+     *
+     * @param [type] $element
+     * @return void
+     */
     private function convertirEnUtf8($element)
     {
         if (is_array($element)) {
@@ -54,14 +62,14 @@ class BadmModel extends Model
     }
 
 
+
     /**
      * Informix
+     *
+     * @return array
      */
-
-
     public function recupeAgenceServiceDestinataire()
     {
-
 
         $statement = "SELECT DISTINCT 
         trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence, 
@@ -74,31 +82,30 @@ class BadmModel extends Model
 
         $result = $this->connect->executeQuery($statement);
 
-
         $services = $this->connect->fetchResults($result);
-
-
-
 
         return $this->convertirEnUtf8($services);
 
         //return $tableauUtf8;
     }
 
+
+
     /**
-     * informix
+     * INformix | recupère le code et le libeler agence
+     *
+     * @return array
      */
-    public function recupeCasierDestinataire()
+    public function recupeCasierDestinataireInformix()
     {
         $statement = "SELECT distinct
-        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence,
-         trim(mmat_numparc) as casier
-       
-         
+        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)) as code_agence,
+        trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence
+        
          from mat_mat, agr_succ
          WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
-         
-         
+
+
           and trim(MMAT_ETSTOCK) in ('ST','AT')
           and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
          and mmat_soc = 'HF'
@@ -109,7 +116,6 @@ class BadmModel extends Model
          ";
 
         $result = $this->connect->executeQuery($statement);
-
 
         $services = $this->connect->fetchResults($result);
 
@@ -122,9 +128,32 @@ class BadmModel extends Model
 
 
     /**
+     * sqlServer: recupération casier
+     * @return  array
+     */
+    public function recupeCasierDestinataireSqlServer()
+    {
+        $sql = "SELECT 
+        cm.Agence_Rattacher, 
+        cm.Casier
+        FROM 
+        Casier_Materiels cm
+        WHERE 
+        cm.Agence_Rattacher IN ('01', '40', '50', '90', '91', '92')";
+
+        $execTypeDoc = $this->connexion->query($sql);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        $tableauUtf8 = $this->convertirEnUtf8($tab);
+        return $tableauUtf8;
+    }
+
+    /**
      * informix
      */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
+    public function findAll($matricule = '',  $numParc = '', $numSerie = '')
     {
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
@@ -200,7 +229,12 @@ class BadmModel extends Model
 
 
 
-
+    /**
+     * insertion dans le base de donner
+     *
+     * @param [type] $tab
+     * @return void
+     */
     function insererDansBaseDeDonnees($tab)
     {
         $sql = "INSERT INTO Demande_Mouvement_Materiel (
@@ -227,8 +261,11 @@ class BadmModel extends Model
             Heure_machine,
             KM_machine,
             Code_Statut,
-            Num_Parc
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            Num_Parc,
+            Nom_Image,
+            Nom_Fichier,
+            ID_Statut_Demande
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Exécution de la requête
         $stmt = odbc_prepare($this->connexion->connect(), $sql);
@@ -246,7 +283,12 @@ class BadmModel extends Model
         // }
     }
 
-
+    /**
+     * recupère tous les agence service autoriser
+     *
+     * @param string $user
+     * @return array
+     */
     public function recupCodeAgenceServiceAutoriser($user)
     {
         $statement = "SELECT UPPER(Code_AgenceService_IRIUM)
@@ -259,5 +301,130 @@ class BadmModel extends Model
             $tab[] = $donnee;
         }
         return $tab;
+    }
+
+    public function recupeSessionAutoriser($utilisateur)
+    {
+        $statement = "SELECT DISTINCT Session_Utilisateur AS utilisateur
+        FROM Agence_service_autorise 
+        WHERE Session_Utilisateur = '" . $utilisateur . "'
+		";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
+
+
+
+    /**
+     * récupération de OR
+     * 
+     * @return array
+     */
+    public function recupeOr($numMat)
+    {
+        $statement = " SELECT 
+        trim(asuc_lib) AS agence, 
+        trim(ser.atab_lib) As Service, 
+        slor_numor,
+         sitv_datdeb As Date, 
+        (trim(seor_refdem)||' - '||trim(seor_lib)) As Seor_refdem_lib, 
+        sitv_interv,
+        trim(sitv_comment) As stiv_comment,
+                (CASE seor_natop
+                WHEN 'VTE' THEN trim(to_char(seor_numcli)||' - '||trim(seor_nomcli))
+                WHEN 'CES' THEN (select trim(sitv_succdeb)||trim(sitv_servdeb)||' - '||trim(asuc_lib)||' / '||trim(atab_lib) from agr_succ, agr_tab WHERE asuc_num = sitv_succdeb AND atab_nom = 'SER' AND atab_code = sitv_servdeb)
+                END) AS Agence_Service,
+                Sum
+                (
+                CASE WHEN slor_typlig = 'P' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END
+                *
+                CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+                ) as Montant_Total,
+                
+               
+        Sum
+        (
+        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
+        *
+        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+        ) AS Montant_Pieces,
+        Sum
+        (
+        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
+        *
+        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+        ) AS Montant_Pieces_Livrees
+
+        from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
+        WHERE seor_numor = slor_numor
+        AND seor_serv <> 'DEV'
+        AND sitv_numor = slor_numor
+        AND sitv_interv = slor_nogrp/100
+        AND (seor_succ = asuc_num)
+        AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+        AND sitv_pos NOT IN ('FC','FE','CP','ST')
+        AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+        AND (seor_nummat = mmat_nummat)
+        and seor_nummat = $numMat
+        group by 1,2,3,4,5,6,7,8
+        order by slor_numor, sitv_interv
+";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    /**
+     * recupérer tous l'id materiel dans sql server
+     *
+     * @return array
+     */
+    public function recupeIdMateriel()
+    {
+        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
+
+
+    /**
+     * recupérer l'agence et service destinataire selon l'id materiel
+     *
+     * @return array
+     */
+    public function recupAgenceServDest($id_materiel)
+    {
+        $statement = "SELECT DISTINCT  Agence_Service_Destinataire from Demande_Mouvement_Materiel WHERE ID_Materiel='{$id_materiel}'";
+
+        $execTypeDoc = $this->connexion->query($statement);
+        $tab = [];
+        while ($donnee = odbc_fetch_array($execTypeDoc)) {
+            $tab[] = $donnee;
+        }
+        return $tab;
+    }
+
+
+    public function idOuvertStatutDemande()
+    {
+        $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";
+
+        $execTypeDoc = $this->connexion->query($statement);
+
+        return odbc_fetch_array($execTypeDoc);
     }
 }

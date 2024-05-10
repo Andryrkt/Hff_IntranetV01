@@ -1,196 +1,223 @@
 {% extends "baseTemplate.html.twig" %}
 
-        {% block stylesheets%} 
-            <link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet" />
-        {% endblock%}
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
+{% endblock%}
 
 {% import "macroForm.html.twig" as form %}
 
 
-
 {% block content %}
-{% include "/main/Principe.html.twig" %}
-
-
 
 
 <div class="container my-5">
 
-    <div class="row">
-        <div class="col-12 col-md-11">
-            <h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
-        </div>
-        
-        <div class=" col-12 col-md-1">     
-            <a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
-        </div>
-    </div>
-    <div class="row">
-        
-    </div>
+	<div class="row">
+		<div class="col-12 col-md-11">
+			{% if detail == 'disabled' %}
+				<h2 class="fw-bold fs-1" style="color:#0e4194;">Détail Bordereau d’Acquisition et de Mouvement Matériel</h2>
+			{% elseif duplication %}
+				<h2 class="fw-bold fs-1" style="color:#0e4194;">Duplication Bordereau d’Acquisition et de Mouvement Matériel</h2>
+
+			{% else %}
+
+				<h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
+			{% endif %}
+		</div>
+
+		<div class=" col-12 col-md-1">
+			<a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+		</div>
+	</div>
+	<div class="row"></div>
 
 
-    <form action="/Hffintranet/index.php?action=envoiFormCompleBadm" method="post" name="form" enctype="multipart/form-data">
-        <input type="hidden" name="codeMouvement" value="{{codeMouvement ? codeMouvemnt: Server.0.Description}}">
-        <input type="hidden" name="idMateriel" value="{{items.0.num_matricule ?: Server.0.ID_Materiel}}">
+	<form action="/Hffintranet/formCompleBadm" method="post" name="form" enctype="multipart/form-data">
+		<input type="hidden" name="codeMouvement" value="{{codeMouvement ? : Server.0.Description}}">
+		<input type="hidden" name="idMateriel" value="{{items.0.num_matricule ?: Server.0.ID_Materiel}}">
+		<input type="hidden" name="numBdm" value="{{ numBdm }}">
+		<input type="hidden" name="agenceDestinataireDetail" value="{{ Destinataire.0.service }}">
+		<input type="hidden" name="casierDestinataireDetail" value="{{ Server.0.Casier_Destinataire}}">
 
-        <div class="row">    
-          {{ form.inputReadonly('dateDemande', 'Date', dateDemande|date('d/m/Y') ?: Server.Date_Demande|date("d/m/Y"), {endpoint: '12', class:'col-md-3'}) }}
-            <div class="codeMouvement">
-                <h3  id="codeMouvement" >{{codeMouvement ?: Server.0.Description}}</h3>
-            </div>
-        </div>
 
-        <div class="row">
-            {{ form.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}
-        </div>
-        <div class="row">
-           
-                {{form.inputReadonly('designation', 'Désignation ', items.0.designation ?: Informix.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule ?: Server.0.ID_Materiel,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie ?: Informix.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            {% if codeMouvement == 'ENTREE EN PARC'  %}  
-                {{form.inputText('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}   
+		<div class="row">
+			{{ form.inputReadonly('dateDemande', 'Date', (dateDemande ?: Server.0.Date_Demande)|date("d/m/Y"), {endpoint: '12', class:'col-md-3'}) }}
+			<div class="codeMouvement">
+				<h3 id="codeMouvement">{{codeMouvement ?: Server.0.Description}}</h3>
+			</div>
+		</div>
+
+		<div class="row">
+			{{ form.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}
+		</div>
+		<div class="row">
+
+			{{form.inputReadonly('designation', 'Désignation ', items.0.designation ?: Informix.0.designation,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+			{{form.inputReadonly('idMateriel', 'ID matériel ', items.0.num_matricule ?: Server.0.ID_Materiel,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+			{{form.inputReadonly('numSerie', 'N° Série ', items.0.num_serie ?: Informix.0.num_serie,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+			{% if codeMouvement == 'ENTREE EN PARC'  %}
+				{{form.inputText('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.Num_Parc,{endpoint: '12', class: 'col-lg-3 col-md-6', required:'required'} )}}
+			{% else %}
+				{{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.Num_Parc,{endpoint: '12', class: 'col-lg-3 col-md-6',  disabled: detail} )}}
+			{% endif %}
+		</div>
+		<div class="row">
+
+			{{form.inputReadonly('groupe', 'Groupe ', items.0.famille ?: Informix.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
+			{{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ?: Informix.0.constructeur,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+			{{form.inputReadonly('modele', 'Modèle ', items.0.modele ?: Informix.0.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+			{{form.inputReadonly('anneeModele', 'Année du modèle', items.0.annee ?: Informix.0.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+
+		</div>
+		<div class="row d-flex">
+			{{form.inputReadonly('affectation', ' Affectation', items.0.affectation ?: Informix.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+			{{form.inputReadonly('dateAchat', 'Date d’achat ', (items.0.date_achat ?: Informix.0.date_achat)|date("d/m/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
+		</div>
+
+
+		<div class="row">
+			{{ form.sousTitre('Etat machine', {class: 'sousTitre'})}}
+		</div>
+		<div class="row">
+			{{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.') ?: Informix.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
+			{{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km|number_format(2,',', '.') ?: Informix.0.km|number_format(2,',', '.'),{endpoint: '12', class: ' col-md-6'})}}
+		</div>
+
+
+		<div class="row">
+			{{ form.sousTitre('Service émetteur', {class: 'sousTitre'})}}
+		</div>
+		<div class="row">
+
+			{{form.inputReadonly('agenceEmetteur', 'Agence', agenceEmetteur ?: Emetteur.0.agence ,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+			{{form.inputReadonly('serviceEmetteur', 'Service', serviceEmetteur ?: Emetteur.0.service,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+			{{form.inputReadonly('casierEmetteur', 'Casier', items.0.casier_emetteur ?: Server.0.Casier_Emetteur,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+
+		</div>
+
+
+		<div class="row">
+			{{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
+		</div>
+		<div
+			class="row">
+			{# {{ dump(codeMouvment == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT') }}  #}
+
+			{% if codeMouvment == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+                {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'}, Destinataire.0.agence)}}
+                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}
             {% else %}
-                {{form.inputReadonly('numParc', 'N° Parc  ', items.0.num_parc ?: Server.0.num_parc,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
+                {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
+                {{form.select('serviceDestinataire', 'Service',  '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}  
             {% endif %}
-        </div>
-        <div class="row">
-            
-                {{form.inputReadonly('groupe', 'Groupe ', items.0.famille ?: Informix.0.famille,{endpoint: '12', class: 'col-lg-3 col-md-6'})}}
-                {{form.inputReadonly('constructeur', 'Constructeur', items.0.constructeur ?: Informix.0.constructeur,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('modele', 'Modèle ', items.0.modele ?: Informix.0.modele,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-                {{form.inputReadonly('anneeModele', 'Année du modèle', items.0.annee ?: Informix.0.annee,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-           
-        </div>
-        <div class="row d-flex">
-            {{form.inputReadonly('affectation', ' Affectation', items.0.affectation ?: Informix.0.affectation,{endpoint: '12', class: 'col-lg-3 col-md-6'} )}}
-            {{form.inputReadonly('dateAchat', 'Date d’achat ', items.0.date_achat|date("d/m/Y") ?: Informix.0.date_achat|date("d/m/Y"),{endpoint: '12', class: 'col-lg-3 col-md-6' } )}}
-        </div>
+            {% if codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+				{{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: 'disabled'})}}
+			{% else %}
+				{{form.select('casierDestinataire', 'Casier Destinataire', '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail})}}
+			{% endif %}
 
+		</div>
 
-        <div class="row">
-            {{ form.sousTitre('Etat machine', {class: 'sousTitre'})}}
-        </div>
-        <div class="row">
-            {{form.inputReadonly('heuresMachine', 'Heures machine', items.0.heure|number_format(2,',', '.') ?: Informix.0.heure|number_format(2,',', '.'),{endpoint: '12', class: 'col-md-6'})}}
-            {{form.inputReadonly('kilometrage', 'Kilométrage', items.0.km|number_format(2,',', '.') ?: Informix.0.km|number_format(2,',', '.'),{endpoint: '12', class: ' col-md-6'})}}    
-        </div>
-
-
-        <div class="row">
-            {{ form.sousTitre('Service émetteur', {class: 'sousTitre'})}}
-        </div>
-        <div class="row">
-            
-            {{form.inputReadonly('agenceEmetteur', 'Agence', agenceEmetteur ?: Emetteur.0.agence ,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.inputReadonly('serviceEmetteur', 'Service', serviceEmetteur ?: Emetteur.0.service,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.inputReadonly('casierEmetteur', 'Casier', items.0.casier_emetteur ?: Server.0.Casier_Emetteur,{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            
-        </div>
-
-
-
-        <div class="row">
-            {{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
-        </div>
-        <div class="row">
-            {{ dump(Destinataire.0.agence) }}
-            {{form.select('agenceDestinataire', 'Agence', agenceDestinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail}, Destinataire.0.agence)}}
-            {{form.select('serviceDestinataire', 'Service', Destinataire.0.service?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
-                        
-            {{form.select('casierDestinataire', 'Casier Destinataire', Server.0.Casier_Destinataire,{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required'})}}
-        </div>
-        
-        <div class="row">
-            {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100' } )}}
+		<div class="row">
+			{% if codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
+                {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: 'disabled' } )}}
+                
+            {% else %}
+                {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: detail } )}}
+                
+            {% endif %}
         </div>
 
 
 
         {% if codeMouvement == 'CHANGEMENT AGENCE/SERVICE' or codeMouvement == 'CHANGEMENT DE CASIER' or codeMouvement == 'CESSION D\'ACTIF' or codeMouvement == 'MISE AU REBUT' %}
-            <div class="row">
-                {{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat ?: Server.0.Etat_Achat,{required: 'required', endpoint: '12', class: ' col-md-6' , disabled: 'disabled'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation ?: Server.0.Date_Mise_Location,{endpoint: '12', class: ' col-md-6', disabled: 'disabled'})}}    
-            </div>
+				<div class="row">
+					{{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
+				</div>
+				<div class="row">
+					{{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat ?: Server.0.Etat_Achat,{required: 'required', endpoint: '12', class: ' col-md-6' , disabled: 'disabled'})}}
+					{{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation ?: Server.0.Date_Mise_Location,{endpoint: '12', class: ' col-md-6', disabled: 'disabled'})}}
+				</div>
 
-        {% else %}
-            <div class="row">
-                {{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
-            </div>
-            <div class="row">
-                {{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat ?: Server.0.Etat_Achat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
-                {{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation ?: Server.0.Date_Mise_Location,{endpoint: '12', class: ' col-md-6', disabled:detail})}}    
-            </div>
-        {% endif %}
-
-        
+			{% else %}
+				<div class="row">
+					{{ form.sousTitre('Entrée en parc', {class: 'sousTitre'})}}
+				</div>
+				<div class="row">
+					{{form.inputReadonly('etatAchat', 'Etat à l’achat:', etatAchat ?: Server.0.Etat_Achat,{required: 'required', endpoint: '12', class: ' col-md-6'})}}
+					{{form.inputDate('dateMiseLocation', 'Date de mise en location', dateMiseLocation ?: Server.0.Date_Mise_Location,{endpoint: '12', class: ' col-md-6', disabled:detail})}}
+				</div>
+			{% endif %}
 
 
+			<div class="row">
+				{{ form.sousTitre('Valeur (MGA)', {class: 'sousTitre'})}}
+			</div>
+			<div class="row">
+				{{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', (coutAcquisition ?: Server.0.Cout_Acquisition)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+				{{form.inputReadonly('amortissement', 'Amortissement', (items.0.amortissement ?: Server.0.Amortissement)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+				{{form.inputReadonly('valeurNetComptable', 'VNC', (vnc ?: Server.0.Valeur_Net_Comptable)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+			</div>
 
-        <div class="row">
-            {{ form.sousTitre('Valeur (MGA)', {class: 'sousTitre'})}}
-        </div>
-        <div class="row">
-            {{form.inputReadonly('coutAcquisition', 'Coût d’acquisition', (coutAcquisition ?: Server.0.Cout_Acquisition)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-            {{form.inputReadonly('amortissement', 'Amortissement', (items.0.amortissement ?: Server.0.Amortissement)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}} 
-            {{form.inputReadonly('valeurNetComptable', 'VNC', (vnc ?: Server.0.Valeur_Net_Comptable)|number_format(2,',', '.'),{endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
-        </div>
+
+			{% if codeMouvement == 'ENTREE EN PARC' or codeMouvement == 'CHANGEMENT AGENCE/SERVICE' or codeMouvement == 'CHANGEMENT DE CASIER' %}
+				<div class="row">
+					{{ form.sousTitre('Cession d’actif', {class: 'sosuTitreGiser'})}}
+				</div>
+				<div class="row">
+
+					{{form.inputText('nomClient', 'Nom client', Server.0.Nom_Client ?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}
+					{{form.select('modalitePaiement', 'Modalité de paiement', {Traite: 'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', disabled: 'disabled'}, Server.0.Modalite_paiement )}}
+					{{form.inputNumber('prixHt', 'Prix HT', Server.0.Prix_Vente_HT ?: '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}
+				</div>
 
 
-        {% if codeMouvement == 'ENTREE EN PARC' or codeMouvement == 'CHANGEMENT AGENCE/SERVICE' or codeMouvement == 'CHANGEMENT DE CASIER' %}
-            <div class="row">
-                {{ form.sousTitre('Cession d’actif', {class: 'sosuTitreGiser'})}}
-            </div>
-            <div class="row">
+				<div class="row">
+					{{ form.sousTitre('Mise au rebut', {class: 'sosuTitreGiser'})}}
+				</div>
+				<div class="row">
+					{{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', disabled: 'disabled'})}}
+				</div>
+			{% else %}
+				<div class="row">
+					{{ form.sousTitre('Cession d’actif', {class: 'sousTitre'})}}
+				</div>
+				<div class="row">
+					{{form.inputText('nomClient', 'Nom client', Server.0.Nom_Client ?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required',  disabled: detail})}}
+					{{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'TRAITE', Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail},  Server.0.Modalite_paiement)}}
+					{{form.inputNumber('prixHt', 'Prix HT', Server.0.Prix_Vente_HT ?: '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6',  disabled: detail})}}
+				</div>
+
+
+				<div class="row">
+					{{ form.sousTitre('Mise au rebut', {class: 'sousTitre'})}}
+				</div>
+
+				<div class="row">
+					{% if codeMouvement == 'CESSION D\'ACTIF' %}
+                    {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_Rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required',  disabled: 'disabled'})}}     
                 
-                {{form.inputText('nomClient', 'Nom client', Server.0.Nom_Client ?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}
-                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite: 'Traite', Cheque:'Chèque', Virement:'Virement'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', disabled: 'disabled'}, Server.0.Modalite_paiement )}} 
-                {{form.inputNumber('prixHt', 'Prix HT', Server.0.Prix_Vente_HT ?: '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6', disabled: 'disabled'})}}   
-            </div>
-
-
-            <div class="row">
-                {{ form.sousTitre('Mise au rebut', {class: 'sosuTitreGiser'})}}
-            </div>
-            <div class="row">
-                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', disabled: 'disabled'})}}     
-            </div>
-        {% else %}
-            <div class="row">
-                {{ form.sousTitre('Cession d’actif', {class: 'sousTitre'})}}
-            </div>
-            <div class="row">
-                {{form.inputText('nomClient', 'Nom client', Server.0.Nom_Client ?: '',{endpoint: '12', class: 'col-lg-4 col-md-6', required: 'required'})}}
-                {{form.select('modalitePaiement', 'Modalité de paiement', {Traite:'TRAITE', Cheque:'CHEQUE', Virement:'VIREMENT'},{endpoint: '12', class: 'col-lg-4 col-md-6', default:'true', required: 'required', disabled: detail},  Server.0.Modalite_paiement)}} 
-                {{form.inputNumber('prixHt', 'Prix HT', Server.0.Prix_Vente_HT ?: '',{ step:'0.01',  endpoint: '12', class: 'col-lg-4 col-md-6'})}}   
-            </div>
-
-
-            <div class="row">
-                {{ form.sousTitre('Mise au rebut', {class: 'sousTitre'})}}
-            </div>
-            <div class="row">
-                {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required'})}}     
+                {% else %}
+                    {{form.inputText('motifMiseRebut', 'Motif de mise au rebut', Server.0.Motif_Mise_Rebut ?: '',{endpoint: '12', maxlength: '100', required: 'required',  disabled: detail})}}     
+                    
+                {% endif %}
             </div>
             {% if codeMouvement == 'MISE AU REBUT' %}
                 <div class="row">
-                    {{form.inputFile('imageRebut', 'Image du matériel', {accept:'.jpg, .jepg, .png'})}}
+                    {{form.inputFile('imageRebut', 'Image', {accept:'.jpg, .jepg, .png', class: ' col-md-6' , disabled: detail})}}
+                    {{form.inputFile('fichierRebut', 'Fichier', {accept:'.pdf, .doc, .docx', class: 'col-md-6' , disabled: detail})}}
                 </div>
             {% endif %}
         {% endif %}
 
-        
 
-
-
-        <div class="row mt-5">
+{% if detail != 'disabled' %}
+    <div class="row mt-5">
             {{form.button('submit', 'Envoyer', 'badmComplet', 'primary')}}
             {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
         </div>
+{% endif %}
+        
     </form>
 </div>        
     {% endblock content %}

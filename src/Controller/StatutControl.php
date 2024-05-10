@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Model\StatutModel;
 
-
-
 class StatutControl
 {
     private $StatutModel;
@@ -27,6 +25,7 @@ class StatutControl
         $ListStatut = $this->StatutModel->getListStatut();
         include 'Views/TypeDoc/StatutForm.php';
     }
+
     public function MoveStatut()
     {
         session_start();

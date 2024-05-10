@@ -1,15 +1,20 @@
 <?php
 
 return [
+
+    [
+        'method' => [''],
+        'path' => ''
+    ],
     [
         'method' => 'GET',
         'path' => '/Hffintranet/',
-        'controller' => 'App\\Controller\\BadmController:formBadm'
+        'controller' => 'App\\Controller\\badm\\BadmController::formBadm'
     ],
     [
         'method' => 'POST',
         'path' => '/list',
-        'controller' => 'App\\Controller\\BadmController:formCompleBadm'
+        'controller' => 'App\\Controller\\BadmController::formCompleBadm'
     ],
     [
         'method' => ['GET', 'POST'],

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\security;
+
+use App\Controller\ProfilControl;
 
 
 
