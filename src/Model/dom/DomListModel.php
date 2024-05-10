@@ -236,8 +236,8 @@ class DomListModel extends Model
 
     public function annulationCodestatut($numDom)
     {
-        $sql = "UPDATE Demande_ordre_mission SET Code_Statut = ? WHERE Numero_Ordre_Mission = ?";
-        $params = array('ANN', $numDom);
+        $sql = "UPDATE Demande_ordre_mission SET Code_Statut = ?, ID_Statut_Demande = ? WHERE Numero_Ordre_Mission = ?";
+        $params = array('ANN', 9,$numDom);
 
         $this->connexion->prepareAndExecute($sql, $params);
     }

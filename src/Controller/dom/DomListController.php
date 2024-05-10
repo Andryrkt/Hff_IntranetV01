@@ -100,6 +100,11 @@ class DomListController extends Controller
         echo json_encode($array_decoded);
     }
 
+    /**
+     * boutton annuler pour pour change le code statut et id statut demande
+     *
+     * @return void
+     */
     public function annulationController()
     {
 
