@@ -8,6 +8,8 @@ use App\Controller\TypeDocControl;
 use App\Controller\badm\BadmController;
 use App\Controller\badm\CasierController;
 use App\Controller\dom\DomListController;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\Config\FileLocator;
 use App\Controller\dom\DomDetailController;
 use App\Loader\CustomAnnotationClassLoader;
@@ -96,9 +98,6 @@ try {
     // $response->setContent("La page demandée n'existe pas");
     // $response->setStatusCode(404);
 } 
-
-
-
 
 
 

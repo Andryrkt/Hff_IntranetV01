@@ -8,10 +8,11 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
         '89efb1254ef2d1c5d80096acd12c4098' => __DIR__ . '/..' . '/twig/twig/src/Resources/core.php',
@@ -25,6 +26,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         's' => 
         array (
             'setasign\\Fpdi\\' => 14,
+        ),
+        'Z' => 
+        array (
+            'ZipStream\\' => 10,
         ),
         'T' => 
         array (
@@ -53,10 +58,14 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
+            'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
             'Psr\\EventDispatcher\\' => 20,
             'Psr\\Cache\\' => 10,
             'PhpOption\\' => 10,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
             'Pagerfanta\\Twig\\' => 16,
             'Pagerfanta\\Solarium\\' => 20,
             'Pagerfanta\\Elastica\\' => 20,
@@ -66,6 +75,11 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Pagerfanta\\Doctrine\\DBAL\\' => 25,
             'Pagerfanta\\Doctrine\\Collections\\' => 32,
             'Pagerfanta\\' => 11,
+        ),
+        'M' => 
+        array (
+            'MyCLabs\\Enum\\' => 13,
+            'Matrix\\' => 7,
         ),
         'G' => 
         array (
@@ -86,6 +100,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'C' => 
         array (
             'Config\\' => 7,
+            'Complex\\' => 8,
         ),
         'A' => 
         array (
@@ -110,6 +125,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'setasign\\Fpdi\\' => 
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
+        'ZipStream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
         ),
         'Twig\\' => 
         array (
@@ -187,9 +206,22 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/symfony/twig-bridge',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+        ),
+        'Psr\\Http\\Client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
         'Psr\\EventDispatcher\\' => 
         array (
@@ -202,6 +234,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
         ),
         'Pagerfanta\\Twig\\' => 
         array (
@@ -239,6 +275,14 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/pagerfanta/pagerfanta/lib/Core',
         ),
+        'MyCLabs\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
+        ),
+        'Matrix\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
         'GrahamCampbell\\ResultType\\' => 
         array (
             0 => __DIR__ . '/..' . '/graham-campbell/result-type/src',
@@ -270,6 +314,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Config\\' => 
         array (
             0 => __DIR__ . '/../..' . '/config',
+        ),
+        'Complex\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
         'App\\Service\\' => 
         array (
@@ -329,6 +377,16 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'H' => 
+        array (
+            'HTMLPurifier' => 
+            array (
+                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'CURLStringFile' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
@@ -339,7 +397,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'QRcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/qrcode.php',
         'ReturnTypeWillChange' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
-        'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'Stringable' => __DIR__ . '/..' . '/myclabs/php-enum/stubs/Stringable.php',
         'TCPDF' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf.php',
         'TCPDF2DBarcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_barcodes_2d.php',
         'TCPDFBarcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_barcodes_1d.php',
@@ -360,6 +418,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit394db9ff3e8bed461b3131f49f543b23::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit394db9ff3e8bed461b3131f49f543b23::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit394db9ff3e8bed461b3131f49f543b23::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit394db9ff3e8bed461b3131f49f543b23::$classMap;
 
         }, null, ClassLoader::class);

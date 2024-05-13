@@ -47,7 +47,7 @@
     <label for="{{ name }}" class="label-form fw-bold">{{label}}</label>
     <select class="form-select " id="{{ name }}" name="{{ name }}" {{ option.required}} {{ option.disabled }} >
         {% if option.default %}
-            <option value="{{selectedValue}}"></option>
+            <option value="{{selectedValue}}"> </option>
         {% endif %}
        
         {% for row in array %}
@@ -65,7 +65,7 @@
             <span class="input-group-text">{{label}}</span>
             <select class="form-control" id="{{ name }}" name="{{ name }}" >
                 {% if option.default %}
-                    <option value=""  selected>{{option.valueDefault}}</option>
+                    <option value=""  selected> -- {{option.valueDefault}} --</option>
                 {% endif %}
                 {% for row in array %}
                     <option value="{{row}}" >{{row}}</option>

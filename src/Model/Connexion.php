@@ -12,14 +12,13 @@ class Connexion
     {
         $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
         if (!$this->conn) {
-            throw new \Exception("ODBC Conenction failed:" . odbc_error());
+            throw new \Exception("ODBC Connection failed:" . odbc_error());
         }
     }
 
 
-    public function connect()
-    {
-        return $this->conn;
+    public function getConnexion() {
+        return $this->conn; 
     }
 
 
@@ -27,7 +26,7 @@ class Connexion
     {
         $result = odbc_exec($this->conn, $sql);
         if (!$result) {
-            throw new \Exception("ODBC Conenction failed:" . odbc_error());
+            throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
         }
         return $result;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Model\dom;
 
+use Exception;
 use App\Model\Model;
 
 class DomListModel extends Model
@@ -45,12 +46,10 @@ class DomListModel extends Model
      */
     public function getListStatut()
     {
-        $stat = "SELECT DISTINCT 
-        SD.Code_Statut,  
-        SD.Description 
-        FROM Demande_ordre_mission DOM 
-        LEFT JOIN Statut_demande SD  ON SD.Code_Statut = DOM.Code_Statut 
-         AND SD.Code_Application = 'DOM'
+        $stat = "SELECT   
+        Description 
+        FROM Statut_demande 
+        WHERE Code_Application = 'DOM'
                 ";
 
 
@@ -114,8 +113,8 @@ class DomListModel extends Model
 		LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
 		LEFT JOIN Agence_Service_Irium ON agence_ips + service_ips = DOM.Code_AgenceService_Debiteur
         WHERE DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
-                                                FROM Agence_service_autorise 
-                                                WHERE Session_Utilisateur = '" . $ConnectUser . "' )                      
+                                            FROM Agence_service_autorise 
+                                            WHERE Session_Utilisateur = '" . $ConnectUser . "' )                      
         ORDER BY Numero_Ordre_Mission DESC
             ");
 
@@ -138,7 +137,7 @@ class DomListModel extends Model
         }
 
 
-        $this->TestCaractereSpeciaux($tab);
+        //$this->TestCaractereSpeciaux($tab);
 
 
         return $this->decode_entities_in_array($tab);
@@ -153,59 +152,133 @@ class DomListModel extends Model
      * pour listeDomRecherhce
      * limiter l'accées des utilisateurs
      */
-    public function RechercheModelAll(): array
+    public function RechercheModelAll($tab, $page, $pageSize): array
     {
-        $sql = $this->connexion->query("SELECT 
-        DOM.ID_Demande_Ordre_Mission, 
-        SD.Description,
-        DOM.Sous_type_document,
-        DOM.Numero_Ordre_Mission,
-        DOM.Date_Demande,
-        DOM.Motif_Deplacement,
-        DOM.Matricule,
-        DOM.Nom, 
-        DOM.Prenom,
-        DOM.Mode_Paiement,
-        (nom_agence_i100 + ' - ' + nom_service_i100) AS LibelleCodeAgence_Service, 
-        DOM.Date_Debut, 
-        DOM.Date_Fin,   
-        DOM.Nombre_Jour, 
-        DOM.Client,
-        DOM.Fiche,
-        DOM.Lieu_Intervention,
-        DOM.NumVehicule,
-        DOM.Total_Autres_Depenses,
-        DOM.Total_General_Payer,
-        DOM.Devis
+            
+        $offset = intval(($page - 1) * $pageSize); 
+    
+        $sql = "SELECT 
+            DOM.ID_Demande_Ordre_Mission, 
+            SD.Description,
+            DOM.Sous_type_document,
+            DOM.Numero_Ordre_Mission,
+            DOM.Date_Demande,
+            DOM.Motif_Deplacement,
+            DOM.Matricule,
+            DOM.Nom, 
+            DOM.Prenom,
+            DOM.Mode_Paiement,
+            CAST(ASI.nom_agence_i100 AS VARCHAR(MAX)) + ' - ' + CAST(ASI.nom_service_i100 AS VARCHAR(MAX)) AS LibelleCodeAgence_Service, 
+            DOM.Date_Debut, 
+            DOM.Date_Fin,   
+            DOM.Nombre_Jour, 
+            DOM.Client,
+            DOM.Fiche,
+            DOM.Lieu_Intervention,
+            DOM.NumVehicule,
+            DOM.Total_Autres_Depenses,
+            DOM.Total_General_Payer,
+            DOM.Devis
         FROM Demande_ordre_mission DOM 
-		LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
-		LEFT JOIN Agence_Service_Irium ON agence_ips + service_ips = DOM.Code_AgenceService_Debiteur
-        ORDER BY Numero_Ordre_Mission DESC");
+        LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
+        LEFT JOIN Agence_Service_Irium ASI ON ASI.agence_ips + ASI.service_ips = DOM.Code_AgenceService_Debiteur
+        ";
+    
+        // Build the WHERE clause based on provided filters
+       
+        $conditions = $this->buildConditions($tab);
 
+    
 
-        // Définir le jeu de caractères source et le jeu de caractères cible
-
-        $tab = [];
-        while ($donner = odbc_fetch_array($sql)) {
-
-            $tab[] = $donner;
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
         }
-
-
-        // Parcourir chaque élément du tableau $tab
-        foreach ($tab as $key => &$value) {
-            // Parcourir chaque valeur de l'élément et nettoyer les données
-            foreach ($value as &$inner_value) {
-                $inner_value = $this->clean_string($inner_value);
-            }
-        }
-
-
-        $this->TestCaractereSpeciaux($tab);
-
-
-        return $this->decode_entities_in_array($tab);
+    
+        $sql .= " ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
+       
+     
+        $statement = $this->connexion->query($sql);
+        // Prepare and execute SQL statement
+        //$stmt = $this->prepareAndExecute($conn, $sql, $params);
+    
+        // Fetch and clean results
+        return $this->fetchAndCleanResults($statement);
     }
+    
+
+
+    private function buildConditions(array $tab): array
+{
+    $conditions = [];
+   
+
+    foreach ($tab as $field => $value) {
+        if (!empty($value)) {
+            if (!empty($tab['dateDemandeDebut'])) {
+                $conditions[]= "Date_Demande >=  '{$tab['dateDemandeDebut']}'";
+            }
+            if(!empty($tab['dateDemandeFin'])) {
+                $conditions[]= "Date_Demande <= '{$tab['dateDemandeFin']}'";
+            }
+            if(!empty($tab['dateMissionDebut'])){
+                $conditions[]= "Date_Debut >= '{$tab['dateMissionDebut']}'";
+            } 
+            if(!empty($tab['dateMissionFin'])){
+                $conditions[]= "Date_Fin <= '{$tab['dateMissionFin']}'";
+            } 
+
+            if(!empty($tab['Description']) || !empty($tab['Sous_type_document']) || !empty($tab['Matricule']) || !empty($tab['Numero_Ordre_Mission']))
+            {
+                $conditions[] = "$field LIKE '%$value%'";
+            }
+                
+            
+        }
+    }
+
+    return $conditions;
+}
+
+    
+   
+    
+    private function fetchAndCleanResults($stmt): array
+    {
+        $result = [];
+        while ($row = odbc_fetch_array($stmt)) {
+            array_walk_recursive($row, function (&$value, $key) {
+                $value = $this->clean_string($value);
+            });
+            $result[] = $this->decode_entities_in_array($row);
+        }
+        return $result;
+    }
+    
+
+public function getTotalRecords($tab) {
+    $conn = $this->connexion->getConnexion();
+    $sql = "SELECT COUNT(*) AS total FROM Demande_ordre_mission DOM
+            LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande";
+
+    $params = [];
+    $conditions = [];
+
+    $conditions = $this->buildConditions($tab);
+
+    if (!empty($conditions)) {
+        $sql .= " WHERE " . implode(' AND ', $conditions);
+    }
+
+    $statement = $this->connexion->query($sql);
+ 
+
+    // Fetch the results
+    $result = odbc_fetch_array($statement);
+
+    return $result['total'];
+}
+
+ 
 
 
     private function clean_string($string)
@@ -213,25 +286,25 @@ class DomListModel extends Model
         return mb_convert_encoding($string, 'ASCII', 'UTF-8');
     }
 
-    private function TestCaractereSpeciaux(array $tab)
-    {
-        function contains_special_characters($string)
-        {
-            // Expression régulière pour vérifier les caractères spéciaux
-            return preg_match('/[^\x20-\x7E\t\r\n]/', $string);
-        }
+    // private function TestCaractereSpeciaux(array $tab)
+    // {
+    //     function contains_special_characters($string)
+    //     {
+    //         // Expression régulière pour vérifier les caractères spéciaux
+    //         return preg_match('/[^\x20-\x7E\t\r\n]/', $string);
+    //     }
 
-        // Parcours de chaque élément du tableau $tab
-        foreach ($tab as $key => $value) {
-            // Parcours de chaque valeur de l'élément
-            foreach ($value as $inner_value) {
-                // Vérification de la présence de caractères spéciaux
-                if (contains_special_characters($inner_value)) {
-                    echo "Caractère spécial trouvé dans la valeur : $inner_value<br>";
-                }
-            }
-        }
-    }
+    //     // Parcours de chaque élément du tableau $tab
+    //     foreach ($tab as $key => $value) {
+    //         // Parcours de chaque valeur de l'élément
+    //         foreach ($value as $inner_value) {
+    //             // Vérification de la présence de caractères spéciaux
+    //             if (contains_special_characters($value)) {
+    //                 echo "Caractère spécial trouvé dans la valeur : $value<br>";
+    //             }
+    //         }
+    //     }
+    // }
 
 
     public function annulationCodestatut($numDom)

@@ -4,6 +4,7 @@ namespace App\Controller\dom;
 
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -29,21 +30,41 @@ class DomListController extends Controller
      * affichage de l'architecture de la liste du DOM
      * @Route("/listDomRech", name="domList_ShowListDomRecherche")
      */
-    public function ShowListDomRecherche()
+    public function ShowListDomRecherche(Request $request)
     {
+        // dd($request);
+        //dd($page);
+        
         $this->SessionStart();
 
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $UserConnect = $_SESSION['user'];
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($UserConnect);
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
 
-        $statut = $this->domList->getListStatut();
+        $limit = 10; // Nombre d'entrées à afficher par page
+        $page =  2;
 
-        $sousType = $this->domList->recupSousType();
-        $sousTypeDoc = $this->transformEnSeulTableau($sousType);
+
+        $statut = $this->transformEnSeulTableau($this->domList->getListStatut());
+
+        $sousTypeDoc = $this->transformEnSeulTableau($this->domList->recupSousType());
+     
+        $resultat = $this->domList->getTotalRecords($request->query->all());
+        $totalPages = ceil($resultat / $limit);
+        //dd($totalPages);
+
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
+
+
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+            $array_decoded = $this->domList->RechercheModelAll($request->query->all(), (int)$page, (int)$limit);
+        } else {
+            $array_decoded = $this->domList->RechercheModel($UserConnect);
+        }
+
 
 
         $this->twig->display(
@@ -52,7 +73,13 @@ class DomListController extends Controller
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
                 'statut' => $statut,
-                'sousTypeDoc' => $sousTypeDoc
+                'sousTypeDoc' => $sousTypeDoc,
+                'dom' => $array_decoded,
+                'statut' =>$statut,
+                'sousTypeDoc' => $sousTypeDoc,
+                'totalPage' => $totalPages,
+                'resultat' => $resultat,
+                'page' => $page
             ]
         );
     }
@@ -93,7 +120,7 @@ class DomListController extends Controller
 
 
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $array_decoded = $this->domList->RechercheModelAll();
+            //$array_decoded = $this->domList->RechercheModelAll();
         } else {
             $array_decoded = $this->domList->RechercheModel($UserConnect);
         }
