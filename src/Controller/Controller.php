@@ -23,15 +23,17 @@ use Twig\Extension\DebugExtension;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
 use Symfony\Component\Asset\Package;
+use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
+use App\Service\FlashManagerService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
-use Symfony\Component\HttpFoundation\Response;
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
 
@@ -68,6 +70,10 @@ class Controller
     protected $request;
     protected $response;
 
+    protected $excelExport;
+    protected $flashManager;
+
+    protected static $validator;
 
     public function __construct()
     {
@@ -112,6 +118,9 @@ class Controller
         $this->request = Request::createFromGlobals();
 
     $this->response = new Response();
+
+    $this->excelExport = new ExcelExporterService();
+    $this->flashManager = new FlashManagerService();
     }
 
 
@@ -122,15 +131,17 @@ class Controller
         self::$generator = $generator;
     }
 
-    // public static function twig()
-    // {
-    //     return self::$generator;
-    // }
+    public static function setValidator($validator)
+    {
+        self::$validator = $validator;
+    }
 
 
     protected function SessionStart()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (empty($_SESSION['user'])) {
             header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
@@ -140,7 +151,9 @@ class Controller
 
     protected function SessionDestroy()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         unset($_SESSION['user']);
         session_destroy();
         session_unset();

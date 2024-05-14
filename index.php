@@ -1,33 +1,35 @@
 <?php
 
 
-use App\Controller\ProfilControl;
-use App\Controller\StatutControl;
-use App\Controller\dom\DomControl;
-use App\Controller\TypeDocControl;
-use App\Controller\badm\BadmController;
-use App\Controller\badm\CasierController;
-use App\Controller\dom\DomListController;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\Config\FileLocator;
-use App\Controller\dom\DomDetailController;
-use App\Loader\CustomAnnotationClassLoader;
-use App\Controller\badm\BadmDupliController;
-use App\Controller\badm\BadmListeController;
-use App\Controller\badm\BadmDetailController;
-use App\Controller\badm\CasierListController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\RequestContext;
-use App\Controller\AgenceServAutoriserControl;
-use Symfony\Component\HttpFoundation\Response;
-use App\Controller\dom\DomDuplicationController;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use App\Controller\admin\personnel\PersonnelControl;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use App\Controller\badm\CasierListTemporaireController;
-use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
+// use App\Controller\ProfilControl;
+// use App\Controller\StatutControl;
+// use App\Controller\dom\DomControl;
+// use App\Controller\TypeDocControl;
+// use App\Controller\badm\BadmController;
+// use App\Controller\badm\CasierController;
+// use App\Controller\dom\DomListController;
+// use PhpOffice\PhpSpreadsheet\Spreadsheet;
+// use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+// use Symfony\Component\Config\FileLocator;
+// use App\Controller\dom\DomDetailController;
+// use App\Loader\CustomAnnotationClassLoader;
+// use App\Controller\badm\BadmDupliController;
+// use App\Controller\badm\BadmListeController;
+// use App\Controller\badm\BadmDetailController;
+// use App\Controller\badm\CasierListController;
+// use Symfony\Component\HttpFoundation\Request;
+// use Symfony\Component\Routing\RequestContext;
+
+// use App\Controller\AgenceServAutoriserControl;
+// use Symfony\Component\HttpFoundation\Response;
+// use App\Controller\dom\DomDuplicationController;
+// use Doctrine\Common\Annotations\AnnotationReader;
+// use Symfony\Component\Routing\Matcher\UrlMatcher;
+// use App\Controller\admin\personnel\PersonnelControl;
+// use Symfony\Component\Routing\Generator\UrlGenerator;
+
+// use App\Controller\badm\CasierListTemporaireController;
+// use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 require __DIR__ . '/config/bootstrap.php';
@@ -35,46 +37,8 @@ require __DIR__ . '/config/bootstrap.php';
 // $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 // $dotenv->load();
 
-// $routes = require_once __DIR__ . '/config/routes.php';
-// //var_dump($routes);
-
-// $dispatcher = FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) use ($routes) {
-//     foreach ($routes as $route) {
-//         $r->addRoute($route['method'], $route['path'], $route['controller']);
-//     }
-// });
-
-// // Fetch method and URI from somewhere
-// $httpMethod = $_SERVER['REQUEST_METHOD'];
-// $uri = $_SERVER['REQUEST_URI'];
-// //var_dump($uri);
-// // Strip query string (?foo=bar) and decode URI
-// if (false !== $pos = strpos($uri, '?')) {
-//     $uri = substr($uri, 0, $pos);
-// }
-// $uri = rawurldecode($uri);
-// //var_dump($httpMethod);
-// $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
-// //var_dump($routeInfo);
-// switch ($routeInfo[0]) {
-//     case \FastRoute\Dispatcher::FOUND:
-//         $explode = explode(':', $routeInfo[1]);
-
-//         call_user_func_array([new $explode[0], $explode[1]], [$routeInfo[2]]);
-//         break;
-//     case \FastRoute\Dispatcher::NOT_FOUND:
-//         //Route not found
-//         header("HTTP/1.0 404 Not Found");
-//         echo "404 Not Found";
-//         break;
-// }
 
 
-
-
-
-//dd($request->getPathInfo());
-//dd($pathInfo);
 
 try {
     $curentRoute = $matcher->match($request->getPathInfo());

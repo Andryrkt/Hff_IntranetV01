@@ -4,7 +4,11 @@ namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
 
+use Symfony\Component\Form\Forms;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 
 
@@ -12,6 +16,24 @@ class PersonnelControl extends Controller
 {
 
     use Transformation;
+
+    /**
+     * @Route("/index")
+     */
+    public function index(){
+        $formFactory = Forms::createFormFactoryBuilder()
+    ->addExtensions([self::$validator]) // Ajoutez les extensions nécessaires
+    ->getFormFactory();
+
+$form = $formFactory->createBuilder()
+    ->add('name', TextType::class)
+    ->add('submit', SubmitType::class)
+    ->getForm();
+
+    $this->twig->display('form.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
 
 
     public function showPersonnelForm()

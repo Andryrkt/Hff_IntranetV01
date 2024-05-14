@@ -13,9 +13,15 @@
 
 {% block content %}
 
+
 	<!-- DEBUT recherche -->
 
 	<div class="container">
+		{% if flashes.success %}
+			{% for message in flashes.success %}
+				<div class="alert alert-success">{{ message }}</div>
+			{% endfor %}
+		{% endif %}
 		<div class="row">
 			<div class="col">
 				<h2>
@@ -24,7 +30,7 @@
 			</div>
 		</div>
 
-		<form action="" method="get">
+		<form action="" method="get" class="my-4">
 			<div class="row">
 				{{form.select_1('Description', 'Statut', statut,{endpoint: '12', class: ' col-md-6 col-xl-3', default: 'true', valueDefault:'Choisir un statut'})}}
 
@@ -63,8 +69,6 @@
 			</div>
 
 			<div class="row">
-
-
 				<div class="col-12 col-md-6 col-lg-6 ">
 					<div class="input-group mb-2">
 						<span class="input-group-text">Date de création (fin)</span>
@@ -89,15 +93,16 @@
 
 
 			<!-- DEBUT bouton -->
-			<div class="row justify-content-center">
-				<div class="col-xxl-4">
-					<input type="submit" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-					<input type="reset" id="reset" class="btn btn-dark text-white" value="Effacer">
-					<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-				</div>
+
+			<div class="col-xxl-4 ms-auto">
+				<input type="submit" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
+				<input type="reset" id="reset" class="btn btn-dark text-white" value="Effacer">
+				<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
 			</div>
+
 			<!-- FIN bouton -->
 		</form>
+
 
 		<!-- DEBUT affichage de text no resultat -->
 		<div id="noResult"></div>
@@ -105,24 +110,30 @@
 
 
 		<!-- DEBUT nombre  -->
-		<div class=" row ">
-			<div class="col-12 col-md-6 col-lg-4">
-				<select class="bg-dark text-white" name="nombreLigne" id="nombreLigne">
-					<option value="15">15</option>
-					<option value="100">100</option>
-				</select>
+		<div class=" row mb-2">
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="{{path("dom_newDom")}}" class="btn btn-sm bg-dark text-white">Nouvelle Demande</a>
 			</div>
-			<div class="col-12 col-md-6 col-lg-4">
+			<div class="col-12 col-md-6 col-lg-3">
 				<p class="fw-bold" id="nombreResultat">{{resultat}}
 					Resultats</p>
 			</div>
-			<div class="col-12 col-md-6 col-lg-4">
-
-				<a href="{{path("domList_ShowListDomRecherche")}}">précédent</a>
-				<a href="{{path("domList_ShowListDomRecherche")}}">suivant</a>
-
+			<div class="col-12 col-md-6 col-lg-3">
+				<p class="fw-bold" id="nombreResultat">{{page ~' / '~ (totalPage + 1)}}
+					pages</p>
 			</div>
 
+			<div class="col-12 col-md-6 col-lg-3">
+				{% if page >= 2 %}
+					<a href="{{path("domList_ShowListDomRecherche")}}?page= {{ page - 1 }}" class="btn btn-sm bg-dark text-white">
+						&laquo précédent</a>
+				{% endif %}
+				{% if page <= totalPage %}
+
+					<a href="{{path("domList_ShowListDomRecherche")}}?page= {{ page + 1 }}" class="btn btn-sm bg-dark text-white">suivant &raquo</a>
+
+				{% endif %}
+			</div>
 
 		</div>
 		<!-- FIN nombre-->
@@ -160,39 +171,65 @@
 				<tbody id="table-container">
 					{% for item in dom %}
 						<tr>
+							{# Début Action #}
 							<td>
 								<div class="dropdown">
-									<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 600">
+									<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
 										Actions
 									</button>
 									<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										<li>
-											<a class="dropdown-item" href="{{path("domDuplication_duplificationForm", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission, matricule: item.Matricule})}}">Dupliquer</a>
+											<a class="dropdown-item fw-bold" href="{{path("domDuplication_duplificationForm", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission, matricule: item.Matricule})}}">Dupliquer</a>
 										</li>
+										{% if boolean %}
+											<li>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{path("domList_annulationStatut", {numDom: item.Numero_Ordre_Mission})}}">Annuler</a>
+											</li>
+										{% endif %}
+
 									</ul>
 								</div>
 							</td>
-							<td>{{item.Description}}</td>
+							{# Fin Actions #}
+							{# DEBUT Statut #}
+							{% if item.Description == 'OUVERT' %}
+								<td class="bg-warning bg-gradient fw-bold text-cente">{{item.Description}}</td>
+							{% elseif item.Description == 'PAYE' %}
+								<td class="bg-success bg-gradient fw-bold">{{item.Description}}</td>
+							{% elseif item.Description == 'ATTENTE PAIEMENT' %}
+								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
+							{% elseif item.Description == 'CONTROLE SERVICE' %}
+								<td class="bg-info fw-bold">{{item.Description}}</td>
+							{% elseif item.Description == 'ANNULE CHEF DE SERVICE' or item.Description == 'ANNULE COMPTABILITE' or item.Description == 'ANNULE SECRETARIAT RH' or item.Description =='ANNULE' %}
+								<td class="bg-danger fw-bold">{{item.Description}}</td>
+							{% elseif item.Description == 'VALIDE' or item.Description == 'VALIDE COMPTABILITE' or item.Description == 'VALIDATION RH' or item.Description == 'VALIDATION DG' %}
+								<td class="bg-primary fw-bold">{{item.Description}}</td>
+							{% elseif item.Description == 'A VALIDER SERVICE EMETTEUR'%}
+								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
+							{% else %}
+								<td>{{item.Description}}</td>
+							{% endif %}
+							{# FIN Statut #}
 							<td>{{item.Sous_type_document}}</td>
 							<td>
 								<a href="{{path("domDetail_detailDom", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission })}}">{{item.Numero_Ordre_Mission}}</a>
 							</td>
-							<td style="text-align: center;">{{item.Date_Demande}}</td>
+							<td style="text-align: center;">{{item.Date_Demande|date('d/m/Y')}}</td>
 							<td>{{item.Motif_Deplacement}}</td>
 							<td style="text-align: center;">{{item.Matricule}}</td>
 							<td>{{item.Nom}}</td>
 							<td>{{item.Prenom}}</td>
 							<td>{{item.Mode_Paiement}}</td>
 							<td>{{item.LibelleCodeAgence_Service}}</td>
-							<td style="text-align: center;">{{item.Date_Debut}}</td>
-							<td style="text-align: center;">{{item.Date_Fin}}</td>
+							<td style="text-align: center;">{{item.Date_Debut|date('d/m/Y')}}</td>
+							<td style="text-align: center;">{{item.Date_Fin|date('d/m/Y')}}</td>
 							<td style="text-align: center;">{{item.Nombre_Jour}}</td>
 							<td>{{item.Client}}</td>
 							<td>{{item.Fiche}}</td>
 							<td>{{item.Lieu_Intervention}}</td>
 							<td>{{item.NumVehicule}}</td>
-							<td style="text-align: right;">{{item.Total_Autres_Depenses}}</td>
-							<td style="text-align: right;">{{item.Total_General_Payer}}</td>
+							<td style="text-align: right;">{{item.Total_Autres_Depenses | number_format(2, ',', '.')}}</td>
+							<td style="text-align: right;">{{item.Total_General_Payer | number_format(2, ',', '.')}}</td>
 							<td>{{item.Devis}}</td>
 
 						</tr>

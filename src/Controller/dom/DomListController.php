@@ -32,8 +32,12 @@ class DomListController extends Controller
      */
     public function ShowListDomRecherche(Request $request)
     {
-        // dd($request);
+        //dd($Description,  $Sous_type_document, $Matricule, $Numero_Ordre_Mission, $dateDemandeDebut, $dateDemandeFin, $dateMissionDebut, $dateMissionFin, $page);
+         //dd(!empty($request->query->get('page')) && $request->query->get('page') > 1 ? (int)$request->query->get('page') : 1);
         //dd($page);
+
+        
+       
         
         $this->SessionStart();
 
@@ -45,28 +49,40 @@ class DomListController extends Controller
 
 
         $limit = 10; // Nombre d'entrées à afficher par page
-        $page =  2;
+        $page =  !empty($request->query->get('page')) && $request->query->get('page') > 1 ? (int)$request->query->get('page') : 1;
 
 
         $statut = $this->transformEnSeulTableau($this->domList->getListStatut());
 
         $sousTypeDoc = $this->transformEnSeulTableau($this->domList->recupSousType());
      
-        $resultat = $this->domList->getTotalRecords($request->query->all());
-        $totalPages = ceil($resultat / $limit);
-        //dd($totalPages);
+        
+        
+        
 
         $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
 
 
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
             $array_decoded = $this->domList->RechercheModelAll($request->query->all(), (int)$page, (int)$limit);
+            $resultat = $this->domList->getTotalRecordsAll($request->query->all());
         } else {
-            $array_decoded = $this->domList->RechercheModel($UserConnect);
+            $array_decoded = $this->domList->RechercheModel($request->query->all(), (int)$page, (int)$limit, $UserConnect);
+            $resultat = $this->domList->getTotalRecords($request->query->all(), $UserConnect);
         }
 
+        $totalPages = ceil($resultat / $limit);
 
 
+        if($request->query->get("exportExcel") === "Export Excel"){
+            $array_decoded = $this->domList->RechercheModelExcel($request->query->all(), $UserConnect);
+            // dd( $request->query->all(), $array_decoded);
+            $this->excelExport->exportData($array_decoded);
+            $this->flashManager->addFlash('success', 'Votre opération a été effectuée avec succès!', 300);
+        }
+        $successMessages = $this->flashManager->getFlashes('success');
+
+      
         $this->twig->display(
             'dom/ListDomRech.html.twig',
             [
@@ -79,10 +95,14 @@ class DomListController extends Controller
                 'sousTypeDoc' => $sousTypeDoc,
                 'totalPage' => $totalPages,
                 'resultat' => $resultat,
-                'page' => $page
+                'page' => $page,
+                'valeur' => $request->query->all(),
+                'flashes' => ['success' => $successMessages]
             ]
         );
     }
+
+   
 
 
 
@@ -110,37 +130,35 @@ class DomListController extends Controller
      * pour listeDomRecherche
      * @Route("/recherche", name="domList_recherche")
      */
-    public function rechercheController()
-    {
-        $this->SessionStart();
+    // public function rechercheController()
+    // {
+    //     $this->SessionStart();
 
-        $UserConnect = $_SESSION['user'];
+    //     $UserConnect = $_SESSION['user'];
 
-        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
-
-
-        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            //$array_decoded = $this->domList->RechercheModelAll();
-        } else {
-            $array_decoded = $this->domList->RechercheModel($UserConnect);
-        }
+    //     $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
 
 
-        header("Content-type:application/json");
+    //     if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+    //         //$array_decoded = $this->domList->RechercheModelAll();
+    //     } else {
+    //         $array_decoded = $this->domList->RechercheModel($UserConnect);
+    //     }
 
-        echo json_encode($array_decoded);
-    }
+
+    //     header("Content-type:application/json");
+
+    //     echo json_encode($array_decoded);
+    // }
 
     /**
-     * boutton annuler pour pour change le code statut et id statut demande
-     *
-     * @return void
+     * @Route("/annuler/{numDom}", name="domList_annulationStatut")
      */
-    public function annulationController()
+    public function annulationStatutController($numDom)
     {
 
-        $this->domList->annulationCodestatut($_GET['NumDOM']);
-        header('Location: /Hffintranet/index.php?action=ListDomRech');
+        $this->domList->annulationCodestatut($numDom);
+        header('Location: /Hffintranet/listDomRech');
         exit();
     }
 }

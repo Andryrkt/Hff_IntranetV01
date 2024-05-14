@@ -4,6 +4,7 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CasierListController extends Controller
@@ -12,10 +13,11 @@ class CasierListController extends Controller
     use Transformation;
     
 /**
- * @Route("/listCasier", name="liste_affichageListeCasier")
+ * @Route("/listCasier/{page?1}", name="liste_affichageListeCasier")
  */
-    public function AffichageListeCasier()
-    {
+    public function AffichageListeCasier(Request $request , $page)
+    {   
+        //dd($request->request->all());
 
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
@@ -23,16 +25,14 @@ class CasierListController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        $nombreLigne = $this->casierList->NombreDeLigne();
-        if (!$nombreLigne) {
-            $nombreLigne = 0;
-        }
+        $limit = 10;
+        //$page = 1;
+        $nombreLigne = $this->casierList->NombreDeLigne($request->request->all());
+        $totalPage = ceil((int)$nombreLigne/$limit);
+
         $agence = $this->transformEnSeulTableau($this->casierList->recupAgence());
 
-
-
-        $casier = $this->casierList->recuperToutesCasier();
-
+        $casier = $this->casierList->recuperToutesCasier($request->request->all(), (int)$page, (int)$limit);
 
 
 
@@ -43,7 +43,9 @@ class CasierListController extends Controller
                 'boolean' => $boolean,
                 'casier' => $casier,
                 'agence' => $agence,
-                'nombreLigne' => $nombreLigne
+                'nombreLigne' => $nombreLigne,
+                'page' => $page,
+                'totalPage' => $totalPage
             ]
         );
     }

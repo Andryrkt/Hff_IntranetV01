@@ -27,7 +27,7 @@ class ProfilControl extends Controller
                     document.location.href = "/Hffintranet";
                 </script>';
             } else {
-                session_start();
+                // session_start();
                 $_SESSION['user'] = $Username;
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
