@@ -175,7 +175,7 @@ class DomControl extends Controller
         $Agence = $LibAgence . " " . $LibServ;
         $boolean2 = strpos(file_get_contents($fichier), $Agence);
 
-        $this->twig->display(
+        self::$twig->display(
             'dom/FormDOM.html.twig',
             [
                 'CodeServiceofCours' => $CodeServiceofCours,
@@ -234,7 +234,7 @@ class DomControl extends Controller
                 $numCompteBancaire = '';
             }
 
-            $this->twig->display(
+            self::$twig->display(
                 'dom/FormCompleDOM.html.twig',
                 [
                     'CategPers' => $CategPers,
@@ -1394,30 +1394,7 @@ class DomControl extends Controller
     }
 
 
-    /**
-     * Affiche dans ListDom la liste des DOM selon l'autorisation 
-     */
-    public function ShowListDom()
-    {
-        // $this->SessionStart();
-
-        // $UserConnect = $_SESSION['user'];
-        // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-        // $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-        // include 'Views/Principe.php';
-        // //Fichier d'accès All Consultat
-        // $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . 'Hffintranet/Controler/UserAccessAll.txt';
-        // if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-        //     $ListDom = $this->DomModel->getListDomAll();
-        // } else {
-        //     $ListDom = $this->DomModel->getListDom($UserConnect);
-        // }
-        // //
-
-        // include 'Views/DOM/ListDom.php';
-    }
-
-
+    
     /**
      * creation du débiteur (code service et service)
      * @Route("/agServDest", name="dom_agenceServiceJson")

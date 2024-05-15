@@ -6,6 +6,7 @@ use App\Controller\Controller;
 
 use Symfony\Component\Form\Forms;
 use App\Controller\Traits\Transformation;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -21,18 +22,7 @@ class PersonnelControl extends Controller
      * @Route("/index")
      */
     public function index(){
-        $formFactory = Forms::createFormFactoryBuilder()
-    ->addExtensions([self::$validator]) // Ajoutez les extensions nécessaires
-    ->getFormFactory();
 
-$form = $formFactory->createBuilder()
-    ->add('name', TextType::class)
-    ->add('submit', SubmitType::class)
-    ->getForm();
-
-    $this->twig->display('form.html.twig', [
-        'form' => $form->createView(),
-    ]);
 }
 
 
@@ -52,7 +42,7 @@ $form = $formFactory->createBuilder()
             $serviceIrium = $this->transformEnSeulTableau($this->Person->recupServiceIrium());
 
 
-            $this->twig->display(
+            self::$twig->display(
                 'admin/personnel/addPersonnel.html.twig',
                 [
                     'infoUserCours' => $infoUserCours,
@@ -80,7 +70,7 @@ $form = $formFactory->createBuilder()
 
 
 
-        $this->twig->display(
+        self::$twig->display(
             'admin/personnel/listPersonnel.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
@@ -103,7 +93,7 @@ $form = $formFactory->createBuilder()
 
 
         $infoPersonnelId = $this->Person->recupInfoPersonnelMatricule($_GET['matricule']);
-        $this->twig->display(
+        self::$twig->display(
             'admin/personnel/addPersonnel.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

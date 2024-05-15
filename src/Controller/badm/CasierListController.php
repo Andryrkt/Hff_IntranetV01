@@ -36,7 +36,7 @@ class CasierListController extends Controller
 
 
 
-        $this->twig->display(
+        self::$twig->display(
             'badm/casier/listCasier.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

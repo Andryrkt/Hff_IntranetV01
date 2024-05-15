@@ -73,7 +73,7 @@ class CasierController extends Controller
             $Code_AgenceService_Sage = $this->casier->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->casier->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
 
-            $this->twig->display(
+            self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',
                 [
                     'infoUserCours' => $infoUserCours,

@@ -96,8 +96,9 @@
 
 			<div class="col-xxl-4 ms-auto">
 				<input type="submit" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-				<input type="reset" id="reset" class="btn btn-dark text-white" value="Effacer">
-				<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
+				<input
+				type="reset" id="reset" class="btn btn-dark text-white" value="Effacer">
+			{# <input type="submit" name="exportExcel" id="export" class="btn btn-success" value=""> #}
 			</div>
 
 			<!-- FIN bouton -->
@@ -113,6 +114,7 @@
 		<div class=" row mb-2">
 			<div class="col-12 col-md-6 col-lg-3">
 				<a href="{{path("dom_newDom")}}" class="btn btn-sm bg-dark text-white">Nouvelle Demande</a>
+				<a href="{{path("domList_ShowListDomRecherche")}}?exportExcel=Export Excel" class="btn btn-sm btn-success">Export Excel</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-3">
 				<p class="fw-bold" id="nombreResultat">{{resultat}}

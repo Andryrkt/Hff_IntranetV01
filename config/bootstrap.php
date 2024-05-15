@@ -1,89 +1,110 @@
 <?php
 
 use Twig\Environment;
-use App\Service\TwigService;
+
 use App\Controller\Controller;
+
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
+
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
+use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
+
+use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
+
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Translation\Loader\ArrayLoader;
+
+use Symfony\Component\Form\Extension\Core\CoreExtension;
+
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-
-
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
 $request = Request::createFromGlobals();
-
 $response = new Response();
 
+// Configure the URL matcher
 $loader = new AnnotationDirectoryLoader(
     new FileLocator(dirname(__DIR__) . '/src/Controller/'),
     new CustomAnnotationClassLoader(new AnnotationReader())
 );
-
 $collection = $loader->load(dirname(__DIR__) . '/src/Controller/');
+$matcher = new UrlMatcher($collection, new RequestContext(''));
 
-$matcher = new UrlMatcher($collection, new RequestContext('', $_SERVER['REQUEST_METHOD']));
-
+// Resolver and argument resolver
 $controllerResolver = new ControllerResolver();
 $argumentResolver = new ArgumentResolver();
-/**
- * pour l'utilisation du fonction path dans twig
- */
+
+// URL Generator for use in Twig
 $generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
 
-//$pathInfo = $_SERVER['PATH_INFO'] ?? '/';
-
-//$pathInfo = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/';
-
-
-//Controller::setTwig($generator);
-
-/**
- * config twig
- */
-$loader = new FilesystemLoader(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Views/templates');
-       
-        //$this->twig = new Environment($this->loader);
-        $twig = new Environment($loader, ['debug' => true]);
-        $twig->addExtension(new DebugExtension());
-        $twig->addExtension(new RoutingExtension($generator));
-        // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
-        // $this->package = new Package($this->strategy);
-        // $this->twig->addExtension(new AssetExtension($this->package));
-
-        Controller::setTwig($twig);
-/**
- * transformation de langue
- */
-$translator = new Translator('fr');
-$translator->addLoader('array', new ArrayLoader());
-$translator->addResource('array', [], 'fr');
-
-/**
- * librairie pour la validation formulair
- */
+// Form Validator
 $validator = Validation::createValidatorBuilder()
     ->enableAnnotationMapping(true)
     ->setDoctrineAnnotationReader(new AnnotationReader())
     ->getValidator();
 
-$validatorExtension = new ValidatorExtension($validator);
+// Translator
+$translator = new Translator('fr_FR');
+$translator->addLoader('array', new ArrayLoader());
 
-Controller::setValidator($validatorExtension);
+// Form Factory
+$formFactoryBuilder = new FormFactoryBuilder();
+$formFactoryBuilder->addExtension(new CoreExtension());
+$formFactoryBuilder->addExtension(new ValidatorExtension($validator));
+$formFactoryBuilder->addExtension(new HttpFoundationExtension());
+
+$formFactory = $formFactoryBuilder->getFormFactory();
+
+// Twig Environment
+$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
+$twig = new Environment($loader, ['debug' => true]);
+$twig->addExtension(new DebugExtension());
+$twig->addExtension(new RoutingExtension($generator));
+$twig->addExtension(new FormExtension());
+$twig->addGlobal('translator', $translator);
+
+// Configure Form Renderer Engine and Runtime Loader
+$defaultFormTheme = 'form_div_layout.html.twig';
+$formEngine = new TwigRendererEngine([$defaultFormTheme], $twig);
+$twig->addRuntimeLoader(new FactoryRuntimeLoader([
+    FormRenderer::class => function () use ($formEngine) {
+        return new FormRenderer($formEngine);
+    },
+]));
 
 
+
+        //envoyer twig au controller
+        Controller::setTwig($twig);
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////

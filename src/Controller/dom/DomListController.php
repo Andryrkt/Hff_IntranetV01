@@ -37,9 +37,11 @@ class DomListController extends Controller
         //dd($page);
 
         
-       
-        
         $this->SessionStart();
+
+        if(!empty($request->query->all()) && !array_key_exists('page',$request->query->all()) && !array_key_exists('exportExcel',$request->query->all())){
+            $_SESSION['recherche'] = $request->query->all();
+        }
 
         $UserConnect = $_SESSION['user'];
         $infoUserCours = $this->profilModel->getINfoAllUserCours($UserConnect);
@@ -56,34 +58,33 @@ class DomListController extends Controller
 
         $sousTypeDoc = $this->transformEnSeulTableau($this->domList->recupSousType());
      
-        
-        
-        
 
         $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
 
 
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $array_decoded = $this->domList->RechercheModelAll($request->query->all(), (int)$page, (int)$limit);
-            $resultat = $this->domList->getTotalRecordsAll($request->query->all());
+            $array_decoded = $this->domList->RechercheModelAll($_SESSION['recherche'], (int)$page, (int)$limit);
+            $resultat = $this->domList->getTotalRecordsAll($_SESSION['recherche']);
         } else {
-            $array_decoded = $this->domList->RechercheModel($request->query->all(), (int)$page, (int)$limit, $UserConnect);
-            $resultat = $this->domList->getTotalRecords($request->query->all(), $UserConnect);
+            $array_decoded = $this->domList->RechercheModel($_SESSION['recherche'], (int)$page, (int)$limit, $UserConnect);
+            $resultat = $this->domList->getTotalRecords($_SESSION['recherche'], $UserConnect);
         }
 
         $totalPages = ceil($resultat / $limit);
 
-
+//dd($request->query->get("exportExcel") === "Export Excel");
         if($request->query->get("exportExcel") === "Export Excel"){
-            $array_decoded = $this->domList->RechercheModelExcel($request->query->all(), $UserConnect);
-            // dd( $request->query->all(), $array_decoded);
+          
+            $array_decoded = $this->domList->RechercheModelExcel($_SESSION['recherche'], $UserConnect);
+
+           
             $this->excelExport->exportData($array_decoded);
             $this->flashManager->addFlash('success', 'Votre opération a été effectuée avec succès!', 300);
         }
         $successMessages = $this->flashManager->getFlashes('success');
 
       
-        $this->twig->display(
+        self::$twig->display(
             'dom/ListDomRech.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

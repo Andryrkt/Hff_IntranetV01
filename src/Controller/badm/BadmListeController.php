@@ -29,7 +29,7 @@ class BadmListeController extends Controller
             }
         };
 
-        $this->twig->display(
+        self::$twig->display(
             'badm/listBadm.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

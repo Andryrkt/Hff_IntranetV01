@@ -37,7 +37,7 @@ class ProfilControl extends Controller
                 $text = file_get_contents($fichier);
                 $boolean = strpos($text, $_SESSION['user']);
 
-                $this->twig->display(
+                self::$twig->display(
                     'main/accueil.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
@@ -79,7 +79,7 @@ class ProfilControl extends Controller
         $boolean = strpos($text, $_SESSION['user']);
 
 
-        $this->twig->display(
+        self::$twig->display(
             'main/accueil.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

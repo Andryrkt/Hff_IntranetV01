@@ -9,9 +9,6 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-
-
-use Exception;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
@@ -135,7 +132,7 @@ class BadmController extends Controller
 
                 if ($boolean) {
 
-                    $this->twig->display(
+                    self::$twig->display(
                         'badm/formCompleBadm.html.twig',
                         [
                             'codeMouvement' => $_POST['typeMission'],
@@ -160,7 +157,7 @@ class BadmController extends Controller
                         $message = "vous n\'êtes pas autoriser à consulter ce matériel";
                         $this->alertRedirection($message);
                     } else {
-                        $this->twig->display(
+                        self::$twig->display(
                             'badm/formCompleBadm.html.twig',
                             [
                                 'codeMouvement' => $_POST['typeMission'],
@@ -209,7 +206,7 @@ class BadmController extends Controller
                 $message = "verifiez votre Autorisation";
                 $this->alertRedirection($message);
             } else {
-                $this->twig->display(
+                self::$twig->display(
                     'badm/formBadm.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,

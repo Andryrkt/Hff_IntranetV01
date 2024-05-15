@@ -12,6 +12,6 @@ class SiginSecurity extends Controller
      */
     public function affichageSingnin()
     {
-        $this->twig->display('signin.html.twig');
+        self::$twig->display('signin.html.twig');
     }
 }

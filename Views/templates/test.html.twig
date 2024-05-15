@@ -1,0 +1,15 @@
+{# {% extends "baseTemplate.html.twig"%} #}
+{% extends '@Form/bootstrap_5_horizontal_layout.html.twig' %}
+
+
+{% block content %}
+	<pre>
+    {{ dump(form) }}
+</pre>
+
+	{# {{ form_start(form) }}
+		{{ form_widget(form) }}
+		{{ form_end(form) }} #}
+
+
+{% endblock %}

@@ -62,7 +62,7 @@ class Controller
     protected $odbcCrud;
 
     protected static $generator;
-    protected $twig;
+    protected static $twig;
     protected $loader;
     private $package;
     private $strategy;
@@ -81,11 +81,12 @@ class Controller
         $this->fusionPdf = new FusionPdf();
         $this->genererPdf = new GenererPdf();
 
-        $this->loader = new FilesystemLoader(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Views/templates');
+        //$this->loader = new FilesystemLoader(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Views/templates');
+       
         //$this->twig = new Environment($this->loader);
-        $this->twig = new Environment($this->loader, ['debug' => true]);
-        $this->twig->addExtension(new DebugExtension());
-        $this->twig->addExtension(new RoutingExtension(self::$generator));
+        //$this->twig = new Environment($this->loader, ['debug' => true]);
+        //$this->twig->addExtension(new DebugExtension());
+        //$this->twig->addExtension(new RoutingExtension(self::$generator));
         // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
         // $this->package = new Package($this->strategy);
         // $this->twig->addExtension(new AssetExtension($this->package));
@@ -126,9 +127,9 @@ class Controller
 
 
 
-    public static function setTwig($generator)
+    public static function setTwig($twig)
     {
-        self::$generator = $generator;
+        self::$twig = $twig;
     }
 
     public static function setValidator($validator)

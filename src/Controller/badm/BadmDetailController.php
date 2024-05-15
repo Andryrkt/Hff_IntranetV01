@@ -50,7 +50,7 @@ class BadmDetailController extends Controller
         // var_dump($badmDetailSqlServer, $badmDetailInformix);
 
         // die();
-        $this->twig->display(
+        self::$twig->display(
             'badm/formCompleBadm.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

@@ -39,7 +39,7 @@ class BadmDupliController extends Controller
         $agenceDestinataire = $this->rendreSeultableau($agence);
 
 
-        $this->twig->display(
+        self::$twig->display(
             'badm/formCompleBadm.html.twig',
             [
                 'codeMouvement' => $badmDetailSqlServer[0]['Description'],

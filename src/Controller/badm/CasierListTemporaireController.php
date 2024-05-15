@@ -30,7 +30,7 @@ class CasierListTemporaireController extends Controller
         }
 
 
-        $this->twig->display(
+        self::$twig->display(
             'badm/casier/listTemporaireCasier.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
