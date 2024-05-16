@@ -4,11 +4,12 @@ use Twig\Environment;
 
 use App\Controller\Controller;
 
+use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
-use Symfony\Component\Config\FileLocator;
 
+use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
@@ -16,19 +17,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
+
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Translation\Loader\ArrayLoader;
-
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
-
+use Symfony\Component\Translation\Loader\XliffFileLoader;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
@@ -36,6 +42,14 @@ use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
+define('DEFAULT_FORM_THEME', 'form_div_layout.html.twig');
+
+define('VENDOR_DIR', realpath(__DIR__ . '/../vendor'));
+define('VENDOR_FORM_DIR', VENDOR_DIR . '/symfony/form');
+define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
+define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
+define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
 $request = Request::createFromGlobals();
 $response = new Response();
@@ -55,15 +69,19 @@ $argumentResolver = new ArgumentResolver();
 // URL Generator for use in Twig
 $generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
 
+
+//secuiter csrf
+$csrfTokenManager = new CsrfTokenManager();
+
 // Form Validator
-$validator = Validation::createValidatorBuilder()
-    ->enableAnnotationMapping(true)
-    ->setDoctrineAnnotationReader(new AnnotationReader())
-    ->getValidator();
+$validator = Validation::createValidator();
+
 
 // Translator
-$translator = new Translator('fr_FR');
-$translator->addLoader('array', new ArrayLoader());
+$translator = new Translator('fr_Fr');
+$translator->addLoader('xlf', new XliffFileLoader());
+$translator->addResource('xlf', VENDOR_FORM_DIR . '/Resources/translations/validators.en.xlf', 'en', 'validators');
+$translator->addResource('xlf', VENDOR_VALIDATOR_DIR . '/Resources/translations/validators.en.xlf', 'en', 'validators');
 
 // Form Factory
 $formFactoryBuilder = new FormFactoryBuilder();
@@ -74,15 +92,23 @@ $formFactoryBuilder->addExtension(new HttpFoundationExtension());
 $formFactory = $formFactoryBuilder->getFormFactory();
 
 // Twig Environment
-$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
-$twig = new Environment($loader, ['debug' => true]);
+$twig = new Environment(new FilesystemLoader(array(
+    VIEWS_DIR,
+    VENDOR_TWIG_BRIDGE_DIR . '/Resources/views/Form',
+)));
+
+
+$twig->addExtension(new TranslationExtension($translator));
+//$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
+//$twig = new Environment($loader, ['debug' => true]);
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
-$twig->addGlobal('translator', $translator);
+
 
 // Configure Form Renderer Engine and Runtime Loader
-$defaultFormTheme = 'form_div_layout.html.twig';
+// $defaultFormTheme = 'form_div_layout.html.twig';
+$defaultFormTheme = 'bootstrap_5_horizontal_layout.html.twig';
 $formEngine = new TwigRendererEngine([$defaultFormTheme], $twig);
 $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     FormRenderer::class => function () use ($formEngine) {
@@ -90,10 +116,16 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
+// Set up the Form component
+$formFactory = Forms::createFormFactoryBuilder()
+    ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
+    ->addExtension(new ValidatorExtension($validator))
+    ->getFormFactory();
 
+//envoyer twig au controller
+Controller::setTwig($twig);
 
-        //envoyer twig au controller
-        Controller::setTwig($twig);
+Controller::setValidator($formFactory);
 
 
 

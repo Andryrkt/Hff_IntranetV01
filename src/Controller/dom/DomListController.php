@@ -39,6 +39,10 @@ class DomListController extends Controller
         
         $this->SessionStart();
 
+        if(!isset($_SESSION['recherche'])){
+            $_SESSION['recherche'] = [];
+        }
+
         if(!empty($request->query->all()) && !array_key_exists('page',$request->query->all()) && !array_key_exists('exportExcel',$request->query->all())){
             $_SESSION['recherche'] = $request->query->all();
         }
@@ -76,7 +80,6 @@ class DomListController extends Controller
         if($request->query->get("exportExcel") === "Export Excel"){
           
             $array_decoded = $this->domList->RechercheModelExcel($_SESSION['recherche'], $UserConnect);
-
            
             $this->excelExport->exportData($array_decoded);
             $this->flashManager->addFlash('success', 'Votre opération a été effectuée avec succès!', 300);

@@ -10,9 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DomControl extends Controller
 {
 
-
-
-
     public function filterStatut()
     {
         $this->SessionStart();
