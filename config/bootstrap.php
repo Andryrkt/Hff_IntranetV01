@@ -25,8 +25,10 @@ use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
 
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\HttpFoundation\RequestStack;
 
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Translation\Loader\ArrayLoader;
@@ -34,12 +36,13 @@ use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -116,10 +119,17 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
+$session = new Session(new NativeSessionStorage());
+$requestStack = new RequestStack();
+$request = Request::createFromGlobals();
+$requestStack->push($request);
+
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
     ->addExtension(new ValidatorExtension($validator))
+    ->addExtension(new CoreExtension())
+    ->addExtension(new HttpFoundationExtension())
     ->getFormFactory();
 
 //envoyer twig au controller

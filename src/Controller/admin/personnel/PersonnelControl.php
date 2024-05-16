@@ -27,7 +27,7 @@ class PersonnelControl extends Controller
     /**
      * @Route("/index")
      */
-    public function index(){
+    public function index(Request $request){
 
         $form = self::$validator->createBuilder()
         ->add('firstName', TextType::class, array(
@@ -48,7 +48,19 @@ class PersonnelControl extends Controller
         ->add('newsletter', CheckboxType::class, array(
             'required' => false,
         ))
+        ->add('submit', SubmitType::class, [
+            'label' => 'Submit'
+        ])
         ->getForm();
+
+        $form->handleRequest($request);
+
+         // Vérifier si le formulaire est soumis et valide
+         if ($form->isSubmitted() && $form->isValid()) {
+            // Traitement des données du formulaire
+           dd( $form->getData());
+          
+        }
 
         self::$twig->display('test.html.twig', [
             'form' => $form->createView()

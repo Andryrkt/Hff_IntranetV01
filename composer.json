@@ -15,7 +15,8 @@
             "App\\Controller\\Traits\\": "src/Controller/Traits",
             "App\\Model\\Traits\\": "src/Model/Traits",
             "App\\Loader\\": "src/Loader",
-            "App\\Controller\\security\\": "src/Controller/security"
+            "App\\Controller\\security\\": "src/Controller/security",
+            "App\\Controller\\admin\\user\\": "src/Controller/admin/user"
         }
     },
     "authors": [
@@ -50,7 +51,10 @@
         "pimple/pimple": "^3.5",
         "symfony/dependency-injection": "^5.4",
         "symfony/twig-bundle": "^5.4",
-        "symfony/security-csrf": "^5.4"
+        "symfony/security-csrf": "^5.4",
+        "doctrine/dbal": "^3.8",
+        "doctrine/migrations": "^3.5",
+        "doctrine/orm": "^2.19"
     }
    
 }
