@@ -1,0 +1,12 @@
+parameters:
+  access_file_path: dirname(__DIR__)."/views/assets/AccessUserProfil_Param.txt"
+
+services:
+  App\Service\GlobalVariablesService:
+    arguments:
+      $session: "@session"
+      $profilModel: "@app.profil_model"
+      $accessFilePath: "%access_file_path%"
+
+  App\Twig\AppExtension:
+    tags: ["twig.extension"]

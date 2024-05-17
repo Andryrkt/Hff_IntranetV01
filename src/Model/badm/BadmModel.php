@@ -268,9 +268,9 @@ class BadmModel extends Model
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->connect(), $sql);
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
         if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->connect());
+            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
             return;
         }
 

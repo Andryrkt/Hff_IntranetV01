@@ -16,7 +16,8 @@
             "App\\Model\\Traits\\": "src/Model/Traits",
             "App\\Loader\\": "src/Loader",
             "App\\Controller\\security\\": "src/Controller/security",
-            "App\\Controller\\admin\\user\\": "src/Controller/admin/user"
+            "App\\Controller\\admin\\user\\": "src/Controller/admin/user",
+            "App\\Model\\admin\\user\\": "src/Model/admin/user"
         }
     },
     "authors": [
@@ -54,7 +55,9 @@
         "symfony/security-csrf": "^5.4",
         "doctrine/dbal": "^3.8",
         "doctrine/migrations": "^3.5",
-        "doctrine/orm": "^2.19"
+        "doctrine/orm": "^2.19",
+        "erusev/parsedown": "^1.7",
+        "symfony/yaml": "^5.4"
     }
    
 }

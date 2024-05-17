@@ -2,13 +2,14 @@
 
 use Twig\Environment;
 
-use App\Controller\Controller;
+use App\Model\ProfilModel;
 
+use App\Controller\Controller;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
-use Symfony\Component\Form\FormRenderer;
 
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
@@ -16,17 +17,17 @@ use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
-use Symfony\Component\Form\FormFactoryBuilder;
 
+use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+
 use Doctrine\Common\Annotations\AnnotationReader;
-
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\HttpFoundation\RequestStack;
 
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGenerator;
@@ -39,6 +40,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
@@ -111,7 +113,7 @@ $twig->addExtension(new FormExtension());
 
 // Configure Form Renderer Engine and Runtime Loader
 // $defaultFormTheme = 'form_div_layout.html.twig';
-$defaultFormTheme = 'bootstrap_5_horizontal_layout.html.twig';
+$defaultFormTheme = 'bootstrap_5_layout.html.twig';
 $formEngine = new TwigRendererEngine([$defaultFormTheme], $twig);
 $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     FormRenderer::class => function () use ($formEngine) {
@@ -120,9 +122,24 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 ]));
 
 $session = new Session(new NativeSessionStorage());
+
 $requestStack = new RequestStack();
 $request = Request::createFromGlobals();
 $requestStack->push($request);
+
+// Initialisation du conteneur de services
+$containerBuilder = new ContainerBuilder();
+$loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
+$loader->load('services.yaml');
+
+// Initialisation de la session
+//$session = new Session();
+
+
+// Initialisation des services nécessaires
+$containerBuilder->set('session', $session);
+$containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
+$containerBuilder->compile();
 
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()

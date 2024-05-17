@@ -5,9 +5,10 @@ namespace App\Controller;
 
 
 
+use Parsedown;
+
+
 use Twig\Environment;
-
-
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
@@ -22,13 +23,14 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
+use App\Service\FlashManagerService;
 use Symfony\Component\Asset\Package;
 use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
 use App\Model\admin\personnel\PersonnelModel;
+use App\Model\admin\user\ProfilUserModel;
 use App\Model\badm\CasierListTemporaireModel;
-use App\Service\FlashManagerService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -74,6 +76,10 @@ class Controller
     protected $flashManager;
 
     protected static $validator;
+
+    protected $parsedown;
+
+    protected $profilUser;
 
     public function __construct()
     {
@@ -122,6 +128,10 @@ class Controller
 
     $this->excelExport = new ExcelExporterService();
     $this->flashManager = new FlashManagerService();
+
+    $this->parsedown = new Parsedown();
+
+    $this->profilUser = new ProfilUserModel();
     }
 
 
