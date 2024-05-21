@@ -18,9 +18,7 @@
 				<h2 class="fw-bold fs-1" style="color:#0e4194;">Détail Bordereau d’Acquisition et de Mouvement Matériel</h2>
 			{% elseif duplication %}
 				<h2 class="fw-bold fs-1" style="color:#0e4194;">Duplication Bordereau d’Acquisition et de Mouvement Matériel</h2>
-
 			{% else %}
-
 				<h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
 			{% endif %}
 		</div>
@@ -124,7 +122,6 @@
                 
             {% else %}
                 {{form.inputText('motifArretMateriel', 'Motif', Server.0.Motif_Arret_Materiel ?: '',{required: 'required', endpoint: '12', maxlength: '100',  disabled: detail } )}}
-                
             {% endif %}
         </div>
 
@@ -213,7 +210,7 @@
 
 {% if detail != 'disabled' %}
     <div class="row mt-5">
-            {{form.button('submit', 'Envoyer', 'badmComplet', 'primary')}}
+            {{form.button('submit', 'Envoyer', 'badmComplet', 'primary', {onclick: 'return confirm("Veuillez vérifier attentivement avant d\'envoyer.")'})}}
             {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
         </div>
 {% endif %}

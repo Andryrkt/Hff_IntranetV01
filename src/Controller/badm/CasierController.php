@@ -52,7 +52,7 @@ class CasierController extends Controller
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
             } else {
-                $this->twig->display(
+                self::$twig->display(
                     'badm/casier/formulaireCasier.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,

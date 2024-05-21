@@ -447,7 +447,7 @@ class BadmController extends Controller
     }
 
     /**
-     * @Route("/formCompleBadm", name="badm_formCompleBadm", methods={"POST"})
+     * @Route("/formCompleBadm", name="badm_formCompleBadm", methods={"GET","POST"})
      */
     public function formCompleBadm()
     {

@@ -12,20 +12,24 @@
 	<div class="container mb-4">
 		<div class="row">
 
-			<div class="col-8">
+			<div class="col-12 col-md-8">
 				{% if data is defined and data is not null %}
-					<h2 class="fw-bold">Duplication de demande d'ordre de mission</h2>
+					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">Duplication de demande d'ordre de mission</h2>
 				{% else %}
-					<h2 class="fw-bold">Nouvelle demande d'ordre de mission</h2>
+					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">Nouvelle demande d'ordre de mission</h2>
 				{% endif %}
 			</div>
 
-			<div class="d-flex  flex-row-reverse  col-4">
+
+		</div>
+
+		<div class="row">
+			<div class="d-flex  flex-row-reverse ">
 				<div class="tablinks p-2 btn btn-outline-warning ">
 					{% if numDom is defined and numDom is not null and idDom is defined and idDom is not null  %}
-						<a href="{{ path("domList_ShowListDomRecherche")}}" style="text-decoration: none;color:black">Retour</a>
+						<a href="{{ path("domList_ShowListDomRecherche")}}" style="text-decoration: none;color:black; font-weight: bold;">Retour</a>
 					{% else %}
-						<a href="{{ path("dom_newDom")}}" style="text-decoration: none;color:black">Retour</a>
+						<a href="{{ path("dom_newDom")}}" style="text-decoration: none;color:black; font-weight: bold;">Retour</a>
 					{% endif %}
 				</div>
 			</div>
@@ -452,8 +456,9 @@
 			<div class="row">
 				<div class="mt-2 ">
 					<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-						<button type="submit" name="Envoyer" class="btn btn-info md-5" data-bs-toggle="tooltip">
-							<i class="fa fa-print">Envoyer</i>
+						<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+							<i class="fa fa-print"></i>
+							Envoyer
 						</button>
 					</a>
 				</div>
