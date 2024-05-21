@@ -8,7 +8,9 @@
 		<div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
 			<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
+
 				{% for item in infoUserCours %}
+
 					<!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
 					{% if item.App == 'BDM' %}
 						<li class="nav-item dropdown" id="BDM">
@@ -103,14 +105,8 @@
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
 
 
-					<ul
-						class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
-																																																																																																																																																																																																						                            <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
-																																																																																																																																																																																																						                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
-																																																																																																																																																																																																						                            <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-																																																																																																																																																																																																						                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
-																																																																																																																																																																																																						                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+
 						<li>
 							<hr class="dropdown-divider"/>
 						</li>
@@ -125,6 +121,9 @@
 					<li class="nav-item dropdown" id="Setting">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="{{ path("user_list")}}" id="Perso">Profil User</a>
+							</li>
 							<li>
 								<a class="dropdown-item" href="/Hffintranet/index.php?action=PersonnelList" id="Perso">Personnels</a>
 							</li>

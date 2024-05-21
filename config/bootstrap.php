@@ -4,36 +4,42 @@ use Twig\Environment;
 
 use App\Model\ProfilModel;
 
+use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Forms;
+
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
-
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
+use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
-
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
+
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
-
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
-
 use Symfony\Component\HttpFoundation\RequestStack;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -42,6 +48,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
@@ -100,7 +107,7 @@ $formFactory = $formFactoryBuilder->getFormFactory();
 $twig = new Environment(new FilesystemLoader(array(
     VIEWS_DIR,
     VENDOR_TWIG_BRIDGE_DIR . '/Resources/views/Form',
-)));
+)), ['debug' => true]);
 
 
 $twig->addExtension(new TranslationExtension($translator));
@@ -149,10 +156,42 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new HttpFoundationExtension())
     ->getFormFactory();
 
+// Chemin vers les entités
+$paths = array(dirname(__DIR__) . "/src/Entity");
+// Mode de développement
+$isDevMode = true;
+
+// Configuration de la base de données
+$dbParams = array(
+    'driver'   => 'pdo_sqlsrv',
+    'host'     => '192.168.0.28', // Remplacez par votre host
+    'port'     => '1433',
+    'user'     => 'sa',
+    'password' => 'Hff@sql2024',
+    'dbname'   => 'HFF_INTRANET_TEST',
+);
+
+// Configuration du lecteur d'annotations
+$annotationReader = new AnnotationReader();
+$driver = new AnnotationDriver($annotationReader, $paths);
+
+// Création de la configuration Doctrine
+$config = Setup::createConfiguration($isDevMode);
+$config->setMetadataDriverImpl($driver);
+
+// Création de l'EntityManager
+$entityManager = EntityManager::create($dbParams, $config);
+
+
+
 //envoyer twig au controller
 Controller::setTwig($twig);
 
 Controller::setValidator($formFactory);
+
+Controller::setGenerator($generator);
+
+Controller::setEntity($entityManager);
 
 
 

@@ -57,7 +57,10 @@
         "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.19",
         "erusev/parsedown": "^1.7",
-        "symfony/yaml": "^5.4"
+        "symfony/yaml": "^5.4",
+        "symfony/console": "^5.4"
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.43"
     }
-   
 }

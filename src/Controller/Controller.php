@@ -28,13 +28,14 @@ use Symfony\Component\Asset\Package;
 use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
-use App\Model\admin\personnel\PersonnelModel;
 use App\Model\admin\user\ProfilUserModel;
+use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
@@ -80,6 +81,8 @@ class Controller
     protected $parsedown;
 
     protected $profilUser;
+
+    protected static $em;
 
     public function __construct()
     {
@@ -145,6 +148,15 @@ class Controller
     public static function setValidator($validator)
     {
         self::$validator = $validator;
+    }
+    public static function setGenerator($generator)
+    {
+        self::$generator = $generator;
+    }
+
+    public static function setEntity($em)
+    {
+        self::$em = $em;
     }
 
 
@@ -220,4 +232,18 @@ class Controller
         }
         return $array;
     }
+
+    protected function redirectTo($url) {
+        // Créer une réponse de redirection
+        $response = new RedirectResponse($url);
+        // Envoyer la réponse de redirection au client
+        $response->send();
+    }
+
+    protected function redirectToRoute($routeName, $params = []) {
+        $url = self::$generator->generate($routeName, $params);
+        header("Location: $url");
+        exit();
+    }
+    
 }

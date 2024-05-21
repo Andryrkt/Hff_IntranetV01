@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\ProfilUser;
 use App\Entity\ProfilUserEntity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -52,7 +53,7 @@ class ProfilUserType extends AbstractType
         [
             'label' => 'Numero Matricule'
         ])
-    ->add('email', 
+    ->add('mail', 
         EmailType::class, [
             'label' => 'Email'
         ])
@@ -63,7 +64,7 @@ class ProfilUserType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ProfilUserEntity::class,
+            'data_class' => ProfilUser::class,
         ]);
     }
 

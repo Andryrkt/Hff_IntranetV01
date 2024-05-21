@@ -2,11 +2,23 @@ parameters:
   access_file_path: dirname(__DIR__)."/views/assets/AccessUserProfil_Param.txt"
 
 services:
-  App\Service\GlobalVariablesService:
-    arguments:
-      $session: "@session"
-      $profilModel: "@app.profil_model"
-      $accessFilePath: "%access_file_path%"
+  # App\Service\GlobalVariablesService:
+  #   arguments:
+  #     $session: "@session"
+  #     $profilModel: "@app.profil_model"
+  #     $accessFilePath: "%access_file_path%"
 
   App\Twig\AppExtension:
     tags: ["twig.extension"]
+  # _defaults:
+  #   autowire: true
+  #   autoconfigure: true
+  #   public: false
+
+  # App\:
+  #   resource: "../src/*"
+  #   exclude: "../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}"
+
+  # App\Controller\:
+  #   resource: "../src/Controller"
+  #   tags: ["controller.service_arguments"]
