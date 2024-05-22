@@ -13,16 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProfilUserController extends Controller
 {
 
-    private $nomTable = 'Profil_User';
-    
-    /**
+     /**
      * Undocumented function
      *  @Route("/admin/user", name="user_index")
      * @param Request $request
      * @return void
      */
     public function index(Request $request)
-    
     {
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);

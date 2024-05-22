@@ -1,0 +1,12 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets %}
+<link rel="stylesheet" href="/Hffintranet/Views/css/doc/styles.css">
+{% endblock%}
+
+{% block content %}
+
+	{% include "../../partials/_sidebar.html.twig" %}
+	<div class="container mt-4">
+		{{ content|raw }}
+	</div>
+{% endblock %}

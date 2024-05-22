@@ -3,11 +3,10 @@
 namespace App\Repository;
 
 
-
 use Doctrine\ORM\EntityRepository;
 
 
-class ProfilUserRepository extends EntityRepository
+class AgenceServiceAutoriserRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici

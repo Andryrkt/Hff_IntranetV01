@@ -5,24 +5,24 @@
 {% block content %}
 	<div class="container">
 		<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-			Formulaire Profil User
+			Modification Agence Service Autoriser
 		</h2>
 
-		<a href="{{path("user_list")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+		<a href="{{path("autoriser_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
 		{{ form_start(form) }}
 		{{ form_errors(form)}}
 
 		<div class="row">
 			<div class="col-12 col-md-6">
-				{{ form_row(form.app) }}
-				{{ form_row(form.utilisateur) }}
-				{{ form_row(form.profil) }}
+
+				{{ form_row(form.Session_Utilisateur) }}
+
 			</div>
 			<div class="col-12 col-md-6">
 
-				{{ form_row(form.matricule) }}
-				{{ form_row(form.mail) }}
+				{{ form_row(form.Code_AgenceService_IRIUM) }}
+
 			</div>
 		</div>
 
@@ -34,12 +34,3 @@
 		{{ form_end(form) }}
 	</div>
 {% endblock %}
-
-{# {% block form_row %}
-	<div class="frorm-group">
-		{{ form_label(form) }}
-		{{ form_widget(form, {'attr': {'class':'form-control'}})}}
-		{{ form_help(form)}}
-		{{ form_errors(form)}}
-	</div>
-{% endblock %} #}

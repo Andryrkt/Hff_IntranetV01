@@ -162,8 +162,11 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'App\\Loader\\' => 11,
             'App\\Controller\\security\\' => 24,
             'App\\Controller\\dom\\' => 19,
+            'App\\Controller\\doc\\fonctionnel\\badm\\' => 36,
+            'App\\Controller\\doc\\fonctionnel\\' => 31,
             'App\\Controller\\admin\\user\\' => 26,
             'App\\Controller\\admin\\personnel\\' => 31,
+            'App\\Controller\\admin\\' => 21,
             'App\\Controller\\Traits\\' => 22,
             'App\\Controller\\' => 15,
             'App\\Controler\\badm\\' => 19,
@@ -562,6 +565,14 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/dom',
         ),
+        'App\\Controller\\doc\\fonctionnel\\badm\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/doc/fonctionnel/badm',
+        ),
+        'App\\Controller\\doc\\fonctionnel\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/doc/fonctionnel',
+        ),
         'App\\Controller\\admin\\user\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/admin/user',
@@ -569,6 +580,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'App\\Controller\\admin\\personnel\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/admin/personnel',
+        ),
+        'App\\Controller\\admin\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/admin',
         ),
         'App\\Controller\\Traits\\' => 
         array (
