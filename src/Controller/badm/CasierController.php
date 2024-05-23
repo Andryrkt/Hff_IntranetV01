@@ -174,6 +174,7 @@ class CasierController extends Controller
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
         $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
 
+
         // Combinaison des deux tableaux
         $resultat = [];
 

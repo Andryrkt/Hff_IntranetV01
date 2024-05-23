@@ -64,12 +64,15 @@ class BadmController extends Controller
 
 
             $agence = $this->badm->recupAgence();
+
+            
             $agenceDestinataire = [];
             foreach ($agence as $values) {
                 foreach ($values as $value) {
                     $agenceDestinataire[] = $value;
                 }
             }
+
             // var_dump($data);
             // die();
 

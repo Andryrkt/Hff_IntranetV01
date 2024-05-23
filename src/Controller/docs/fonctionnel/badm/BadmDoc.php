@@ -27,7 +27,7 @@ class BadmDoc extends Controller
         $htmlContent = $this->parsedown->text($markdownContent);
 
         // Rendre le template avec le contenu HTML
-        self::$twig->display('doc/badm.html.twig', 
+        self::$twig->display('doc/fonctionnel/badm/badm.html.twig', 
         [
             'content' => $htmlContent
         ]);

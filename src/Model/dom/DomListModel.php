@@ -124,12 +124,18 @@ class DomListModel extends Model
 
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
-        }
-    
-        $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+            $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
         FROM Agence_service_autorise 
         WHERE Session_Utilisateur = '" . $ConnectUser . "' ) 
         ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
+        } else {
+            $sql .= " WHERE DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+            FROM Agence_service_autorise 
+            WHERE Session_Utilisateur = '" . $ConnectUser . "' ) 
+            ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
+        }
+    
+
 
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
@@ -152,11 +158,16 @@ class DomListModel extends Model
     
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
-        }
-
-        $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+            $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
         FROM Agence_service_autorise 
         WHERE Session_Utilisateur = '{$ConnectUser}' )";
+        } else {
+            $sql .= " WHERE DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
+        FROM Agence_service_autorise 
+        WHERE Session_Utilisateur = '{$ConnectUser}' )";
+        }
+
+        
     
         $statement = $this->connexion->query($sql);
      
@@ -370,16 +381,20 @@ public function getTotalRecordsAll($tab) {
        
         $conditions = $this->buildConditions($tab);
 
-    
-
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
-        }
-        
-        $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM) 
+            $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM) 
         
         FROM Agence_service_autorise 
         WHERE Session_Utilisateur = '" . $ConnectUser . "' ) ORDER BY Numero_Ordre_Mission DESC";
+        } else {
+            $sql .= " WHERE DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM) 
+        
+        FROM Agence_service_autorise 
+        WHERE Session_Utilisateur = '" . $ConnectUser . "' ) ORDER BY Numero_Ordre_Mission DESC";
+        }
+        
+        
  
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
