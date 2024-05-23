@@ -1,122 +1,95 @@
 <?php
+namespace App\Entity;
 
-namespace  App\Entity;
-
-
-use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PersonnelRepository;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Agence_service_autorise")
- * @ORM\Entity(repositoryClass=AgenceServiceAutoriserRepository::class)
+ * @ORM\Table(name="Personnel")
+ * @ORM\Entity(repositoryClass=PersonnelRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class AgenceServiceAutoriser 
+class Personnel 
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     *
-     * @var integer
      */
     private int $id;
 
     /**
      * @ORM\Column(type="integer")
-     *
-     * @var integer
      */
-   private int $Matricule;
-
-   /**
-    * @ORM\Column(type="string", length="200")
-    *
-    * @var string
-    */
-   private string $Nom;
-
-   /**
-    * @ORM\Column(type="string", length="4")
-    *
-    * @var string
-    */
-   private string $Code_AgenceService_Sage;
-
-   /**
-    * @ORM\Column(type="integer")
-    *
-    * @var integer
-    */
-   private int $Numero_Fournisseur_IRIUM;
-
-   /**
-    * @ORM\Column(type="integer")
-    *
-    * @var integer
-    */
-   private int $Code_AgenceService_IRIUM;
-
-   /**
-    * @ORM\Column(type="string", length="10")
-    *
-    * @var string
-    */
-   private string $Numero_Telephone;
-
-   /**
-    * @ORM\Column(type="integer")
-    *
-    * @var integer
-    */
-   private int $Numero_Compte_Bancaire;
-
-   /**
-    * @ORM\Column(type="DateTime")
-    *
-    * @var DateTime
-    */
-   private DateTime $Date_creation;
-
-
-/**
- * @ORM\Column(type="string", length="50")
- *
- * @var string
- */
-   private string $Libelle_AgenceService_Sage;
-
-   /**
-    * @ORM\Column(type="string", length="4")
-    *
-    * @var string
-    */
-   private string $Code_Service_Agence_IRIUM;
-
-   /**
-    * @ORM\Column(type="string", length="50")
-    *
-    * @var string
-    */
-   private string $Libelle_Service_Agence_IRIUM;
-
-   /**
-    * @ORM\Column(type="string", length="100")
-    *
-    * @var string
-    */
-   private string $Prenoms;
+    private ?int $Matricule;
 
     /**
-     * @ORM\Column(style="string", length="10")
-     *
-     * @var string
+     * @ORM\Column(type="string", length=200)
      */
-   private string $Qualification;
+    private ?string $Nom;
 
+    /**
+     * @ORM\Column(type="string", length=4)
+     */
+    private ?string $Code_AgenceService_Sage;
 
-   
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private ?int $Numero_Fournisseur_IRIUM;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private ?int $Code_AgenceService_IRIUM;
+
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private ?string $Numero_Telephone = null;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private ?int $Numero_Compte_Bancaire;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private ?DateTime $Date_creation = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private ?string $Libelle_AgenceService_Sage = null;
+
+    /**
+     * @ORM\Column(type="string", length=4, nullable=true)
+     */
+    private ?string $Code_Service_Agence_IRIUM = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private ?string $Libelle_Service_Agence_IRIUM = null;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $Prenoms;
+
+    /**
+     * @ORM\Column(type="string", length=10)
+     */
+    private ?string $Qualification;
+
+    public function __construct()
+    {
+        $this->Date_creation = new \DateTime();
+    }
+
     /**
      * @ORM\PrePersist
      */
@@ -125,279 +98,153 @@ class AgenceServiceAutoriser
         $this->Date_creation = new \DateTime();
     }
 
- 
+    // Getters and Setters...
 
-    /**
-     * Get the value of id
-     *
-     * @return  integer
-     */ 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-   /**
-    * Get the value of Matricule
-    */ 
-   public function getMatricule()
-   {
-      return $this->Matricule;
-   }
+    public function getMatricule(): int
+    {
+        return $this->Matricule;
+    }
 
-   /**
-    * Set the value of Matricule
-    *
-    * @return  self
-    */ 
-   public function setMatricule($Matricule)
-   {
-      $this->Matricule = $Matricule;
+    public function setMatricule(int $Matricule): self
+    {
+        $this->Matricule = $Matricule;
+        return $this;
+    }
 
-      return $this;
-   }
+    public function getNom(): ?string
+    {
+        return $this->Nom;
+    }
 
-   /**
-    * Get the value of Nom
-    */ 
-   public function getNom()
-   {
-      return $this->Nom;
-   }
+    public function setNom(?string $Nom): self
+    {
+        $this->Nom = $Nom;
+        return $this;
+    }
 
-   /**
-    * Set the value of Nom
-    *
-    * @return  self
-    */ 
-   public function setNom($Nom)
-   {
-      $this->Nom = $Nom;
+    public function getCodeAgenceServiceSage(): ?string
+    {
+        return $this->Code_AgenceService_Sage;
+    }
 
-      return $this;
-   }
+    public function setCodeAgenceServiceSage(?string $Code_AgenceService_Sage): self
+    {
+        $this->Code_AgenceService_Sage = $Code_AgenceService_Sage;
+        return $this;
+    }
 
-   /**
-    * Get the value of Code_AgenceService_Sage
-    */ 
-   public function getCodeAgenceServiceSage()
-   {
-      return $this->Code_AgenceService_Sage;
-   }
+    public function getNumeroFournisseurIRIUM(): ?int
+    {
+        return $this->Numero_Fournisseur_IRIUM;
+    }
 
-   /**
-    * Set the value of Code_AgenceService_Sage
-    *
-    * @return  self
-    */ 
-   public function setCodeAgenceServiceSage($Code_AgenceService_Sage)
-   {
-      $this->Code_AgenceService_Sage = $Code_AgenceService_Sage;
+    public function setNumeroFournisseurIRIUM(?int $Numero_Fournisseur_IRIUM): self
+    {
+        $this->Numero_Fournisseur_IRIUM = $Numero_Fournisseur_IRIUM;
+        return $this;
+    }
 
-      return $this;
-   }
+    public function getCodeAgenceServiceIRIUM(): ?int
+    {
+        return $this->Code_AgenceService_IRIUM;
+    }
 
-   /**
-    * Get the value of Numero_Fournisseur_IRIUM
-    */ 
-   public function getNumeroFournisseurIRIUM()
-   {
-      return $this->Numero_Fournisseur_IRIUM;
-   }
+    public function setCodeAgenceServiceIRIUM(?int $Code_AgenceService_IRIUM): self
+    {
+        $this->Code_AgenceService_IRIUM = $Code_AgenceService_IRIUM;
+        return $this;
+    }
 
-   /**
-    * Set the value of Numero_Fournisseur_IRIUM
-    *
-    * @return  self
-    */ 
-   public function setNumeroFournisseurIRIUM($Numero_Fournisseur_IRIUM)
-   {
-      $this->Numero_Fournisseur_IRIUM = $Numero_Fournisseur_IRIUM;
+    public function getNumeroTelephone(): ?string
+    {
+        return $this->Numero_Telephone;
+    }
 
-      return $this;
-   }
+    public function setNumeroTelephone(?string $Numero_Telephone): self
+    {
+        $this->Numero_Telephone = $Numero_Telephone;
+        return $this;
+    }
 
-   /**
-    * Get the value of Code_AgenceService_IRIUM
-    */ 
-   public function getCodeAgenceServiceIRIUM()
-   {
-      return $this->Code_AgenceService_IRIUM;
-   }
+    public function getNumeroCompteBancaire(): int
+    {
+        return $this->Numero_Compte_Bancaire;
+    }
 
-   /**
-    * Set the value of Code_AgenceService_IRIUM
-    *
-    * @return  self
-    */ 
-   public function setCodeAgenceServiceIRIUM($Code_AgenceService_IRIUM)
-   {
-      $this->Code_AgenceService_IRIUM = $Code_AgenceService_IRIUM;
+    public function setNumeroCompteBancaire(int $Numero_Compte_Bancaire): self
+    {
+        $this->Numero_Compte_Bancaire = $Numero_Compte_Bancaire;
+        return $this;
+    }
 
-      return $this;
-   }
+    public function getDatecreation(): ?DateTime
+    {
+        return $this->Date_creation;
+    }
 
-   /**
-    * Get the value of Numero_Telephone
-    */ 
-   public function getNumeroTelephone()
-   {
-      return $this->Numero_Telephone;
-   }
+    public function setDatecreation(?DateTime $Date_creation): self
+    {
+        $this->Date_creation = $Date_creation;
+        return $this;
+    }
 
-   /**
-    * Set the value of Numero_Telephone
-    *
-    * @return  self
-    */ 
-   public function setNumeroTelephone($Numero_Telephone)
-   {
-      $this->Numero_Telephone = $Numero_Telephone;
+    public function getLibelleAgenceServiceSage(): ?string
+    {
+        return $this->Libelle_AgenceService_Sage;
+    }
 
-      return $this;
-   }
+    public function setLibelleAgenceServiceSage(?string $Libelle_AgenceService_Sage): self
+    {
+        $this->Libelle_AgenceService_Sage = $Libelle_AgenceService_Sage;
+        return $this;
+    }
 
-   /**
-    * Get the value of Numero_Compte_Bancaire
-    */ 
-   public function getNumeroCompteBancaire()
-   {
-      return $this->Numero_Compte_Bancaire;
-   }
+    public function getCodeServiceAgenceIRIUM(): ?string
+    {
+        return $this->Code_Service_Agence_IRIUM;
+    }
 
-   /**
-    * Set the value of Numero_Compte_Bancaire
-    *
-    * @return  self
-    */ 
-   public function setNumeroCompteBancaire($Numero_Compte_Bancaire)
-   {
-      $this->Numero_Compte_Bancaire = $Numero_Compte_Bancaire;
+    public function setCodeServiceAgenceIRIUM(?string $Code_Service_Agence_IRIUM): self
+    {
+        $this->Code_Service_Agence_IRIUM = $Code_Service_Agence_IRIUM;
+        return $this;
+    }
 
-      return $this;
-   }
+    public function getPrenoms(): string
+    {
+        return $this->Prenoms;
+    }
 
-   /**
-    * Get the value of Date_creation
-    */ 
-   public function getDatecreation()
-   {
-      return $this->Date_creation;
-   }
+    public function setPrenoms(string $Prenoms): self
+    {
+        $this->Prenoms = $Prenoms;
+        return $this;
+    }
 
-   /**
-    * Set the value of Date_creation
-    *
-    * @return  self
-    */ 
-   public function setDatecreation($Date_creation)
-   {
-      $this->Date_creation = $Date_creation;
+    public function getQualification(): string
+    {
+        return $this->Qualification;
+    }
 
-      return $this;
-   }
+    public function setQualification(string $Qualification): self
+    {
+        $this->Qualification = $Qualification;
+        return $this;
+    }
 
-   /**
-    * Get the value of Libelle_AgenceService_Sage
-    */ 
-   public function getLibelleAgenceServiceSage()
-   {
-      return $this->Libelle_AgenceService_Sage;
-   }
+    public function getLibelleServiceAgenceIRIUM(): ?string
+    {
+        return $this->Libelle_Service_Agence_IRIUM;
+    }
 
-   /**
-    * Set the value of Libelle_AgenceService_Sage
-    *
-    * @return  self
-    */ 
-   public function setLibelleAgenceServiceSage($Libelle_AgenceService_Sage)
-   {
-      $this->Libelle_AgenceService_Sage = $Libelle_AgenceService_Sage;
-
-      return $this;
-   }
-
-   /**
-    * Get the value of Code_Service_Agence_IRIUM
-    */ 
-   public function getCodeServiceAgenceIRIUM()
-   {
-      return $this->Code_Service_Agence_IRIUM;
-   }
-
-   /**
-    * Set the value of Code_Service_Agence_IRIUM
-    *
-    * @return  self
-    */ 
-   public function setCodeServiceAgenceIRIUM($Code_Service_Agence_IRIUM)
-   {
-      $this->Code_Service_Agence_IRIUM = $Code_Service_Agence_IRIUM;
-
-      return $this;
-   }
-
-   /**
-    * Get the value of Prenoms
-    */ 
-   public function getPrenoms()
-   {
-      return $this->Prenoms;
-   }
-
-   /**
-    * Set the value of Prenoms
-    *
-    * @return  self
-    */ 
-   public function setPrenoms($Prenoms)
-   {
-      $this->Prenoms = $Prenoms;
-
-      return $this;
-   }
-
-   /**
-    * Get the value of Qualification
-    */ 
-   public function getQualification()
-   {
-      return $this->Qualification;
-   }
-
-   /**
-    * Set the value of Qualification
-    *
-    * @return  self
-    */ 
-   public function setQualification($Qualification)
-   {
-      $this->Qualification = $Qualification;
-
-      return $this;
-   }
-
-   /**
-    * Get the value of Libelle_Service_Agence_IRIUM
-    *
-    * @return  string
-    */ 
-   public function getLibelle_Service_Agence_IRIUM()
-   {
-      return $this->Libelle_Service_Agence_IRIUM;
-   }
-
-   /**
-    * Set the value of Libelle_Service_Agence_IRIUM
-    *
-    * @param  string  $Libelle_Service_Agence_IRIUM
-    *
-    * @return  self
-    */ 
-   public function setLibelle_Service_Agence_IRIUM(string $Libelle_Service_Agence_IRIUM)
-   {
-      $this->Libelle_Service_Agence_IRIUM = $Libelle_Service_Agence_IRIUM;
-
-      return $this;
-   }
+    public function setLibelleServiceAgenceIRIUM(?string $Libelle_Service_Agence_IRIUM): self
+    {
+        $this->Libelle_Service_Agence_IRIUM = $Libelle_Service_Agence_IRIUM;
+        return $this;
+    }
 }

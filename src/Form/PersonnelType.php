@@ -31,46 +31,46 @@ class PersonnelType extends AbstractType
             [
                 'label' => 'Nom',
             ])
-        ->add('Code_AgenceService_Sage', 
+        ->add('CodeAgenceServiceSage', 
             TextType::class, 
             [
                 'label' => 'Code Ag\Serv Sage'
             ])
-        ->add('Numero_Fourniseur_IRIUM', 
+        ->add('NumeroFournisseurIRIUM', 
             NumberType::class,
             [
                 'label' => 'Numero Fournisseur IRIUM'
             ])
-        ->add('Code_AgenceService_IRIUM', 
+        ->add('CodeAgenceServiceIRIUM', 
             NumberType::class, 
             [
                 'label' => 'Code Ag\Serv IRIUM'
             ])
-        ->add('Numero_Telephone',
+        ->add('NumeroTelephone',
             TelType::class,
             [
                 'label' => 'Numero téléphone'
             ]
         )
-        ->add('Numero_Compte_Bancaire',
+        ->add('NumeroCompteBancaire',
                 NumberType::class,
                 [
                     'label' => 'N° Compte Bancaire'
                 ]
         )
-        ->add('Libelle_AgenceService_Sage',
+        ->add('LibelleAgenceServiceSage',
         TextType::class,
         [
             'label' => ' Libelle Ag\Serv Sage'
         ]
         )
-        ->add('Code_Service_Agence_IRIUM',
+        ->add('CodeServiceAgenceIRIUM',
         TextType::class,
         [
             'label' => 'code Serv\Ag IRIUM'
         ]
         )
-        ->add('Libelle_Service_Agence_IRIUM',
+        ->add('LibelleServiceAgenceIRIUM',
         TextType::class,
         [
             'label' =>'Libelle Serv\Ag IRIUM'
