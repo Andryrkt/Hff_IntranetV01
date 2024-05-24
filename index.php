@@ -30,6 +30,8 @@
 
 // use App\Controller\badm\CasierListTemporaireController;
 // use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
+
+use App\Model\LdapModel;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 require __DIR__ . '/config/bootstrap.php';
@@ -64,6 +66,10 @@ try {
 } 
 
 
+
+// $ldap = new LdapModel();
+
+// $ldap->searchLdapUser();
 
 
 

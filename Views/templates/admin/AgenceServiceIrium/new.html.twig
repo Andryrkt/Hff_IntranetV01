@@ -1,0 +1,46 @@
+{% extends "baseTemplate.html.twig"%}
+
+{# {% form_theme form _self %} #}
+
+{% block content %}
+	<div class="container">
+		<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+			Formulaire Agence Service IRIUM
+		</h2>
+
+		<a href="{{path("AgServIrium_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+
+		{{ form_start(form) }}
+		{{ form_errors(form)}}
+
+		<div class="row">
+			<div class="col-12 col-md-6">
+
+				{{ form_row(form.idIrium) }}
+				{{ form_row(form.agencei100) }}
+				{{ form_row(form.nomagencei100) }}
+				{{ form_row(form.servicei100) }}
+				{{ form_row(form.nomservicei100) }}
+
+
+			</div>
+			<div class="col-12 col-md-6">
+
+				{{ form_row(form.agenceips) }}
+				{{ form_row(form.serviceips) }}
+				{{ form_row(form.libelleserviceips) }}
+				{{ form_row(form.societeios) }}
+				{{ form_row(form.servicesagepaie) }}
+
+
+			</div>
+		</div>
+
+
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save"></i>
+			Enregistrer
+		</button>
+		{{ form_end(form) }}
+	</div>
+{% endblock %}

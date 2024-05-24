@@ -19,8 +19,8 @@ class ProfilControl extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
-            $Ldap = new LdapModel();
-            $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+            $Connexion_Ldap_User = $this->ldap->userConnect($Username, $Password);
+           
             if (!$Connexion_Ldap_User) {
                 echo '<script type="text/javascript">
                     alert("Merci de vérifier votre session LDAP");
