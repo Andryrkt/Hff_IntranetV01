@@ -136,7 +136,6 @@ class DomListModel extends Model
         }
     
 
-
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);
@@ -221,7 +220,7 @@ class DomListModel extends Model
        
         $conditions = $this->buildConditions($tab);
 
-    
+ 
 
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
@@ -229,6 +228,7 @@ class DomListModel extends Model
     
         $sql .= " ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
 
+        
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);
@@ -243,39 +243,46 @@ class DomListModel extends Model
 {
     $conditions = [];
    
+    
+    if(!empty($tab)){
+        if (!empty($tab['dateDemandeDebut'])) {
 
-    foreach ($tab as $field => $value) {
-        if (!empty($value)) {
-            if (!empty($tab['dateDemandeDebut'])) {
-                $conditions[]= "Date_Demande >=  '{$tab['dateDemandeDebut']}'";
-            }
-            if(!empty($tab['dateDemandeFin'])) {
-                $conditions[]= "Date_Demande <= '{$tab['dateDemandeFin']}'";
-            }
-            if(!empty($tab['dateMissionDebut'])){
-                $conditions[]= "Date_Debut >= '{$tab['dateMissionDebut']}'";
-            } 
-            if(!empty($tab['dateMissionFin'])){
-                $conditions[]= "Date_Fin <= '{$tab['dateMissionFin']}'";
-            }
+            $conditions[]= "Date_Demande >=  '{$tab['dateDemandeDebut']}'";
+        }
+        if(!empty($tab['dateDemandeFin'])) {
+            $conditions[]= "Date_Demande <= '{$tab['dateDemandeFin']}'";
+        }
+        if(!empty($tab['dateMissionDebut'])){
+            $conditions[]= "Date_Debut >= '{$tab['dateMissionDebut']}'";
+        } 
+        if(!empty($tab['dateMissionFin'])){
+            $conditions[]= "Date_Fin <= '{$tab['dateMissionFin']}'";
+        }
 
-            
+        if(!empty($tab['Description']))
+        {
+            $conditions[] = "Description LIKE '%{$tab['Description']}%'";
+        } 
 
-            if(!empty($tab['Description']) || !empty($tab['Sous_type_document']) || !empty($tab['Matricule']) || !empty($tab['Numero_Ordre_Mission']))
-            {
-                $conditions[] = "$field LIKE '%$value%'";
-            } 
-              
-            
-            if(isset($tab['exportExcel'])){
-                return $conditions;
-            }
-            
-                
-            
+        if (!empty($tab['Sous_type_document'])) {
+            $conditions[] = "Sous_type_document LIKE '%{$tab['Sous_type_document']}%'";
+        }
+
+        if(!empty($tab['Matricule'])){
+            $conditions[] = "Matricule LIKE '%{$tab['Matricule']}%'";
+        }
+        
+        if(!empty($tab['Numero_Ordre_Mission'])){
+            $conditions[] = "Numero_Ordre_Mission LIKE '%{$tab['Numero_Ordre_Mission']}%'";
+        }
+        
+        if(isset($tab['exportExcel'])){
+            return $conditions;
         }
     }
 
+    
+    
     return $conditions;
 }
 
@@ -394,8 +401,7 @@ public function getTotalRecordsAll($tab) {
         WHERE Session_Utilisateur = '" . $ConnectUser . "' ) ORDER BY Numero_Ordre_Mission DESC";
         }
         
-        
- 
+    
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);

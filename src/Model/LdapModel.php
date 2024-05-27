@@ -9,12 +9,20 @@ class LdapModel
     private $ldapconn;
     private $Domain = "@fraise.hff.mg";
     private $ldap_dn = "OU=HFF Users,DC=fraise,DC=hff,DC=mg";
-    private $Users;
-    private $Password;
+    private $Users = 'lanto';
+    private $Password = '@Andryrkt0719*';
 
     public function __construct()
     {
         $this->ldapconn = ldap_connect($this->ldapHost, $this->ldapPort);
+
+        if (!$this->ldapconn) {
+            die("Connexion au serveur LDAP échouée.");
+        }
+
+        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
+
     }
 
     public function showconnect()
@@ -41,28 +49,32 @@ class LdapModel
     }
 
 
-public function infoUser(): array
+public function infoUser($user, $password): array
 {
-
+    $ldapbind = ldap_bind($this->ldapconn, $user . $this->Domain, $password);
             // Recherche dans l'annuaire LDAP
         $search_filter = "(objectClass=*)";
         $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
 
-        if (!$search_result) {
-            die("Échec de la recherche LDAP.");
-        }
+   
+            
+    if (!$search_result) {
+        echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
+        return [];
+    }
+       
 
         // Récupération des entrées
         $entries = ldap_get_entries($this->ldapconn, $search_result);
 
-
+        
         $data = [];
         if ($entries["count"] > 0) {
         
             for ($i = 0; $i < $entries["count"]; $i++) {
 
            // if(isset($entries[$i]["samaccountname"][0]) && isset($entries[$i]["description"][0]) && isset($entries[$i]["mail"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
-            if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
+            if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
                 $data[$entries[$i]["samaccountname"][0]] = [
                     "nom" => $entries[$i]["sn"][0] ?? '',
                     "prenom" => $entries[$i]["givenname"][0] ?? '',
@@ -81,7 +93,7 @@ public function infoUser(): array
 
         
         // Fermer la connexion LDAP
-        ldap_unbind($this->ldapconn);
+        // ldap_unbind($this->ldapconn);
 
         return $data;
 }

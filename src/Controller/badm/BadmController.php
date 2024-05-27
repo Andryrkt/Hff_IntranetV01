@@ -621,6 +621,7 @@ class BadmController extends Controller
 
             $idStatut = $this->badm->idOuvertStatutDemande();
 
+
             /**
              * TODO: eliminer le doublon du changemnet AGENCE/SERVICE, changement de CASIER, ...
              */

@@ -390,7 +390,7 @@ class BadmModel extends Model
      */
     public function recupeIdMateriel()
     {
-        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel";
+        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel where  ID_Statut_Demande NOT IN (9, 18, 22, 24, 26, 32, 33, 34, 35)";
 
         $execTypeDoc = $this->connexion->query($statement);
         $tab = [];
@@ -400,6 +400,7 @@ class BadmModel extends Model
         return $tab;
     }
 
+    
 
     /**
      * recupérer l'agence et service destinataire selon l'id materiel
@@ -418,7 +419,11 @@ class BadmModel extends Model
         return $tab;
     }
 
-
+/**
+ * recuperation id_statut_demande OUVERT
+ *
+ * @return void
+ */
     public function idOuvertStatutDemande()
     {
         $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";

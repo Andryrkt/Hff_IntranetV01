@@ -135,18 +135,18 @@ $request = Request::createFromGlobals();
 $requestStack->push($request);
 
 // Initialisation du conteneur de services
-$containerBuilder = new ContainerBuilder();
-$loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
-$loader->load('services.yaml');
+// $containerBuilder = new ContainerBuilder();
+// $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
+// $loader->load('services.yaml');
 
 // Initialisation de la session
 //$session = new Session();
 
 
 // Initialisation des services nécessaires
-$containerBuilder->set('session', $session);
-$containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
-$containerBuilder->compile();
+// $containerBuilder->set('session', $session);
+// $containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
+// $containerBuilder->compile();
 
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()
@@ -164,7 +164,7 @@ $isDevMode = true;
 // Configuration de la base de données
 $dbParams = array(
     'driver'   => 'pdo_sqlsrv',
-    'host'     => '192.168.0.28', // Remplacez par votre host
+    'host'     => '192.168.0.28', 
     'port'     => '1433',
     'user'     => 'sa',
     'password' => 'Hff@sql2024',

@@ -146,7 +146,6 @@ class DomControl extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-
         $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);

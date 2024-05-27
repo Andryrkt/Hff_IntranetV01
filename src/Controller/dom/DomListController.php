@@ -66,6 +66,7 @@ class DomListController extends Controller
         $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
 
 
+
         if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
             $array_decoded = $this->domList->RechercheModelAll($_SESSION['recherche'], (int)$page, (int)$limit);
             $resultat = $this->domList->getTotalRecordsAll($_SESSION['recherche']);

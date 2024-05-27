@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\ProfilUser;
 use App\Entity\ProfilUserEntity;
+use App\Model\LdapModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Length;
@@ -16,17 +17,30 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfilUserType extends AbstractType
 {
+    private $ldap;
+    public function __construct()
+    {
+        $this->ldap = new LdapModel();
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        
+        $users = $this->ldap->infoUser($_SESSION['user'], $_SESSION['password']);
+
+        $nom = [];
+        foreach ($users as $key => $value) {
+            $nom[]=$key;
+        }
+
         $builder
         ->add('utilisateur', 
-        TextType::class, 
+        ChoiceType::class, 
         [
             'label' => "Nom d'utilisateur",
-            'constraints' => [
-                new NotBlank(),
-                new Length(['min' => 4]),
-            ],
+            'choices' => array_combine($nom, $nom),
+            'placeholder' => '-- Choisir un nom d\'utilisateur --'
+           
         ])
     ->add('profil', 
         ChoiceType::class, 
@@ -51,11 +65,13 @@ class ProfilUserType extends AbstractType
     ->add('matricule', 
         NumberType::class,
         [
-            'label' => 'Numero Matricule'
+            'label' => 'Numero Matricule',
+            'required'=>false
         ])
     ->add('mail', 
         EmailType::class, [
-            'label' => 'Email'
+            'label' => 'Email',
+        'required' =>false
         ])
     
     ;

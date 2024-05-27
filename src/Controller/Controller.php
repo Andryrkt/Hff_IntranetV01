@@ -164,7 +164,7 @@ class Controller
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        }
+        } 
         if (empty($_SESSION['user'])) {
             header("Location:/Hffintranet/index.php?action=Logout");
             session_destroy();
@@ -176,7 +176,7 @@ class Controller
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        }
+        } 
         unset($_SESSION['user']);
         session_destroy();
         session_unset();

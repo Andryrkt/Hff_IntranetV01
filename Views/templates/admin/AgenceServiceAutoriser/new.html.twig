@@ -16,7 +16,7 @@
 		<div class="row">
 			<div class="col-12 col-md-6">
 
-				{{ form_row(form.Session_Utilisateur) }}
+				{{ form_row(form.utilisateur, {'attr': {'class': 'selectUser form-control'}}) }}
 
 			</div>
 			<div class="col-12 col-md-6">
@@ -33,4 +33,8 @@
 		</button>
 		{{ form_end(form) }}
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/admin/agenceServiceAutoriser/new.js"></script>
 {% endblock %}

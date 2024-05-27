@@ -20,6 +20,8 @@ class ProfilControl extends Controller
             $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
             $Connexion_Ldap_User = $this->ldap->userConnect($Username, $Password);
+
+           
            
             if (!$Connexion_Ldap_User) {
                 echo '<script type="text/javascript">
@@ -29,6 +31,9 @@ class ProfilControl extends Controller
             } else {
                 // session_start();
                 $_SESSION['user'] = $Username;
+                $_SESSION['password'] = $Password;
+
+                
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 
