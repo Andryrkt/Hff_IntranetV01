@@ -34,6 +34,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             'setasign\\Fpdi\\' => 14,
         ),
+        'c' => 
+        array (
+            'core\\' => 5,
+        ),
         'Z' => 
         array (
             'ZipStream\\' => 10,
@@ -88,6 +92,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Bundle\\MakerBundle\\' => 27,
             'Symfony\\Bundle\\FrameworkBundle\\' => 31,
             'Symfony\\Bridge\\Twig\\' => 20,
+            'Symfony\\Bridge\\Doctrine\\' => 24,
         ),
         'P' => 
         array (
@@ -178,6 +183,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'setasign\\Fpdi\\' => 
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
+        'core\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/core',
         ),
         'ZipStream\\' => 
         array (
@@ -362,6 +371,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Symfony\\Bridge\\Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/twig-bridge',
+        ),
+        'Symfony\\Bridge\\Doctrine\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/doctrine-bridge',
         ),
         'Psr\\SimpleCache\\' => 
         array (

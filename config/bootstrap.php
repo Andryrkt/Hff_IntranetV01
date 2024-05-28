@@ -6,9 +6,10 @@ use App\Model\ProfilModel;
 
 use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
+use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\Form\Forms;
 
+use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
@@ -16,17 +17,17 @@ use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
-use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
+
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
-use Symfony\Bridge\Twig\Extension\FormExtension;
 
+use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Translation\Loader\ArrayLoader;
+use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
@@ -148,13 +150,7 @@ $requestStack->push($request);
 // $containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
 // $containerBuilder->compile();
 
-// Set up the Form component
-$formFactory = Forms::createFormFactoryBuilder()
-    ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
-    ->addExtension(new ValidatorExtension($validator))
-    ->addExtension(new CoreExtension())
-    ->addExtension(new HttpFoundationExtension())
-    ->getFormFactory();
+
 
 // Chemin vers les entités
 $paths = array(dirname(__DIR__) . "/src/Entity");
@@ -182,7 +178,16 @@ $config->setMetadataDriverImpl($driver);
 // Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
-
+// Créer une instance de SimpleManagerRegistry
+$managerRegistry = new SimpleManagerRegistry($entityManager);
+// Set up the Form component
+$formFactory = Forms::createFormFactoryBuilder()
+    ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
+    ->addExtension(new ValidatorExtension($validator))
+    ->addExtension(new CoreExtension())
+    ->addExtension(new HttpFoundationExtension())
+    ->addExtension(new DoctrineOrmExtension($managerRegistry))
+    ->getFormFactory();
 
 //envoyer twig au controller
 Controller::setTwig($twig);

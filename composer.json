@@ -20,8 +20,8 @@
             "App\\Model\\admin\\user\\": "src/Model/admin/user",
             "App\\Service\\": "src/Service/",
             "Config\\": "config/",
-            "App\\Loader\\": "src/Loader"
-            
+            "App\\Loader\\": "src/Loader",
+            "core\\": "core"
             
         }
     },
@@ -63,7 +63,9 @@
         "doctrine/orm": "^2.19",
         "erusev/parsedown": "^1.7",
         "symfony/yaml": "^5.4",
-        "symfony/console": "^5.4"
+        "symfony/console": "^5.4",
+        "symfony/doctrine-bridge": "^5.4",
+        "doctrine/persistence": "^3.3"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43"
