@@ -124,9 +124,12 @@ class BadmController extends Controller
                 $agenceServiceAutoriserbd = $this->badm->recupCodeAgenceServiceAutoriser($_SESSION['user']);
 
                 $agenceServiceAutoriser = $this->transformEnSeulTableau($agenceServiceAutoriserbd);
+                
 
 
                 $codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
+
+
 
                 $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
