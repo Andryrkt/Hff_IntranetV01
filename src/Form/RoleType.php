@@ -2,8 +2,9 @@
 
 namespace App\Form;
 
-
+use App\Entity\Permission;
 use App\Entity\Role;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -23,6 +24,16 @@ class RoleType extends AbstractType
             [
                 'label' => 'Nom',
             ])
+        ->add('permissions',
+            EntityType::class,
+            [
+                'label' => 'permission',
+                'class' => Permission::class,
+                'choice_label' => 'permissionName',
+                'multiple' => true,
+                'expanded' => false
+            ]
+        )
     
     ;
     }

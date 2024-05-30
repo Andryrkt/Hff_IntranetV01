@@ -101,38 +101,22 @@ class Permission
         return $this->date_creation;
     }
 
-    /**
-     * Set the value of date_creation
-     *
-     * @param  [type]  $date_creation
-     *
-     * @return  self
-     */ 
-    public function setDatecreation( $date_creation)
+
+    public function setDatecreation( $date_creation): self
     {
         $this->date_creation = $date_creation;
 
         return $this;
     }
 
-    /**
-     * Get the value of date_modification
-     *
-     * @return  [type]
-     */ 
+    
     public function getDatemodification()
     {
         return $this->date_modification;
     }
 
-    /**
-     * Set the value of date_modification
-     *
-     * @param  [type]  $date_modification
-     *
-     * @return  self
-     */ 
-    public function setDatemodification( $date_modification)
+  
+    public function setDatemodification( $date_modification): self
     {
         $this->date_modification = $date_modification;
 
@@ -151,7 +135,7 @@ class Permission
     {
         if(!$this->roles->contains($role)){
             $this->roles[] = $role;
-            $role->addPermissions($this);
+            $role->addPermission($this);
         }
         return $this;
     }
@@ -160,7 +144,7 @@ class Permission
     {
         if($this->roles->contains($role)) {
             $this->roles->removeElement($role);
-          $role->removePermissions($this);
+          $role->removePermission($this);
         }
         
         return $this;

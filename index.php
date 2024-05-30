@@ -66,7 +66,6 @@ try {
 } 
 
 
-
 // $ldap = new LdapModel();
 
 // $ldap->searchLdapUser();

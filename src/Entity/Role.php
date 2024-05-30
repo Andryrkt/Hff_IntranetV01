@@ -23,36 +23,28 @@ class Role
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="User", mappedBy="roles")
+     * @ORM\OneToMany(targetEntity="User", mappedBy="role")
      */
     private $users;
 
     /**
-     * @ORM\Column(type="string", length="255")
-     *
-     * @var string
+     * @ORM\Column(type="string", length=255)
      */
     private $role_name;
 
     /**
      * @ORM\Column(type="date")
-     *
-     * @var [type]
      */
     private $date_creation;
 
     /**
      * @ORM\Column(type="date")
-     *
-     * @var [type]
      */
     private $date_modification;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="roles")
-     *
-     * @var [type]
+     * @ORM\JoinTable(name="role_permissions")
      */
     private $permissions;
 
@@ -63,7 +55,7 @@ class Role
         $this->permissions = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -78,90 +70,63 @@ class Role
 
     public function addUser(User $user): self
     {
-        if(!$this->users->contains($user)){
+        if (!$this->users->contains($user)) {
             $this->users[] = $user;
             $user->setRole($this);
         }
+
         return $this;
     }
 
     public function removeUser(User $user): self
     {
-        if($this->users->contains($user)) {
+        if ($this->users->contains($user)) {
             $this->users->removeElement($user);
-            if($user->getRole() === $this){
+            if ($user->getRole() === $this) {
                 $user->setRole(null);
             }
         }
         
         return $this;
     }
-    /**
-     * Set the value of rolePermissions
-     *
-     * @return  self
-     */ 
-    public function setUser($user)
+
+    public function setUsers($users): self
     {
-        $this->users = $user;
+        $this->users = $users;
 
         return $this;
     }
 
-    /**
-     * Get the value of roleName
-     */ 
-    public function getRoleName()
+    public function getRoleName(): ?string
     {
         return $this->role_name;
     }
 
-    /**
-     * Set the value of roleName
-     *
-     * @return  self
-     */ 
-    public function setRoleName($roleName)
+    public function setRoleName(string $roleName): self
     {
         $this->role_name = $roleName;
 
         return $this;
     }
 
-    /**
-     * Get the value of dateCreation
-     */ 
-    public function getDateCreation()
+    public function getDateCreation(): ?\DateTimeInterface
     {
         return $this->date_creation;
     }
 
-    /**
-     * Set the value of dateCreation
-     *
-     * @return  self
-     */ 
-    public function setDateCreation($dateCreation)
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
     {
         $this->date_creation = $dateCreation;
 
         return $this;
     }
 
-    /**
-     * Get the value of dateModification
-     */ 
-    public function getDateModification()
+    public function getDateModification(): ?\DateTimeInterface
     {
         return $this->date_modification;
     }
 
-    /**
-     * Set the value of dateModification
-     *
-     * @return  self
-     */ 
-    public function setDateModification($dateModification)
+    public function setDateModification(\DateTimeInterface $dateModification): self
     {
         $this->date_modification = $dateModification;
 
@@ -185,30 +150,26 @@ class Role
         $this->date_modification = new \DateTime();
     }
 
-/**
- * 
- *
- * @return Collection|Permissions[]
- */
+    /**
+     * @return Collection|Permission[]
+     */
     public function getPermissions(): Collection
     {
         return $this->permissions;
     }
 
-
-    public function addPermissions(Permission $permission): self
+    public function addPermission(Permission $permission): self
     {
-        if(!$this->permissions->contains($permission))
-        {
+        if (!$this->permissions->contains($permission)) {
             $this->permissions[] = $permission;
         }
 
         return $this;
     }
 
-    public function removePermissions(Permission $permission): self
+    public function removePermission(Permission $permission): self
     {
-        if($this->permissions->contains($permission)){
+        if ($this->permissions->contains($permission)) {
             $this->permissions->removeElement($permission);
         }
 

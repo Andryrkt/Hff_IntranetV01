@@ -14,7 +14,7 @@
 
 				<div class="d-flex flex-row ">
 					<div class="p-2">
-						<a href="{{ path("personnnel_new")}}" class="btn btn-success fw-bold">
+						<a href="{{ path("role_new")}}" class="btn btn-success fw-bold">
 							Add
 						</a>
 
@@ -26,6 +26,7 @@
 						<tr>
 							<th>Actions</th>
 							<th>Nom</th>
+							<th>Permissions</th>
 
 						</tr>
 					</thead>
@@ -40,18 +41,25 @@
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_show", {id: item.id})}}">Détails</a>
+												<a class="dropdown-item fw-bold" href="{{ path("role_update", {id: item.id})}}">Modifier</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_update", {id: item.id})}}">Modifier</a>
-											</li>
-											<li>
-												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("personnel_delete", {id: item.id})}}">Supprimer</a>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("role_delete", {id: item.id})}}">Supprimer</a>
 											</li>
 										</ul>
 									</div>
 								</td>
 								<td>{{item.roleName}}</td>
+								<td>
+									<ul>
+										{% for p in item.permissions %}
+											<li>
+												{{p.permissionName}}
+											</li>
+										{% endfor %}
+									</ul>
+								</td>
+
 
 							</tr>
 						{% endfor %}
