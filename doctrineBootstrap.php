@@ -6,6 +6,7 @@ use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 // Chemin vers les entités
@@ -24,8 +25,8 @@ $dbParams = array(
 );
 
 // Configuration du lecteur d'annotations
-$annotationReader = new AnnotationReader();
-$driver = new AnnotationDriver($annotationReader, $paths);
+// $annotationReader = new AnnotationReader();
+// $driver = new AnnotationDriver($annotationReader, $paths);
 
 // Création de la configuration Doctrine
 // $config = Setup::createConfiguration($isDevMode);
@@ -33,15 +34,27 @@ $driver = new AnnotationDriver($annotationReader, $paths);
 
 
 // Création de la configuration Doctrine
-$config = Setup::createConfiguration($isDevMode);
-$config->setMetadataDriverImpl($driver);
+// $config = Setup::createConfiguration($isDevMode);
+// $config->setMetadataDriverImpl($driver);
 
 // Ajout du logger SQL personnalisé
 // $config->setSQLLogger(new CustomSQLLogger());
 
 
 // Création de l'EntityManager
+// $entityManager = EntityManager::create($dbParams, $config);
+
+// Configurez Doctrine pour utiliser l'AnnotationReader standard
+$config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
+$annotationReader = new AnnotationReader();
+
+// Créez le driver des annotations
+$driver = new Doctrine\ORM\Mapping\Driver\AnnotationDriver($annotationReader, $paths);
+$config->setMetadataDriverImpl($driver);
+
+// Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
+
 // Créer une instance de SimpleManagerRegistry
-$managerRegistry = new SimpleManagerRegistry($entityManager);
+//$managerRegistry = new SimpleManagerRegistry($entityManager);

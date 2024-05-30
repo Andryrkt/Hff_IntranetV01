@@ -21,7 +21,7 @@
             "App\\Service\\": "src/Service/",
             "Config\\": "config/",
             "App\\Loader\\": "src/Loader",
-            "App\\Trait\\": "src/Trait",
+            "App\\Traits\\": "src/Traits",
             "core\\": "core"
             
         }

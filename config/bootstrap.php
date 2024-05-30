@@ -160,7 +160,7 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new ValidatorExtension($validator))
     ->addExtension(new CoreExtension())
     ->addExtension(new HttpFoundationExtension())
-    ->addExtension(new DoctrineOrmExtension($managerRegistry))
+    // ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
 //envoyer twig au controller

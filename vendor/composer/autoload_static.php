@@ -157,7 +157,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
         'A' => 
         array (
-            'App\\Trait\\' => 10,
+            'App\\Traits\\' => 11,
             'App\\Service\\' => 12,
             'App\\Model\\dom\\' => 14,
             'App\\Model\\badm\\' => 15,
@@ -539,9 +539,9 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
-        'App\\Trait\\' => 
+        'App\\Traits\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src/Trait',
+            0 => __DIR__ . '/../..' . '/src/Traits',
         ),
         'App\\Service\\' => 
         array (

@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -64,7 +67,15 @@ class User
     public function __construct()
     {
         $this->date_creation = new \DateTime();
+        $this->applications = new ArrayCollection();
     }
+
+    
+    /**
+     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_applications")
+     */
+    private $applications;
 
      /**
      * @ORM\PrePersist
@@ -202,6 +213,33 @@ class User
     public function setDatemodification( $date_modification)
     {
         $this->date_modification = $date_modification;
+
+        return $this;
+    }
+
+
+     /**
+     * @return Collection|Application[]
+     */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
+
+    public function addApplication(Application $application): self
+    {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+        }
+
+        return $this;
+    }
+
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+        }
 
         return $this;
     }

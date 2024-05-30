@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Application;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Model\LdapModel;
@@ -52,14 +53,23 @@ class UserType extends AbstractType
             'label' => 'Email',
         'required' =>false
         ])
-        ->add('role', 
+    ->add('role', 
        EntityType::class, [
             'label' => 'Role',
             'placeholder' => '-- Choisir une role --',
             'class' => Role::class,
             'choice_label' =>'role_name'
         ])
-    
+    ->add('applications',
+        EntityType::class,
+        [
+            'label' => 'Applications',
+            'class' => Application::class,
+            'choice_label' => 'codeApp',
+            'multiple' => true,
+            'expanded' => true
+        ]
+    )
     ;
     }
 

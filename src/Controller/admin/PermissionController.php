@@ -54,7 +54,6 @@ class PermissionController extends Controller
             {
                 $role= $form->getData();
 
-                dd($role);
                 self::$em->persist($role);
     
                 self::$em->flush();

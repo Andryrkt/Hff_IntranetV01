@@ -8,10 +8,10 @@
 
 				<div class="container">
 					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-						Formulaire Utilisateur
+						Formulaire Role
 					</h2>
 
-					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{path("role_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
@@ -19,16 +19,11 @@
 					<div class="row">
 						<div class="col-12 col-md-6">
 
-							{{ form_row(form.nom_utilisateur) }}
-							{{ form_row(form.matricule) }}
-							{{ form_row(form.mail) }}
-
+							{{ form_row(form.nom) }}
 
 						</div>
 						<div class="col-12 col-md-6">
-
-							{{ form_row(form.role)}}
-							{{ form_row(form.applications)}}
+							{{ form_row(form.codeApp) }}
 						</div>
 					</div>
 
