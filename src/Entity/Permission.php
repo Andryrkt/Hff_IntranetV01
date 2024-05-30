@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @ORM\Entity
  * @ORM\Table(name="permissions")
+ * @ORM\HasLifecycleCallbacks
  */
 class Permission
 {
@@ -27,15 +28,11 @@ class Permission
 
      /**
      * @ORM\Column(type="date")
-     *
-     * @var [type]
      */
     private $date_creation;
 
     /**
      * @ORM\Column(type="date")
-     *
-     * @var [type]
      */
     private $date_modification;
 
@@ -70,7 +67,34 @@ class Permission
 
         return $this;
     }
-     /**
+   
+
+    public function getDateCreation(): ?\DateTimeInterface
+    {
+        return $this->date_creation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->date_creation = $dateCreation;
+
+        return $this;
+    }
+
+    public function getDateModification(): ?\DateTimeInterface
+    {
+        return $this->date_modification;
+    }
+
+    public function setDateModification(\DateTimeInterface $dateModification): self
+    {
+        $this->date_modification = $dateModification;
+
+        return $this;
+    }
+
+   
+    /**
      * @ORM\PrePersist
      */
     public function onPrePersist(): void
@@ -85,42 +109,6 @@ class Permission
     public function onPreUpdate(): void
     {
         $this->date_modification = new \DateTime();
-    }
-
-   
-
-   
-
-    /**
-     * Get the value of date_creation
-     *
-     * @return  [type]
-     */ 
-    public function getDatecreation()
-    {
-        return $this->date_creation;
-    }
-
-
-    public function setDatecreation( $date_creation): self
-    {
-        $this->date_creation = $date_creation;
-
-        return $this;
-    }
-
-    
-    public function getDatemodification()
-    {
-        return $this->date_modification;
-    }
-
-  
-    public function setDatemodification( $date_modification): self
-    {
-        $this->date_modification = $date_modification;
-
-        return $this;
     }
 
      /**
@@ -146,7 +134,8 @@ class Permission
             $this->roles->removeElement($role);
           $role->removePermission($this);
         }
-        
         return $this;
     }
+
+
 }

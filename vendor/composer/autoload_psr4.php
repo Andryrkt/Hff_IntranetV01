@@ -95,6 +95,7 @@ return array(
     'Doctrine\\Common\\' => array($vendorDir . '/doctrine/common/src', $vendorDir . '/doctrine/event-manager/src'),
     'Config\\' => array($baseDir . '/config'),
     'Complex\\' => array($vendorDir . '/markbaker/complex/classes/src'),
+    'App\\Trait\\' => array($baseDir . '/src/Trait'),
     'App\\Service\\' => array($baseDir . '/src/Service'),
     'App\\Model\\dom\\' => array($baseDir . '/src/Model/dom'),
     'App\\Model\\badm\\' => array($baseDir . '/src/Model/badm'),

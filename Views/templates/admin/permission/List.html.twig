@@ -38,14 +38,12 @@
 											Actions
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_show", {id: item.id})}}">Détails</a>
+												<a class="dropdown-item fw-bold" href="{{ path("permission_update", {id: item.id})}}">Modifier</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_update", {id: item.id})}}">Modifier</a>
-											</li>
-											<li>
-												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("personnel_delete", {id: item.id})}}">Supprimer</a>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("permission_delete", {id: item.id})}}">Supprimer</a>
 											</li>
 										</ul>
 									</div>
