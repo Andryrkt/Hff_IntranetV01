@@ -99,7 +99,7 @@ class BadmController extends Controller
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
-            } elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
+            }  elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
                 $message = 'Ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
@@ -121,12 +121,23 @@ class BadmController extends Controller
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
 
+                if($_POST['typeMission'] === 'ENTREE EN PARC'){
+                    $serviceEmetteur = 'COM COMMERCIAL';
+                }
+
                 $agenceServiceAutoriserbd = $this->badm->recupCodeAgenceServiceAutoriser($_SESSION['user']);
 
                 $agenceServiceAutoriser = $this->transformEnSeulTableau($agenceServiceAutoriserbd);
 
-                $codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
-
+                $agenceAutoriser = [];
+                    foreach ($agenceServiceAutoriser as $key => $value) {
+                       $agenceAutoriser[]= substr($value, 0, 2);
+                    }
+                
+                    
+                //$codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
+                $codeAgence = $data[0]['agence'];
+               
                 $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
 
@@ -154,7 +165,7 @@ class BadmController extends Controller
                 } else {
 
 
-                    if (!in_array($codeAgenceService, $agenceServiceAutoriser)) {
+                    if (!in_array($codeAgence, $agenceAutoriser)) {
 
                         $message = "vous n\'êtes pas autoriser à consulter ce matériel";
                         $this->alertRedirection($message);

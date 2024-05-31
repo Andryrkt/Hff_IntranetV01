@@ -5,12 +5,14 @@ namespace App\Entity;
 use App\Entity\User;
 use App\Entity\Permission;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\RoleRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="roles")
+ * @ORM\Entity(repositoryClass=RoleRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class Role

@@ -70,8 +70,8 @@ if (formCompleBadm.numBdm.value === "") {
   if (typeDemande === "CESSION D'ACTIF") {
     const nombres = ["90", "91", "92"];
     let condition = nombres.includes(agenceEmetteur.value.split(" ")[0]);
-    console.log(agenceEmetteur.value.split(" ")[0]);
-    console.log(condition);
+    // console.log(agenceEmetteur.value.split(" ")[0]);
+    // console.log(condition);
     if (condition) {
       setTimeout(() => {
         console.log(document.querySelector(`#agenceDestinataire`));

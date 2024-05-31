@@ -51,7 +51,7 @@ class LdapModel
 
 public function infoUser($user, $password): array
 {
-    $ldapbind = ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+     ldap_bind($this->ldapconn, $user . $this->Domain, $password);
             // Recherche dans l'annuaire LDAP
         $search_filter = "(objectClass=*)";
         $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);

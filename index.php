@@ -33,6 +33,7 @@
 
 use App\Model\LdapModel;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 require __DIR__ . '/config/bootstrap.php';
 
@@ -61,10 +62,20 @@ try {
 //$controller =[$instance, $methodName];
     call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
-    // $response->setContent("La page demandée n'existe pas");
-    // $response->setStatusCode(404);
-} 
+    $htmlContent = $twig->render('404.html.twig');
+    $response->setContent($htmlContent);
+    $response->setStatusCode(404);
+} catch (AccessDeniedException $e) {
+    $htmlContent = $twig->render('403.html.twig');
+    $response->setContent($htmlContent);
+    $response->setStatusCode(403);
+} catch (Exception $e) {
+    $htmlContent = "<html><body><h1>500</h1><p>Une erreur s'est produite.</p></body></html>";
+    $response->setContent($htmlContent);
+    $response->setStatusCode(500);
+}
 
+$response->send();
 
 // $ldap = new LdapModel();
 

@@ -25,36 +25,32 @@ $dbParams = array(
 );
 
 // Configuration du lecteur d'annotations
-// $annotationReader = new AnnotationReader();
-// $driver = new AnnotationDriver($annotationReader, $paths);
-
-// Création de la configuration Doctrine
-// $config = Setup::createConfiguration($isDevMode);
-// $config->setMetadataDriverImpl($driver);
-
-
-// Création de la configuration Doctrine
-// $config = Setup::createConfiguration($isDevMode);
-// $config->setMetadataDriverImpl($driver);
-
-// Ajout du logger SQL personnalisé
-// $config->setSQLLogger(new CustomSQLLogger());
-
-
-// Création de l'EntityManager
-// $entityManager = EntityManager::create($dbParams, $config);
-
-// Configurez Doctrine pour utiliser l'AnnotationReader standard
-$config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
 $annotationReader = new AnnotationReader();
+$driver = new AnnotationDriver($annotationReader, $paths);
 
-// Créez le driver des annotations
-$driver = new Doctrine\ORM\Mapping\Driver\AnnotationDriver($annotationReader, $paths);
+
+//Création de la configuration Doctrine
+$config = Setup::createConfiguration($isDevMode);
 $config->setMetadataDriverImpl($driver);
 
-// Création de l'EntityManager
+//Ajout du logger SQL personnalisé
+//$config->setSQLLogger(new CustomSQLLogger());
+
+
+//Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
+
+// Configurez Doctrine pour utiliser l'AnnotationReader standard
+// $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
+// $annotationReader = new AnnotationReader();
+
+// // Créez le driver des annotations
+// $driver = new Doctrine\ORM\Mapping\Driver\AnnotationDriver($annotationReader, $paths);
+// $config->setMetadataDriverImpl($driver);
+
+// // Création de l'EntityManager
+// $entityManager = EntityManager::create($dbParams, $config);
 
 
 // Créer une instance de SimpleManagerRegistry
-//$managerRegistry = new SimpleManagerRegistry($entityManager);
+$managerRegistry = new SimpleManagerRegistry($entityManager);

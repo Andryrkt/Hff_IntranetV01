@@ -28,7 +28,10 @@
 						<div class="col-12 col-md-6">
 
 							{{ form_row(form.role)}}
-							{{ form_row(form.applications)}}
+
+							{{ form_widget(form.applications)}}
+
+
 						</div>
 					</div>
 
@@ -42,4 +45,5 @@
 
 			</div>
 		</div>
+
 	{% endblock %}

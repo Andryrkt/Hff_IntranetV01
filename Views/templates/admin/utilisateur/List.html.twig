@@ -29,6 +29,7 @@
 							<th>matricule</th>
 							<th>mail</th>
 							<th>Rôle</th>
+							<th>Applications</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -59,8 +60,13 @@
 								<td>{{item.matricule}}</td>
 								<td>{{item.mail}}</td>
 								<td>{{item.role.rolename}}</td>
-
-
+								<td>
+									<ul>
+										{% for a in item.applications %}
+											<li>{{a.codeApp}}</li>
+										{% endfor %}
+									</ul>
+								</td>
 							</tr>
 						{% endfor %}
 					</tbody>

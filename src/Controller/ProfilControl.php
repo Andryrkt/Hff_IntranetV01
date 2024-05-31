@@ -83,6 +83,7 @@ class ProfilControl extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        //$okey = $this->ProfilModel->has_permission($_SESSION['user'], 'CREAT_DOM');
 
         self::$twig->display(
             'main/accueil.html.twig',
