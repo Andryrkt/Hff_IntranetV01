@@ -21,8 +21,7 @@ class ProfilControl extends Controller
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
             $Connexion_Ldap_User = $this->ldap->userConnect($Username, $Password);
 
-           
-           
+
             if (!$Connexion_Ldap_User) {
                 echo '<script type="text/javascript">
                     alert("Merci de vérifier votre session LDAP");
