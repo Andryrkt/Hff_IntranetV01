@@ -94,28 +94,20 @@ class User
         $this->date_modification = new \DateTime();
     }
 
-    /**
-     * Get the value of id
-     */ 
+    
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * Get the value of role
-     */ 
+   
     public function getRole()
     {
         return $this->role;
     }
 
-    /**
-     * Set the value of role
-     *
-     * @return  self
-     */ 
-    public function setRole($role)
+  
+    public function setRole($role): self
     {
         $this->role = $role;
 
@@ -193,24 +185,14 @@ class User
         return $this;
     }
 
-    /**
-     * Get the value of date_modification
-     *
-     * @return  [type]
-     */ 
+   
     public function getDatemodification()
     {
         return $this->date_modification;
     }
 
-    /**
-     * Set the value of date_modification
-     *
-     * @param  [type]  $date_modification
-     *
-     * @return  self
-     */ 
-    public function setDatemodification( $date_modification)
+  
+    public function setDatemodification( $date_modification): self
     {
         $this->date_modification = $date_modification;
 
