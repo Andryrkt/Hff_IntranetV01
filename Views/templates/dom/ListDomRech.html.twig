@@ -156,16 +156,11 @@
 						<th style="text-align: center;">Matricule</th>
 						<th>Nom</th>
 						<th>Prénoms</th>
-						<th>Mode de paiement</th>
 						<th>Agence - Service</th>
 						<th>Date de début</th>
 						<th>Date de fin</th>
-						<th>Nbr jours</th>
 						<th>Client</th>
-						<th>Fiche</th>
 						<th>Lieu d'intervention</th>
-						<th>Num vehicule</th>
-						<th>Total autres dépense</th>
 						<th>Total général payer</th>
 						<th>Devis</th>
 					</tr>
@@ -221,16 +216,11 @@
 							<td style="text-align: center;">{{item.Matricule}}</td>
 							<td>{{item.Nom}}</td>
 							<td>{{item.Prenom}}</td>
-							<td>{{item.Mode_Paiement}}</td>
 							<td>{{item.LibelleCodeAgence_Service}}</td>
 							<td style="text-align: center;">{{item.Date_Debut|date('d/m/Y')}}</td>
 							<td style="text-align: center;">{{item.Date_Fin|date('d/m/Y')}}</td>
-							<td style="text-align: center;">{{item.Nombre_Jour}}</td>
 							<td>{{item.Client}}</td>
-							<td>{{item.Fiche}}</td>
 							<td>{{item.Lieu_Intervention}}</td>
-							<td>{{item.NumVehicule}}</td>
-							<td style="text-align: right;">{{item.Total_Autres_Depenses | number_format(2, ',', '.')}}</td>
 							<td style="text-align: right;">{{item.Total_General_Payer | number_format(2, ',', '.')}}</td>
 							<td>{{item.Devis}}</td>
 

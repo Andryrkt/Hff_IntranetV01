@@ -127,14 +127,14 @@ class Controller
 
         $this->request = Request::createFromGlobals();
 
-    $this->response = new Response();
+        $this->response = new Response();
 
-    $this->excelExport = new ExcelExporterService();
-    $this->flashManager = new FlashManagerService();
+        $this->excelExport = new ExcelExporterService();
+        $this->flashManager = new FlashManagerService();
 
-    $this->parsedown = new Parsedown();
+        $this->parsedown = new Parsedown();
 
-    $this->profilUser = new ProfilUserModel();
+        $this->profilUser = new ProfilUserModel();
     }
 
 

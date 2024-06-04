@@ -102,7 +102,7 @@ class Model
         return $Date_system;
     }
 
-    public function has_permission($user_id, $permission_name) {
+    public function has_permission($nomUtilisateur, $permission_name) {
     
         // Définir la requête SQL
         $query = "SELECT COUNT(*) as nombre FROM users
@@ -122,7 +122,7 @@ class Model
         }
     
         // Exécuter la requête avec les paramètres
-        $params = array($user_id, $permission_name);
+        $params = array($nomUtilisateur, $permission_name);
         $result = odbc_execute($stmt, $params);
         
         if (!$result) {
