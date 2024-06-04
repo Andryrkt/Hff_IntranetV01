@@ -14,7 +14,7 @@ use App\Traits\DateTrait;
  */
 class Application
 {
-   
+   use DateTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -32,20 +32,27 @@ class Application
      */
     private string $codeApp;
 
-     /**
-     * @ORM\Column(type="date")
+    /**
+     * @ORM\Column(type="string", length=11, name="derniere_id")
      *
-     * @var [type]
+     * @var ?string
      */
-    private $date_creation;
+    private ?string $derniereId ;
+
+    //  /**
+    //  * @ORM\Column(type="date")
+    //  *
+    //  * @var [type]
+    //  */
+    // private $date_creation;
 
     
-    /**
-     * @ORM\Column(type="date")
-     *
-     * @var [type]
-     */
-    private $date_modification;
+    // /**
+    //  * @ORM\Column(type="date")
+    //  *
+    //  * @var [type]
+    //  */
+    // private $date_modification;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
@@ -57,48 +64,48 @@ class Application
         $this->users = new ArrayCollection();
     }
 
-     /**
-     * @ORM\PrePersist
-     */
-    public function onPrePersist(): void
-    {
-        $this->date_creation = new \DateTime();
-        $this->date_modification = new \DateTime();
-    }
+    //  /**
+    //  * @ORM\PrePersist
+    //  */
+    // public function onPrePersist(): void
+    // {
+    //     $this->date_creation = new \DateTime();
+    //     $this->date_modification = new \DateTime();
+    // }
 
-    /**
-     * @ORM\PreUpdate
-     */
-    public function onPreUpdate(): void
-    {
-        $this->date_modification = new \DateTime();
-    }
-    public function getDatecreation()
-    {
-        return $this->date_creation;
-    }
+    // /**
+    //  * @ORM\PreUpdate
+    //  */
+    // public function onPreUpdate(): void
+    // {
+    //     $this->date_modification = new \DateTime();
+    // }
+    // public function getDatecreation()
+    // {
+    //     return $this->date_creation;
+    // }
 
 
-    public function setDatecreation( $date_creation): self
-    {
-        $this->date_creation = $date_creation;
+    // public function setDatecreation( $date_creation): self
+    // {
+    //     $this->date_creation = $date_creation;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
    
-    public function getDatemodification()
-    {
-        return $this->date_modification;
-    }
+    // public function getDatemodification()
+    // {
+    //     return $this->date_modification;
+    // }
 
   
-    public function setDatemodification( $date_modification): self
-    {
-        $this->date_modification = $date_modification;
+    // public function setDatemodification( $date_modification): self
+    // {
+    //     $this->date_modification = $date_modification;
 
-        return $this;
-    }
+    //     return $this;
+    // }
     public function getId(): ?int
     {
         return $this->id;
@@ -168,4 +175,18 @@ class Application
     // {
     //     $this->dateModification = new \DateTime();
     // }
+
+   
+    public function getDerniereId()
+    {
+        return $this->derniereId;
+    }
+
+  
+    public function setDerniereId(string $derniereId): self
+    {
+        $this->derniereId = $derniereId;
+
+        return $this;
+    }
 }

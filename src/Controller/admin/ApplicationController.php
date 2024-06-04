@@ -25,7 +25,7 @@ class ApplicationController extends Controller
     
         $data = self::$em->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
     
-    
+        //  dd($data[0]->getDerniereId());
         self::$twig->display('admin/application/list.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
@@ -51,9 +51,8 @@ class ApplicationController extends Controller
             if($form->isSubmitted() && $form->isValid())
             {
                 $application= $form->getData();
-                dd($application);
+                
                 self::$em->persist($application);
-    
                 self::$em->flush();
                 $this->redirectToRoute("application_index");
             }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\Badm;
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,6 +23,11 @@ class BadmListeController extends Controller
 
         $typeMouvements = $this->badmRech->recupTypeMouvement();
 
+        
+        $data = self::$em->getRepository(Badm::class)->findBy([], ['id'=>'DESC']);
+
+        // dd($data);
+
         $typeMouvement = [];
         foreach ($typeMouvements as  $values) {
             foreach ($values as $value) {
@@ -34,36 +40,37 @@ class BadmListeController extends Controller
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
-                'typeMouvement' => $typeMouvement
+                'typeMouvement' => $typeMouvement,
+                'data' => $data
             ]
         );
     }
 
-    /**
-     * @Route("/ListJsonBadm")
-     */
-    public function envoiListJsonBadm()
-    {
-        $this->SessionStart();
+    // /**
+    //  * @Route("/ListJsonBadm")
+    //  */
+    // public function envoiListJsonBadm()
+    // {
+    //     $this->SessionStart();
 
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+    //     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+    //     $text = file_get_contents($fichier);
+    //     $boolean = strpos($text, $_SESSION['user']);
 
-        if ($boolean) {
-            $badmJson = $this->badmRech->RechercheBadmModelAll();
-        } else {
-            $badmJson = $this->badmRech->RechercheBadmMode($_SESSION['user']);
-        }
-
-
-        header("Content-type:application/json");
-
-        $jsonData = json_encode($badmJson);
+    //     if ($boolean) {
+    //         $badmJson = $this->badmRech->RechercheBadmModelAll();
+    //     } else {
+    //         $badmJson = $this->badmRech->RechercheBadmMode($_SESSION['user']);
+    //     }
 
 
-        $this->testJson($jsonData);
-    }
+    //     header("Content-type:application/json");
+
+    //     $jsonData = json_encode($badmJson);
+
+
+    //     $this->testJson($jsonData);
+    // }
 
 
     private function testJson($jsonData)

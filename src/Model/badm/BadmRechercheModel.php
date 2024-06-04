@@ -50,7 +50,7 @@ class BadmRechercheModel extends Model
         FROM Demande_Mouvement_Materiel dmm  
 		LEFT JOIN Statut_demande sd ON  sd.ID_Statut_Demande = dmm.ID_Statut_Demande 
         INNER JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
-		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%'                                                                 
+		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%' AND dmm.ID_Statut_Demande NOT IN (9, 18, 22, 24, 26, 32, 33, 34, 35)                                                                 
 		AND dmm.Nom_Session_Utilisateur = '{$user}'
         ORDER BY Numero_Demande_BADM DESC
 
@@ -113,7 +113,7 @@ class BadmRechercheModel extends Model
         FROM Demande_Mouvement_Materiel dmm  
 		LEFT JOIN Statut_demande sd ON  sd.ID_Statut_Demande = dmm.ID_Statut_Demande 
         INNER JOIN Type_Mouvement tm ON dmm.Code_Mouvement = tm.ID_Type_Mouvement
-		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%'                                                                 
+		WHERE dmm.Numero_Demande_BADM LIKE 'BDM%'  AND  dmm.ID_Statut_Demande NOT IN (9, 18, 22, 24, 26, 32, 33, 34, 35)                                                                
         ORDER BY Numero_Demande_BADM DESC
 
     ");

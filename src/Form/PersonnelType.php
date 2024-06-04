@@ -20,7 +20,7 @@ class PersonnelType extends AbstractType
         ->add('Matricule', 
         NumberType::class, 
         [
-            'label' => "Numero Matricule",
+            'label' => "Numero Matricule *",
             'constraints' => [
                 new NotBlank(),
                 new Length(['min' => 4]),
@@ -29,63 +29,69 @@ class PersonnelType extends AbstractType
         ->add('Nom', 
             TextType::class, 
             [
-                'label' => 'Nom',
+                'label' => 'Nom *',
             ])
         ->add('CodeAgenceServiceSage', 
             TextType::class, 
             [
-                'label' => 'Code Ag\Serv Sage'
+                'label' => 'Code Ag\Serv Sage *'
             ])
         ->add('NumeroFournisseurIRIUM', 
             NumberType::class,
             [
-                'label' => 'Numero Fournisseur IRIUM'
+                'label' => 'Numero Fournisseur IRIUM *'
             ])
         ->add('CodeAgenceServiceIRIUM', 
             NumberType::class, 
             [
-                'label' => 'Code Ag\Serv IRIUM'
+                'label' => 'Code Ag\Serv IRIUM *'
             ])
         ->add('NumeroTelephone',
             TelType::class,
             [
-                'label' => 'Numero téléphone'
+                'label' => 'Numero téléphone',
+                'required' => false
             ]
         )
         ->add('NumeroCompteBancaire',
                 NumberType::class,
                 [
-                    'label' => 'N° Compte Bancaire'
+                    'label' => 'N° Compte Bancaire',
+                    'required' => false
                 ]
         )
         ->add('LibelleAgenceServiceSage',
         TextType::class,
         [
-            'label' => ' Libelle Ag\Serv Sage'
+            'label' => ' Libelle Ag\Serv Sage',
+            'required' => false
         ]
         )
         ->add('CodeServiceAgenceIRIUM',
         TextType::class,
         [
-            'label' => 'code Serv\Ag IRIUM'
+            'label' => 'code Serv\Ag IRIUM',
+            'required' => false
         ]
         )
         ->add('LibelleServiceAgenceIRIUM',
         TextType::class,
         [
-            'label' =>'Libelle Serv\Ag IRIUM'
+            'label' =>'Libelle Serv\Ag IRIUM',
+            'required' => false
         ]
         )
         ->add('Prenoms',
         TextType::class,
         [
-            'label' => 'Prénoms'
+            'label' => 'Prénoms *'
         ]
         )
         ->add('Qualification',
         TextType::class,
         [
-            'label' => 'Qualification'
+            'label' => 'Qualification',
+            'required' => false
         ])
     
     ;

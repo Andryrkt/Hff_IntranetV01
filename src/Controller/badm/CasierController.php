@@ -2,6 +2,7 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\Application;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
@@ -37,7 +38,9 @@ class CasierController extends Controller
 
             $data = $this->casier->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
 
+            // $donner = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
 
+            // dd($donner->getDerniereId());
             $agenceLibele = $this->casier->recupAgence();
             $agenceDestinataire = [];
             foreach ($agenceLibele as $values) {
