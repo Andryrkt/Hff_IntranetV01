@@ -2,6 +2,9 @@ parameters:
   access_file_path: dirname(__DIR__)."/views/assets/AccessUserProfil_Param.txt"
 
 services:
+  _defaults:
+    autowire: true
+
   # App\Service\GlobalVariablesService:
   #   arguments:
   #     $session: "@session"

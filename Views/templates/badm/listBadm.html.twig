@@ -4,141 +4,108 @@
 <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
 {% endblock%}
 
-{% import "macroForm.html.twig" as form %}
+{# {% import "macroForm.html.twig" as form %} #}
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-		<div class="card">
-			<div class="card-body">
-
-				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-					Liste de mouvement matériel
-				</h2>
 
 
-				<!-- DEBUT recherche -->
+		<h2 class="text-center fs-1 fw-bold bg-black py-2 rounded" style="color: #FBBB01">
+			Liste de mouvement matériel
+		</h2>
 
+		<!-- DEBUT recherche -->
+		<div class="container w-50">
 
-				<div class="row">
-
-					{{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
-					<div class="col-12 col-md-6  ">
-						<div class="input-group mb-2">
-							<span class="input-group-text">Id matériel</span>
-							<input type="search" name="idMateriel" id="idMateriel" class="form-control">
-						</div>
-					</div>
-				</div>
-
-
-				<div class="row">
-					<small class="dateCreationMessage" id="dateCreationMessage"></small>
-					<div class="col-12 col-md-6 ">
-						<div class="input-group mb-2">
-							<span class="input-group-text">Date de demande (début)</span>
-							<input type="date" name="dateDemandeDebut" id="dateDemandeDebut" class="form-control">
-						</div>
-					</div>
-					<small class="dateCreationMessage" id="dateCreationMessage"></small>
-				</div>
-
-				<div class="row">
-					<div class="col-12 col-md-6 ">
-						<div class="input-group mb-2">
-							<span class="input-group-text">Date de demande (fin)</span>
-							<input type="date" name="dateDemandeFin" id="dateDemandeFin" class="form-control">
-						</div>
-					</div>
-				</div>
-
-
-				<!-- FIN recherche -->
-
-
-				<!-- DEBUT bouton -->
-				<div class="row justify-content-center my-4">
-					<div class="col-12 col-md-6 col-lg-4 ">
-						<input type="submit" name="recherche" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-						<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-						<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-					</div>
-					<div class="col-12 col-md-6 col-lg-4  mt-1">
-						<p class="fw-bold" id="nombreResultat"></p>
-					</div>
-					<!-- DEBUT Pagination -->
-					<div class="col-12 col-md-12 col-lg-4  mt-1">
-						<div id="pagination-wrapper"></div>
-					</div>
-					<!-- FIN Pagination -->
-				</div>
-				<!-- FIN bouton -->
-
-
-				<!-- DEBUT affichage de text no resultat -->
-				<div id="noResult"></div>
-				<!-- FIN -->
-
-
-			</div>
-
-			<!-- DEBUT tableau -->
-			<div class="container">
-
-				<a href="{{path("user_index")}}" class="btn btn-sm bg-dark text-white my-3 fw-bold">Nouveau</a>
-				<table class="table rounded">
-					<thead class="table-dark">
-						<tr>
-							<th>Actions</th>
-							<th>Statut</th>
-							<th>N° BADM</th>
-							<th>Code_Mouvement</th>
-							<th>Id Materiel</th>
-							<th>Ag\Serv Emetteur</th>
-							<th>Ag\Serv Destinataire</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for item in data %}
-
-
-							<tr>
-								<td>
-									<div class="dropdown">
-										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
-											Actions
-										</button>
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("user_update", {id: item.id})}}">Modifier</a>
-											</li>
-
-											<li>
-												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("user_delete", {id: item.id})}}">Supprimer</a>
-											</li>
-										</ul>
-									</div>
-								</td>
-								<td>{{item.statutDemande}}</td>
-								<td>{{ item.numBadm}}</td>
-								<td>{{ item.typeMouvement}}</td>
-								<td>{{ item.idMateriel}}</td>
-								<td>{{ item.agenceServiceEmetteur }}</td>
-								<td>{{ item.agenceServiceDestinataire}}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</div>
-			<!-- FIN tableau -->
+			{{ form_start(form, {'method': 'GET'}) }}
+			{{ form_row(form.statut) }}
+			{{ form_row(form.typeMouvement) }}
+			{{ form_row(form.dateDebut) }}
+			{{ form_row(form.dateFin) }}
+			{# Ajouter des champs cachés pour conserver les critères de recherche lors de la pagination #}
+			{# <input type="hidden" name="query" value="{{ criteria.query }}">
+																		<input type="hidden" name="typeMouvement" value="{{ criteria.typeMouvement }}">
+																		<input type="hidden" name="dateDebut" value="{{ criteria.dateDebut }}">
+																		<input type="hidden" name="dateFin" value="{{ criteria.dateFin }}"> #}
+				<button type="submit"> Search</button>
+			{{ form_end(form) }}
 		</div>
-	</div>
 
-{% endblock %}
+		<!-- DEBUT tableau -->
+		<div class="container">
+			<a href="{{path("user_index")}}" class="btn btn-sm bg-dark text-white my-3 fw-bold">Nouveau</a>
+			<table class="table rounded">
+				<thead class="table-dark">
+					<tr>
+						<th>Actions</th>
+						<th>Statut</th>
+						<th>N° BADM</th>
+						<th>Code_Mouvement</th>
+						<th>Id Materiel</th>
+						<th>Ag\Serv Emetteur</th>
+						<th>Ag\Serv Destinataire</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in data %}
 
-{% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
 
-{% endblock %}
+						<tr>
+							<td>
+								<div class="dropdown">
+									<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+										Actions
+									</button>
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ path("user_update", {id: item.id})}}">Modifier</a>
+										</li>
+
+										<li>
+											<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("user_delete", {id: item.id})}}">Supprimer</a>
+										</li>
+									</ul>
+								</div>
+							</td>
+							<td>{{item.statutDemande}}</td>
+							<td>{{ item.numBadm}}</td>
+							<td>{{ item.typeMouvement}}</td>
+							<td>{{ item.idMateriel}}</td>
+							<td>{{ item.agenceServiceEmetteur }}</td>
+							<td>{{ item.agenceServiceDestinataire}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<!-- FIN tableau -->
+
+
+		<div class="navigation">
+			{% set queryParams = criteria  %}
+
+			{% if currentPage > 1 %}
+				<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">Previous</a>
+			{% endif %}
+
+			{% for i in 1..totalPages %}
+				{% if i == currentPage %}
+					<span>{{ i }}</span>
+				{% else %}
+					<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': i})) }}">{{ i }}</a>
+				{% endif %}
+			{% endfor %}
+
+			{% if currentPage < totalPages %}
+				<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">Next</a>
+			{% endif %}
+		</div>
+	{% endblock %}
+
+	{% block javascript %}
+		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+		<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
+
+	{% endblock %}

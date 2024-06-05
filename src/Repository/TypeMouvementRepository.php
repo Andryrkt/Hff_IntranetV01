@@ -7,7 +7,7 @@ namespace App\Repository;
 use Doctrine\ORM\EntityRepository;
 
 
-class TypeMouvemnetRepository extends EntityRepository
+class TypeMouvementRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici

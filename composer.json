@@ -66,7 +66,9 @@
         "symfony/yaml": "^5.4",
         "symfony/console": "^5.4",
         "symfony/doctrine-bridge": "^5.4",
-        "doctrine/persistence": "^3.3"
+        "doctrine/persistence": "^3.3",
+        "knplabs/knp-paginator-bundle": "^5.9",
+        "symfony/event-dispatcher": "^5.4"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43"

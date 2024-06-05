@@ -2,13 +2,11 @@
 
 namespace App\Entity;
 
-use App\Traits\DateTrait;
+
 use DateTime;
-use Doctrine\DBAL\Types\DateType;
-use Doctrine\DBAL\Types\FloatType;
-use Doctrine\DBAL\Types\TimeType;
+
 use Doctrine\ORM\Mapping as ORM;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BadmRepository")
@@ -45,7 +43,7 @@ class badm
      *
      * @var string
      */
-    private string $nom_utilisateur;
+    private string $nomUtilisateur;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Demande")
@@ -271,9 +269,9 @@ class badm
      *
      * @return  string
      */ 
-    public function getNom_utilisateur()
+    public function getNomUtilisateur()
     {
-        return $this->nom_utilisateur;
+        return $this->nomUtilisateur;
     }
 
     /**
@@ -283,9 +281,9 @@ class badm
      *
      * @return  self
      */ 
-    public function setNom_utilisateur(string $nom_utilisateur)
+    public function setNomUtilisateur(string $nom_utilisateur)
     {
-        $this->nom_utilisateur = $nom_utilisateur;
+        $this->nomUtilisateur = $nom_utilisateur;
 
         return $this;
     }

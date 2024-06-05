@@ -98,7 +98,7 @@ class CasierModel extends Model
         agr_succ , agr_tab a
         where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
-        and asuc_num in ('01', '40', '50','90','91','92') 
+        and asuc_num in ('01', '20', '30', '40', '50', '60', '80','90','91','92') 
         order by 1";
 
         $result = $this->connect->executeQuery($statement);
@@ -123,9 +123,9 @@ class CasierModel extends Model
         ) VALUES (?, ?, ?, ?, ?)";
 
         // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->connect(), $sql);
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
         if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->connect());
+            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
             return;
         }
 

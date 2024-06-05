@@ -11,22 +11,23 @@ use Doctrine\ORM\EntityManager;
 
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
+use Knp\Component\Pager\Paginator;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
-use Symfony\Component\Validator\Validation;
 
+use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Translation\Translator;
+
 use Symfony\Component\Form\FormFactoryBuilder;
-
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bridge\Twig\Extension\CsrfExtension;
 
+use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -40,6 +41,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
@@ -163,6 +165,10 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
+// Configurer KnpPaginator
+// $eventDispatcher = new EventDispatcher();
+// $paginator = new Paginator($eventDispatcher, $requestStack);
+
 //envoyer twig au controller
 Controller::setTwig($twig);
 
@@ -171,6 +177,8 @@ Controller::setValidator($formFactory);
 Controller::setGenerator($generator);
 
 Controller::setEntity($entityManager);
+
+//Controller::setPaginator($paginator);
 
 
 

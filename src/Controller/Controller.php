@@ -83,6 +83,7 @@ class Controller
     protected $profilUser;
 
     protected static $em;
+    protected static $paginator;
 
     public function __construct()
     {
@@ -159,6 +160,10 @@ class Controller
         self::$em = $em;
     }
 
+    public static function setPaginator($paginator)
+    {
+        self::$paginator = $paginator;
+    }
 
     protected function SessionStart()
     {
