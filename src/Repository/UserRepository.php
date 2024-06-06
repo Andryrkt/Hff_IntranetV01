@@ -7,7 +7,7 @@ namespace App\Repository;
 use Doctrine\ORM\EntityRepository;
 
 
-class ProfilUserRepository extends EntityRepository
+class UserRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici

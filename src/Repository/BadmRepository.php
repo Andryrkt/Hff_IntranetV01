@@ -3,21 +3,28 @@
 namespace App\Repository;
 
 
+
 use Doctrine\ORM\EntityRepository;
+
 
 class BadmRepository extends EntityRepository
 {
+
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
             ->leftJoin('b.statutDemande', 's')
-            ->addSelect('tm', 's');
+            ;
 
-        if (!empty($criteria['statut'])) {
-            $queryBuilder->andWhere('s.description LIKE :statut')
-                ->setParameter('statut', '%' . $criteria['statut'] . '%');
-        }
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+                ->setParameter('excludedStatuses', $excludedStatuses);
+
+            if (!empty($criteria['statut'])) {
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            }
 
         if (!empty($criteria['typeMouvement'])) {
             $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
@@ -34,8 +41,14 @@ class BadmRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
+        $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
+            ->setMaxResults($limit)
+            ;
+
+        
+            // $sql = $queryBuilder->getQuery()->getSQL();
+            // echo $sql;
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -47,10 +60,14 @@ class BadmRepository extends EntityRepository
             ->leftJoin('b.typeMouvement', 'tm')
             ->leftJoin('b.statutDemande', 's');
 
-        if (!empty($criteria['statut'])) {
-            $queryBuilder->andWhere('s.description LIKE :statut')
-                ->setParameter('statut', '%' . $criteria['statut'] . '%');
-        }
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+                ->setParameter('excludedStatuses', $excludedStatuses);
+
+            if (!empty($criteria['statut'])) {
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            }
 
         if (!empty($criteria['typeMouvement'])) {
             $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
@@ -66,6 +83,124 @@ class BadmRepository extends EntityRepository
             $queryBuilder->andWhere('b.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
+
+        
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    public function findAndFilteredExcel( array $criteria = [])
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+            ->leftJoin('b.typeMouvement', 'tm')
+            ->leftJoin('b.statutDemande', 's')
+            ;
+
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+                ->setParameter('excludedStatuses', $excludedStatuses);
+
+            if (!empty($criteria['statut'])) {
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            }
+
+        if (!empty($criteria['typeMouvement'])) {
+            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
+                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['dateDebut'])) {
+            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $criteria['dateDebut']);
+        }
+
+        if (!empty($criteria['dateFin'])) {
+            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $criteria['dateFin']);
+        }
+
+        $queryBuilder->orderBy('b.numBadm', 'DESC');
+            
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [])
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+            ->leftJoin('b.typeMouvement', 'tm')
+            ->leftJoin('b.statutDemande', 's')
+            ;
+
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':includedStatuses'))
+                ->setParameter('includedStatuses', $excludedStatuses);
+
+            if (!empty($criteria['statut'])) {
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            }
+
+        if (!empty($criteria['typeMouvement'])) {
+            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
+                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['dateDebut'])) {
+            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $criteria['dateDebut']);
+        }
+
+        if (!empty($criteria['dateFin'])) {
+            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $criteria['dateFin']);
+        }
+
+        $queryBuilder->orderBy('b.numBadm', 'DESC');
+        $queryBuilder->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ;
+
+        
+            // $sql = $queryBuilder->getQuery()->getSQL();
+            // echo $sql;
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function countFilteredListAnnuller(array $criteria = [])
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->leftJoin('b.typeMouvement', 'tm')
+            ->leftJoin('b.statutDemande', 's');
+
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':includedStatuses'))
+                ->setParameter('includedStatuses', $excludedStatuses);
+
+            if (!empty($criteria['statut'])) {
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            }
+
+        if (!empty($criteria['typeMouvement'])) {
+            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
+                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['dateDebut'])) {
+            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $criteria['dateDebut']);
+        }
+
+        if (!empty($criteria['dateFin'])) {
+            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $criteria['dateFin']);
+        }
+
+        
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }

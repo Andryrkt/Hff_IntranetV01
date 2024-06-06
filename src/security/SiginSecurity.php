@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\security;
+namespace App\security;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;

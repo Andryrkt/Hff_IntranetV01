@@ -162,6 +162,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
         'A' => 
         array (
+            'App\\security\\' => 13,
             'App\\Traits\\' => 11,
             'App\\Service\\' => 12,
             'App\\Model\\dom\\' => 14,
@@ -171,7 +172,6 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'App\\Model\\Traits\\' => 17,
             'App\\Model\\' => 10,
             'App\\Loader\\' => 11,
-            'App\\Controller\\security\\' => 24,
             'App\\Controller\\dom\\' => 19,
             'App\\Controller\\doc\\fonctionnel\\badm\\' => 36,
             'App\\Controller\\doc\\fonctionnel\\' => 31,
@@ -552,6 +552,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
+        'App\\security\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/security',
+        ),
         'App\\Traits\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Traits',
@@ -587,10 +591,6 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'App\\Loader\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Loader',
-        ),
-        'App\\Controller\\security\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src/Controller/security',
         ),
         'App\\Controller\\dom\\' => 
         array (

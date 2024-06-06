@@ -17,29 +17,79 @@
 		</h2>
 
 		<!-- DEBUT recherche -->
-		<div class="container w-50">
-
+		<div class="w-50">
 			{{ form_start(form, {'method': 'GET'}) }}
-			{{ form_row(form.statut) }}
-			{{ form_row(form.typeMouvement) }}
-			{{ form_row(form.dateDebut) }}
-			{{ form_row(form.dateFin) }}
-			{# Ajouter des champs cachés pour conserver les critères de recherche lors de la pagination #}
-			{# <input type="hidden" name="query" value="{{ criteria.query }}">
-																		<input type="hidden" name="typeMouvement" value="{{ criteria.typeMouvement }}">
-																		<input type="hidden" name="dateDebut" value="{{ criteria.dateDebut }}">
-																		<input type="hidden" name="dateFin" value="{{ criteria.dateFin }}"> #}
-				<button type="submit"> Search</button>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					{{ form_row(form.statut) }}
+					{{ form_row(form.typeMouvement) }}
+				</div>
+				<div class="col-12 col-md-6">
+					{{ form_row(form.dateDebut) }}
+					{{ form_row(form.dateFin) }}
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-end">
+				<button class="btn btn-warning fw-bold" type="submit">
+					<i class="fab fa-searchengin"></i>
+					Recherche</button>
+			</div>
+
 			{{ form_end(form) }}
 		</div>
 
 		<!-- DEBUT tableau -->
 		<div class="container">
-			<a href="{{path("user_index")}}" class="btn btn-sm bg-dark text-white my-3 fw-bold">Nouveau</a>
+			<div class="d-flex justify-content-between">
+				<div>
+
+					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=excelBadm" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
+
+
+					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annuler</a>
+				</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+						Resultats</p>
+				</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+						pages</p>
+				</div>
+				<div class="navigation">
+					{% set queryParams = criteria  %}
+
+					{% if currentPage > 1 %}
+						<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
+							<i class="fas fa-angle-left text-warning"></i>
+						</a>
+					{% endif %}
+
+					{#{% for i in 1..totalPages %}
+																																																																																																																																																																																																																																																																																																																						{% if i == currentPage %}
+																																																																																																																																																																																																																																																																																																																							<span>{{ i }}</span>
+																																																																																																																																																																																																																																																																																																																						{% else %}
+																																																																																																																																																																																																																																																																																																																							<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': i})) }}">{{ i }}</a>
+																																																																																																																																																																																																																																																																																																																						{% endif %}
+																																																																																																																																																																																																																																																																																																																						{% endfor %}
+																																																																																																																																																																																																																																																																																																																						#}
+					{% if currentPage < totalPages %}
+						<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
+							<i class="fas fa-angle-right text-warning"></i>
+						</a>
+					{% endif %}
+				</div>
+			</div>
+
 			<table class="table rounded">
 				<thead class="table-dark">
 					<tr>
-						<th>Actions</th>
+						<th>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</th>
 						<th>Statut</th>
 						<th>N° BADM</th>
 						<th>Code_Mouvement</th>
@@ -50,27 +100,50 @@
 				</thead>
 				<tbody>
 					{% for item in data %}
-
-
 						<tr>
+							{# Début Action #}
 							<td>
 								<div class="dropdown">
 									<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
-										Actions
+										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ path("user_update", {id: item.id})}}">Modifier</a>
+											<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
 										</li>
-
 										<li>
-											<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("user_delete", {id: item.id})}}">Supprimer</a>
+											<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
 										</li>
 									</ul>
 								</div>
 							</td>
-							<td>{{item.statutDemande}}</td>
-							<td>{{ item.numBadm}}</td>
+							{# Fin Actions #}
+							{#<pre>
+																					{{ dump(item.statutDemande.description | trim) }}
+																				</pre> #}
+							{# DEBUT Statut #}
+								{% if item.statutDemande.description | trim == 'OUVERT' %}
+									<td class="bg-warning bg-gradient fw-bold text-cente"> {{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'CLOTURE' or item.statutDemande.description | trim == 'CLOTURE COMPTA' %}
+								<td class="bg-success bg-gradient fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
+								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
+								<td class="bg-info fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.statutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.statutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
+								<td class="bg-danger fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
+								<td class="bg-primary fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
+								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+							{% else %}
+								<td>{{item.statutDemande.description | trim}}</td>
+							{% endif %}
+							{# FIN Statut #}
+
+							<td>
+								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}">{{ item.numBadm }}</a>
+							</td>
 							<td>{{ item.typeMouvement}}</td>
 							<td>{{ item.idMateriel}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
@@ -83,25 +156,6 @@
 		<!-- FIN tableau -->
 
 
-		<div class="navigation">
-			{% set queryParams = criteria  %}
-
-			{% if currentPage > 1 %}
-				<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">Previous</a>
-			{% endif %}
-
-			{% for i in 1..totalPages %}
-				{% if i == currentPage %}
-					<span>{{ i }}</span>
-				{% else %}
-					<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': i})) }}">{{ i }}</a>
-				{% endif %}
-			{% endfor %}
-
-			{% if currentPage < totalPages %}
-				<a href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">Next</a>
-			{% endif %}
-		</div>
 	{% endblock %}
 
 	{% block javascript %}

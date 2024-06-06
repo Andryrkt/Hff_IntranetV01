@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controller\security;
+namespace App\security;
 
 use App\Controller\ProfilControl;
 
 
 
-class Permission
+class PermissionVoter
 {
     private array $voters = [];
 

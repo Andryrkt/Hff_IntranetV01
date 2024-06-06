@@ -4,6 +4,7 @@ namespace App\Service;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\Response;
 
 class ExcelExporterService {
     
@@ -43,6 +44,78 @@ class ExcelExporterService {
             $sheet->setCellValue('R' . $rowCount, $row['Total_Autres_Depenses']);
             $sheet->setCellValue('S' . $rowCount, $row['Total_General_Payer']);
             $sheet->setCellValue('T' . $rowCount, $row['Devis']);
+        }
+
+        // Envoyer le fichier pour téléchargement
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="donnees.xlsx"');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+    }
+
+
+    public function exportToExcelBadm(array $data)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Ajoutez les en-têtes
+        $sheet->setCellValue('A1', 'Numéro Demande');
+        $sheet->setCellValue('B1', 'Type de mouvement');
+        $sheet->setCellValue('C1', 'Statut');
+        $sheet->setCellValue('D1', 'Id Materiel');
+        $sheet->setCellValue('E1', 'Date Demande');
+        $sheet->setCellValue('F1', 'Agence et service emetteur');
+        $sheet->setCellValue('G1', 'Casier emetteur');
+        $sheet->setCellValue('H1', 'Agence et service Destinataire');
+        $sheet->setCellValue('I1', 'Casier Destinataire');
+        $sheet->setCellValue('J1', 'Motif matériel');
+        $sheet->setCellValue('K1', 'Etat à l\'achat');
+        $sheet->setCellValue('L1', 'Date Mise en location');
+        $sheet->setCellValue('M1', 'Coût d\'aquisition');
+        $sheet->setCellValue('N1', 'Amortissement');
+        $sheet->setCellValue('O1', 'Valeur Net Comptable');
+        $sheet->setCellValue('P1', 'Nom du Client');
+        $sheet->setCellValue('Q1', 'Modalité de paiement');
+        $sheet->setCellValue('R1', 'Prix de vente HT');
+        $sheet->setCellValue('S1', 'Motif mise au rebut');
+        $sheet->setCellValue('T1', 'Heure machine');
+        $sheet->setCellValue('U1', 'Km machine');
+      
+
+        // Ajoutez d'autres en-têtes selon vos besoins
+
+        // Ajoutez les données
+        $row = 2;
+        foreach ($data as $item) {
+            
+            $sheet->setCellValue('A' . $row, $item->getNumBadm());
+            $sheet->setCellValue('B' . $row, $item->getTypeMouvement());
+            $sheet->setCellValue('C' . $row, $item->getStatutDemande());
+            $sheet->setCellValue('D' . $row, $item->getIdMateriel());
+            $sheet->setCellValue('E' . $row, $item->getDateDemande()->format('d-m-Y'));
+            $sheet->setCellValue('F' . $row, $item->getAgenceServiceEmetteur());
+            $sheet->setCellValue('G' . $row, $item->getCasierEmetteur());
+            $sheet->setCellValue('H' . $row, $item->getAgenceServiceDestinataire());
+            $sheet->setCellValue('I' . $row, $item->getCasierDestinataire());
+            $sheet->setCellValue('J' . $row, $item->getMotifMateriel());
+            $sheet->setCellValue('K' . $row, $item->getEtatAchat());
+            $sheet->setCellValue('L' . $row, $item->getDateMiseLocation()->format(''));
+            $sheet->setCellValue('M' . $row, $item->getCoutAcquisition());
+            $sheet->setCellValue('N' . $row, $item->getAmortissement());
+            $sheet->setCellValue('O' . $row, $item->getValeurNetComptable());
+            $sheet->setCellValue('P' . $row, $item->getNomClient());
+            $sheet->setCellValue('Q' . $row, $item->getModalitePaiement());
+            $sheet->setCellValue('R' . $row, $item->getPrixVenteHt());
+            $sheet->setCellValue('S' . $row, $item->getMotifMiseRebut());
+            $sheet->setCellValue('T' . $row, $item->getHeureMachine());
+            $sheet->setCellValue('U' . $row, $item->getKmMachine());
+
+
+            
+            // Ajoutez d'autres colonnes selon vos besoins
+            $row++;
         }
 
         // Envoyer le fichier pour téléchargement

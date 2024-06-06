@@ -88,7 +88,7 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"POST"})
+     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"GET","POST"})
      */
     public function FormulaireCasier()
     {

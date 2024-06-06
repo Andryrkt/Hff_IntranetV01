@@ -7,12 +7,17 @@ use App\Form\BadmSearchType;
 use App\Entity\TypeMouvement;
 use App\Controller\Controller;
 use App\Entity\StatutDemande;
+use App\Form\ExcelExportType;
+use App\Service\ExcelExporterService;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class BadmListeController extends Controller
 {
+    
+
     /**
      * @Route("/listBadm", name="badmListe_AffichageListeBadm")
      */
@@ -26,42 +31,57 @@ class BadmListeController extends Controller
         $boolean = strpos($text, $_SESSION['user']);
 
 
-        // dd($request->query);
-// dd(empty(self::$em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])));
-    //    dd($request->query->get("badm_search"));
-    // if($request->query->get("badm_search") == null && empty($request->query->get("badm_search"))){
-    //     if(!empty(self::$em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])))
-    //     {
+       
+        if($request->query->get('page') !== null){
+            if($request->query->get('typeMouvement') !==null){
+                $idTypeMouvement = self::$em->getRepository(TypeMouvement::class)->findBy(['description' => $request->query->get('typeMouvement')], [])[0]->getId();
+                $typeMouvement = self::$em->getRepository(TypeMouvement::class)->find($idTypeMouvement) ;
+            } else {
+                $typeMouvement = $request->query->get('typeMouvement', null);
+            }
 
+            if($request->query->get('statut') !==null){
+                $idStatut = self::$em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])[0]->getId();
+                $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut) ;
+            } else {
+                $statut = $request->query->get('statut', null);
+            }
+            
+        } else {
+            $typeMouvement = $request->query->get('typeMouvement', null);
+            $statut = $request->query->get('statut', null);
+        }
         
-    //     $idStatut = self::$em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])[0]->getId();
-    //     $idTypeMouvement =self::$em->getRepository(TypeMouvement::class)->findBy(['description' => $request->query->get('typeMouvement')], [])[0]->getId();
-    // }
-    // } else {
+        if($request->query->get('badm_search') !== null) {
+            if($request->query->get('badm_search')['typeMouvement'] !== null){
+                $idTypeMouvement = $request->query->get('badm_search')['typeMouvement'];
+                $typeMouvement = self::$em->getRepository(TypeMouvement::class)->find($idTypeMouvement);
+            } else {
+                $typeMouvement = $request->query->get('typeMouvement', null);
+            }
 
-    //     $idStatut = $request->query->get("badm_search")['statut'];
-    //     $idTypeMouvement =  $request->query->get("badm_search")['typeMouvement'];
-    // }
-    $idStatut = 1;
-    $idTypeMouvement = 1;
-
-    // $searchData = $request->query->get('badm_search');
-    //     if ($searchData === null || empty($searchData)) {
-    //         $idStatut = self::$em->getRepository(StatutDemande::class)->findOneBy(['description' => $request->query->get('statut')])->getId();
-    //         $idTypeMouvement = self::$em->getRepository(TypeMouvement::class)->findOneBy(['description' => $request->query->get('typeMouvement')])->getId();
-    //     } else {
-    //         $idStatut = $searchData['statut'];
-    //         $idTypeMouvement = $searchData['typeMouvement'];
-    //     }
+            if($request->query->get('badm_search')['statut'] !== null){
+                $idStatut = $request->query->get('badm_search')['statut'];
+                $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut);
+            } else {
+                $statut = $request->query->get('statut', null);
+            }
+            
+        } else {
+            $typeMouvement = $request->query->get('typeMouvement', null);
+            $statut = $request->query->get('statut', null);
+        }
     
         $criteria = [
-            'statut' => self::$em->getRepository(StatutDemande::class)->find($idStatut) ?? null,
-            'typeMouvement' => self::$em->getRepository(TypeMouvement::class)->find($idTypeMouvement) ?? null,
+            'statut' => $statut,
+            'typeMouvement' => $typeMouvement,
             'dateDebut' => $request->query->get('dateDebut'),
             'dateFin' => $request->query->get('dateFin')
         ];
+
+        // dd($request->query->get('badm_search')['typeMouvement']);
         //$typeMouvements = $this->badmRech->recupTypeMouvement();
-// dd($criteria);
+//  dd($criteria);
        
        
         $form = self::$validator->createBuilder(BadmSearchType::class, $criteria, [
@@ -76,7 +96,6 @@ class BadmListeController extends Controller
             $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
             $criteria['dateDebut'] = $form->get('dateDebut')->getData();
             $criteria['dateFin'] = $form->get('dateFin')->getData();
-
         } 
 
         
@@ -89,15 +108,22 @@ class BadmListeController extends Controller
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
-        // dd($data);
+        
+        if($request->query->get("envoyer") === "excelBadm") {
+        
+         $this->excelExport->exportToExcelBadm($repository->findAndFilteredExcel($criteria));
+        }
 
-        // $typeMouvement = [];
-        // foreach ($typeMouvements as  $values) {
-        //     foreach ($values as $value) {
-        //         $typeMouvement[] = $value;
-        //     }
-        // };
+        if($request->query->get("envoyer") === "listAnnuler") {
+        
+            $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
+            $totalBadms = $repository->countFilteredListAnnuller($criteria);
 
+            $totalPages = ceil($totalBadms / $limit);
+        }
+        
+        
+        
       
 
         self::$twig->display(
@@ -112,6 +138,7 @@ class BadmListeController extends Controller
                 'currentPage' => $page,
                 'totalPages' =>$totalPages,
                 'criteria' => $criteria,
+               'resultat' => $totalBadms,
                
                
             ]

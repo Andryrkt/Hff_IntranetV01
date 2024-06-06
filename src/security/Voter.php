@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller\security;
+namespace App\security;
 
 use App\Controller\ProfilControl;
 
 
-interface votre
+interface Voter
 {
     public function canVote(string $permission, $subject = null): bool;
 
