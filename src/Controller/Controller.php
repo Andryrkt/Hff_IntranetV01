@@ -171,24 +171,37 @@ class Controller
             session_start();
         } 
         if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/index.php?action=Logout");
+            header("Location:/Hffintranet/");
             session_destroy();
             exit();
         }
     }
 
     protected function SessionDestroy()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        } 
-        unset($_SESSION['user']);
-        session_destroy();
-        session_unset();
-        header("Location:/Hffintranet/");
-        exit();
-        session_write_close();
+{
+    // Commence la session si elle n'est pas déjà démarrée
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+
+    // Supprime l'utilisateur de la session
+    unset($_SESSION['user']);
+    
+    // Détruit la session
+    session_destroy();
+    
+    // Réinitialise toutes les variables de session
+    session_unset();
+    
+    // Redirige vers la page d'accueil
+    header("Location: /Hffintranet/");
+    
+    // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
+    session_write_close();
+    
+    // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
+    exit();
+}
 
     public function getTime()
     {

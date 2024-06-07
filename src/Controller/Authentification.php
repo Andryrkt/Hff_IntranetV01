@@ -1,11 +1,11 @@
 <?php
 
-namespace App\security;
+namespace App\Controller;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
-class SiginSecurity extends Controller
+class Authentification extends Controller
 {
     /**
      * @Route("/", name="security_signin")
@@ -13,5 +13,16 @@ class SiginSecurity extends Controller
     public function affichageSingnin()
     {
         self::$twig->display('signin.html.twig');
+    }
+
+    /**
+     * @Route("/logout", name="auth_deconnexion")
+     *
+     * @return void
+     */
+    public function deconnexion()
+    {
+        $this->SessionDestroy();
+       
     }
 }

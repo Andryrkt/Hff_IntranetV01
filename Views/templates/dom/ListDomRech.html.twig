@@ -144,7 +144,7 @@
 	<!-- DEBUT tableau -->
 	<div class="Contenue table-plein-ecran">
 		<div>
-			<table class="table  table-striped table-shadow shadow  rounded ">
+			<table class="table  rounded ">
 				<thead class="table-dark">
 					<tr>
 						<th style="text-align: center;">#</th>
@@ -154,8 +154,7 @@
 						<th>Date de demande</th>
 						<th>Motif de déplacement</th>
 						<th style="text-align: center;">Matricule</th>
-						<th>Nom</th>
-						<th>Prénoms</th>
+
 						<th>Agence - Service</th>
 						<th>Date de début</th>
 						<th>Date de fin</th>
@@ -214,8 +213,7 @@
 							<td style="text-align: center;">{{item.Date_Demande|date('d/m/Y')}}</td>
 							<td>{{item.Motif_Deplacement}}</td>
 							<td style="text-align: center;">{{item.Matricule}}</td>
-							<td>{{item.Nom}}</td>
-							<td>{{item.Prenom}}</td>
+
 							<td>{{item.LibelleCodeAgence_Service}}</td>
 							<td style="text-align: center;">{{item.Date_Debut|date('d/m/Y')}}</td>
 							<td style="text-align: center;">{{item.Date_Fin|date('d/m/Y')}}</td>
