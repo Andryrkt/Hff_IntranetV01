@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AgenceServiceAutoriserRepository;
 
 /**
- * @ORM\Entity
  * @ORM\Table(name="Agence_service_autorise")
  * @ORM\Entity(repositoryClass=AgenceServiceAutoriserRepository::class)
  * @ORM\HasLifecycleCallbacks
@@ -25,7 +24,7 @@ class AgenceServiceAutoriser
 
     /**
      * @ORM\Column(type="string", length=50)
-     *
+    
      * @var string
      */
     private string $Session_Utilisateur;
@@ -33,9 +32,9 @@ class AgenceServiceAutoriser
     /**
      * @ORM\Column(type="string", length=5)
      *
-     * @var string
+     * @var ?string
      */
-    private string $Code_AgenceService_IRIUM;
+    private ?string $Code_AgenceService_IRIUM;
 
     /**
      * @ORM\Column(type="date")

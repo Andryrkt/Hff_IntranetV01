@@ -52,10 +52,9 @@ class PermissionController extends Controller
     
             if($form->isSubmitted() && $form->isValid())
             {
-                $role= $form->getData();
-
-                self::$em->persist($role);
-    
+                $permission= $form->getData();
+                    
+                self::$em->persist($permission);
                 self::$em->flush();
                 $this->redirectToRoute("permission_index");
             }

@@ -21,6 +21,9 @@ class PersonnelType extends AbstractType
         NumberType::class, 
         [
             'label' => "Numero Matricule *",
+            'attr' => [
+                'pla'
+            ],
             'constraints' => [
                 new NotBlank(),
                 new Length(['min' => 4]),
