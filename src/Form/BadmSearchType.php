@@ -8,7 +8,6 @@ use App\Entity\TypeMouvement;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -37,12 +36,12 @@ class BadmSearchType extends AbstractType
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Début',
+                'label' => 'Date Demande Début',
                 'required' => false,
             ])
             ->add('dateFin', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Fin',
+                'label' => 'Date Demande Fin',
                 'required' => false,
             ]);
     }

@@ -34,7 +34,7 @@ class AgenceServiceAutoriserType extends AbstractType
 
 
         $builder
-        ->add('utilisateur', 
+        ->add('Session_Utilisateur', 
         ChoiceType::class, 
         [
             'label' => "Nom d'utilisateur",

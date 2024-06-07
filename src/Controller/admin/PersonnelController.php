@@ -4,6 +4,7 @@ namespace App\Controller\admin;
 
 use App\Entity\Personnel;
 use App\Controller\Controller;
+use App\Form\PersonnelSearchType;
 use App\Form\PersonnelType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,7 +16,7 @@ class PersonnelController extends Controller
      *
      * @return void
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->SessionStart();
     $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
@@ -25,11 +26,39 @@ class PersonnelController extends Controller
 
     $data = self::$em->getRepository(Personnel::class)->findBy([], ['id'=>'DESC']);
 
+    $criteria = [
+        
+        'matricule' => $request->query->get('matricule', ''),
+        
+    ];
+
+    $form = self::$validator->createBuilder(PersonnelSearchType::class, null, [ 'method' => 'GET'])->getForm();
+
+    $form->handleRequest($request);
+
+
+    if($form->isSubmitted() && $form->isValid()) {
+        $criteria['matricule'] = $form->get('matricule')->getData();
+    } 
+
+    $page = $request->query->getInt('page', 1);
+        $limit = 10;
+
+        $repository= self::$em->getRepository(Personnel::class);
+        $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+        $totalBadms = $repository->countFiltered($criteria);
+
+        $totalPages = ceil($totalBadms / $limit);
 
     self::$twig->display('admin/Personnel/list.html.twig', [
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
-        'data' => $data
+        'form' => $form->createView(),
+        'data' => $data,
+        'currentPage' => $page,
+        'totalPages' =>$totalPages,
+        'criteria' => $criteria,
+        'resultat' => $totalBadms,
     ]);
     }
 

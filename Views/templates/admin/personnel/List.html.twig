@@ -8,23 +8,60 @@
 		<div class="card">
 			<div class="card-body">
 
-				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+				<h2 class="text-center fs-1 fw-bold bg-black py-2 rounded" style="color: #FBBB01">
 					Listes des personnels
 				</h2>
 
-				<div class="d-flex flex-row ">
-					<div class="p-2">
+				{{form_start(form)}}
+				<div class="row d-flex justify-content-end">
+					<div class="col-12 col-md-2">
+						{{form_row(form.matricule)}}
+					</div>
+					<div class="col-12 col-md-2">
+						<button class="btn btn-warning fw-bold" type="submit">
+							<i class="fab fa-searchengin"></i>
+							Recherche</button>
+					</div>
+				</div>
+				{{form_end(form)}}
+				<div class="d-flex justify-content-between ">
+					<div>
 						<a href="{{ path("personnnel_new")}}" class="btn btn-success fw-bold">
-							Add
+							Nouveau
 						</a>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+							Resultats</p>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+							pages</p>
+					</div>
+					<div class="navigation">
+						{% set queryParams = criteria  %}
 
+						{% if currentPage > 1 %}
+							<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
+								<i class="fas fa-angle-left text-warning"></i>
+							</a>
+						{% endif %}
+
+
+						{% if currentPage < totalPages %}
+							<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
+								<i class="fas fa-angle-right text-warning"></i>
+							</a>
+						{% endif %}
 					</div>
 				</div>
 
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
-							<th>Actions</th>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
 							<th>Matricule</th>
 							<th>Nom</th>
 							<th>Prenoms</th>
@@ -38,8 +75,8 @@
 							<tr>
 								<td>
 									<div class="dropdown">
-										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
-											Actions
+										<button class="btn btn-warning" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											<i class="fas fa-ellipsis-vertical"></i>
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>

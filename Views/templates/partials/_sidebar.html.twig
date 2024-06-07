@@ -5,48 +5,54 @@
 	</a>
 	<ul class="list-unstyled ps-0">
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
-				Ordre de mission
-			</button>
-			<div class="collapse show" id="home-collapse">
-				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small mx-4">
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 1</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 2</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation</a>
-					</li>
-				</ul>
-			</div>
-		</li>
-		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
-				Mouvement Matériels
-			</button>
-			<div class="collapse" id="dashboard-collapse">
-				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small mx-4">
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 1</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 2</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Nouveau Casier</a>
-					</li>
-					<li>
-						<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation Casier</a>
-					</li>
-				</ul>
-			</div>
-		</li>
-		<li class="border-top my-3"></li>
+			{% for item in infoUserCours %}
+				{% if item.App == 'DOM' %}
+					<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
+						Ordre de mission
+					</button>
+					<div class="collapse show" id="home-collapse">
+						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small mx-4">
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 1</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 2</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+				<li class="mb-1">
+				{% endif %}
+				{% if item.App == 'BDM' %}
+					<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed fw-bold" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
+						Mouvement Matériels
+					</button>
+					<div class="collapse" id="dashboard-collapse">
+						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small mx-4">
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 1</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Formulaire 2</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Nouveau Casier</a>
+							</li>
+							<li>
+								<a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Consultation Casier</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			{% endif %}
+		{% endfor %}
+	</li>
+	<li class="border-top my-3"></li>
 
-	</ul>
-</div>
+</ul></div>
