@@ -2,13 +2,18 @@
 
 namespace App\Controller\dom;
 
-use DateTime;
+
 use App\Controller\Controller;
+use App\Controller\Traits\DomAjaxTrait;
+use App\Controller\Traits\DomTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomControl extends Controller
 {
+
+    use DomTrait;
+    use DomAjaxTrait;
 
     public function filterStatut()
     {
@@ -19,116 +24,6 @@ class DomControl extends Controller
         echo json_encode($Statut);
     }
 
-
-    /**
-     * selection catgégorie dans l'ajax 
-     * @Route("/selectCateg")
-     */
-    public function selectCatg()
-    {
-        $this->SessionStart();
-
-
-        $valeurSelect = $_POST['typeMission'];
-        $codeAg = $_POST['CodeAg'];
-        if ($codeAg !== '50') {
-            $AgenceCode = 'STD';
-        } else {
-            $AgenceCode = '50';
-        }
-        $InforCatge = $this->DomModel->CategPers($valeurSelect, $AgenceCode);
-        $response = "<label for='CategPers' class='label-form' id='labCategPers'> Catégorie:</label>";
-        $response .= "<select id='categPers' class='form-select' name='categPers'>";
-        foreach ($InforCatge as $info) {
-            $categ = $info['Catg'];
-            $info = iconv('Windows-1252', 'UTF-8', $categ);
-
-            $response .= "<option value='$info'>$info</option>";
-        }
-        $response .= "</select>";
-
-        echo $response;
-    }
-
-    /**
-     * selection categorie Rental 
-     * @Route("/selectCatgeRental", name="")
-     */
-    public function selectCategRental()
-    {
-        $this->SessionStart();
-
-        $ValCodeserv = $_POST['CodeRental'];
-        $CatgeRental = $this->DomModel->catgeRental($ValCodeserv);
-        $RentalCatg = "<label for='CategRental' class='label-form' id='labCategRental'> Catégorie:</label>";
-        $RentalCatg .= "<select id='categRental' class='form-select' name='categRental' >";
-        foreach ($CatgeRental as $Catg) {
-            $categ = $Catg['Catg'];
-            $Catge50 = iconv('Windows-1252', 'UTF-8', $categ);
-
-            $RentalCatg .= "<option value='$Catge50'>$Catge50</option>";
-        }
-        $RentalCatg .= "</select>";
-
-        echo $RentalCatg;
-    }
-
-
-    /**
-     * selection des sites (regions) correspondant aux catégorie selectionner 
-     * @Route("/selectIdem", name="dom_selectSiteRental")
-     */
-    public function selectSiteRental()
-    {
-        $this->SessionStart();
-
-        $CatgPersSelect = $_POST['CategPers'];
-        $TypeMiss = $_POST['TypeMiss'];
-
-        $MutSiteRental = $this->DomModel->SelectSite($TypeMiss, $CatgPersSelect);
-
-        $response1 = "<label for='SiteRental' class='label-form' id='labSiteRental'> Site:</label>";
-        $response1 .= "<select id='SiteRental' class='form-select' name='SiteRental'>";
-        foreach ($MutSiteRental as $Site) {
-            $Site = $Site['Destination'];
-            $info = iconv('Windows-1252', 'UTF-8', $Site);
-
-            $response1 .= "<option value='$info'>$info</option>";
-        }
-        $response1 .= "</select>";
-
-        echo $response1;
-    }
-
-    /**
-     * afficher Prix selon selection Sites 
-     * @Route("/selectPrixRental", name="selectPrixRental")
-     */
-    public function SelectPrixRental()
-    {
-        $this->SessionStart();
-
-        $typeMiss = $_POST['typeMiss'];
-        $categ = $_POST['categ'];
-        $sitesel = $_POST['siteselect'];
-        $codeserv = $_POST['codeser'];
-        $count = $this->DomModel->SiRentalCatg($categ);
-        $nb_count = intval($count);
-
-        if ($nb_count === 0) {
-            $agserv = 'STD';
-            $Prix = $this->DomModel->SelectMUTPrixRental($typeMiss, $categ, $sitesel, $agserv);
-            //echo $agserv;
-            echo  $Prix[0]['Montant_idemnite'];
-
-            // print_r($Prix);
-        } else {
-            $agserv = '50';
-            $Prix = $this->DomModel->SelectMUTPrixRental($typeMiss, $categ, $sitesel, $agserv);
-            //echo $agserv;
-            echo  $Prix[0]['Montant_idemnite'];
-        }
-    }
 
 
 
@@ -264,54 +159,7 @@ class DomControl extends Controller
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
 
-    private function changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
-    {
-        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
-        move_uploaded_file($filetemp01, $Upload_file);
-        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename02;
-        move_uploaded_file($filetemp02, $Upload_file02);
-        $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-        if (!empty($filename02)) {
-            //echo 'fichier02';
-            $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
-        } else {
-            $this->fusionPdf->genererFusion1($FichierDom, $filename01);
-            //echo 'echo non';
-        }
-    }
-
-    private function changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB)
-    {
-        $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename01;
-        move_uploaded_file($filetemp01, $Upload_file);
-        $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/src/Controller/pdf/' . $filename02;
-        move_uploaded_file($filetemp02, $Upload_file02);
-        return $NumDom . '_' . $codeAg_servDB . '.pdf';
-    }
-
-    private function verifierSiDateExistant(string $matricule, string $dateDebutInput, string $dateFinInput): bool
-    {
-        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
-        $trouve = false; // Variable pour indiquer si la date est trouvée
-
-        // Parcourir chaque élément du tableau
-        foreach ($Dates as $periode) {
-            // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']);
-            $dateFin = new DateTime($periode['Date_Fin']);
-            $dateDebutInputObj = new DateTime($dateDebutInput); // Correction de la variable
-            $dateFinInputObj = new DateTime($dateFinInput); // Correction de la variable
-
-            // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
-            if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin)) { // Correction des noms de variables
-                $trouve = true;
-                return $trouve;
-            }
-        }
-
-        // Vérifier si aucune correspondance n'est trouvée
-        return $trouve;
-    }
+   
 
 
     /**
@@ -653,19 +501,13 @@ class DomControl extends Controller
                                         // die();
                                         echo 'avec PJ' . $filename01 . '-' . $filename02;
 
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                        //echo 'ie ambany 500000';
-                                        $this->genererPdf->genererPDF($tabInterne);
-
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                         $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } else {
                                         // var_dump('108');
                                         // die();
                                         // echo 'sans PJ';
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-                                        // echo 'ie ambany 500000';
-                                        $this->genererPdf->genererPDF($tabInterne);
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                         $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                     }
@@ -681,19 +523,13 @@ class DomControl extends Controller
                                     // var_dump('110');
                                     // die();
                                     echo 'avec PJ' . $filename01 . '-' . $filename02;
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-                                    //echo 'ie ambany 500000';
-                                    $this->genererPdf->genererPDF($tabInterne);
-
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                     $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } else {
                                     // var_dump('111');
                                     // die();
                                     // echo 'sans PJ';
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                    // echo 'ie ambany 500000';
-                                    $this->genererPdf->genererPDF($tabInterne);
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                     $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                 }
@@ -703,20 +539,9 @@ class DomControl extends Controller
                         // var_dump('112');
                         // die();
                         $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
-                        // var_dump($DomMaxMinDate);
-                        // die();
-                        // nvl date 
-                        // $DDForm = strtotime($DateDebut);
-                        // $DFForm = strtotime($DateFin);
+                        
                         if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
-                            // echo 'non null';
-                            //en cours
-                            // var_dump('113');
-                            // die();
-                            // $DD = strtotime($DomMaxMinDate[0]['DateDebutMin']);
-                            // $DF = strtotime($DomMaxMinDate[0]['DateFinMax']);
-                            // var_dump($this->verifierSiDateExistant($matr,  $DateDebut, $DateFin));
-                            // die();
+                            
                             if ($this->verifierSiDateExistant($matr,  $DateDebut, $DateFin)) {
                                 // var_dump('114');
                                 // die();
@@ -734,19 +559,13 @@ class DomControl extends Controller
                                     if ($libmodepaie !== 'MOBILE MONEY') {
                                         // var_dump('117');
                                         // die();
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                        $this->genererPdf->genererPDF($tabInterne);
-
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                         $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // var_dump('118');
                                         // die();
                                         //echo 'ie ambany 500000';
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                        $this->genererPdf->genererPDF($tabInterne);
-
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                         $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                     } //Mobile&allMOnt
                                     else {
@@ -765,17 +584,13 @@ class DomControl extends Controller
                                         //echo 'io';
                                         // var_dump('120');
                                         // die();
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                        $this->genererPdf->genererPDF($tabInterne);
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                         $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                     } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                         // var_dump('121');
                                         // die();
                                         // echo 'ie ambany 500000';
-                                        $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                        $this->genererPdf->genererPDF($tabInterne);
+                                        $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                         $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                     } //mobile&allMont 
@@ -803,20 +618,14 @@ class DomControl extends Controller
                                 if ($libmodepaie !== 'MOBILE MONEY') {
                                     // var_dump('124');
                                     // die();
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                    $this->genererPdf->genererPDF($tabInterne);
-
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                     $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
 
                                     // var_dump('125');
                                     // die();
                                     //echo 'ie ambany 500000';
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                    $this->genererPdf->genererPDF($tabInterne);
-
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                     $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                                 } //Mobile&allMOnt
                                 else {
@@ -835,18 +644,14 @@ class DomControl extends Controller
                                 if ($libmodepaie !== 'MOBILE MONEY') {
                                     // var_dump('127');
                                     // die();
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                    $this->genererPdf->genererPDF($tabInterne);
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                     $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                 } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                     // var_dump('128');
                                     // die();
                                     // echo 'ie ambany 500000';
-                                    $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                    $this->genererPdf->genererPDF($tabInterne);
+                                    $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                     $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                                 } //mobile&allMont 
@@ -874,9 +679,7 @@ class DomControl extends Controller
                             if ($libmodepaie !== 'MOBILE MONEY') {
                                 // var_dump('131');
                                 // die();
-                                $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                $this->genererPdf->genererPDF($tabInterne);
+                                $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                 $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
                                 move_uploaded_file($filetemp01, $Upload_file);
@@ -894,10 +697,7 @@ class DomControl extends Controller
                                 // var_dump('132');
                                 // die();
                                 //echo 'ie ambany 500000';
-                                $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                $this->genererPdf->genererPDF($tabInterne);
-
+                                $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                 $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                             } //Mobile&allMOnt
                             else {
@@ -913,18 +713,14 @@ class DomControl extends Controller
                             if ($libmodepaie !== 'MOBILE MONEY') {
                                 // var_dump('134');
                                 // die();
-                                $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                $this->genererPdf->genererPDF($tabInterne);
+                                $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
                                 $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                             } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 // var_dump('135');
                                 // die();
                                 // echo 'ie ambany 500000';
-                                $this->DomModel->InsertDom($tabInsertionBdInterne);
-
-                                $this->genererPdf->genererPDF($tabInterne);
+                                $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
                                 $this->genererPdf->copyInterneToDOXCUWARE($NumDom, $codeAg_servDB);
                             } //mobile&allMont 
                             else {
@@ -1084,8 +880,8 @@ class DomControl extends Controller
 
                                     $this->alertRedirection($message);
                                 } else {
-                                    var_dump('03');
-                                    die();
+                                    // var_dump('03');
+                                    // die();
                                     //comme d'hab
                                     $this->genererPdf->genererPDF($tabExterne);
                                     //echo 'ie ambany 500000';
@@ -1101,6 +897,7 @@ class DomControl extends Controller
 
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                            $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
                                         } else {
 
                                             $message = "Merci de Mettre les pièce jointes en PDF";
@@ -1135,6 +932,7 @@ class DomControl extends Controller
                                         $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                        $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
                                     } else {
                                         $message = "Merci de Mettre les pièce jointes en PDF";
 
@@ -1190,6 +988,7 @@ class DomControl extends Controller
                                             $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                            $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
                                         } else {
 
                                             $message = "Merci de Mettre les pièces jointes en PDF";
@@ -1216,6 +1015,7 @@ class DomControl extends Controller
                                             $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                             $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                            $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
 
                                             $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
                                         } else {
@@ -1261,6 +1061,7 @@ class DomControl extends Controller
                                         $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                        $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
 
                                         $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
                                     } else {
@@ -1291,6 +1092,7 @@ class DomControl extends Controller
                                         $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                         $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                        $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
 
                                         $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
                                     } else {
@@ -1328,6 +1130,7 @@ class DomControl extends Controller
                                     $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                    $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
 
                                     $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
                                 } else {
@@ -1356,6 +1159,7 @@ class DomControl extends Controller
                                     $FichierDom = $this->changementDossierFichierExterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
 
                                     $this->DomModel->InsertDom($tabInsertionBdExterne);
+                                    $this->DomModel->modificationDernierIdApp($NumDom,'DOM');
 
                                     $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
                                 } else {

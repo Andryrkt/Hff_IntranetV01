@@ -138,4 +138,26 @@ class Model
         
         return $row['nombre'] > 0;  // Le COUNT(*) est retourné sans nom de colonne spécifique
     }
+
+    public function modificationDernierIdApp(string $numApp, string $codeApp)
+    {
+        $statement = "UPDATE applications SET derniere_id = '{$numApp}' WHERE code_app = '{$codeApp}'";
+
+        // Exécution de la requête
+        $result = odbc_exec($this->connexion->getConnexion(), $statement);
+
+        // if ($result) {
+        //     echo "Record updated successfully.";
+        // } else {
+        //     echo "Error updating record: " . odbc_errormsg($this->connexion->getConnexion());
+        // }
+
+        // Fermeture de la connexion
+        odbc_close($this->connexion->getConnexion());
+    }
+
+    public function recuperationDerniereIdApp(string $codeApp)
+    {
+        $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
+    }
 }

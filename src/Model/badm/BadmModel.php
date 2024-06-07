@@ -431,4 +431,7 @@ class BadmModel extends Model
 
         return odbc_fetch_array($execTypeDoc);
     }
+
+
+    
 }

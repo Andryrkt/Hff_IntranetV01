@@ -160,6 +160,7 @@ class CasierController extends Controller
 
         $insertDbBadm = $this->convertirEnUtf8($insertDbCasier);
         $this->casier->insererDansBaseDeDonnees($insertDbBadm);
+        $this->casier->modificationDernierIdApp($NumCAS, 'CAS');
         $this->genererPdf->genererPdfCasier($generPdfCasier);
         $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
         header('Location: /Hffintranet/listTemporaireCasier');

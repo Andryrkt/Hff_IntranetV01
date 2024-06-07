@@ -740,11 +740,12 @@ class BadmController extends Controller
                 // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
                 // var_dump($this->convertirEnUtf8($insertDbBadm));
                 // die();
-
+                
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);
                 $this->genererPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
+                $this->badm->modificationDernierIdApp($NumBDM, 'BDM');
                 header('Location: /Hffintranet/listBadm');
                 exit();
             }
