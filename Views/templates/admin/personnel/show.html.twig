@@ -1,0 +1,156 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block content %}
+
+
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+
+				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+					Détail de personnel
+				</h2>
+
+				<div class="d-flex flex-row ">
+					<div class="p-2">
+						<a href="{{ path("personnel_index")}}" class="btn btn-success fw-bold">
+							liste
+						</a>
+					</div>
+				</div>
+
+
+				<table>
+					<tr>
+						<td>
+							<span class="fw-bold">Matricule
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Matricule }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Nom
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Nom }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Code Agence Service Sage
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.CodeAgenceServiceSage }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Numero Fournisseur IRIUM
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.NumeroFournisseurIRIUM }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Code Agence Service IRIUM
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.CodeAgenceServiceIRIUM }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Numero Telephone
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.NumeroTelephone | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Numero Compte Bancaire
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Numero_Compte_Bancaire | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Date creation
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Date_creation | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Libelle Agence Service Sage
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.LibelleAgenceServiceSage | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Code Service Agence IRIUM
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.CodeServiceAgenceIRIUM | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Libelle Service Agence IRIUM
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.LibelleServiceAgenceIRIUM | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Libelle Service Agence IRIUM
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.LibelleServiceAgenceIRIUM | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Prénoms
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Prenoms | default(' ~ ') }}</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="fw-bold">Qualification
+							</span>
+						</td>
+						<td>
+							:
+							{{ personnel.Qualification | default(' ~ ') }}</td>
+					</tr>
+				</table>
+
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -29,7 +29,7 @@ class BadmModel extends Model
         agr_succ , agr_tab a
         where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
-        and asuc_num in ('01', '40', '50','90','91','92') 
+        and asuc_num in ('01', '20', '30', '40', '50','60','80','90','91','92') 
         order by 1";
 
         $result = $this->connect->executeQuery($statement);
@@ -103,7 +103,7 @@ class BadmModel extends Model
         trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence
         
          from mat_mat, agr_succ
-         WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+         WHERE (MMAT_SUCC in ('01','20','30','40', '50','60','80','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '20', '30', '40', '50', '60', '80', '90','91','92') ))
 
 
           and trim(MMAT_ETSTOCK) in ('ST','AT')
@@ -139,7 +139,7 @@ class BadmModel extends Model
         FROM 
         Casier_Materiels cm
         WHERE 
-        cm.Agence_Rattacher IN ('01', '40', '50', '90', '91', '92')";
+        cm.Agence_Rattacher IN ('01','20', '30', '40', '50', '60', '80', '90', '91', '92')";
 
         $execTypeDoc = $this->connexion->query($sql);
         $tab = [];
@@ -162,7 +162,7 @@ class BadmModel extends Model
         else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = 'HF' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
         end as service,
         
-        case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'COM' 
+        case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'LCD' 
         else(select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat)
         end as code_service,
         trim((select atab_lib from agr_tab where atab_code = mmat_etstock and atab_nom = 'ETM')) as groupe1,
@@ -205,7 +205,7 @@ class BadmModel extends Model
         (select  mimm_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
         
         from mat_mat, agr_succ, outer mat_bil
-        WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+        WHERE (MMAT_SUCC in ('01', '20', '30', '40', '50', '60', '80', '90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '20', '30', '40', '50', '60', '80', '90','91','92') ))
         
         
          and trim(MMAT_ETSTOCK) in ('ST','AT')
@@ -268,9 +268,9 @@ class BadmModel extends Model
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->connect(), $sql);
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
         if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->connect());
+            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
             return;
         }
 
@@ -328,52 +328,51 @@ class BadmModel extends Model
     public function recupeOr($numMat)
     {
         $statement = " SELECT 
-        trim(asuc_lib) AS agence, 
-        trim(ser.atab_lib) As Service, 
-        slor_numor,
-         sitv_datdeb As Date, 
-        (trim(seor_refdem)||' - '||trim(seor_lib)) As Seor_refdem_lib, 
-        sitv_interv,
-        trim(sitv_comment) As stiv_comment,
-                (CASE seor_natop
-                WHEN 'VTE' THEN trim(to_char(seor_numcli)||' - '||trim(seor_nomcli))
-                WHEN 'CES' THEN (select trim(sitv_succdeb)||trim(sitv_servdeb)||' - '||trim(asuc_lib)||' / '||trim(atab_lib) from agr_succ, agr_tab WHERE asuc_num = sitv_succdeb AND atab_nom = 'SER' AND atab_code = sitv_servdeb)
-                END) AS Agence_Service,
-                Sum
-                (
-                CASE WHEN slor_typlig = 'P' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END
-                *
-                CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-                ) as Montant_Total,
-                
-               
-        Sum
-        (
-        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
-        *
-        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-        ) AS Montant_Pieces,
-        Sum
-        (
-        CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
-        *
-        CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
-        ) AS Montant_Pieces_Livrees
+            trim(asuc_lib) AS agence, 
+            trim(ser.atab_lib) As Service, 
+            slor_numor,
+            sitv_datdeb As Date, 
+            (trim(seor_refdem)||' - '||trim(seor_lib)) As Seor_refdem_lib, 
+            sitv_interv,
+            trim(sitv_comment) As stiv_comment,
+            (CASE seor_natop
+            WHEN 'VTE' THEN trim(to_char(seor_numcli)||' - '||trim(seor_nomcli))
+            WHEN 'CES' THEN (select trim(sitv_succdeb)||trim(sitv_servdeb)||' - '||trim(asuc_lib)||' / '||trim(atab_lib) from agr_succ, agr_tab WHERE asuc_num = sitv_succdeb AND atab_nom = 'SER' AND atab_code = sitv_servdeb)
+            END) AS Agence_Service,
+            Sum
+            (
+            CASE WHEN slor_typlig = 'P' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END
+            *
+            CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+            ) as Montant_Total,
+            
+            Sum
+            (
+            CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN (nvl(slor_qterel,0) + nvl(slor_qterea,0) + nvl(slor_qteres,0) + nvl(slor_qtewait,0) - nvl(slor_qrec,0)) END
+            *
+            CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+            ) AS Montant_Pieces,
+            Sum
+            (
+            CASE WHEN slor_typlig = 'P' and slor_constp not like 'Z%' THEN slor_qterea END
+            *
+            CASE WHEN slor_typlig = 'P' THEN slor_pxnreel WHEN slor_typlig IN ('F','M','U','C') THEN slor_pxnreel END
+            ) AS Montant_Pieces_Livrees
 
-        from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
-        WHERE seor_numor = slor_numor
-        AND seor_serv <> 'DEV'
-        AND sitv_numor = slor_numor
-        AND sitv_interv = slor_nogrp/100
-        AND (seor_succ = asuc_num)
-        AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
-        AND sitv_pos NOT IN ('FC','FE','CP','ST')
-        AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
-        AND (seor_nummat = mmat_nummat)
-        and seor_nummat = $numMat
-        group by 1,2,3,4,5,6,7,8
-        order by slor_numor, sitv_interv
-";
+            from sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat
+            WHERE seor_numor = slor_numor
+            AND seor_serv <> 'DEV'
+            AND sitv_numor = slor_numor
+            AND sitv_interv = slor_nogrp/100
+            AND (seor_succ = asuc_num)
+            AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+            AND sitv_pos NOT IN ('FC','FE','CP','ST')
+            AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+            AND (seor_nummat = mmat_nummat)
+            and seor_nummat = $numMat
+            group by 1,2,3,4,5,6,7,8
+            order by slor_numor, sitv_interv
+        ";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -390,7 +389,7 @@ class BadmModel extends Model
      */
     public function recupeIdMateriel()
     {
-        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel";
+        $statement = "SELECT DISTINCT ID_Materiel from Demande_Mouvement_Materiel where  ID_Statut_Demande NOT IN (9, 18, 22, 24, 26, 32, 33, 34, 35)";
 
         $execTypeDoc = $this->connexion->query($statement);
         $tab = [];
@@ -400,6 +399,7 @@ class BadmModel extends Model
         return $tab;
     }
 
+    
 
     /**
      * recupérer l'agence et service destinataire selon l'id materiel
@@ -418,7 +418,11 @@ class BadmModel extends Model
         return $tab;
     }
 
-
+/**
+ * recuperation id_statut_demande OUVERT
+ *
+ * @return void
+ */
     public function idOuvertStatutDemande()
     {
         $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";
@@ -427,4 +431,7 @@ class BadmModel extends Model
 
         return odbc_fetch_array($execTypeDoc);
     }
+
+
+    
 }

@@ -22,22 +22,22 @@
 
 		<!-- DEBUT recherche -->
 
-
-		<div class="row">
-			{{form.select_1('agence', 'Agence', agence,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
-			<div class="col-12 col-md-6  ">
-				<div class="input-group mb-2">
-					<span class="input-group-text">Casier</span>
-					<input type="search" name="casier" id="casier" class="form-control">
+		<form action="" method="post">
+			<div class="row">
+				{{form.select_1('agence', 'Agence', agence,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
+				<div class="col-12 col-md-6  ">
+					<div class="input-group mb-2">
+						<span class="input-group-text">Casier</span>
+						<input type="search" name="casier" id="casier" class="form-control">
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="boutonRecherche">
-			<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
-			<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-			<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-		</div>
-
+			<div class="boutonRecherche">
+				<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
+				<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
+				<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
+			</div>
+		</form>
 
 		<!-- FIN recherche -->
 
@@ -65,9 +65,24 @@
 				<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
 				<a href="{{ path("listeTemporaire_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
 			</div>
-			<div class="col-12 col-md-6 col-lg-4  mt-1">
+			<div class="col-12 col-md-6 col-lg-2  mt-1">
 				<p class="fw-bold" id="nombreResultat">{{ nombreLigne.nbrLigne }}
 					Résultats</p>
+			</div>
+			<div class="col-12 col-md-6 col-lg-2">
+				<p class="fw-bold" id="nombreResultat">{{page ~' / '~ (totalPage + 1)}}
+					pages</p>
+			</div>
+			<div class="col-12 col-md-6 col-lg-4  mt-1">
+				{% if page >= 2 %}
+					<a href="{{path("liste_affichageListeCasier", {"page": (page - 1 )})}}" class="btn btn-sm bg-dark text-white">
+						&laquo précédent</a>
+				{% endif %}
+				{% if page <= totalPage %}
+
+					<a href="{{path("liste_affichageListeCasier", {"page": (page + 1 )})}}" class="btn btn-sm bg-dark text-white">suivant &raquo</a>
+
+				{% endif %}
 			</div>
 		</div>
 		<table class="table  table-striped table-shadow shadow  rounded " style="text-align: center;">

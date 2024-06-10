@@ -19,16 +19,20 @@ class ProfilControl extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Username = isset($_POST['Username']) ? $_POST['Username'] : '';
             $Password = isset($_POST['Pswd']) ? $_POST['Pswd'] : '';
-            $Ldap = new LdapModel();
-            $Connexion_Ldap_User = $Ldap->userConnect($Username, $Password);
+            $Connexion_Ldap_User = $this->ldap->userConnect($Username, $Password);
+
+
             if (!$Connexion_Ldap_User) {
                 echo '<script type="text/javascript">
                     alert("Merci de vérifier votre session LDAP");
                     document.location.href = "/Hffintranet";
                 </script>';
             } else {
-                session_start();
+                // session_start();
                 $_SESSION['user'] = $Username;
+                $_SESSION['password'] = $Password;
+
+                
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 
@@ -37,7 +41,7 @@ class ProfilControl extends Controller
                 $text = file_get_contents($fichier);
                 $boolean = strpos($text, $_SESSION['user']);
 
-                $this->twig->display(
+                self::$twig->display(
                     'main/accueil.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
@@ -48,22 +52,22 @@ class ProfilControl extends Controller
         }
     }
 
-    public function showinfoAllUsercours()
-    {
-        $this->SessionStart();
+    // public function showinfoAllUsercours()
+    // {
+    //     $this->SessionStart();
 
-        try {
-            //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-            $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+    //     try {
+    //         //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
+    //         $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 
 
-            //include 'Views/Principe.php';
+    //         //include 'Views/Principe.php';
 
-            include 'Views/Propos_page.php';
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
-    }
+    //         include 'Views/Propos_page.php';
+    //     } catch (Exception $e) {
+    //         echo "Error: " . $e->getMessage();
+    //     }
+    // }
 
     /**
      * @Route("/Acceuil", name="profil_acceuil")
@@ -78,8 +82,9 @@ class ProfilControl extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        //$okey = $this->ProfilModel->has_permission($_SESSION['user'], 'CREAT_DOM');
 
-        $this->twig->display(
+        self::$twig->display(
             'main/accueil.html.twig',
             [
                 'infoUserCours' => $infoUserCours,

@@ -1,0 +1,12 @@
+.color-perso-titre {
+    /* color: #FBBB01; */
+    color: white;
+    background-color: #212529;
+}
+
+.trois-points-vertical {
+    text-decoration: none; 
+    color: #212529; 
+    font-weight: 700;
+    border: 1px solid #000;
+}

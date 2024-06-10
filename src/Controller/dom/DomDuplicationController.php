@@ -96,7 +96,7 @@ class DomDuplicationController extends Controller
             // var_dump($data);
             // die();
 
-            $this->twig->display(
+            self::$twig->display(
                 'dom/FormCompleDOM.html.twig',
                 [
                     'infoUserCours' => $infoUserCours,

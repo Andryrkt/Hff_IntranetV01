@@ -33,7 +33,7 @@ class DomDetailController extends Controller
             $boolean = strpos($text, $_SESSION['user']);
 
 
-            $this->twig->display(
+            self::$twig->display(
                 'dom/DetailDOM.html.twig',
                 [
                     'infoUserCours' => $infoUserCours,

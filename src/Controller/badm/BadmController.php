@@ -9,9 +9,6 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-
-
-use Exception;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
@@ -67,12 +64,15 @@ class BadmController extends Controller
 
 
             $agence = $this->badm->recupAgence();
+
+            
             $agenceDestinataire = [];
             foreach ($agence as $values) {
                 foreach ($values as $value) {
                     $agenceDestinataire[] = $value;
                 }
             }
+
             // var_dump($data);
             // die();
 
@@ -99,13 +99,12 @@ class BadmController extends Controller
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
-            } elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
-                $message = 'Ce matériel est déjà en PARC';
-                $this->alertRedirection($message);
-            } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
+            }  
+             elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);
-            } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+            } 
+            elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
                 $message = " l\'affectation matériel ne permet pas cette opération";
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
@@ -121,13 +120,23 @@ class BadmController extends Controller
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
 
+                if($_POST['typeMission'] === 'ENTREE EN PARC'){
+                    $serviceEmetteur = 'COM COMMERCIAL';
+                }
+
                 $agenceServiceAutoriserbd = $this->badm->recupCodeAgenceServiceAutoriser($_SESSION['user']);
 
                 $agenceServiceAutoriser = $this->transformEnSeulTableau($agenceServiceAutoriserbd);
 
-
-                $codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
-
+                $agenceAutoriser = [];
+                    foreach ($agenceServiceAutoriser as $key => $value) {
+                       $agenceAutoriser[]= substr($value, 0, 2);
+                    }
+                
+                    
+                //$codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
+                $codeAgence = $data[0]['agence'];
+               
                 $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
 
@@ -135,7 +144,7 @@ class BadmController extends Controller
 
                 if ($boolean) {
 
-                    $this->twig->display(
+                    self::$twig->display(
                         'badm/formCompleBadm.html.twig',
                         [
                             'codeMouvement' => $_POST['typeMission'],
@@ -155,12 +164,12 @@ class BadmController extends Controller
                 } else {
 
 
-                    if (!in_array($codeAgenceService, $agenceServiceAutoriser)) {
+                    if (!in_array($codeAgence, $agenceAutoriser)) {
 
                         $message = "vous n\'êtes pas autoriser à consulter ce matériel";
                         $this->alertRedirection($message);
                     } else {
-                        $this->twig->display(
+                        self::$twig->display(
                             'badm/formCompleBadm.html.twig',
                             [
                                 'codeMouvement' => $_POST['typeMission'],
@@ -209,7 +218,7 @@ class BadmController extends Controller
                 $message = "verifiez votre Autorisation";
                 $this->alertRedirection($message);
             } else {
-                $this->twig->display(
+                self::$twig->display(
                     'badm/formBadm.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
@@ -450,7 +459,7 @@ class BadmController extends Controller
     }
 
     /**
-     * @Route("/formCompleBadm", name="badm_formCompleBadm", methods={"POST"})
+     * @Route("/formCompleBadm", name="badm_formCompleBadm", methods={"GET","POST"})
      */
     public function formCompleBadm()
     {
@@ -483,7 +492,12 @@ class BadmController extends Controller
 
 
             $agenceEmetteur = $data[0]['agence'];
-            $serviceEmetteur = $data[0]['code_service'];
+            if ($codeMouvement === 'ENTREE EN PARC') {
+                $serviceEmetteur = 'COM';
+            } else {
+
+                $serviceEmetteur = $data[0]['code_service'];
+            }
             $agenceServiceEmetteur = $agenceEmetteur . $serviceEmetteur;
             $casierEmetteur = $data[0]['casier_emetteur'];
 
@@ -621,6 +635,7 @@ class BadmController extends Controller
 
             $idStatut = $this->badm->idOuvertStatutDemande();
 
+
             /**
              * TODO: eliminer le doublon du changemnet AGENCE/SERVICE, changement de CASIER, ...
              */
@@ -635,10 +650,12 @@ class BadmController extends Controller
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
                 $this->alertRedirection($message);
-            } elseif ($codeMouvement === 'ENTREE EN PARC' && in_array($idMateriel, $idMateriels)) {
+            } 
+            elseif ($codeMouvement === 'ENTREE EN PARC' && in_array($idMateriel, $idMateriels)) {
                 $message = 'ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
-            } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && in_array($idMateriel, $idMateriels)) {
+            } 
+            elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && in_array($idMateriel, $idMateriels)) {
                 $message = 'le choix du type devrait être Changement de Casier';
                 $this->alertRedirection($message);
             } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $conditionAgenceService) {
@@ -723,11 +740,12 @@ class BadmController extends Controller
                 // $generPdfBadm = $this->convertirEnUtf8($generPdfBadm);
                 // var_dump($this->convertirEnUtf8($insertDbBadm));
                 // die();
-
+                
                 $insertDbBadm = $this->convertirEnUtf8($insertDbBadm);
                 $this->badm->insererDansBaseDeDonnees($insertDbBadm);
                 $this->genererPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $this->genererPdf->copyInterneToDOXCUWARE($NumBDM, $agenceEmetteur . $serviceEmetteur);
+                $this->badm->modificationDernierIdApp($NumBDM, 'BDM');
                 header('Location: /Hffintranet/listBadm');
                 exit();
             }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\Application;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
@@ -37,7 +38,9 @@ class CasierController extends Controller
 
             $data = $this->casier->findAll($_POST['idMateriel'],  $_POST['numeroParc'], $_POST['numeroSerie']);
 
+            // $donner = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
 
+            // dd($donner->getDerniereId());
             $agenceLibele = $this->casier->recupAgence();
             $agenceDestinataire = [];
             foreach ($agenceLibele as $values) {
@@ -52,7 +55,7 @@ class CasierController extends Controller
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
             } else {
-                $this->twig->display(
+                self::$twig->display(
                     'badm/casier/formulaireCasier.html.twig',
                     [
                         'infoUserCours' => $infoUserCours,
@@ -73,7 +76,7 @@ class CasierController extends Controller
             $Code_AgenceService_Sage = $this->casier->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->casier->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
 
-            $this->twig->display(
+            self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',
                 [
                     'infoUserCours' => $infoUserCours,
@@ -85,7 +88,7 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"POST"})
+     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"GET","POST"})
      */
     public function FormulaireCasier()
     {
@@ -157,6 +160,7 @@ class CasierController extends Controller
 
         $insertDbBadm = $this->convertirEnUtf8($insertDbCasier);
         $this->casier->insererDansBaseDeDonnees($insertDbBadm);
+        $this->casier->modificationDernierIdApp($NumCAS, 'CAS');
         $this->genererPdf->genererPdfCasier($generPdfCasier);
         $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
         header('Location: /Hffintranet/listTemporaireCasier');
@@ -173,6 +177,7 @@ class CasierController extends Controller
     {
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
         $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+
 
         // Combinaison des deux tableaux
         $resultat = [];

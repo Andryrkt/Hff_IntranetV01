@@ -101,4 +101,63 @@ class Model
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
     }
+
+    public function has_permission($nomUtilisateur, $permission_name) {
+    
+        // Définir la requête SQL
+        $query = "SELECT COUNT(*) as nombre FROM users
+        JOIN roles ON users.role_id = roles.id
+        JOIN role_permissions ON roles.id = role_permissions.role_id
+        JOIN permissions ON role_permissions.permission_id = permissions.id
+        WHERE users.nom_utilisateur = ? AND permissions.permission_name = ?";
+        
+        // Préparer la requête
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $query);
+        
+        if (!$stmt) {
+            // Gérer les erreurs de préparation
+            echo "Query preparation failed: " . odbc_errormsg($this->connexion->getConnexion());
+            odbc_close($this->connexion->getConnexion());
+            return false;
+        }
+    
+        // Exécuter la requête avec les paramètres
+        $params = array($nomUtilisateur, $permission_name);
+        $result = odbc_execute($stmt, $params);
+        
+        if (!$result) {
+            // Gérer les erreurs d'exécution
+            echo "Query execution failed: " . odbc_errormsg($this->connexion->getConnexion());
+            odbc_close($this->connexion->getConnexion());
+            return false;
+        }
+    
+        // Récupérer le résultat
+        $row = odbc_fetch_array($stmt);
+        odbc_close($this->connexion->getConnexion());
+        
+        return $row['nombre'] > 0;  // Le COUNT(*) est retourné sans nom de colonne spécifique
+    }
+
+    public function modificationDernierIdApp(string $numApp, string $codeApp)
+    {
+        $statement = "UPDATE applications SET derniere_id = '{$numApp}' WHERE code_app = '{$codeApp}'";
+
+        // Exécution de la requête
+        $result = odbc_exec($this->connexion->getConnexion(), $statement);
+
+        // if ($result) {
+        //     echo "Record updated successfully.";
+        // } else {
+        //     echo "Error updating record: " . odbc_errormsg($this->connexion->getConnexion());
+        // }
+
+        // Fermeture de la connexion
+        odbc_close($this->connexion->getConnexion());
+    }
+
+    public function recuperationDerniereIdApp(string $codeApp)
+    {
+        $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
+    }
 }

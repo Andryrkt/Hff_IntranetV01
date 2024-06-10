@@ -257,7 +257,7 @@ function renderData1(data) {
 
   // Ajouter les nouvelles lignes pour les données filtrées
   data.forEach(function (item, index) {
-    console.log("les items:" + index);
+    //console.log("les items:" + index);
     const row = document.createElement("tr");
     row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
     // Ajouter un bouton de duplication à chaque ligne
@@ -274,18 +274,6 @@ function renderData1(data) {
       var cellule = document.createElement("td");
       cellule.classList.add("w-50");
 
-      // if (key === 'Matricule' || key === 'Date_Demande' || key === 'Date_Debut' || key === 'Date_Fin' || key === 'Nombre_Jour') {
-      //     cellule.style.textAlign = 'center';
-      // }
-
-      // if (key === 'Total_Autres_Depenses' || key === 'Total_General_Payer') {
-      //     cellule.style.textAlign = 'end';
-      // }
-
-      // if(key==='ID_Demande_Ordre_Mission'){
-      //     cellule.style.display = 'none';
-      // }
-
       if (key === "Date_Demande" || key === "Date_Mise_Location") {
         cellule.textContent = item[key].split("-").reverse().join("/");
       } else if (key === "Numero_Demande_BADM") {
@@ -296,6 +284,8 @@ function renderData1(data) {
       } else {
         cellule.textContent = item[key];
       }
+
+      //console.log(key === "ID_Statut_Demande");
 
       // Vérifier si la clé est "statut" et attribuer une classe en conséquence
       if (key === "Statut") {

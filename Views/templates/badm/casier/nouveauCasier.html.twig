@@ -4,35 +4,35 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            <div class="col" style="text-align: right;font-weight: bold;">
-                <h4>Nouvelle Casier</h4>
-            </div>
-            <form method="POST" action="">
-                <div class="row">
-                    <div class="col-12 col-md-4">
-                        <label for="Serv" class="label-form">Code :</label>
-                        <input type="text" name="Serv" class="form-control" id="Serv" value="{{ CodeServiceofCours.0.agence_ips }} {{ CodeServiceofCours.0.nom_agence_i100 }}" readonly>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="LibServ" class="label-form">Service :</label>
-                        <input type="text" name="LibServ" class="form-control" id="LibServ" value="{{ CodeServiceofCours.0.service_ips }} {{ CodeServiceofCours.0.nom_service_i100 }}" readonly>
-                    </div>
-                </div>
-               
-                <div class="row">
-                    {{form.inputNumber('idMateriel', 'ID matériel',null, {endpoint: '12', class: 'col-lg-4 col-md-6'})}}
-                   {{form.inputText('numeroParc', 'Numéro parc', null, {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
-                   {{form.inputText('numeroSerie', 'Numéro de série', null,  {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
-                </div>
-                <div class="row mt-2">
-                    {{ form.button('submit', 'Suivant','enregistrer', 'info')}}
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+				<div class="d-flex  flex-row-reverse px-2">
+					<h4 class="text-center fs-1 fw-bold py-2" style="color: #FBBB01">Nouveau Casier</h4>
+				</div>
+				<form method="POST" action="">
+					<div class="row">
+						<div class="col-12 col-md-4">
+							<label for="Serv" class="label-form">Code :</label>
+							<input type="text" name="Serv" class="form-control" id="Serv" value="{{ CodeServiceofCours.0.agence_ips }} {{ CodeServiceofCours.0.nom_agence_i100 }}" readonly>
+						</div>
+						<div class="col-12 col-md-4">
+							<label for="LibServ" class="label-form">Service :</label>
+							<input type="text" name="LibServ" class="form-control" id="LibServ" value="{{ CodeServiceofCours.0.service_ips }} {{ CodeServiceofCours.0.nom_service_i100 }}" readonly>
+						</div>
+					</div>
+
+					<div class="row">
+						{{form.inputNumber('idMateriel', 'ID matériel',null, {endpoint: '12', class: 'col-lg-4 col-md-6'})}}
+						{{form.inputText('numeroParc', 'Numéro parc', null, {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
+						{{form.inputText('numeroSerie', 'Numéro de série', null,  {endpoint: '12', class: 'col-lg-4 col-md-6'} )}}
+					</div>
+					<div class="row mt-2">
+						{{ form.button('submit', 'Suivant','enregistrer', 'info')}}
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
 {% endblock content %}

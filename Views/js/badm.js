@@ -31,10 +31,10 @@ const casierDestinataireDetail = formCompleBadm.casierDestinataireDetail;
 //const envoyerBadm = document.form.enregistrer
 // formCompleBadm.addEventListener('submit', send);
 console.log(formCompleBadm.numBdm.value);
-if (formCompleBadm.numBdm.value === '') {
+if (formCompleBadm.numBdm.value === "") {
   fetchData();
 
-console.log('oui');
+  console.log("oui");
   document
     .getElementById("agenceDestinataire")
     .addEventListener("change", changeService);
@@ -70,8 +70,8 @@ console.log('oui');
   if (typeDemande === "CESSION D'ACTIF") {
     const nombres = ["90", "91", "92"];
     let condition = nombres.includes(agenceEmetteur.value.split(" ")[0]);
-    console.log(agenceEmetteur.value.split(" ")[0]);
-    console.log(condition);
+    // console.log(agenceEmetteur.value.split(" ")[0]);
+    // console.log(condition);
     if (condition) {
       setTimeout(() => {
         console.log(document.querySelector(`#agenceDestinataire`));
@@ -152,9 +152,9 @@ console.log('oui');
     formCompleBadm.imageRebut.addEventListener("change", verifierTailleEtType);
   }
 } else {
-console.log('non');
- fetchData();
- fetchCasier();
+  console.log("non");
+  fetchData();
+  fetchCasier();
 
   setTimeout(() => {
     document.querySelector(
@@ -162,21 +162,19 @@ console.log('non');
     ).selected = true;
   }, 1000);
   setTimeout(() => {
-    document.querySelector(`#casierDestinataire option[value='${casierDestinataireDetail.value}']`).selected = true;
+    document.querySelector(
+      `#casierDestinataire option[value='${casierDestinataireDetail.value}']`
+    ).selected = true;
   }, 1000);
-
 }
-
-
-
 
 /**
  * ecouter sur le button et affiche une verification
  */
 
-if (button !== undefined) {
-  button.addEventListener("click", envoieformulaire);
-}
+// if (button !== undefined) {
+//   button.addEventListener("click", envoieformulaire);
+// }
 
 /**
  * changement de coueleur type de mouvemnt

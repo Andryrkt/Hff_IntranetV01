@@ -2,8 +2,8 @@
 
 namespace App\Model\badm;
 
+use Exception;
 use App\Model\Model;
-use App\Service\PaginatedQuery;
 use App\Model\Traits\ConversionModel;
 
 class CasierListModel extends Model
@@ -13,35 +13,41 @@ class CasierListModel extends Model
     use ConversionModel;
 
 
-    public function recuperToutesCasier($agence = '', $casier = ''): array
+    public function recuperToutesCasier($tab, $page, $pageSize): array
     {
-        $sql = "SELECT * FROM Casier_Materiels ORDER BY Numero_CAS DESC";
 
-        if (!empty($agence)) {
-            $sql .= " AND Agence_Rattacher  = '{$agence}'";
+        $offset = $pageSize * ($page - 1);
+   
+        // Début de la requête SQL
+        $sql = "SELECT * FROM Casier_Materiels WHERE 1=1";
+    
+        
+        if (!empty($tab['agence'])) {
+            $sql .= " AND Agence_Rattacher LIKE '%" . explode(' ', $tab['agence'])[0] . "%'";
         }
-        if (!empty($casier)) {
-            $sql .= " AND Casier = '{$casier}'";
+        if (!empty($tab['casier'])) {
+            $sql .= " AND Casier LIKE '%" . $tab['casier'] . "%'";
         }
-
+    
+        // Ajout d'un ordre de tri
+        $sql .= " ORDER BY Numero_CAS DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
+    
+        // Exécution de la requête
         $statement = $this->connexion->query($sql);
-        // Définir le jeu de caractères source et le jeu de caractères cible
-
+    
+        
+    
         $tab = [];
+        // Récupération des données
         while ($donner = odbc_fetch_array($statement)) {
-
+            // Nettoyage des données de chaque colonne
+            foreach ($donner as $key => $value) {
+                $donner[$key] = $this->clean_string($value);
+            }
             $tab[] = $donner;
         }
-
-
-        // Parcourir chaque élément du tableau $tab
-        foreach ($tab as $key => &$value) {
-            // Parcourir chaque valeur de l'élément et nettoyer les données
-            foreach ($value as &$inner_value) {
-                $inner_value = $this->clean_string($inner_value);
-            }
-        }
-
+    
+        // Convertir les données en UTF-8 avant de retourner
         return $this->convertirEnUtf8($tab);
     }
 
@@ -71,21 +77,20 @@ class CasierListModel extends Model
     }
 
 
-    public function NombreDeLigne()
+    public function NombreDeLigne($tab)
     {
-        $sql = $this->connexion->query("SELECT COUNT(*) As nbrLigne FROM Casier_Materiels ");
-        return odbc_fetch_array($sql);
+        $sql = "SELECT COUNT(*) As nbrLigne FROM Casier_Materiels WHERE 1=1";
+
+        if (!empty($tab['agence'])) {
+            $sql .= " AND Agence_Rattacher LIKE '%" . explode(' ', $tab['agence'])[0] . "%'";
+        }
+        if (!empty($tab['casier'])) {
+            $sql .= " AND Casier LIKE '%" . $tab['casier'] . "%'";
+        }
+
+        $statement = $this->connexion->query($sql);
+        return odbc_fetch_array($statement);
     }
 
-    /**
-     * @return PaginatedQuery
-     */
-    public function findPaginated(): PaginatedQuery
-    {
-        return new PaginatedQuery(
-            $this->connexion,
-            'SELECT * FROM Casier_Materiels ORDER BY Numero_CAS DESC',
-            'SELECT COUNT(Id_Materiel) FROM Casier_Materiels'
-        );
-    }
+    
 }

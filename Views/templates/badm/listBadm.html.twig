@@ -1,153 +1,154 @@
 {% extends "baseTemplate.html.twig" %}
 
-    {% block stylesheets%}
-        <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
-    {% endblock%}
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock%}
 
-    {% import "macroForm.html.twig" as form %}
+{# {% import "macroForm.html.twig" as form %} #}
 
-    {% block content %}
-        {# {% include "/partials/_loader.html.twig" %} #}
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
 
-<div class="container">
+	<div class="container">
+		<h2 class="text-center fs-1 fw-bold  py-2 rounded color-perso-titre">
+			Liste de mouvement matériel
+		</h2>
 
+		<!-- DEBUT recherche -->
+		<div class="w-50">
+			{{ form_start(form, {'method': 'GET'}) }}
+			<div class="row">
+				<div class="col-12 col-md-6">
+					{{ form_row(form.statut) }}
+					{{ form_row(form.typeMouvement) }}
+				</div>
+				<div class="col-12 col-md-6">
+					{{ form_row(form.dateDebut) }}
+					{{ form_row(form.dateFin) }}
+				</div>
+			</div>
 
+			<div class="d-flex justify-content-end">
+				<button class="btn btn-warning fw-bold" type="submit">
+					<i class="fab fa-searchengin"></i>
+					Recherche</button>
+			</div>
 
-    <div class="row ">
-        
-            <h2> Liste de mouvement matériel </h2>
-        
-    </div>
+			{{ form_end(form) }}
+		</div>
 
-    <!-- DEBUT recherche -->
- 
-        
-        <div class="row">
-               
-                {{form.select_1('typeMouvement', 'Type de mouvement', typeMouvement,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
-                <div class="col-12 col-md-6  ">
-                    <div class="input-group mb-2">
-                        <span class="input-group-text">Id matériel</span>
-                        <input type="search" name="idMateriel" id="idMateriel" class="form-control">
-                    </div>
-                </div>
-            </div>
-       
-
-        <div class="row">
-            <small class="dateCreationMessage" id="dateCreationMessage"></small>
-            <div class="col-12 col-md-6 ">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Date de demande (début)</span>
-                    <input type="date" name="dateDemandeDebut" id="dateDemandeDebut" class="form-control">
-                </div>
-            </div>
-            <small class="dateCreationMessage" id="dateCreationMessage"></small>
-        </div>
-
-        <div class="row">
-            <div class="col-12 col-md-6 ">
-                <div class="input-group mb-2">
-                    <span class="input-group-text">Date de demande (fin)</span>
-                    <input type="date" name="dateDemandeFin" id="dateDemandeFin" class="form-control">
-                </div>
-            </div>
-        </div>
+		<!-- DEBUT tableau -->
+		<div class="container">
+			<div class="d-flex justify-content-between">
+				<div>
+					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=excelBadm" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
 
 
-        <!-- FIN recherche -->
+					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
+				</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+						Resultats</p>
+				</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+						pages</p>
+				</div>
+				<div class="navigation">
+					{% set queryParams = criteria  %}
+
+					{% if currentPage > 1 %}
+						<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
+							<i class="fas fa-angle-left text-warning"></i>
+						</a>
+					{% endif %}
 
 
+					{% if currentPage < totalPages %}
+						<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
+							<i class="fas fa-angle-right text-warning"></i>
+						</a>
+					{% endif %}
+				</div>
+			</div>
+
+			<table class="table rounded">
+				<thead class="table-dark">
+					<tr>
+						<th>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</th>
+						<th>Statut</th>
+						<th>N° BADM</th>
+						<th>Code_Mouvement</th>
+						<th>Id Materiel</th>
+						<th>Ag\Serv Emetteur</th>
+						<th>Ag\Serv Destinataire</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in data %}
+						<tr>
+							{# Début Action #}
+							<td>
+								<div class="dropdown">
+									<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="fas fa-ellipsis-vertical"></i>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										<li>
+											<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
+										</li>
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
+										</li>
+									</ul>
+								</div>
+							</td>
+							{# Fin Actions #}
+
+							{# DEBUT Statut #}
+							{% if item.statutDemande.description | trim == 'OUVERT' %}
+								<td class="bg-warning bg-gradient fw-bold text-cente">
+									{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'CLOTURE' or item.statutDemande.description | trim == 'CLOTURE COMPTA' %}
+								<td class="bg-success bg-gradient fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
+								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
+								<td class="bg-info fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.statutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.statutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
+								<td class="bg-danger fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
+								<td class="bg-primary fw-bold">{{item.statutDemande.description | trim}}</td>
+							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
+								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+							{% else %}
+								<td>{{item.statutDemande.description | trim}}</td>
+							{% endif %}
+							{# FIN Statut #}
+
+							<td>
+								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}">{{ item.numBadm }}</a>
+							</td>
+							<td>{{ item.typeMouvement}}</td>
+							<td>{{ item.idMateriel}}</td>
+							<td>{{ item.agenceServiceEmetteur }}</td>
+							<td>{{ item.agenceServiceDestinataire}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<!-- FIN tableau -->
 
 
-        <!-- DEBUT bouton -->
-        <div class="row justify-content-center my-4">
-            <div class="col-12 col-md-6 col-lg-4 ">
-                <input type="submit" name="recherche" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-                <input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-                <input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-            </div>
-            <div class="col-12 col-md-6 col-lg-4  mt-1">
-                <p class="fw-bold" id="nombreResultat"></p>
-            </div>
-              <!-- DEBUT Pagination -->
-        <div class="col-12 col-md-12 col-lg-4  mt-1">
-            <div id="pagination-wrapper"></div>
-        </div>
-        <!-- FIN Pagination -->
-        </div>
-        <!-- FIN bouton -->
+	{% endblock %}
 
+	{% block javascript %}
+		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+		<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
 
-
-        <!-- DEBUT affichage de text no resultat -->
-        <div id="noResult">
-
-        </div>
-        <!-- FIN -->
-
-
-
-        <!-- DEBUT nombre  -->
-        <div class=" row ">
-            <!-- <div class="col-6 mp-8">
-                <select class="bg-dark text-white" name="nombreLigne" id="nombreLigne">
-                    <option value="15">15</option>
-                    <option value="100">100</option>
-                </select>
-            </div> -->
-
-        </div>
-        <!-- FIN nombre-->
-
-    </div>
-
-        <!-- DEBUT tableau -->
-        <div class="Contenue table-plein-ecran">
-            <div>
-                <table class="table  table-striped table-shadow shadow  rounded ">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="text-align: center;">Action</th>
-                            <th>ID</th>
-                            <th>Statut</th>
-                            <th>N° BDM</th>
-                            <th>Code de Mouvement</th>
-                            <th>ID Materiel</th>
-                            <th>Date de Demande</th>
-                            <th>Agence/Service Emetteur</th>
-                            <th>Casier Emetteur</th>
-                            <th>Agence/Service Destinataire</th>
-                            <th>Casier Destinataire</th>
-                            <th>Motif d'Arret</th>
-                            <th>Etat_Achat</th>
-                            <th>Date Mise Location</th>
-                            <th>Cout d'Acquisition</th>
-                            <th>Amortissement</th>
-                            <th>VNC</th>
-                            <th>Nom de Client</th>
-                            <th>Modalite de Paiement</th>
-                            <th>Prix de Vente HT</th>
-                            <th>Motif de Mise au Rebut</th>
-                            <th>Heure machine</th>
-                            <th>KM_machine</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-container">
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- FIN tableau -->
-        
-        
-
- 
-    {% endblock %}
-
-    {% block javascript %}
-        <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-         <script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script> 
-        
-    {% endblock %}
+	{% endblock %}

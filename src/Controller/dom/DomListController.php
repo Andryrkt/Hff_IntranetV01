@@ -4,6 +4,7 @@ namespace App\Controller\dom;
 
 use App\Controller\Controller;
 use App\Controller\Traits\ConversionTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -29,33 +30,84 @@ class DomListController extends Controller
      * affichage de l'architecture de la liste du DOM
      * @Route("/listDomRech", name="domList_ShowListDomRecherche")
      */
-    public function ShowListDomRecherche()
+    public function ShowListDomRecherche(Request $request)
     {
+        //dd($Description,  $Sous_type_document, $Matricule, $Numero_Ordre_Mission, $dateDemandeDebut, $dateDemandeFin, $dateMissionDebut, $dateMissionFin, $page);
+         //dd(!empty($request->query->get('page')) && $request->query->get('page') > 1 ? (int)$request->query->get('page') : 1);
+        //dd($page);
+
+        
         $this->SessionStart();
 
+        if(!isset($_SESSION['recherche'])){
+            $_SESSION['recherche'] = [];
+        }
 
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        if(!empty($request->query->all()) && !array_key_exists('page',$request->query->all()) && !array_key_exists('exportExcel',$request->query->all())){
+            $_SESSION['recherche'] = $request->query->all();
+        }
+
+        $UserConnect = $_SESSION['user'];
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($UserConnect);
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
 
-        $statut = $this->domList->getListStatut();
-
-        $sousType = $this->domList->recupSousType();
-        $sousTypeDoc = $this->transformEnSeulTableau($sousType);
+        $limit = 10; // Nombre d'entrées à afficher par page
+        $page =  !empty($request->query->get('page')) && $request->query->get('page') > 1 ? (int)$request->query->get('page') : 1;
 
 
-        $this->twig->display(
+        $statut = $this->transformEnSeulTableau($this->domList->getListStatut());
+
+        $sousTypeDoc = $this->transformEnSeulTableau($this->domList->recupSousType());
+     
+
+        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
+
+
+
+        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+            $array_decoded = $this->domList->RechercheModelAll($_SESSION['recherche'], (int)$page, (int)$limit);
+            $resultat = $this->domList->getTotalRecordsAll($_SESSION['recherche']);
+        } else {
+            $array_decoded = $this->domList->RechercheModel($_SESSION['recherche'], (int)$page, (int)$limit, $UserConnect);
+            $resultat = $this->domList->getTotalRecords($_SESSION['recherche'], $UserConnect);
+        }
+
+        $totalPages = ceil($resultat / $limit);
+
+//dd($request->query->get("exportExcel") === "Export Excel");
+        if($request->query->get("exportExcel") === "Export Excel"){
+          
+            $array_decoded = $this->domList->RechercheModelExcel($_SESSION['recherche'], $UserConnect);
+           
+            $this->excelExport->exportData($array_decoded);
+            $this->flashManager->addFlash('success', 'Votre opération a été effectuée avec succès!', 300);
+        }
+        $successMessages = $this->flashManager->getFlashes('success');
+
+      
+        self::$twig->display(
             'dom/ListDomRech.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
                 'statut' => $statut,
-                'sousTypeDoc' => $sousTypeDoc
+                'sousTypeDoc' => $sousTypeDoc,
+                'dom' => $array_decoded,
+                'statut' =>$statut,
+                'sousTypeDoc' => $sousTypeDoc,
+                'totalPage' => $totalPages,
+                'resultat' => $resultat,
+                'page' => $page,
+                'valeur' => $request->query->all(),
+                'flashes' => ['success' => $successMessages]
             ]
         );
     }
+
+   
 
 
 
@@ -83,37 +135,35 @@ class DomListController extends Controller
      * pour listeDomRecherche
      * @Route("/recherche", name="domList_recherche")
      */
-    public function rechercheController()
-    {
-        $this->SessionStart();
+    // public function rechercheController()
+    // {
+    //     $this->SessionStart();
 
-        $UserConnect = $_SESSION['user'];
+    //     $UserConnect = $_SESSION['user'];
 
-        $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
-
-
-        if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-            $array_decoded = $this->domList->RechercheModelAll();
-        } else {
-            $array_decoded = $this->domList->RechercheModel($UserConnect);
-        }
+    //     $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
 
 
-        header("Content-type:application/json");
+    //     if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
+    //         //$array_decoded = $this->domList->RechercheModelAll();
+    //     } else {
+    //         $array_decoded = $this->domList->RechercheModel($UserConnect);
+    //     }
 
-        echo json_encode($array_decoded);
-    }
+
+    //     header("Content-type:application/json");
+
+    //     echo json_encode($array_decoded);
+    // }
 
     /**
-     * boutton annuler pour pour change le code statut et id statut demande
-     *
-     * @return void
+     * @Route("/annuler/{numDom}", name="domList_annulationStatut")
      */
-    public function annulationController()
+    public function annulationStatutController($numDom)
     {
 
-        $this->domList->annulationCodestatut($_GET['NumDOM']);
-        header('Location: /Hffintranet/index.php?action=ListDomRech');
+        $this->domList->annulationCodestatut($numDom);
+        header('Location: /Hffintranet/listDomRech');
         exit();
     }
 }

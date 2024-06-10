@@ -8,7 +8,9 @@
 		<div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
 			<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
+
 				{% for item in infoUserCours %}
+
 					<!-- DEBUT Bordereau d’acquisition et de Mouvement Matériel -->
 					{% if item.App == 'BDM' %}
 						<li class="nav-item dropdown" id="BDM">
@@ -103,19 +105,16 @@
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
 
 
-					<ul
-						class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<!-- <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Propos">Mes accès</a></li>
-																																																																																																																																																																																				                            <li><a class="dropdown-item" href="#" id="Setting">paramètre</a></li>
-																																																																																																																																																																																				                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Personnels" id="Perso">Personnels</a></li>
-																																																																																																																																																																																				                            <li><a class="dropdown-item" href="#" id="AgServ">Agence-Service </a></li>
-																																																																																																																																																																																				                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc" id="TypeDoc">Type de Document</a></li>
-																																																																																																																																																																																				                            <li><a class="dropdown-item" href="/Hffintranet/index.php?action=Statut" id="TypeDoc">Statut App</a></li>-->
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+						<li>
+							<a class="dropdown-item" href="{{ path("badm_index")}}">BADM</a>
+						</li>
+
 						<li>
 							<hr class="dropdown-divider"/>
 						</li>
 						<li>
-							<a class="dropdown-item" href="/Hffintranet/index.php?action=Logout">Déconnection</a>
+							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}">Déconnection</a>
 						</li>
 					</ul>
 				</li>
@@ -126,11 +125,28 @@
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="/Hffintranet/index.php?action=PersonnelList" id="Perso">Personnels</a>
+								<a class="dropdown-item" href="{{ path("user_list")}}">Profil User</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="#" id="AgServ">Agence-Service
-								</a>
+								<a class="dropdown-item" href="{{ path("autoriser_index")}}">Agence Service Autoriser</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("personnel_index")}}">Personnels</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("AgServIrium_index")}}" id="AgServ">Agence Service Irium</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("role_index")}}">Rôles</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("permission_index")}}">Permissions</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("utilisateur_index")}}">Utilisateur</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("application_index")}}">Applications</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="/Hffintranet/index.php?action=TypeDoc">Type de Document</a>
@@ -138,9 +154,7 @@
 							<li>
 								<a class="dropdown-item" href="/Hffintranet/index.php?action=Statut">Statut App</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="/Hffintranet/index.php?action=AgenceAutoriser">Autorisation AgenceService</a>
-							</li>
+
 
 						</ul>
 					</li>
