@@ -1,0 +1,27 @@
+{% extends "baseTemplate.html.twig"%}
+{% block nav %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/404.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class="container text-center">
+		<div class="brand">
+			<span class="glyphicon glyphicon-king" aria-hidden="true"></span>
+			<h3 class="text-uppercase"><img src="Views/assets/logoHFF.jpg" alt="logo hff"></h3>
+		</div>
+		<h1 class="head">
+			<span>403</span>
+		</h1>
+		<p>Accès refusé à cette page</p>
+		<a href="{{ path("profil_acceuil") }}" class="btn-outline">
+			Retour à l'acceuil</a>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/404.js"></script>
+{% endblock %}

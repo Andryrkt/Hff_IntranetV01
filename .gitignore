@@ -1,0 +1,8 @@
+/vendor/
+/src/Service/TCPDF-main/
+/Views/tcpdf/
+/Upload/
+/Controler/pdf/
+/src/Service/FPDI-2.6.0/
+/node_modules/
+/Views/images/

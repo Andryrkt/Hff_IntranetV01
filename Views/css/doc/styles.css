@@ -1,0 +1,120 @@
+/* Général */
+/* body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    color: #333;
+    background-color: #f4f4f4;
+} */
+
+/* Titres */
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 1.2em;
+    margin-bottom: 0.6em;
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 2.5em;
+    border-bottom: 2px solid #2c3e50;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    font-size: 2em;
+    border-bottom: 2px solid #2c3e50;
+    padding-bottom: 0.3em;
+}
+
+h3 {
+    font-size: 1.75em;
+}
+
+h4 {
+    font-size: 1.5em;
+}
+
+h5 {
+    font-size: 1.25em;
+}
+
+h6 {
+    font-size: 1em;
+    color: #7f8c8d;
+}
+
+/* Paragraphes */
+p {
+    margin: 0.8em 0;
+    font-size: large;
+}
+
+/* Listes */
+ul, ol {
+    margin: 1em 0;
+    padding-left: 1.5em;
+}
+
+li {
+    margin: 0.5em 0;
+}
+
+/* Liens */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Code */
+pre, code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #ecf0f1;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 1em;
+}
+
+/* Blockquote */
+blockquote {
+    border-left: 5px solid #7f8c8d;
+    padding: 0.5em 1em;
+    margin: 0.8em 0;
+    background-color: #ecf0f1;
+    color: #555;
+}
+
+/* Tableaux */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+th, td {
+    padding: 0.5em 1em;
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #2c3e50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}

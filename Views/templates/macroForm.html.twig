@@ -1,0 +1,91 @@
+/**
+*input pour lire les données seulement
+*/
+{% macro inputReadonly(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+
+{% macro sousTitre(name, option = []) %}
+<div id="{{name}}"  class=" mt-4 sousTitre {{ option.class }}">
+    <h3>{{name}}</h3>
+    <div></div>
+</div>
+{% endmacro %}
+
+
+{% macro inputText(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}" maxlength="{{option.maxlength}}"  {{option.required}} {{option.disabled}}/>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro inputDate(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="date" id="{{ name }}" name="{{ name }}" value='{{ value}}' {{option.required}} {{option.disabled}}/>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro inputNumber(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="number" id="{{ name }}" name="{{ name }}" value="{{ value }}" min="0" pattern="\d*" step="{{option.step}}" {{option.required}} {{option.disabled}} />
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro select(name, label, array, option = [],  selectedValue = '') %}
+<div class="col-{{option.endpoint}} {{option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{label}}</label>
+    <select class="form-select " id="{{ name }}" name="{{ name }}" {{ option.required}} {{ option.disabled }} >
+        {% if option.default %}
+            <option value="{{selectedValue}}"> </option>
+        {% endif %}
+       
+        {% for row in array %}
+                <option value="{{row}}" {{ row == selectedValue ? 'selected' : '' }} >{{row}}</option>
+        {% endfor %}
+    </select>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro select_1(name, label, array, option = []) %}
+<div class="col-{{option.endpoint}} {{option.class}}">
+     
+        <div class="input-group mb-2">
+            <span class="input-group-text">{{label}}</span>
+            <select class="form-control" id="{{ name }}" name="{{ name }}" >
+                {% if option.default %}
+                    <option value=""  selected> -- {{option.valueDefault}} --</option>
+                {% endif %}
+                {% for row in array %}
+                    <option value="{{row}}" >{{row}}</option>
+                {% endfor %}
+            </select>
+        </div>
+  
+</div>
+{% endmacro %}
+
+{% macro button(type, label, id=null, color, option = []) %}
+    <div class="col-3 col-md-2 col-lg-1">
+        <button type="{{type}}" class="btn btn-{{color}}" name="{{ id }}" onclick="{{option.onclick}}" >{{label}}</button>
+    </div>
+{% endmacro %}
+
+{% macro inputFile(name, label, option = [])%}
+
+<div class="col-12 {{ option.class}}">
+    <label for="formFile" class="form-label fw-bold">{{label}}</label>
+    <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
+</div>
+{% endmacro %}

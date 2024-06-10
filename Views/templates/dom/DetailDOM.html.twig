@@ -1,0 +1,153 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% import "macroForm.html.twig" as form %}
+
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/dom/detailDom.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block title %}
+	<title>Fiche Ordre</title>
+{% endblock %}
+
+{% block content %}
+
+
+	<div class="container my-5">
+
+		<div class="d-flex  flex-row-reverse  col">
+			<div class="tablinks p-2 btn btn-outline-warning ">
+				<a href="{{ path("domList_ShowListDomRecherche")}}" style="text-decoration: none;color:black">Retour</a>
+			</div>
+		</div>
+
+		<div class="row">
+			<h2>
+				Détails de la demande d'ordre de mission
+			</h2>
+		</div>
+
+
+		<form action="#" method="POST" enctype="multipart/form-data">
+
+
+			<div class="row">
+				{{form.inputReadonly('NumDOM', 'N° DOM', detailDom.0.Numero_Ordre_Mission,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('datesyst', 'Date', detailDom.0.Date_Demande,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+
+			<!-- DEBUT Agence Service   -->
+			<div class="row">
+				{{form.inputReadonly('debiteur', 'Agence Service Débiteur :', detailDom.0.Debiteur,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('emetteur', 'Agence Service Emetteur :', detailDom.0.Emetteur,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('typeMission', 'Type de Mission', detailDom.0.Sous_Type_Document,{endpoint: '12'})}}
+
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('matricule', 'Matricule', detailDom.0.Matricule,{endpoint: '12', class: ' col-md-6 col-lg-4'})}}
+				{{form.inputReadonly('nomprenom', 'Nom ', detailDom.0.Nom,{endpoint: '12', class: ' col-md-6 col-lg-4'})}}
+				{{form.inputReadonly('prenom', 'Prénoms', detailDom.0.Prenom,{endpoint: '12', class: ' col-md-6 col-lg-4'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('dateDebut', 'Date début', detailDom.0.Date_Debut,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('heureDebut', 'Heure début', detailDom.0.Heure_Debut,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('dateFin', 'Date Fin', detailDom.0.Date_Fin,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('heureFin', 'Heure Fin', detailDom.0.Heure_Fin,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('Nbjour', 'Période', detailDom.0.Nombre_Jour,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('motif', 'Motif', detailDom.0.Motif_Deplacement,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('client', 'Client', detailDom.0.Client,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('fiche', 'N°fiche', detailDom.0.Fiche,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('lieuInterv', 'Lieu D\'intervention', detailDom.0.Lieu_Intervention,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                            {{form.inputReadonly('IdemDeplac', 'indemnité de déplacement', detailDom.0.idemnity_depl,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                        </div>
+                       
+                        <div class="row">
+                            {{form.inputReadonly('vehicule', 'Véhicule Société', detailDom.0.Vehicule_Societe,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                            {{form.inputReadonly('N_vehicule', 'N°', detailDom.0.NumVehicule,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                        </div>
+
+                        <div class="row">
+                            {{form.inputReadonly('Devis', 'Devise:', detailDom.0.Devis,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                            {{form.inputReadonly('idemForfait', 'Indemnité Forfaitaire', detailDom.0.Indemnite_Forfaitaire,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                            {{form.inputReadonly('idemForfait01', 'Bonus journalier', detailDom.0.Doit_indemnite,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+                            {{form.inputReadonly('TotalidemForfait', 'Total d\'Indemnité Forfaitaire', detailDom.0.Total_Indemnite_Forfaitaire,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('MotifAutredep', 'Motif Autre dépense 1', detailDom.0.Motif_Autres_depense_1,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('Autredep1', 'Montant', detailDom.0.Autres_depense_1,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+			<div class="row">
+				{{form.inputReadonly('MotifAutredep2', 'Motif Autre dépense 2', detailDom.0.Motif_Autres_depense_2,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('Autredep2', 'Montant', detailDom.0.Autres_depense_2,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+			<div class="row">
+				{{form.inputReadonly('MotifAutredep3', 'Motif Autre dépense 3', detailDom.0.Motif_Autres_depense_3,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('Autredep3', 'Montant', detailDom.0.Autres_depense_3,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+			<div class="row">
+				{{form.inputReadonly('TotalAutredep', 'Total Montant Autre Dépense', detailDom.0.Total_Autres_Depenses,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+				{{form.inputReadonly('Alldepense', 'Montant Total', detailDom.0.Total_General_Payer,{endpoint: '12', class: ' col-md-6 col-lg-6'})}}
+			</div>
+
+
+			<div class="row">
+				<div class="col">
+					<h4 style="text-align: center;">Mode de paiement</h4>
+				</div>
+			</div>
+			<div class="row">
+				{{form.inputReadonly('modepaie', 'Mode paiement', detailDom.0.Mode_Paiement,{endpoint:'12'})}}
+			</div>
+
+			<div class="row" id="label_PJ">
+				<div class="col">
+					<h4 style="text-align: center;">Pièce Jointe</h4>
+				</div>
+			</div>
+			<div class="row" id="PJ">
+				<div class="col-12 col-md-6 col-lg-6">
+					<label for="file01" class="label-form">
+						Fichier joint 01
+					</label>
+					<a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf={{detailDom.0.Piece_Jointe_1}}" target="_blank">
+						<input type="text" name="file01" id="file01" class="form-control" value="{{detailDom.0.Piece_Jointe_1}}" readonly></a>
+				</div>
+				<div class="col-12 col-md-6 col-lg-6">
+					<label for="file02" class="label-form">
+						Fichier joint 02
+					</label>
+					<a href="/Hffintranet/Views/DOM/SeePdf.php?Pdf={{detailDom.0.Piece_Jointe_2}}" target="_blank"><input type="text" name="file02" id="file02" class="form-control" value="{{detailDom.0.Piece_Jointe_2}}" readonly></a>
+				</div>
+
+			</div>
+
+
+		</form>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dom/detailDom.js"></script>
+{% endblock %}
