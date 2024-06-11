@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Entity\Role;
 use App\Traits\DateTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,11 +31,11 @@ class DemandeIntervention
     /**
      * @ORM\Column(type="string", length=3, name="type_document",nullable=true)
      */
-    private ?string $typeDocument;
+    private ?string $typeDocument;//relation avec la table wor_type_document
     /**
      * @ORM\Column(type="string", length=2, name="code_societe",nullable=true)
      */
-    private ?string $codeSociete;
+    private ?string $codeSociete;// relation avec la table societe
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
      */
@@ -48,7 +47,7 @@ class DemandeIntervention
     /**
      * @ORM\Column(type="string", length=30, name="categorie_demande",nullable=true)
      */
-    private ?string $categorieDemande;
+    private ?string $categorieDemande;//relation avec la table categorie_ate_app
     /**
      * @ORM\Column(type="string", length=140, name="internet_externe",nullable=true)
      */
