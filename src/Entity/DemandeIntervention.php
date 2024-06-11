@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 
 class DemandeIntervention
 {
-    use DateTrait;
+   
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
