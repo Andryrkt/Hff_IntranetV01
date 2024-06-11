@@ -30,7 +30,8 @@ class DemandeIntervention
      */
     private ?string $numeroDemandeIntervention;
     /**
-     * @ORM\Column(type="string", length=3, name="type_document",nullable=true)
+     * @ORM\ManyToOne(targetEntity="WorTypeDocument", inversedBy="users")
+     * @ORM\JoinColumn(name="WorTypeDocument_id", referencedColumnName="id")
      */
     private ?string $typeDocument;
     /**
@@ -45,8 +46,9 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=30, name="reparation_realise",nullable=true)
      */
     private ?string $reparationRealise;
-    /**
-     * @ORM\Column(type="string", length=30, name="categorie_demande",nullable=true)
+   /**
+     * @ORM\ManyToOne(targetEntity="CategorieATEAPP", inversedBy="DemandeIntervention")
+     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
      */
     private ?string $categorieDemande;
     /**
@@ -85,7 +87,10 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=3, name="demande_devis",nullable=true)
      */
     private ?string $demande_Devis;
-
+    /**
+     * @ORM\ManyToOne(targetEntity="WorNiveauUrgence", inversedBy="DemandeIntervention")
+     * @ORM\JoinColumn(name="idNiveauUrgence_id", referencedColumnName="id")
+     */
     private  $idNiveauUrgence;
     /**
      * @ORM\Column(type="string", length=3, name="avis_recouvrement",nullable=true)
@@ -141,7 +146,10 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=3000, name="observations,nullable=true)
      */
     private ?string $observations;
-
+    /**
+     * @ORM\ManyToOne(targetEntity="StatutDemande", inversedBy="DemandeIntervention")
+     * @ORM\JoinColumn(name="idStatutDemande", referencedColumnName="id")
+     */
     private $idStatutDemande;
     /**
      * @ORM\Column(type="datetime",  name="date_validation",nullable=true)
@@ -179,7 +187,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=200, name="numero_devis_rattache",nullable=true)
      */
     private ?string $numeroDevisRattache;
-/**
+    /**
      * @ORM\Column(type="datetime",  name="date_soumission_devis",nullable=true)
      */
     private ?datetime $dateSoumissionDevis;
@@ -189,15 +197,15 @@ class DemandeIntervention
     private ?string $devisValide;
 
     private $îdServiceIntervenant;
-/**
+    /**
      * @ORM\Column(type="datetime",  name="date_devis_fin_probable",nullable=true)
      */
     private ?DateTime $dateDevisFinProbable;
-/**
+    /**
      * @ORM\Column(type="datetime", name="date_fin_estimation_travaux",nullable=true)
      */
     private ?datetime $dateFinEstimationTravaux;
-/**
+    /**
      * @ORM\Column(type="string", length=3, name="code_section",nullable=true)
      */
     private ?string $codeSection;
@@ -213,7 +221,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=50, name="secteur",nullable=true)
      */
     private ?string $secteur;
-     /**
+    /**
      * @ORM\Column(type="string", length=3, name="utilisateur_intervenant",nullable=true)
      */
     private ?string $utilisateurIntervenant;

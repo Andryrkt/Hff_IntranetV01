@@ -22,6 +22,10 @@ class WorNiveauUrgence{
      * @ORM\Column(type="integer", name="id_niveau_urgence")
      */
     private $id;
+     /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="idNiveauUrgence")
+     */
+    private $demandeInterventions;
     /**
      * @ORM\Column(type="string", length=50,)
      */
@@ -31,9 +35,16 @@ class WorNiveauUrgence{
      */
     private datetime $dateCreation;
 
+    public function __construct()
+    {
+        
+        $this->demandeInterventions = new ArrayCollection();
+        
+    }
     /**
      * Get the value of id
      */ 
+
     public function getId()
     {
         return $this->id;
@@ -75,6 +86,43 @@ class WorNiveauUrgence{
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
+
+        return $this;
+    }
+    
+
+    /**
+     * Get the value of demandeIntervention
+     */ 
+    public function getDemandeIntervention()
+    {
+        return $this->demandeInterventions;
+    }
+
+    public function addDemandeIntervention(User $demandeIntervention): self
+    {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions[] = $demandeIntervention;
+            $demandeIntervention->setRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeIntervention(User $demandeIntervention): self
+    {
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getRole() === $this) {
+                $demandeIntervention->setRole(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDemandeIntervention($demandeIntervention)
+    {
+        $this->demandeInterventions = $demandeIntervention;
 
         return $this;
     }

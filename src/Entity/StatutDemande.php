@@ -42,10 +42,14 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="statutDemande")
      */
     private $badms;
-
+  /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="idStatutDemande")
+     */
+    private $demandeInterventions;
     public function __construct()
     {
         $this->badms = new ArrayCollection();
+        $this->demandeInterventions = new ArrayCollection();
     }
 
     public function getId()
@@ -120,5 +124,41 @@ class StatutDemande
     public function __toString()
     {
         return $this->description; 
+    }
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDemandeInterventions()
+    {
+        return $this->demandeInterventions;
+    }
+
+    public function addDemandeIntervention(User $demandeIntervention): self
+    {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions[] = $demandeIntervention;
+            $demandeIntervention->setRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeIntervention(User $demandeIntervention): self
+    {
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getRole() === $this) {
+                $demandeIntervention->setRole(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDemandeInterventions($demandeInterventions)
+    {
+        $this->demandeInterventions = $demandeInterventions;
+
+        return $this;
     }
 }
