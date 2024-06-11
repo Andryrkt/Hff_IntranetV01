@@ -4,7 +4,6 @@ namespace App\Controller\dom;
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\DomAjaxTrait;
 use App\Controller\Traits\DomTrait;
 use Symfony\Component\Routing\Annotation\Route;
 

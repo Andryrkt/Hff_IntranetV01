@@ -17,10 +17,10 @@ class ApplicationType extends AbstractType
     {
         $builder
        
-        ->add('nom', 
+        ->add('noms', 
             TextType::class, 
             [
-                'label' => 'Nom',
+                'label' => 'nom',
             ])
         ->add('codeApp',
             TextType::class,
