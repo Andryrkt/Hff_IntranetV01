@@ -175,6 +175,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'App\\Controller\\dom\\' => 19,
             'App\\Controller\\doc\\fonctionnel\\badm\\' => 36,
             'App\\Controller\\doc\\fonctionnel\\' => 31,
+            'App\\Controller\\dit\\' => 19,
             'App\\Controller\\admin\\user\\' => 26,
             'App\\Controller\\admin\\personnel\\' => 31,
             'App\\Controller\\admin\\' => 21,
@@ -392,8 +393,8 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -541,8 +542,8 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         ),
         'Doctrine\\Common\\' => 
         array (
-            0 => __DIR__ . '/..' . '/doctrine/event-manager/src',
-            1 => __DIR__ . '/..' . '/doctrine/common/src',
+            0 => __DIR__ . '/..' . '/doctrine/common/src',
+            1 => __DIR__ . '/..' . '/doctrine/event-manager/src',
         ),
         'Config\\' => 
         array (
@@ -603,6 +604,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'App\\Controller\\doc\\fonctionnel\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/doc/fonctionnel',
+        ),
+        'App\\Controller\\dit\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/dit',
         ),
         'App\\Controller\\admin\\user\\' => 
         array (

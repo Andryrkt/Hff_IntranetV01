@@ -7,6 +7,7 @@
             "App\\Controler\\badm\\": "src/Controller/badm",
             "App\\Controller\\admin\\": "src/Controller/admin",
             "App\\Controller\\admin\\personnel\\": "src/Controller/admin/personnel",
+            "App\\Controller\\dit\\": "src/Controller/dit",
             "App\\Controller\\Traits\\": "src/Controller/Traits",
             "App\\security\\": "src/security",
             "App\\Controller\\admin\\user\\": "src/Controller/admin/user",

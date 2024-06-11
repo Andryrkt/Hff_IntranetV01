@@ -49,7 +49,7 @@ function fetchData(selectOption = undefined) {
           ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
         }
         serviceIriumElement.innerHTML = optionsHTML;
-      }, 800); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+      }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
     })
     .catch((error) => {
       console.error(error);
@@ -77,7 +77,8 @@ if (document.querySelector("#NumDOM") === null) {
     setTimeout(() => {
       // console.log( document.querySelector(`#select1 option`));
       console.log(
-        document.querySelector("#ServINt").value.toUpperCase().trim()
+        "oeoe : " +
+          document.querySelector("#ServINt").value.toUpperCase().trim()
       );
       selectedOption = document.querySelector(
         `#select1 option[value="${document
@@ -98,7 +99,7 @@ if (document.querySelector("#NumDOM") === null) {
       document.querySelector(
         `#serviceIrium option[value="${libserv}"]`
       ).selected = true;
-    }, 2000);
+    }, 3000);
   } else {
     setTimeout(() => {
       const serv = document.querySelector("#Serv").value.toUpperCase().trim();
@@ -118,7 +119,7 @@ if (document.querySelector("#NumDOM") === null) {
           .value.toUpperCase()
           .trim()}"]`
       ).selected = true;
-    }, 2000);
+    }, 3000);
   }
 
   console.log(check);
@@ -193,7 +194,7 @@ if (document.querySelector("#NumDOM") === null) {
               )[1].trim()}"]`
             ).selected = true;
           }
-        }, 2000);
+        }, 3000);
       })
       .catch((error) => {
         console.error(error);
