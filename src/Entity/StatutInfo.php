@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Entity;
+
 use App\Traits\DateTrait;
 
 /**
@@ -8,7 +10,8 @@ use App\Traits\DateTrait;
  * @ORM\HasLifecycleCallbacks
  */
 
- class StatutInfo{
+ class StatutInfo
+ {
     use DateTrait;
     /**
      * @ORM\Id

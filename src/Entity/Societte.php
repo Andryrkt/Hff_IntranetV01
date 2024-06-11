@@ -8,18 +8,18 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\StatutDemandeRepository")
- * @ORM\Table(name="Statut_demande")
+ * @ORM\Entity(repositoryClass="App\Repository\SocietteRepository")
+ * @ORM\Table(name="societe")
  * @ORM\HasLifecycleCallbacks
  */
-class StatutDemande
+class Societte
 {
     use DateTrait;
 
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Statut_Demande")
+     * @ORM\Column(type="integer", name="id_societe")
      */
     private $id;
 
@@ -33,10 +33,6 @@ class StatutDemande
      */
     private $codeSociete;
 
-    /**
-     * @ORM\Column(type="string", length=50, name="Description")
-     */
-    private $description;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="statutDemande")
@@ -53,36 +49,64 @@ class StatutDemande
         return $this->id;
     }
 
+
+
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+  
+    public function setNom($nom): self
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getCodeSociete()
+    {
+        return $this->codeSociete;
+    }
+
     
+    public function setCodeSociete($codeSociete): self
+    {
+        $this->codeSociete = $codeSociete;
+
+        return $this;
+    }
+    
+    public function getDemandeInterventions()
+    {
+        return $this->demandeInterventions;
+    }
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setStatutDemande($this);
+            $demandeIntervention->setCodeSociete($this);
         }
         return $this;
     }
 
-    public function removeBadm(Badm $badm): self
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if ($this->badms->contains($badm)) {
-            $this->badms->removeElement($badm);
-            if ($badm->getStatutDemande() === $this) {
-                $badm->setStatutDemande(null);
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getCodeSociete() === $this) {
+                $demandeIntervention->setCodeSociete(null);
             }
         }
         return $this;
     }
 
-    public function setBadms($badms): self
+    public function setBadms($demandeIntervention): self
     {
-        $this->badms = $badms;
+        $this->demandeInterventions = $demandeIntervention;
         return $this;
     }
 
-    public function __toString()
-    {
-        return $this->description; 
-    }
+
 }

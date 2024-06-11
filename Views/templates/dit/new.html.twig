@@ -1,0 +1,63 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+						Formulaire Demande d'intervention
+					</h2>
+
+					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+
+							{{ form_row(form.typeDocument) }}
+							{{ form_row(form.codeSociete) }}
+							{{ form_row(form.typeReparation) }}
+							{{ form_row(form.reparationRealise) }}
+							{{ form_row(form.categorieDemande) }}
+							{{ form_row(form.internetExterne)}}
+							{{ form_row(form.nomClient)}}
+							{{ form_row(form.numeroTel)}}
+
+
+						</div>
+						<div class="col-12 col-md-6">
+
+
+							{{ form_row(form.dateOr)}}
+							{{ form_row(form.heureOR)}}
+							{{ form_row(form.demandeDevis)}}
+							{{ form_row(form.idNiveauUrgence)}}
+							{{ form_row(form.avisRecouvrement)}}
+							{{ form_row(form.clientSousContrat)}}
+							{{ form_row(form.objetDemande)}}
+							{{ form_row(form.detailDemande)}}
+							{{ form_row(form.livraisonPartiel)}}
+							{{ form_row(form.mailDemandeur)}}
+							{{ form_row(form.pieceJoint03)}}
+
+
+						</div>
+					</div>
+
+
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+	{% endblock %}

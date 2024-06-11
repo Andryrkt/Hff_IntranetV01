@@ -33,7 +33,18 @@ class CategorieATEAPP
      */
     private string $typeApplication;
 
+    /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="categorieDemande")
+     */
+    private $demandeInterventions;
     
+
+    public function __construct()
+    {
+        
+        $this->demandeInterventions = new ArrayCollection();
+        
+    }
 
     /**
      * Get the value of id
@@ -79,6 +90,41 @@ class CategorieATEAPP
     public function setTypeApplication($typeApplication)
     {
         $this->typeApplication = $typeApplication;
+
+        return $this;
+    }
+
+   
+    public function getDemandeInterventions(): Collection
+    {
+        return $this->demandeInterventions;
+    }
+
+    public function addDemandeIntervention(User $demandeIntervention): self
+    {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions[] = $demandeIntervention;
+            $demandeIntervention->setRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeIntervention(User $demandeIntervention): self
+    {
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getRole() === $this) {
+                $demandeIntervention->setRole(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setDemandeInterventions($demandeIntervention): self
+    {
+        $this->demandeInterventions = $demandeIntervention;
 
         return $this;
     }

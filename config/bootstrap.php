@@ -139,9 +139,9 @@ $request = Request::createFromGlobals();
 $requestStack->push($request);
 
 // Initialisation du conteneur de services
-$containerBuilder = new ContainerBuilder();
-$loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
-$loader->load('services.yaml');
+// $containerBuilder = new ContainerBuilder();
+// $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
+// $loader->load('services.yaml');
 
 // Initialisation de la session
 //$session = new Session();
@@ -150,7 +150,7 @@ $loader->load('services.yaml');
 // Initialisation des services nécessaires
 // $containerBuilder->set('session', $session);
 // $containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
-$containerBuilder->compile();
+// $containerBuilder->compile();
 
 
 

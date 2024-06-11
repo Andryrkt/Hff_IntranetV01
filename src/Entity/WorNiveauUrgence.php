@@ -22,18 +22,29 @@ class WorNiveauUrgence{
      * @ORM\Column(type="integer", name="id_niveau_urgence")
      */
     private $id;
+
+     /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="idNiveauUrgence")
+     */
+    private $demandeInterventions;
+
     /**
      * @ORM\Column(type="string", length=50,)
      */
     private string $description;
-    /**
-     * @ORM\Column(type="datetime",  name="date_creation")
-     */
-    private datetime $dateCreation;
 
+    
+
+    public function __construct()
+    {
+        
+        $this->demandeInterventions = new ArrayCollection();
+        
+    }
     /**
      * Get the value of id
      */ 
+
     public function getId()
     {
         return $this->id;
@@ -59,22 +70,41 @@ class WorNiveauUrgence{
         return $this;
     }
 
-    /**
-     * Get the value of dateCreation
-     */ 
-    public function getDateCreation()
-    {
-        return $this->dateCreation;
-    }
+    
+    
 
     /**
-     * Set the value of dateCreation
-     *
-     * @return  self
+     * Get the value of demandeIntervention
      */ 
-    public function setDateCreation($dateCreation)
+    public function getDemandeIntervention()
     {
-        $this->dateCreation = $dateCreation;
+        return $this->demandeInterventions;
+    }
+
+    public function addDemandeIntervention(User $demandeIntervention): self
+    {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions[] = $demandeIntervention;
+            $demandeIntervention->setRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeIntervention(User $demandeIntervention): self
+    {
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getRole() === $this) {
+                $demandeIntervention->setRole(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDemandeIntervention($demandeIntervention)
+    {
+        $this->demandeInterventions = $demandeIntervention;
 
         return $this;
     }
