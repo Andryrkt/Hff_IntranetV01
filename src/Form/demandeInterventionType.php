@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-
+use App\Entity\Agence;
 use App\Entity\Societte;
 use App\Entity\Application;
 use App\Entity\CategorieATEAPP;
@@ -10,6 +10,7 @@ use App\Entity\WorTypeDocument;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Entity\DemandeIntervention;
+use App\Entity\Service;
 use App\Entity\WorNiveauUrgence;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -24,6 +25,9 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\File;
+
 
 class demandeInterventionType extends AbstractType
 {
@@ -50,7 +54,6 @@ class demandeInterventionType extends AbstractType
         $ouiNon = [
             'NON' => 'NON',
             'OUI' => 'OUI'
-            
         ];
         
         $builder
@@ -107,6 +110,46 @@ class demandeInterventionType extends AbstractType
             'placeholder' => '-- Choisir --',
            'required' => false,
         ])
+        ->add('agenceEmetteur', 
+        EntityType::class,
+        [
+            'label' => 'Agence Emetteur',
+            'placeholder' => '-- Choisir une agence emetteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            }
+        ])
+        ->add('agenceDebiteur', 
+        EntityType::class,
+        [
+            'label' => 'Agence Debiteur',
+            'placeholder' => '-- Choisir une agence Debiteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            }
+        ])
+        ->add('serviceEmetteur', 
+        EntityType::class,
+        [
+            'label' => 'Service Emetteur',
+            'placeholder' => '-- Choisir une service emetteur --',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            }
+        ])
+        ->add('serviceDebiteur', 
+        EntityType::class,
+        [
+            'label' => 'Service Débiteut',
+            'placeholder' => '-- Choisir une service débiteur --',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            }
+        ])
         ->add('nomClient',
         TextType::class,
         [
@@ -119,6 +162,7 @@ class demandeInterventionType extends AbstractType
             'label' => 'N° téléphone',
             'required' => false,
         ])
+        /**à discuter */
         ->add('dateOr', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date OR',
@@ -130,6 +174,13 @@ class demandeInterventionType extends AbstractType
             'label' => 'Heure OR',
             'required' => false,
         ])
+        ->add('mailDemandeur',
+        EmailType::class,
+        [
+            'label' => 'Mail du demandeur',
+            'required' => false,
+        ])
+        /**fin à discuter */
         ->add('datePrevueTravaux', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date prévue travaux',
@@ -146,7 +197,7 @@ class demandeInterventionType extends AbstractType
         ->add('idNiveauUrgence', 
         EntityType::class, [
             'label' => 'Niveau d\'urgence',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un niveau --',
             'class' => WorNiveauUrgence::class,
             'choice_label' =>'codeSociete',
             'required' => false,
@@ -184,20 +235,67 @@ class demandeInterventionType extends AbstractType
             'choices' => $ouiNon,
            'required' => false,
         ])
-        ->add('mailDemandeur',
-        EmailType::class,
-        [
-            'label' => 'Mail du demandeur',
-            'required' => false,
-        ])
+       ->add('idMateriel', TextType::class, [
+        'label' => " Id Matériel"
+       ])
         ->add('pieceJoint03',
         FileType::class, 
-        )
+        [
+            'label' => 'Pièce Joint 03 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ])
         ->add('pieceJoint02',
         FileType::class, 
+        [
+            'label' => 'Pièce Joint 02 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ]
         )
         ->add('pieceJoint01',
         FileType::class, 
+        [
+            'label' => 'Pièce Joint 01 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ]
         )
         
         // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event){

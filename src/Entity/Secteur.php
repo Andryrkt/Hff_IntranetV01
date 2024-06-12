@@ -1,0 +1,108 @@
+<?php
+namespace App\Entity;
+
+
+use App\Traits\DateTrait;
+use DateTime;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="secteur")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Secteur
+{
+    use DateTrait;
+/**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer", name="id_secteur")
+     */
+    private $id;
+
+     /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="secteur")
+     */
+    private $demandeInterventions;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private string $nom;
+
+    
+
+    public function __construct()
+    {
+        
+        $this->demandeInterventions = new ArrayCollection();
+        
+    }
+    /**
+     * Get the value of id
+     */ 
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+
+    
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+    
+    public function setNom($nom): self
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+    
+
+    /**
+     * Get the value of demandeIntervention
+     */ 
+    public function getDemandeIntervention()
+    {
+        return $this->demandeInterventions;
+    }
+
+    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
+    {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions[] = $demandeIntervention;
+            $demandeIntervention->setSecteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
+    {
+        if ($this->demandeInterventions->contains($demandeIntervention)) {
+            $this->demandeInterventions->removeElement($demandeIntervention);
+            if ($demandeIntervention->getSecteur() === $this) {
+                $demandeIntervention->setSecteur(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setDemandeIntervention($demandeIntervention)
+    {
+        $this->demandeInterventions = $demandeIntervention;
+
+        return $this;
+    }
+
+    
+}
