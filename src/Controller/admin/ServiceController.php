@@ -3,19 +3,17 @@
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
+
 use App\Controller\Controller;
-use App\Entity\Agence;
-use App\Entity\Permission;
-use App\Form\AgenceType;
-use App\Form\RoleType;
+use App\Entity\Service;
+use App\Form\ServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AgenceController extends Controller
+class ServiceController extends Controller
 {
     /**
-     * @Route("/admin/agence", name="agence_index")
+     * @Route("/admin/service", name="service_index")
      *
      * @return void
      */
@@ -27,10 +25,10 @@ class AgenceController extends Controller
     $text = file_get_contents($fichier);
     $boolean = strpos($text, $_SESSION['user']);
 
-    $data = self::$em->getRepository(Agence::class)->findBy([], ['id'=>'DESC']);
+    $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
 
 
-    self::$twig->display('admin/agence/list.html.twig', [
+    self::$twig->display('admin/service/list.html.twig', [
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
         'data' => $data
@@ -38,7 +36,7 @@ class AgenceController extends Controller
     }
 
     /**
-         * @Route("/admin/agence/new", name="agence_new")
+         * @Route("/admin/service/new", name="service_new")
          */
         public function new(Request $request)
         {
@@ -48,37 +46,28 @@ class AgenceController extends Controller
             $text = file_get_contents($fichier);
             $boolean = strpos($text, $_SESSION['user']);
     
-            $form = self::$validator->createBuilder(AgenceType::class)->getForm();
+            $form = self::$validator->createBuilder(ServiceType::class)->getForm();
     
             $form->handleRequest($request);
     
             if($form->isSubmitted() && $form->isValid())
             {
-                $role= $form->getData();
-                
-
-                $selectedService = $form->get('services')->getData();
-
-                foreach ($selectedService as $permission) {
-                    $role->addService($permission);
-                }
-
-                self::$em->persist($role);
+                $service= $form->getData();
+                    
+                self::$em->persist($service);
                 self::$em->flush();
-
-                $this->redirectToRoute("agence_index");
+                $this->redirectToRoute("service_index");
             }
     
-            self::$twig->display('admin/agence/new.html.twig', [
+            self::$twig->display('admin/service/new.html.twig', [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
                 'form' => $form->createView()
             ]);
         }
 
-
-                /**
-     * @Route("/admin/agence/edit/{id}", name="agence_update")
+                   /**
+     * @Route("/admin/service/edit/{id}", name="service_update")
      *
      * @return void
      */
@@ -91,9 +80,9 @@ class AgenceController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        $user = self::$em->getRepository(Agence::class)->find($id);
+        $permission = self::$em->getRepository(Service::class)->find($id);
         
-        $form = self::$validator->createBuilder(AgenceType::class, $user)->getForm();
+        $form = self::$validator->createBuilder(ServiceType::class, $permission)->getForm();
 
         $form->handleRequest($request);
 
@@ -101,15 +90,17 @@ class AgenceController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             self::$em->flush();
-            $this->redirectToRoute("agence_index");
+            $this->redirectToRoute("service_index");
             
         }
 
-        self::$twig->display('admin/role/edit.html.twig', [
+        self::$twig->display('admin/service/edit.html.twig', [
             'form' => $form->createView(),
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean
         ]);
 
     }
+
+  
 }

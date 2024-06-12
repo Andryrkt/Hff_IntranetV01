@@ -28,11 +28,11 @@ class Service
     private $id;
 
     /**
-     * @ORM\Column("integer", name="code_service")
+     * @ORM\Column("string", name="code_service")
      *
-     * @var integer
+     * @var string
      */
-    private int $codeService;
+    private string $codeService;
 
     /**
      * @ORM\Column("string", name="libelle_service")

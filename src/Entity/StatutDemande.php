@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Form\demandeInterventionType;
 use App\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
@@ -46,6 +47,7 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="idStatutDemande")
      */
     private $demandeInterventions;
+    
     public function __construct()
     {
         $this->badms = new ArrayCollection();
@@ -134,22 +136,22 @@ class StatutDemande
         return $this->demandeInterventions;
     }
 
-    public function addDemandeIntervention(User $demandeIntervention): self
+    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setRole($this);
+            $demandeIntervention->setIdStatutDemande($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeIntervention(User $demandeIntervention): self
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if ($this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getRole() === $this) {
-                $demandeIntervention->setRole(null);
+            if ($demandeIntervention->getIdStatutDemande() === $this) {
+                $demandeIntervention->setIdStatutDemande(null);
             }
         }
         

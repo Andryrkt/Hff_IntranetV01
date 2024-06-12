@@ -3,30 +3,32 @@
 namespace App\Form;
 
 use App\Entity\Agence;
+use App\Entity\Service;
 use App\Entity\Societte;
 use App\Entity\Application;
 use App\Entity\CategorieATEAPP;
 use App\Entity\WorTypeDocument;
+use App\Entity\WorNiveauUrgence;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Entity\DemandeIntervention;
-use App\Entity\Service;
-use App\Entity\WorNiveauUrgence;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\File;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
 
 
 class demandeInterventionType extends AbstractType
@@ -235,9 +237,16 @@ class demandeInterventionType extends AbstractType
             'choices' => $ouiNon,
            'required' => false,
         ])
-       ->add('idMateriel', TextType::class, [
+       ->add('idMateriel', NumberType::class, [
         'label' => " Id Matériel"
        ])
+       ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event){
+     dd($event->getData()['idMateriel'] ?? 0);
+                // $event->setData(['idMateriel' => $data]);
+            // if($data !== 0 ){
+            //     dd('okey');
+            // }
+       })
         ->add('pieceJoint03',
         FileType::class, 
         [

@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\File;
 
 
-class demandeInterventionType extends AbstractType
+class NatemaDitType extends AbstractType
 {
    
 
@@ -38,7 +38,7 @@ class demandeInterventionType extends AbstractType
         
         
         $builder
-        ->add('agence', 
+        ->add('agenceEmetteur', 
         EntityType::class,
         [
             'label' => 'Agence ',
@@ -78,7 +78,75 @@ class demandeInterventionType extends AbstractType
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             }
         ])
-       
+        ->add('objetDemande',
+        TextType::class,
+        [
+            'label' => 'Objet'
+        ])
+        ->add('detailDemande',
+        TextType::class,
+        [
+            'label' => 'Demande(les détails de votre demande)'
+        ])
+        ->add('pieceJoint03',
+        FileType::class, 
+        [
+            'label' => 'Pièce Joint 03 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ])
+        ->add('pieceJoint02',
+        FileType::class, 
+        [
+            'label' => 'Pièce Joint 02 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ]
+        )
+        ->add('pieceJoint01',
+        FileType::class, 
+        [
+            'label' => 'Pièce Joint 01 (PDF, JPEG, XLSX, DOCX)',
+            'required' => true,
+            'constraints' => [
+                new NotNull(['message' => 'Please upload a file.']),
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        'image/jpeg',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                ])
+            ],
+        ]
+        )
     ;
     }
 
