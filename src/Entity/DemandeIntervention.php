@@ -191,22 +191,22 @@ class DemandeIntervention
     private ?string $pieceJoint01;
 
     /**
-     * @ORM\Column(type="string", length=200, name="piece_joint2,nullable=true)
-     * @Assert\File(
-     *     maxSize="5M",
-     *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
-     *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
-     * )
-     */
+ * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
+ * @Assert\File(
+ *     maxSize="5M",
+ *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+ *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
+ * )
+ */
     private ?string $pieceJoint02;
 
     /**
-     * @ORM\Column(type="string", length=50, name="utilisateur_demandeur,nullable=true)
+     * @ORM\Column(type="string", length=50, name="utilisateur_demandeur", nullable=true)
      */
     private ?string $utilisateurDemandeur;
 
     /**
-     * @ORM\Column(type="string", length=3000, name="observations,nullable=true)
+     * @ORM\Column(type="string", length=3000, name="observations", nullable=true)
      */
     private ?string $observations;
 

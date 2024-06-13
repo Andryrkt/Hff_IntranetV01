@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Traits\DateTrait;
+use App\Entity\TypeReparation;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -38,6 +39,12 @@ class Societte
      * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="statutDemande")
      */
     private $demandeInterventions;
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity=TypeReparation::class, mappedBy="societtes")
+     */
+    private $typeReparations;
 
     public function __construct()
     {

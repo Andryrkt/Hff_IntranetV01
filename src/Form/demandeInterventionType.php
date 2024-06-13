@@ -29,7 +29,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
-
+use Symfony\Contracts\EventDispatcher\Event;
 
 class demandeInterventionType extends AbstractType
 {
@@ -85,6 +85,7 @@ class demandeInterventionType extends AbstractType
             'choices' => $typeReparation,
             'placeholder' => '-- Choisir un type de réparation --',
             'required' => false,
+            'data' => 'A REALISER',
            
         ])
         ->add('reparationRealise', 
@@ -94,7 +95,7 @@ class demandeInterventionType extends AbstractType
             'choices' => $reparationRealise,
             'placeholder' => '-- Choisir le répartion réalisé --',
             'required' => false,
-           
+            'data' => 'ATELIER',
         ])
         ->add('categorieDemande', 
         EntityType::class, [
@@ -115,42 +116,50 @@ class demandeInterventionType extends AbstractType
         ->add('agenceEmetteur', 
         EntityType::class,
         [
+            'mapped' => false,
             'label' => 'Agence Emetteur',
             'placeholder' => '-- Choisir une agence emetteur --',
             'class' => Agence::class,
             'choice_label' => function (Agence $agence): string {
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            }
+            },
+            'required' => false,
         ])
         ->add('agenceDebiteur', 
         EntityType::class,
         [
+            'mapped' => false,
             'label' => 'Agence Debiteur',
             'placeholder' => '-- Choisir une agence Debiteur --',
             'class' => Agence::class,
             'choice_label' => function (Agence $agence): string {
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            }
+            },
+            'required' => false,
         ])
         ->add('serviceEmetteur', 
         EntityType::class,
         [
+            'mapped' => false,
             'label' => 'Service Emetteur',
             'placeholder' => '-- Choisir une service emetteur --',
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
-            }
+            },
+            'required' => false,
         ])
         ->add('serviceDebiteur', 
         EntityType::class,
         [
+            'mapped' => false,
             'label' => 'Service Débiteut',
             'placeholder' => '-- Choisir une service débiteur --',
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
-            }
+            },
+            'required' => false,
         ])
         ->add('nomClient',
         TextType::class,
@@ -164,7 +173,9 @@ class demandeInterventionType extends AbstractType
             'label' => 'N° téléphone',
             'required' => false,
         ])
+        
         /**à discuter */
+        /*
         ->add('dateOr', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date OR',
@@ -182,7 +193,9 @@ class demandeInterventionType extends AbstractType
             'label' => 'Mail du demandeur',
             'required' => false,
         ])
+            */
         /**fin à discuter */
+
         ->add('datePrevueTravaux', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date prévue travaux',
@@ -210,6 +223,7 @@ class demandeInterventionType extends AbstractType
             'label' => "Avis de recouvrement",
             'choices' => $ouiNon,
            'required' => false,
+           'data' => 'NON'
         ])
         ->add('clientSousContrat', 
         ChoiceType::class, 
@@ -217,6 +231,7 @@ class demandeInterventionType extends AbstractType
             'label' => "client sous contrat",
             'choices' => $ouiNon,
            'required' => false,
+           'data' => 'NON'
         ])
         ->add('objetDemande',
         TextType::class,
@@ -236,22 +251,19 @@ class demandeInterventionType extends AbstractType
             'label' => "livraison Partiel",
             'choices' => $ouiNon,
            'required' => false,
+           'data' => 'NON'
         ])
-       ->add('idMateriel', NumberType::class, [
-        'label' => " Id Matériel"
+       ->add('idMateriel', 
+       NumberType::class, [
+        'label' => " Id Matériel",
+        'required' => false,
+        
        ])
-       ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event){
-     dd($event->getData()['idMateriel'] ?? 0);
-                // $event->setData(['idMateriel' => $data]);
-            // if($data !== 0 ){
-            //     dd('okey');
-            // }
-       })
-        ->add('pieceJoint03',
+       ->add('pieceJoint03',
         FileType::class, 
         [
             'label' => 'Pièce Joint 03 (PDF, JPEG, XLSX, DOCX)',
-            'required' => true,
+            'required' => false,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),
                 new File([
@@ -270,7 +282,7 @@ class demandeInterventionType extends AbstractType
         FileType::class, 
         [
             'label' => 'Pièce Joint 02 (PDF, JPEG, XLSX, DOCX)',
-            'required' => true,
+            'required' => false,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),
                 new File([
@@ -290,7 +302,7 @@ class demandeInterventionType extends AbstractType
         FileType::class, 
         [
             'label' => 'Pièce Joint 01 (PDF, JPEG, XLSX, DOCX)',
-            'required' => true,
+            'required' => false,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),
                 new File([

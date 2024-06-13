@@ -24,6 +24,7 @@ class WorTypeDocument
      * @ORM\Column(type="integer", name="id_type_document")
      */
     private $id;
+    
     /**
      * @ORM\Column(type="string", length=3, name="code_document")
      */
@@ -35,7 +36,9 @@ class WorTypeDocument
     private string $description;
 
     
-   
+   /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="typeDocument")
+     */
     private $demandeInterventions;
 
     

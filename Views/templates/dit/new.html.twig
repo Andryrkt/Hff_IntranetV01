@@ -15,6 +15,18 @@
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-6">Débiteur</div>
+						<div class="col-12 col-md-6">Emetteur</div>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-3">{{ form_row(form.agenceDebiteur)}}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.serviceDebiteur)}}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.agenceEmetteur)}}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.serviceEmetteur)}}</div>
+					</div>
+
 
 					<div class="row">
 						<div class="col-12 col-md-6">
@@ -38,8 +50,6 @@
 						<div class="col-12 col-md-6">
 
 
-							{{ form_row(form.dateOr)}}
-							{{ form_row(form.heureOR)}}
 							{{ form_row(form.demandeDevis)}}
 							{{ form_row(form.idNiveauUrgence)}}
 							{{ form_row(form.avisRecouvrement)}}
@@ -47,15 +57,8 @@
 							{{ form_row(form.objetDemande)}}
 							{{ form_row(form.detailDemande)}}
 							{{ form_row(form.livraisonPartiel)}}
-							{{ form_row(form.mailDemandeur)}}
-							{{ form_row(form.agenceEmetteur)}}
-							{{ form_row(form.agenceDebiteur)}}
-							{{ form_row(form.serviceEmetteur)}}
-							{{ form_row(form.serviceDebiteur)}}
-
 						</div>
 					</div>
-
 
 					<button type="submit" class="btn btn-primary">
 						<i class="fas fa-save"></i>
@@ -67,4 +70,5 @@
 			</div>
 		</div>
 
+		<div id="materielInfos"></div>
 	{% endblock %}

@@ -7,6 +7,7 @@ use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DitController extends Controller
 {
@@ -27,6 +28,8 @@ class DitController extends Controller
         ]);
     }
 
+    
+
     /**
      * @Route("/dit/new", name="dit_new")
      *
@@ -39,6 +42,8 @@ class DitController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
+
+    
 
         $form = self::$validator->createBuilder(demandeInterventionType::class)->getForm();
 
