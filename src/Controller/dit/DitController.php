@@ -18,6 +18,7 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
     
+
         $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
@@ -46,13 +47,12 @@ class DitController extends Controller
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
 
-        $defaultData = [
-            'agenceEmetteur' => $CodeServiceofCours[0]['agence_ips'],
-            'serviceEmetteur' => $CodeServiceofCours[0]['service_ips'],
-            // Ajoutez autant de champs que nécessaire
-        ];
+         $demandeIntervention = new DemandeIntervention();
+        $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
+        $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
 
-        $form = self::$validator->createBuilder(demandeInterventionType::class, $defaultData)->getForm();
+
+        $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
 
         $form->handleRequest($request);
 

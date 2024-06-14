@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-
+use App\Traits\AgenceServiceEmetteurTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 
 class DemandeIntervention
 {
-   
+   use AgenceServiceEmetteurTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

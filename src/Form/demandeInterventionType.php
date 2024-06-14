@@ -12,6 +12,7 @@ use App\Entity\WorNiveauUrgence;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Entity\DemandeIntervention;
+use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -29,14 +30,20 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class demandeInterventionType extends AbstractType
 {
-   
+    private $serviceRepository;
+   public function __construct()
+   {
+    //$this->serviceRepository = new ServiceRepository();
+   }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+       
         $typeReparation = [
             'EN COURS' => 'EN COURS',
             'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
@@ -59,6 +66,26 @@ class demandeInterventionType extends AbstractType
         ];
         
         $builder
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
+            $agence = $event->getData()['agenceEmetteur'] ?? null;
+
+           // $services = $agence === null ? [] : $serviceRepository->findByService($agence, ['codeService' => 'ASC']);
+
+            $event->getForm()->add('serviceemetteur',
+            EntityType::class,
+        [
+            'mapped' => false,
+            'label' => 'Agence Debiteur',
+            'placeholder' => '-- Choisir une agence Debiteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            //'choices' => $services,
+            'required' => false,
+        ]);
+            
+        })
         ->add('typeDocument', 
             EntityType::class, [
                 'label' => 'type de document',
@@ -114,40 +141,39 @@ class demandeInterventionType extends AbstractType
            'required' => false,
         ])
         ->add('agenceEmetteur', 
-        EntityType::class,
+        TextType::class,
         [
-            'mapped' => false,
-            'label' => 'Agence Emetteur',
-            'placeholder' => '-- Choisir une agence emetteur --',
-            'class' => Agence::class,
-            'choice_label' => function (Agence $agence): string {
-                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            },
-            'required' => false,
+           'mapped' => false,
+                    'label' => 'Agence',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true
+                    ],
+                    'data' => $options["data"]->getAgenceEmetteur() ?? null
         ])
-        ->add('agenceDebiteur', 
-        EntityType::class,
-        [
-            'mapped' => false,
-            'label' => 'Agence Debiteur',
-            'placeholder' => '-- Choisir une agence Debiteur --',
-            'class' => Agence::class,
-            'choice_label' => function (Agence $agence): string {
-                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            },
-            'required' => false,
-        ])
+        // ->add('agenceDebiteur', 
+        // EntityType::class,
+        // [
+        //     'mapped' => false,
+        //     'label' => 'Agence Debiteur',
+        //     'placeholder' => '-- Choisir une agence Debiteur --',
+        //     'class' => Agence::class,
+        //     'choice_label' => function (Agence $agence): string {
+        //         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+        //     },
+        //     'required' => false,
+        // ])
         ->add('serviceEmetteur', 
-        EntityType::class,
+        TextType::class,
         [
             'mapped' => false,
-            'label' => 'Service Emetteur',
-            'placeholder' => '-- Choisir une service emetteur --',
-            'class' => Service::class,
-            'choice_label' => function (Service $service): string {
-                return $service->getCodeService() . ' ' . $service->getLibelleService();
-            },
-            'required' => false,
+                    'label' => 'Service',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true,
+                        'disable' => true
+                    ],
+                    'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
         ->add('serviceDebiteur', 
         EntityType::class,
