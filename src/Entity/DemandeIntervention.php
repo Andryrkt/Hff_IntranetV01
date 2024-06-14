@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\DemandeInterventionRepository")
  * @ORM\Table(name="demande_intervention")
  * @ORM\HasLifecycleCallbacks
  */

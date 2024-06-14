@@ -24,6 +24,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\File;
@@ -35,18 +36,19 @@ class NatemaDitType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        
+        $type = [
+            "MAINT PREV" => "MAINT PREV",
+            "MAINT CORRECTIVE" => "MAINT CORRECTIVE",
+            "AMELIORATION" => "AMELIORATION",
+            "EXTENSION" => "EXTENSION",
+            "MC IMPACTANT PRODUCTION" => "MC IMPACTANT PRODUCTION"
+        ];
         
         $builder
         ->add('agenceEmetteur', 
-        EntityType::class,
+        HiddenType::class,
         [
-            'label' => 'Agence ',
-            'placeholder' => '-- Choisir une agence  --',
-            'class' => Agence::class,
-            'choice_label' => function (Agence $agence): string {
-                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            }
+            'label' => 'Agence '
         ])
         ->add('agenceDebiteur', 
         EntityType::class,
@@ -56,7 +58,8 @@ class NatemaDitType extends AbstractType
             'class' => Agence::class,
             'choice_label' => function (Agence $agence): string {
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            }
+            },
+            'mapped' => false
         ])
         ->add('serviceEmetteur', 
         EntityType::class,
@@ -66,7 +69,8 @@ class NatemaDitType extends AbstractType
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
-            }
+            },
+            'mapped' => false
         ])
         ->add('serviceDebiteur', 
         EntityType::class,
@@ -76,7 +80,8 @@ class NatemaDitType extends AbstractType
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
-            }
+            },
+            'mapped' => false
         ])
         ->add('objetDemande',
         TextType::class,

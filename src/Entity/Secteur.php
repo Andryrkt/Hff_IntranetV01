@@ -24,15 +24,17 @@ class Secteur
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private string $nom;
+
      /**
      * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="secteur")
      */
     private $demandeInterventions;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $nom;
+    
 
     
 

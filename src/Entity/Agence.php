@@ -46,6 +46,12 @@ class Agence
      */
     private $services;
 
+
+    public function __construct()
+    {
+        $this->services = new ArrayCollection();
+    }
+
     public function getId()
     {
         return $this->id;

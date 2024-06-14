@@ -43,9 +43,16 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-    
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
 
-        $form = self::$validator->createBuilder(demandeInterventionType::class)->getForm();
+        $defaultData = [
+            'agenceEmetteur' => $CodeServiceofCours[0]['agence_ips'],
+            'serviceEmetteur' => $CodeServiceofCours[0]['service_ips'],
+            // Ajoutez autant de champs que nécessaire
+        ];
+
+        $form = self::$validator->createBuilder(demandeInterventionType::class, $defaultData)->getForm();
 
         $form->handleRequest($request);
 

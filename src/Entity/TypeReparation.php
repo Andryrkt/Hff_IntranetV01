@@ -29,7 +29,15 @@ class TypeReparation
     private $type;
 
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Societte::class, mappedBy="typeReparations")
+     */
+    private $societtes;
 
+    public function __construct()
+    {
+        $this->societtes = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -47,6 +55,31 @@ class TypeReparation
     {
         $this->type = $type;
 
+        return $this;
+    }
+
+
+    
+    public function getSociettes(): Collection
+    {
+        return $this->societtes;
+    }
+
+    public function addSociette(Societte $societte): self
+    {
+        if(!$this->societtes->contains($societte)){
+            $this->societtes[] = $societte;
+            $societte->addTypeReparation($this);
+        }
+        return $this;
+    }
+
+    public function removeSociette(Societte $societte): self
+    {
+        if($this->societtes->contains($societte)) {
+            $this->societtes->removeElement($societte);
+          $societte->removeTypeReparation($this);
+        }
         return $this;
     }
 }
