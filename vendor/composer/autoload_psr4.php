@@ -101,6 +101,7 @@ return array(
     'App\\Traits\\' => array($baseDir . '/src/Traits'),
     'App\\Service\\' => array($baseDir . '/src/Service'),
     'App\\Model\\dom\\' => array($baseDir . '/src/Model/dom'),
+    'App\\Model\\dit\\' => array($baseDir . '/src/Model/dit'),
     'App\\Model\\badm\\' => array($baseDir . '/src/Model/badm'),
     'App\\Model\\admin\\user\\' => array($baseDir . '/src/Model/admin/user'),
     'App\\Model\\admin\\personnel\\' => array($baseDir . '/src/Model/admin/personnel'),

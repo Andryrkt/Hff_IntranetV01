@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Controller\Controller;
 use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\Societte;
@@ -12,6 +13,7 @@ use App\Entity\WorNiveauUrgence;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Entity\DemandeIntervention;
+use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -36,9 +38,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 class demandeInterventionType extends AbstractType
 {
     private $serviceRepository;
+
    public function __construct()
    {
-    //$this->serviceRepository = new ServiceRepository();
+    $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -67,22 +70,41 @@ class demandeInterventionType extends AbstractType
         
         $builder
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
-            $agence = $event->getData()['agenceEmetteur'] ?? null;
+             //dd($event->getData()->getService());
+            $agence = $event->getData()->getAgence() ?? null;
+            $services = $agence->getServices();
+            // $services = [];
+            // if ($agence) {
+            //     $services = $agence->getServices()->toArray(); // Convertir la collection en tableau
+            // }
+          
+            //dd($services);
+//             dd($this->serviceRepository->findBy(['agences' => $agence], ['codeService' => 'ASC']));
 
-           // $services = $agence === null ? [] : $serviceRepository->findByService($agence, ['codeService' => 'ASC']);
+//             $services =  $this->serviceRepository->findBy(['agences' => $agence], ['codeService' => 'ASC']);
+// dd($services);
 
-            $event->getForm()->add('serviceemetteur',
+//$services = $this->serviceRepository->find();
+
+// Pour déboguer et voir le résultat
+//dd($services);
+            $event->getForm()->add('serviceDebiteur',
             EntityType::class,
         [
             'mapped' => false,
-            'label' => 'Agence Debiteur',
-            'placeholder' => '-- Choisir une agence Debiteur --',
-            'class' => Agence::class,
-            'choice_label' => function (Agence $agence): string {
-                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            'label' => 'Service Debiteur',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
-            //'choices' => $services,
+            'choices' => $services,
+            'disabled' => $agence === null,
             'required' => false,
+            'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+                'data' => $event->getData()->getService(),
+                'attr' => [ 'class' => 'serviceDebiteur']
         ]);
             
         })
@@ -118,7 +140,7 @@ class demandeInterventionType extends AbstractType
         ->add('reparationRealise', 
         ChoiceType::class, 
         [
-            'label' => "Type de réparation",
+            'label' => "Réparation Réalisé",
             'choices' => $reparationRealise,
             'placeholder' => '-- Choisir le répartion réalisé --',
             'required' => false,
@@ -151,18 +173,23 @@ class demandeInterventionType extends AbstractType
                     ],
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
         ])
-        // ->add('agenceDebiteur', 
-        // EntityType::class,
-        // [
-        //     'mapped' => false,
-        //     'label' => 'Agence Debiteur',
-        //     'placeholder' => '-- Choisir une agence Debiteur --',
-        //     'class' => Agence::class,
-        //     'choice_label' => function (Agence $agence): string {
-        //         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-        //     },
-        //     'required' => false,
-        // ])
+        ->add('agenceDebiteur', 
+        EntityType::class,
+        [
+            'mapped' => false,
+            'label' => 'Agence Debiteur',
+            'placeholder' => '-- Choisir une agence Debiteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'required' => false,
+            'data' => $options["data"]->getAgence() ?? null,
+            'query_builder' => function(AgenceRepository $agenceRepository) {
+                    return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                },
+                'attr' => [ 'class' => 'agenceDebiteur']
+        ])
         ->add('serviceEmetteur', 
         TextType::class,
         [
@@ -175,18 +202,19 @@ class demandeInterventionType extends AbstractType
                     ],
                     'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
-        ->add('serviceDebiteur', 
-        EntityType::class,
-        [
-            'mapped' => false,
-            'label' => 'Service Débiteut',
-            'placeholder' => '-- Choisir une service débiteur --',
-            'class' => Service::class,
-            'choice_label' => function (Service $service): string {
-                return $service->getCodeService() . ' ' . $service->getLibelleService();
-            },
-            'required' => false,
-        ])
+        // ->add('serviceDebiteur', 
+        // EntityType::class,
+        // [
+        //     'mapped' => false,
+        //     'label' => 'Service Débiteut',
+        //     'placeholder' => '-- Choisir une service débiteur --',
+        //     'class' => Service::class,
+        //     'choice_label' => function (Service $service): string {
+        //         return $service->getCodeService() . ' ' . $service->getLibelleService();
+        //     },
+        //     'required' => false,
+        //     'data' => $options['data']->getService() ?? null,
+        // ])
         ->add('nomClient',
         TextType::class,
         [
@@ -280,10 +308,22 @@ class demandeInterventionType extends AbstractType
            'data' => 'NON'
         ])
        ->add('idMateriel', 
-       NumberType::class, [
+       TextType::class, [
         'label' => " Id Matériel",
         'required' => false,
-        
+        'attr' => [ 'class' => 'idMateriel']
+       ])
+       ->add('numParc', 
+       TextType::class, [
+        'label' => " N° Parc",
+        'required' => false,
+        'attr' => [ 'class' => 'numParc']
+       ])
+       ->add('numSerie', 
+       TextType::class, [
+        'label' => " N° Serie",
+        'required' => false,
+        'attr' => [ 'class' => 'numSerie']
        ])
        ->add('pieceJoint03',
         FileType::class, 
@@ -291,7 +331,6 @@ class demandeInterventionType extends AbstractType
             'label' => 'Pièce Joint 03 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
@@ -310,7 +349,6 @@ class demandeInterventionType extends AbstractType
             'label' => 'Pièce Joint 02 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
@@ -330,7 +368,6 @@ class demandeInterventionType extends AbstractType
             'label' => 'Pièce Joint 01 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [

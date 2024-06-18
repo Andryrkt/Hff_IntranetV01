@@ -15,7 +15,8 @@
             "App\\Controller\\doc\\fonctionnel\\badm\\": "src/Controller/doc/fonctionnel/badm",
             "App\\Model\\": "src/Model/",
             "App\\Model\\dom\\": "src/Model/dom",
-            "App\\Model\\badm\\" : "src/Model/badm",           
+            "App\\Model\\badm\\" : "src/Model/badm",
+            "App\\Model\\dit\\" : "src/Model/dit",          
             "App\\Model\\admin\\personnel\\": "src/Model/admin/personnel",            
             "App\\Model\\Traits\\": "src/Model/Traits",
             "App\\Model\\admin\\user\\": "src/Model/admin/user",
@@ -35,7 +36,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.4.33",
         "setasign/fpdi": "^2.6",
         "twig/twig": "^3.9",
         "tecnickcom/tcpdf": "^6.7",

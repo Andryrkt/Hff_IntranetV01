@@ -4,15 +4,13 @@ namespace App\Traits;
 
 trait AgenceServiceEmetteurTrait
 {
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    
     private ?string $agenceEmetteur;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+   
     private $serviceEmetteur;
+
+    
 
     public function getAgenceEmetteur(): ?string
     {

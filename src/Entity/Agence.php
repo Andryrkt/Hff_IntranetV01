@@ -41,10 +41,10 @@ class Agence
     private string $libelleAgence;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences")
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences", fetch="EAGER")
      * @ORM\JoinTable(name="agence_service")
      */
-    private $services;
+    private Collection $services;
 
 
     public function __construct()

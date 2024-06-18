@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Traits\AgenceServiceEmetteurTrait;
+use App\Traits\AgenceServiceTrait;
+use App\Traits\numParcNumSerieTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,6 +22,8 @@ use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 class DemandeIntervention
 {
    use AgenceServiceEmetteurTrait;
+   use AgenceServiceTrait;
+   use numParcNumSerieTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

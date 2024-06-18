@@ -42,12 +42,15 @@ class Service
     private string $libelleService;
 
 /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, mappedBy="agences")
-     *
-     * @var [type]
+     * @ORM\ManyToMany(targetEntity=Agence::class, mappedBy="services")
+     
      */
-    private $agences;
+    private Collection $agences;
 
+    public function __construct()
+    {
+        $this->agences = new ArrayCollection();
+    }
 
     public function getId()
     {

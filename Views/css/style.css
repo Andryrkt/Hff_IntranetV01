@@ -6,5 +6,5 @@ body
 
 label {
     font-weight: bold;
-    font-style: italic;
+    /* font-style: italic; */
 }

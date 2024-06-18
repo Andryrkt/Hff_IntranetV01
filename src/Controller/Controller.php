@@ -20,6 +20,7 @@ use App\Model\badm\CasierModel;
 use App\Model\dom\DomListModel;
 use App\Model\dom\DomDetailModel;
 use Twig\Loader\FilesystemLoader;
+use App\Model\dit\DitModel;
 use Twig\Extension\DebugExtension;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
@@ -85,6 +86,8 @@ class Controller
     protected static $em;
     protected static $paginator;
 
+    protected $ditModel;
+
     public function __construct()
     {
 
@@ -136,6 +139,8 @@ class Controller
         $this->parsedown = new Parsedown();
 
         $this->profilUser = new ProfilUserModel();
+
+        $this->ditModel = new DitModel();
     }
 
 
@@ -158,6 +163,11 @@ class Controller
     public static function setEntity($em)
     {
         self::$em = $em;
+    }
+
+    public static function getEntity()
+    {
+        return self::$em;
     }
 
     public static function setPaginator($paginator)
@@ -265,7 +275,38 @@ class Controller
     }
 
 
-    
+    protected function testJson($jsonData)
+    {
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
+        }
+    }
     
     
     

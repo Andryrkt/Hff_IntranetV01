@@ -1,5 +1,10 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
 	<div class=" container">
@@ -15,48 +20,159 @@
 
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
+
+					<div class="">
+						{{ form_row(form.objetDemande)}}
+						{{ form_row(form.detailDemande)}}
+					</div>
+
+
 					<div class="row">
-						<div class="col-12 col-md-6">Débiteur</div>
-						<div class="col-12 col-md-6">Emetteur</div>
+						<div class="col-12 col-md-3">{{ form_row(form.typeDocument) }}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.codeSociete) }}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.categorieDemande) }}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.livraisonPartiel)}}</div>
 					</div>
 
 					<div class="row">
-						<div class="col-12 col-md-3">{{ form_row(form.agenceDebiteur)}}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.serviceDebiteur)}}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.agenceEmetteur)}}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.serviceEmetteur)}}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.demandeDevis)}}</div>
+						<div class="col-12 col-md-3">{{ form_row(form.avisRecouvrement)}}</div>
+
 					</div>
 
 
 					<div class="row">
 						<div class="col-12 col-md-6">
 
-							{{ form_row(form.typeDocument) }}
-							{{ form_row(form.codeSociete) }}
-							{{ form_row(form.typeReparation) }}
-							{{ form_row(form.reparationRealise) }}
-							{{ form_row(form.categorieDemande) }}
-							{{ form_row(form.internetExterne)}}
-							{{ form_row(form.nomClient)}}
-							{{ form_row(form.numeroTel)}}
-							{{ form_row(form.idMateriel)}}
-							{{ form_row(form.pieceJoint03)}}
-							{{ form_row(form.pieceJoint02)}}
-							{{ form_row(form.pieceJoint01)}}
-							{{ form_row(form.datePrevueTravaux)}}
 
+							{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">Débiteur</div>
+								<div class="col-12 col-md-6">Emetteur</div>
+							</div>
+
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.agenceDebiteur)}}
+									{{ form_row(form.serviceDebiteur)}}
+
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.agenceEmetteur)}}
+									{{ form_row(form.serviceEmetteur)}}
+								</div>
+
+							</div>
+
+
+							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.nomClient)}}
+
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numeroTel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.clientSousContrat)}}
+								</div>
+							</div>
+							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.idMateriel)}}
+
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numSerie)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numParc)}}
+								</div>
+							</div>
+
+
+							<div>
+								<ul>
+									<div class="row">
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Constructeur :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="constructeur"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Modèle :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="model"></div>
+											</li>
+										</div>
+
+									</div>
+
+									<div class="row">
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Désignation :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="designation"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Casier :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="casier"></div>
+											</li>
+										</div>
+									</div>
+
+									<div class="row">
+
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">KM :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="km"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Heures :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="heures"></div>
+											</li>
+										</div>
+									</div>
+
+
+								</ul>
+							</div>
 
 						</div>
 						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.idNiveauUrgence)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.datePrevueTravaux)}}
+								</div>
+							</div>
+							{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.typeReparation) }}
+
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.reparationRealise) }}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.internetExterne)}}
+								</div>
+							</div>
 
 
-							{{ form_row(form.demandeDevis)}}
-							{{ form_row(form.idNiveauUrgence)}}
-							{{ form_row(form.avisRecouvrement)}}
-							{{ form_row(form.clientSousContrat)}}
-							{{ form_row(form.objetDemande)}}
-							{{ form_row(form.detailDemande)}}
-							{{ form_row(form.livraisonPartiel)}}
+							{{ macroForm.sousTitre('pièce Joint', {class: 'sousTitre'})}}
+
+							{{ form_row(form.pieceJoint01)}}
+							{{ form_row(form.pieceJoint02)}}
+							{{ form_row(form.pieceJoint03)}}
+
+
 						</div>
 					</div>
 
@@ -71,4 +187,8 @@
 		</div>
 
 		<div id="materielInfos"></div>
+	{% endblock %}
+
+	{% block javascript %}
+		<script src="/Hffintranet/Views/js/dit/dit.js"></script>
 	{% endblock %}

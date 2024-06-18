@@ -166,6 +166,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'App\\Traits\\' => 11,
             'App\\Service\\' => 12,
             'App\\Model\\dom\\' => 14,
+            'App\\Model\\dit\\' => 14,
             'App\\Model\\badm\\' => 15,
             'App\\Model\\admin\\user\\' => 21,
             'App\\Model\\admin\\personnel\\' => 26,
@@ -568,6 +569,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'App\\Model\\dom\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Model/dom',
+        ),
+        'App\\Model\\dit\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Model/dit',
         ),
         'App\\Model\\badm\\' => 
         array (
