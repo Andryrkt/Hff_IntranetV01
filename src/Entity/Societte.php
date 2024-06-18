@@ -22,7 +22,7 @@ class Societte
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer", name="id_societe")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=3)
@@ -55,7 +55,7 @@ class Societte
         
     }
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }

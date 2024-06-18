@@ -16,6 +16,12 @@
 						Formulaire Demande d'intervention
 					</h2>
 
+					{% for flash in flashes %}
+						<div class="alert alert-success">
+							{{ flash }}
+						</div>
+					{% endfor %}
+
 					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
 					{{ form_start(form) }}

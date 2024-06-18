@@ -7,20 +7,19 @@ namespace App\Traits;
 trait numParcNumSerieTrait
 {
     
-    private string $numParc;
+    private ?string $numParc =null;
 
     
-    private string $numSerie;
+    private ?string $numSerie = null;
 
-    
 
-    public function getNumParc(): string
+    public function getNumParc(): ?string
     {
         return $this->numParc;
     }
 
   
-    public function setNumParc(string $numParc): self
+    public function setNumParc(?string $numParc): self
     {
         $this->numParc = $numParc;
 
@@ -28,13 +27,13 @@ trait numParcNumSerieTrait
     }
 
    
-    public function getNumSerie(): string
+    public function getNumSerie(): ?string
     {
         return $this->numSerie;
     }
 
     
-    public function setNumSerie(string $numSerie): self
+    public function setNumSerie(?string $numSerie): self
     {
         $this->numSerie = $numSerie;
 

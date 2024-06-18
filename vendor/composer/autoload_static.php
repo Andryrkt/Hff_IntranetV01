@@ -13,18 +13,19 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
+        'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
-        'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         '89efb1254ef2d1c5d80096acd12c4098' => __DIR__ . '/..' . '/twig/twig/src/Resources/core.php',
         'ffecb95d45175fd40f75be8a23b34f90' => __DIR__ . '/..' . '/twig/twig/src/Resources/debug.php',
         'c7baa00073ee9c61edf148c51917cfb4' => __DIR__ . '/..' . '/twig/twig/src/Resources/escaper.php',
         'f844ccf1d25df8663951193c3fc307c8' => __DIR__ . '/..' . '/twig/twig/src/Resources/string_loader.php',
+        '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
         'c2aad8997a98dfc4771bdbffea3d62b7' => __DIR__ . '/..' . '/laminas/laminas-code/polyfill/ReflectionEnumPolyfill.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '6a47392539ca2329373e0d33e1dba053' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/bootstrap.php',
-        '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
+        'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
     );
@@ -54,6 +55,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Polyfill\\Php72\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Intl\\Normalizer\\' => 33,
+            'Symfony\\Polyfill\\Intl\\Idn\\' => 26,
             'Symfony\\Polyfill\\Intl\\Icu\\' => 26,
             'Symfony\\Polyfill\\Intl\\Grapheme\\' => 31,
             'Symfony\\Polyfill\\Ctype\\' => 23,
@@ -76,6 +78,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Component\\Process\\' => 26,
             'Symfony\\Component\\PasswordHasher\\' => 33,
             'Symfony\\Component\\OptionsResolver\\' => 34,
+            'Symfony\\Component\\Mime\\' => 23,
             'Symfony\\Component\\HttpKernel\\' => 29,
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Form\\' => 23,
@@ -228,6 +231,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer',
         ),
+        'Symfony\\Polyfill\\Intl\\Idn\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-intl-idn',
+        ),
         'Symfony\\Polyfill\\Intl\\Icu\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-intl-icu',
@@ -315,6 +322,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Symfony\\Component\\OptionsResolver\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/options-resolver',
+        ),
+        'Symfony\\Component\\Mime\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/mime',
         ),
         'Symfony\\Component\\HttpKernel\\' => 
         array (

@@ -34,145 +34,145 @@ class DemandeIntervention
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
      */
-    private ?string $numeroDemandeIntervention;
+    private ?string $numeroDemandeIntervention = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="WorTypeDocument", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="wor_type_document", referencedColumnName="id")
+     * @ORM\JoinColumn(name="type_document", referencedColumnName="id_type_document")
      */
-    private  $typeDocument;//relation avec la table wor_type_document
+    private  $typeDocument = null;//relation avec la table wor_type_document
 
     /**
      * @ORM\ManyToOne(targetEntity="Societte", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
+     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id_societe")
      */
-    private  $codeSociete;// relation avec la table societe
+    private  $codeSociete = null;// relation avec la table societe
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
      */
-    private ?string $typeReparation;
+    private ?string $typeReparation = null;
 
     /**
      * @ORM\Column(type="string", length=30, name="reparation_realise",nullable=true)
      */
-    private ?string $reparationRealise;
+    private ?string $reparationRealise = null;
 
    /**
      * @ORM\ManyToOne(targetEntity="CategorieATEAPP", inversedBy="DemandeIntervention")
-     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
+     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id_categorie_ate_app")
      */
-    private ?string $categorieDemande;//relation avec la table categorie_ate_app
+    private ?string $categorieDemande = null;//relation avec la table categorie_ate_app
 
     /**
      * @ORM\Column(type="string", length=140, name="internet_externe",nullable=true)
      */
-    private ?string $internetExterne;
+    private ?string $internetExterne = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="agence_service_debiteur",nullable=true)
      */
-    private ?string $agenceServiceDebiteur;
+    private ?string $agenceServiceDebiteur = null;
 
     /**
-     * @ORM\Column(type="string", length=5, name="agence_service_emmetteur",nullable=true)
+     * @ORM\Column(type="string", length=5, name="agence_service_emmeteur",nullable=true)
      */
-    private ?string $agenceServiceEmetteur;
+    private ?string $agenceServiceEmetteur = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="nom_client",nullable=true)
      */
-    private ?string $nomClient;
+    private ?string $nomClient = null;
 
     /**
      * @ORM\Column(type="string", length=10, name="numero_telephone",nullable=true)
      */
-    private ?string $numeroTel;
+    private ?string $numeroTel= null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_or",nullable=true)
      */
-    private ?DateTime $dateOr;
+    private ?DateTime $dateOr = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_or",nullable=true)
      */
-    private ?string $heureOR;
+    private ?string $heureOR = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_prevue_travaux",nullable=true)
      */
-    private ?DateTime $datePrevueTravaux;
+    private ?DateTime $datePrevueTravaux = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="demande_devis",nullable=true)
      */
-    private ?string $demandeDevis;
+    private ?string $demandeDevis = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="WorNiveauUrgence", inversedBy="DemandeInterventions")
-     * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id")
+     * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id_niveau_urgence")
      */
-    private  $idNiveauUrgence;
+    private  $idNiveauUrgence = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="avis_recouvrement",nullable=true)
      */
-    private ?string $avisRecouvrement;
+    private ?string $avisRecouvrement = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="client_sous_contrat",nullable=true)
      */
-    private ?string $clientSousContrat;
+    private ?string $clientSousContrat = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_demande",nullable=true)
      */
-    private ?string $objetDemande;
+    private ?string $objetDemande = null;
 
     /**
      * @ORM\Column(type="string", length=5000, name="detail_demande",nullable=true)
      */
-    private ?string $detailDemande;
+    private ?string $detailDemande = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="livraison_partiel",nullable=true)
      */
-    private ?string $livraisonPartiel;
+    private ?string $livraisonPartiel = null;
 
     /**
      * @ORM\Column(type="integer", name="id_materiel", nullable=true)
      */
-    private ?int $idMateriel;
+    private ?int $idMateriel = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="mail_demandeur",nullable=true)
      */
-    private ?string $mailDemandeur;
+    private ?string $mailDemandeur = null;
 
     /**
-     * @ORM\Column(type="datetimes",  name="date_demande", nullable=true)
+     * @ORM\Column(type="datetime",  name="date_demande", nullable=true)
      */
-    private ?datetime $dateDemande;
+    private ?datetime $dateDemande = null;
 
 /**
  * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
  *
  * @var string|null
  */
-    private ?string $heureDemande;
+    private ?string $heureDemande = null;
 
     /**
-     * @ORM\Column(type="datetimes", name="date_cloture")
+     * @ORM\Column(type="datetime", name="date_cloture")
      *
      * @var DateTime|null
      */
-    private ?DateTime $dateCloture;
+    private ?DateTime $dateCloture = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_cloture",nullable=true)
      */
-    private ?string $heureCloture;
+    private ?string $heureCloture = null;
 
     /**
      * @ORM\Column(type="string", length=200, name="piece_joint",nullable=true)
@@ -182,7 +182,7 @@ class DemandeIntervention
      *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
      * )
      */
-    private ?string $pieceJoint03;
+    private ?string $pieceJoint03 = null;
 
     /**
      * @ORM\Column(type="string", length=200, name="piece_joint1",nullable=true)
@@ -192,7 +192,7 @@ class DemandeIntervention
      *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
      * )
      */
-    private ?string $pieceJoint01;
+    private ?string $pieceJoint01 =null;
 
     /**
  * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
@@ -202,128 +202,128 @@ class DemandeIntervention
  *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
  * )
  */
-    private ?string $pieceJoint02;
+    private ?string $pieceJoint02=null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_demandeur", nullable=true)
      */
-    private ?string $utilisateurDemandeur;
+    private ?string $utilisateurDemandeur = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observations", nullable=true)
      */
-    private ?string $observations;
+    private ?string $observations = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="StatutDemande", inversedBy="DemandeIntervention")
-     * @ORM\JoinColumn(name="idStatutDemande", referencedColumnName="id")
+     * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
-    private $idStatutDemande;
+    private $idStatutDemande = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_validation",nullable=true)
      */
-    private ?datetime $dateValidation;
+    private ?datetime $dateValidation = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_validation",nullable=true)
      */
-    private ?string $heureValidation;
+    private ?string $heureValidation = null;
 
     /**
      * @ORM\Column(type="string", length=15, name="numero_client",nullable=true)
      */
-    private ?string $numeroClient;
+    private ?string $numeroClient = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="libelle_client",nullable=true)
      */
-    private ?string $libelleClient;
+    private ?string $libelleClient = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_fin_souhaite",nullable=true)
      */
-    private ?datetime $dateFinSouhaite;
+    private ?datetime $dateFinSouhaite = null;
 
     /**
      * @ORM\Column(type="string", length=15, name="numero_or",nullable=true)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observation_direction_technique",nullable=true)
      */
-    private ?string $observationDirectionTechnique;
+    private ?string $observationDirectionTechnique = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observation_devis",nullable=true)
      */
-    private ?string $observationDevis;
+    private ?string $observationDevis = null;
 
     /**
      * @ORM\Column(type="string", length=200, name="numero_devis_rattache",nullable=true)
      */
-    private ?string $numeroDevisRattache;
+    private ?string $numeroDevisRattache = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_soumission_devis",nullable=true)
      */
-    private ?datetime $dateSoumissionDevis;
+    private ?datetime $dateSoumissionDevis = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
      */
-    private ?string $devisValide;
+    private ?string $devisValide = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_validation_devis", nullable=true)
      *
      * @var datetime|null
      */
-    private ?datetime $dateValidationDevis;
+    private ?datetime $dateValidationDevis = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="id_service_intervenant", nullable=true)
      *
      * @var string|null
      */
-    private ?string $idServiceIntervenant;
+    private ?string $idServiceIntervenant = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_devis_fin_probable",nullable=true)
      */
-    private ?DateTime $dateDevisFinProbable;
+    private ?DateTime $dateDevisFinProbable = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_fin_estimation_travaux",nullable=true)
      */
-    private ?datetime $dateFinEstimationTravaux;
+    private ?datetime $dateFinEstimationTravaux = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="code_section",nullable=true)
      */
-    private ?string $codeSection;
+    private ?string $codeSection = null;
 
     /**
-     * @ORM\Column(type="string", length=3, name="mase_ate",nullable=true)
+     * @ORM\Column(type="string", length=3, name="mas_ate",nullable=true)
      */
-    private ?string $masAte;
+    private ?string $masAte = null;
 
     /**
      * @ORM\Column(type="string", length=6, name="code_ate",nullable=true)
      */
-    private ?string $codeAte;
+    private ?string $codeAte = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Secteur", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="id_secteur", referencedColumnName="id")
+     * @ORM\JoinColumn(name="secteur", referencedColumnName="id_secteur")
      */
-    private $secteur;
+    private $secteur = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_intervenant",nullable=true)
      */
-    private ?string $utilisateurIntervenant;
+    private ?string $utilisateurIntervenant = null;
 
 
 

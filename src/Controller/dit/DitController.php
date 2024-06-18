@@ -63,28 +63,62 @@ class DitController extends Controller
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
 
 
-  
+ 
         $form->handleRequest($request);
-
+        if(!isset($flashes)){
+            $flashes = [];
+        }
+        
         if($form->isSubmitted() && $form->isValid())
         {
-            $dits= $form->getData(); 
+            $dits= $form->getData();
+            
+            $demandeIntervention = $this->demandeIntervention($dits);
 
-           dd($dits);
-
-
-            self::$em->persist($dits);
+            self::$em->persist($demandeIntervention);
             self::$em->flush();
 
-
-            $this->redirectToRoute("utilisateur_new");
+            $this->flashManager->addFlash('sucess', 'demande ajouter');
+            $flashes = $this->flashManager->getFlashes('success');
+            $this->redirectToRoute("dit_new");
+            
         }
 
         self::$twig->display('dit/new.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'flashes' => $flashes,
         ]);
+    }
+
+
+    private function demandeIntervention($dits) : DemandeIntervention
+    {
+        $demandeIntervention = new DemandeIntervention();
+
+            $demandeIntervention->setTypeDocument($dits->getTypeDocument());
+            $demandeIntervention->setCodeSociete($dits->getCodeSociete());
+            $demandeIntervention->setTypeReparation($dits->getTypeReparation());
+            $demandeIntervention->setReparationRealise($dits->getReparationRealise());
+            $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
+            $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
+            $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
+            $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+            $demandeIntervention->setIdStatutDemande($dits->getIdStatutDemande());
+            $demandeIntervention->setSecteur($dits->getSecteur());
+            $demandeIntervention->setNomClient($dits->getNomClient());
+            $demandeIntervention->setNumeroTel($dits->getNumeroTel());
+            $demandeIntervention->setObjetDemande($dits->getObjetDemande());
+            $demandeIntervention->setDetailDemande($dits->getDetailDemande());
+            $demandeIntervention->setIdMateriel($dits->getIdMateriel());
+            $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
+            $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
+            $demandeIntervention->setPieceJoint03($dits->getPieceJoint03());
+            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).''.substr($dits->getServiceEmetteur(), 0, 3));
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().''. $dits->getService()->getCodeService());
+        return $demandeIntervention;
     }
 
 /**

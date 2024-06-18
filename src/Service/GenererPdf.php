@@ -10,6 +10,214 @@ use TCPDF;
 class GenererPdf
 {
     /**
+     * GENERER PDF DEMANDE D'INTERVENTION
+     *
+     * @return void
+     */
+    function genererPdfDit()
+    {
+        $pdf = new TCPDF();
+
+        $pdf->AddPage();
+
+        $pdf->setFont('helvetica', 'B', 14);
+        $pdf->setAbsY(11);
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . 'logoHFF.jpg';
+        $pdf->Image($logoPath, '', '', 45, 12);
+        $pdf->setAbsX(55);
+        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(110, 6, 'DEMANDE D\'INTERVENTION', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+
+
+        $pdf->setAbsX(170);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(35, 6, 'DIT24060002', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+        $pdf->Ln(6, true);
+
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->setAbsX(55);
+        $pdf->cell(110, 6,'SOUS TYPE DE DOCUMENT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        
+        
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->setAbsX(170);
+        $pdf->cell(35, 6, 'Le : ' . '11/06/2024', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(165, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(165, 10, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(15, true);
+
+        $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(85);
+        $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
+        $pdf->cell(20, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(150);
+        $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(50, 63);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        /**AGENCE-SERVICE */
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, 'Agence - Service', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(50, 85);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->cell(25, 6, 'Emetteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        /**REPARATION */
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, 'Réparation', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(35, 107);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 165, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->cell(25, 6, 'Type :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(25, 6, 'Réaliser par :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+/**CLIENT */
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, ' Client ', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(30, 129);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 170, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->MultiCell(25, 6, "Nom :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->MultiCell(27, 6, "Sous contrat :", 0, 'L', false, 0);
+        $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(135);
+        $pdf->cell(25, 6, 'N° téléphone :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        /** CARACTERISTIQUE MATERIEL */
+$pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(70, 151);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
+        $pdf->Ln(10, true);
+        
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+
+        $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(70, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(148);
+        $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+
+        $pdf->cell(25, 6, 'N° Parc :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->cell(23, 6, 'Modèle :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(30, 6, 'Constructeur :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(70, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(148);
+        $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+
+/** ETAT MACHINE */
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+        $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(40, 193);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+        $pdf->MultiCell(25, 6, "Heures :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->setAbsX(70);
+        // $pdf->MultiCell(25, 6, "OR :", 0, 'L', false, 0);
+        // $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(135);
+        $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
+
+        
+
+        // entête email
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetXY(110, 2);
+        $pdf->Cell(35, 6, 'Email : hasina.andrianadison@gmail.com' , 0, 0, 'L');
+
+    $pdf->Output('exemple.pdf', 'I');
+    }
+
+    /**
      * generer pdf Casier
      */
 
