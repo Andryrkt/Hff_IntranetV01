@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Traits\AgenceServiceEmetteurTrait;
 use App\Traits\AgenceServiceTrait;
+use App\Traits\CaracteristiqueMaterielTrait;
 use App\Traits\numParcNumSerieTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,11 +24,11 @@ class DemandeIntervention
 {
    use AgenceServiceEmetteurTrait;
    use AgenceServiceTrait;
-   use numParcNumSerieTrait;
+   use CaracteristiqueMaterielTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_demande_interention_atelier")
+     * @ORM\Column(type="integer", name="id_demande_intervention_atelier")
      */
     private $id;
     

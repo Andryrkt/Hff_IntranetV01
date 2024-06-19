@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\DemandeIntervention;
+use PhpParser\Node\Expr\Isset_;
 use TCPDF;
 
 //require_once __DIR__ . '/TCPDF-main/tcpdf.php';
@@ -14,7 +16,7 @@ class GenererPdf
      *
      * @return void
      */
-    function genererPdfDit()
+    function genererPdfDit(DemandeIntervention $dit)
     {
         $pdf = new TCPDF();
 
@@ -22,7 +24,7 @@ class GenererPdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . 'logoHFF.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -31,41 +33,42 @@ class GenererPdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, 'DIT24060002', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention() , 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->setAbsX(55);
-        $pdf->cell(110, 6,'SOUS TYPE DE DOCUMENT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->cell(110, 6, $dit->getTypeDocument(), 0, 0, 'C', false, '', 0, false, 'T', 'M');
         
         
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . '11/06/2024', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, 'Le : ' . $dit->getDateDemande()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(165, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(165, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(165, 10, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(165, 10, $dit->getDetailDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
-        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getCategorieDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(85);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
-        $pdf->cell(20, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(150);
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+        /** INTERVENTION */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -78,10 +81,15 @@ class GenererPdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        if($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())){
+            $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
+        } else {
+            $pdf->cell(50, 6, $dit->getDatePrevueTravaux(), 1, 0, '', false, '', 0, false, 'T', 'M');
+
+        }
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getIdNiveauUrgence(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         /**AGENCE-SERVICE */
@@ -97,10 +105,10 @@ class GenererPdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Emetteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getAgenceServiceEmetteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         /**REPARATION */
@@ -116,13 +124,16 @@ class GenererPdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Type :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getInternetExterne(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(70);
+        $pdf->cell(23, 6, 'Réparation :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, $dit->getTypeReparation(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
-        $pdf->cell(25, 6, 'Réaliser par :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, 'Réaliser par :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-/**CLIENT */
+        /**CLIENT */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, ' Client ', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -135,17 +146,18 @@ class GenererPdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->MultiCell(25, 6, "Nom :", 0, 'L', false, 0);
-        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(70);
+        $pdf->cell(45, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(85);
         $pdf->MultiCell(27, 6, "Sous contrat :", 0, 'L', false, 0);
-        $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(20, 6, $dit->getClientSousContrat(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(135);
         $pdf->cell(25, 6, 'N° téléphone :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+
         /** CARACTERISTIQUE MATERIEL */
-$pdf->setFont('helvetica', 'B', 12);
+        $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
@@ -159,32 +171,35 @@ $pdf->setFont('helvetica', 'B', 12);
 
 
         $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(70, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(70, 6, $dit->getDesignation(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(148);
         $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getNumSerie(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 
         $pdf->cell(25, 6, 'N° Parc :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getNumParc(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(70);
         $pdf->cell(23, 6, 'Modèle :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, $dit->getModele(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(30, 6, 'Constructeur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getConstructeur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-        $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(70, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(148);
-        $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Casier :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(40, 6, $dit->getCasier(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(80);
+        $pdf->cell(23, 6, 'Id Matériel :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(20, 6, $dit->getIdMateriel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(33, 6, 'livraison partielle :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getLivraisonPartiel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 
-/** ETAT MACHINE */
+        /** ETAT MACHINE */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -197,13 +212,13 @@ $pdf->setFont('helvetica', 'B', 12);
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->MultiCell(25, 6, "Heures :", 0, 'L', false, 0);
-        $pdf->cell(30, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getHeure(), 1, 0, '', false, '', 0, false, 'T', 'M');
         // $pdf->setAbsX(70);
         // $pdf->MultiCell(25, 6, "OR :", 0, 'L', false, 0);
         // $pdf->cell(35, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(135);
         $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         
@@ -212,13 +227,15 @@ $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(110, 2);
-        $pdf->Cell(35, 6, 'Email : hasina.andrianadison@gmail.com' , 0, 0, 'L');
+        $pdf->Cell(35, 6, "email : ". $dit->getMailDemandeur() , 0, 0, 'L');
 
-    $pdf->Output('exemple.pdf', 'I');
+    //$pdf->Output('exemple.pdf', 'I');
+    $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
+        $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }
 
     /**
-     * generer pdf Casier
+     * generer pdf changement de Casier
      */
 
     function genererPdfCasier(array $tab)
@@ -710,7 +727,7 @@ $pdf->setFont('helvetica', 'B', 12);
 
 
     /**
-     * Genere le PDF DOM
+     * Genere le PDF DEMANDE D'ORDRE DE MISSION (DOM)
      */
     //pdf
     public function genererPDF(array $tab)
@@ -836,6 +853,9 @@ $pdf->setFont('helvetica', 'B', 12);
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         } else if (substr($NumDom, 0, 3) === 'CAS') {
             $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        }  else if (substr($NumDom, 0, 3) === 'DIT') {
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DIT\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         }
 

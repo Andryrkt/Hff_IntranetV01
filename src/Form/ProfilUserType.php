@@ -2,9 +2,11 @@
 
 namespace App\Form;
 
+use App\Entity\Application;
 use App\Entity\ProfilUser;
 use App\Entity\ProfilUserEntity;
 use App\Model\LdapModel;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Length;
@@ -53,13 +55,11 @@ class ProfilUserType extends AbstractType
             'placeholder' => '-- Choisir une rôle --'
         ])
     ->add('app', 
-        ChoiceType::class, 
+        EntityType::class, 
         [
             'label' => 'Applications',
-            'choices' => [
-                'Dom' => 'DOM',
-                'Badm' => 'BDM'
-            ],
+            'class' => Application::class,
+            'choice_label' => 'codeApp',
             'placeholder' => '-- Choisir une Application --'
         ])
     ->add('matricule', 

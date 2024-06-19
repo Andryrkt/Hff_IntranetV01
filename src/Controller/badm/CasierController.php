@@ -16,7 +16,6 @@ class CasierController extends Controller
 
     use Transformation;
     use ConversionTrait;
-    use IncrementationTrait;
     use FormatageTrait;
 
 

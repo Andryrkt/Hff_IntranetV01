@@ -54,21 +54,27 @@
 						</li>
 					{% endif %}
 					<!-- FIN Demande d'odre de mission -->
+
+					<!-- DEBUT Demande d'intervention-->
+					{% if item.App == 'DIT' %}
+
+
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Demande d'Intervention</a>
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+								<li>
+									<a class="dropdown-item" href="{{ path("dit_new")}}">Nouvelle Demande</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="#">Consultation</a>
+								</li>
+
+							</ul>
+						</li>
+					{% endif %}
+					<!-- FIN Demande d'intervention -->
 				{% endfor %}
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Demande d'Intervention</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="{{ path("dit_new")}}">Nouvelle Demande</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Consultation</a>
-						</li>
-
-					</ul>
-				</li>
-
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Demande d'Appro</a>

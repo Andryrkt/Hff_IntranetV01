@@ -21,7 +21,6 @@ class BadmController extends Controller
 
     use Transformation;
     use ConversionTrait;
-    use IncrementationTrait;
     use FormatageTrait;
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/formBadm")

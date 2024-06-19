@@ -3,9 +3,13 @@
 namespace App\Controller\dit;
 
 use App\Entity\Agence;
-use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
 use App\Entity\Service;
+use App\Entity\StatutDemande;
+use App\Controller\Controller;
+use App\Controller\Traits\DitTrait;
+use App\Entity\Application;
+use App\Entity\DemandeIntervention;
+use App\Entity\User;
 use App\Form\demandeInterventionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +18,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DitController extends Controller
 {
+    use DitTrait;
+
+    /**
+     * @Route("/dit", name="dit_index")
+     *
+     * @return void
+     */
     public function index(){
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
@@ -31,7 +42,19 @@ class DitController extends Controller
         ]);
     }
 
-    
+    private function infoEntrerManuel($form) 
+    {
+        $dits = $form->getData();
+        $dits->setUtilisateurDemandeur($_SESSION['user']);
+            $dits->setHeureDemande($this->getTime());
+            $dits->setDateDemande(new \DateTime($this->getDatesystem()));
+            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
+            $dits->setIdStatutDemande($statutDemande);
+            $dits->setNumeroDemandeIntervention($this->autoINcriment('DIT'));
+            $email = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+            $dits->setMailDemandeur($email);
+            return $dits;
+    }
 
     /**
      * @Route("/dit/new", name="dit_new")
@@ -71,12 +94,25 @@ class DitController extends Controller
         
         if($form->isSubmitted() && $form->isValid())
         {
-            $dits= $form->getData();
+            $dits = $this->infoEntrerManuel($form);
             
-            $demandeIntervention = $this->demandeIntervention($dits);
-
-            self::$em->persist($demandeIntervention);
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
+            
+            self::$em->persist($insertDemandeInterventions);
             self::$em->flush();
+
+            //CREATION DU PDF
+            $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
+            $this->genererPdf->genererPdfDit($pdfDemandeInterventions);
+            $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($this->autoINcriment('DIT'));
+            // Persister l'entité Application
+            self::$em->persist($application);
+            self::$em->flush();
+
 
             $this->flashManager->addFlash('sucess', 'demande ajouter');
             $flashes = $this->flashManager->getFlashes('success');
@@ -92,34 +128,7 @@ class DitController extends Controller
         ]);
     }
 
-
-    private function demandeIntervention($dits) : DemandeIntervention
-    {
-        $demandeIntervention = new DemandeIntervention();
-
-            $demandeIntervention->setTypeDocument($dits->getTypeDocument());
-            $demandeIntervention->setCodeSociete($dits->getCodeSociete());
-            $demandeIntervention->setTypeReparation($dits->getTypeReparation());
-            $demandeIntervention->setReparationRealise($dits->getReparationRealise());
-            $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
-            $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
-            $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
-            $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
-            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-            $demandeIntervention->setIdStatutDemande($dits->getIdStatutDemande());
-            $demandeIntervention->setSecteur($dits->getSecteur());
-            $demandeIntervention->setNomClient($dits->getNomClient());
-            $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-            $demandeIntervention->setObjetDemande($dits->getObjetDemande());
-            $demandeIntervention->setDetailDemande($dits->getDetailDemande());
-            $demandeIntervention->setIdMateriel($dits->getIdMateriel());
-            $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
-            $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
-            $demandeIntervention->setPieceJoint03($dits->getPieceJoint03());
-            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).''.substr($dits->getServiceEmetteur(), 0, 3));
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().''. $dits->getService()->getCodeService());
-        return $demandeIntervention;
-    }
+   
 
 /**
  * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
