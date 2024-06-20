@@ -89,7 +89,7 @@ class GenererPdf
         }
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $dit->getIdNiveauUrgence(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getIdNiveauUrgence()->getDescription(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         /**AGENCE-SERVICE */

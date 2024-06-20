@@ -75,4 +75,42 @@ class UserController extends Controller
         ]);
     }
 
+                /**
+     * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
+     *
+     * @return void
+     */
+    public function edit(Request $request, $id)
+    {
+
+        $this->SessionStart();
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        $user = self::$em->getRepository(User::class)->find($id);
+        
+        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
+
+        $form->handleRequest($request);
+
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            self::$em->flush();
+            $this->redirectToRoute("utilisateur_index");
+            
+        }
+
+        self::$twig->display('admin/utilisateur/edit.html.twig', [
+            'form' => $form->createView(),
+            'infoUserCours' => $infoUserCours,
+            'boolean' => $boolean
+        ]);
+
+    }
+
+   
+
 }

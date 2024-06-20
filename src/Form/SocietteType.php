@@ -31,17 +31,7 @@ class SocietteType extends AbstractType
             [
                 'label' => 'Code Societte',
             ])
-        ->add('typeReparations',
-            EntityType::class,
-            [
-                'label' => 'Type de Réparation',
-                'class' => TypeReparation::class,
-                'choice_label' => 'type',
-                'multiple' => true,
-                'expanded' => false
-            ]
-        )
-    
+        
     ;
     }
 

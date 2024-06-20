@@ -89,7 +89,7 @@ class NatemaDitType extends AbstractType
             'label' => 'Objet'
         ])
         ->add('detailDemande',
-        TextType::class,
+        TextareaType::class,
         [
             'label' => 'Demande(les détails de votre demande)'
         ])

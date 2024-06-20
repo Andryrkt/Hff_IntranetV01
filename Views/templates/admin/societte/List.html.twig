@@ -27,7 +27,7 @@
 							<th>Actions</th>
 							<th>Nom</th>
 							<th>Code Societte</th>
-							<th>Type Reparation</th>
+
 
 						</tr>
 					</thead>
@@ -50,17 +50,8 @@
 										</ul>
 									</div>
 								</td>
-								<td>{{item.codeSociete}}</td>
 								<td>{{item.nom}}</td>
-								<td>
-									<ul>
-										{% for p in item.typeReparations %}
-											<li>
-												{{p.type}}
-											</li>
-										{% endfor %}
-									</ul>
-								</td>
+								<td>{{item.codeSociete}}</td>
 
 
 							</tr>

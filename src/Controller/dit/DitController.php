@@ -10,6 +10,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\Application;
 use App\Entity\DemandeIntervention;
 use App\Entity\User;
+use App\Entity\WorNiveauUrgence;
 use App\Form\demandeInterventionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class DitController extends Controller
 {
     use DitTrait;
+
+    // private DemandeIntervention $demandeIntervention;
+
+    // public function __construct()
+    // {
+    //     $this->demandeIntervention = new DemandeIntervention();
+    // }
 
     /**
      * @Route("/dit", name="dit_index")
@@ -71,16 +79,12 @@ class DitController extends Controller
 
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-
+        
         $demandeIntervention = new DemandeIntervention();
         $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
         $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-        
-        // dd(self::$em->getRepository(Agence::class)->findOneBy(['id' => 1])->getId());
-
-        //dd(self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAg ]));
-         $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ]));
-        //dd($demandeIntervention->getAgence());
+        $demandeIntervention->setIdNiveauUrgence(self::$em->getRepository(WorNiveauUrgence::class)->find(1));
+        $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ]));
         $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
 
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -104,7 +108,10 @@ class DitController extends Controller
             //CREATION DU PDF
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
             $this->genererPdf->genererPdfDit($pdfDemandeInterventions);
-            $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            if($dits->getAgence()->getCodeAgence() === 91 || $dits->getAgence()->getCodeAgence() === 92) {
+
+                $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            }
             
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
@@ -148,6 +155,7 @@ class DitController extends Controller
             'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
         ];
       }
+
       
       //dd($services);
      header("Content-type:application/json");

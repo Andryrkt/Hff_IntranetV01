@@ -54,16 +54,10 @@ class SocietteController extends Controller
     
             if($form->isSubmitted() && $form->isValid())
             {
-                $role= $form->getData();
+                $societte= $form->getData();
                 
 
-                $selectedPermissions = $form->get('typeReparations')->getData();
-
-                foreach ($selectedPermissions as $permission) {
-                    $role->addTypeReparation($permission);
-                }
-
-                self::$em->persist($role);
+                self::$em->persist($societte);
                 self::$em->flush();
 
                 $this->redirectToRoute("societte_index");

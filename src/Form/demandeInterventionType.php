@@ -39,6 +39,27 @@ class demandeInterventionType extends AbstractType
 {
     private $serviceRepository;
 
+    const TYPE_REPARATION = [
+        'EN COURS' => 'EN COURS',
+        'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
+        'A REALISER' => 'A REALISER'
+    ];
+
+    const REPARATION_REALISE = [
+        'ATELIER' => 'ATELIER',
+        'ENERGIE' => 'ENERGIE'
+    ];
+
+    const INTERNE_EXTERNE = [
+        'INTERNE' => 'INTERNE',
+        'EXTERNE' => 'EXTERNE'
+    ];
+
+    const OUI_NON = [
+        'NON' => 'NON',
+        'OUI' => 'OUI'
+    ];
+
    public function __construct()
    {
     $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
@@ -47,50 +68,17 @@ class demandeInterventionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
        
-        $typeReparation = [
-            'EN COURS' => 'EN COURS',
-            'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
-            'A REALISER' => 'A REALISER'
-        ];
-
-        $reparationRealise = [
-            'ATELIER' => 'ATELIER',
-            'ENERGIE' => 'ENERGIE'
-        ];
-
-        $internetExterne = [
-            'INTERNE' => 'INTERNE',
-            'EXTERNE' => 'EXTERNE'
-        ];
-
-        $ouiNon = [
-            'NON' => 'NON',
-            'OUI' => 'OUI'
-        ];
+        
         
         $builder
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
              //dd($event->getData()->getService());
             $agence = $event->getData()->getAgence() ?? null;
             $services = $agence->getServices();
-            // $services = [];
-            // if ($agence) {
-            //     $services = $agence->getServices()->toArray(); // Convertir la collection en tableau
-            // }
-          
-            //dd($services);
-//             dd($this->serviceRepository->findBy(['agences' => $agence], ['codeService' => 'ASC']));
-
-//             $services =  $this->serviceRepository->findBy(['agences' => $agence], ['codeService' => 'ASC']);
-// dd($services);
-
-//$services = $this->serviceRepository->find();
-
-// Pour déboguer et voir le résultat
-//dd($services);
+            
             $event->getForm()->add('serviceDebiteur',
             EntityType::class,
-        [
+            [
             'mapped' => false,
             'label' => 'Service Debiteur',
             'class' => Service::class,
@@ -105,7 +93,7 @@ class demandeInterventionType extends AbstractType
                 },
                 'data' => $event->getData()->getService(),
                 'attr' => [ 'class' => 'serviceDebiteur']
-        ]);
+            ]);
             
         })
         ->add('typeDocument', 
@@ -131,7 +119,7 @@ class demandeInterventionType extends AbstractType
         ChoiceType::class, 
         [
             'label' => "Type de réparation",
-            'choices' => $typeReparation,
+            'choices' => self::TYPE_REPARATION,
             'placeholder' => '-- Choisir un type de réparation --',
             'required' => false,
             'data' => 'A REALISER',
@@ -141,7 +129,7 @@ class demandeInterventionType extends AbstractType
         ChoiceType::class, 
         [
             'label' => "Réparation Réalisé",
-            'choices' => $reparationRealise,
+            'choices' => self::REPARATION_REALISE,
             'placeholder' => '-- Choisir le répartion réalisé --',
             'required' => false,
             'data' => 'ATELIER',
@@ -151,14 +139,14 @@ class demandeInterventionType extends AbstractType
             'label' => 'catégorie de demande',
             'placeholder' => '-- Choisir une catégorie --',
             'class' => CategorieATEAPP::class,
-            'choice_label' =>'codeSociete',
+            'choice_label' =>'libelleCategorieAteApp',
             'required' => false,
         ])
         ->add('internetExterne', 
         ChoiceType::class, 
         [
             'label' => "Interne et Externe",
-            'choices' => $internetExterne,
+            'choices' => self::INTERNE_EXTERNE,
             'placeholder' => '-- Choisir --',
            'required' => false,
         ])
@@ -259,7 +247,7 @@ class demandeInterventionType extends AbstractType
         ChoiceType::class, 
         [
             'label' => "Demande de devis",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
             'placeholder' => '-- Choisir --',
            'required' => false,
         ])
@@ -268,14 +256,14 @@ class demandeInterventionType extends AbstractType
             'label' => 'Niveau d\'urgence',
             'placeholder' => '-- Choisir un niveau --',
             'class' => WorNiveauUrgence::class,
-            'choice_label' =>'codeSociete',
+            'choice_label' =>'description',
             'required' => false,
         ])
         ->add('avisRecouvrement', 
         ChoiceType::class, 
         [
             'label' => "Avis de recouvrement",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
            'required' => false,
            'data' => 'NON'
         ])
@@ -283,7 +271,7 @@ class demandeInterventionType extends AbstractType
         ChoiceType::class, 
         [
             'label' => "client sous contrat",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
            'required' => false,
            'data' => 'NON'
         ])
@@ -303,7 +291,7 @@ class demandeInterventionType extends AbstractType
         ChoiceType::class, 
         [
             'label' => "livraison Partiel",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
            'required' => false,
            'data' => 'NON'
         ])

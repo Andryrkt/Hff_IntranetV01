@@ -20,19 +20,19 @@ class RoleController extends Controller
     public function index()
     {
         $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
 
-    $data = self::$em->getRepository(Role::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Role::class)->findBy([], ['id'=>'DESC']);
 
 
-    self::$twig->display('admin/role/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
-        'data' => $data
-    ]);
+        self::$twig->display('admin/role/list.html.twig', [
+            'infoUserCours' => $infoUserCours,
+            'boolean' => $boolean,
+            'data' => $data
+        ]);
     }
 
     /**

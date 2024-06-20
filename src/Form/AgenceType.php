@@ -42,7 +42,7 @@ class AgenceType extends AbstractType
                     return $service->getCodeService() . ' ' . $service->getLibelleService();
                 },
                 'multiple' => true,
-                'expanded' => false
+                'expanded' => true
         ])
     ;
     }

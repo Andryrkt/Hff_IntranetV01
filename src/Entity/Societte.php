@@ -41,18 +41,12 @@ class Societte
     private $demandeInterventions;
 
 
-    /**
-     * @ORM\ManyToMany(targetEntity=TypeReparation::class, inversedBy="societtes")
-     * @ORM\JoinTable(name="role_permissions")
-     */
-    private $typeReparations;
+   
 
     public function __construct()
     {
         $this->demandeInterventions = new ArrayCollection();
-        
-        $this->typeReparations = new ArrayCollection();
-        
+
     }
 
     public function getId(): int
@@ -119,28 +113,5 @@ class Societte
         return $this;
     }
 
-
-    public function getTypeReparations(): Collection
-    {
-        return $this->typeReparations;
-    }
-
-    public function addTypeReparation(TypeReparation $typeReparation): self
-    {
-        if (!$this->typeReparations->contains($typeReparation)) {
-            $this->typeReparations[] = $typeReparation;
-        }
-
-        return $this;
-    }
-
-    public function removeTypeReparation(TypeReparation $typeReparation): self
-    {
-        if ($this->typeReparations->contains($typeReparation)) {
-            $this->typeReparations->removeElement($typeReparation);
-        }
-
-        return $this;
-    }
 
 }

@@ -77,39 +77,48 @@ class AgenceController extends Controller
         }
 
 
-                /**
-     * @Route("/admin/agence/edit/{id}", name="agence_update")
-     *
-     * @return void
-     */
-    public function edit(Request $request, $id)
-    {
+   /**
+ * @Route("/admin/agence/edit/{id}", name="agence_update")
+ *
+ * @param Request $request
+ * @param int $id
+ * @return Response
+ */
+public function edit(Request $request, $id)
+{
+    $this->SessionStart();
+    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+    $text = file_get_contents($fichier);
+    $boolean = strpos($text, $_SESSION['user']);
 
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+    $agence = self::$em->getRepository(Agence::class)->find($id);
 
-        $user = self::$em->getRepository(Agence::class)->find($id);
-        
-        $form = self::$validator->createBuilder(AgenceType::class, $user)->getForm();
 
-        $form->handleRequest($request);
 
-        // Vérifier si le formulaire est soumis et valide
-        if ($form->isSubmitted() && $form->isValid()) {
+    $form = self::$validator->createBuilder(AgenceType::class, $agence)->getForm();
 
-            self::$em->flush();
-            $this->redirectToRoute("agence_index");
-            
-        }
+ 
 
-        self::$twig->display('admin/role/edit.html.twig', [
-            'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
-        ]);
+    $form->handleRequest($request);
 
+    // Vérifier si le formulaire est soumis et valide
+    if ($form->isSubmitted() && $form->isValid()) {
+        self::$em->flush();
+        return $this->redirectToRoute("agence_index");
     }
+
+    // Debugging: Vérifiez que createView() ne retourne pas null
+    $formView = $form->createView();
+    if ($formView === null) {
+        throw new \Exception('FormView is null');
+    }
+
+    self::$twig->display('admin/agence/edit.html.twig', [
+        'form' => $form->createView(),
+        'infoUserCours' => $infoUserCours,
+        'boolean' => $boolean
+    ]);
+}
+
 }

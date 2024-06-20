@@ -70,19 +70,25 @@ function selectAgence() {
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
-      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-        if (i < services.length) {
-          var option = serviceDebiteurInput.options[i];
-          option.value = services[i].value;
-          option.text = services[i].text;
-        }
+
+      // Supprimer toutes les options existantes
+      while (serviceDebiteurInput.options.length > 0) {
+        serviceDebiteurInput.remove(0);
+      }
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].value;
+        option.text = services[i].text;
+        serviceDebiteurInput.add(option);
       }
 
       // Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-        var option = serviceDebiteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
+      // for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
+      //   var option = serviceDebiteurInput.options[i];
+      //   console.log("Value: " + option.value + ", Text: " + option.text);
+      // }
     })
     .catch((error) => console.error("Error:", error));
 }
