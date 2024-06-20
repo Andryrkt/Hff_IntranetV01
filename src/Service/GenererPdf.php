@@ -16,7 +16,7 @@ class GenererPdf
      *
      * @return void
      */
-    function genererPdfDit(DemandeIntervention $dit)
+    function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel)
     {
         $pdf = new TCPDF();
 
@@ -229,7 +229,79 @@ class GenererPdf
         $pdf->SetXY(110, 2);
         $pdf->Cell(35, 6, "email : ". $dit->getMailDemandeur() , 0, 0, 'L');
 
-    //$pdf->Output('exemple.pdf', 'I');
+
+
+
+
+        /**DEUXIEME PAGE */
+        $pdf->AddPage();
+
+        $header1 = ['Agences', 'Services', 'Date','numor', 'interv', 'commentaire', 'Sommes'];
+
+            // Commencer le tableau HTML
+            $html = '<h2 style="text-align:center">HISTORIQUE DE REPARATION</h2>';
+
+            $html .= '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+
+            $html .= '<thead>';
+            $html .= '<tr>';
+            foreach ($header1 as $key => $value) {
+                if ($key === 0) {
+                    $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
+                } elseif ($key === 1) {
+                    $html .= '<th style="width: 40px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 2) {
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 3) {
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 4) {
+                    $html .= '<th style="width: 30px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 5) {
+                    $html .= '<th style="width: 270px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 6) {
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                
+                } else {
+                    $html .= '<th >' . $value . '</th>';
+                }
+            }
+            $html .= '</tr>';
+            $html .= '</thead>';
+            $html .= '<tbody>';
+            // Ajouter les lignes du tableau
+            foreach ($historiqueMateriel as $row) {
+                $html .= '<tr>';
+                foreach ($row as $key => $cell) {
+              
+                    if ($key === 'codeagence') {
+                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
+                    } elseif ($key === 'codeservice') {
+                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
+                    } elseif ($key === 'datedebut') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'numeroor') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'numerointervention') {
+                        $html .= '<td style="width: 30px"  >' . $cell . '</td>';
+                    } elseif ($key === 'commentaire') {
+                        $html .= '<td style="width: 270px; text-align: left;"  >' . $cell . '</td>';
+                    } elseif ($key === 'somme') {
+                        $html .= '<td style="width: 50px; text-align: right;"  >' . $cell . '</td>';
+                     }
+                    // else {
+                    //     $html .= '<td  >' . $cell . '</td>';
+                    // }
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody>';
+            $html .= '</table>';
+
+
+            $pdf->writeHTML($html, true, false, true, false, '');
+
+
+    $pdf->Output('exemple.pdf', 'I');
     $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
         $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }
@@ -719,6 +791,7 @@ class GenererPdf
 
             $pdf->writeHTML($html, true, false, true, false, '');
         }
+
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 

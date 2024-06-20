@@ -62,7 +62,47 @@ mmat_nummat as num_matricule,
     }
 
 
+    public function historiqueMateriel($idMateriel) {
 
+      $statement = " SELECT
+
+            trim(seor_succ) as codeAgence,
+            --trim(asuc_lib),
+            trim(seor_servcrt) as codeService,
+            --trim(ser.atab_lib),
+            sitv_datdeb as dateDebut,
+            sitv_numor as numeroOr, 
+            sitv_interv as numeroIntervention, 
+            trim(sitv_comment) as commentaire,
+            sum(slor_qterea*slor_pmp) as somme
+
+            FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+
+            where seor_numor = slor_numor
+            and seor_serv <> 'DEV'
+            and sitv_numor = slor_numor
+            and sitv_interv = slor_nogrp/100
+            and (seor_succ = asuc_num) -- or mmat_succ = asuc_parc)
+            and (seor_servcrt = ser.atab_code and ser.atab_nom = 'SER')
+            and (sitv_typitv = sec.atab_code and sec.atab_nom = 'TYI')
+            and (seor_ope = ope.atab_code and ope.atab_nom = 'OPE')
+            and sitv_pos in ('FC','FE','CP','ST')
+            and sitv_servcrt in ('ATE','FOR','GAR','MAN','CSP','MAS')
+            and (seor_nummat = mmat_nummat)
+
+            and mmat_nummat ='$idMateriel'
+
+            group by 1,2,3,4,5,6
+            order by sitv_datdeb desc, sitv_numor, sitv_interv
+            ";
+
+$result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
     
 
 

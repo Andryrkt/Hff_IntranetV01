@@ -27,11 +27,11 @@ class Agence
     private $id;
 
     /**
-     * @ORM\Column("integer", name="code_agence")
+     * @ORM\Column("string", name="code_agence")
      *
-     * @var integer
+     * @var string
      */
-    private int $codeAgence;
+    private string  $codeAgence;
 
     /**
      * @ORM\Column("string", name="libelle_agence")

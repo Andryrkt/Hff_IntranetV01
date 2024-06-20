@@ -7,6 +7,7 @@ use App\Entity\Service;
 use App\Entity\StatutDemande;
 use App\Controller\Controller;
 use App\Controller\Traits\DitTrait;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\Application;
 use App\Entity\DemandeIntervention;
 use App\Entity\User;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class DitController extends Controller
 {
     use DitTrait;
+    use FormatageTrait;
 
     // private DemandeIntervention $demandeIntervention;
 
@@ -77,14 +79,15 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        //INITIALISATION DU FORMULAIRE
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-        
         $demandeIntervention = new DemandeIntervention();
         $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
         $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
         $demandeIntervention->setIdNiveauUrgence(self::$em->getRepository(WorNiveauUrgence::class)->find(1));
-        $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ]));
+        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
+        $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
         $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
 
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -100,23 +103,27 @@ class DitController extends Controller
         {
             $dits = $this->infoEntrerManuel($form);
             
+            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
-            
             self::$em->persist($insertDemandeInterventions);
             self::$em->flush();
 
-            //CREATION DU PDF
+            /**CREATION DU PDF*/
+            //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
-            $this->genererPdf->genererPdfDit($pdfDemandeInterventions);
+            //récupération des historique de materiel (informix)
+            $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            //genere le PDF
+            $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+            //ENVOYER le PDF DANS DOXCUWARE
             if($dits->getAgence()->getCodeAgence() === 91 || $dits->getAgence()->getCodeAgence() === 92) {
-
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
             
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($this->autoINcriment('DIT'));
-            // Persister l'entité Application
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
 

@@ -38,7 +38,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class demandeInterventionType extends AbstractType
 {
     private $serviceRepository;
-
+    private $agenceRepository;
     const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
         'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
@@ -63,6 +63,7 @@ class demandeInterventionType extends AbstractType
    public function __construct()
    {
     $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+    $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -71,50 +72,76 @@ class demandeInterventionType extends AbstractType
         
         
         $builder
-        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
-             //dd($event->getData()->getService());
-            $agence = $event->getData()->getAgence() ?? null;
-            $services = $agence->getServices();
-            
-            $event->getForm()->add('serviceDebiteur',
+        
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();
+            $services = null;
+
+            if ($data instanceof DemandeIntervention && $data->getAgence()) {
+                $services = $data->getAgence()->getServices();
+            }
+            //$services = $data->getAgence()->getServices();
+            // $agence = $event->getData()->getAgence() ?? null;
+            // $services = $agence->getServices();
+      
+            $form->add('service',
             EntityType::class,
             [
-            'mapped' => false,
+            
             'label' => 'Service Debiteur',
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
             'choices' => $services,
-            'disabled' => $agence === null,
+            // 'disabled' => $agence === null,
             'required' => false,
             'query_builder' => function(ServiceRepository $serviceRepository) {
                     return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
-                'data' => $event->getData()->getService(),
+            //'data' => $options['data']->getService(),
                 'attr' => [ 'class' => 'serviceDebiteur']
             ]);
             
         })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            $form = $event->getForm();
+            $data = $event->getData();
+          
+            $agenceId = $data['agence'] ?? null;
+
+            if ($agenceId) {
+               
+                $agence = $this->agenceRepository->find($agenceId);
+                $services = $agence ? $agence->getServices() : [];
+
+                $form->add('service', EntityType::class, [
+                    'label' => 'Service Debiteur',
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'choices' => $services,
+                    'required' => false,
+                    'attr' => ['class' => 'serviceDebiteur']
+                ]);
+            //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
+        }})
         ->add('typeDocument', 
             EntityType::class, [
                 'label' => 'type de document',
-                'placeholder' => '-- Choisir un type de document --',
+                'placeholder' => '-- Choisir--',
                 'class' => WorTypeDocument::class,
-                'choice_label' =>'codeDocument',
+                'choice_label' => function (WorTypeDocument $worTypeDocument): string {
+                    return $worTypeDocument->getCodeDocument() . ' ' . $worTypeDocument->getDescription();
+                },
                 'required' => false,
                 // 'query_builder' => function(RoleRepository $roleRepository) {
                 //     return $roleRepository->createQueryBuilder('r')->orderBy('r.codeDocument', 'ASC');
                 // }
             ])
-        ->add('codeSociete', 
-        EntityType::class, [
-            'label' => 'Société',
-            'placeholder' => '-- Choisir une société --',
-            'class' => Societte::class,
-            'choice_label' =>'codeSociete',
-            'required' => false,
-        ])
+        
         ->add('typeReparation', 
         ChoiceType::class, 
         [
@@ -161,10 +188,10 @@ class demandeInterventionType extends AbstractType
                     ],
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
         ])
-        ->add('agenceDebiteur', 
+        ->add('agence', 
         EntityType::class,
         [
-            'mapped' => false,
+            
             'label' => 'Agence Debiteur',
             'placeholder' => '-- Choisir une agence Debiteur --',
             'class' => Agence::class,
@@ -172,7 +199,7 @@ class demandeInterventionType extends AbstractType
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
             },
             'required' => false,
-            'data' => $options["data"]->getAgence() ?? null,
+            //'data' => $options["data"]->getAgence() ?? null,
             'query_builder' => function(AgenceRepository $agenceRepository) {
                     return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                 },
@@ -190,10 +217,10 @@ class demandeInterventionType extends AbstractType
                     ],
                     'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
-        // ->add('serviceDebiteur', 
+        // ->add('service', 
         // EntityType::class,
         // [
-        //     'mapped' => false,
+            
         //     'label' => 'Service Débiteut',
         //     'placeholder' => '-- Choisir une service débiteur --',
         //     'class' => Service::class,
@@ -201,13 +228,16 @@ class demandeInterventionType extends AbstractType
         //         return $service->getCodeService() . ' ' . $service->getLibelleService();
         //     },
         //     'required' => false,
-        //     'data' => $options['data']->getService() ?? null,
+            
         // ])
         ->add('nomClient',
         TextType::class,
         [
             'label' => 'Nom du client',
             'required' => false,
+            'attr' => [
+                'class' => 'nomClient'
+            ]
         ])
         ->add('numeroTel',
         TelType::class,
@@ -216,27 +246,6 @@ class demandeInterventionType extends AbstractType
             'required' => false,
         ])
         
-        /**à discuter */
-        /*
-        ->add('dateOr', DateType::class, [
-            'widget' => 'single_text',
-            'label' => 'Date OR',
-            'required' => false,
-        ])
-        ->add('heureOR',
-        TextType::class,
-        [
-            'label' => 'Heure OR',
-            'required' => false,
-        ])
-        ->add('mailDemandeur',
-        EmailType::class,
-        [
-            'label' => 'Mail du demandeur',
-            'required' => false,
-        ])
-            */
-        /**fin à discuter */
 
         ->add('datePrevueTravaux', DateType::class, [
             'widget' => 'single_text',
@@ -250,6 +259,7 @@ class demandeInterventionType extends AbstractType
             'choices' => self::OUI_NON,
             'placeholder' => '-- Choisir --',
            'required' => false,
+           'data' => 'OUI'
         ])
         ->add('idNiveauUrgence', 
         EntityType::class, [
@@ -286,6 +296,9 @@ class demandeInterventionType extends AbstractType
         [
             'label' => 'Détail de la demande',
             'required' => false,
+            'attr' => [
+                'rows' => 10,  
+              ],
         ])
         ->add('livraisonPartiel', 
         ChoiceType::class, 

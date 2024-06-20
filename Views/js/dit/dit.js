@@ -17,50 +17,72 @@ function InfoMateriel() {
   const idMateriel = idMaterielInput.value;
   const numParc = numParcInput.value;
   const numSerie = numSerieInput.value;
+  const erreur = document.querySelector("#erreur");
+  const condition =
+    (idMateriel !== "" && idMateriel !== null && idMateriel !== undefined) ||
+    (numParc !== "" && numParc !== null && numParc !== undefined) ||
+    (numSerie !== "" && numSerie !== null && numSerie !== undefined);
+  if (condition) {
+    erreur.innerHTML = "";
+    let url = "/Hffintranet/fetch-materiel";
 
-  let url = "/Hffintranet/fetch-materiel";
+    if (idMateriel) {
+      url += `/${idMateriel}`;
+    } else {
+      url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
+    }
 
-  if (idMateriel) {
-    url += `/${idMateriel}`;
+    if (numParc) {
+      url += `/${numParc}`;
+    } else if (!idMateriel) {
+      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
+    }
+
+    if (numSerie) {
+      url += `/${numSerie}`;
+    } else if (!numParc && !idMateriel) {
+      url += "/"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
+    }
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        //   idMaterielInput.value = data[0].num_matricule;
+        //   numParcInput.value = data[0].num_parc;
+        //   numSerieInput.value = data[0].num_serie;
+
+        constructeurInput.innerHTML = data[0].constructeur;
+        designationInput.innerHTML = data[0].designation;
+        modelInput.innerHTML = data[0].modele;
+        casierInput.innerHTML = data[0].casier_emetteur;
+        kmInput.innerHTML = data[0].km;
+        heuresInput.innerHTML = data[0].heure;
+      })
+      .catch((error) => {
+        if (error instanceof SyntaxError) {
+          erreur.innerHTML =
+            "Erreur : l'information du matériel n'est pas dans la base de données.";
+          constructeurInput.innerHTML = "";
+          designationInput.innerHTML = "";
+          modelInput.innerHTML = "";
+          casierInput.innerHTML = "";
+          kmInput.innerHTML = "";
+          heuresInput.innerHTML = "";
+        } else {
+          console.error("Error:", error);
+          erreur.innerHTML = "Erreur : " + error.message;
+        }
+      });
   } else {
-    url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
+    erreur.innerHTML = "veuillez completer l'un des champs ";
   }
-
-  if (numParc) {
-    url += `/${numParc}`;
-  } else if (!idMateriel) {
-    url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-  }
-
-  if (numSerie) {
-    url += `/${numSerie}`;
-  } else if (!numParc && !idMateriel) {
-    url += "/"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-  }
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      //   idMaterielInput.value = data[0].num_matricule;
-      //   numParcInput.value = data[0].num_parc;
-      //   numSerieInput.value = data[0].num_serie;
-
-      constructeurInput.innerHTML = data[0].constructeur;
-      designationInput.innerHTML = data[0].designation;
-      modelInput.innerHTML = data[0].modele;
-      casierInput.innerHTML = data[0].casier_emetteur;
-      kmInput.innerHTML = data[0].km;
-      heuresInput.innerHTML = data[0].heure;
-    })
-    .catch((error) => console.error("Error:", error));
 }
 
 /**
- * recuperer l'agence et changer le service selon l'agence
+ * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
 const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
-console.log(serviceDebiteurInput);
 agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
@@ -84,11 +106,22 @@ function selectAgence() {
         serviceDebiteurInput.add(option);
       }
 
-      // Afficher les nouvelles valeurs et textes des options
-      // for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-      //   var option = serviceDebiteurInput.options[i];
-      //   console.log("Value: " + option.value + ", Text: " + option.text);
-      // }
+      //Afficher les nouvelles valeurs et textes des options
+      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
+        var option = serviceDebiteurInput.options[i];
+        console.log("Value: " + option.value + ", Text: " + option.text);
+      }
     })
     .catch((error) => console.error("Error:", error));
+}
+
+/**
+ * CHAMP CLIENT MISE EN MAJUSCULE
+ */
+const nomClientInput = document.querySelector(".nomClient");
+
+nomClientInput.addEventListener("input", MiseMajuscule);
+
+function MiseMajuscule() {
+  nomClientInput.value = nomClientInput.value.toUpperCase();
 }

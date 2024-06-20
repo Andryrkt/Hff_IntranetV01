@@ -12,7 +12,7 @@
 			<div class="card-body">
 
 				<div class="container">
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+					<h2 class="text-center fs-1 fw-bold bg-black py-2 text-white">
 						Formulaire Demande d'intervention
 					</h2>
 
@@ -35,14 +35,10 @@
 
 					<div class="row">
 						<div class="col-12 col-md-3">{{ form_row(form.typeDocument) }}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.codeSociete) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
 						<div class="col-12 col-md-3">{{ form_row(form.categorieDemande) }}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.livraisonPartiel)}}</div>
-					</div>
-
-					<div class="row">
-						<div class="col-12 col-md-3">{{ form_row(form.demandeDevis)}}</div>
-						<div class="col-12 col-md-3">{{ form_row(form.avisRecouvrement)}}</div>
 
 					</div>
 
@@ -59,8 +55,8 @@
 
 							<div class="row">
 								<div class="col-12 col-md-6">
-									{{ form_row(form.agenceDebiteur)}}
-									{{ form_row(form.serviceDebiteur)}}
+									{{ form_row(form.agence)}}
+									{{ form_row(form.service)}}
 
 								</div>
 								<div class="col-12 col-md-6">
@@ -88,7 +84,6 @@
 							<div class="row">
 								<div class="col-12 col-md-4">
 									{{ form_row(form.idMateriel)}}
-
 								</div>
 								<div class="col-12 col-md-4">
 									{{ form_row(form.numSerie)}}
@@ -96,6 +91,9 @@
 								<div class="col-12 col-md-4">
 									{{ form_row(form.numParc)}}
 								</div>
+							</div>
+							<div class="row">
+								<span id="erreur"></span>
 							</div>
 
 
@@ -182,7 +180,7 @@
 						</div>
 					</div>
 
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn bouton">
 						<i class="fas fa-save"></i>
 						Enregistrer
 					</button>

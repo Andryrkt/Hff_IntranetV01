@@ -21,8 +21,8 @@ trait DitTrait
             $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
-            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).''.substr($dits->getServiceEmetteur(), 0, 3));
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().''. $dits->getService()->getCodeService());
+            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
             //INTERVENTION
             $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
             $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
@@ -107,5 +107,20 @@ trait DitTrait
 
 
         return $demandeIntervention;
+    }
+
+    private function historiqueInterventionMateriel($dits): array
+    {
+        $historiqueMateriel = $this->ditModel->historiqueMateriel($dits->getIdMateriel());
+            foreach ($historiqueMateriel as $keys => $values) {
+                foreach ($values as $key => $value) {
+                    if ($key == "datedebut") {
+                        $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
+                    } elseif ($key === 'somme' || $key === 'numeroor') {
+                        $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
+                    }
+                }
+            }
+        return $historiqueMateriel;
     }
 }
