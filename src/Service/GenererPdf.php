@@ -39,9 +39,13 @@ class GenererPdf
 
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->setAbsX(55);
-        $pdf->cell(110, 6, $dit->getTypeDocument()->getDescription(), 0, 0, 'C', false, '', 0, false, 'T', 'M');
-        
-        
+        if ($dit->getTypeDocument() !== null) {
+            $descriptionTypeDocument = $dit->getTypeDocument()->getDescription();
+        } else {
+            $descriptionTypeDocument = 'N/A'; // Ou toute autre valeur par défaut appropriée
+        }
+            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
@@ -59,7 +63,12 @@ class GenererPdf
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
-        $pdf->cell(30, 6, $dit->getCategorieDemande()->getLibelleCategorieAteApp(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        if ($dit->getCategorieDemande() !== null) {
+            $libelleCategorie = $dit->getCategorieDemande()->getLibelleCategorieAteApp();
+        } else {
+            $libelleCategorie = 'N/A'; // Ou toute autre valeur par défaut appropriée
+        }
+        $pdf->cell(30, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(85);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
         $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');

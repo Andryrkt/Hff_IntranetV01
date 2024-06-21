@@ -40,3 +40,8 @@
     color: black;
     font-weight: bold;
 }
+
+.cadre {
+    border: 1px solid #aaa;
+    border-radius: 10px;
+}

@@ -33,6 +33,7 @@ use App\Model\dom\DomDuplicationModel;
 use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
+use App\Model\TransferDonnerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -89,6 +90,8 @@ class Controller
 
     protected $ditModel;
 
+    protected $transfer04;
+
     public function __construct()
     {
 
@@ -142,6 +145,8 @@ class Controller
         $this->profilUser = new ProfilUserModel();
 
         $this->ditModel = new DitModel();
+
+        $this->transfer04 = new TransferDonnerModel();
     }
 
 

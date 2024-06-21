@@ -2,7 +2,8 @@
 
 namespace App\Traits;
 
-
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Annotations\Annotation;
 trait CaracteristiqueMaterielTrait
 {
     
@@ -18,8 +19,18 @@ trait CaracteristiqueMaterielTrait
 
    private $numSerie;
 
+   /**
+    * @ORM\Column(type="integer")
+    *
+    * @var [type]
+    */
    private $km;
 
+   /**
+    * @ORM\Column(type="integer")
+    *
+    * @var [type]
+    */
    private $heure;
 
    

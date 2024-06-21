@@ -24,6 +24,7 @@ class connexionDote4
 
     public function query($sql)
     {
+        echo "Executing query: $sql\n";
         $result = odbc_exec($this->conn, $sql);
         if (!$result) {
             throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));

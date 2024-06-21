@@ -271,6 +271,13 @@ class DemandeIntervention
      */
     private ?datetime $dateSoumissionDevis = null;
 
+/**
+     * @ORM\Column(type="datetime", name="date_devis_rattache", nullable=true)
+     *
+     * @var datetime|null
+     */
+    private ?datetime $dateDevisRattache = null;
+    
     /**
      * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
      */

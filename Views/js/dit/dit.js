@@ -125,3 +125,33 @@ nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
+
+/**
+ * INTERNE - EXTERNE
+ */
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
+
+console.log(numTelInput, clientSousContratInput);
+
+if (interneExterneInput.value === "INTERNE") {
+  nomClientInput.setAttribute("disabled", true);
+  numTelInput.setAttribute("disabled", true);
+  clientSousContratInput.setAttribute("disabled", true);
+}
+
+interneExterneInput.addEventListener("change", interneExterne);
+function interneExterne() {
+  if (interneExterneInput.value === "EXTERNE") {
+    nomClientInput.removeAttribute("disabled");
+    numTelInput.removeAttribute("disabled");
+    clientSousContratInput.removeAttribute("disabled");
+    agenceDebiteurInput.setAttribute("disabled", true);
+    serviceDebiteurInput.setAttribute("disabled", true);
+  } else {
+    nomClientInput.setAttribute("disabled", true);
+    numTelInput.setAttribute("disabled", true);
+    clientSousContratInput.setAttribute("disabled", true);
+  }
+}

@@ -103,6 +103,7 @@ class demandeInterventionType extends AbstractType
             //'data' => $options['data']->getService(),
                 'attr' => [ 'class' => 'serviceDebiteur']
             ]);
+
             
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
@@ -133,9 +134,7 @@ class demandeInterventionType extends AbstractType
                 'label' => 'type de document',
                 'placeholder' => '-- Choisir--',
                 'class' => WorTypeDocument::class,
-                'choice_label' => function (WorTypeDocument $worTypeDocument): string {
-                    return $worTypeDocument->getCodeDocument() . ' ' . $worTypeDocument->getDescription();
-                },
+                'choice_label' => 'description',
                 'required' => false,
                 // 'query_builder' => function(RoleRepository $roleRepository) {
                 //     return $roleRepository->createQueryBuilder('r')->orderBy('r.codeDocument', 'ASC');
@@ -175,7 +174,9 @@ class demandeInterventionType extends AbstractType
             'label' => "Interne et Externe",
             'choices' => self::INTERNE_EXTERNE,
             'placeholder' => '-- Choisir --',
+            'data' => 'INTERNE',
            'required' => false,
+           'attr' => [ 'class' => 'interneExterne']
         ])
         ->add('agenceEmetteur', 
         TextType::class,
@@ -244,6 +245,9 @@ class demandeInterventionType extends AbstractType
         [
             'label' => 'N° téléphone',
             'required' => false,
+            'attr' => [
+                'class' => 'numTel'
+            ]
         ])
         
 
@@ -283,7 +287,8 @@ class demandeInterventionType extends AbstractType
             'label' => "client sous contrat",
             'choices' => self::OUI_NON,
            'required' => false,
-           'data' => 'NON'
+           'data' => 'NON',
+           'attr' => [ 'class' => 'clientSousContrat']
         ])
         ->add('objetDemande',
         TextType::class,
