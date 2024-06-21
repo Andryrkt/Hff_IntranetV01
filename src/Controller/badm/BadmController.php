@@ -622,8 +622,7 @@ class BadmController extends Controller
             elseif ($codeMouvement === 'ENTREE EN PARC' && in_array($idMateriel, $idMateriels)) {
                 $message = 'ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
-            } 
-            elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && in_array($idMateriel, $idMateriels)) {
+            } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $agenceServiceEmetteur === $agenceServiceDestinataire) {
                 $message = 'le choix du type devrait être Changement de Casier';
                 $this->alertRedirection($message);
             } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $conditionAgenceService) {
