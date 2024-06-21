@@ -15,7 +15,6 @@ trait DitTrait
             $demandeIntervention->setObjetDemande($dits->getObjetDemande());
             $demandeIntervention->setDetailDemande($dits->getDetailDemande());
             $demandeIntervention->setTypeDocument($dits->getTypeDocument());
-            $demandeIntervention->setCodeSociete($dits->getCodeSociete());
             $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
             $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
             $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
 use App\Traits\DateTrait;
 use App\Entity\TypeReparation;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,7 +21,7 @@ class Societte
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_societe")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
@@ -40,12 +41,16 @@ class Societte
      */
     private $demandeInterventions;
 
-
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="societtes")
+     */
+    private $users;
    
 
     public function __construct()
     {
         $this->demandeInterventions = new ArrayCollection();
+        $this->users = new ArrayCollection();
 
     }
 
@@ -113,5 +118,27 @@ class Societte
         return $this;
     }
 
+    
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
 
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addSociette($this);
+        }
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            $user->removeSociette($this);
+        }
+        return $this;
+    }
 }

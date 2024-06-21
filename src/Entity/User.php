@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\Societte;
+use App\Traits\DateTrait;
 use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +16,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class User
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -48,50 +52,24 @@ class User
      */
     private $mail;
 
-    
-    /**
-     * @ORM\Column(type="date")
-     *
-     * @var [type]
-     */
-    private $date_creation;
-
-    
-    /**
-     * @ORM\Column(type="date")
-     *
-     * @var [type]
-     */
-    private $date_modification;
-
-    public function __construct()
-    {
-        $this->date_creation = new \DateTime();
-        $this->applications = new ArrayCollection();
-    }
-
-    
-    /**
+     /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
-
+    
      /**
-     * @ORM\PrePersist
+     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_societe")
      */
-    public function onPrePersist(): void
-    {
-        $this->date_creation = new \DateTime();
-        $this->date_modification = new \DateTime();
-    }
+    private $societtes;
 
-    /**
-     * @ORM\PreUpdate
-     */
-    public function onPreUpdate(): void
+    
+
+    public function __construct()
     {
-        $this->date_modification = new \DateTime();
+        $this->applications = new ArrayCollection();
+        $this->societtes = new ArrayCollection();
     }
 
     
@@ -172,34 +150,7 @@ class User
         return $this;
     }
 
-    public function getDatecreation()
-    {
-        return $this->date_creation;
-    }
-
-
-    public function setDatecreation( $date_creation): self
-    {
-        $this->date_creation = $date_creation;
-
-        return $this;
-    }
-
    
-    public function getDatemodification()
-    {
-        return $this->date_modification;
-    }
-
-  
-    public function setDatemodification( $date_modification): self
-    {
-        $this->date_modification = $date_modification;
-
-        return $this;
-    }
-
-
      /**
      * @return Collection|Application[]
      */
@@ -221,6 +172,31 @@ class User
     {
         if ($this->applications->contains($application)) {
             $this->applications->removeElement($application);
+        }
+
+        return $this;
+    }
+
+
+    
+    public function getSociettes(): Collection
+    {
+        return $this->societtes;
+    }
+
+    public function addSociette(Societte $societte): self
+    {
+        if (!$this->societtes->contains($societte)) {
+            $this->societtes[] = $societte;
+        }
+
+        return $this;
+    }
+
+    public function removeSociette(Societte $societte): self
+    {
+        if ($this->societtes->contains($societte)) {
+            $this->societtes->removeElement($societte);
         }
 
         return $this;

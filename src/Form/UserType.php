@@ -6,6 +6,7 @@ use App\Entity\Role;
 use App\Entity\User;
 use App\Model\LdapModel;
 use App\Entity\Application;
+use App\Entity\Societte;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use Symfony\Component\Form\FormEvents;
@@ -74,6 +75,17 @@ class UserType extends AbstractType
                 'label' => 'Applications',
                 'class' => Application::class,
                 'choice_label' => 'codeApp',
+                'multiple' => true,
+                'expanded' => true
+            ])
+            ->add('societtes',
+            EntityType::class,
+            [
+                'label' => 'Sociétes',
+                'class' => Societte::class,
+                'choice_label' => function (Societte $societte): string {
+                    return $societte->getCodeSociete() . ' ' . $societte->getNom();
+                },
                 'multiple' => true,
                 'expanded' => true
             ])

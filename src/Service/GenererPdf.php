@@ -39,7 +39,7 @@ class GenererPdf
 
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->setAbsX(55);
-        $pdf->cell(110, 6, $dit->getTypeDocument(), 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->cell(110, 6, $dit->getTypeDocument()->getDescription(), 0, 0, 'C', false, '', 0, false, 'T', 'M');
         
         
         $pdf->SetTextColor(0, 0, 0);
@@ -59,7 +59,7 @@ class GenererPdf
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
-        $pdf->cell(30, 6, $dit->getCategorieDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getCategorieDemande()->getLibelleCategorieAteApp(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(85);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
         $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -301,7 +301,7 @@ class GenererPdf
             $pdf->writeHTML($html, true, false, true, false, '');
 
 
-    $pdf->Output('exemple.pdf', 'I');
+    //$pdf->Output('exemple.pdf', 'I');
     $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
         $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }

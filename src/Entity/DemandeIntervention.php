@@ -45,7 +45,7 @@ class DemandeIntervention
 
     /**
      * @ORM\ManyToOne(targetEntity="Societte", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id_societe")
+     * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
      */
     private  $codeSociete = null;// relation avec la table societe
 
@@ -61,9 +61,9 @@ class DemandeIntervention
 
    /**
      * @ORM\ManyToOne(targetEntity="CategorieATEAPP", inversedBy="DemandeIntervention")
-     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id_categorie_ate_app")
+     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
      */
-    private ?string $categorieDemande = null;//relation avec la table categorie_ate_app
+    private ?CategorieAteApp $categorieDemande = null;//relation avec la table categorie_ate_app
 
     /**
      * @ORM\Column(type="string", length=140, name="internet_externe",nullable=true)
