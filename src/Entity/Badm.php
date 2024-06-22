@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="Demande_Mouvement_Materiel")
  * @ORM\HasLifecycleCallbacks
  */
-class badm
+class Badm
 {
     //use DateTrait;
 

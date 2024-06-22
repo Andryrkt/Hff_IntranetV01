@@ -90,14 +90,14 @@ class DitController extends Controller
         $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
         $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
 
+        //AFFICHE LE FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
 
 
  
         $form->handleRequest($request);
-        if(!isset($flashes)){
-            $flashes = [];
-        }
+
+        
         
         if($form->isSubmitted() && $form->isValid())
         {
@@ -128,8 +128,8 @@ class DitController extends Controller
             self::$em->flush();
 
 
-            $this->flashManager->addFlash('sucess', 'demande ajouter');
-            $flashes = $this->flashManager->getFlashes('success');
+            
+          
             $this->redirectToRoute("dit_new");
             
         }
@@ -137,8 +137,7 @@ class DitController extends Controller
         self::$twig->display('dit/new.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
-            'form' => $form->createView(),
-            'flashes' => $flashes,
+            'form' => $form->createView()
         ]);
     }
 
@@ -146,7 +145,7 @@ class DitController extends Controller
 
 /**
  * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
- *
+ * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
  * @return void
  */
     public function agence($id) {
@@ -179,6 +178,7 @@ class DitController extends Controller
 
     /**
      * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
+     * cette fonctin permet d'envoyer les informations materiels en ajax
      */
     public function fetchMateriel($idMateriel,  $numParc, $numSerie)
     {
