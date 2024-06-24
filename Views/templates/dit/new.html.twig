@@ -171,58 +171,67 @@
 							{{ macroForm.sousTitre('pièce Joint', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
+
 							{{ form_row(form.pieceJoint02)}}
+
 							{{ form_row(form.pieceJoint03)}}
 
+							{# DEBUT Bilan financière#}
+							{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
+							<div class="cadre">
+								<ul>
+									<div class="row">
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Coût d'acquisition :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="coutAcquisition"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Amortissement :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="amortissement"></div>
+											</li>
+										</div>
 
+									</div>
+
+									<div class="row">
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">VNC :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="vnc"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">CA :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="ca"></div>
+											</li>
+										</div>
+									</div>
+
+									<div class="row">
+
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Charge Locative :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="chargeLocative"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Charge d'entretien :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="chargeEntretien"></div>
+											</li>
+										</div>
+									</div>
+									<li class="fw-bold">
+										Résultat d'exploitation:
+										<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="resultatExploitation"></div>
+									</li>
+
+								</ul>
+							</div>
+							{# FIN Bilan #}
 						</div>
-						<div class="cadre">
-							<ul>
-								<div class="row">
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">Constructeur :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="constructeur"></div>
-										</li>
-									</div>
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">Modèle :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="model"></div>
-										</li>
-									</div>
 
-								</div>
-
-								<div class="row">
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">Désignation :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="designation"></div>
-										</li>
-									</div>
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">Casier :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="casier"></div>
-										</li>
-									</div>
-								</div>
-
-								<div class="row">
-
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">KM :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="km"></div>
-										</li>
-									</div>
-									<div class="col-12 col-md-6">
-										<li class="fw-bold">Heures :
-											<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="heures"></div>
-										</li>
-									</div>
-								</div>
-
-
-							</ul>
-						</div>
 					</div>
+
 
 					<button type="submit" class="btn bouton">
 						<i class="fas fa-save"></i>

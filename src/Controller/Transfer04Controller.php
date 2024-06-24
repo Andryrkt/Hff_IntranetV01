@@ -22,7 +22,7 @@ class Transfer04Controller extends Controller
            $transferToBd["numero_demande_dit"] = $value["NumeroDemandeIntervention"];
             $transferToBd["agence_service_emmeteur"] = $value["IDAgence"] .'-'. $value["IDService"];
             $transferToBd["utilisateur_demandeur"] = $value["UtilisateurDemandeur"];
-            $transferToBd["id_materiel"] = $value["NumeroMateriel"];
+            $transferToBd["ID_Materiel"] = $value["NumeroMateriel"];
             $transferToBd["objet_demande"] = $value["ObjetDemande"];
             $transferToBd["piece_joint1"] = $value["FichierJoint1"];
             $transferToBd["piece_joint2"] = $value["FichierJoint2"];
@@ -40,8 +40,8 @@ class Transfer04Controller extends Controller
             $transferToBd["numero_client"] = $value["NumeroClient"];
             $transferToBd["nom_client"] = $value["LibelleClient"];
             $transferToBd["agence_service_debiteur"] = $value["IDAgenceDebiteur"] . '-' . $value["IDServiceDebiteur"];
-            $transferToBd["km"] = $value["KilometrageMachine"];
-            $transferToBd["heure"] = $value["HeureMachine"];
+            $transferToBd["KM_machine"] = $value["KilometrageMachine"];
+            $transferToBd["Heure_machine"] = $value["HeureMachine"];
             $transferToBd["categorie_demande"] = $value["IDCategorieATEAPP"];
             $transferToBd["demande_devis"] = $value["DemandeDevis"];
             $transferToBd["date_fin_souhaite"] = $value["DateFinSouhaitee"];

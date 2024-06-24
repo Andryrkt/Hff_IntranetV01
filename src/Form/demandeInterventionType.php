@@ -302,7 +302,8 @@ class demandeInterventionType extends AbstractType
             'label' => 'Détail de la demande',
             'required' => false,
             'attr' => [
-                'rows' => 10,  
+                'rows' => 5,
+                'class' => 'detailDemande'  
               ],
         ])
         ->add('livraisonPartiel', 

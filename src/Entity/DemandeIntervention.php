@@ -2,16 +2,17 @@
 
 namespace App\Entity;
 
-use App\Traits\AgenceServiceEmetteurTrait;
-use App\Traits\AgenceServiceTrait;
-use App\Traits\CaracteristiqueMaterielTrait;
-use App\Traits\numParcNumSerieTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\File\File;
+use App\Traits\AgenceServiceTrait;
+use App\Traits\AgenceServiceEmetteurTrait;
+use App\Traits\BilanFinancierMaterielTrait;
 use Doctrine\Common\Collections\Collection;
+use App\Traits\CaracteristiqueMaterielTrait;
+use App\Validator\DemandeInterventionValidator;
+use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 
 /**
@@ -25,10 +26,11 @@ class DemandeIntervention
    use AgenceServiceEmetteurTrait;
    use AgenceServiceTrait;
    use CaracteristiqueMaterielTrait;
+   use BilanFinancierMaterielTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_demande_intervention_atelier")
+     * @ORM\Column(type="integer")
      */
     private $id;
     
@@ -133,6 +135,7 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="string", length=5000, name="detail_demande",nullable=true)
+     * @Assert\Callback({"DemandeInterventionValidator", "validateTextarea"})
      */
     private ?string $detailDemande = null;
 
@@ -142,7 +145,7 @@ class DemandeIntervention
     private ?string $livraisonPartiel = null;
 
     /**
-     * @ORM\Column(type="integer", name="id_materiel", nullable=true)
+     * @ORM\Column(type="integer", name="ID_Materiel", nullable=true)
      */
     private ?int $idMateriel = null;
 

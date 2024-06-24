@@ -8,6 +8,15 @@ const modelInput = document.querySelector("#model");
 const casierInput = document.querySelector("#casier");
 const kmInput = document.querySelector("#km");
 const heuresInput = document.querySelector("#heures");
+const coutAcquisitionInput = document.querySelector("#coutAcquisition");
+const amortissementInput = document.querySelector("#amortissement");
+const vncInput = document.querySelector("#vnc");
+const caInput = document.querySelector("#ca");
+const chargeLocativeInput = document.querySelector("#chargeLocative");
+const chargeEntretienInput = document.querySelector("#chargeEntretien");
+const resultatExploitationInput = document.querySelector(
+  "#resultatExploitation"
+);
 
 idMaterielInput.addEventListener("blur", InfoMateriel);
 numParcInput.addEventListener("blur", InfoMateriel);
@@ -47,6 +56,7 @@ function InfoMateriel() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+
         //   idMaterielInput.value = data[0].num_matricule;
         //   numParcInput.value = data[0].num_parc;
         //   numSerieInput.value = data[0].num_serie;
@@ -57,6 +67,19 @@ function InfoMateriel() {
         casierInput.innerHTML = data[0].casier_emetteur;
         kmInput.innerHTML = data[0].km;
         heuresInput.innerHTML = data[0].heure;
+        coutAcquisitionInput.innerHTML = formatNumber(data[0].prix_achat);
+        amortissementInput.innerHTML = formatNumber(data[0].amortissement);
+        vncInput.innerHTML = formatNumber(
+          data[0].prix_achat - data[0].amortissement
+        );
+        caInput.innerHTML = formatNumber(data[0].chiffreaffaires);
+        chargeLocativeInput.innerHTML = formatNumber(data[0].chargelocative);
+        chargeEntretienInput.innerHTML = formatNumber(data[0].chargeentretien);
+        resultatExploitationInput.innerHTML = formatNumber(
+          data[0].chiffreaffaires -
+            data[0].chargelocative -
+            data[0].chargeentretien
+        );
       })
       .catch((error) => {
         if (error instanceof SyntaxError) {
@@ -68,6 +91,13 @@ function InfoMateriel() {
           casierInput.innerHTML = "";
           kmInput.innerHTML = "";
           heuresInput.innerHTML = "";
+          coutAcquisitionInput.innerHTML = "";
+          amortissementInput.innerHTML = "";
+          vncInput.innerHTML = "";
+          caInput.innerHTML = "";
+          chargeLocativeInput.innerHTML = "";
+          chargeEntretienInput.innerHTML = "";
+          resultatExploitationInput.innerHTML = "";
         } else {
           console.error("Error:", error);
           erreur.innerHTML = "Erreur : " + error.message;
@@ -155,3 +185,45 @@ function interneExterne() {
     clientSousContratInput.setAttribute("disabled", true);
   }
 }
+
+/**
+ * permet de formater le nombre en limitant 2 chiffre après la virgule et séparer les millier par un point
+ */
+function formatNumber(input) {
+  let number = parseFloat(input);
+  if (!isNaN(number)) {
+    // Formater le nombre en utilisant la locale fr-FR
+    let formatted = number.toLocaleString("fr-FR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    // Remplacer les espaces par des points pour les séparateurs de milliers
+    formatted = formatted.replace(/\s/g, ".");
+    return formatted;
+  }
+}
+
+/**
+ * VALIDATION DU DETAIL DEMANDE
+ */
+const textarea = document.querySelector(".detailDemande");
+
+textarea.addEventListener("input", function () {
+  var lines = textarea.value.split("\n");
+
+  // Limiter le nombre de lignes à 3
+  if (lines.length > 3) {
+    textarea.value = lines.slice(0, 3).join("\n");
+    lines = textarea.value.split("\n"); // Recalculer les lignes après la coupe
+  }
+
+  // Limiter chaque ligne à 86 caractères
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].length > 86) {
+      lines[i] = lines[i].substring(0, 86);
+    }
+  }
+
+  // Mettre à jour la valeur du textarea
+  textarea.value = lines.join("\n");
+});

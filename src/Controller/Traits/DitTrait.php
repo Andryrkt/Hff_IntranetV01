@@ -93,6 +93,12 @@ trait DitTrait
             $demandeIntervention->setDesignation($data[0]['designation']);
             $demandeIntervention->setCasier($data[0]['casier_emetteur']);
             $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+            //Bilan financière
+            $demandeIntervention->setCoutAcquisition($data[0]['prix_achat']);
+            $demandeIntervention->setAmortissement($data[0]['amortissement']);
+            $demandeIntervention->setChiffreAffaire($data[0]['chiffreaffaires']);
+            $demandeIntervention->setChargeEntretient($data[0]['chargelocative']);
+            $demandeIntervention->setChargeLocative($data[0]['chargeentretien']);
             //Etat machine
             $demandeIntervention->setKm($data[0]['km']);
             $demandeIntervention->setHeure($data[0]['heure']);

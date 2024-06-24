@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\DemandeIntervention;
 use PhpParser\Node\Expr\Isset_;
 use TCPDF;
@@ -11,6 +12,7 @@ use TCPDF;
 
 class GenererPdf
 {
+    use FormatageTrait;
     /**
      * GENERER PDF DEMANDE D'INTERVENTION
      *
@@ -59,7 +61,8 @@ class GenererPdf
         $pdf->Ln(10, true);
 
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(165, 10, $dit->getDetailDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(165, 10, $dit->getDetailDemande()."\n", 1, 'J', 0, 2, '' ,'', true);
+        //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
@@ -82,7 +85,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 63);
+        $pdf->setAbsXY(50, 65);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -230,6 +233,44 @@ class GenererPdf
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+         /** BILANT FINANCIERE */
+         $pdf->setFont('helvetica', 'B', 12);
+         $pdf->SetTextColor(14, 65, 148);
+         
+         $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->SetFillColor(14, 65, 148);
+         $pdf->setAbsXY(41, 215);
+         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+         $pdf->Ln(10, true);
+ 
+         $pdf->SetTextColor(0, 0, 0);
+         $pdf->setFont('helvetica', 'B', 10);
+ 
+         
+ 
+         $pdf->MultiCell(27, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
+         $pdf->cell(40, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->setAbsX(80);
+         $pdf->MultiCell(20, 6, "Amort :", 0, 'L', false, 0);
+         $pdf->cell(40, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->setAbsX(140);
+         $pdf->cell(20, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->Ln(15, true);
+ 
+         $pdf->MultiCell(27, 6, "Charge d\'entretien :", 0, 'L', false, 0);
+         $pdf->cell(40, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->setAbsX(80);
+         $pdf->MultiCell(20, 6, "Charge Locative :", 0, 'L', false, 0);
+         $pdf->cell(40, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->setAbsX(140);
+         $pdf->cell(20, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
+         $pdf->Ln(15, true);
+ 
+         $pdf->MultiCell(45, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
+         $pdf->cell(40, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
+ 
         
 
         // entête email
@@ -627,6 +668,7 @@ class GenererPdf
 
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
+
         $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(41, 178);

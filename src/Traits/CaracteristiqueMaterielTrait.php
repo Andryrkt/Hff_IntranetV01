@@ -7,33 +7,37 @@ use Doctrine\Common\Annotations\Annotation;
 trait CaracteristiqueMaterielTrait
 {
     
-   private $constructeur;
+   private $constructeur = "";
 
-   private $designation;
+   private $designation = "";
 
-   private $modele;
+   private $modele = "";
 
-   private $casier;
+   private $casier = "";
 
-   private $numParc;
+   private $numParc = "";
 
-   private $numSerie;
+   private $numSerie = "";
+
+   
 
    /**
-    * @ORM\Column(type="integer")
+    * @ORM\Column(type="integer", name="KM_machine")
     *
     * @var [type]
     */
    private $km;
 
    /**
-    * @ORM\Column(type="integer")
+    * @ORM\Column(type="integer", name="Heure_machine")
     *
     * @var [type]
     */
    private $heure;
 
+
    
+
    public function getConstructeur()
    {
       return $this->constructeur;
@@ -115,6 +119,7 @@ trait CaracteristiqueMaterielTrait
    }
 
    
+   
    public function getKm()
    {
       return $this->km;
@@ -141,4 +146,7 @@ trait CaracteristiqueMaterielTrait
 
       return $this;
    }
+
+   
+   
 }

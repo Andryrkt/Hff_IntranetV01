@@ -138,10 +138,10 @@ $requestStack = new RequestStack();
 $request = Request::createFromGlobals();
 $requestStack->push($request);
 
-// Initialisation du conteneur de services
-// $containerBuilder = new ContainerBuilder();
-// $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
-// $loader->load('services.yaml');
+//Initialisation du conteneur de services
+$containerBuilder = new ContainerBuilder();
+$loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
+$loader->load('services.yaml');
 
 // Initialisation de la session
 //$session = new Session();
