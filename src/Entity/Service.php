@@ -3,10 +3,10 @@
 namespace App\Entity;
 
 
+use App\Entity\User;
 use App\Entity\Agence;
 use App\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -47,9 +47,18 @@ class Service
      */
     private Collection $agences;
 
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="services")
+     
+     */
+    private Collection $users;
+
+
     public function __construct()
     {
         $this->agences = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId()
@@ -87,8 +96,6 @@ class Service
     }
 
 
-    
-  
     public function getAgences(): Collection
     {
         return $this->agences;
@@ -108,6 +115,30 @@ class Service
         if($this->agences->contains($agence)) {
             $this->agences->removeElement($agence);
           $agence->removeService($this);
+        }
+        return $this;
+    }
+
+
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if(!$this->users->contains($user)){
+            $this->users[] = $user;
+            $user->addService($this);
+        }
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if($this->users->contains($user)) {
+            $this->users->removeElement($user);
+          $user->removeService($this);
         }
         return $this;
     }

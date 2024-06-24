@@ -20,7 +20,7 @@ class Secteur
 /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_secteur")
+     * @ORM\Column(type="integer")
      */
     private $id;
 

@@ -2,9 +2,10 @@
 
 namespace App\Controller\admin;
 
-use App\Controller\Controller;
 use App\Entity\User;
+use App\Entity\Agence;
 use App\Form\UserType;
+use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,7 +47,10 @@ class UserController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        $form = self::$validator->createBuilder(UserType::class)->getForm();
+        $user = new User();
+        $user->setAgences(self::$em->getRepository(Agence::class)->find(1));
+
+        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
         $form->handleRequest($request);
 

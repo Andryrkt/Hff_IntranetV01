@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Entity\Role;
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Entity\Societte;
 use App\Traits\DateTrait;
 use App\Entity\Application;
@@ -25,18 +28,14 @@ class User
      */
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Role", inversedBy="users")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
-     */
-    private $role;
+   
 
     /**
      * @ORM\Column(type="string", length="255")
      *
      * @var [type]
      */
-    private $nom_utilisateur;
+    private $nom_utilisateur = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -51,6 +50,20 @@ class User
      * @var [type]
      */
     private $mail;
+    
+     /**
+     * @ORM\ManyToOne(targetEntity="Role", inversedBy="users")
+     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
+     */
+    private $role;
+
+
+     /**
+     * @ORM\ManyToOne(targetEntity="Agence", inversedBy="users")
+     * @ORM\JoinColumn(name="agence_id", referencedColumnName="id")
+     */
+    private $agences;
+
 
      /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
@@ -64,12 +77,17 @@ class User
      */
     private $societtes;
 
-    
+    /**
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_service")
+     */
+    private $services;
 
     public function __construct()
     {
         $this->applications = new ArrayCollection();
         $this->societtes = new ArrayCollection();
+        $this->services = new ArrayCollection();
     }
 
     
@@ -92,44 +110,28 @@ class User
         return $this;
     }
 
-    /**
-     * Get the value of nom_utilisateur
-     *
-     * @return  [type]
-     */ 
-    public function getNomutilisateur()
+    
+    public function getNomutilisateur(): string
     {
         return $this->nom_utilisateur;
     }
 
-    /**
-     * Set the value of nom_utilisateur
-     *
-     * @param  string  $nom_utilisateur
-     *
-     * @return  self
-     */ 
-    public function setNomutilisateur( $nom_utilisateur)
+    
+    public function setNomutilisateur( string $nom_utilisateur): self
     {
         $this->nom_utilisateur = $nom_utilisateur;
 
         return $this;
     }
 
-    /**
-     * Get the value of matricule
-     */ 
-    public function getMatricule()
+    
+    public function getMatricule(): int
     {
         return $this->matricule;
     }
 
-    /**
-     * Set the value of matricule
-     *
-     * @return  self
-     */ 
-    public function setMatricule($matricule)
+    
+    public function setMatricule($matricule): self
     {
         $this->matricule = $matricule;
 
@@ -150,6 +152,19 @@ class User
         return $this;
     }
 
+
+    public function getAgences()
+    {
+        return $this->agences;
+    }
+
+  
+    public function setAgences($agence): self
+    {
+        $this->agences = $agence;
+
+        return $this;
+    }
    
      /**
      * @return Collection|Application[]
@@ -197,6 +212,30 @@ class User
     {
         if ($this->societtes->contains($societte)) {
             $this->societtes->removeElement($societte);
+        }
+
+        return $this;
+    }
+
+
+    public function getServices(): Collection
+    {
+        return $this->services;
+    }
+
+    public function addService(Service $service): self
+    {
+        if (!$this->services->contains($service)) {
+            $this->services[] = $service;
+        }
+
+        return $this;
+    }
+
+    public function removeService(Service $service): self
+    {
+        if ($this->services->contains($service)) {
+            $this->services->removeElement($service);
         }
 
         return $this;

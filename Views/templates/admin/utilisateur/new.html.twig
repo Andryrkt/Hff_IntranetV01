@@ -22,11 +22,6 @@
 							{{ form_row(form.nom_utilisateur) }}
 							{{ form_row(form.matricule) }}
 							{{ form_row(form.mail) }}
-
-
-						</div>
-						<div class="col-12 col-md-6">
-
 							{{ form_row(form.role)}}
 							<div class="row">
 								<div class="col-12 col-md-6">
@@ -37,7 +32,10 @@
 								</div>
 							</div>
 
-
+						</div>
+						<div class="col-12 col-md-6">
+							{{form_row(form.agences)}}
+							{{form_row(form.services)}}
 						</div>
 					</div>
 
@@ -52,4 +50,8 @@
 			</div>
 		</div>
 
+	{% endblock %}
+
+	{% block javascript %}
+		<script src="/Hffintranet/Views/js/admin/users.js"></script>
 	{% endblock %}

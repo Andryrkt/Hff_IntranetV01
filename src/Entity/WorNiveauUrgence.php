@@ -19,7 +19,7 @@ class WorNiveauUrgence{
 /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_niveau_urgence")
+     * @ORM\Column(type="integer")
      */
     private $id;
 

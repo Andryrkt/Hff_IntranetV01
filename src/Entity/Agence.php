@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 
+use App\Entity\User;
 use App\Entity\Service;
 use App\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,6 +42,12 @@ class Agence
     private string $libelleAgence;
 
     /**
+     * @ORM\OneToMany(targetEntity="User", mappedBy="agences")
+     */
+    private $users;
+
+
+    /**
      * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences", fetch="EAGER")
      * @ORM\JoinTable(name="agence_service")
      */
@@ -50,6 +57,7 @@ class Agence
     public function __construct()
     {
         $this->services = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId()
@@ -103,6 +111,44 @@ class Agence
         if ($this->services->contains($service)) {
             $this->services->removeElement($service);
         }
+
+        return $this;
+    }
+
+
+     /**
+     * @return Collection|User[]
+     */ 
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setAgences($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            if ($user->getAgences() === $this) {
+                $user->setAgences(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setUsers($users): self
+    {
+        $this->users = $users;
 
         return $this;
     }
