@@ -2,22 +2,30 @@
 
 namespace App\Form;
 
+use App\Entity\Dom;
 use App\Entity\Agence;
-use App\Entity\Permission;
-use App\Entity\Role;
 use App\Entity\Service;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Controller\Controller;
+use App\Repository\ServiceRepository;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
-
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 
 
 class AgenceServiceType extends AbstractType
 {
+
+    private $agenceRepository;
+
+    public function __construct()
+    {
+       $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -25,25 +33,70 @@ class AgenceServiceType extends AbstractType
         ->add('agences',
         EntityType::class,
         [
-            'label' => 'service',
-                'class' => Agence::class,
+            'label' => 'Agence :',
+            'class' => Agence::class,
                 'choice_label' => function (Agence $service): string {
                     return $service->getCodeAgence() . ' ' . $service->getLibelleAgence();
                 },
-                'multiple' => true,
-                'expanded' => false
+            'attr' => [ 'class' => 'agenceDebiteur']
+                
         ])
-        ->add('services',
-        EntityType::class,
-        [
-            'label' => 'service',
-                'class' => Service::class,
-                'choice_label' => function (Service $service): string {
-                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();
+            $services = null;
+            
+            if ($data instanceof Dom && $data->getAgence()) {
+                $services = $data->getAgence()->getServices();
+            }
+                  
+            $form->add('services',
+            EntityType::class,
+            [
+            
+            'label' => 'Service :',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            },
+            'choices' => $services,
+            // 'disabled' => $agence === null,
+            'required' => false,
+            'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
+            //'data' => $options['data']->getService(),
+                'attr' => [ 'class' => 'serviceDebiteur'],
                 'multiple' => true,
                 'expanded' => false
-        ])
+            ]);
+
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            $form = $event->getForm();
+            $data = $event->getData();
+          
+            $agenceId = $data['agence'] ?? null;
+
+            if ($agenceId) {
+               
+                $agence = $this->agenceRepository->find($agenceId);
+                $services = $agence ? $agence->getServices() : [];
+
+                $form->add('service', EntityType::class, [
+                    'label' => 'Service Debiteur',
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'choices' => $services,
+                    'required' => false,
+                    'attr' => ['class' => 'serviceDebiteur'],
+                    'multiple' => true,
+                'expanded' => false
+                ]);
+            //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
+        }})
     ;
     }
 

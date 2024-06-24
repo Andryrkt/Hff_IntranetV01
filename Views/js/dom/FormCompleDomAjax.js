@@ -4,7 +4,7 @@ function Select1Value(data, selectedOption) {
   const select1 = document.querySelector("#select1");
 
   // Vider le contenu de l'élément select
-  select1.innerHTML = "";
+  //elect1.innerHTML = "";
 
   // Ajouter les options
   for (const key in data) {
@@ -34,7 +34,7 @@ function fetchData(selectOption = undefined) {
         setTimeout(() => {
           selectOption = document.getElementById("select1").value.toUpperCase();
           console.log(selectOption);
-        }, 300);
+        }, 1000);
       }
 
       setTimeout(() => {
@@ -88,7 +88,7 @@ if (document.querySelector("#NumDOM") === null) {
       ).value;
       //console.log('valiny :' + selectedOption);
       fetchData(selectedOption);
-    }, 500);
+    }, 1000);
     setTimeout(() => {
       //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
       libserv = document
@@ -110,16 +110,16 @@ if (document.querySelector("#NumDOM") === null) {
       ).value;
       //console.log(selectedOption)
       fetchData(selectedOption);
-    }, 500);
+    }, 2000);
     setTimeout(() => {
-      //console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
+      console.log(
+        document.querySelector("#LibServ").value.toUpperCase().trim()
+      );
+      $serv = document.querySelector("#LibServ").value.toUpperCase().trim();
       document.querySelector(
-        `#serviceIrium option[value="${document
-          .querySelector("#LibServ")
-          .value.toUpperCase()
-          .trim()}"]`
+        `#serviceIrium option[value="${$serv}"]`
       ).selected = true;
-    }, 3000);
+    }, 5000);
   }
 
   console.log(check);

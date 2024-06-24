@@ -1312,13 +1312,13 @@ class DomControl extends Controller
      * creation du débiteur (code service et service)
      * @Route("/agServDest", name="dom_agenceServiceJson")
      */
-    // public function agenceServiceJson()
-    // {
-    //     $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
+    public function agenceServiceJson()
+    {
+        $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
 
-    //     header("Content-type:application/json");
+        header("Content-type:application/json");
 
-    //     echo json_encode($codeServiceIrium);
-    // }
+        echo json_encode($codeServiceIrium);
+    }
 }

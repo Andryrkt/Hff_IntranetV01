@@ -327,9 +327,11 @@ class Controller
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
         if ($nomDemande === 'BDM') {
-            $Max_Num = $this->badm->RecupereNumBDM();
+            //$Max_Num = $this->badm->RecupereNumBDM();
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM'])->getDerniereId();
         } elseif ($nomDemande === 'CAS') {
-            $Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS'])->getDerniereId();
         } elseif ($nomDemande === 'DIT') {
             $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
         }
