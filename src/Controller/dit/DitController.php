@@ -13,6 +13,7 @@ use App\Entity\DemandeIntervention;
 use App\Entity\User;
 use App\Entity\WorNiveauUrgence;
 use App\Form\demandeInterventionType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -55,6 +56,7 @@ class DitController extends Controller
     private function infoEntrerManuel($form) 
     {
         $dits = $form->getData();
+        
         $dits->setUtilisateurDemandeur($_SESSION['user']);
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
@@ -63,6 +65,8 @@ class DitController extends Controller
             $dits->setNumeroDemandeIntervention($this->autoINcriment('DIT'));
             $email = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
             $dits->setMailDemandeur($email);
+
+         
             return $dits;
     }
 
@@ -103,6 +107,16 @@ class DitController extends Controller
         {
             $dits = $this->infoEntrerManuel($form);
             
+            if($form->get('pieceJoint03')->getData() !== null){
+                $this->uplodeFile($form, $dits, 'pieceJoint03');
+            $this->uplodeFile($form, $dits, 'pieceJoint02');
+            $this->uplodeFile($form, $dits, 'pieceJoint01');
+            }
+            
+
+        
+        
+        
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
             self::$em->persist($insertDemandeInterventions);

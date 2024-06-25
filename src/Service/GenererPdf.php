@@ -44,7 +44,7 @@ class GenererPdf
         if ($dit->getTypeDocument() !== null) {
             $descriptionTypeDocument = $dit->getTypeDocument()->getDescription();
         } else {
-            $descriptionTypeDocument = 'N/A'; // Ou toute autre valeur par défaut appropriée
+            $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
         }
             $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
@@ -63,13 +63,13 @@ class GenererPdf
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->MultiCell(165, 10, $dit->getDetailDemande()."\n", 1, 'J', 0, 2, '' ,'', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(15, true);
+        $pdf->Ln(10, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
         if ($dit->getCategorieDemande() !== null) {
             $libelleCategorie = $dit->getCategorieDemande()->getLibelleCategorieAteApp();
         } else {
-            $libelleCategorie = 'N/A'; // Ou toute autre valeur par défaut appropriée
+            $libelleCategorie = ''; // Ou toute autre valeur par défaut appropriée
         }
         $pdf->cell(30, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(85);
@@ -85,7 +85,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 65);
+        $pdf->setAbsXY(50, 75);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -109,7 +109,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Agence - Service', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 85);
+        $pdf->setAbsXY(50, 96);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -128,7 +128,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Réparation', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(35, 107);
+        $pdf->setAbsXY(35, 118);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 165, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -150,7 +150,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, ' Client ', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(30, 129);
+        $pdf->setAbsXY(30, 140);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 170, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -173,7 +173,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(70, 151);
+        $pdf->setAbsXY(70, 161);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
         $pdf->Ln(10, true);
         
@@ -216,7 +216,7 @@ class GenererPdf
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(40, 193);
+        $pdf->setAbsXY(40, 203);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -239,7 +239,7 @@ class GenererPdf
          
          $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
          $pdf->SetFillColor(14, 65, 148);
-         $pdf->setAbsXY(41, 215);
+         $pdf->setAbsXY(41, 225);
          $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
          $pdf->Ln(10, true);
  
@@ -351,9 +351,9 @@ class GenererPdf
             $pdf->writeHTML($html, true, false, true, false, '');
 
 
-    //$pdf->Output('exemple.pdf', 'I');
-    $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
-        $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
+    $pdf->Output('exemple.pdf', 'I');
+    //$Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
+      //  $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }
 
     /**
@@ -970,16 +970,16 @@ class GenererPdf
     {
 
         if (substr($NumDom, 0, 3) === 'DOM') {
-            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         } else if (substr($NumDom, 0, 3) === 'BDM') {
-            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         } else if (substr($NumDom, 0, 3) === 'CAS') {
-            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         }  else if (substr($NumDom, 0, 3) === 'DIT') {
-            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DIT\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
+            $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\DIT\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
             // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         }
 

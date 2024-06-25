@@ -157,7 +157,7 @@ function MiseMajuscule() {
 }
 
 /**
- * INTERNE - EXTERNE
+ * INTERNE - EXTERNE (champ )
  */
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
@@ -173,6 +173,7 @@ if (interneExterneInput.value === "INTERNE") {
 
 interneExterneInput.addEventListener("change", interneExterne);
 function interneExterne() {
+  console.log(interneExterneInput.value);
   if (interneExterneInput.value === "EXTERNE") {
     nomClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
@@ -183,6 +184,8 @@ function interneExterne() {
     nomClientInput.setAttribute("disabled", true);
     numTelInput.setAttribute("disabled", true);
     clientSousContratInput.setAttribute("disabled", true);
+    agenceDebiteurInput.removeAttribute("disabled");
+    serviceDebiteurInput.removeAttribute("disabled");
   }
 }
 

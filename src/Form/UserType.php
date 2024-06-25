@@ -145,15 +145,15 @@ class UserType extends AbstractType
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
-          
-            $agenceId = $data['agence'] ?? null;
+      
+            $agenceId = $data['agences'] ?? null;
 
             if ($agenceId) {
                
                 $agence = $this->agenceRepository->find($agenceId);
                 $services = $agence ? $agence->getServices() : [];
 
-                $form->add('service', EntityType::class, [
+                $form->add('services', EntityType::class, [
                     'label' => 'Service Debiteur',
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {

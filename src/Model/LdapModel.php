@@ -14,7 +14,7 @@ class LdapModel
 
     public function __construct()
     {
-        $this->ldapconn = ldap_connect($this->ldapHost, $this->ldapPort);
+        $this->ldapconn = ldap_connect("ldap://192.168.0.1:389");
 
         if (!$this->ldapconn) {
             die("Connexion au serveur LDAP échouée.");

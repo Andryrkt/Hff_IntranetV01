@@ -41,7 +41,7 @@ class DemandeIntervention
 
     /**
      * @ORM\ManyToOne(targetEntity="WorTypeDocument", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="type_document", referencedColumnName="id_type_document")
+     * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
      */
     private  $typeDocument = null;//relation avec la table wor_type_document
 
@@ -114,7 +114,7 @@ class DemandeIntervention
 
     /**
      * @ORM\ManyToOne(targetEntity="WorNiveauUrgence", inversedBy="DemandeInterventions")
-     * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id_niveau_urgence")
+     * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id")
      */
     private  $idNiveauUrgence = null;
 
@@ -327,7 +327,7 @@ class DemandeIntervention
 
     /**
      * @ORM\ManyToOne(targetEntity="Secteur", inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="secteur", referencedColumnName="id_secteur")
+     * @ORM\JoinColumn(name="secteur", referencedColumnName="id")
      */
     private $secteur = null;
 

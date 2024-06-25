@@ -334,7 +334,9 @@ class Controller
             $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS'])->getDerniereId();
         } elseif ($nomDemande === 'DIT') {
             $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
-        }
+        } elseif ($nomDemande === 'DOM') {
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM'])->getDerniereId();
+        } 
         else {
             $Max_Num = $nomDemande . $AnneMoisOfcours . '0000';
         }

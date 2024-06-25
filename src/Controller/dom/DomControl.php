@@ -349,7 +349,7 @@ class DomControl extends Controller
 
             $dateSystem = $_POST['datesyst'];
             $dateS = date("d/m/Y", strtotime($_POST['datesyst']));
-            $NumDom = $this->DomModel->DOM_autoINcriment(); //$_POST['NumDOM'];
+            $NumDom = $this->autoINcriment('DOM'); //$_POST['NumDOM'];
 
             $Devis = $_POST['Devis'];
 

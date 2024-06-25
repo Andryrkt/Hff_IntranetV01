@@ -57,7 +57,7 @@ class UserController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $utilisateur= $form->getData(); 
-
+     
             $selectedApplications = $form->get('applications')->getData();
 
             foreach ($selectedApplications as $application) {

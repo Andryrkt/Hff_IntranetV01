@@ -97,8 +97,8 @@ trait DitTrait
             $demandeIntervention->setCoutAcquisition($data[0]['prix_achat']);
             $demandeIntervention->setAmortissement($data[0]['amortissement']);
             $demandeIntervention->setChiffreAffaire($data[0]['chiffreaffaires']);
-            $demandeIntervention->setChargeEntretient($data[0]['chargelocative']);
-            $demandeIntervention->setChargeLocative($data[0]['chargeentretien']);
+            $demandeIntervention->setChargeEntretient($data[0]['chargeentretien']);
+            $demandeIntervention->setChargeLocative($data[0]['chargelocative']);
             //Etat machine
             $demandeIntervention->setKm($data[0]['km']);
             $demandeIntervention->setHeure($data[0]['heure']);
@@ -127,5 +127,16 @@ trait DitTrait
                 }
             }
         return $historiqueMateriel;
+    }
+
+    private function uplodeFile($form, $dits, $nomFichier)
+    {
+        /** @var UploadedFile $file*/
+        $file = $form->get($nomFichier)->getData();
+        $fileName = '0'. substr($nomFichier,-1,1) . $dits->getNumeroDemandeIntervention() . '.' . $file->getClientOriginalExtension();
+        $fileDossier = $_SERVER['DOCUMENT_ROOT']. '/Hffintranet/Upload/dit/fichier';
+        //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
+        $file->move($fileDossier, $fileName);
+        $dits->set.ucfirst($nomFichier)($fileName);
     }
 }
