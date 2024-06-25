@@ -230,3 +230,11 @@ textarea.addEventListener("input", function () {
   // Mettre à jour la valeur du textarea
   textarea.value = lines.join("\n");
 });
+
+// bloque la soumission par l'appuis de la touche entrer
+const formDitInput = document.querySelector("#formDit");
+formDitInput.addEventListener("keydown", function (e) {
+  if (e.key == "Enter") {
+    e.preventDefault();
+  }
+});

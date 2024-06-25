@@ -351,9 +351,9 @@ class GenererPdf
             $pdf->writeHTML($html, true, false, true, false, '');
 
 
-    $pdf->Output('exemple.pdf', 'I');
-    //$Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
-      //  $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
+    //$pdf->Output('exemple.pdf', 'I');
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
+      $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }
 
     /**
