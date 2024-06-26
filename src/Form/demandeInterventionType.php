@@ -178,17 +178,6 @@ class demandeInterventionType extends AbstractType
            'required' => false,
            'attr' => [ 'class' => 'interneExterne']
         ])
-        ->add('agenceEmetteur', 
-        TextType::class,
-        [
-           'mapped' => false,
-                    'label' => 'Agence',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true
-                    ],
-                    'data' => $options["data"]->getAgenceEmetteur() ?? null
-        ])
         ->add('agence', 
         EntityType::class,
         [
@@ -206,6 +195,18 @@ class demandeInterventionType extends AbstractType
                 },
                 'attr' => [ 'class' => 'agenceDebiteur']
         ])
+        ->add('agenceEmetteur', 
+        TextType::class,
+        [
+           'mapped' => false,
+                    'label' => 'Agence',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true
+                    ],
+                    'data' => $options["data"]->getAgenceEmetteur() ?? null
+        ])
+       
         ->add('serviceEmetteur', 
         TextType::class,
         [
