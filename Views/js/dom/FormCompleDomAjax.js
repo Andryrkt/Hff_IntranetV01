@@ -88,7 +88,7 @@ if (document.querySelector("#NumDOM") === null) {
       ).value;
       //console.log('valiny :' + selectedOption);
       fetchData(selectedOption);
-    }, 1000);
+    }, 2000);
     setTimeout(() => {
       //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
       libserv = document
@@ -99,7 +99,7 @@ if (document.querySelector("#NumDOM") === null) {
       document.querySelector(
         `#serviceIrium option[value="${libserv}"]`
       ).selected = true;
-    }, 3000);
+    }, 5000);
   } else {
     setTimeout(() => {
       const serv = document.querySelector("#Serv").value.toUpperCase().trim();

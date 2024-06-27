@@ -36,7 +36,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.4.33",
+        "php": ">=7.4",
         "setasign/fpdi": "^2.6",
         "twig/twig": "^3.9",
         "tecnickcom/tcpdf": "^6.7",
