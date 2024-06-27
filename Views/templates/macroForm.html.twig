@@ -17,6 +17,12 @@
 </div>
 {% endmacro %}
 
+{% macro readOnly(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
+</div>
+{% endmacro %}
 
 {% macro inputText(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
