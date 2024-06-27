@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\DitRepository;
 use App\Traits\AgenceServiceTrait;
 use App\Traits\AgenceServiceEmetteurTrait;
 use App\Traits\BilanFinancierMaterielTrait;
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\DemandeInterventionRepository")
+ * @ORM\Entity(repositoryClass=DitRepository::class)
  * @ORM\Table(name="demande_intervention")
  * @ORM\HasLifecycleCallbacks
  */

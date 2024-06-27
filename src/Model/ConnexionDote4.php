@@ -4,7 +4,7 @@ namespace App\Model;
 
 class connexionDote4
 {
-    private $DB = "HFF_INTRANET_V04";
+    private $DB = "HFF_INTRANET_V04_TEST";
     private $User = "sa";
     private $pswd = "catkpi";
     private $conn;

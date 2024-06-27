@@ -18,11 +18,16 @@
 		<div class="w-50">
 			{{ form_start(form, {'method': 'GET'}) }}
 			<div class="row">
-				<div class="col-12 col-md-6">
+				<div class="col-12 col-md-4">
 					{{ form_row(form.statut) }}
-					{{ form_row(form.typeMouvement) }}
+					{{ form_row(form.typeDocument) }}
+					{{ form_row(form.niveauUrgence) }}
 				</div>
-				<div class="col-12 col-md-6">
+				<div class="col-12 col-md-4">
+					{{form_row(form.idMateriel)}}
+					{{form_row(form.internetExterne)}}
+				</div>
+				<div class="col-12 col-md-4">
 					{{ form_row(form.dateDebut) }}
 					{{ form_row(form.dateFin) }}
 				</div>
@@ -41,9 +46,9 @@
 		<div class="container">
 			<div class="d-flex justify-content-between">
 				<div>
-					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=excelBadm" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+					<button id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
 						<i class="fas fa-table"></i>
-						Excel</a>
+						Excel</button>
 
 
 					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
@@ -60,14 +65,14 @@
 					{% set queryParams = criteria  %}
 
 					{% if currentPage > 1 %}
-						<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
+						<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
 							<i class="fas fa-angle-left text-warning"></i>
 						</a>
 					{% endif %}
 
 
 					{% if currentPage < totalPages %}
-						<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
+						<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
 							<i class="fas fa-angle-right text-warning"></i>
 						</a>
 					{% endif %}
@@ -81,11 +86,15 @@
 							<i class="fas fa-ellipsis-vertical"></i>
 						</th>
 						<th>Statut</th>
-						<th>N° BADM</th>
-						<th>Code_Mouvement</th>
+						<th>N° DIT</th>
+						<th>type Document</th>
+						<th>Niveau</th>
+						<th>Categories</th>
 						<th>Id Materiel</th>
-						<th>Ag\Serv Emetteur</th>
-						<th>Ag\Serv Destinataire</th>
+						<th>date Demande</th>
+						<th>Int/Ext</th>
+						<th>Ag\Serv emetteur</th>
+						<th>Ag\Serv débiteur</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -99,10 +108,10 @@
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										<li>
-											<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
+											<a class="dropdown-item fw-bold" style="color: #000;" href="#">Ajouter</a>
 										</li>
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
+											<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
 										</li>
 									</ul>
 								</div>
@@ -110,33 +119,37 @@
 							{# Fin Actions #}
 
 							{# DEBUT Statut #}
-							{% if item.statutDemande.description | trim == 'OUVERT' %}
+							{% if item.idStatutDemande.description | trim == 'OUVERT' %}
 								<td class="bg-warning bg-gradient fw-bold text-cente">
-									{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'CLOTURE' or item.statutDemande.description | trim == 'CLOTURE COMPTA' %}
-								<td class="bg-success bg-gradient fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
-								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
-								<td class="bg-info fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.statutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.statutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
-								<td class="bg-danger fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
-								<td class="bg-primary fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
-								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+									{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'CLOTURE' or item.idStatutDemande.description | trim == 'CLOTURE COMPTA' %}
+								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
+								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
+								<td class="bg-info fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
+								<td class="bg-danger fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
+								<td class="bg-primary fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
+								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
 							{% else %}
-								<td>{{item.statutDemande.description | trim}}</td>
+								<td>{{item.idStatutDemande.description | trim}}</td>
 							{% endif %}
 							{# FIN Statut #}
 
 							<td>
-								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}">{{ item.numBadm }}</a>
+								<a href="#">{{ item.numeroDemandeIntervention }}</a>
 							</td>
-							<td>{{ item.typeMouvement}}</td>
+							<td>{{ item.typeDocument.description}}</td>
+							<td>{{ item.idNiveauUrgence.description}}</td>
+							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
 							<td>{{ item.idMateriel}}</td>
+							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
-							<td>{{ item.agenceServiceDestinataire}}</td>
+							<td>{{ item.agenceServiceDebiteur}}</td>
 						</tr>
 					{% endfor %}
 				</tbody>
@@ -149,6 +162,6 @@
 
 	{% block javascript %}
 		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-		<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
+		<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
 
 	{% endblock %}

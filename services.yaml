@@ -1,0 +1,92 @@
+# config/services.yaml
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  App\Controller\:
+    resource: "./src/Controller"
+    tags: ["controller.service_arguments"]
+
+  # Autres services
+  App\Model\ProfilModel: ~
+
+  Twig\Environment:
+    arguments:
+      - "@twig.loader"
+      - { debug: "%kernel.debug%", strict_variables: "%kernel.debug%" }
+    public: true
+    calls:
+      - [addExtension, ["@twig.extension.routing"]]
+      - [addExtension, ["@twig.extension.trans"]]
+      - [addExtension, ["@twig.extension.debug"]]
+      - [addExtension, ["@twig.extension.form"]]
+
+  twig.loader:
+    class: Twig\Loader\FilesystemLoader
+    arguments: ["%kernel.project_dir%/Views/templates"]
+
+  # Extensions Twig
+  twig.extension.routing:
+    class: Symfony\Bridge\Twig\Extension\RoutingExtension
+    arguments: ["@router"]
+
+  twig.extension.trans:
+    class: Symfony\Bridge\Twig\Extension\TranslationExtension
+    arguments: ["@translator"]
+
+  twig.extension.debug:
+    class: Twig\Extension\DebugExtension
+
+  twig.extension.form:
+    class: Symfony\Bridge\Twig\Extension\FormExtension
+
+  # Form Factory
+  Symfony\Component\Form\FormFactoryInterface:
+    factory: ['Symfony\Component\Form\Forms', "createFormFactory"]
+
+    # Router
+  router:
+    class: Symfony\Component\Routing\Router
+    arguments:
+      - "@router.loader"
+      - "%kernel.project_dir%/config/routes.yaml"
+      - { cache_dir: "%kernel.cache_dir%", debug: "%kernel.debug%" }
+
+  router.loader:
+    class: Symfony\Component\Routing\Loader\AnnotationDirectoryLoader
+    arguments:
+      - "@file_locator"
+      - "@annotations.loader"
+
+  annotations.loader:
+    class: Doctrine\Common\Annotations\PsrCachedReader
+    arguments:
+      - "@annotations.reader"
+      - "@annotations.cache"
+
+  annotations.reader:
+    class: Doctrine\Common\Annotations\AnnotationReader
+
+  annotations.cache:
+    class: Symfony\Component\Cache\Adapter\ArrayAdapter
+
+  file_locator:
+    class: Symfony\Component\Config\FileLocator
+    arguments:
+      - "%kernel.project_dir%/config"
+  # URL Generator
+  Symfony\Component\Routing\Generator\UrlGeneratorInterface: "@router"
+
+  # Session
+  Symfony\Component\HttpFoundation\Session\SessionInterface: "@session"
+
+  # CSRF Token Manager
+  Symfony\Component\Security\Csrf\CsrfTokenManagerInterface: "@security.csrf.token_manager"
+
+  # Validator
+  Symfony\Component\Validator\Validator\ValidatorInterface: "@validator"
+
+  # Translator
+  Symfony\Component\Translation\TranslatorInterface: "@translator"

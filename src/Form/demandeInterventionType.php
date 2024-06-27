@@ -51,8 +51,8 @@ class demandeInterventionType extends AbstractType
     ];
 
     const INTERNE_EXTERNE = [
-        'INTERNE' => 'INTERNE',
-        'EXTERNE' => 'EXTERNE'
+        'INTERNE' => 'I',
+        'EXTERNE' => 'E'
     ];
 
     const OUI_NON = [
@@ -174,7 +174,7 @@ class demandeInterventionType extends AbstractType
             'label' => "Interne et Externe",
             'choices' => self::INTERNE_EXTERNE,
             'placeholder' => '-- Choisir --',
-            'data' => 'INTERNE',
+            'data' => 'I',
            'required' => false,
            'attr' => [ 'class' => 'interneExterne']
         ])

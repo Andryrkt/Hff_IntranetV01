@@ -121,9 +121,7 @@ class BadmListeController extends Controller
             $totalPages = ceil($totalBadms / $limit);
         }
         
-        
-        
-      
+
 
         self::$twig->display(
             'badm/listBadm.html.twig',

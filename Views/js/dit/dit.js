@@ -165,7 +165,7 @@ const clientSousContratInput = document.querySelector(".clientSousContrat");
 
 console.log(numTelInput, clientSousContratInput);
 
-if (interneExterneInput.value === "INTERNE") {
+if (interneExterneInput.value === "I") {
   nomClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
   clientSousContratInput.setAttribute("disabled", true);
@@ -174,7 +174,7 @@ if (interneExterneInput.value === "INTERNE") {
 interneExterneInput.addEventListener("change", interneExterne);
 function interneExterne() {
   console.log(interneExterneInput.value);
-  if (interneExterneInput.value === "EXTERNE") {
+  if (interneExterneInput.value === "E") {
     nomClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");

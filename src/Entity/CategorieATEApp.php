@@ -88,22 +88,22 @@ class CategorieAteApp
         return $this->demandeInterventions;
     }
 
-    public function addDemandeIntervention(User $demandeIntervention): self
+    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setRole($this);
+            $demandeIntervention->setCategorieDemande($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeIntervention(User $demandeIntervention): self
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if ($this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getRole() === $this) {
-                $demandeIntervention->setRole(null);
+            if ($demandeIntervention->getCategorieDemande() === $this) {
+                $demandeIntervention->setCategorieDemande(null);
             }
         }
         

@@ -81,22 +81,22 @@ class WorNiveauUrgence{
         return $this->demandeInterventions;
     }
 
-    public function addDemandeIntervention(User $demandeIntervention): self
+    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setRole($this);
+            $demandeIntervention->setIdNiveauUrgence($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeIntervention(User $demandeIntervention): self
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if ($this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getRole() === $this) {
-                $demandeIntervention->setRole(null);
+            if ($demandeIntervention->getIdNiveauUrgence() === $this) {
+                $demandeIntervention->setIdNiveauUrgence(null);
             }
         }
         
@@ -107,5 +107,10 @@ class WorNiveauUrgence{
         $this->demandeInterventions = $demandeIntervention;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->description; 
     }
 }
