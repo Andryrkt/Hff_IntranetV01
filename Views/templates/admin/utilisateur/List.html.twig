@@ -61,7 +61,13 @@
 								<td>{{item.nomUtilisateur}}</td>
 								<td>{{item.matricule}}</td>
 								<td>{{item.mail}}</td>
-								<td>{{item.role.rolename}}</td>
+								<td>
+									<ul>
+										{% for a in item.roles %}
+											<li>{{a.rolename}}</li>
+										{% endfor %}
+									</ul>
+								</td>
 								<td>
 
 									<ul>

@@ -110,7 +110,6 @@ class BadmListeController extends Controller
         $totalPages = ceil($totalBadms / $limit);
         
         if($request->query->get("envoyer") === "excelBadm") {
-        
          $this->excelExport->exportToExcelBadm($repository->findAndFilteredExcel($criteria));
         }
 
@@ -145,6 +144,7 @@ class BadmListeController extends Controller
         );
     }
 
+  
     // /**
     //  * @Route("/ListJsonBadm")
     //  */

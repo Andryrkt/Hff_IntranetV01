@@ -52,10 +52,10 @@ class User
     private $mail;
     
      /**
-     * @ORM\ManyToOne(targetEntity="Role", inversedBy="users")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
+     * @ORM\JoinTable(name="user_roles")
      */
-    private $role;
+    private $roles;
 
 
      /**
@@ -88,6 +88,7 @@ class User
         $this->applications = new ArrayCollection();
         $this->societtes = new ArrayCollection();
         $this->services = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
 
     
@@ -97,15 +98,26 @@ class User
     }
 
    
-    public function getRole()
+    
+    public function getRoles(): Collection
     {
-        return $this->role;
+        return $this->roles;
     }
 
-  
-    public function setRole($role): self
+    public function addRole(Role $role): self
     {
-        $this->role = $role;
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    public function removeRole(Role $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+        }
 
         return $this;
     }

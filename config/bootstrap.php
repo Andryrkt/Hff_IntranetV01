@@ -150,7 +150,7 @@ $loader->load('services.yaml');
 // Initialisation des services nécessaires
 // $containerBuilder->set('session', $session);
 // $containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
-// $containerBuilder->compile();
+ $containerBuilder->compile();
 
 
 

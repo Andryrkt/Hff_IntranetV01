@@ -1,5 +1,30 @@
 import { FetchManager } from "./../FetchManager.js";
 
+const excelBadmInput = document.querySelector("#excelBadm");
+console.log(excelBadmInput);
+
+excelBadmInput.addEventListener("click", fetchvaleur);
+
+function fetchvaleur() {
+  const fetchManager = new FetchManager("/Hffintranet");
+  fetchManager
+    .get("ListJsonBadm")
+    .then((raw_data) => {
+      console.log(raw_data);
+
+      //export excel
+      exportExcelButton.addEventListener("click", () => {
+        ExportExcel(raw_data);
+      });
+    })
+    .catch((error) => {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error
+      );
+    });
+}
+
 /**
  * @Andryrkt
  * cette fonction permet d'exporter les données filtrée ou non dans une fichier excel

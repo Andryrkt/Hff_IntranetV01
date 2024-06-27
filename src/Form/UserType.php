@@ -67,7 +67,7 @@ class UserType extends AbstractType
                 'required' =>false,
                 // 'disabled' => true
             ])
-        ->add('role', 
+        ->add('roles', 
             EntityType::class, [
                 'label' => 'Role',
                 'placeholder' => '-- Choisir une role --',
@@ -75,7 +75,9 @@ class UserType extends AbstractType
                 'choice_label' =>'role_name',
                 'query_builder' => function(RoleRepository $roleRepository) {
                     return $roleRepository->createQueryBuilder('r')->orderBy('r.role_name', 'ASC');
-                }
+                },
+                'multiple' => true,
+                'expanded' => true
             ])
         ->add('applications',
             EntityType::class,
