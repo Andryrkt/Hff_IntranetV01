@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=DitRepository::class)
@@ -32,136 +33,162 @@ class DemandeIntervention
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("intervention")
      */
     private $id;
     
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $numeroDemandeIntervention = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="WorTypeDocument", inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
+     * @Groups("intervention")
      */
     private  $typeDocument = null;//relation avec la table wor_type_document
 
     /**
      * @ORM\ManyToOne(targetEntity="Societte", inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
+     * @Groups("intervention")
      */
     private  $codeSociete = null;// relation avec la table societe
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $typeReparation = null;
 
     /**
      * @ORM\Column(type="string", length=30, name="reparation_realise",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $reparationRealise = null;
 
    /**
      * @ORM\ManyToOne(targetEntity="CategorieATEAPP", inversedBy="DemandeIntervention")
      * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
+     * @Groups("intervention")
      */
     private ?CategorieAteApp $categorieDemande = null;//relation avec la table categorie_ate_app
 
     /**
      * @ORM\Column(type="string", length=140, name="internet_externe",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $internetExterne = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="agence_service_debiteur",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $agenceServiceDebiteur = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="agence_service_emmeteur",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $agenceServiceEmetteur = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="nom_client",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $nomClient = null;
 
     /**
      * @ORM\Column(type="string", length=10, name="numero_telephone",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $numeroTel= null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_or",nullable=true)
+     * @Groups("intervention")
      */
     private ?DateTime $dateOr = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_or",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $heureOR = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_prevue_travaux",nullable=true)
+     * @Groups("intervention")
      */
     private ?DateTime $datePrevueTravaux = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="demande_devis",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $demandeDevis = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="WorNiveauUrgence", inversedBy="DemandeInterventions")
      * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id")
+     * @Groups("intervention")
      */
     private  $idNiveauUrgence = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="avis_recouvrement",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $avisRecouvrement = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="client_sous_contrat",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $clientSousContrat = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_demande",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $objetDemande = null;
 
     /**
      * @ORM\Column(type="string", length=5000, name="detail_demande",nullable=true)
      * @Assert\Callback({"DemandeInterventionValidator", "validateTextarea"})
+     * @Groups("intervention")
      */
     private ?string $detailDemande = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="livraison_partiel",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $livraisonPartiel = null;
 
     /**
      * @ORM\Column(type="integer", name="ID_Materiel", nullable=true)
+     * @Groups("intervention")
      */
     private ?int $idMateriel = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="mail_demandeur",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $mailDemandeur = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_demande", nullable=true)
+     * @Groups("intervention")
      */
     private ?datetime $dateDemande = null;
 
 /**
  * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
+ * @Groups("intervention")
  *
  * @var string|null
  */
@@ -169,6 +196,7 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="datetime", name="date_cloture")
+     * @Groups("intervention")
      *
      * @var DateTime|null
      */
@@ -176,6 +204,7 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_cloture",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $heureCloture = null;
 
@@ -186,6 +215,7 @@ class DemandeIntervention
      *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
      *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
      * )
+     * @Groups("intervention")
      */
     private ?string $pieceJoint03 = null;
 
@@ -196,6 +226,7 @@ class DemandeIntervention
      *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
      *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
      * )
+     * @Groups("intervention")
      */
     private ?string $pieceJoint01 =null;
 
@@ -206,77 +237,92 @@ class DemandeIntervention
  *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
  *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
  * )
+ * @Groups("intervention")
  */
     private ?string $pieceJoint02=null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_demandeur", nullable=true)
+     * @Groups("intervention")
      */
     private ?string $utilisateurDemandeur = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observations", nullable=true)
+     * @Groups("intervention")
      */
     private ?string $observations = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="StatutDemande", inversedBy="DemandeIntervention")
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
+     * @Groups("intervention")
      */
     private $idStatutDemande = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_validation",nullable=true)
+     * @Groups("intervention")
      */
     private ?datetime $dateValidation = null;
 
     /**
      * @ORM\Column(type="string", length=5, name="heure_validation",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $heureValidation = null;
 
     /**
      * @ORM\Column(type="string", length=15, name="numero_client",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $numeroClient = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="libelle_client",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $libelleClient = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_fin_souhaite",nullable=true)
+     * @Groups("intervention")
      */
     private ?datetime $dateFinSouhaite = null;
 
     /**
      * @ORM\Column(type="string", length=15, name="numero_or",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $numeroOR = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observation_direction_technique",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $observationDirectionTechnique = null;
 
     /**
      * @ORM\Column(type="string", length=3000, name="observation_devis",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $observationDevis = null;
 
     /**
      * @ORM\Column(type="string", length=200, name="numero_devis_rattache",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $numeroDevisRattache = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_soumission_devis",nullable=true)
+     * @Groups("intervention")
      */
     private ?datetime $dateSoumissionDevis = null;
 
 /**
      * @ORM\Column(type="datetime", name="date_devis_rattache", nullable=true)
+     * @Groups("intervention")
      *
      * @var datetime|null
      */
@@ -284,11 +330,13 @@ class DemandeIntervention
     
     /**
      * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $devisValide = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_validation_devis", nullable=true)
+     * @Groups("intervention")
      *
      * @var datetime|null
      */
@@ -296,6 +344,7 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="string", length=3, name="id_service_intervenant", nullable=true)
+     * @Groups("intervention")
      *
      * @var string|null
      */
@@ -303,21 +352,25 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="datetime",  name="date_devis_fin_probable",nullable=true)
+     * @Groups("intervention")
      */
     private ?DateTime $dateDevisFinProbable = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_fin_estimation_travaux",nullable=true)
+     * @Groups("intervention")
      */
     private ?datetime $dateFinEstimationTravaux = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="code_section",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $codeSection = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="mas_ate",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $masAte = null;
 
@@ -329,11 +382,13 @@ class DemandeIntervention
     /**
      * @ORM\ManyToOne(targetEntity="Secteur", inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="secteur", referencedColumnName="id")
+     * @Groups("intervention")
      */
     private $secteur = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_intervenant",nullable=true)
+     * @Groups("intervention")
      */
     private ?string $utilisateurIntervenant = null;
 

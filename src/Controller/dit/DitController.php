@@ -16,24 +16,37 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\DemandeInterventionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
 
-    // private DemandeIntervention $demandeIntervention;
+//   private $serializer;
 
-    // public function __construct()
-    // {
-    //     $this->demandeIntervention = new DemandeIntervention();
-    // }
+//     public function __construct()
+//     {
+        
+//         $encoders = [new JsonEncoder()];
+//         $normalizers = [
+//             new ObjectNormalizer(null, null, null, null, null, null, [
+//                 'circular_reference_handler' => function ($object) {
+//                     return $object->getId();
+//                 },
+//             ]),
+//         ];
+//         $this->serializer = new Serializer($normalizers, $encoders);
+//     }
 
     /**
      * @Route("/dit", name="dit_index")
@@ -168,36 +181,58 @@ class DitController extends Controller
     }
 
  /**
-     * @Route("/dit-excel/{idStatut}/{idNiveauUrgence}/{idTypeDocument}/{idMateriel}/{internetExterne}/{dateDebut}/{dateFin}", name="fetch_materiel", methods={"GET"})
-     * cette fonctin permet d'envoyer les informations materiels en ajax
+     * @Route("/api/excel-dit", name="dit_excel", methods={"GET", "POST"})
+     * 
      */
-    public function fetchExcel($idStatut,  $idNiveauUrgence, $idTypeDocument, $idMateriel, $internetExterne, $dateDebut, $dateFin)
-    {
-        $criteria = [
-            'statut' => self::$em->getRepository(StatutDemande::class)->find($idStatut),
-            'niveauUrgence' => self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence),
-            'typeDocument' => self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument),
-            'idMateriel' => $idMateriel,
-            'internetExterne' => $internetExterne,
-            'dateDebut' => $dateDebut,
-            'dateFin' => $dateFin
-        ];
+    // public function fetchExcel(Request $request)
+    // {
+    //     ini_set('memory_limit', '1024M'); 
+
+    //     $data = json_decode($request->getContent(), true);
+
+    //     $idMateriel = $data['idMateriel'] ?? null;
+    //     $idTypeDocument = $data['typeDocument'] ?? null;
+    //     $idNiveauUrgence = $data['niveauUrgence'] ?? null;
+    //     $idStatut = $data['statut'] ?? null;
+    //     $interneExterne = $data['interExtern'] ?? null;
+    //     $dateDebut = $data['dateDebut'] ?? null;
+    //     $dateFin = $data['dateFin'] ?? null;
+    
+       
+    //     $criteria = [
+    //         'statut' => $idStatut === null ? '' : self::$em->getRepository(StatutDemande::class)->find($idStatut),
+    //         'niveauUrgence' => $idNiveauUrgence === null ? '' : self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence),
+    //         'typeDocument' => $idTypeDocument === null ? '' : self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument),
+    //         'idMateriel' => $idMateriel === null ? '' : $idMateriel,
+    //         'internetExterne' => $interneExterne === null ? '' : $interneExterne,
+    //         'dateDebut' => $dateDebut === null ? '' : $dateDebut,
+    //         'dateFin' => $dateFin === null ? '' : $dateFin
+    //     ];
         
-        // Récupérer les données depuis le modèle
-    $data = self::$em->getRepository(DemandeIntervention::class)->findAndFilteredExcel($criteria);
+    //     // Récupérer les données depuis le modèle
+    // $data = self::$em->getRepository(DemandeIntervention::class)->findAndFilteredExcel($criteria);
 
-    // Vérifiez si les données existent
-    if (!$data) {
-        return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
-    }
-    header("Content-type:application/json");
+    // // Vérifiez si les données existent
+    // if (!$data) {
+    //     return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+    // }
+    // // header("Content-type:application/json");
 
-    $jsonData = json_encode($data);
+    // // $jsonData = json_encode($data);
 
-        $this->testJson($jsonData);
-    // Renvoyer les données en réponse JSON
-     //echo new JsonResponse($data);
-    }
+    //     //$this->testJson($jsonData);
+    // // Renvoyer les données en réponse JSON
+    //  //echo new JsonResponse($data);
+    //  //$jsonData = $this->serializer->serialize($data, 'json', ['groups' => 'intervention']);
+
+    //  $batchSize = 100; // Taille du lot
+    //     $jsonData = [];
+
+    //     foreach (array_chunk($data, $batchSize) as $batch) {
+    //         $jsonData = array_merge($jsonData, json_decode($this->serializer->serialize($batch, 'json'), true));
+    //     }
+    //  return new JsonResponse($jsonData, 200, [], true);
+    // }
 
 
     private function infoEntrerManuel($form) 

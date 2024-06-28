@@ -24,6 +24,9 @@ class ExcelExporterService {
 
         foreach ($data as $row) {
             $rowCount++;
+
+            $row = $this->cleanData($row);
+
             $sheet->setCellValue('A' . $rowCount, $row['Description']);
             $sheet->setCellValue('B' . $rowCount, $row['Sous_type_document']);
             $sheet->setCellValue('C' . $rowCount, $row['Numero_Ordre_Mission']);
@@ -125,4 +128,29 @@ class ExcelExporterService {
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
     }
+
+
+    private function cleanData($row) {
+        // Correction de l'encodage des caractères spéciaux
+        $row['Motif_Deplacement'] = str_replace('ÃƒÂª', 'ê', $row['Motif_Deplacement']);
+        $row['Motif_Deplacement'] = str_replace('Ã©', 'é', $row['Motif_Deplacement']);
+        
+        // Remplacer les valeurs nulles par des chaînes vides
+        foreach ($row as $key => $value) {
+            if ($value === null) {
+                $row[$key] = '';
+            }
+        }
+
+        // Formatage des dates
+        if (!empty($row['Date_Demande'])) {
+            $date = \DateTime::createFromFormat('d-m-Y', $row['Date_Demande']);
+            if ($date) {
+                $row['Date_Demande'] = $date->format('d-m-Y');
+            }
+        }
+
+        return $row;
+    }
 }
+

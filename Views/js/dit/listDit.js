@@ -21,83 +21,30 @@ function recherche() {
   const dateDemandeDebut = dateDemandeDebutInput.value;
   const dateDemandeFin = dateDemandeFinInput.value;
 
-  erreur.innerHTML = "";
-  let url = "/Hffintranet/fetch-materiel";
+  let url = "/Hffintranet/dit-excel";
 
-  if (idMateriel) {
-    url += `/${idMateriel}`;
-  } else {
-    url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
-  }
+  const data = {
+    idMateriel: idMateriel || null,
+    typeDocument: typeDocument || null,
+    niveauUrgence: niveauUrgence || null,
+    statut: statut || null,
+    interExtern: interExtern || null,
+    dateDebut: dateDemandeDebut || null,
+    dateFin: dateDemandeFin || null,
+  };
 
-  if (numParc) {
-    url += `/${numParc}`;
-  } else if (!idMateriel) {
-    url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-  }
-
-  if (numSerie) {
-    url += `/${numSerie}`;
-  } else if (!numParc && !idMateriel) {
-    url += "/"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-  }
-  fetch(url)
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
     })
     .catch((error) => {
-      if (error instanceof SyntaxError) {
-        erreur.innerHTML =
-          "Erreur : l'information du matériel n'est pas dans la base de données.";
-      } else {
-        console.error("Error:", error);
-        erreur.innerHTML = "Erreur : " + error.message;
-      }
+      console.error("Error:", error);
     });
-}
-
-function InfoMateriel() {
-  const condition =
-    (idMateriel !== "" && idMateriel !== null && idMateriel !== undefined) ||
-    (numParc !== "" && numParc !== null && numParc !== undefined) ||
-    (numSerie !== "" && numSerie !== null && numSerie !== undefined);
-  if (condition) {
-    erreur.innerHTML = "";
-    let url = "/Hffintranet/fetch-materiel";
-
-    if (idMateriel) {
-      url += `/${idMateriel}`;
-    } else {
-      url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
-    }
-
-    if (numParc) {
-      url += `/${numParc}`;
-    } else if (!idMateriel) {
-      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
-
-    if (numSerie) {
-      url += `/${numSerie}`;
-    } else if (!numParc && !idMateriel) {
-      url += "/"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        if (error instanceof SyntaxError) {
-          erreur.innerHTML =
-            "Erreur : l'information du matériel n'est pas dans la base de données.";
-        } else {
-          console.error("Error:", error);
-          erreur.innerHTML = "Erreur : " + error.message;
-        }
-      });
-  } else {
-    erreur.innerHTML = "veuillez completer l'un des champs ";
-  }
 }

@@ -122,9 +122,10 @@ class DitRepository extends EntityRepository
 
     public function findAndFilteredExcel( array $criteria = [])
     {
-        $queryBuilder = $this->createQueryBuilder('b')
-            ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's')
+        $queryBuilder = $this->createQueryBuilder('d')
+        ->leftJoin('d.typeDocument', 'td')
+        ->leftJoin('d.idNiveauUrgence', 'nu')
+        ->leftJoin('d.idStatutDemande', 's')
             ;
 
             $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
@@ -158,16 +159,16 @@ class DitRepository extends EntityRepository
             }
 
         if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
+            $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $criteria['dateDebut']);
         }
 
         if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
+            $queryBuilder->andWhere('d.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
-        $queryBuilder->orderBy('b.numBadm', 'DESC');
+        $queryBuilder->orderBy('d.numeroDemandeIntervention ', 'DESC');
             
 
         return $queryBuilder->getQuery()->getResult();
