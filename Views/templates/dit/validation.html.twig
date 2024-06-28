@@ -1,0 +1,207 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class=" container">
+		<div class="card mb-3">
+			<div class="card-body">
+
+				<div class="container">
+					<h2 class="text-center fs-1 fw-bold bg-black py-2 text-white">
+						Détail de demande à valider
+					</h2>
+
+
+					<a href="#" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+
+					{{ form_start(form, {'attr':{'id':'formDit'}}) }}
+					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-4">
+							{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}
+						</div>
+						<div class="col-12 col-md-4">{{ macroForm.affichage('Date Demande', dit.dateDemande|date('d/m/Y'))}}
+						</div>
+
+
+					</div>
+
+					<div class="">
+						{{ macroForm.affichage('Objet', dit.objetDemande)}}
+						{{ macroForm.affichage('detail', dit.detailDemande)}}
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-12 col-md-2">{{ macroForm.affichage('type de document', dit.typeDocument)}}
+						</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('devis', dit.demandeDevis)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('livraison partiel', dit.livraisonPartiel)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('avis recouvrement', dit.avisRecouvrement)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Categorie', dit.categorieDemande.libelleCategorieAteApp)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Interne/Externe', dit.internetExterne)}}</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+
+
+							{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+
+
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ macroForm.affichage('Débiteur', dit.agenceServiceDebiteur)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ macroForm.affichage('Emetteur', dit.agenceServiceEmetteur)}}
+								</div>
+
+							</div>
+
+
+							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('non Client', dit.nomClient)}}
+
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('numero tel', dit.numeroTel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Client sous contrat', dit.clientSousContrat)}}
+								</div>
+							</div>
+							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Id Materiel', dit.idMateriel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('n° Serie', dit.numSerie)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('n° Parc', dit.numParc)}}
+								</div>
+							</div>
+							<div class="row">
+								<span id="erreur"></span>
+							</div>
+
+
+							<div>
+
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Constructeur', dit.constructeur)}}
+										{{ macroForm.affichage('designation', dit.designation)}}
+										{{ macroForm.affichage('Km', dit.km)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Modele', dit.modele)}}
+										{{ macroForm.affichage('Casier', dit.casier)}}
+										{{ macroForm.affichage('Heure', heure)}}
+									</div>
+
+								</div>
+
+
+							</div>
+							{# DEBUT Bilan financière#}
+							{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
+							<div class="cadre">
+
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('CA', dit.coutAcquisition)}}
+										{{ macroForm.affichage('Charge d\'entretien', dit.chargeEntretient)}}
+                                        {{ macroForm.affichage('Charge Locative', dit.chargeLocative)}}
+                                        {{ macroForm.affichage('Résultat d\'exploitation', dit.resultatExploitation)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition)}}
+                                    {{ macroForm.affichage('Amortissement', dit.amortissement)}}
+                                        {{ macroForm.affichage('VNC', valeurNetComptable)}}
+										
+										
+									</div>
+
+								</div>
+
+								
+
+						</div>
+						{# FIN Bilan #}
+
+					</div>
+					<div class="col-12 col-md-6">
+						{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ macroForm.affichage('Niveau d\'Urgence', dit.idNiveauUrgence)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Date prévu travaux', dit.datePrevueTravaux|date('d/m/Y'))}}
+									</div>
+								</div>
+								{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('type de Réparation',  dit.typeReparation)}}
+
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Réparation réalisé', dit.reparationRealise)}}
+									</div>
+
+								</div>
+
+
+								{{ macroForm.sousTitre('pièce Joint', {class: 'sousTitre'})}}
+
+								{{ macroForm.affichage('Pièce joint 01', dit.pieceJoint01)}}
+
+								{{ macroForm.affichage('Pièce joint 02', dit.pieceJoint02)}}
+
+								{{ macroForm.affichage('Pièce joint 03', dit.pieceJoint01)}}
+								{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
+								{{ form_row(form.observationDirectionTechnique)}}
+
+							</div>
+
+						</div>
+
+
+						<div class="d-flex justify-content-end">
+
+							<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
+								<i class="fas fa-xmark"></i>
+								Réfuser
+							</button>
+							<button type="submit" class="btn bouton" name="valider">
+								<i class="fas fa-check"></i>
+								Valider
+							</button>
+						</div>
+						{{ form_end(form) }}
+
+
+					</div>
+
+				</div>
+			</div>
+
+			<div id="materielInfos"></div>
+		{% endblock %}
+
+		{% block javascript %}
+			<script src="/Hffintranet/Views/js/dit/dit.js"></script>
+		{% endblock %}

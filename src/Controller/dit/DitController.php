@@ -16,11 +16,13 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Form\DitValidationType;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\DemandeInterventionRepository;
+use App\Service\EmailService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -253,7 +255,18 @@ class DitController extends Controller
     }
 
 
-
+private function initialisationForm($demandeIntervention)
+{
+    $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+    
+    $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
+    $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+    $demandeIntervention->setIdNiveauUrgence(self::$em->getRepository(WorNiveauUrgence::class)->find(1));
+    $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
+    $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
+    $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
+}
 
     /**
      * @Route("/dit/new", name="dit_new")
@@ -268,16 +281,9 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        //INITIALISATION DU FORMULAIRE
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $demandeIntervention = new DemandeIntervention();
-        $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-        $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-        $demandeIntervention->setIdNiveauUrgence(self::$em->getRepository(WorNiveauUrgence::class)->find(1));
-        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-        $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
-        $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
+        //INITIALISATION DU FORMULAIRE
+       $this->initialisationForm($demandeIntervention);
 
         //AFFICHE LE FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -336,59 +342,139 @@ class DitController extends Controller
     }
 
    
-
+   
 /**
  * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
  * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
  * @return void
  */
-    public function agence($id) {
-        $agence = self::$em->getRepository(Agence::class)->find($id);
-      
-       $service = $agence->getServices();
+public function agence($id) {
+    $agence = self::$em->getRepository(Agence::class)->find($id);
+  
+   $service = $agence->getServices();
 
-    //   $services = $service->getValues();
-        $services = [];
-      foreach ($service as $key => $value) {
-        $services[] = [
-            'value' => $value->getId(),
-            'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-        ];
-      }
+//   $services = $service->getValues();
+    $services = [];
+  foreach ($service as $key => $value) {
+    $services[] = [
+        'value' => $value->getId(),
+        'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+    ];
+  }
 
-      
-      //dd($services);
-     header("Content-type:application/json");
+  
+  //dd($services);
+ header("Content-type:application/json");
 
-     echo json_encode($services);
+ echo json_encode($services);
 
-      //echo new JsonResponse($services);
-    }
+  //echo new JsonResponse($services);
+}
 
 
-    /**
-     * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
-     * cette fonctin permet d'envoyer les informations materiels en ajax
-     */
-    public function fetchMateriel($idMateriel,  $numParc, $numSerie)
-    {
+/**
+ * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
+ * cette fonctin permet d'envoyer les informations materiels en ajax
+ */
+public function fetchMateriel($idMateriel,  $numParc, $numSerie)
+{
 
+    
+    // Récupérer les données depuis le modèle
+$data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
+
+// Vérifiez si les données existent
+if (!$data) {
+    return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+}
+header("Content-type:application/json");
+
+$jsonData = json_encode($data);
+
+    $this->testJson($jsonData);
+// Renvoyer les données en réponse JSON
+ //echo new JsonResponse($data);
+}
+
+/**
+ * @Route("/ditValidation/{numDit}/{id}", name="dit_validationDit")
+ *
+ * @return void
+ */
+   public function validationDit($numDit, $id, Request $request)
+   {
+    $this->SessionStart();
+    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+    $text = file_get_contents($fichier);
+    $boolean = strpos($text, $_SESSION['user']);
+
+    
+
+    $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+
+    $data = $this->ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+            $dit->setNumParc($data[0]['num_parc']);
+            $dit->setNumSerie($data[0]['num_serie']);
+            $dit->setIdMateriel($data[0]['num_matricule']);
+            $dit->setConstructeur($data[0]['constructeur']);
+            $dit->setModele($data[0]['modele']);
+            $dit->setDesignation($data[0]['designation']);
+            $dit->setCasier($data[0]['casier_emetteur']);
+            //Bilan financière
+            $dit->setCoutAcquisition($data[0]['prix_achat']);
+            $dit->setAmortissement($data[0]['amortissement']);
+            $dit->setChiffreAffaire($data[0]['chiffreaffaires']);
+            $dit->setChargeEntretient($data[0]['chargeentretien']);
+            $dit->setChargeLocative($data[0]['chargelocative']);
+            //Etat machine
+            $dit->setKm($data[0]['km']);
+            $dit->setHeure($data[0]['heure']);
+
+        if($dit->getInternetExterne() === 'I'){
+            $dit->setInternetExterne('INTERNE');
+        } else {
+            $dit->setInternetExterne('EXTERNE');
+        }
+    
+    $form = self::$validator->createBuilder(DitValidationType::class)->getForm();
+
+    $form->handleRequest($request);
+
+    // Vérifier si le formulaire est soumis et valide
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        $email = new EmailService();
+        if ($request->request->has('refuser')) {
+           // Définir l'expéditeur
+            // $email->setFrom('hasimanjaka.ratompoarinandro@hff.mg', 'Different Sender');
+            
+            $to = 'hasina.andrianadison@hff.mg';
+            $subject = 'Sujet de l\'email';
+            $body = 'Ceci est le <b>contenu</b> de l\'email.';
+            $altBody = 'Ceci est le contenu de l\'email en texte brut.';
+    
+            if ($email->sendEmail($to, $subject, $body, $altBody)) {
+                dd( 'Email envoyé avec succès');
+            } else {
+                dd( 'L\'envoi de l\'email a échoué' );
+            }
+           
+        } elseif ($request->request->has('valider')) {
+           dd('valider');
+            
+        }
+
+        dd('Okey');
+        $this->redirectToRoute("dit_index");
         
-        // Récupérer les données depuis le modèle
-    $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
-
-    // Vérifiez si les données existent
-    if (!$data) {
-        return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
-    }
-    header("Content-type:application/json");
-
-    $jsonData = json_encode($data);
-
-        $this->testJson($jsonData);
-    // Renvoyer les données en réponse JSON
-     //echo new JsonResponse($data);
     }
 
-   
+    self::$twig->display('dit/validation.html.twig', [
+        'form' => $form->createView(),
+        'infoUserCours' => $infoUserCours,
+        'boolean' => $boolean,
+        'dit' => $dit
+    ]);
+   }
 }

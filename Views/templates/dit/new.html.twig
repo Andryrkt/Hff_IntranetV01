@@ -16,11 +16,6 @@
 						Formulaire Demande d'intervention
 					</h2>
 
-					{% for flash in flashes %}
-						<div class="alert alert-success">
-							{{ flash }}
-						</div>
-					{% endfor %}
 
 					<a href="#" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
@@ -176,58 +171,6 @@
 
 							{{ form_row(form.pieceJoint03)}}
 
-							{# DEBUT Bilan financière#}
-							{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
-							<div class="cadre">
-								<ul>
-									<div class="row">
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Coût d'acquisition :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="coutAcquisition"></div>
-											</li>
-										</div>
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Amortissement :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="amortissement"></div>
-											</li>
-										</div>
-
-									</div>
-
-									<div class="row">
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">VNC :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="vnc"></div>
-											</li>
-										</div>
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">CA :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="ca"></div>
-											</li>
-										</div>
-									</div>
-
-									<div class="row">
-
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Charge Locative :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="chargeLocative"></div>
-											</li>
-										</div>
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Charge d'entretien :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="chargeEntretien"></div>
-											</li>
-										</div>
-									</div>
-									<li class="fw-bold">
-										Résultat d'exploitation:
-										<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="resultatExploitation"></div>
-									</li>
-
-								</ul>
-							</div>
-							{# FIN Bilan #}
 						</div>
 
 					</div>

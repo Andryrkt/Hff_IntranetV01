@@ -61,7 +61,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $typeReparation = null;
+    private  $typeReparation = null;
 
     /**
      * @ORM\Column(type="string", length=30, name="reparation_realise",nullable=true)
@@ -441,7 +441,7 @@ class DemandeIntervention
         return $this;
     }
 
-    public function getTypeReparation(): string
+    public function getTypeReparation(): ?string
     {
         return $this->typeReparation;
     }

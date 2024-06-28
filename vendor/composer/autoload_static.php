@@ -120,6 +120,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Pagerfanta\\Doctrine\\DBAL\\' => 25,
             'Pagerfanta\\Doctrine\\Collections\\' => 32,
             'Pagerfanta\\' => 11,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
         array (
@@ -480,6 +481,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Pagerfanta\\' => 
         array (
             0 => __DIR__ . '/..' . '/pagerfanta/pagerfanta/lib/Core',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'MyCLabs\\Enum\\' => 
         array (

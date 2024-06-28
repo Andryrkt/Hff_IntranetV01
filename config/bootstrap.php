@@ -12,21 +12,22 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Knp\Component\Pager\Paginator;
+use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
-use App\Loader\CustomAnnotationClassLoader;
 
+use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
+
 use Symfony\Component\Translation\Translator;
-
 use Symfony\Component\Form\FormFactoryBuilder;
-use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;

@@ -140,7 +140,7 @@
 							{# FIN Statut #}
 
 							<td>
-								<a href="#">{{ item.numeroDemandeIntervention }}</a>
+								<a href="{{ path("dit_validationDit", {numDit: item.numeroDemandeIntervention, id: item.id})}}">{{ item.numeroDemandeIntervention }}</a>
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>

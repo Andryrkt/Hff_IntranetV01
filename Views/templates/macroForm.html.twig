@@ -95,3 +95,10 @@
     <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
 </div>
 {% endmacro %}
+
+
+
+{% macro affichage(label, value = "") %}
+<label for="">{{label}}</label>
+<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle fw-bold">{{value}}</div>
+{% endmacro %}
