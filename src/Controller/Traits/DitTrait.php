@@ -131,12 +131,15 @@ trait DitTrait
 
     private function uplodeFile($form, $dits, $nomFichier)
     {
+
+        
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = '0'. substr($nomFichier,-1,1) . $dits->getNumeroDemandeIntervention() . '.' . $file->getClientOriginalExtension();
         $fileDossier = $_SERVER['DOCUMENT_ROOT']. '/Hffintranet/Upload/dit/fichier';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
-        $dits->set.ucfirst($nomFichier)($fileName);
+        $setPieceJoint = 'set'.ucfirst($nomFichier);
+        $dits->$setPieceJoint($fileName);
     }
 }

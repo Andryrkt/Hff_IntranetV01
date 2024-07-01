@@ -67,19 +67,19 @@ function InfoMateriel() {
         casierInput.innerHTML = data[0].casier_emetteur;
         kmInput.innerHTML = data[0].km;
         heuresInput.innerHTML = data[0].heure;
-        coutAcquisitionInput.innerHTML = formatNumber(data[0].prix_achat);
-        amortissementInput.innerHTML = formatNumber(data[0].amortissement);
-        vncInput.innerHTML = formatNumber(
-          data[0].prix_achat - data[0].amortissement
-        );
-        caInput.innerHTML = formatNumber(data[0].chiffreaffaires);
-        chargeLocativeInput.innerHTML = formatNumber(data[0].chargelocative);
-        chargeEntretienInput.innerHTML = formatNumber(data[0].chargeentretien);
-        resultatExploitationInput.innerHTML = formatNumber(
-          data[0].chiffreaffaires -
-            data[0].chargelocative -
-            data[0].chargeentretien
-        );
+        // coutAcquisitionInput.innerHTML = formatNumber(data[0].prix_achat);
+        // amortissementInput.innerHTML = formatNumber(data[0].amortissement);
+        // vncInput.innerHTML = formatNumber(
+        //   data[0].prix_achat - data[0].amortissement
+        // );
+        // caInput.innerHTML = formatNumber(data[0].chiffreaffaires);
+        // chargeLocativeInput.innerHTML = formatNumber(data[0].chargelocative);
+        // chargeEntretienInput.innerHTML = formatNumber(data[0].chargeentretien);
+        // resultatExploitationInput.innerHTML = formatNumber(
+        //   data[0].chiffreaffaires -
+        //     data[0].chargelocative -
+        //     data[0].chargeentretien
+        // );
       })
       .catch((error) => {
         if (error instanceof SyntaxError) {
@@ -91,13 +91,13 @@ function InfoMateriel() {
           casierInput.innerHTML = "";
           kmInput.innerHTML = "";
           heuresInput.innerHTML = "";
-          coutAcquisitionInput.innerHTML = "";
-          amortissementInput.innerHTML = "";
-          vncInput.innerHTML = "";
-          caInput.innerHTML = "";
-          chargeLocativeInput.innerHTML = "";
-          chargeEntretienInput.innerHTML = "";
-          resultatExploitationInput.innerHTML = "";
+          // coutAcquisitionInput.innerHTML = "";
+          // amortissementInput.innerHTML = "";
+          // vncInput.innerHTML = "";
+          // caInput.innerHTML = "";
+          // chargeLocativeInput.innerHTML = "";
+          // chargeEntretienInput.innerHTML = "";
+          // resultatExploitationInput.innerHTML = "";
         } else {
           console.error("Error:", error);
           erreur.innerHTML = "Erreur : " + error.message;

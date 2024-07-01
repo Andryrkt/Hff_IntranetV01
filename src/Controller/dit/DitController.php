@@ -298,7 +298,15 @@ private function initialisationForm($demandeIntervention)
             
             if($form->get('pieceJoint03')->getData() !== null){
                 $this->uplodeFile($form, $dits, 'pieceJoint03');
+        
+            }
+            if($form->get('pieceJoint02')->getData() !== null){
+                
             $this->uplodeFile($form, $dits, 'pieceJoint02');
+            
+            }
+            if($form->get('pieceJoint01')->getData() !== null){
+                
             $this->uplodeFile($form, $dits, 'pieceJoint01');
             }
             
