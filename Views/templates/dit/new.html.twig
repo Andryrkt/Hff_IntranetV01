@@ -19,7 +19,7 @@
 
 					<a href="{{ path("profil_acceuil")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
 
-					{{ form_start(form, {'attr':{'id':'formDit'}}) }}
+					{{ form_start(form) }}
 					{{ form_errors(form)}}
 
 					<div class="">
@@ -99,42 +99,26 @@
 											<li class="fw-bold">Constructeur :
 												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="constructeur"></div>
 											</li>
-										</div>
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Modèle :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="model"></div>
-											</li>
-										</div>
-
-									</div>
-
-									<div class="row">
-										<div class="col-12 col-md-6">
 											<li class="fw-bold">Désignation :
 												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="designation"></div>
 											</li>
-										</div>
-										<div class="col-12 col-md-6">
-											<li class="fw-bold">Casier :
-												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="casier"></div>
-											</li>
-										</div>
-									</div>
-
-									<div class="row">
-
-										<div class="col-12 col-md-6">
 											<li class="fw-bold">KM :
 												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="km"></div>
 											</li>
 										</div>
 										<div class="col-12 col-md-6">
+											<li class="fw-bold">Modèle :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="model"></div>
+											</li>
+											<li class="fw-bold">Casier :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="casier"></div>
+											</li>
 											<li class="fw-bold">Heures :
 												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="heures"></div>
 											</li>
 										</div>
-									</div>
 
+									</div>
 
 								</ul>
 							</div>
@@ -176,7 +160,7 @@
 					</div>
 
 
-					<button type="submit" class="btn bouton">
+					<button type="submit" class="btn bouton" id="formDit">
 						<i class="fas fa-save"></i>
 						Enregistrer
 					</button>

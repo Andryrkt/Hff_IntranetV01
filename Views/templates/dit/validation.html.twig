@@ -20,7 +20,7 @@
 					<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
 
 					{# {{ form_start(form, {'attr':{'id':'formDit'}}) }}
-																																																																																					{{ form_errors(form)}} #}
+																																																																																										{{ form_errors(form)}} #}
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}
@@ -171,10 +171,10 @@
 
 								{{ macroForm.affichage('Pièce jointe 02', dit.pieceJoint02)}}
 
-								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint01)}}
+								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint03)}}
 
 								{# {{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
-																																																																																																																																																{{ form_row(form.observationDirectionTechnique)}} #}
+																																																																																																																																																								{{ form_row(form.observationDirectionTechnique)}} #}
 
 							</div>
 
@@ -182,16 +182,16 @@
 
 
 						{# <div class="d-flex justify-content-end">
-																																																																																																						
-																																																																																																													<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
-																																																																																																														<i class="fas fa-xmark"></i>
-																																																																																																														Réfuser
-																																																																																																													</button>
-																																																																																																													<button type="submit" class="btn bouton" name="valider">
-																																																																																																														<i class="fas fa-check"></i>
-																																																																																																														Valider
-																																																																																																													</button>
-																																																																																																												</div> #}
+																																																																																																												
+																																																																																																																			<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
+																																																																																																																				<i class="fas fa-xmark"></i>
+																																																																																																																				Réfuser
+																																																																																																																			</button>
+																																																																																																																			<button type="submit" class="btn bouton" name="valider">
+																																																																																																																				<i class="fas fa-check"></i>
+																																																																																																																				Valider
+																																																																																																																			</button>
+																																																																																																																		</div> #}
 						{# {{ form_end(form) }} #}
 
 

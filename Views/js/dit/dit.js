@@ -1,7 +1,11 @@
 /**recupère l'idMateriel et afficher les information du matériel */
-const idMaterielInput = document.querySelector(".idMateriel");
-const numParcInput = document.querySelector(".numParc");
-const numSerieInput = document.querySelector(".numSerie");
+const idMaterielInput = document.querySelector(
+  "#demande_intervention_idMateriel"
+);
+const numParcInput = document.querySelector("#demande_intervention_numParc");
+
+const numSerieInput = document.querySelector("#demande_intervention_numSerie");
+
 const constructeurInput = document.querySelector("#constructeur");
 const designationInput = document.querySelector("#designation");
 const modelInput = document.querySelector("#model");
@@ -17,10 +21,75 @@ const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
   "#resultatExploitation"
 );
+document.addEventListener("DOMContentLoaded", (event) => {
+  let timeout = null;
 
-idMaterielInput.addEventListener("blur", InfoMateriel);
-numParcInput.addEventListener("blur", InfoMateriel);
-numSerieInput.addEventListener("blur", InfoMateriel);
+  idMaterielInput.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      InfoMateriel();
+      clearAndToggleRequired(idMaterielInput);
+    }, 500);
+  });
+
+  numParcInput.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      InfoMateriel();
+      clearAndToggleRequired(numParcInput);
+    }, 500); // délai de 500ms
+  });
+
+  numSerieInput.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      InfoMateriel();
+      clearAndToggleRequired(numSerieInput);
+    }, 500); // délai de 500ms
+  });
+  // idMaterielInput.addEventListener("blur", InfoMateriel);
+  //numParcInput.addEventListener("blur", InfoMateriel);
+  //numSerieInput.addEventListener("blur", InfoMateriel);
+
+  /**
+   * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
+   */
+  const inputNoEntrers = document.querySelectorAll(".noEntrer");
+  inputNoEntrers.forEach((inputNoEntrer) => {
+    inputNoEntrer.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault(); // Empêche le rechargement de la page
+        console.log(
+          "La touche Entrée a été pressée dans le champ :",
+          inputNoEntrer.placeholder
+        );
+      }
+    });
+  });
+});
+
+function clearAndToggleRequired(excludeInput) {
+  if (excludeInput !== idMaterielInput) {
+    idMaterielInput.value = "";
+    idMaterielInput.removeAttribute("required");
+  } else {
+    idMaterielInput.setAttribute("required", "required");
+  }
+
+  if (excludeInput !== numParcInput) {
+    numParcInput.value = "";
+    numParcInput.removeAttribute("required");
+  } else {
+    numParcInput.setAttribute("required", "required");
+  }
+
+  if (excludeInput !== numSerieInput) {
+    numSerieInput.value = "";
+    numSerieInput.removeAttribute("required");
+  } else {
+    numSerieInput.setAttribute("required", "required");
+  }
+}
 
 function InfoMateriel() {
   const idMateriel = idMaterielInput.value;
@@ -57,9 +126,15 @@ function InfoMateriel() {
       .then((data) => {
         console.log(data);
 
+        // if (idMaterielInput.value == "") {
         //   idMaterielInput.value = data[0].num_matricule;
+        // }
+        // if (numParcInput.value == "") {
         //   numParcInput.value = data[0].num_parc;
+        // }
+        // if (numSerieInput.value == "") {
         //   numSerieInput.value = data[0].num_serie;
+        // }
 
         constructeurInput.innerHTML = data[0].constructeur;
         designationInput.innerHTML = data[0].designation;
@@ -172,6 +247,7 @@ if (interneExterneInput.value === "I") {
 }
 
 interneExterneInput.addEventListener("change", interneExterne);
+
 function interneExterne() {
   console.log(interneExterneInput.value);
   if (interneExterneInput.value === "E") {
@@ -189,6 +265,11 @@ function interneExterne() {
   }
 }
 
+// interneExterneInput.addEventListener("submit", intExtEnvoier);
+// function intExtEnvoier() {
+//   agenceDebiteurInput.removeAttribute("disabled");
+//   serviceDebiteurInput.removeAttribute("disabled");
+// }
 /**
  * permet de formater le nombre en limitant 2 chiffre après la virgule et séparer les millier par un point
  */
@@ -214,12 +295,6 @@ const textarea = document.querySelector(".detailDemande");
 textarea.addEventListener("input", function () {
   var lines = textarea.value.split("\n");
 
-  // Limiter le nombre de lignes à 3
-  if (lines.length > 3) {
-    textarea.value = lines.slice(0, 3).join("\n");
-    lines = textarea.value.split("\n"); // Recalculer les lignes après la coupe
-  }
-
   // Limiter chaque ligne à 86 caractères
   for (var i = 0; i < lines.length; i++) {
     if (lines[i].length > 86) {
@@ -227,16 +302,10 @@ textarea.addEventListener("input", function () {
     }
   }
 
-  // Mettre à jour la valeur du textarea
-  textarea.value = lines.join("\n");
-});
-
-/**
- * bloque la soumission par l'appuis de la touche entrer
- * */
-const formDitInput = document.querySelector("#formDit");
-formDitInput.addEventListener("keydown", function (e) {
-  if (e.key == "Enter") {
-    e.preventDefault();
+  // Limiter le nombre de lignes à 3
+  if (lines.length > 3) {
+    textarea.value = lines.slice(0, 3).join("\n");
+  } else {
+    textarea.value = lines.join("\n");
   }
 });

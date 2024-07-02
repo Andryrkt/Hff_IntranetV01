@@ -110,14 +110,23 @@ class demandeInterventionType extends AbstractType
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
-          
-            $agenceId = $data['agence'] ?? null;
+            
+            
 
-            if ($agenceId) {
+            if($data['internetExterne'] === 'E') {
+                $codeAgence = substr($data['agenceEmetteur'],0,2);
+                $codeService = substr($data['serviceEmetteur'],0,3);
+                $agence = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence]);
+                $data['agence'] = $agence;
+                $services = $agence->getServices();
+                $data['service'] = $services;
+                $event->setData($data);
+            } elseif ($data['internetExterne'] === 'I') {
+                $agenceId = $data['agence'];
                
                 $agence = $this->agenceRepository->find($agenceId);
-                $services = $agence ? $agence->getServices() : [];
-
+                $services = $agence->getServices();
+                
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur',
                     'class' => Service::class,
@@ -128,8 +137,12 @@ class demandeInterventionType extends AbstractType
                     'required' => false,
                     'attr' => ['class' => 'serviceDebiteur']
                 ]);
+                
+            }
+              //dd($data);
             //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
-        }})
+        })
+        
         ->add('typeDocument', 
             EntityType::class, [
                 'label' => 'Type de document',
@@ -249,18 +262,18 @@ class demandeInterventionType extends AbstractType
         TextType::class,
         [
             'label' => 'Nom du client',
-            'required' => false,
+            'required' => true,
             'attr' => [
-                'class' => 'nomClient'
+                'class' => 'nomClient noEntrer'
             ]
         ])
         ->add('numeroTel',
         TelType::class,
         [
             'label' => 'N° téléphone',
-            'required' => false,
+            'required' => true,
             'attr' => [
-                'class' => 'numTel'
+                'class' => 'numTel noEntrer'
             ]
         ])
         
@@ -269,6 +282,7 @@ class demandeInterventionType extends AbstractType
             'widget' => 'single_text',
             'label' => 'Date prévue travaux',
             'required' => true,
+            'attr' => [ 'class' => 'noEntrer'],
             'constraints' => [
                     new Assert\NotBlank(['message'=>'la date ne doit pas être vide'])
                 ]
@@ -312,6 +326,7 @@ class demandeInterventionType extends AbstractType
         [
             'label' => 'Objet de la demande',
             'required' => false,
+            'attr' => [ 'class' => 'noEntrer']
         ])
         ->add('detailDemande',
         TextareaType::class,
@@ -334,20 +349,20 @@ class demandeInterventionType extends AbstractType
        ->add('idMateriel', 
        TextType::class, [
         'label' => " Id Matériel",
-        'required' => false,
-        'attr' => [ 'class' => 'idMateriel']
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
        ])
        ->add('numParc', 
        TextType::class, [
         'label' => " N° Parc",
-        'required' => false,
-        'attr' => [ 'class' => 'numParc']
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
        ])
        ->add('numSerie', 
        TextType::class, [
         'label' => " N° Serie",
-        'required' => false,
-        'attr' => [ 'class' => 'numSerie']
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
        ])
        ->add('pieceJoint03',
         FileType::class, 

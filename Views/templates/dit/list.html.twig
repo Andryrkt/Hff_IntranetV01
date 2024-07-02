@@ -94,12 +94,10 @@
 						<th>N° Parc</th>
 						<th>date Demande</th>
 						<th>Int/Ext</th>
-						<th>
-							emetteur</th>
-						<th>
-							débiteur</th>
-						<th>
-							Objet</th>
+						<th>emetteur</th>
+						<th>débiteur</th>
+						<th>Objet</th>
+						<th>Utilisateur</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -159,8 +157,6 @@
 									-
 								</td>
 							{% else %}
-
-
 								{% for num in numSerieParc %}
 
 									{% if item.idMateriel == num.num_matricule %}
@@ -175,6 +171,7 @@
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
+							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
 					{% endfor %}
 				</tbody>

@@ -311,7 +311,6 @@ private function initialisationForm($demandeIntervention)
             //envoie des pièce jointe dans une dossier
             if($form->get('pieceJoint03')->getData() !== null){
                 $this->uplodeFile($form, $dits, 'pieceJoint03');
-        
             }
             if($form->get('pieceJoint02')->getData() !== null){
                 

@@ -56,7 +56,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
-        $queryBuilder->orderBy('d.numeroDemandeIntervention ', 'DESC');
+        $queryBuilder->orderBy('d.numeroDemandeIntervention ', 'ASC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ;
@@ -168,7 +168,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
-        $queryBuilder->orderBy('d.numeroDemandeIntervention ', 'DESC');
+        $queryBuilder->orderBy('d.numeroDemandeIntervention ', 'ASC');
             
 
         return $queryBuilder->getQuery()->getResult();
