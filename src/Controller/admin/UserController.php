@@ -28,6 +28,7 @@ class UserController extends Controller
 
     $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
 
+   
 
     self::$twig->display('admin/utilisateur/list.html.twig', [
         'infoUserCours' => $infoUserCours,
@@ -57,17 +58,23 @@ class UserController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $utilisateur= $form->getData(); 
-     
+                
             $selectedApplications = $form->get('applications')->getData();
 
             foreach ($selectedApplications as $application) {
                 $utilisateur->addApplication($application);
             }
 
+            $selectedRoles = $form->get('roles')->getData();
+
+            foreach ($selectedRoles as $role) {
+                $utilisateur->addRole($role);
+            }
+
 
             self::$em->persist($utilisateur);
             self::$em->flush();
-
+           
 
             $this->redirectToRoute("utilisateur_index");
         }
@@ -94,7 +101,7 @@ class UserController extends Controller
         $boolean = strpos($text, $_SESSION['user']);
 
         $user = self::$em->getRepository(User::class)->find($id);
-        
+      
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
         $form->handleRequest($request);

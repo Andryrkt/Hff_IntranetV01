@@ -34,7 +34,8 @@ trait DitTrait
             $demandeIntervention->setNumeroTel($dits->getNumeroTel());
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
-            $demandeIntervention->setIdMateriel($dits->getIdMateriel());
+            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
             //PIECE JOINT
             $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
             $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
@@ -62,6 +63,7 @@ trait DitTrait
         //Categorie - avis recouvrement - devis demandé
         $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
         $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
+        $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
 
         //Intervention
         $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
@@ -74,6 +76,11 @@ trait DitTrait
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());
+        if($dits->getInternetExterne() === 'I'){
+            $dits->setInternetExterne('INTERNE');
+        } elseif($dits->getInternetExterne() === 'E') {
+            $dits->setInternetExterne('EXTERNE');
+        }
         $demandeIntervention->setInternetExterne($dits->getInternetExterne());
         
         //INFO CLIENT
@@ -121,7 +128,7 @@ trait DitTrait
                 foreach ($values as $key => $value) {
                     if ($key == "datedebut") {
                         $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
-                    } elseif ($key === 'somme' || $key === 'numeroor') {
+                    } elseif ($key === 'somme') {
                         $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
                     }
                 }

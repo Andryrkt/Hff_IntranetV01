@@ -133,11 +133,13 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
-$session = new Session(new NativeSessionStorage());
+//$session = new Session(new NativeSessionStorage());
 
 $requestStack = new RequestStack();
 $request = Request::createFromGlobals();
 $requestStack->push($request);
+
+
 
 //Initialisation du conteneur de services
 // $containerBuilder = new ContainerBuilder();

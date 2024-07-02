@@ -20,8 +20,10 @@ use App\Model\OdbcCrudModel;
 use App\Model\badm\BadmModel;
 use App\Model\badm\CasierModel;
 use App\Model\dom\DomListModel;
+use App\Service\SessionManager;
 use App\Model\dom\DomDetailModel;
 use Twig\Loader\FilesystemLoader;
+use App\Model\TransferDonnerModel;
 use Twig\Extension\DebugExtension;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
@@ -30,10 +32,11 @@ use Symfony\Component\Asset\Package;
 use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
+use App\Service\SessionManagerService;
 use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
-use App\Model\TransferDonnerModel;
+use App\Service\AccessControlService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -92,6 +95,10 @@ class Controller
 
     protected $transfer04;
 
+    protected $sessionService;
+
+    protected $accessControl;
+
     public function __construct()
     {
 
@@ -147,6 +154,11 @@ class Controller
         $this->ditModel = new DitModel();
 
         $this->transfer04 = new TransferDonnerModel();
+
+
+        $this->sessionService = new SessionManagerService();
+
+        $this->accessControl = new AccessControlService();
     }
 
 
@@ -161,11 +173,17 @@ class Controller
     {
         self::$validator = $validator;
     }
+
     public static function setGenerator($generator)
     {
         self::$generator = $generator;
     }
 
+    public static function getGenerator()
+    {
+        return self::$generator;
+    }
+    
     public static function setEntity($em)
     {
         self::$em = $em;
@@ -364,6 +382,50 @@ class Controller
         return $Result_Num;
     }
     
+    protected function autoDecrementDIT(string $nomDemande)
+    {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        //$MonthOfcours = "08"; //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
+        //var_dump($AnneMoisOfcours);
+        // dernier NumDOM dans la base
+       
+            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+            
+        if ($nomDemande === 'DIT') {
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
+        } else {
+            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
+        }
+
+        //var_dump($Max_Num);
+        //$Max_Num = 'CAS24040000';
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        //dump($vNumSequential);
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        //dump($DateAnneemoisnum);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        //dump($DateYearsMonthOfMax);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential - 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 9999;
+            }
+        }
+
+        //dump($vNumSequential);
+        //var_dump($vNumSequential);
+        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
+        //var_dump($Result_Num);
+        //dd($Result_Num);
+        return $Result_Num;
+    }
+    
+
     
     
 }

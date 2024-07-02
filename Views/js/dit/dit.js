@@ -207,7 +207,7 @@ function formatNumber(input) {
 }
 
 /**
- * VALIDATION DU DETAIL DEMANDE
+ * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
 const textarea = document.querySelector(".detailDemande");
 
@@ -231,7 +231,9 @@ textarea.addEventListener("input", function () {
   textarea.value = lines.join("\n");
 });
 
-// bloque la soumission par l'appuis de la touche entrer
+/**
+ * bloque la soumission par l'appuis de la touche entrer
+ * */
 const formDitInput = document.querySelector("#formDit");
 formDitInput.addEventListener("keydown", function (e) {
   if (e.key == "Enter") {

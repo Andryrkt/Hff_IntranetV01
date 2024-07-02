@@ -39,7 +39,7 @@ class UserType extends AbstractType
     {
         
         $users = $this->ldap->infoUser($_SESSION['user'], $_SESSION['password']);
-
+   
         $nom = [];
         foreach ($users as $key => $value) {
             $nom[]=$key;

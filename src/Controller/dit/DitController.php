@@ -34,21 +34,7 @@ class DitController extends Controller
     use DitTrait;
     use FormatageTrait;
 
-//   private $serializer;
 
-//     public function __construct()
-//     {
-        
-//         $encoders = [new JsonEncoder()];
-//         $normalizers = [
-//             new ObjectNormalizer(null, null, null, null, null, null, [
-//                 'circular_reference_handler' => function ($object) {
-//                     return $object->getId();
-//                 },
-//             ]),
-//         ];
-//         $this->serializer = new Serializer($normalizers, $encoders);
-//     }
 
     /**
      * @Route("/dit", name="dit_index")
@@ -62,7 +48,7 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
     
-
+//dd($this->accessControl);
         if($request->query->get('page') !== null){
             if($request->query->get('typeDocument') !==null){
                 $idTypeDocument = self::$em->getRepository(WorTypeDocument::class)->findBy(['description' => $request->query->get('typeDocument')], [])[0]->getId();
@@ -158,6 +144,16 @@ class DitController extends Controller
 
       
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+        $idMateriels = $this->recupIdMaterielEnChaine($data);
+        $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
+        $idMat = [];
+        foreach ($numSerieParc as  $value) {
+            $idMat[] = $value['num_matricule'];
+        }
+        
+// dump($idMateriels);
+// dump($numSerieParc);
+// dd($idMat);
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
@@ -165,6 +161,8 @@ class DitController extends Controller
         if($request->query->get("envoyer") === "listAnnuler") {
         
             $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
+            $idMateriels = $this->recupIdMaterielEnChaine($data);
+            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
             $totalBadms = $repository->countFilteredListAnnuller($criteria);
 
             $totalPages = ceil($totalBadms / $limit);
@@ -174,6 +172,8 @@ class DitController extends Controller
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
             'data' => $data,
+            'numSerieParc' => $numSerieParc,
+            'idMat' => $idMat,
             'form' => $form->createView(),
                 'currentPage' => $page,
                 'totalPages' =>$totalPages,
@@ -182,6 +182,16 @@ class DitController extends Controller
         ]);
     }
 
+    private function recupIdMaterielEnChaine(array $data): string
+    {
+        $idMateriels = '(';
+        foreach ($data as $value) {
+            $idMateriels .= $value->getIdMateriel() . ',';
+        }
+      $idMateriels .= ')';
+      $idMateriels = substr_replace($idMateriels, '', strrpos($idMateriels, ','), 1);
+      return $idMateriels;
+    }
  /**
      * @Route("/api/excel-dit", name="dit_excel", methods={"GET", "POST"})
      * 
@@ -246,7 +256,7 @@ class DitController extends Controller
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
             $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
             $dits->setIdStatutDemande($statutDemande);
-            $dits->setNumeroDemandeIntervention($this->autoINcriment('DIT'));
+            $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
             $email = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
             $dits->setMailDemandeur($email);
 
@@ -295,7 +305,10 @@ private function initialisationForm($demandeIntervention)
         if($form->isSubmitted() && $form->isValid())
         {
             $dits = $this->infoEntrerManuel($form);
-            
+
+           
+
+            //envoie des pièce jointe dans une dossier
             if($form->get('pieceJoint03')->getData() !== null){
                 $this->uplodeFile($form, $dits, 'pieceJoint03');
         
@@ -310,9 +323,13 @@ private function initialisationForm($demandeIntervention)
             $this->uplodeFile($form, $dits, 'pieceJoint01');
             }
             
-
-        
-        
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dits->getNumeroDemandeIntervention());
+            
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
         
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
@@ -326,17 +343,15 @@ private function initialisationForm($demandeIntervention)
             $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
             //genere le PDF
             $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+
+            
             //ENVOYER le PDF DANS DOXCUWARE
-            if($dits->getAgence()->getCodeAgence() === 91 || $dits->getAgence()->getCodeAgence() === 92) {
+            if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
             
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($this->autoINcriment('DIT'));
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+            
+            
 
             $this->redirectToRoute("dit_index");
             
@@ -439,12 +454,12 @@ $jsonData = json_encode($data);
             $dit->setKm($data[0]['km']);
             $dit->setHeure($data[0]['heure']);
 
-        if($dit->getInternetExterne() === 'I'){
-            $dit->setInternetExterne('INTERNE');
-        } else {
-            $dit->setInternetExterne('EXTERNE');
-        }
-    
+            if($dit->getInternetExterne() === 'I'){
+                $dit->setInternetExterne('INTERNE');
+            } elseif($dit->getInternetExterne() === 'E') {
+                $dit->setInternetExterne('EXTERNE');
+            }
+    /*
     $form = self::$validator->createBuilder(DitValidationType::class)->getForm();
 
     $form->handleRequest($request);
@@ -477,9 +492,10 @@ $jsonData = json_encode($data);
         $this->redirectToRoute("dit_index");
         
     }
+        */
 
     self::$twig->display('dit/validation.html.twig', [
-        'form' => $form->createView(),
+        //'form' => $form->createView(),
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
         'dit' => $dit

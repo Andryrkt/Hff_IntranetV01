@@ -13,14 +13,14 @@
 
 				<div class="container">
 					<h2 class="text-center fs-1 fw-bold bg-black py-2 text-white">
-						Détail de demande à valider
+						Détail de la demande
 					</h2>
 
 
-					<a href="#" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
 
-					{{ form_start(form, {'attr':{'id':'formDit'}}) }}
-					{{ form_errors(form)}}
+					{# {{ form_start(form, {'attr':{'id':'formDit'}}) }}
+																																																																																					{{ form_errors(form)}} #}
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}
@@ -32,20 +32,20 @@
 					</div>
 
 					<div class="">
-						{{ macroForm.affichage('Objet', dit.objetDemande)}}
-						{{ macroForm.affichage('detail', dit.detailDemande)}}
+						{{ macroForm.affichage('Objet de la demande', dit.objetDemande)}}
+						{{ macroForm.affichage('Détail de la demande', dit.detailDemande)}}
 					</div>
 
 
 					<div class="row">
 
-						<div class="col-12 col-md-2">{{ macroForm.affichage('type de document', dit.typeDocument)}}
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Type de document', dit.typeDocument)}}
 						</div>
-						<div class="col-12 col-md-2">{{ macroForm.affichage('devis', dit.demandeDevis)}}</div>
-						<div class="col-12 col-md-2">{{ macroForm.affichage('livraison partiel', dit.livraisonPartiel)}}</div>
-						<div class="col-12 col-md-2">{{ macroForm.affichage('avis recouvrement', dit.avisRecouvrement)}}</div>
-						<div class="col-12 col-md-2">{{ macroForm.affichage('Categorie', dit.categorieDemande.libelleCategorieAteApp)}}</div>
-						<div class="col-12 col-md-2">{{ macroForm.affichage('Interne/Externe', dit.internetExterne)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Demande de devis', dit.demandeDevis)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Livraison Partielle', dit.livraisonPartiel)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Avis de recouvrement', dit.avisRecouvrement)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Catégorie de demande', dit.categorieDemande.libelleCategorieAteApp)}}</div>
+						<div class="col-12 col-md-2">{{ macroForm.affichage('Interne et Externe', dit.internetExterne)}}</div>
 					</div>
 
 
@@ -70,11 +70,11 @@
 							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
 							<div class="row">
 								<div class="col-12 col-md-4">
-									{{ macroForm.affichage('non Client', dit.nomClient)}}
+									{{ macroForm.affichage('Nom du client', dit.nomClient)}}
 
 								</div>
 								<div class="col-12 col-md-4">
-									{{ macroForm.affichage('numero tel', dit.numeroTel)}}
+									{{ macroForm.affichage('N° téléphone', dit.numeroTel)}}
 								</div>
 								<div class="col-12 col-md-4">
 									{{ macroForm.affichage('Client sous contrat', dit.clientSousContrat)}}
@@ -102,7 +102,7 @@
 								<div class="row">
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Constructeur', dit.constructeur)}}
-										{{ macroForm.affichage('designation', dit.designation)}}
+										{{ macroForm.affichage('Designation', dit.designation)}}
 										{{ macroForm.affichage('Km', dit.km)}}
 									</div>
 									<div class="col-12 col-md-6">
@@ -121,15 +121,15 @@
 
 								<div class="row">
 									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('CA', dit.coutAcquisition)}}
-										{{ macroForm.affichage('Charge d\'entretien', dit.chargeEntretient)}}
-                                        {{ macroForm.affichage('Charge Locative', dit.chargeLocative)}}
-                                        {{ macroForm.affichage('Résultat d\'exploitation', dit.resultatExploitation)}}
+										{{ macroForm.affichage('CA', dit.coutAcquisition | number_format(2, ',', '.'))}}
+										{{ macroForm.affichage('Charge d\'entretien', dit.chargeEntretient | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('Charge Locative', dit.chargeLocative | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('Résultat d\'exploitation', dit.resultatExploitation | number_format(2, ',', '.'))}}
 									</div>
 									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition)}}
-                                    {{ macroForm.affichage('Amortissement', dit.amortissement)}}
-                                        {{ macroForm.affichage('VNC', valeurNetComptable)}}
+										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition | number_format(2, ',', '.'))}}
+                                    {{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('VNC', valeurNetComptable | number_format(2, ',', '.'))}}
 										
 										
 									</div>
@@ -146,7 +146,7 @@
 						{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 						<div class="row">
 							<div class="col-12 col-md-6">
-								{{ macroForm.affichage('Niveau d\'Urgence', dit.idNiveauUrgence)}}
+								{{ macroForm.affichage('Niveau d\'urgence', dit.idNiveauUrgence)}}
 									</div>
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Date prévu travaux', dit.datePrevueTravaux|date('d/m/Y'))}}
@@ -155,43 +155,44 @@
 								{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
 								<div class="row">
 									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('type de Réparation',  dit.typeReparation)}}
+										{{ macroForm.affichage('Type de réparation',  dit.typeReparation)}}
 
 									</div>
 									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('Réparation réalisé', dit.reparationRealise)}}
+										{{ macroForm.affichage('Réparation réalisé par', dit.reparationRealise)}}
 									</div>
 
 								</div>
 
 
-								{{ macroForm.sousTitre('pièce Joint', {class: 'sousTitre'})}}
+								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-								{{ macroForm.affichage('Pièce joint 01', dit.pieceJoint01)}}
+								{{ macroForm.affichage('Pièce jointe 01', dit.pieceJoint01)}}
 
-								{{ macroForm.affichage('Pièce joint 02', dit.pieceJoint02)}}
+								{{ macroForm.affichage('Pièce jointe 02', dit.pieceJoint02)}}
 
-								{{ macroForm.affichage('Pièce joint 03', dit.pieceJoint01)}}
-								{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
-								{{ form_row(form.observationDirectionTechnique)}}
+								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint01)}}
+
+								{# {{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
+																																																																																																																																																{{ form_row(form.observationDirectionTechnique)}} #}
 
 							</div>
 
 						</div>
 
 
-						<div class="d-flex justify-content-end">
-
-							<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
-								<i class="fas fa-xmark"></i>
-								Réfuser
-							</button>
-							<button type="submit" class="btn bouton" name="valider">
-								<i class="fas fa-check"></i>
-								Valider
-							</button>
-						</div>
-						{{ form_end(form) }}
+						{# <div class="d-flex justify-content-end">
+																																																																																																						
+																																																																																																													<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
+																																																																																																														<i class="fas fa-xmark"></i>
+																																																																																																														Réfuser
+																																																																																																													</button>
+																																																																																																													<button type="submit" class="btn bouton" name="valider">
+																																																																																																														<i class="fas fa-check"></i>
+																																																																																																														Valider
+																																																																																																													</button>
+																																																																																																												</div> #}
+						{# {{ form_end(form) }} #}
 
 
 					</div>

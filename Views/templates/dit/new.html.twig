@@ -17,7 +17,7 @@
 					</h2>
 
 
-					<a href="#" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+					<a href="{{ path("profil_acceuil")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
 
 					{{ form_start(form, {'attr':{'id':'formDit'}}) }}
 					{{ form_errors(form)}}
@@ -163,7 +163,7 @@
 							</div>
 
 
-							{{ macroForm.sousTitre('pièce Joint', {class: 'sousTitre'})}}
+							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
 

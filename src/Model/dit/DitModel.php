@@ -79,7 +79,9 @@ class DitModel extends Model
             sitv_numor as numeroOr, 
             sitv_interv as numeroIntervention, 
             trim(sitv_comment) as commentaire,
+	sitv_pos as pos,
             sum(slor_qterea*slor_pmp) as somme
+
 
             FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
 
@@ -97,8 +99,8 @@ class DitModel extends Model
 
             and mmat_nummat ='$idMateriel'
 
-            group by 1,2,3,4,5,6
-            order by sitv_datdeb desc, sitv_numor, sitv_interv
+            group by 1,2,3,4,5,6,7
+            order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
             ";
 
 $result = $this->connect->executeQuery($statement);
@@ -111,7 +113,36 @@ $result = $this->connect->executeQuery($statement);
     
 
 
+    public function recuperationNumSerieNumParc($matricule)
+    {
+     
+        $statement = "SELECT
+        mmat_nummat as num_matricule,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc
 
+        from mat_mat, agr_succ, outer mat_bil
+        where (MMAT_SUCC in ('01', '20', '30', '40', '50', '60', '80', '90','91','92') or MMAT_SUCC in (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM in ('01', '20', '30', '40', '50', '60', '80', '90','91','92') ) )
+         and MMAT_ETSTOCK in ('ST','AT')
+        and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
+
+        and decode(trim(mmat_natmat),'ATT' , 'ENGINS DE CHANT. ET TERRAS.', 'ATI','ENGINS DE CHANT. ET TERRAS.', 'BHL' , 'ENGINS DE CHANT. ET TERRAS.', 'BULL' , 'ENGINS DE CHANT. ET TERRAS.',  'DUMP', 'ENGINS DE CHANT. ET TERRAS.', 'HEX' , 'ENGINS DE CHANT. ET TERRAS.', 'WHL' , 'ENGINS DE CHANT. ET TERRAS.', 'TRAC', 'ENGINS DE CHANT. ET TERRAS.', 'CHAF', 'ENGINS DE CHANT. ET TERRAS.',  'COPA', 'ENGINS DE CHANT. ET TERRAS.', 'NIV', 'ENGINS DE CHANT. ET TERRAS.',  'CAMC' , 'EQPT TRANSPORT', 'CAMI' , 'EQPT TRANSPORT', 'CAMP' , 'EQPT TRANSPORT', 'HIAB' , 'EQPT TRANSPORT', 'PORT' , 'EQPT TRANSPORT',   'QUAD', 'EQPT TRANSPORT', 'CAMT' , 'EQPT TRANSPORT','REMO' , 'EQPT TRANSPORT',  'CAMG' , 'EQPT TRANSPORT', 'GRUA' , 'EQP LEVAGE', 'GRU' , 'EQP LEVAGE', 'GRUR' , 'EQP LEVAGE', 'GRUT' , 'EQP LEVAGE', 'ELEV' , 'EQP LEVAGE', 'LIFT', 'EQP LEVAGE','LEVA' , 'EQP LEVAGE',  'GREN' , 'GROUPE ELECTROGENE', 'GRRE' , 'GROUPE ELECTROGENE', 'GRES' , 'GROUPE ELECTROGENE', 'ALTE', 'GROUPE ELECTROGENE', 'INVE', 'GROUPE ELECTROGENE', 'TRSF', 'GROUPE ELECTROGENE', 'AIGU' , 'EQPT DE CHANTIER', 'BETO' , 'EQPT DE CHANTIER', 'CITE' , 'EQPT DE CHANTIER', 'COMP' , 'EQPT DE CHANTIER', 'DIV' , 'EQPT DE CHANTIER', 'MAPI', 'EQPT DE CHANTIER',  'MAPE', 'EQPT DE CHANTIER', 'MAHY', 'EQPT DE CHANTIER','BRIS', 'EQPT DE CHANTIER','BROY', 'EQPT DE CHANTIER','CAC', 'EQPT DE CHANTIER',  'CONC' , 'EQPT DE CHANTIER','FORA', 'EQPT DE CHANTIER',  'TRUE' , 'EQPT DE CHANTIER', 'MAE' , 'EQPT DE CHANTIER', 'MOTA' , 'EQPT DE CHANTIER', 'MOTE' , 'EQPT DE CHANTIER', 'NETHP' , 'EQPT DE CHANTIER', 'OUTB' , 'EQPT DE CHANTIER', 'POMP' , 'EQPT DE CHANTIER',  'SOUD' , 'EQPT DE CHANTIER', 'PINC', 'EQPT DE CHANTIER', 'ACCE','EQPT DE CHANTIER',  'OUTI' , 'EQPT DE CHANTIER', 'NETH' , 'EQPT DE CHANTIER', 'POAS' , 'EQPT DE CHANTIER', 'AGRI', 'MAT. AGRICOLE', 'CHAR', 'MAT. AGRICOLE', 'AVIO', 'AVIATION',  'ACCP', 'AUTRES', 'BAT', 'AUTRES', 'BGLW', 'AUTRES', 'CHAU', 'AUTRES', 'CLIM', 'AUTRES', 'DEBR', 'AUTRES', 'DIVE', 'AUTRES', 'BGLW', 'AUTRES', 'GOMM', 'AUTRES', 'HEL', 'AUTRES', 'IMMO', 'AUTRES', 'MCB', 'AUTRES', 'MIDL', 'AUTRES', 'MOTH', 'AUTRES', 'MOTI', 'AUTRES', 'MOTO', 'AUTRES', 'ONDC', 'AUTRES', 'ONDR', 'AUTRES', 'PRES', 'AUTRES', 'PSO', 'AUTRES', 'RESA', 'AUTRES', 'SAMA', 'AUTRES', 'SCIE', 'AUTRES', 'SECH', 'AUTRES', 'SURP', 'AUTRES', 'TAMA', 'AUTRES', 'TGAZ', 'AUTRES', 'TRON', 'AUTRES', 'VEH', 'AUTRES', 'VL', 'AUTRES')  IN ('ENGINS DE CHANT. ET TERRAS.', 'EQPT TRANSPORT', 'EQP LEVAGE', 'GROUPE ELECTROGENE', 'EQPT DE CHANTIER', 'MAT. AGRICOLE')
+        and mmat_soc = 'HF'
+        and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
+        and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
+        and mbil_dateclot = '12/31/1899'
+        and mmat_datedisp < '12/31/2999'
+        and mmat_nummat IN ".$matricule."
+        
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
     
 
    

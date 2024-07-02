@@ -34,6 +34,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class demandeInterventionType extends AbstractType
 {
@@ -89,7 +90,7 @@ class demandeInterventionType extends AbstractType
             EntityType::class,
             [
             
-            'label' => 'Service Debiteur',
+            'label' => 'Service Débiteur',
             'class' => Service::class,
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
@@ -118,7 +119,7 @@ class demandeInterventionType extends AbstractType
                 $services = $agence ? $agence->getServices() : [];
 
                 $form->add('service', EntityType::class, [
-                    'label' => 'Service Debiteur',
+                    'label' => 'Service Débiteur',
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
@@ -131,11 +132,14 @@ class demandeInterventionType extends AbstractType
         }})
         ->add('typeDocument', 
             EntityType::class, [
-                'label' => 'type de document',
+                'label' => 'Type de document',
                 'placeholder' => '-- Choisir--',
                 'class' => WorTypeDocument::class,
                 'choice_label' => 'description',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new Assert\NotBlank(['message'=>'le type de document doit être sélectionné'])
+                ]
                 // 'query_builder' => function(RoleRepository $roleRepository) {
                 //     return $roleRepository->createQueryBuilder('r')->orderBy('r.codeDocument', 'ASC');
                 // }
@@ -147,26 +151,35 @@ class demandeInterventionType extends AbstractType
             'label' => "Type de réparation",
             'choices' => self::TYPE_REPARATION,
             'placeholder' => '-- Choisir un type de réparation --',
-            'required' => false,
+            'required' => true,
             'data' => 'A REALISER',
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le type de réparation doit être sélectionné'])
+                ]
            
         ])
         ->add('reparationRealise', 
         ChoiceType::class, 
         [
-            'label' => "Réparation Réalisé",
+            'label' => "Réparation réalisé par",
             'choices' => self::REPARATION_REALISE,
             'placeholder' => '-- Choisir le répartion réalisé --',
-            'required' => false,
+            'required' => true,
             'data' => 'ATELIER',
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le réparation réalisé par doit être sélectionné'])
+                ]
         ])
         ->add('categorieDemande', 
         EntityType::class, [
-            'label' => 'catégorie de demande',
+            'label' => 'Catégorie de demande',
             'placeholder' => '-- Choisir une catégorie --',
             'class' => CategorieATEAPP::class,
             'choice_label' =>'libelleCategorieAteApp',
-            'required' => false,
+            'required' => true,
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le catégorie de demande doit être sélectionné'])
+                ]
         ])
         ->add('internetExterne', 
         ChoiceType::class, 
@@ -255,7 +268,10 @@ class demandeInterventionType extends AbstractType
         ->add('datePrevueTravaux', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date prévue travaux',
-            'required' => false,
+            'required' => true,
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'la date ne doit pas être vide'])
+                ]
         ])
         ->add('demandeDevis', 
         ChoiceType::class, 
@@ -285,7 +301,7 @@ class demandeInterventionType extends AbstractType
         ->add('clientSousContrat', 
         ChoiceType::class, 
         [
-            'label' => "client sous contrat",
+            'label' => "Client sous contrat",
             'choices' => self::OUI_NON,
            'required' => false,
            'data' => 'NON',
@@ -310,7 +326,7 @@ class demandeInterventionType extends AbstractType
         ->add('livraisonPartiel', 
         ChoiceType::class, 
         [
-            'label' => "livraison Partiel",
+            'label' => "Livraison Partielle",
             'choices' => self::OUI_NON,
            'required' => false,
            'data' => 'NON'
@@ -336,7 +352,7 @@ class demandeInterventionType extends AbstractType
        ->add('pieceJoint03',
         FileType::class, 
         [
-            'label' => 'Pièce Joint 03 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 03 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
                 new File([
@@ -354,7 +370,7 @@ class demandeInterventionType extends AbstractType
         ->add('pieceJoint02',
         FileType::class, 
         [
-            'label' => 'Pièce Joint 02 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 02 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
                 new File([
@@ -373,7 +389,7 @@ class demandeInterventionType extends AbstractType
         ->add('pieceJoint01',
         FileType::class, 
         [
-            'label' => 'Pièce Joint 01 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 01 (PDF, JPEG, XLSX, DOCX)',
             'required' => false,
             'constraints' => [
                 new File([

@@ -90,11 +90,16 @@
 						<th>type Document</th>
 						<th>Niveau</th>
 						<th>Categories</th>
-						<th>Id Materiel</th>
+						<th>N° Serie</th>
+						<th>N° Parc</th>
 						<th>date Demande</th>
 						<th>Int/Ext</th>
-						<th>Ag\Serv emetteur</th>
-						<th>Ag\Serv débiteur</th>
+						<th>
+							emetteur</th>
+						<th>
+							débiteur</th>
+						<th>
+							Objet</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -145,11 +150,31 @@
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
 							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-							<td>{{ item.idMateriel}}</td>
+
+							{% if item.idMateriel not in idMat %}
+								<td>
+									-
+								</td>
+								<td>
+									-
+								</td>
+							{% else %}
+
+
+								{% for num in numSerieParc %}
+
+									{% if item.idMateriel == num.num_matricule %}
+										<td>{{ num.num_serie}}</td>
+										<td>{{ num.num_parc}}</td>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+
 							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
 							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
+							<td>{{ item.objetDemande}}</td>
 						</tr>
 					{% endfor %}
 				</tbody>

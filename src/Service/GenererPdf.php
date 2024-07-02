@@ -77,7 +77,7 @@ class GenererPdf
         $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(150);
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         /** INTERVENTION */
@@ -286,7 +286,7 @@ class GenererPdf
         /**DEUXIEME PAGE */
         $pdf->AddPage();
 
-        $header1 = ['Agences', 'Services', 'Date','numor', 'interv', 'commentaire', 'Sommes'];
+        $header1 = ['Agences', 'Services', 'Date','numor', 'interv', 'commentaire', 'pos', 'Sommes'];
 
             // Commencer le tableau HTML
             $html = '<h2 style="text-align:center">HISTORIQUE DE REPARATION</h2>';
@@ -307,11 +307,13 @@ class GenererPdf
                 } elseif ($key === 4) {
                     $html .= '<th style="width: 30px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 5) {
-                    $html .= '<th style="width: 270px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 250px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 6) {
+                    $html .= '<th style="width: 30px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+                } elseif ($key === 7) {
                     $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
                 
-                } else {
+                 } else {
                     $html .= '<th >' . $value . '</th>';
                 }
             }
@@ -334,10 +336,12 @@ class GenererPdf
                     } elseif ($key === 'numerointervention') {
                         $html .= '<td style="width: 30px"  >' . $cell . '</td>';
                     } elseif ($key === 'commentaire') {
-                        $html .= '<td style="width: 270px; text-align: left;"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 250px; text-align: left;"  >' . $cell . '</td>';
                     } elseif ($key === 'somme') {
                         $html .= '<td style="width: 50px; text-align: right;"  >' . $cell . '</td>';
-                     }
+                     }elseif ($key === 'pos') {
+                        $html .= '<td style="width: 30px; text-align: right; text-align: center;"  >' . $cell . '</td>';
+                     } 
                     // else {
                     //     $html .= '<td  >' . $cell . '</td>';
                     // }
@@ -352,7 +356,7 @@ class GenererPdf
 
 
     //$pdf->Output('exemple.pdf', 'I');
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
+      $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
       $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
     }
 

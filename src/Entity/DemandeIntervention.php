@@ -157,7 +157,7 @@ class DemandeIntervention
 
     /**
      * @ORM\Column(type="string", length=5000, name="detail_demande",nullable=true)
-     * @Assert\Callback({"DemandeInterventionValidator", "validateTextarea"})
+     * 
      * @Groups("intervention")
      */
     private ?string $detailDemande = null;
