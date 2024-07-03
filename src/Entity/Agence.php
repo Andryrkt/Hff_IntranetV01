@@ -152,4 +152,10 @@ class Agence
 
         return $this;
     }
+
+
+    public function __toString()
+    {
+        return $this->codeAgence . $this->libelleAgence;
+    }
 }

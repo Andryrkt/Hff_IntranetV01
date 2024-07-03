@@ -150,7 +150,7 @@ class DitController extends Controller
         foreach ($numSerieParc as  $value) {
             $idMat[] = $value['num_matricule'];
         }
-        
+//         dump($data);    
 // dump($idMateriels);
 // dump($numSerieParc);
 // dd($idMat);
@@ -182,16 +182,7 @@ class DitController extends Controller
         ]);
     }
 
-    private function recupIdMaterielEnChaine(array $data): string
-    {
-        $idMateriels = '(';
-        foreach ($data as $value) {
-            $idMateriels .= $value->getIdMateriel() . ',';
-        }
-      $idMateriels .= ')';
-      $idMateriels = substr_replace($idMateriels, '', strrpos($idMateriels, ','), 1);
-      return $idMateriels;
-    }
+    
  /**
      * @Route("/api/excel-dit", name="dit_excel", methods={"GET", "POST"})
      * 
@@ -247,36 +238,8 @@ class DitController extends Controller
     // }
 
 
-    private function infoEntrerManuel($form) 
-    {
-        $dits = $form->getData();
-        
-        $dits->setUtilisateurDemandeur($_SESSION['user']);
-            $dits->setHeureDemande($this->getTime());
-            $dits->setDateDemande(new \DateTime($this->getDatesystem()));
-            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
-            $dits->setIdStatutDemande($statutDemande);
-            $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
-            $email = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
-            $dits->setMailDemandeur($email);
-
-         
-            return $dits;
-    }
-
-
-private function initialisationForm($demandeIntervention)
-{
-    $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-    
-    $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-    $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-    $demandeIntervention->setIdNiveauUrgence(self::$em->getRepository(WorNiveauUrgence::class)->find(1));
-    $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-    $demandeIntervention->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
-    $demandeIntervention->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
-}
+   
+   
 
     /**
      * @Route("/dit/new", name="dit_new")
@@ -293,7 +256,7 @@ private function initialisationForm($demandeIntervention)
 
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
-       $this->initialisationForm($demandeIntervention);
+       $this->initialisationForm($demandeIntervention, self::$em);
 
         //AFFICHE LE FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -304,23 +267,12 @@ private function initialisationForm($demandeIntervention)
         
         if($form->isSubmitted() && $form->isValid())
         {
-            $dits = $this->infoEntrerManuel($form);
+            $dits = $this->infoEntrerManuel($form, self::$em);
 
            
 
             //envoie des pièce jointe dans une dossier
-            if($form->get('pieceJoint03')->getData() !== null){
-                $this->uplodeFile($form, $dits, 'pieceJoint03');
-            }
-            if($form->get('pieceJoint02')->getData() !== null){
-                
-            $this->uplodeFile($form, $dits, 'pieceJoint02');
-            
-            }
-            if($form->get('pieceJoint01')->getData() !== null){
-                
-            $this->uplodeFile($form, $dits, 'pieceJoint01');
-            }
+            $this->envoiePieceJoint($form, $dits);
             
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);

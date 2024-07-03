@@ -265,11 +265,15 @@ function interneExterne() {
   }
 }
 
-// interneExterneInput.addEventListener("submit", intExtEnvoier);
-// function intExtEnvoier() {
-//   agenceDebiteurInput.removeAttribute("disabled");
-//   serviceDebiteurInput.removeAttribute("disabled");
-// }
+/** FORM */
+const myForm = document.querySelector("#myForm");
+
+myForm.addEventListener("submit", intExtEnvoier);
+function intExtEnvoier() {
+  agenceDebiteurInput.removeAttribute("disabled");
+  serviceDebiteurInput.removeAttribute("disabled");
+}
+
 /**
  * permet de formater le nombre en limitant 2 chiffre après la virgule et séparer les millier par un point
  */

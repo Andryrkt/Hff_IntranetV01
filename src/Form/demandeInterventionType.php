@@ -110,18 +110,8 @@ class demandeInterventionType extends AbstractType
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
+        
             
-            
-
-            if($data['internetExterne'] === 'E') {
-                $codeAgence = substr($data['agenceEmetteur'],0,2);
-                $codeService = substr($data['serviceEmetteur'],0,3);
-                $agence = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence]);
-                $data['agence'] = $agence;
-                $services = $agence->getServices();
-                $data['service'] = $services;
-                $event->setData($data);
-            } elseif ($data['internetExterne'] === 'I') {
                 $agenceId = $data['agence'];
                
                 $agence = $this->agenceRepository->find($agenceId);
@@ -135,13 +125,15 @@ class demandeInterventionType extends AbstractType
                     },
                     'choices' => $services,
                     'required' => false,
-                    'attr' => ['class' => 'serviceDebiteur']
+                    'attr' => [
+                        'class' => 'serviceDebiteur',
+                        'disabled' => false,
+                        ]
                 ]);
                 
-            }
-              //dd($data);
-            //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
-        })
+            })
+              
+    
         
         ->add('typeDocument', 
             EntityType::class, [
@@ -221,6 +213,7 @@ class demandeInterventionType extends AbstractType
                 },
                 'attr' => [ 'class' => 'agenceDebiteur']
         ])
+        
         ->add('agenceEmetteur', 
         TextType::class,
         [

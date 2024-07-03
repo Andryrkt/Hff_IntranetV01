@@ -2,6 +2,11 @@
 
 namespace App\Controller\Traits;
 
+use App\Entity\User;
+use App\Entity\Agence;
+use App\Entity\Service;
+use App\Entity\StatutDemande;
+use App\Entity\WorNiveauUrgence;
 use App\Entity\DemandeIntervention;
 
 
@@ -139,7 +144,6 @@ trait DitTrait
     private function uplodeFile($form, $dits, $nomFichier)
     {
 
-        
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = '0'. substr($nomFichier,-1,1) . $dits->getNumeroDemandeIntervention() . '.' . $file->getClientOriginalExtension();
@@ -149,4 +153,64 @@ trait DitTrait
         $setPieceJoint = 'set'.ucfirst($nomFichier);
         $dits->$setPieceJoint($fileName);
     }
+
+    private function envoiePieceJoint($form, $dits)
+{
+    if($form->get('pieceJoint03')->getData() !== null){
+        $this->uplodeFile($form, $dits, 'pieceJoint03');
+    }
+    if($form->get('pieceJoint02')->getData() !== null){
+        
+    $this->uplodeFile($form, $dits, 'pieceJoint02');
+    
+    }
+    if($form->get('pieceJoint01')->getData() !== null){
+        
+    $this->uplodeFile($form, $dits, 'pieceJoint01');
+    }
+}
+
+    private function recupIdMaterielEnChaine(array $data): string
+    {
+        $idMateriels = '(';
+        foreach ($data as $value) {
+            $idMateriels .= $value->getIdMateriel() . ',';
+        }
+      $idMateriels .= ')';
+      $idMateriels = substr_replace($idMateriels, '', strrpos($idMateriels, ','), 1);
+      return $idMateriels;
+    }
+
+    private function infoEntrerManuel($form, $em) 
+    {
+        $dits = $form->getData();
+        
+        $dits->setUtilisateurDemandeur($_SESSION['user']);
+            $dits->setHeureDemande($this->getTime());
+            $dits->setDateDemande(new \DateTime($this->getDatesystem()));
+            $statutDemande = $em->getRepository(StatutDemande::class)->find(1);
+            $dits->setIdStatutDemande($statutDemande);
+            $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
+            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+            $dits->setMailDemandeur($email);
+
+         
+            return $dits;
+    }
+
+
+private function initialisationForm($demandeIntervention, $em)
+{
+    $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+    
+    $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
+    $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+    $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
+    $idAgence = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
+    $demandeIntervention->setAgence($em->getRepository(Agence::class)->find($idAgence));
+    $demandeIntervention->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
+}
+
+
 }
