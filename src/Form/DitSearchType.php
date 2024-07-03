@@ -3,15 +3,19 @@
 // src/Form/SearchType.php
 namespace App\Form;
 
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
 use App\Entity\WorTypeDocument;
 use App\Entity\WorNiveauUrgence;
+
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
@@ -74,7 +78,52 @@ class DitSearchType extends AbstractType
                 'widget' => 'single_text',
                 'label' => 'Date Demande Fin',
                 'required' => false,
-            ]);
+            ])
+            ->add('numParc', TextType::class, [
+                'label' => "N° Parc",
+                'required' => false
+            ])
+            ->add('numSerie', TextType::class, [
+                'label' => "N° Serie",
+                'required' => false
+            ])
+            ->add('agenceEmetteur', EntityType::class, [
+                'label' => "Agence Emetteur",
+                'class' => Agence::class,
+                'choice_label' => function (Agence $agence): string {
+                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                },
+                'placeholder' => '-- Choisir une agence--',
+                'required' => false,
+            ])
+            ->add('serviceEmetteur', EntityType::class, [
+                'label' => "Service Emetteur",
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'placeholder' => '-- Choisir une service--',
+                'required' => false,
+            ])
+            ->add('agenceDebiteur', EntityType::class, [
+                'label' => "Agence Debiteur",
+                'class' => Agence::class,
+                'choice_label' => function (Agence $agence): string {
+                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                },
+                'placeholder' => '-- Choisir une agence--',
+                'required' => false,
+            ])
+            ->add('serviceDebiteur', EntityType::class, [
+                'label' => "Service Debiteur",
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'placeholder' => '-- Choisir une service--',
+                'required' => false,
+            ])
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

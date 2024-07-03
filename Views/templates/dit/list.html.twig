@@ -15,25 +15,41 @@
 		</h2>
 
 		<!-- DEBUT recherche -->
-		<div class="w-50">
+		<div class="">
 			{{ form_start(form, {'method': 'GET'}) }}
 			<div class="row">
-				<div class="col-12 col-md-4">
+				<div class="col-12 col-md-2">
 					{{ form_row(form.statut) }}
 					{{ form_row(form.typeDocument) }}
+
+				</div>
+				<div class="col-12 col-md-2">
 					{{ form_row(form.niveauUrgence) }}
-				</div>
-				<div class="col-12 col-md-4">
-					{{form_row(form.idMateriel)}}
 					{{form_row(form.internetExterne)}}
+
 				</div>
-				<div class="col-12 col-md-4">
+				<div class="col-12 col-md-2">
 					{{ form_row(form.dateDebut) }}
 					{{ form_row(form.dateFin) }}
 				</div>
+
+
+				<div class="col-12 col-md-2">
+					{{form_row(form.agenceEmetteur)}}
+					{{form_row(form.serviceEmetteur)}}
+				</div>
+				<div class="col-12 col-md-2">
+					{{form_row(form.agenceDebiteur)}}
+					{{form_row(form.serviceDebiteur)}}
+				</div>
+				<div class="col-12 col-md-2">
+					{{form_row(form.idMateriel)}}
+					{{form_row(form.numParc)}}
+					{{form_row(form.numSerie)}}
+				</div>
 			</div>
 
-			<div class="d-flex justify-content-end">
+			<div class="d-flex justify-content-end mb-2">
 				<button class="btn btn-warning fw-bold" type="submit">
 					<i class="fab fa-searchengin"></i>
 					Recherche</button>
@@ -78,104 +94,111 @@
 					{% endif %}
 				</div>
 			</div>
+			{% if empty == true %}
+				<div class="fw-bold fs-4 text-danger">
+					Aucun résultat correspond à votre recherche.
+					<p>Veuillez actualiser (bouton F5) avant de faire une nouvelle recherche.</p>
+				</div>
+			{% else %}
 
-			<table class="table rounded">
-				<thead class="table-dark">
-					<tr>
-						<th>
-							<i class="fas fa-ellipsis-vertical"></i>
-						</th>
-						<th>Statut</th>
-						<th>N° DIT</th>
-						<th>type Document</th>
-						<th>Niveau</th>
-						<th>Categories</th>
-						<th>N° Serie</th>
-						<th>N° Parc</th>
-						<th>date Demande</th>
-						<th>Int/Ext</th>
-						<th>emetteur</th>
-						<th>débiteur</th>
-						<th>Objet</th>
-						<th>Utilisateur</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for item in data %}
+				<table class="table rounded">
+					<thead class="table-dark">
 						<tr>
-							{# Début Action #}
-							<td>
-								<div class="dropdown">
-									<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="fas fa-ellipsis-vertical"></i>
-									</button>
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a class="dropdown-item fw-bold" style="color: #000;" href="#">Ajouter</a>
-										</li>
-										<li>
-											<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
-										</li>
-									</ul>
-								</div>
-							</td>
-							{# Fin Actions #}
-
-							{# DEBUT Statut #}
-							{% if item.idStatutDemande.description | trim == 'OUVERT' %}
-								<td class="bg-warning bg-gradient fw-bold text-cente">
-									{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'CLOTURE' or item.idStatutDemande.description | trim == 'CLOTURE COMPTA' %}
-								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
-								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
-								<td class="bg-info fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
-								<td class="bg-danger fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
-								<td class="bg-primary fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
-								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
-							{% else %}
-								<td>{{item.idStatutDemande.description | trim}}</td>
-							{% endif %}
-							{# FIN Statut #}
-
-							<td>
-								<a href="{{ path("dit_validationDit", {numDit: item.numeroDemandeIntervention, id: item.id})}}">{{ item.numeroDemandeIntervention }}</a>
-							</td>
-							<td>{{ item.typeDocument.description}}</td>
-							<td>{{ item.idNiveauUrgence.description}}</td>
-							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-
-							{% if item.idMateriel not in idMat %}
-								<td>
-									-
-								</td>
-								<td>
-									-
-								</td>
-							{% else %}
-								{% for num in numSerieParc %}
-
-									{% if item.idMateriel == num.num_matricule %}
-										<td>{{ num.num_serie}}</td>
-										<td>{{ num.num_parc}}</td>
-									{% endif %}
-								{% endfor %}
-							{% endif %}
-
-							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
-							<td>{{ item.internetExterne}}</td>
-							<td>{{ item.agenceServiceEmetteur }}</td>
-							<td>{{ item.agenceServiceDebiteur}}</td>
-							<td>{{ item.objetDemande}}</td>
-							<td>{{item.utilisateurDemandeur}}</td>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
+							<th>Statut</th>
+							<th>N° DIT</th>
+							<th>type Document</th>
+							<th>Niveau</th>
+							<th>Categories</th>
+							<th>N° Serie</th>
+							<th>N° Parc</th>
+							<th>date Demande</th>
+							<th>Int/Ext</th>
+							<th>emetteur</th>
+							<th>débiteur</th>
+							<th>Objet</th>
+							<th>Utilisateur</th>
 						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{% for item in data %}
+							<tr>
+								{# Début Action #}
+								<td>
+									<div class="dropdown">
+										<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="fas fa-ellipsis-vertical"></i>
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" style="color: #000;" href="#">Ajouter</a>
+											</li>
+											<li>
+												<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								{# Fin Actions #}
+
+								{# DEBUT Statut #}
+								{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+									<td class="bg-warning bg-gradient fw-bold text-cente">
+										{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'CLOTURE' or item.idStatutDemande.description | trim == 'CLOTURE COMPTA' %}
+									<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
+									<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
+									<td class="bg-info fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
+									<td class="bg-danger fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
+									<td class="bg-primary fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
+									<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
+								{% else %}
+									<td>{{item.idStatutDemande.description | trim}}</td>
+								{% endif %}
+								{# FIN Statut #}
+
+								<td>
+									<a href="{{ path("dit_validationDit", {numDit: item.numeroDemandeIntervention, id: item.id})}}">{{ item.numeroDemandeIntervention }}</a>
+								</td>
+								<td>{{ item.typeDocument.description}}</td>
+								<td>{{ item.idNiveauUrgence.description}}</td>
+								<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+
+								{% if item.idMateriel not in idMat %}
+									<td>
+										-
+									</td>
+									<td>
+										-
+									</td>
+								{% else %}
+									{% for num in numSerieParc %}
+
+										{% if item.idMateriel == num.num_matricule %}
+											<td>{{ num.num_serie}}</td>
+											<td>{{ num.num_parc}}</td>
+										{% endif %}
+									{% endfor %}
+								{% endif %}
+
+								<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+								<td>{{ item.internetExterne}}</td>
+								<td>{{ item.agenceServiceEmetteur }}</td>
+								<td>{{ item.agenceServiceDebiteur}}</td>
+								<td>{{ item.objetDemande}}</td>
+								<td>{{item.utilisateurDemandeur}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
 		</div>
 		<!-- FIN tableau -->
 

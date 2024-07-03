@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\DemandeInterventionRepository;
 use App\Service\EmailService;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -125,23 +126,44 @@ class DitController extends Controller
 
         $form->handleRequest($request);
 
-
+        $repository= self::$em->getRepository(DemandeIntervention::class);
+        $empty = false;
+       
         if($form->isSubmitted() && $form->isValid()) {
-            $criteria['statut'] = $form->get('statut')->getData();
-            $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
-            $criteria['typeDocument'] = $form->get('typeDocument')->getData();
-            $criteria['idMateriel'] = $form->get('idMateriel')->getData();
-            $criteria['internetExterne'] = $form->get('internetExterne')->getData();
-            $criteria['dateDebut'] = $form->get('dateDebut')->getData();
-            $criteria['dateFin'] = $form->get('dateFin')->getData();
+            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
+            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+            
+            if(!empty($numParc) || !empty($numSerie)){
+                
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                if(!empty($idMateriel)){
+                    $criteria['statut'] = $form->get('statut')->getData();
+                    $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
+                    $criteria['typeDocument'] = $form->get('typeDocument')->getData();
+                    $criteria['idMateriel'] = $idMateriel[0]['num_matricule'];
+                    $criteria['internetExterne'] = $form->get('internetExterne')->getData();
+                    $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                    $criteria['dateFin'] = $form->get('dateFin')->getData();
+                } elseif(empty($idMateriel)) {
+                    $empty = true;
+                }
+                
+            } else {
+                
+                $criteria['statut'] = $form->get('statut')->getData();
+                $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
+                $criteria['typeDocument'] = $form->get('typeDocument')->getData();
+                $criteria['idMateriel'] = $form->get('idMateriel')->getData();
+                $criteria['internetExterne'] = $form->get('internetExterne')->getData();
+                $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                $criteria['dateFin'] = $form->get('dateFin')->getData();
+            }
+            
         } 
 
       
         $page = $request->query->getInt('page', 1);
         $limit = 10;
-
-        $repository= self::$em->getRepository(DemandeIntervention::class);
-
       
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
         $idMateriels = $this->recupIdMaterielEnChaine($data);
@@ -174,6 +196,7 @@ class DitController extends Controller
             'data' => $data,
             'numSerieParc' => $numSerieParc,
             'idMat' => $idMat,
+            'empty' => $empty,
             'form' => $form->createView(),
                 'currentPage' => $page,
                 'totalPages' =>$totalPages,
