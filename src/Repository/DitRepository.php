@@ -56,6 +56,16 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
+        if (!empty($criteria['agServEmet'])) {
+            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+        }
+
+        if (!empty($criteria['agServDebit'])) {
+            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                ->setParameter('agServDebit',  $criteria['agServDebit'] );
+        }
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
@@ -116,7 +126,15 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
+        if (!empty($criteria['agServEmet'])) {
+            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+        }
         
+        if (!empty($criteria['agServDebit'])) {
+            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                ->setParameter('agServDebit',  $criteria['agServDebit'] );
+        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
@@ -167,6 +185,16 @@ class DitRepository extends EntityRepository
         if (!empty($criteria['dateFin'])) {
             $queryBuilder->andWhere('d.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $criteria['dateFin']);
+        }
+
+        if (!empty($criteria['agServEmet'])) {
+            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+        }
+
+        if (!empty($criteria['agServDebit'])) {
+            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                ->setParameter('agServDebit',  $criteria['agServDebit'] );
         }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -221,6 +249,16 @@ class DitRepository extends EntityRepository
         if (!empty($criteria['dateFin'])) {
             $queryBuilder->andWhere('b.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $criteria['dateFin']);
+        }
+
+        if (!empty($criteria['agServEmet'])) {
+            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+        }
+
+        if (!empty($criteria['agServDebit'])) {
+            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                ->setParameter('agServDebit',  $criteria['agServDebit'] );
         }
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
@@ -282,8 +320,15 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
-        
+        if (!empty($criteria['agServEmet'])) {
+            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+        }
 
+        if (!empty($criteria['agServDebit'])) {
+            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                ->setParameter('agServDebit',  $criteria['agServDebit'] );
+        }
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

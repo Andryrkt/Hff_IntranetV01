@@ -1316,7 +1316,6 @@ class DomControl extends Controller
     {
         $codeServiceIrium = $this->DomModel->RecuperationCodeEtServiceIrium();
 
-
         header("Content-type:application/json");
 
         echo json_encode($codeServiceIrium);

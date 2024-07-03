@@ -170,6 +170,12 @@ trait DitTrait
     }
 }
 
+/**
+ * RECUPERATION DE L'ID MATERIEL EN CHAINE DE CARACTERE
+ *
+ * @param array $data
+ * @return string
+ */
     private function recupIdMaterielEnChaine(array $data): string
     {
         $idMateriels = '(';
@@ -181,7 +187,14 @@ trait DitTrait
       return $idMateriels;
     }
 
-    private function infoEntrerManuel($form, $em) 
+    /**
+     * INFO AJOUTER MANUELEMENT DANS LA CLASSE DEMANDE D'INTERVENTION
+     *
+     * @param [type] $form
+     * @param [type] $em
+     * @return DemandeIntervention
+     */
+    private function infoEntrerManuel($form, $em) : DemandeIntervention
     {
         $dits = $form->getData();
         
@@ -198,8 +211,14 @@ trait DitTrait
             return $dits;
     }
 
-
-private function initialisationForm($demandeIntervention, $em)
+/**
+ * INITIALISER LA VALEUR DE LA FORMULAIRE
+ *
+ * @param DemandeIntervention $demandeIntervention
+ * @param [type] $em
+ * @return void
+ */
+private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
 {
     $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
     $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);

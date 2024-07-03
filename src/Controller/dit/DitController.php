@@ -16,6 +16,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\DitSearch;
 use App\Form\DitValidationType;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,46 +82,68 @@ class DitController extends Controller
             
             if($request->query->get('dit_search') !== null) {
                 if($request->query->get('dit_search')['typeDocument'] !== null){
-                $idTypeDocument = $request->query->get('dit_search')['typeDocument'];
-                $typeDocument = self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument);
+                    $idTypeDocument = $request->query->get('dit_search')['typeDocument'];
+                    $typeDocument = self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument);
+                } else {
+                    $typeDocument = $request->query->get('typeDocument', null);
+                }
+
+                if($request->query->get('dit_search')['niveauUrgence'] !== null){
+                    $idNiveauUrgence = $request->query->get('dit_search')['niveauUrgence'];
+                    
+                    $niveauUrgence = self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence);
+                } else {
+                    $niveauUrgence = $request->query->get('niveauUrgence', null);
+                }
+                
+                if($request->query->get('dit_search')['statut'] !== null){
+                    $idStatut = $request->query->get('dit_search')['statut'];
+                    $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut);
+                } else {
+                    $statut = $request->query->get('statut', null);
+                }
+            
             } else {
                 $typeDocument = $request->query->get('typeDocument', null);
-            }
-
-            if($request->query->get('dit_search')['niveauUrgence'] !== null){
-                $idNiveauUrgence = $request->query->get('dit_search')['niveauUrgence'];
-                
-                $niveauUrgence = self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence);
-            } else {
                 $niveauUrgence = $request->query->get('niveauUrgence', null);
-            }
-            
-            if($request->query->get('dit_search')['statut'] !== null){
-                $idStatut = $request->query->get('dit_search')['statut'];
-                $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut);
-            } else {
                 $statut = $request->query->get('statut', null);
             }
-            
-        } else {
-            $typeDocument = $request->query->get('typeDocument', null);
-            $niveauUrgence = $request->query->get('niveauUrgence', null);
-            $statut = $request->query->get('statut', null);
-        }
     }
        
-        $criteria = [
-            'statut' => $statut,
-            'niveauUrgence' => $niveauUrgence,
-            'typeDocument' => $typeDocument,
-            'idMateriel' => $request->query->get('idMateriel'),
-            'internetExterne' => $request->query->get('internetExterne'),
-            'dateDebut' => $request->query->get('dateDebut'),
-            'dateFin' => $request->query->get('dateFin')
-        ];
+        // $criteria = [
+        //     'statut' => $statut,
+        //     'niveauUrgence' => $niveauUrgence,
+        //     'typeDocument' => $typeDocument,
+        //     'idMateriel' => $request->query->get('idMateriel'),
+        //     'internetExterne' => $request->query->get('internetExterne'),
+        //     'dateDebut' => $request->query->get('dateDebut'),
+        //     'dateFin' => $request->query->get('dateFin'),
+        //     'agenceEmetteur' => self::$em->getRepository(Agence::class)->find(1)
+        // ];
+        $criteria = [];
+
+        $ditSearch = new DitSearch();
+
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
+    
+        $ditSearch
+        ->setStatut($statut)
+        ->setNiveauUrgence($niveauUrgence)
+        ->setTypeDocument($typeDocument)
+        ->setIdMateriel($request->query->get('idMateriel'))
+        ->setInternetExterne($request->query->get('internetExterne'))
+        ->setDateDebut($request->query->get('dateDebut'))
+        ->setDateFin($request->query->get('dateFin'))
+        ->setAgenceEmetteur(self::$em->getRepository(Agence::class)->find($idAgence))
+        ->setServiceEmetteur(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]))
+        //->setAgenceDebiteur(self::$em->getRepository(Agence::class)->find(1))
+        ;
 
 
-        $form = self::$validator->createBuilder(DitSearchType::class, $criteria, [
+
+        $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -144,12 +167,15 @@ class DitController extends Controller
                     $criteria['internetExterne'] = $form->get('internetExterne')->getData();
                     $criteria['dateDebut'] = $form->get('dateDebut')->getData();
                     $criteria['dateFin'] = $form->get('dateFin')->getData();
+                    $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
+                    $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
+
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
                 
             } else {
-                
+                dd($form->get('agenceDebiteur')->getData()->getCodeAgence() );
                 $criteria['statut'] = $form->get('statut')->getData();
                 $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
                 $criteria['typeDocument'] = $form->get('typeDocument')->getData();
@@ -157,6 +183,8 @@ class DitController extends Controller
                 $criteria['internetExterne'] = $form->get('internetExterne')->getData();
                 $criteria['dateDebut'] = $form->get('dateDebut')->getData();
                 $criteria['dateFin'] = $form->get('dateFin')->getData();
+                $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
+                $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
             }
             
         } 
@@ -166,12 +194,19 @@ class DitController extends Controller
         $limit = 10;
       
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
-        $idMateriels = $this->recupIdMaterielEnChaine($data);
-        $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
         $idMat = [];
+        $numSerieParc = [];
+        if (!empty($data)) {
+            $idMateriels = $this->recupIdMaterielEnChaine($data);
+        $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
+        
         foreach ($numSerieParc as  $value) {
             $idMat[] = $value['num_matricule'];
         }
+        } else {
+            $empty = true;
+        }
+        
 //         dump($data);    
 // dump($idMateriels);
 // dump($numSerieParc);
