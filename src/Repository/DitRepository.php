@@ -2,14 +2,13 @@
 
 namespace App\Repository;
 
-
-
+use App\Entity\DitSearch;
 use Doctrine\ORM\EntityRepository;
 
 
 class DitRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -21,53 +20,54 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
-            if (!empty($criteria['statut'])) {
+            if (!empty($ditSearch->getStatut())) {
                 $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
             }
 
-        if (!empty($criteria['typeDocument'])) {
+        if (!empty($ditSearch->getTypeDocument())) {
             $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                ->setParameter('typeDocument', '%' . $criteria['typeDocument'] . '%');
+                ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
         }
 
-        if (!empty($criteria['niveauUrgence'])) {
+        if (!empty($ditSearch->getNiveauUrgence())) {
             $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                ->setParameter('niveauUrgence', '%' . $criteria['niveauUrgence'] . '%');
+                ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
         }
 
-        if (!empty($criteria['idMateriel'])) {
+        if (!empty($ditSearch->getIdMateriel())) {
             $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                ->setParameter('idMateriel',  $criteria['idMateriel'] );
+                ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
         }
 
-        if (!empty($criteria['internetExterne'])) {
+        if (!empty($ditSearch->getInternetExterne())) {
             $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                ->setParameter('internetExterne',  $criteria['internetExterne'] );
+                ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
         }
 
-        if (!empty($criteria['dateDebut'])) {
+        if (!empty($ditSearch->getDateDebut())) {
             $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
+                ->setParameter('dateDebut', $ditSearch->getDateDebut());
         }
 
-        if (!empty($criteria['dateFin'])) {
+        if (!empty($ditSearch->getDateFin())) {
             $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
+                ->setParameter('dateFin', $ditSearch->getDateFin());
         }
 
-        if (!empty($criteria['agServEmet'])) {
+        if (!empty($ditSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $criteria['agServEmet'] );
+                ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
         }
 
-        if (!empty($criteria['agServDebit'])) {
+        if (!empty($ditSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $criteria['agServDebit'] );
+                ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
         }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
+
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ;
@@ -79,7 +79,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function countFiltered(array $criteria = [])
+    public function countFiltered(DitSearch $ditSearch)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('COUNT(d.id)')
@@ -91,55 +91,55 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-            if (!empty($criteria['typeDocument'])) {
+                if (!empty($ditSearch->getStatut())) {
+                    $queryBuilder->andWhere('s.description LIKE :statut')
+                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+                }
+    
+            if (!empty($ditSearch->getTypeDocument())) {
                 $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                    ->setParameter('typeDocument', '%' . $criteria['typeDocument'] . '%');
+                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
             }
     
-            if (!empty($criteria['niveauUrgence'])) {
+            if (!empty($ditSearch->getNiveauUrgence())) {
                 $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                    ->setParameter('niveauUrgence', '%' . $criteria['niveauUrgence'] . '%');
+                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
             }
-
-            if (!empty($criteria['idMateriel'])) {
+    
+            if (!empty($ditSearch->getIdMateriel())) {
                 $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                    ->setParameter('idMateriel',  $criteria['idMateriel'] );
+                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
             }
-
-            if (!empty($criteria['internetExterne'])) {
+    
+            if (!empty($ditSearch->getInternetExterne())) {
                 $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                    ->setParameter('internetExterne',  $criteria['internetExterne'] );
+                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
             }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
-
-        if (!empty($criteria['agServEmet'])) {
-            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $criteria['agServEmet'] );
-        }
-        
-        if (!empty($criteria['agServDebit'])) {
-            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $criteria['agServDebit'] );
-        }
+    
+            if (!empty($ditSearch->getDateDebut())) {
+                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
+                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
+            }
+    
+            if (!empty($ditSearch->getDateFin())) {
+                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
+                    ->setParameter('dateFin', $ditSearch->getDateFin());
+            }
+    
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            }
+    
+            if (!empty($ditSearch->getAgenceDebiteur())) {
+                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+            }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
-    public function findAndFilteredExcel( array $criteria = [])
+    public function findAndFilteredExcel( DitSearch $ditSearch)
     {
         $queryBuilder = $this->createQueryBuilder('d')
         ->leftJoin('d.typeDocument', 'td')
@@ -152,50 +152,50 @@ class DitRepository extends EntityRepository
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
          
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-            if (!empty($criteria['typeDocument'])) {
+                if (!empty($ditSearch->getStatut())) {
+                    $queryBuilder->andWhere('s.description LIKE :statut')
+                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+                }
+    
+            if (!empty($ditSearch->getTypeDocument())) {
                 $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                    ->setParameter('typeDocument', '%' . $criteria['typeDocument'] . '%');
+                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
             }
     
-            if (!empty($criteria['niveauUrgence'])) {
+            if (!empty($ditSearch->getNiveauUrgence())) {
                 $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                    ->setParameter('niveauUrgence', '%' . $criteria['niveauUrgence'] . '%');
+                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
             }
-
-            if (!empty($criteria['idMateriel'])) {
+    
+            if (!empty($ditSearch->getIdMateriel())) {
                 $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                    ->setParameter('idMateriel',  $criteria['idMateriel'] );
+                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
             }
-
-            if (!empty($criteria['internetExterne'])) {
+    
+            if (!empty($ditSearch->getInternetExterne())) {
                 $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                    ->setParameter('internetExterne',  $criteria['internetExterne'] );
+                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
             }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
-
-        if (!empty($criteria['agServEmet'])) {
-            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $criteria['agServEmet'] );
-        }
-
-        if (!empty($criteria['agServDebit'])) {
-            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $criteria['agServDebit'] );
-        }
+    
+            if (!empty($ditSearch->getDateDebut())) {
+                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
+                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
+            }
+    
+            if (!empty($ditSearch->getDateFin())) {
+                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
+                    ->setParameter('dateFin', $ditSearch->getDateFin());
+            }
+    
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            }
+    
+            if (!empty($ditSearch->getAgenceDebiteur())) {
+                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+            }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -204,7 +204,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [])
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, DitSearch $ditSearch)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -216,50 +216,50 @@ class DitRepository extends EntityRepository
                 ->setParameter('includedStatuses', $includedStatuses);
 
             
-                if (!empty($criteria['statut'])) {
+                if (!empty($ditSearch->getStatut())) {
                     $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $criteria['statut'] . '%');
+                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
                 }
     
-                if (!empty($criteria['typeDocument'])) {
-                    $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                        ->setParameter('typeDocument', '%' . $criteria['typeDocument'] . '%');
-                }
-        
-                if (!empty($criteria['niveauUrgence'])) {
-                    $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                        ->setParameter('niveauUrgence', '%' . $criteria['niveauUrgence'] . '%');
-                }
+            if (!empty($ditSearch->getTypeDocument())) {
+                $queryBuilder->andWhere('td.description LIKE :typeDocument')
+                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
+            }
     
-                if (!empty($criteria['idMateriel'])) {
-                    $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                        ->setParameter('idMateriel',  $criteria['idMateriel'] );
-                }
+            if (!empty($ditSearch->getNiveauUrgence())) {
+                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
+                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
+            }
     
-                if (!empty($criteria['internetExterne'])) {
-                    $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                        ->setParameter('internetExterne',  $criteria['internetExterne'] );
-                }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
-
-        if (!empty($criteria['agServEmet'])) {
-            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $criteria['agServEmet'] );
-        }
-
-        if (!empty($criteria['agServDebit'])) {
-            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $criteria['agServDebit'] );
-        }
+            if (!empty($ditSearch->getIdMateriel())) {
+                $queryBuilder->andWhere('d.idMateriel = :idMateriel')
+                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
+            }
+    
+            if (!empty($ditSearch->getInternetExterne())) {
+                $queryBuilder->andWhere('d.internetExterne = :internetExterne')
+                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
+            }
+    
+            if (!empty($ditSearch->getDateDebut())) {
+                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
+                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
+            }
+    
+            if (!empty($ditSearch->getDateFin())) {
+                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
+                    ->setParameter('dateFin', $ditSearch->getDateFin());
+            }
+    
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            }
+    
+            if (!empty($ditSearch->getAgenceDebiteur())) {
+                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+            }
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
@@ -273,7 +273,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function countFilteredListAnnuller(array $criteria = [])
+    public function countFilteredListAnnuller(DitSearch $ditSearch)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->select('COUNT(b.id)')
@@ -285,50 +285,51 @@ class DitRepository extends EntityRepository
                 ->setParameter('includedStatuses', $includedStatuses);
 
            
-                if (!empty($criteria['statut'])) {
+                if (!empty($ditSearch->getStatut())) {
                     $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $criteria['statut'] . '%');
+                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
                 }
     
-                if (!empty($criteria['typeDocument'])) {
-                    $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                        ->setParameter('typeDocument', '%' . $criteria['typeDocument'] . '%');
-                }
-        
-                if (!empty($criteria['niveauUrgence'])) {
-                    $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                        ->setParameter('niveauUrgence', '%' . $criteria['niveauUrgence'] . '%');
-                }
+            if (!empty($ditSearch->getTypeDocument())) {
+                $queryBuilder->andWhere('td.description LIKE :typeDocument')
+                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
+            }
     
-                if (!empty($criteria['idMateriel'])) {
-                    $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                        ->setParameter('idMateriel',  $criteria['idMateriel'] );
-                }
+            if (!empty($ditSearch->getNiveauUrgence())) {
+                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
+                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
+            }
     
-                if (!empty($criteria['internetExterne'])) {
-                    $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                        ->setParameter('internetExterne',  $criteria['internetExterne'] );
-                }
+            if (!empty($ditSearch->getIdMateriel())) {
+                $queryBuilder->andWhere('d.idMateriel = :idMateriel')
+                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
+            }
+    
+            if (!empty($ditSearch->getInternetExterne())) {
+                $queryBuilder->andWhere('d.internetExterne = :internetExterne')
+                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
+            }
+    
+            if (!empty($ditSearch->getDateDebut())) {
+                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
+                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
+            }
+    
+            if (!empty($ditSearch->getDateFin())) {
+                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
+                    ->setParameter('dateFin', $ditSearch->getDateFin());
+            }
+    
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            }
+    
+            if (!empty($ditSearch->getAgenceDebiteur())) {
+                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+            }
 
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
-
-        if (!empty($criteria['agServEmet'])) {
-            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $criteria['agServEmet'] );
-        }
-
-        if (!empty($criteria['agServDebit'])) {
-            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $criteria['agServDebit'] );
-        }
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

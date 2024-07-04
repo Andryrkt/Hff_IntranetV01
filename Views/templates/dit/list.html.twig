@@ -62,12 +62,12 @@
 		<div class="container">
 			<div class="d-flex justify-content-between">
 				<div>
-					<button id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+					<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
 						<i class="fas fa-table"></i>
-						Excel</button>
+						Excel</a>
 
 
-					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
+					<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
 				</div>
 				<div>
 					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
@@ -144,28 +144,18 @@
 								{# Fin Actions #}
 
 								{# DEBUT Statut #}
-								{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+								{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
 									<td class="bg-warning bg-gradient fw-bold text-cente">
 										{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'CLOTURE' or item.idStatutDemande.description | trim == 'CLOTURE COMPTA' %}
+								{% elseif item.idStatutDemande.description | trim == 'AFFECTEE'  %}
 									<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
-									<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
-									<td class="bg-info fw-bold">{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.idStatutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
-									<td class="bg-danger fw-bold">{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
-									<td class="bg-primary fw-bold">{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
-									<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.idStatutDemande.description | trim}}</td>
 								{% else %}
 									<td>{{item.idStatutDemande.description | trim}}</td>
 								{% endif %}
 								{# FIN Statut #}
 
 								<td>
-									<a href="{{ path("dit_validationDit", {numDit: item.numeroDemandeIntervention, id: item.id})}}">{{ item.numeroDemandeIntervention }}</a>
+									<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}">{{ item.numeroDemandeIntervention }}</a>
 								</td>
 								<td>{{ item.typeDocument.description}}</td>
 								<td>{{ item.idNiveauUrgence.description}}</td>

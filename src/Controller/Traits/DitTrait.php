@@ -201,7 +201,7 @@ trait DitTrait
         $dits->setUtilisateurDemandeur($_SESSION['user']);
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
-            $statutDemande = $em->getRepository(StatutDemande::class)->find(1);
+            $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dits->setIdStatutDemande($statutDemande);
             $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
             $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();

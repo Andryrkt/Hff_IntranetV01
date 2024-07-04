@@ -37,6 +37,7 @@ use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
 use App\Service\AccessControlService;
+use App\Service\ExcelService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -99,6 +100,8 @@ class Controller
 
     protected $accessControl;
 
+    protected $excelService;
+
     public function __construct()
     {
 
@@ -159,6 +162,8 @@ class Controller
         $this->sessionService = new SessionManagerService();
 
         $this->accessControl = new AccessControlService();
+
+        $this->excelService = new ExcelService();
     }
 
 

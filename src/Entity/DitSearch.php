@@ -51,25 +51,25 @@ class DitSearch
     /**
      * @var string|null
      */
-    private ?string $numParc;
+    private ?string $numParc = '';
 
     /**
      * @var string|null
      */
-    private ?string $numSerie;
+    private ?string $numSerie = '';
 
 
     /**
      * @var Agence|null
      */
-    private ?Agence $agenceEmetteur;
+    private ?Agence $agenceEmetteur = null;
 
     /**
      * Undocumented variable
      *
      * @var Service|null
      */
-    private ?Service $serviceEmetteur;
+    private ?Service $serviceEmetteur = null;
 
     /**
      * Undocumented variable
@@ -83,7 +83,7 @@ class DitSearch
      *
      * @var Service|null
      */
-    private ?Service $serviceDebiteur;
+    private ?Service $serviceDebiteur = null;
 
   
 
@@ -407,6 +407,26 @@ class DitSearch
         $this->serviceDebiteur = $serviceDebiteur;
 
         return $this;
+    }
+
+
+    public function toArray(): array
+    {
+        return [
+            'typeDocument' => $this->typeDocument,
+            'niveauUrgence' => $this->niveauUrgence,
+            'statut' => $this->statut,
+            'interneExterne' => $this->internetExterne,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'idMateriel' => $this->idMateriel,
+            'numParc' => $this->numParc,
+            'numSerie' => $this->numSerie,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'serviceDebiteur' => $this->serviceDebiteur
+        ];
     }
 }
 

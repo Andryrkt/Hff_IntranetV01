@@ -110,17 +110,8 @@ class DitController extends Controller
             }
     }
        
-        // $criteria = [
-        //     'statut' => $statut,
-        //     'niveauUrgence' => $niveauUrgence,
-        //     'typeDocument' => $typeDocument,
-        //     'idMateriel' => $request->query->get('idMateriel'),
-        //     'internetExterne' => $request->query->get('internetExterne'),
-        //     'dateDebut' => $request->query->get('dateDebut'),
-        //     'dateFin' => $request->query->get('dateFin'),
-        //     'agenceEmetteur' => self::$em->getRepository(Agence::class)->find(1)
-        // ];
-        $criteria = [];
+        
+       
 
         $ditSearch = new DitSearch();
 
@@ -151,7 +142,7 @@ class DitController extends Controller
 
         $repository= self::$em->getRepository(DemandeIntervention::class);
         $empty = false;
-       
+        $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
@@ -161,59 +152,77 @@ class DitController extends Controller
                 
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
-                    $criteria['statut'] = $form->get('statut')->getData();
-                    $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
-                    $criteria['typeDocument'] = $form->get('typeDocument')->getData();
-                    $criteria['idMateriel'] = $idMateriel[0]['num_matricule'];
-                    $criteria['internetExterne'] = $form->get('internetExterne')->getData();
-                    $criteria['dateDebut'] = $form->get('dateDebut')->getData();
-                    $criteria['dateFin'] = $form->get('dateFin')->getData();
-                    $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
+                    $ditSearch
+                    ->setStatut($form->get('statut')->getData())
+                    ->setNiveauUrgence($form->get('niveauUrgence')->getData())
+                    ->setTypeDocument($form->get('typeDocument')->getData())
+                    ->setIdMateriel($idMateriel[0]['num_matricule'])
+                    ->setInternetExterne($form->get('internetExterne')->getData())
+                    ->setDateDebut($form->get('dateDebut')->getData())
+                    ->setDateFin($form->get('dateFin')->getData())
+                    ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
+                    ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
+                    ;
+                    
                     if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
-                        $criteria['agServDebit'] = "";
+                        $ditSearch
+                        ->setAgenceDebiteur(null)
+                        ->setServiceDebiteur(null);
                     } else {
-                        $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
+                        $ditSearch
+                        ->setAgenceDebiteur($form->get('agenceDebiteur')->getData())
+                        ->setServiceDebiteur($form->get('serviceDebiteur')->getData());
+
                     }
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
                 
             } else {
-                
-                $criteria['statut'] = $form->get('statut')->getData();
-                $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
-                $criteria['typeDocument'] = $form->get('typeDocument')->getData();
-                $criteria['idMateriel'] = $form->get('idMateriel')->getData();
-                $criteria['internetExterne'] = $form->get('internetExterne')->getData();
-                $criteria['dateDebut'] = $form->get('dateDebut')->getData();
-                $criteria['dateFin'] = $form->get('dateFin')->getData();
-                $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
-               
-                if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
-                    $criteria['agServDebit'] = "";
-                } else {
+                $ditSearch
+                    ->setStatut($form->get('statut')->getData())
+                    ->setNiveauUrgence($form->get('niveauUrgence')->getData())
+                    ->setTypeDocument($form->get('typeDocument')->getData())
+                    ->setIdMateriel($form->get('idMateriel')->getData())
+                    ->setInternetExterne($form->get('internetExterne')->getData())
+                    ->setDateDebut($form->get('dateDebut')->getData())
+                  ->setDateFin($form->get('dateFin')->getData())
+                  ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
+                  ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
+                  ;
+                  
+                  if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
+                      $ditSearch
+                      ->setAgenceDebiteur(null)
+                      ->setServiceDebiteur(null);
+                  } else {
+                      $ditSearch
+                      ->setAgenceDebiteur($form->get('agenceDebiteur')->getData())
+                      ->setServiceDebiteur($form->get('serviceDebiteur')->getData());
+                  }
 
-                    $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
-                }
-                
             }
             
         } 
+       
 
+        $criteria = $ditSearch->toArray();
+        //recupères les données du criteria dans une session nommé dit_serch_criteria
+        $this->sessionService->set('dit_search_criteria', $criteria);
       
         $page = $request->query->getInt('page', 1);
         $limit = 10;
       
-        $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+        $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch);
         $idMat = [];
         $numSerieParc = [];
         if (!empty($data)) {
             $idMateriels = $this->recupIdMaterielEnChaine($data);
-        $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-        
-        foreach ($numSerieParc as  $value) {
-            $idMat[] = $value['num_matricule'];
-        }
+            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
+            
+            foreach ($numSerieParc as  $value) {
+                $idMat[] = $value['num_matricule'];
+            }
         } else {
             $empty = true;
         }
@@ -222,9 +231,12 @@ class DitController extends Controller
 // dump($idMateriels);
 // dump($numSerieParc);
 // dd($idMat);
-        $totalBadms = $repository->countFiltered($criteria);
+        $totalBadms = $repository->countFiltered($ditSearch);
 
         $totalPages = ceil($totalBadms / $limit);
+
+
+       
         
         if($request->query->get("envoyer") === "listAnnuler") {
         
@@ -253,61 +265,66 @@ class DitController extends Controller
 
     
  /**
-     * @Route("/api/excel-dit", name="dit_excel", methods={"GET", "POST"})
-     * 
+     * @Route("/export-excel", name="export_excel")
      */
-    // public function fetchExcel(Request $request)
-    // {
-    //     ini_set('memory_limit', '1024M'); 
-
-    //     $data = json_decode($request->getContent(), true);
-
-    //     $idMateriel = $data['idMateriel'] ?? null;
-    //     $idTypeDocument = $data['typeDocument'] ?? null;
-    //     $idNiveauUrgence = $data['niveauUrgence'] ?? null;
-    //     $idStatut = $data['statut'] ?? null;
-    //     $interneExterne = $data['interExtern'] ?? null;
-    //     $dateDebut = $data['dateDebut'] ?? null;
-    //     $dateFin = $data['dateFin'] ?? null;
-    
-       
-    //     $criteria = [
-    //         'statut' => $idStatut === null ? '' : self::$em->getRepository(StatutDemande::class)->find($idStatut),
-    //         'niveauUrgence' => $idNiveauUrgence === null ? '' : self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence),
-    //         'typeDocument' => $idTypeDocument === null ? '' : self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument),
-    //         'idMateriel' => $idMateriel === null ? '' : $idMateriel,
-    //         'internetExterne' => $interneExterne === null ? '' : $interneExterne,
-    //         'dateDebut' => $dateDebut === null ? '' : $dateDebut,
-    //         'dateFin' => $dateFin === null ? '' : $dateFin
-    //     ];
+    public function exportExcel(Request $request)
+    {
         
-    //     // Récupérer les données depuis le modèle
-    // $data = self::$em->getRepository(DemandeIntervention::class)->findAndFilteredExcel($criteria);
+        $criteria = $this->sessionService->get('dit_search_criteria', []);
 
-    // // Vérifiez si les données existent
-    // if (!$data) {
-    //     return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
-    // }
-    // // header("Content-type:application/json");
+        $ditSearch = new DitSearch();
+        $ditSearch
+        ->setTypeDocument($criteria["typeDocument"])
+        ->setNiveauUrgence($criteria["niveauUrgence"])
+        ->setStatut($criteria["statut"])
+        ->setInternetExterne($criteria["interneExterne"])
+        ->setDateDebut($criteria["dateDebut"])
+        ->setDateFin($criteria["dateFin"])
+        ->setIdMateriel($criteria["idMateriel"])
+        ->setNumParc($criteria["numParc"])
+        ->setNumSerie($criteria["numSerie"])
+        ->setAgenceEmetteur($criteria["agenceEmetteur"])
+        ->setServiceEmetteur($criteria["serviceEmetteur"])
+        ->setAgenceDebiteur($criteria["agenceDebiteur"])
+        ->setServiceDebiteur($criteria["serviceDebiteur"])
+        ;
+        
+    
+        $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch);
+       
+    // Convertir les entités en tableau de données
+    $data = [];
+    $data[] = ['N° DIT', 'Type Document', 'type de Réparation', 'Réalisé par', 'Catégorie de Demande', 'I/E', 'Débiteur', 'Emetteur', 'nom Client', 'N° Tel', 'Date de travaux', 'Devis', 'Niveau d\'urgence', 'Avis de recouvrement', 'Client sous contrat', 'Objet', 'Detail', 'Livraison Partiel', 'Id matériel', 'mail demandeur', 'date demande', 'statut Demande']; // En-têtes des colonnes
+    foreach ($entities as $entity) {
+        $data[] = [
+            $entity->getNumeroDemandeIntervention(), 
+            $entity->getTypeDocument()->getDescription(),
+            $entity->getTypeReparation(),
+            $entity->getReparationRealise(),
+            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
+            $entity->getInternetExterne(),
+            $entity->getAgenceServiceDebiteur(),
+            $entity->getAgenceServiceEmetteur(),
+            $entity->getNomClient(),
+            $entity->getNumeroTel(),
+            $entity->getDatePrevueTravaux(),
+            $entity->getDemandeDevis(),
+            $entity->getIdNiveauUrgence()->getDescription(),
+            $entity->getAvisRecouvrement(),
+            $entity->getClientSousContrat(),
+            $entity->getObjetDemande(),
+            $entity->getDetailDemande(),
+            $entity->getLivraisonPartiel(),
+            $entity->getIdMateriel(),
+            $entity->getMailDemandeur(),
+            $entity->getDateDemande(),
+            $entity->getIdStatutDemande()->getDescription()
+            
+        ];
+    }
 
-    // // $jsonData = json_encode($data);
-
-    //     //$this->testJson($jsonData);
-    // // Renvoyer les données en réponse JSON
-    //  //echo new JsonResponse($data);
-    //  //$jsonData = $this->serializer->serialize($data, 'json', ['groups' => 'intervention']);
-
-    //  $batchSize = 100; // Taille du lot
-    //     $jsonData = [];
-
-    //     foreach (array_chunk($data, $batchSize) as $batch) {
-    //         $jsonData = array_merge($jsonData, json_decode($this->serializer->serialize($batch, 'json'), true));
-    //     }
-    //  return new JsonResponse($jsonData, 200, [], true);
-    // }
-
-
-   
+         $this->excelService->createSpreadsheet($data);
+    }   
    
 
     /**
@@ -440,12 +457,13 @@ $jsonData = json_encode($data);
 }
 
 /**
- * @Route("/ditValidation/{numDit}/{id}", name="dit_validationDit")
+ * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
  *
  * @return void
  */
    public function validationDit($numDit, $id, Request $request)
    {
+    dd($numDit);
     $this->SessionStart();
     $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
