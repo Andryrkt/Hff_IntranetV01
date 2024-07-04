@@ -155,6 +155,7 @@ class DitController extends Controller
         if($form->isSubmitted() && $form->isValid()) {
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+           
             
             if(!empty($numParc) || !empty($numSerie)){
                 
@@ -168,14 +169,17 @@ class DitController extends Controller
                     $criteria['dateDebut'] = $form->get('dateDebut')->getData();
                     $criteria['dateFin'] = $form->get('dateFin')->getData();
                     $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
-                    $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
-
+                    if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
+                        $criteria['agServDebit'] = "";
+                    } else {
+                        $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
+                    }
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
                 
             } else {
-                dd($form->get('agenceDebiteur')->getData()->getCodeAgence() );
+                
                 $criteria['statut'] = $form->get('statut')->getData();
                 $criteria['niveauUrgence'] = $form->get('niveauUrgence')->getData();
                 $criteria['typeDocument'] = $form->get('typeDocument')->getData();
@@ -184,7 +188,14 @@ class DitController extends Controller
                 $criteria['dateDebut'] = $form->get('dateDebut')->getData();
                 $criteria['dateFin'] = $form->get('dateFin')->getData();
                 $criteria['agServEmet'] = $form->get('agenceEmetteur')->getData()->getCodeAgence() . '-' . $form->get('serviceEmetteur')->getData()->getCodeService();
-                $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
+               
+                if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
+                    $criteria['agServDebit'] = "";
+                } else {
+
+                    $criteria['agServDebit'] = $form->get('agenceDebiteur')->getData()->getCodeAgence() . '-' . $form->get('serviceDebiteur')->getData()->getCodeService();
+                }
+                
             }
             
         } 
