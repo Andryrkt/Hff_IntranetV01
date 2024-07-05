@@ -15,6 +15,7 @@ class AdminVoter implements Voter
 
     public function vote(User $user, string $permission, $subject = null): bool
     {
-        return true;
+
+        return $user->getRoles() === 'ADMINISTRATEUR';
     }
 }

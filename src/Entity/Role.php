@@ -24,12 +24,6 @@ class Role
      */
     private $id;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="roles")
-     *
-     * @var [type]
-     */
-    private $users;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -46,6 +40,14 @@ class Role
      */
     private $date_modification;
 
+    
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="roles")
+     *
+     * @var [type]
+     */
+    private $users;
+    
     /**
      * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="roles")
      * @ORM\JoinTable(name="role_permissions")

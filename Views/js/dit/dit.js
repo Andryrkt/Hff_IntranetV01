@@ -135,7 +135,7 @@ function InfoMateriel() {
         // if (numSerieInput.value == "") {
         //   numSerieInput.value = data[0].num_serie;
         // }
-
+        erreur.innerHTML = "";
         constructeurInput.innerHTML = data[0].constructeur;
         designationInput.innerHTML = data[0].designation;
         modelInput.innerHTML = data[0].modele;
@@ -180,6 +180,12 @@ function InfoMateriel() {
       });
   } else {
     erreur.innerHTML = "veuillez completer l'un des champs ";
+    constructeurInput.innerHTML = "";
+    designationInput.innerHTML = "";
+    modelInput.innerHTML = "";
+    casierInput.innerHTML = "";
+    kmInput.innerHTML = "";
+    heuresInput.innerHTML = "";
   }
 }
 

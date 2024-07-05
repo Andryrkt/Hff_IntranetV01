@@ -33,7 +33,7 @@
 
 //require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
-
+use App\Entity\User;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
