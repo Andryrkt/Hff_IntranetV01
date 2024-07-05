@@ -67,15 +67,16 @@ public function infoUser($user, $password): array
         // Récupération des entrées
         $entries = ldap_get_entries($this->ldapconn, $search_result);
 
-        
+    
         $data = [];
         if ($entries["count"] > 0) {
         
             for ($i = 0; $i < $entries["count"]; $i++) {
-
+                
            // if(isset($entries[$i]["samaccountname"][0]) && isset($entries[$i]["description"][0]) && isset($entries[$i]["mail"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
             //if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
                 if(isset($entries[$i]["userprincipalname"][0]) ){
+                    
                 $data[$entries[$i]["samaccountname"][0]] = [
                     "nom" => $entries[$i]["sn"][0] ?? '',
                     "prenom" => $entries[$i]["givenname"][0] ?? '',
