@@ -33,11 +33,20 @@
 					{{ form_row(form.dateFin) }}
 				</div>
 
+				{% if boolean %}
+					<div class="col-12 col-md-2">
+						{{form_row(form.agenceEmetteur)}}
+						{{form_row(form.serviceEmetteur)}}
+					</div>
+				{% else %}
+					<div class="col-12 col-md-2">
+						{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
+						{{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
+					</div>
 
-				<div class="col-12 col-md-2">
-					{{form_row(form.agenceEmetteur)}}
-					{{form_row(form.serviceEmetteur)}}
-				</div>
+				{% endif %}
+
+
 				<div class="col-12 col-md-2">
 					{{form_row(form.agenceDebiteur)}}
 					{{form_row(form.serviceDebiteur)}}

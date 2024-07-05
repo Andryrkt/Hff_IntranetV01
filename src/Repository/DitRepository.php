@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DitRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
@@ -55,9 +55,14 @@ class DitRepository extends EntityRepository
                 ->setParameter('dateFin', $ditSearch->getDateFin());
         }
 
-        if (!empty($ditSearch->getAgenceEmetteur())) {
-            $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+        if ($options['boolean']) {
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
                 ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            }
+        } else {
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
         }
 
         if (!empty($ditSearch->getAgenceDebiteur())) {

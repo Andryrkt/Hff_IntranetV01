@@ -42,6 +42,7 @@ class DitSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+       
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',
@@ -132,30 +133,54 @@ class DitSearchType extends AbstractType
                 'attr' => [ 'class' => 'serviceEmetteur']
             ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
                
-                $agenceId = $data['agenceEmetteur'];
-               
+                if (isset($data['agenceEmetteur'])) {
+                    $agenceId = $data['agenceEmetteur'];
+                } else {
+                    $agenceId = $options['idAgenceEmetteur'];
+                }
                 $agence = $this->agenceRepository->find($agenceId);
-                $services = $agence->getServices();
+                
+                
+                if($data && $agence){
 
-                $form->add('serviceEmetteur', EntityType::class, [
-                    'label' => "Service Emetteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir une service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceEmetteur']
-                ]);
-            })
+                    $services = $agence->getServices();
+                    
+                    $form->add('serviceEmetteur', EntityType::class, [
+                        'label' => "Service Emetteur",
+                        'class' => Service::class,
+                        'choice_label' => function (Service $service): string {
+                            return $service->getCodeService() . ' ' . $service->getLibelleService();
+                        },
+                        'placeholder' => '-- Choisir une service--',
+                        'choices' => $services,
+                        'required' => false,
+                        'query_builder' => function(ServiceRepository $serviceRepository) {
+                            return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                        },
+                        'attr' => [ 'class' => 'serviceEmetteur']
+                    ]);
+                 } else {
+                     $form->add('serviceEmetteur', EntityType::class, [
+                         'label' => "Service Emetteur",
+                         'class' => Service::class,
+                         'choice_label' => function (Service $service): string {
+                             return $service->getCodeService() . ' ' . $service->getLibelleService();
+                            },
+                            'placeholder' => '-- Choisir une service--',
+                            
+                            'required' => false,
+                            'query_builder' => function(ServiceRepository $serviceRepository) {
+                                return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                            },
+                            'attr' => [ 'class' => 'serviceEmetteur']
+                        ]);
+                    }
+                
+                })
             ->add('agenceDebiteur', EntityType::class, [
                 'label' => "Agence Debiteur",
                 'class' => Agence::class,
@@ -248,5 +273,6 @@ class DitSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DitSearch::class,
         ]);
+        $resolver->setDefined('idAgenceEmetteur');
     }
 }

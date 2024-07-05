@@ -31,7 +31,7 @@ class Transfer04Controller extends Controller
             $transferToBd["detail_demande"] = $value["DetailDemande"];
             $transferToBd["date_demande"] = $value["DateDemande"];
             $transferToBd["heure_demande"] = $this->convertSecondsToHoursAndMinutes($value["HeureDemande"]);
-            $transferToBd["id_statut_demande"] = 1;
+            $transferToBd["id_statut_demande"] = 50;
             $transferToBd["date_validation"] = $value["DateValidation"];
             $transferToBd["heure_validation"] = $this->convertSecondsToHoursAndMinutes($value["HeureValidation"]);
             $transferToBd["date_cloture"] = $value["DateCloture"];

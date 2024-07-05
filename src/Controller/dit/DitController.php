@@ -118,7 +118,9 @@ class DitController extends Controller
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-    
+        $agence = self::$em->getRepository(Agence::class)->find($idAgence);
+        $service = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]);
+        
         $ditSearch
         ->setStatut($statut)
         ->setNiveauUrgence($niveauUrgence)
@@ -127,8 +129,9 @@ class DitController extends Controller
         ->setInternetExterne($request->query->get('internetExterne'))
         ->setDateDebut($request->query->get('dateDebut'))
         ->setDateFin($request->query->get('dateFin'))
-        ->setAgenceEmetteur(self::$em->getRepository(Agence::class)->find($idAgence))
-        ->setServiceEmetteur(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]))
+        
+        ->setAgenceEmetteur($agence)
+        ->setServiceEmetteur($service)
         //->setAgenceDebiteur(self::$em->getRepository(Agence::class)->find(1))
         ;
 
@@ -136,6 +139,7 @@ class DitController extends Controller
 
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
+            'idAgenceEmetteur' => $idAgence
         ])->getForm();
 
         $form->handleRequest($request);
@@ -212,8 +216,14 @@ class DitController extends Controller
       
         $page = $request->query->getInt('page', 1);
         $limit = 10;
-      
-        $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch);
+     
+        $option = [
+            'boolean' => $boolean,
+            'codeAgence' => $agence->getCodeAgence(),
+            'codeService' =>$service->getCodeService()
+        ];
+
+        $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
         $idMat = [];
         $numSerieParc = [];
         if (!empty($data)) {
