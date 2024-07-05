@@ -15,7 +15,11 @@ class UtilisateurVoter implements Voter
 
     public function canVote(string $permission, $subject = null): bool
     {
-        return ($permission === self::CREATE || $permission === self::READ) && $subject instanceof DemandeIntervention;
+
+        if (in_array($permission, [self::CREATE, self::READ ])&& $subject instanceof DemandeIntervention) {
+            return true;
+        }
+        return false ;
     }
 
     public function vote(User $user, string $permission, $subject = null): bool

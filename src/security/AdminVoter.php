@@ -15,7 +15,17 @@ class AdminVoter implements Voter
 
     public function vote(User $user, string $permission, $subject = null): bool
     {
+        $roles = $user->getRoles();
 
-        return $user->getRoles() === 'ADMINISTRATEUR';
+        $isAdmin = false;
+
+        foreach ($roles as $role) {
+            if ($role->getRoleName() === 'ADMINISTRATEUR') {
+                $isAdmin = true;
+                break;
+            }
+        }
+
+        return $isAdmin;
     }
 }
