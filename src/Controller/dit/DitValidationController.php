@@ -34,7 +34,7 @@ class DitValidationController extends Controller
     foreach ($userConnecter->getRoles() as $role) {
         $roleNames[] = $role->getRoleName();
     }
-    $autoriser = in_array('ADMINISTRATEUR', $roleNames);
+    $autoriser = in_array('ADMINISTRATEUR', $roleNames) || in_array('VALIDATEUR', $roleNames);
     //FIN AUTORISATION
 
 
