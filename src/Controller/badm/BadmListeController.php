@@ -91,7 +91,7 @@ class BadmListeController extends Controller
 
         $form->handleRequest($request);
 
-
+        $empty = false;
         if($form->isSubmitted() && $form->isValid()) {
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
@@ -99,12 +99,15 @@ class BadmListeController extends Controller
             if(!empty($numParc) || !empty($numSerie)){
                 
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                
                 if(!empty($idMateriel)){
                     $criteria['statut'] = $form->get('statut')->getData();
                     $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
                     $criteria['idMateriel'] = $idMateriel[0]['num_matricule'];
                     $criteria['dateDebut'] = $form->get('dateDebut')->getData();
                     $criteria['dateFin'] = $form->get('dateFin')->getData();
+                } elseif(empty($idMateriel)) {
+                    $empty = true;
                 }
             } else {
 
@@ -126,6 +129,10 @@ class BadmListeController extends Controller
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
+
+        if(empty($data)){
+            $empty = true;
+        }
         
         if($request->query->get("envoyer") === "excelBadm") {
          $this->excelExport->exportToExcelBadm($repository->findAndFilteredExcel($criteria));
@@ -150,6 +157,7 @@ class BadmListeController extends Controller
                 // 'pagination' => $pagination
                 // 'typeMouvement' => $typeMouvement,
                 'data' => $data,
+                'empty' => $empty,
                 'currentPage' => $page,
                 'totalPages' =>$totalPages,
                 'criteria' => $criteria,
