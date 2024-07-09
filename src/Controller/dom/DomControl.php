@@ -5,9 +5,7 @@ namespace App\Controller\dom;
 
 use App\Controller\Controller;
 use App\Form\AgenceServiceType;
-use App\Form\AgenceServicesType;
 use App\Controller\Traits\DomTrait;
-use App\Controller\Traits\DomAjaxTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 

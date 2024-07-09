@@ -49,15 +49,12 @@ class DitController extends Controller
         {
             $dits = $this->infoEntrerManuel($form, self::$em);
 
-           
-
             //envoie des pièce jointe dans une dossier
             $this->envoiePieceJoint($form, $dits);
             
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($dits->getNumeroDemandeIntervention());
-            
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();

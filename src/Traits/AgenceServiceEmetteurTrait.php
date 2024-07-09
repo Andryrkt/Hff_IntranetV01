@@ -5,7 +5,7 @@ namespace App\Traits;
 trait AgenceServiceEmetteurTrait
 {
     
-    private ?string $agenceEmetteur;
+    private $agenceEmetteur;
 
    
     private $serviceEmetteur;

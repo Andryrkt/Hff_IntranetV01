@@ -79,6 +79,9 @@
 									{{ macroForm.affichage('Client sous contrat', dit.clientSousContrat)}}
 								</div>
 							</div>
+
+
+							{# DEBUT CARACTERISTIQUE MACHINE #}
 							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
 							<div class="row">
 								<div class="col-12 col-md-4">
@@ -91,13 +94,7 @@
 									{{ macroForm.affichage('n° Parc', dit.numParc)}}
 								</div>
 							</div>
-							<div class="row">
-								<span id="erreur"></span>
-							</div>
-
-
 							<div>
-
 								<div class="row">
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Constructeur', dit.constructeur)}}
@@ -109,15 +106,13 @@
 										{{ macroForm.affichage('Casier', dit.casier)}}
 										{{ macroForm.affichage('Heure', heure)}}
 									</div>
-
 								</div>
-
-
 							</div>
+							{# FIN CARACTERISTIQUE MACHINE#}
+
 							{# DEBUT Bilan financière#}
 							{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
 							<div class="cadre">
-
 								<div class="row">
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('CA', dit.coutAcquisition | number_format(2, ',', '.'))}}
@@ -127,20 +122,15 @@
 									</div>
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition | number_format(2, ',', '.'))}}
-                                    {{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
+                                    	{{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
                                         {{ macroForm.affichage('VNC', valeurNetComptable | number_format(2, ',', '.'))}}
-										
-										
 									</div>
-
 								</div>
-
-								
-
 						</div>
+					</div>
 						{# FIN Bilan #}
 
-					</div>
+						{# DEBUT INTERVENTION#}
 					<div class="col-12 col-md-6">
 						{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 						<div class="row">
@@ -155,15 +145,14 @@
 								<div class="row">
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Type de réparation',  dit.typeReparation)}}
-
 									</div>
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Réparation réalisé par', dit.reparationRealise)}}
 									</div>
-
 								</div>
+								{# FIN INTERVENTION#}
 
-
+								{# DEBUT PIECE JOINTE#}
 								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 								{{ macroForm.affichage('Pièce jointe 01', dit.pieceJoint01)}}
@@ -171,32 +160,32 @@
 								{{ macroForm.affichage('Pièce jointe 02', dit.pieceJoint02)}}
 
 								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint03)}}
+								{# FIN PIECE JOINTE #}
 
-
-								{{ form_start(form, {'attr':{'id':'formDit'}}) }}
+								{# DEBUT OBSERVATION TECHNIQUE#}
+								{{ form_start(form, {'attr':{'id':'formDit'}}
+								) }}
 								{{ form_errors(form)}}
 								{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
-								{{ form_row(form.observationDirectionTechnique)}}
+							{{ form_row(form.observationDirectionTechnique)}}
 
+						</div>
+						</div>
+
+							{% if autoriser %}
+								<div class="d-flex justify-content-end"> <button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
+									<i class="fas fa-xmark"></i>
+									Réfuser
+								</button>
+								<button type="submit" class="btn bouton" name="valider">
+									<i class="fas fa-check"></i>
+									Valider
+								</button>
 							</div>
-
-						</div>
-
-
-						<div class="d-flex justify-content-end">
-
-							<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
-								<i class="fas fa-xmark"></i>
-								Réfuser
-							</button>
-							<button type="submit" class="btn bouton" name="valider">
-								<i class="fas fa-check"></i>
-								Valider
-							</button>
-						</div>
+						{% endif %}
 
 						{{ form_end(form) }}
-
+						{# FIN OBSERVATION#}
 
 					</div>
 

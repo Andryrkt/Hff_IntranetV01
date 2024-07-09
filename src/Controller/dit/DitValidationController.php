@@ -2,6 +2,8 @@
 
 namespace App\Controller\dit;
 
+use App\Entity\User;
+use App\Entity\StatutDemande;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Form\DitValidationType;
@@ -24,6 +26,17 @@ class DitValidationController extends Controller
     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
     $text = file_get_contents($fichier);
     $boolean = strpos($text, $_SESSION['user']);
+
+    /** CREATION D'AUTORISATION */
+    $userId = $this->sessionService->get('user_id');
+    $userConnecter = self::$em->getRepository(User::class)->find($userId);
+    $roleNames = [];
+    foreach ($userConnecter->getRoles() as $role) {
+        $roleNames[] = $role->getRoleName();
+    }
+    $autoriser = in_array('ADMINISTRATEUR', $roleNames);
+    //FIN AUTORISATION
+
 
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
@@ -51,7 +64,7 @@ class DitValidationController extends Controller
                 $dit->setInternetExterne('EXTERNE');
             }
     
-    $form = self::$validator->createBuilder(DitValidationType::class)->getForm();
+    $form = self::$validator->createBuilder(DitValidationType::class, $dit)->getForm();
 
     $form->handleRequest($request);
 
@@ -77,8 +90,11 @@ class DitValidationController extends Controller
             }
            
         } elseif ($request->request->has('valider')) {
-           dd('valider');
-            
+           $dit = $form->getData();
+           $statutDemande = self::$em->getRepository(StatutDemande::class)->find(52);
+           $dit->setIdStatutDemande($statutDemande);
+           self::$em->flush();
+           $this->redirectToRoute("dit_index");
         }
 
         dd('Okey');
@@ -91,7 +107,8 @@ class DitValidationController extends Controller
         'form' => $form->createView(),
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
-        'dit' => $dit
+        'dit' => $dit,
+        'autoriser' => $autoriser
     ]);
    }
 }
