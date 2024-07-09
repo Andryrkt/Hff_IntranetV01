@@ -18,13 +18,18 @@
 		<div class="w-50">
 			{{ form_start(form, {'method': 'GET'}) }}
 			<div class="row">
-				<div class="col-12 col-md-6">
+				<div class="col-12 col-md-4">
 					{{ form_row(form.statut) }}
 					{{ form_row(form.typeMouvement) }}
 				</div>
-				<div class="col-12 col-md-6">
+				<div class="col-12 col-md-4">
 					{{ form_row(form.dateDebut) }}
 					{{ form_row(form.dateFin) }}
+				</div>
+				<div class="col-12 col-md-4">
+					{{ form_row(form.idMateriel)}}
+					{{ form_row(form.numParc)}}
+					{{ form_row(form.numSerie)}}
 				</div>
 			</div>
 

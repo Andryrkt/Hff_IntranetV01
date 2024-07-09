@@ -5,11 +5,12 @@ namespace App\Form;
 
 use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class BadmSearchType extends AbstractType
 {
@@ -23,10 +24,18 @@ class BadmSearchType extends AbstractType
             'placeholder' => '-- Choisir une statut--',
             'required' => false,
         ])
-            // ->add('idMateriel', TextType::class, [
-            //     'label' => 'Id Materiel',
-            //     'required' => false,
-            // ])
+            ->add('idMateriel', TextType::class, [
+                'label' => 'Id Materiel',
+                'required' => false,
+            ])
+            ->add('numParc', TextType::class, [
+                'label' => "N° Parc",
+                'required' => false
+            ])
+            ->add('numSerie', TextType::class, [
+                'label' => "N° Serie",
+                'required' => false
+            ])
             ->add('typeMouvement', EntityType::class, [
                 'label' => 'Type Mouvement',
                 'class' => TypeMouvement::class,

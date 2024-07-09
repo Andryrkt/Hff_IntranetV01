@@ -31,6 +31,11 @@ class BadmRepository extends EntityRepository
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
         }
 
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
+        }
+
         if (!empty($criteria['dateDebut'])) {
             $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $criteria['dateDebut']);
@@ -74,6 +79,11 @@ class BadmRepository extends EntityRepository
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
         }
 
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
+        }
+
         if (!empty($criteria['dateDebut'])) {
             $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $criteria['dateDebut']);
@@ -108,6 +118,11 @@ class BadmRepository extends EntityRepository
         if (!empty($criteria['typeMouvement'])) {
             $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
         }
 
         if (!empty($criteria['dateDebut'])) {
@@ -145,6 +160,11 @@ class BadmRepository extends EntityRepository
         if (!empty($criteria['typeMouvement'])) {
             $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
         }
 
         if (!empty($criteria['dateDebut'])) {
@@ -188,6 +208,11 @@ class BadmRepository extends EntityRepository
         if (!empty($criteria['typeMouvement'])) {
             $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
                 ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+        
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
         }
 
         if (!empty($criteria['dateDebut'])) {

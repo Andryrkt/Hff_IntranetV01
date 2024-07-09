@@ -75,6 +75,7 @@ class BadmListeController extends Controller
         $criteria = [
             'statut' => $statut,
             'typeMouvement' => $typeMouvement,
+            'idMateriel'=> $request->query->get('idMateriel'),
             'dateDebut' => $request->query->get('dateDebut'),
             'dateFin' => $request->query->get('dateFin')
         ];
@@ -92,10 +93,27 @@ class BadmListeController extends Controller
 
 
         if($form->isSubmitted() && $form->isValid()) {
-            $criteria['statut'] = $form->get('statut')->getData();
-            $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
-            $criteria['dateDebut'] = $form->get('dateDebut')->getData();
-            $criteria['dateFin'] = $form->get('dateFin')->getData();
+            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
+            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+
+            if(!empty($numParc) || !empty($numSerie)){
+                
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                if(!empty($idMateriel)){
+                    $criteria['statut'] = $form->get('statut')->getData();
+                    $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
+                    $criteria['idMateriel'] = $idMateriel[0]['num_matricule'];
+                    $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                    $criteria['dateFin'] = $form->get('dateFin')->getData();
+                }
+            } else {
+
+                $criteria['statut'] = $form->get('statut')->getData();
+                $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
+                $criteria['idMateriel'] = $form->get('idMateriel')->getData();
+                $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                $criteria['dateFin'] = $form->get('dateFin')->getData();
+            }
         } 
 
         

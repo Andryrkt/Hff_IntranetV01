@@ -473,14 +473,12 @@ $jsonData = json_encode($data);
  */
    public function validationDit($numDit, $id, Request $request)
    {
-    dd($numDit);
+    
     $this->SessionStart();
     $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
     $text = file_get_contents($fichier);
     $boolean = strpos($text, $_SESSION['user']);
-
-    
 
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
@@ -507,7 +505,7 @@ $jsonData = json_encode($data);
             } elseif($dit->getInternetExterne() === 'E') {
                 $dit->setInternetExterne('EXTERNE');
             }
-    /*
+    
     $form = self::$validator->createBuilder(DitValidationType::class)->getForm();
 
     $form->handleRequest($request);
@@ -540,10 +538,10 @@ $jsonData = json_encode($data);
         $this->redirectToRoute("dit_index");
         
     }
-        */
+        
 
     self::$twig->display('dit/validation.html.twig', [
-        //'form' => $form->createView(),
+        'form' => $form->createView(),
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
         'dit' => $dit
