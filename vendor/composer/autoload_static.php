@@ -43,6 +43,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             'ZipStream\\' => 10,
         ),
+        'W' => 
+        array (
+            'Wa72\\HtmlPageDom\\' => 17,
+        ),
         'T' => 
         array (
             'Twig\\' => 5,
@@ -87,7 +91,9 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\EventDispatcher\\' => 34,
             'Symfony\\Component\\ErrorHandler\\' => 31,
+            'Symfony\\Component\\DomCrawler\\' => 29,
             'Symfony\\Component\\DependencyInjection\\' => 38,
+            'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
             'Symfony\\Component\\Cache\\' => 24,
@@ -97,6 +103,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Bundle\\FrameworkBundle\\' => 31,
             'Symfony\\Bridge\\Twig\\' => 20,
             'Symfony\\Bridge\\Doctrine\\' => 24,
+            'Sabberworm\\CSS\\' => 15,
         ),
         'P' => 
         array (
@@ -111,6 +118,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'PhpParser\\' => 10,
             'PhpOption\\' => 10,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
+            'Pelago\\Emogrifier\\' => 18,
             'Pagerfanta\\Twig\\' => 16,
             'Pagerfanta\\Solarium\\' => 20,
             'Pagerfanta\\Elastica\\' => 20,
@@ -135,6 +143,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             'Knp\\Component\\' => 14,
             'Knp\\Bundle\\PaginatorBundle\\' => 27,
+        ),
+        'H' => 
+        array (
+            'Html2Text\\' => 10,
         ),
         'G' => 
         array (
@@ -204,6 +216,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'ZipStream\\' => 
         array (
             0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
+        'Wa72\\HtmlPageDom\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/wa72/htmlpagedom/src',
         ),
         'Twig\\' => 
         array (
@@ -361,9 +377,17 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         array (
             0 => __DIR__ . '/..' . '/symfony/error-handler',
         ),
+        'Symfony\\Component\\DomCrawler\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/dom-crawler',
+        ),
         'Symfony\\Component\\DependencyInjection\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/dependency-injection',
+        ),
+        'Symfony\\Component\\CssSelector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/css-selector',
         ),
         'Symfony\\Component\\Console\\' => 
         array (
@@ -400,6 +424,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Symfony\\Bridge\\Doctrine\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/doctrine-bridge',
+        ),
+        'Sabberworm\\CSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -445,6 +473,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'PhpOffice\\PhpSpreadsheet\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
+        'Pelago\\Emogrifier\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/pelago/emogrifier/src',
         ),
         'Pagerfanta\\Twig\\' => 
         array (
@@ -505,6 +537,11 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Knp\\Bundle\\PaginatorBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/knplabs/knp-paginator-bundle/src',
+        ),
+        'Html2Text\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/html2text/html2text/src',
+            1 => __DIR__ . '/..' . '/html2text/html2text/test',
         ),
         'GrahamCampbell\\ResultType\\' => 
         array (

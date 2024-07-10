@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             .querySelector("#agenceEmetteur")
             .value.toUpperCase()}"]`
         ).selected = true;
-      }, 500);
+      }, 1000);
 
       setTimeout(() => {
         document.querySelector(
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             .querySelector("#serviceEmetteur")
             .value.toUpperCase()}"]`
         ).selected = true;
-      }, 2000);
+      }, 5000);
 
       agenceDestinataire.disabled = true;
       serviceDestinataire.disabled = true;
@@ -79,29 +79,29 @@ document.addEventListener("DOMContentLoaded", (event) => {
           document.querySelector(
             `#agenceDestinataire option[value="90 COMM ENERGIE"]`
           ).selected = true;
-        }, 300);
+        }, 1000);
         setTimeout(() => {
           document.querySelector(
             `#serviceDestinataire option[value='COM COMMERCIAL']`
           ).selected = true;
-        }, 1000);
+        }, 5000);
         setTimeout(() => {
           document.querySelector(`#casierDestinataire`).value = "";
-        }, 1000);
+        }, 5000);
       } else {
         setTimeout(() => {
           document.querySelector(
             `#agenceDestinataire option[value="01 ANTANANARIVO"]`
           ).selected = true;
-        }, 300);
+        }, 1000);
         setTimeout(() => {
           document.querySelector(
             `#serviceDestinataire option[value='COM COMMERCIAL']`
           ).selected = true;
-        }, 1000);
+        }, 5000);
         setTimeout(() => {
           document.querySelector(`#casierDestinataire`).value = "";
-        }, 1000);
+        }, 5000);
       }
 
       agenceDestinataire.disabled = true;
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             .querySelector("#agenceEmetteur")
             .value.toUpperCase()}"]`
         ).selected = true;
-      }, 300);
+      }, 1000);
 
       setTimeout(() => {
         console.log(
@@ -131,13 +131,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
             .value.toUpperCase()
             .trim()}"]`
         ).selected = true;
-      }, 1000);
+      }, 5000);
 
       setTimeout(() => {
         document.querySelector(
           `#casierDestinataire option[value="${casierEmetteur.value}"]`
         ).selected = true;
-      }, 1000);
+      }, 5000);
 
       form.nomClient.disabled = true;
       form.modalitePaiement.disabled = true;
@@ -164,12 +164,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
       document.querySelector(
         `#serviceDestinataire option[value='${agenceDestinataireDetail.value}']`
       ).selected = true;
-    }, 1000);
+    }, 5000);
     setTimeout(() => {
       document.querySelector(
         `#casierDestinataire option[value='${casierDestinataireDetail.value}']`
       ).selected = true;
-    }, 1000);
+    }, 5000);
   }
 
   /**
