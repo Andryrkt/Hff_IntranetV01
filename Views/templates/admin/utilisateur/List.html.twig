@@ -32,6 +32,7 @@
 							<th>Applications</th>
 							<th>Societtes</th>
 							<th>Agence - services</th>
+							<th>Supérieur</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -95,6 +96,19 @@
 										{% endfor %}
 									</ul>
 
+								</td>
+
+								<td>
+									<ul>
+										{% for a in item.superieurs %}
+
+											<li>
+												{{ a.nomUtilisateur }}
+											</li>
+
+
+										{% endfor %}
+									</ul>
 								</td>
 							</tr>
 						{% endfor %}

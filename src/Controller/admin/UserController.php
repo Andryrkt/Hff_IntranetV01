@@ -12,6 +12,25 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends Controller
 {
+    private function transformIdEnObjetEntitySuperieur(array $data): array
+    {
+   
+        $superieurs = [];
+        foreach ($data as  $values) {
+            
+            foreach ($values->getSuperieurs() as  $value) {
+                $superieurs[] = self::$em->getRepository(user::class)->find($value);
+            }
+            $values->setSuperieurs($superieurs);
+            $superieurs = [];
+        }
+        
+        return $data;
+    
+    }
+
+    
+    
 
      /**
      * @Route("/admin/utilisateur", name="utilisateur_index")
@@ -27,9 +46,10 @@ class UserController extends Controller
     $boolean = strpos($text, $_SESSION['user']);
 
     $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
+    $data = $this->transformIdEnObjetEntitySuperieur($data);
 
-   
-
+    
+    
     self::$twig->display('admin/utilisateur/list.html.twig', [
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
@@ -58,7 +78,7 @@ class UserController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $utilisateur= $form->getData(); 
-                
+              
             $selectedApplications = $form->get('applications')->getData();
 
             foreach ($selectedApplications as $application) {
@@ -71,8 +91,18 @@ class UserController extends Controller
                 $utilisateur->addRole($role);
             }
 
+            // Récupérer les IDs des supérieurs depuis le formulaire
+            $superieurEntities = $form->get('superieurs')->getData();
+            
+            $superieurIds = array_map(function($superieur) {
+                return $superieur->getId();
+            }, $superieurEntities);
+           
+            // Mettre à jour les supérieurs de l'utilisateur
+            $user->setSuperieurs($superieurIds);
 
             self::$em->persist($utilisateur);
+ 
             self::$em->flush();
            
 
@@ -86,41 +116,56 @@ class UserController extends Controller
         ]);
     }
 
-                /**
-     * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
-     *
-     * @return void
-     */
-    public function edit(Request $request, $id)
-    {
 
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+    
+    /**
+ * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
+ *
+ * @return void
+ */
+public function edit(Request $request, $id)
+{
+    $this->SessionStart();
+    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+    $text = file_get_contents($fichier);
+    $boolean = strpos($text, $_SESSION['user']);
 
-        $user = self::$em->getRepository(User::class)->find($id);
-      
-        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
+    $user = self::$em->getRepository(User::class)->find($id);
+    // Conversion de l'utilisateur en objet s'il est en tableau
+    $user = $this->arrayToObjet($user);
+    
 
-        $form->handleRequest($request);
+    $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
-        // Vérifier si le formulaire est soumis et valide
-        if ($form->isSubmitted() && $form->isValid()) {
+    $form->handleRequest($request);
 
-            self::$em->flush();
-            $this->redirectToRoute("utilisateur_index");
-            
+    // Vérifier si le formulaire est soumis et valide
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        if ($user->getSuperieurs() === null) {
+            $user->setSuperieurs([]);
         }
+        // Récupérer les IDs des supérieurs depuis le formulaire
+        $superieurEntities = $form->get('superieurs')->getData();
+        $superieurIds = array_map(function($superieur) {
+            return $superieur->getId();
+        }, $superieurEntities);
 
-        self::$twig->display('admin/utilisateur/edit.html.twig', [
-            'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
-        ]);
+        // Mettre à jour les supérieurs de l'utilisateur
+        $user->setSuperieurs($superieurIds);
 
+        self::$em->flush();
+        return $this->redirectToRoute("utilisateur_index");
     }
+
+    self::$twig->display('admin/utilisateur/edit.html.twig', [
+        'form' => $form->createView(),
+        'infoUserCours' => $infoUserCours,
+        'boolean' => $boolean
+    ]);
+}
+
 
    
 

@@ -162,31 +162,39 @@
 								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint03)}}
 								{# FIN PIECE JOINTE #}
 
-								{# DEBUT OBSERVATION TECHNIQUE#}
-								{{ form_start(form, {'attr':{'id':'formDit'}}
-								) }}
-								{{ form_errors(form)}}
-								{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
-							{{ form_row(form.observationDirectionTechnique)}}
 
-						</div>
-						</div>
+								{% if autoriser %}
+									{# DEBUT OBSERVATION TECHNIQUE#}
+									{{ form_start(form, {'attr':{'id':'formDit'}}
+									) }}
+									{{ form_errors(form)}}
+									{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
+									<div class="row">
+										<div class="col-12 col-md-6">{{form_row(form.idServiceIntervenant)}}</div>
+										<div class="col-12 col-md-6">{{form_row(form.codeSection)}}</div>
+									</div>
 
-							{% if autoriser %}
-								<div class="d-flex justify-content-end"> <button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser">
+									{{ form_row(form.observationDirectionTechnique)}}
+
+								</div>
+							</div>
+
+
+							<div class="d-flex justify-content-end">
+								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
 									<i class="fas fa-xmark"></i>
 									Réfuser
 								</button>
-								<button type="submit" class="btn bouton" name="valider">
+								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
 									<i class="fas fa-check"></i>
 									Valider
 								</button>
 							</div>
+
+
+							{{ form_end(form) }}
+							{# FIN OBSERVATION#}
 						{% endif %}
-
-						{{ form_end(form) }}
-						{# FIN OBSERVATION#}
-
 					</div>
 
 				</div>
@@ -196,5 +204,5 @@
 		{% endblock %}
 
 		{% block javascript %}
-			<script src="/Hffintranet/Views/js/dit/dit.js"></script>
+			<script src="/Hffintranet/Views/js/dit/ditValidation.js"></script>
 		{% endblock %}

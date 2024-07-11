@@ -145,9 +145,6 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
         )
         and MMAT_ETSTOCK in ('ST','AT', '--')
 and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
-
-        
-        
       ";
 
       
@@ -161,7 +158,24 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
     }
     
 
-   
+    public function recuperationSectionValidation()
+    {
+     
+        $statement = "SELECT trim(Atab_Code) AS ATAB_CODE,
+trim(Atab_lib)  AS ATAB_LIB
+FROM AGR_TAB
+WHERE Atab_nom = 'TYI'
+      ";
+
+      
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+
+        return $this->convertirEnUtf8($data);
+    }
 
     
 

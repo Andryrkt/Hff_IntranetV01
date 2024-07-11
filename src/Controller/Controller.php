@@ -8,6 +8,7 @@ namespace App\Controller;
 use Parsedown;
 
 
+use App\Entity\User;
 use Twig\Environment;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
@@ -18,6 +19,7 @@ use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
 use App\Model\badm\BadmModel;
+use App\Service\ExcelService;
 use App\Model\badm\CasierModel;
 use App\Model\dom\DomListModel;
 use App\Service\SessionManager;
@@ -29,6 +31,7 @@ use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
 use App\Service\FlashManagerService;
 use Symfony\Component\Asset\Package;
+use App\Service\AccessControlService;
 use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
@@ -36,8 +39,6 @@ use App\Service\SessionManagerService;
 use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
-use App\Service\AccessControlService;
-use App\Service\ExcelService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -172,6 +173,10 @@ class Controller
     public static function setTwig($twig)
     {
         self::$twig = $twig;
+    }
+    public static function getTwig()
+    {
+        return self::$twig;
     }
 
     public static function setValidator($validator)
@@ -431,6 +436,14 @@ class Controller
     }
     
 
-    
+    public function arrayToObjet(User $user): User
+    {
+        $superieurs = [];
+        foreach ($user->getSuperieurs() as  $value) {
+           $superieurs[] = self::$em->getRepository(user::class)->find($value);
+           $user->setSuperieurs($superieurs);
+       }
+       return $user;
+    } 
     
 }

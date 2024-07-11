@@ -4,6 +4,8 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PersonnelRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -85,9 +87,15 @@ class Personnel
      */
     private ?string $Qualification;
 
+    /**
+     * @ORM\OneToMany(targetEntity="User", mappedBy="personnels")
+     */
+    private $users;
+
     public function __construct()
     {
         $this->Date_creation = new \DateTime();
+        $this->users = new ArrayCollection();
     }
 
     /**
@@ -245,6 +253,44 @@ class Personnel
     public function setLibelleServiceAgenceIRIUM(?string $Libelle_Service_Agence_IRIUM): self
     {
         $this->Libelle_Service_Agence_IRIUM = $Libelle_Service_Agence_IRIUM;
+        return $this;
+    }
+
+
+     /**
+     * @return Collection|User[]
+     */ 
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setAgences($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            if ($user->getAgences() === $this) {
+                $user->setAgences(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setUsers($users): self
+    {
+        $this->users = $users;
+
         return $this;
     }
 }

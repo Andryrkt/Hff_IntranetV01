@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DitValidationController extends Controller
 {
+
+   
     /**
  * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
  *
@@ -72,32 +74,49 @@ class DitValidationController extends Controller
     if ($form->isSubmitted() && $form->isValid()) {
 
         $email = new EmailService();
+        $dit = $form->getData();
+        $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
+            $userDemandeur = $this->arrayToObjet($userDemandeur);
+            $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
+            $userConnecter = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
         if ($request->request->has('refuser')) {
 
-            dd('refu');
-           // Définir l'expéditeur
-            // $email->setFrom('hasimanjaka.ratompoarinandro@hff.mg', 'Different Sender');
-            
-            $to = 'hasina.andrianadison@hff.mg';
-            $subject = 'Sujet de l\'email';
-            $body = 'Ceci est le <b>contenu</b> de l\'email.';
-            $altBody = 'Ceci est le contenu de l\'email en texte brut.';
+            $variableEmail = [
+                'emailUserDemandeur' => $userDemandeur->getMail(),
+                'emailSuperieurs' => $emailSuperieurs,
+                'template' => 'dit/emailRefu.html.twig',
+                'numDit' => $dit->getNumeroDemandeIntervention(),
+                'id' => $dit->getId(),
+                'observation' => $dit->getObservationDirectionTechnique(),
+                'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
+            ];
+
+            $content = $this->emailRefu($variableEmail);
     
-            if ($email->sendEmail($to, $subject, $body, $altBody)) {
-                dd( 'Email envoyé avec succès');
-            } else {
-                dd( 'L\'envoi de l\'email a échoué' );
-            }
+            $this->confirmationEmail($email, $content);
            
         } elseif ($request->request->has('valider')) {
-           $dit = $form->getData();
-           $statutDemande = self::$em->getRepository(StatutDemande::class)->find(52);
-           $dit->setIdStatutDemande($statutDemande);
+            
+           
+           $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
+           $dit
+            ->setIdStatutDemande($statutDemande)
+            ->setDateValidation(new \DateTime($this->getDatesystem()))
+            ->setHeureValidation($this->getTime())
+           ;
            self::$em->flush();
-           $this->redirectToRoute("dit_index");
+
+           if($dit->getDemandeDevis() === "OUI") {
+            $content = $this->emailValideAvecDevis();
+    
+            $this->confirmationEmail($email, $content);
+           } else {
+            $content = $this->emailValideSansDevis();
+    
+            $this->confirmationEmail($email, $content);
+           }
         }
 
-        dd('Okey');
         $this->redirectToRoute("dit_index");
         
     }
@@ -110,5 +129,66 @@ class DitValidationController extends Controller
         'dit' => $dit,
         'autoriser' => $autoriser
     ]);
+   }
+
+   private function recupMailSuperieur(User $userDemandeur): array
+   {
+    $emailSuperieurs = [];
+           foreach ($userDemandeur->getSuperieurs() as $value) {
+                $emailSuperieurs[] = $value->getMail();
+           }
+        return $emailSuperieurs;
+   }
+
+   private function emailRefu($tab): array
+   {
+
+    return [ 
+        'to' => $tab['emailUserDemandeur'],
+        'cc' => $tab['emailSuperieurs'],
+        'template' => $tab['template'],
+        'variables' => [
+            'subject' => "LA DEMANDE D'INTERVENTION {$tab['numDit']} A ETE REFUSE",
+            'message' => "La demande d'intervention {$tab['numDit']} à été réfusé par {$tab['nomPrenom']} \n en raison de {$tab['observation']}. \n Vous pouvez voir le detail en cliquant sur le bouton en bas.",
+            'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}"
+            ]
+        ];
+   }
+
+   private function emailValideAvecDevis()
+   {
+    return [ 
+        'to' => 'hasina.andrianadison@hff.mg',
+        'template' => 'dit/email_template.html.twig',
+        'variables' => [
+            'subject' => 'Your Subject Here',
+            'name' => 'Recipient Name',
+            'message' => 'This is the body of your email.',
+            'action_url' => 'https://example.com/action'
+        ]
+        ];
+   }
+
+   private function emailValideSansDevis()
+   {
+    return [ 
+        'to' => 'hasina.andrianadison@hff.mg',
+        'template' => 'dit/email_template.html.twig',
+        'variables' => [
+            'subject' => 'Your Subject Here',
+            'name' => 'Recipient Name',
+            'message' => 'This is the body of your email.',
+            'action_url' => 'https://example.com/action'
+        ]
+        ];
+   }
+
+   private function confirmationEmail( $email, array $content)
+   {
+    if ($email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables'])) {
+        $this->sessionService->set('notification',['type' => 'success', 'message' => 'Une email a été envoyé au demandeur ']);
+    } else {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => "l'email n'a pas été envoyé au demandeur"]);
+    }
    }
 }

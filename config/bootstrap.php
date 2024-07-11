@@ -4,11 +4,12 @@ use Twig\Environment;
 
 use App\Model\ProfilModel;
 
+use App\Twig\AppExtension;
 use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
 use core\SimpleManagerRegistry;
-use Doctrine\ORM\EntityManager;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Knp\Component\Pager\Paginator;
@@ -16,17 +17,18 @@ use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
-use Doctrine\Migrations\DependencyFactory;
 
+use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Security\Core\Security;
 
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
-
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
@@ -53,10 +55,14 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -94,6 +100,9 @@ $csrfTokenManager = new CsrfTokenManager();
 $validator = Validation::createValidator();
 
 
+
+
+
 // Translator
 $translator = new Translator('fr_Fr');
 $translator->addLoader('xlf', new XliffFileLoader());
@@ -115,12 +124,24 @@ $twig = new Environment(new FilesystemLoader(array(
 )), ['debug' => true]);
 
 
+//configurer securite
+$tokenStorage = new TokenStorage();
+$accessDecisionManager = new AccessDecisionManager([new AffirmativeStrategy()]);
+$authorizationChecker = new AuthorizationChecker($tokenStorage, $accessDecisionManager);
+
+$session = new Session(new NativeSessionStorage());
+
+$requestStack = new RequestStack();
+$request = Request::createFromGlobals();
+$requestStack->push($request);
+
 $twig->addExtension(new TranslationExtension($translator));
 //$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
 //$twig = new Environment($loader, ['debug' => true]);
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
+$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 
 
 // Configure Form Renderer Engine and Runtime Loader
@@ -133,11 +154,9 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
-//$session = new Session(new NativeSessionStorage());
 
-$requestStack = new RequestStack();
-$request = Request::createFromGlobals();
-$requestStack->push($request);
+
+
 
 
 

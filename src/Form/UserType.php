@@ -8,10 +8,13 @@ use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\Societte;
 use App\Model\LdapModel;
+use App\Entity\Personnel;
 use App\Entity\Application;
 use App\Controller\Controller;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityRepository;
 use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
@@ -34,6 +37,8 @@ class UserType extends AbstractType
         $this->ldap = new LdapModel();
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
     }
+
+    
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -98,6 +103,22 @@ class UserType extends AbstractType
                 },
                 'multiple' => true,
                 'expanded' => true
+            ])
+            ->add('personnels', 
+            EntityType::class,
+            [
+                'label' => 'Nom Personnel',
+                'class' => Personnel::class,
+                'choice_label' => 'Matricule',
+                'placeholder' => '-- Choisir un nom --',
+            ])
+            ->add('superieurs', EntityType::class, [
+                'label' => 'Supérieurs',
+                'class' => User::class,
+                'choice_label' => 'nom_utilisateur',
+                'multiple' => true,
+                'expanded' => false,
+                
             ])
         ->add('agences',
         EntityType::class,

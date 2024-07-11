@@ -83,12 +83,26 @@ class User
      */
     private $services;
 
+     /**
+     * @ORM\ManyToOne(targetEntity="Personnel", inversedBy="users")
+     * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
+     */
+    private $personnels;
+
+    
+   /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $superieurs = [];
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
         $this->societtes = new ArrayCollection();
         $this->services = new ArrayCollection();
         $this->roles = new ArrayCollection();
+       
+       
     }
 
     
@@ -252,4 +266,63 @@ class User
 
         return $this;
     }
+
+    public function getPersonnels()
+    {
+        return $this->personnels;
+    }
+
+  
+    public function setPersonnels($personnel): self
+    {
+        $this->personnels = $personnel;
+
+        return $this;
+    }
+
+    public function getSuperieurs(): array
+    {
+        if($this->superieurs !== null){
+            return $this->superieurs;
+        } else {
+            return [];
+        }
+        
+    }
+
+    public function setSuperieurs(array $superieurs): self
+    {
+        $this->superieurs = $superieurs;
+
+        return $this;
+    }
+
+    public function addSuperieur( User $superieurId): self
+    {
+        
+        $superieurIds[] = $superieurId->getId();
+
+        if($this->superieurs === null ){
+            $this->superieurs = [];
+        }
+
+        if (!in_array($superieurIds, $this->superieurs, true)) {
+            $this->superieurs[] = $superieurId;
+        }
+
+        return $this;
+    }
+
+    public function removeSuperieur(User $superieurId): self
+    {
+        $superieurIds[] = $superieurId->getId();
+        
+        if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
+            unset($this->superieurs[$key]);
+            $this->superieurs = array_values($this->superieurs);
+        }
+
+        return $this;
+    }
+
 }

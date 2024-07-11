@@ -67,6 +67,11 @@
 			{{ form_end(form) }}
 		</div>
 
+		{% if App.notification %}
+			<div class="alert alert-{{ App.notification.type }}">
+				<p class="fs-5 fw-bold text-break text-light">{{ App.notification.message }}</p>
+			</div>
+		{% endif %}
 		<!-- DEBUT tableau -->
 
 		<div class="container">

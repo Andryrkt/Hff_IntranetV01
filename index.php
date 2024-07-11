@@ -90,7 +90,6 @@ $response->send();
 
 
 
-
 // include 'Model/Connexion.php';
 // include 'Model/LdapModel.php';
 // include 'Controler/LdapControl.php';

@@ -5,11 +5,12 @@ $(document).ready(function () {
     theme: "bootstrap",
   });
 
-  //   $(".selectApp").select2({
-  //     placeholder: "-- Choisir une Application --",
-  //     allowClear: true,
-  //     theme: "bootstrap",
-  //   });
+  $(".superieurs").select2({
+    placeholder: "-- Choisir une superieur--",
+    allowClear: true,
+    theme: "bootstrap",
+    width: "100%",
+  });
 });
 
 /**
