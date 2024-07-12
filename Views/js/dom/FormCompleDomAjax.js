@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ).value;
         //console.log(selectedOption)
         fetchData(selectedOption);
-      }, 2000);
+      }, 3000);
       setTimeout(() => {
         console.log(
           document.querySelector("#LibServ").value.toUpperCase().trim()
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         document.querySelector(
           `#serviceIrium option[value="${$serv}"]`
         ).selected = true;
-      }, 5000);
+      }, 6000);
     }
 
     console.log(check);

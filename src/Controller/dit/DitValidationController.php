@@ -72,24 +72,23 @@ class DitValidationController extends Controller
 
     // Vérifier si le formulaire est soumis et valide
     if ($form->isSubmitted() && $form->isValid()) {
-
+        
         $email = new EmailService();
         $dit = $form->getData();
+        
         $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
+       dump($userDemandeur);
             $userDemandeur = $this->arrayToObjet($userDemandeur);
+            dump($userDemandeur);
             $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
-            $userConnecter = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+            dump($emailSuperieurs);
+            $id = $this->sessionService->get('user_id');
+            dump($id);
+            $userConnecter = self::$em->getRepository(User::class)->find($id);
+            dump($userDemandeur);
         if ($request->request->has('refuser')) {
 
-            $variableEmail = [
-                'emailUserDemandeur' => $userDemandeur->getMail(),
-                'emailSuperieurs' => $emailSuperieurs,
-                'template' => 'dit/emailRefu.html.twig',
-                'numDit' => $dit->getNumeroDemandeIntervention(),
-                'id' => $dit->getId(),
-                'observation' => $dit->getObservationDirectionTechnique(),
-                'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
-            ];
+            $variableEmail = $this->donnerRefu($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
 
             $content = $this->emailRefu($variableEmail);
     
@@ -97,7 +96,7 @@ class DitValidationController extends Controller
            
         } elseif ($request->request->has('valider')) {
             
-           
+         
            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
            $dit
             ->setIdStatutDemande($statutDemande)
@@ -106,8 +105,13 @@ class DitValidationController extends Controller
            ;
            self::$em->flush();
 
+           dd($dit);
+
            if($dit->getDemandeDevis() === "OUI") {
-            $content = $this->emailValideAvecDevis();
+
+            $variableEmail = $this->donnerValideAvecDevis($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
+
+            $content = $this->emailValideAvecDevis($variableEmail);
     
             $this->confirmationEmail($email, $content);
            } else {
@@ -135,9 +139,40 @@ class DitValidationController extends Controller
    {
     $emailSuperieurs = [];
            foreach ($userDemandeur->getSuperieurs() as $value) {
+            if (empty($value)) {
+                return [];
+            } else {
+
                 $emailSuperieurs[] = $value->getMail();
+            }
            }
         return $emailSuperieurs;
+   }
+
+   private function donnerRefu($userDemandeur, $emailSuperieurs, $userConnecter, $dit): array
+   {
+     return [
+        'emailUserDemandeur' => $userDemandeur->getMail(),
+        'emailSuperieurs' => $emailSuperieurs,
+        'template' => 'dit/emailRefu.html.twig',
+        'numDit' => $dit->getNumeroDemandeIntervention(),
+        'id' => $dit->getId(),
+        'observation' => $dit->getObservationDirectionTechnique(),
+        'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
+    ];
+   }
+
+   private function donnerValideAvecDevis($userDemandeur, $emailSuperieurs, $userConnecter, $dit): array
+   {
+    return [
+        'emailUserDemandeur' => $userDemandeur->getMail(),
+        'emailSuperieurs' => $emailSuperieurs,
+        'template' => 'dit/emailRefu.html.twig',
+        'numDit' => $dit->getNumeroDemandeIntervention(),
+        'id' => $dit->getId(),
+        'observation' => $dit->getObservationDirectionTechnique(),
+        'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
+    ];
    }
 
    private function emailRefu($tab): array
@@ -148,23 +183,25 @@ class DitValidationController extends Controller
         'cc' => $tab['emailSuperieurs'],
         'template' => $tab['template'],
         'variables' => [
-            'subject' => "LA DEMANDE D'INTERVENTION {$tab['numDit']} A ETE REFUSE",
-            'message' => "La demande d'intervention {$tab['numDit']} à été réfusé par {$tab['nomPrenom']} \n en raison de {$tab['observation']}. \n Vous pouvez voir le detail en cliquant sur le bouton en bas.",
+            'subject' => " DEMANDE D'INTERVENTION REFUSE ({$tab['numDit']})",
+            'message' => "La demande d'intervention {$tab['numDit']} à été réfusée par {$tab['nomPrenom']}. ",
+            'observation' => $tab['observation'],
             'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}"
             ]
         ];
    }
 
-   private function emailValideAvecDevis()
+   private function emailValideAvecDevis($tab)
    {
     return [ 
-        'to' => 'hasina.andrianadison@hff.mg',
-        'template' => 'dit/email_template.html.twig',
+        'to' => $tab['emailUserDemandeur'],
+        'cc' => $tab['emailSuperieurs'],
+        'template' => $tab['template'],
         'variables' => [
-            'subject' => 'Your Subject Here',
-            'name' => 'Recipient Name',
-            'message' => 'This is the body of your email.',
-            'action_url' => 'https://example.com/action'
+            'subject' => " DEMANDE D'INTERVENTION VALIDE ({$tab['numDit']})",
+            'message' => "La demande d'intervention {$tab['numDit']} à été validée par {$tab['nomPrenom']}. En attente de devis.",
+            'observation' => $tab['observation'],
+            'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}"
         ]
         ];
    }
@@ -176,7 +213,6 @@ class DitValidationController extends Controller
         'template' => 'dit/email_template.html.twig',
         'variables' => [
             'subject' => 'Your Subject Here',
-            'name' => 'Recipient Name',
             'message' => 'This is the body of your email.',
             'action_url' => 'https://example.com/action'
         ]

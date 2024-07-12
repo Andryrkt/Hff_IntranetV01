@@ -3,42 +3,50 @@
 namespace App\Entity;
 
 
+use App\Entity\Catg;
 use Doctrine\ORM\Mapping as ORM;
 
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="sous_type_document")
+ * @ORM\Table(name="Sous_type_document")
  * @ORM\HasLifecycleCallbacks
  */
 class SousTypeDocument {
 /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_type_sous_document")
+     * @ORM\Column(type="integer", name="ID_Sous_Type_Document")
      */
     private $id;
 
       
     /**
-     * @ORM\Column(type="string", length=4, name="code_Document")
+     * @ORM\Column(type="string", length=4, name="Code_Document")
      */
     private string $codeDocument;
 
  /**
-     * @ORM\Column(type="string", length=4, name="code_sous_type",nullable=true)
+     * @ORM\Column(type="string", length=4, name="Code_Sous_Type",nullable=true)
      */
-    private ?string $codeSousType;
+    private ?string $codeSousType = null;
 
  /**
-     * @ORM\Column(type="string", length=50, name="description",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Description",nullable=true)
      */
-    private ?string $description;
+    private ?string $description = null;
 
 /**
-     * @ORM\Column(type="string", name="date_Creation")
+     * @ORM\Column(type="string", name="Date_creation")
      */
     private string $dateCreation;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Catg::class", inversedBy="sousTypeDocument")
+     * @ORM\JoinColumn(name="catg", referencedColumnName="id")
+     */
+    private ?Catg $catg;
 
 
 
@@ -63,13 +71,13 @@ class SousTypeDocument {
     }
 
 
-    public function getCodeSousType(): string
+    public function getCodeSousType(): ?string
     {
         return $this->codeSousType;
     }
 
    
-    public function setCodeSousType(string $codeSousType): self
+    public function setCodeSousType(?string $codeSousType): self
     {
         $this->codeSousType = $codeSousType;
 
@@ -77,13 +85,13 @@ class SousTypeDocument {
     }
 
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
    
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
 
@@ -96,7 +104,6 @@ class SousTypeDocument {
         return $this->dateCreation;
     }
 
-   
     public function setDateCreation(string $dateCreation): self
     {
         $this->dateCreation= $dateCreation;
@@ -104,4 +111,16 @@ class SousTypeDocument {
         return $this;
     }
 
+    public function getCatg(): ?Catg
+    {
+        return $this->catg;
+    }
+
+    
+    public function setCatg(?Catg $catg): self
+    {
+        $this->catg = $catg;
+
+        return $this;
+    }
 }

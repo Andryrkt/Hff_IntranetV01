@@ -2,18 +2,31 @@
 
 namespace App\Form;
 
+use App\Entity\Dom;
+
 use App\Entity\Idemnity;
+
 use App\Entity\Personnel;
+
 use App\Entity\SousTypeDocument;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 use Symfony\Component\Form\FormBuilderInterface;
+
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+
 
 class DomForm1Type extends AbstractType
 {
+
     const SALARIE = [
         'PERMANENT' => 'PERMANENT',
         'TEMPORAIRE' => 'TEMPORAIRE',
@@ -21,13 +34,37 @@ class DomForm1Type extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+       
         $builder
+        ->add('agenceEmetteur', 
+        TextType::class,
+        [
+           'mapped' => false,
+                    'label' => 'Agence',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true
+                    ],
+            'data' => $options["data"]->getAgenceEmetteur() ?? null
+        ])
+       
+        ->add('serviceEmetteur', 
+        TextType::class,
+        [
+            'mapped' => false,
+                    'label' => 'Service',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+                 'data' => $options["data"]->getServiceEmetteur() ?? null
+        ])
         ->add('sousTypeDocument',
         EntityType::class,
         [
             'label' => 'Type de Mission',
             'class' => SousTypeDocument::class,
-            'choice_label' => 'description'
+            'choice_label' => 'codeSousType'
         ])
         ->add('salarie',
         ChoiceType::class,
@@ -54,6 +91,15 @@ class DomForm1Type extends AbstractType
                 return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
             }
         ])
+        ->add('matricule',
+        TextType::class,
+        [
+            'label' => 'Matricule',
+            'attr' => [
+                'readonly' => true
+            ]
+        ]
+        )
         ->add('nom',
         TextType::class,
         [
@@ -70,5 +116,20 @@ class DomForm1Type extends AbstractType
             'label' => 'CIN'
         ])
         ;
+        
+        
+    
     }
+
+
+
+    
+        public function configureOptions(OptionsResolver $resolver)
+        {
+            $resolver->setDefaults([
+                'data_class' => Dom::class,
+            ]);
+        }
+
+
 }

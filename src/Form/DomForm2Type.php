@@ -93,7 +93,7 @@ class DomForm2Type extends AbstractType
         ])
 
        
-        ->add('$motifDeplacement',
+        ->add('motifDeplacement',
         TextType::class,
         [
                 'label' => 'motif de deplacement',
@@ -156,7 +156,7 @@ class DomForm2Type extends AbstractType
             'mapped' => false,
             'label' => 'Indeminté forfaitaire journalière(s)'
         ])
-        ->add('supplementJournalière',
+        ->add('supplementJournaliere',
         NumberType::class,
         [
             'mapped' => false,
@@ -166,7 +166,7 @@ class DomForm2Type extends AbstractType
             NumberType::class, [
             'label' => "Total de l'indemnite forfaitaire",
         ])
-        ->add('$motifAutresDepense1',
+        ->add('motifAutresDepense1',
             TextType::class,
             [
                 'label' => 'motif autre depense numero1',
@@ -178,7 +178,7 @@ class DomForm2Type extends AbstractType
             'label' => 'Type de depense',
             'required' => false,
         ]) 
-        ->add('$motifAutresDepense2',
+        ->add('motifAutresDepense2',
         TextType::class,
         [
                 'label' => 'motif de l\'autre depense numero2',
@@ -190,7 +190,7 @@ class DomForm2Type extends AbstractType
             'label' => 'Type de depense',
             'required' => false,
         ]) 
-        ->add('$motifAutresDepense3',
+        ->add('motifAutresDepense3',
         TextType::class,
         [
                 'label' => 'motif de l\'autre depense numero3',

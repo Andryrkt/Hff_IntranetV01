@@ -2,301 +2,311 @@
 
 namespace App\Entity;
 
+use App\Traits\AgenceServiceEmetteurTrait;
 use App\Traits\AgenceServiceTrait;
 use DateTime;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 
+
+/**
+ * @ORM\Entity(repositoryClass=DomRepository::class)
+ * @ORM\Table(name="Demande_ordre_mission")
+ * @ORM\HasLifecycleCallbacks
+ */
 class Dom
 {
+    use AgenceServiceEmetteurTrait;
     use AgenceServiceTrait;
 
      /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_demande_ordre_mission")
+     * @ORM\Column(type="integer", name="ID_Demande_Ordre_Mission")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_ordre_mission")
+     * @ORM\Column(type="string", length=11, name="Numero_Ordre_Mission")
      */
     private string $numeroOrdreMission;
 
 
      /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", name="Date_Demande")
      */
-    private $dateDemande;
+    private \DateTime $dateDemande;
 
     /**
-     * @ORM\Column(type="string", length=10, name="type_document")
+     * @ORM\Column(type="string", length=10, name="Type_Document")
      */
     private string $typeDocument;
 
     /**
      * @ORM\ManyToOne(targetEntity="sousTypeDocument", inversedBy="dom")
-     * @ORM\JoinColumn(name="sous_Type_Document", referencedColumnName="id")
+     * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private string $sousTypeDocument;//relation avec la table sousTypeDocument
 
     /**
-     * @ORM\Column(type="string", length=50, name="autre_type_document",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
      */
-    private ?string $autreTypeDocument;
+    private ?string $autreTypeDocument = null;
 
     /**
-     * @ORM\Column(type="string", length=50, name="matricule",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Matricule",nullable=true)
      */
     private ?string $matricule;
 
     /**
-     * @ORM\Column(type="string", length=100, name="nom_session_utilisateur")
+     * @ORM\Column(type="string", length=100, name="Nom_Session_Utilisateur")
      */
     private string $nomSessionUtilisateur;
 
     /**
-     * @ORM\Column(type="string", length=6, name="code_Agence_Service_Debiteur", nullable=true)
+     * @ORM\Column(type="string", length=6, name="Code_AgenceService_Debiteur", nullable=true)
      */
     private ?string $codeAgenceServiceDebiteur;
 
     /**
-     * @ORM\Column(type="date_debut")
+     * @ORM\Column(type="date", name="Date_Debut")
      */
-    private $dateDebut;
+    private \DateTime $dateDebut;
 
     /**
-     * @ORM\Column(type="string", length=5, name="heure_debut")
+     * @ORM\Column(type="string", length=5, name="Heure_Debut")
      */
     private string $heureDebut;
 
     /**
-     * @ORM\Column(type="date_fin")
+     * @ORM\Column(type="date", name="Date_Fin")
      */
-    private  $dateFin;
+    private \DateTime $dateFin;
 
     /**
-     * @ORM\Column(type="string", length=5, name="heure_fin")
+     * @ORM\Column(type="string", length=5, name="Heure_Fin")
      */
     private string $heureFin;
 
     /**
-     * @ORM\Column(type="integer", name="nombre_Jour", nullable=true)
+     * @ORM\Column(type="integer", name="Nombre_Jour", nullable=true)
      */
-    private ?int $nombreJour;
+    private ?int $nombreJour = null;
 
     /**
-     * @ORM\Column(type="string", length=100, name="motif_Deplacement")
+     * @ORM\Column(type="string", length=100, name="Motif_Deplacement")
      */
     private string $motifDeplacement;
 
     /**
-     * @ORM\Column(type="string", length=100, name="client")
+     * @ORM\Column(type="string", length=100, name="Client")
      */
     private string $client;
 
     /**
-     * @ORM\Column(type="string", length=50, name="numero_Or",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Numero_OR",nullable=true)
      */
-    private ?string $numeroOr;
+    private ?string $numeroOr = null;
 
     /**
-     * @ORM\Column(type="string", length=100, name="lieu_Intervention")
+     * @ORM\Column(type="string", length=100, name="Lieu_Intervention")
      */
     private string $lieuIntervention;
 
     /**
-     * @ORM\Column(type="string", length=3, name="vehicule_Societe")
+     * @ORM\Column(type="string", length=3, name="Vehicule_Societe")
      */
     private string $vehiculeSociete;
 
     /**
      * @ORM\ManyToOne(targetEntity="idemnity", inversedBy="dom")
-     * @ORM\JoinColumn(name="indemnite_Forfaitaire", referencedColumnName="id")
+     * @ORM\JoinColumn(name="Indemnite_Forfaitaire", referencedColumnName="ID_Idemnity")
      */
     private ?string $indemniteForfaitaire;//relation avec la table idemnity
 
     /**
-     * @ORM\Column(type="string", length=50, name="total_Indemnite_Forfaitaire",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Total_Indemnite_Forfaitaire",nullable=true)
      */
-    private ?string $totalIndemniteForfaitaire;
+    private ?string $totalIndemniteForfaitaire = null;
     
     /**
-     * @ORM\Column(type="string", length=50, name="motif_AutresDepense1",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_1",nullable=true)
      */
-    private ?string $motifAutresDepense1;
+    private ?string $motifAutresDepense1 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="autres_Depense1",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Autres_depense_1",nullable=true)
      */
-    private ?string $autresDepense1;
+    private ?string $autresDepense1 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="motif_Autres_Depense2",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_2",nullable=true)
      */
-    private ?string $motifAutresDepense2;
+    private ?string $motifAutresDepense2 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="autres_Depense2",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Autres_depense_2",nullable=true)
      */
-    private ?string $autresDepense2;
+    private ?string $autresDepense2 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="motif_Autres_Depense3",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_3",nullable=true)
      */
-    private ?string $motifAutresDepense3;
+    private ?string $motifAutresDepense3 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="autres_Depense3",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Autres_depense_3",nullable=true)
      */
-    private ?string $autresDepense3;
+    private ?string $autresDepense3 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="total_Autres_Depenses",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Total_Autres_Depenses",nullable=true)
      */
-    private ?string $totalAutresDepenses;
+    private ?string $totalAutresDepenses = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="total_General_Payer",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Total_General_Payer",nullable=true)
      */
-    private ?string $totalGeneralPayer;
+    private ?string $totalGeneralPayer= null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="mode_Payement",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Mode_Paiement",nullable=true)
      */
-    private ?string $modePayement;
+    private ?string $modePayement = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="piece_Jointe1",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Piece_Jointe_1",nullable=true)
      */
-    private ?string $pieceJointe1;
+    private ?string $pieceJointe1 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="piece_Jointe2",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Piece_Jointe_2",nullable=true)
      */
-    private ?string $pieceJointe2;
+    private ?string $pieceJointe2 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="piece_Jointe3",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Piece_Jointe_3",nullable=true)
      */
-    private ?string $pieceJointe3;
+    private ?string $pieceJointe3 = null;
 
    /**
-     * @ORM\Column(type="string", length=50, name="utilisateur_Creation")
+     * @ORM\Column(type="string", length=50, name="Utilisateur_Creation")
      */
     private string $utilisateurCreation;
 
    /**
-     * @ORM\Column(type="string", length=50, name="utilisateur_Modification",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Utilisateur_Modification",nullable=true)
      */
-    private ?string $utilisateurModification;
+    private ?string $utilisateurModification = null;
 
    /**
-     * @ORM\Column(type="string",  name="date_Modif",nullable=true)
+     * @ORM\Column(type="string",  name="Date_Modif",nullable=true)
      */
-    private  ?string $dateModif;
+    private  ?string $dateModif = null;
 
   /**
-     * @ORM\Column(type="string", length=3, name="code_Statut",nullable=true)
+     * @ORM\Column(type="string", length=3, name="Code_Statut",nullable=true)
      */
-    private ?string $codeStatut;
+    private ?string $codeStatut = null;
 
  /**
-     * @ORM\Column(type="string", length=10, name="numero_Tel",nullable=true)
+     * @ORM\Column(type="string", length=10, name="Numero_Tel",nullable=true)
      */
-    private ?string $numeroTel;
+    private ?string $numeroTel = null;
 
 /**
-     * @ORM\Column(type="string", length=100, name="nom",nullable=true)
+     * @ORM\Column(type="string", length=100, name="Nom",nullable=true)
      */
-    private ?string $nom;
-
-
-/**
-     * @ORM\Column(type="string", length=100, name="prenom",nullable=true)
-     */
-    private ?string $prenom;
+    private ?string $nom = null;
 
 
 /**
-     * @ORM\Column(type="string", length=3, name="devis",nullable=true)
+     * @ORM\Column(type="string", length=100, name="Prenom",nullable=true)
      */
-    private ?string $devis;
-
-/**
-     * @ORM\Column(type="string", length=50, name="libelle_Code_Agence_Service",nullable=true)
-     */
-    private ?string $libelleCodeAgenceService;
+    private ?string $prenom = null;
 
 
 /**
-     * @ORM\Column(type="string", length=50, name="fiche",nullable=true)
+     * @ORM\Column(type="string", length=3, name="Devis",nullable=true)
      */
-    private ?string $fiche;
+    private ?string $devis = null;
 
 /**
-     * @ORM\Column(type="string", length=50, name="numero_Vehicule",nullable=true)
+     * @ORM\Column(type="string", length=50, name="LibelleCodeAgence_Service",nullable=true)
      */
-    private ?string $numVehicule;
+    private ?string $libelleCodeAgenceService = null;
 
 
 /**
-     * @ORM\Column(type="string", length=50, name="droit_Indemnite",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Fiche",nullable=true)
      */
-    private ?string $droitIndemnite;
+    private ?string $fiche = null;
 
 /**
-     * @ORM\Column(type="string", length=50, name="categorie",nullable=true)
+     * @ORM\Column(type="string", length=50, name="NumVehicule",nullable=true)
      */
-    private ?string $categorie;
+    private ?string $numVehicule = null;
+
 
 /**
-     * @ORM\Column(type="string", length=50, name="site",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Doit_indemnite",nullable=true)
      */
-    private ?string $site;
+    private ?string $droitIndemnite = null;
+
+/**
+     * @ORM\Column(type="string", length=50, name="Categorie",nullable=true)
+     */
+    private ?string $categorie = null;
+
+/**
+     * @ORM\Column(type="string", length=50, name="Site",nullable=true)
+     */
+    private ?string $site = null;
 
     
 /**
-     * @ORM\Column(type="string", length=50, name="idemnit_yDepl",nullable=true)
+     * @ORM\Column(type="string", length=50, name="idemnity_depl",nullable=true)
      */
-    private ?string $idemnityDepl;
+    private ?string $idemnityDepl = null;
 
 /**
-     * @ORM\Column(type="string",  name="date_Cpt",nullable=true)
+     * @ORM\Column(type="string",  name="Date_CPT",nullable=true)
      */
-    private ?string $dateCpt;
+    private ?string $dateCpt = null;
 
 /**
-     * @ORM\Column(type="string",  name="date_Pay",nullable=true)
+     * @ORM\Column(type="string",  name="Date_PAY",nullable=true)
      */
-    private ?string $datePay;
+    private ?string $datePay = null;
 
 /**
-     * @ORM\Column(type="string",  name="date_Ann",nullable=true)
+     * @ORM\Column(type="string",  name="Date_ANN",nullable=true)
      */
-    private ?string $dateAnn;
+    private ?string $dateAnn = null;
 
 /**
-     * @ORM\Column(type="string", length=50, name="emetteur",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Emetteur",nullable=true)
      */
-    private ?string $emetteur;
+    private ?string $emetteur = null;
 
 /**
-     * @ORM\Column(type="string", length=50, name="debiteur",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Debiteur",nullable=true)
      */
-    private ?string $debiteur;
+    private ?string $debiteur = null;
 
 
 /**
-     * @ORM\Column(type="integer", length=50, name="id_Statut_Demande",nullable=true)
+     * @ORM\Column(type="integer", length=50, name="ID_Statut_Demande",nullable=true)
      */
-    private ?int $idStatutDemande;
+    private ?int $idStatutDemande = null;
 
  /**
-     * @ORM\Column(type="datetime",  name="date_Heure_Modif_Statut",nullable=true)
+     * @ORM\Column(type="datetime",  name="Date_heure_modif_statut",nullable=true)
      */
-    private ?datetime $dateHeureModifStatut;
+    private ?datetime $dateHeureModifStatut = null;
 
 
+    private int $cin;
+
+    private string $salarier;
 
     public function getId()
     {
@@ -1026,17 +1036,28 @@ class Dom
     }
 
 
+    public function getCin(): int
+    {
+        return $this->cin;
+    }
+
+    public function setCin(int $cin): self
+    {
+        $this->cin = $cin;
+        return $this;
+    }
 
 
+    public function getSalarier(): string
+    {
+        return $this->salarier;
+    }
 
-
-
-
-
-
-
-
-
+    public function setSalarier(string $salarier): self
+    {
+        $this->salarier = $salarier;
+        return $this;
+    }
 
 
 

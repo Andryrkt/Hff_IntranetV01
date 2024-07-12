@@ -7,50 +7,47 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="idemnity")
+ * @ORM\Table(name="Idemnity")
  * @ORM\HasLifecycleCallbacks
  */
-
-
-
  class Idemnity {
 
     
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_idemnity")
+     * @ORM\Column(type="integer", name="ID_Idemnity")
      */
     private $id;
 
      /**
-     * @ORM\Column(type="string", length=50, name="catg",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Catg",nullable=true)
      */
-     private ?string $catg;
+     private ?string $catg = null;
 
 
  /**
-     * @ORM\Column(type="string", length=100, name="destination",nullable=true)
+     * @ORM\Column(type="string", length=100, name="Destination",nullable=true)
      */
-    private ?string $destination;
+    private ?string $destination = null;
 
 
      /**
-     * @ORM\Column(type="string", length=50, name="rmq",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Rmq",nullable=true)
      */
-    private ?string $rmq;
+    private ?string $rmq = null;
 
 
     /**
-     * @ORM\Column(type="string", length=50, name="type",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Type",nullable=true)
      */
-    private ?string $type;
+    private ?string $type = null;
 
 
 /**
-     * @ORM\Column(type="string", length=50, name="montantIdemnite",nullable=true)
+     * @ORM\Column(type="string", length=50, name="Montant_idemnite",nullable=true)
      */
-    private ?string $montantIdemnite;
+    private ?string $montantIdemnite = null;
 
 
     public function getId()

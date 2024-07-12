@@ -438,11 +438,18 @@ class Controller
 
     public function arrayToObjet(User $user): User
     {
+     
         $superieurs = [];
         foreach ($user->getSuperieurs() as  $value) {
-           $superieurs[] = self::$em->getRepository(user::class)->find($value);
+            if (empty($value)) {
+                return $user;
+            } else {
+                $superieurs[] = self::$em->getRepository(user::class)->find($value);
            $user->setSuperieurs($superieurs);
+            }
+           
        }
+   
        return $user;
     } 
     

@@ -18,12 +18,18 @@ class UserController extends Controller
         $superieurs = [];
         foreach ($data as  $values) {
             
-            foreach ($values->getSuperieurs() as  $value) {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
-            }
-            $values->setSuperieurs($superieurs);
-            $superieurs = [];
+                foreach ($values->getSuperieurs() as  $value) {
+                    if(empty($value)){
+                        return $data;
+                    } else {
+
+                        $superieurs[] = self::$em->getRepository(user::class)->find($value);
+                    }
+                }
+                $values->setSuperieurs($superieurs);
+                $superieurs = [];
         }
+        
         
         return $data;
     

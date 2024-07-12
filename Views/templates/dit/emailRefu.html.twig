@@ -30,13 +30,19 @@
 				font-size: 12px;
 				color: #888888;
 			}
+			.email-footer img {
+				width: 150px;
+			}
 			.button {
 				display: inline-block;
 				padding: 10px 20px;
 				color: #ffffff;
-				background-color: #007BFF;
+				background-color: #fbbb01;
 				text-decoration: none;
 				border-radius: 5px;
+			}
+			.fw-bold {
+				font-weight: bold;
 			}
 		</style>
 	</head>
@@ -48,13 +54,17 @@
 			<div class="email-body">
 				<p>Bonjour,</p>
 				<p>{{ message }}</p>
-				<p class="fw-bold">Cordialement .</p>
+				<p>
+					Observation:
+					{{ observation }}</p>
+				<p>Vous pouvez voir le détail en cliquant sur le bouton ci-dessous.</p>
+				<p>
+					<span class="fw-bold">NB:</span>
+					connectez-vous à Hffintranet avant de cliquer sur le bouton (<a href="http://192.168.0.28/Hffintranet/">lien vers Hffintranet</a>)</p>
 				<a href="{{ action_url }}" class="button">Detail de la demande</a>
+				<p class="fw-bold">Cordialement .</p>
 			</div>
 			<div class="email-footer">
-				<div>
-					<img src="/Hffintranet/Views/assets/logoHff.jpg" alt="logo Hff">
-				</div>
 				&copy;
 				{{ "now"|date("Y") }}
 				Henry Fraise Fis & cie.
