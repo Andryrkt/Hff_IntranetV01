@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Catg;
 use App\Entity\Dom;
 
 use App\Entity\Idemnity;
@@ -52,12 +53,12 @@ class DomForm1Type extends AbstractType
         TextType::class,
         [
             'mapped' => false,
-                    'label' => 'Service',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true,
-                    ],
-                 'data' => $options["data"]->getServiceEmetteur() ?? null
+            'label' => 'Service',
+            'required' => false,
+            'attr' => [
+              'readonly' => true,
+            ],
+            'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
         ->add('sousTypeDocument',
         EntityType::class,
@@ -78,8 +79,8 @@ class DomForm1Type extends AbstractType
         EntityType::class,
         [
             'label' => 'Catégorie',
-            'class' => Idemnity::class,
-            'choice_label' => 'catg'
+            'class' => Catg::class,
+            'choice_label' => 'description'
         ])
         ->add('matriculeNom',
         EntityType::class,

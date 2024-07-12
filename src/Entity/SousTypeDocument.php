@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use App\Entity\Catg;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 /**
@@ -42,13 +43,19 @@ class SousTypeDocument {
     private string $dateCreation;
 
 
+    
     /**
-     * @ORM\ManyToOne(targetEntity="Catg::class", inversedBy="sousTypeDocument")
-     * @ORM\JoinColumn(name="catg", referencedColumnName="id")
+     * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument")
+     * 
      */
-    private ?Catg $catg;
+    private  $catg;
 
 
+    public function __construct()
+    {
+
+        $this->catg = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -111,13 +118,33 @@ class SousTypeDocument {
         return $this;
     }
 
-    public function getCatg(): ?Catg
+    public function getCatg(): ArrayCollection
     {
         return $this->catg;
     }
 
-    
-    public function setCatg(?Catg $catg): self
+    public function addCatg(Catg $catg): self
+    {
+        if (!$this->catg->contains($catg)) {
+            $this->catg[] = $catg;
+            $catg->setCatg($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCatg(Catg $catg): self
+    {
+        if ($this->catg->contains($catg)) {
+            $this->catg->removeElement($catg);
+            if ($catg->getCatg() === $this) {
+                $catg->setCatg(null);
+            }
+        }
+
+        return $this;
+    }
+    public function setCatg($catg)
     {
         $this->catg = $catg;
 

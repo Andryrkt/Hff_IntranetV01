@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", (event) => {
+  /**
+   * CACHE ET AFFICHE (nom, prenom, cin) SELON LE SALARIE (Temporaire ou permanant)
+   */
   const nom = document.querySelector("#dom_form1_nom");
   const prenom = document.querySelector("#dom_form1_prenom");
   const cin = document.querySelector("#dom_form1_cin");
@@ -17,5 +20,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   salarier.addEventListener("change", toggleFields);
-  toggleFields(); // Initial call to set the correct state
+  toggleFields();
+
+  /**
+   * AFFICHE champ CATEGORIE selon le TYPE DE MISSION
+   */
+  const sousTypeDocument = document.querySelector(
+    "#dom_form1_sousTypeDocument"
+  );
+  const categorie = document.querySelector("#dom_form1_categorie");
+
+  sousTypeDocument.addEventListener("change", changementSelon);
+
+  function changementSelon() {
+    const sousTypeDocumentValue = sousTypeDocument.value;
+    console.log(sousTypeDocumentValue);
+    if (sousTypeDocumentValue !== "10" && sousTypeDocumentValue !== "2") {
+      categorie.parentElement.style.display = "none";
+    } else {
+      categorie.parentElement.style.display = "block";
+    }
+  }
 });

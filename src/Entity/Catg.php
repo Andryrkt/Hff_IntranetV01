@@ -36,17 +36,14 @@ class Catg
 
 
     /**
-     * @ORM\OneToMany(targetEntity="SousTypeDocument::class", mappedBy="catg")
+     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="catg")
+     * @ORM\JoinColumn(name="sous_type_document_id", referencedColumnName="ID_Sous_Type_Document")
      */
-    private  ArrayCollection $sousTypeDocument;
+    private  SousTypeDocument $sousTypeDocument;
 
     
 
-    public function __construct()
-    {
-
-        $this->sousTypeDocument = new ArrayCollection();
-    }
+    
 
     public function getId(): int
     {
@@ -64,36 +61,17 @@ class Catg
         return $this;
     }
 
-    public function getSousTypeDocument(): ArrayCollection
+    public function getCatg(): ?SousTypeDocument
     {
         return $this->sousTypeDocument;
     }
 
-    public function addSousTypeDocument(SousTypeDocument $sousTypeDocument): self
+    
+    public function setCatg(?SousTypeDocument $sousTypeDocument): self
     {
-        if (!$this->sousTypeDocument->contains($sousTypeDocument)) {
-            $this->sousTypeDocument[] = $sousTypeDocument;
-            $sousTypeDocument->setCatg($this);
-        }
+        $this->sousTypeDocument = $sousTypeDocument;
 
         return $this;
     }
-
-    public function removeSousTypeDocument(SousTypeDocument $sousTypeDocument): self
-    {
-        if ($this->sousTypeDocument->contains($sousTypeDocument)) {
-            $this->sousTypeDocument->removeElement($sousTypeDocument);
-            if ($sousTypeDocument->getCatg() === $this) {
-                $sousTypeDocument->setCatg(null);
-            }
-        }
-
-        return $this;
-    }
-    public function setsousTypeDocument($demandeInterventions)
-    {
-        $this->sousTypeDocument = $demandeInterventions;
-
-        return $this;
-    }
+   
 }
