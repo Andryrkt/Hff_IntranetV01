@@ -53,7 +53,14 @@ class DomForm2Type extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-       
+       ->add('dateDemande',
+       TextType::class,
+       [
+        'label' => 'Date',
+        'attr' => [
+            'disabled' => true
+        ]
+       ])
         ->add('site',
         TextType::class,
         [
