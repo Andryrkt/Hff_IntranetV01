@@ -293,4 +293,12 @@ class Personnel
 
         return $this;
     }
+
+    public function toArray(): array
+    {
+        return [
+            
+            'Matricule' => $this->Matricule
+        ];
+    }
 }

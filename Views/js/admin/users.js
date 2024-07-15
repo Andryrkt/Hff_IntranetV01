@@ -1,3 +1,6 @@
+/**
+ * SELECTE 2/ permet de faire une recherche sur le select
+ */
 $(document).ready(function () {
   $(".selectUser").select2({
     placeholder: "-- Choisir un nom d'utilisateur --",

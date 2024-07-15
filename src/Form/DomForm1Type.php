@@ -2,21 +2,23 @@
 
 namespace App\Form;
 
-use App\Entity\Catg;
 use App\Entity\Dom;
+use App\Entity\Catg;
 
 use App\Entity\Idemnity;
 
 use App\Entity\Personnel;
 
+use App\Controller\Controller;
 use App\Entity\SousTypeDocument;
+use App\Repository\CatgRepository;
 use Symfony\Component\Form\FormEvent;
+
 use Symfony\Component\Form\FormEvents;
 
 use Symfony\Component\Form\AbstractType;
 
 use Symfony\Component\Form\FormBuilderInterface;
-
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -27,12 +29,17 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class DomForm1Type extends AbstractType
 {
-
+    private $sousTypeDocumentRepository;
     const SALARIE = [
         'PERMANENT' => 'PERMANENT',
         'TEMPORAIRE' => 'TEMPORAIRE',
     ];
-
+    
+    public function __construct()
+    {
+        $this->sousTypeDocumentRepository = Controller::getEntity()->getRepository(SousTypeDocument::class);
+        
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
        
@@ -80,14 +87,58 @@ class DomForm1Type extends AbstractType
         [
             'label' => 'Catégorie',
             'class' => Catg::class,
-            'choice_label' => 'description'
+            'choice_label' => 'description',
+            'query_builder' => function(CatgRepository $catg) {
+                    return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
+                },
         ])
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();       
+
+            if ($data->getSousTypeDocument()) {
+                $categories = $data->getSousTypeDocument()->getCatg();
+            }
+      
+            $form->add('categorie',
+            EntityType::class,
+            [
+                'label' => 'Catégorie',
+                'class' => Catg::class,
+                'choice_label' => 'description',
+                'query_builder' => function(CatgRepository $catg) {
+                        return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
+                    },
+                    'choices' => $categories,
+                ]);
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            $form = $event->getForm();
+            $data = $event->getData();
+                
+                $sousTypeDocument = $this->sousTypeDocumentRepository->find($data['sousTypeDocument']);
+                
+                $categories = $sousTypeDocument->getCatg();
+                $form->add('categorie',
+                EntityType::class,
+                [
+                    'label' => 'Catégorie',
+                    'class' => Catg::class,
+                    'choice_label' => 'description',
+                    'query_builder' => function(CatgRepository $catg) {
+                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
+                        },
+                        'choices' => $categories,
+                    ]);
+               
+            })
         ->add('matriculeNom',
         EntityType::class,
         [
             'mapped' => false,
             'label' => 'Matricule et nom',
             'class' => Personnel::class,
+            'placeholder' => '-- choisir une personnel',
             'choice_label' => function(Personnel $personnel): string {
                 return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
             }
@@ -104,17 +155,20 @@ class DomForm1Type extends AbstractType
         ->add('nom',
         TextType::class,
         [
-            'label' => 'Nom'
+            'label' => 'Nom',
+            'required' => false
         ])
         ->add('prenom',
         TextType::class,
         [
-            'label' => 'Prénoms'
+            'label' => 'Prénoms',
+            'required' => false
         ])
         ->add('cin',
         NumberType::class,
         [
-            'label' => 'CIN'
+            'label' => 'CIN',
+            'required' => false
         ])
         ;
         

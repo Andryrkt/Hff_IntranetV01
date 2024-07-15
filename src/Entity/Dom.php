@@ -44,7 +44,7 @@ class Dom
      * @ORM\ManyToOne(targetEntity="sousTypeDocument", inversedBy="dom")
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
-    private string $sousTypeDocument;//relation avec la table sousTypeDocument
+    private SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
 
     /**
      * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
@@ -254,7 +254,7 @@ class Dom
 /**
      * @ORM\Column(type="string", length=50, name="Categorie",nullable=true)
      */
-    private ?string $categorie = null;
+    private  $categorie = null;
 
 /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
@@ -356,12 +356,12 @@ class Dom
 
 
     
-    public function getSousTypeDocument(): string
+    public function getSousTypeDocument(): ?SousTypeDocument
     {
         return $this->sousTypeDocument;
     }
 
-    public function setSousTypeDocument(string $sousTypeDocument): self
+    public function setSousTypeDocument(SousTypeDocument $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
 
@@ -904,12 +904,12 @@ class Dom
     }
 
 
-    public function getCategorie(): string
+    public function getCategorie()
     {
         return $this->categorie;
     }
 
-    public function setCategorie(string $categorie): self
+    public function setCategorie(Catg $categorie): self
     {
         $this->categorie = $categorie;
 
@@ -1059,6 +1059,15 @@ class Dom
         return $this;
     }
 
-
+    public function toArray(): array
+    {
+        return [
+            
+            'sousTypeDocument' => $this->sousTypeDocument,
+            'salarier' => $this->salarier,
+            'categorie' => $this->categorie,
+            'matricule' => $this->matricule
+        ];
+    }
 
 }

@@ -104,7 +104,6 @@ class demandeInterventionType extends AbstractType
             //'data' => $options['data']->getService(),
                 'attr' => [ 'class' => 'serviceDebiteur']
             ]);
-
             
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {

@@ -3,22 +3,17 @@
 namespace App\Entity;
 
 use App\Traits\DateTrait;
-use App\Entity\SousTypeDocument;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CatgRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 
-
-  /**
- *   @ORM\Table(name="Catg")
+/**
+ * @ORM\Table(name="Catg")
  * @ORM\Entity(repositoryClass=CatgRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-
 class Catg
 {
     use DateTrait;
-
 
     /**
      * @ORM\Id
@@ -29,21 +24,14 @@ class Catg
 
     /**
      * @ORM\Column(type="string")
-     *
-     * @var string
      */
-    private string $description;
-
+    private $description;
 
     /**
      * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="catg")
      * @ORM\JoinColumn(name="sous_type_document_id", referencedColumnName="ID_Sous_Type_Document")
      */
-    private  SousTypeDocument $sousTypeDocument;
-
-    
-
-    
+    private $sousTypeDocument;
 
     public function getId(): int
     {
@@ -61,17 +49,14 @@ class Catg
         return $this;
     }
 
-    public function getCatg(): ?SousTypeDocument
+    public function getSousTypeDocument(): ?SousTypeDocument
     {
         return $this->sousTypeDocument;
     }
 
-    
-    public function setCatg(?SousTypeDocument $sousTypeDocument): self
+    public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
-
         return $this;
     }
-   
 }

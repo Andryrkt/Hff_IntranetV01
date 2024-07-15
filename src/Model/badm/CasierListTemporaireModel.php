@@ -87,9 +87,9 @@ class CasierListTemporaireModel extends Model
         ) VALUES (?, ?, ?, ?, ?)";
 
         // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->connect(), $sql);
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
         if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->connect());
+            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
             return;
         }
 
@@ -101,24 +101,10 @@ class CasierListTemporaireModel extends Model
         $sql = "DELETE FROM Casier_Materiels_Temporaire WHERE Id = '{$id}'
         ";
 
-        odbc_exec($this->connexion->connect(), $sql);
+        odbc_exec($this->connexion->getConnexion(), $sql);
     }
 
-    /**
-     * @return PaginatedQuery
-     */
-    public function findPaginated(): PaginatedQuery
-    {
-        return new PaginatedQuery(
-            $this->connexion,
-            'SELECT * FROM Casier_Materiels ORDER BY Numero_CAS DESC',
-            'SELECT COUNT(Id_Materiel) FROM Casier_Materiels'
-        );
-    }
+   
 
-    public function NombreDeLigne()
-    {
-        $sql = $this->connexion->query("SELECT COUNT(*) As nbrLigne FROM Casier_Materiels_Temporaire ");
-        return odbc_fetch_array($sql);
-    }
+   
 }

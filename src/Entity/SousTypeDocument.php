@@ -2,109 +2,91 @@
 
 namespace App\Entity;
 
-
-use App\Entity\Catg;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="Sous_type_document")
  * @ORM\HasLifecycleCallbacks
  */
-class SousTypeDocument {
-/**
+class SousTypeDocument
+{
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer", name="ID_Sous_Type_Document")
      */
     private $id;
 
-      
     /**
      * @ORM\Column(type="string", length=4, name="Code_Document")
      */
-    private string $codeDocument;
+    private $codeDocument;
 
- /**
-     * @ORM\Column(type="string", length=4, name="Code_Sous_Type",nullable=true)
+    /**
+     * @ORM\Column(type="string", length=4, name="Code_Sous_Type", nullable=true)
      */
-    private ?string $codeSousType = null;
+    private $codeSousType;
 
- /**
-     * @ORM\Column(type="string", length=50, name="Description",nullable=true)
+    /**
+     * @ORM\Column(type="string", length=50, name="Description", nullable=true)
      */
-    private ?string $description = null;
+    private $description;
 
-/**
+    /**
      * @ORM\Column(type="string", name="Date_creation")
      */
-    private string $dateCreation;
+    private $dateCreation;
 
-
-    
     /**
      * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument")
-     * 
      */
-    private  $catg;
-
+    private $catg;
 
     public function __construct()
     {
-
         $this->catg = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
-
-
 
     public function getCodeDocument(): string
     {
         return $this->codeDocument;
     }
 
-   
     public function setCodeDocument(string $codeDocument): self
     {
         $this->codeDocument = $codeDocument;
-
         return $this;
     }
-
 
     public function getCodeSousType(): ?string
     {
         return $this->codeSousType;
     }
 
-   
     public function setCodeSousType(?string $codeSousType): self
     {
         $this->codeSousType = $codeSousType;
-
         return $this;
     }
-
 
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-   
     public function setDescription(?string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
-
 
     public function getDateCreation(): string
     {
@@ -113,12 +95,14 @@ class SousTypeDocument {
 
     public function setDateCreation(string $dateCreation): self
     {
-        $this->dateCreation= $dateCreation;
-
+        $this->dateCreation = $dateCreation;
         return $this;
     }
 
-    public function getCatg(): ArrayCollection
+    /**
+     * @return Collection|Catg[]
+     */
+    public function getCatg(): Collection
     {
         return $this->catg;
     }
@@ -127,7 +111,7 @@ class SousTypeDocument {
     {
         if (!$this->catg->contains($catg)) {
             $this->catg[] = $catg;
-            $catg->setCatg($this);
+            $catg->setSousTypeDocument($this);
         }
 
         return $this;
@@ -137,16 +121,10 @@ class SousTypeDocument {
     {
         if ($this->catg->contains($catg)) {
             $this->catg->removeElement($catg);
-            if ($catg->getCatg() === $this) {
-                $catg->setCatg(null);
+            if ($catg->getSousTypeDocument() === $this) {
+                $catg->setSousTypeDocument(null);
             }
         }
-
-        return $this;
-    }
-    public function setCatg($catg)
-    {
-        $this->catg = $catg;
 
         return $this;
     }
