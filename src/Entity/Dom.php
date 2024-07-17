@@ -307,6 +307,8 @@ class Dom
 
     private string $salarier;
 
+    private Indemnite $indemnite;
+
     public function getId()
     {
         return $this->id;
@@ -1072,4 +1074,17 @@ class Dom
         ];
     }
 
+
+    public function getIndemnite()
+    {
+        return $this->indemnite;
+    }
+
+    
+    public function setIndemnite($indemnite): self
+    {
+        $this->indemnite = $indemnite;
+
+        return $this;
+    }
 }

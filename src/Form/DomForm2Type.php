@@ -6,10 +6,14 @@ use App\Entity\Dom;
 use App\Entity\Agence;
 use App\Entity\Service;
 use App\Controller\Controller;
+use App\Entity\Catg;
 use App\Entity\DemandeIntervention;
+use App\Entity\Idemnity;
+use App\Entity\Indemnite;
 use App\Entity\Site;
 use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
+use App\Repository\SiteRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -32,7 +36,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class DomForm2Type extends AbstractType
 {
-    private $agenceRepository;
+    private $em;
 
     const OUI_NON = [
         'NON' => 'NON',
@@ -53,7 +57,7 @@ class DomForm2Type extends AbstractType
 
     public function __construct()
     {
-     $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+     $this->em = Controller::getEntity();
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -113,7 +117,7 @@ class DomForm2Type extends AbstractType
             
                 $agenceId = $data['agence'];
                
-                $agence = $this->agenceRepository->find($agenceId);
+                $agence = $this->em->getRepository(Agence::class)->find($agenceId);
                 $services = $agence->getServices();
                 
                 $form->add('service', EntityType::class, [
@@ -185,12 +189,20 @@ class DomForm2Type extends AbstractType
         [
             'label' => 'Site:',
             'class' => Site::class,
-            'choice_label' => 'nomZone'
+            'choice_label' => 'nomZone',
         ])
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
             $form = $event->getForm();
             $data = $event->getData();
-          dd($data);
+            /** @var Catg */
+          $catg = $data->getCategorie();
+          /** @var array */
+            $categories = $this->em->getRepository(Indemnite::class)->findBy(['categorie'=> $catg]);
+dd($categories);
+            foreach ($categories as  $value) {
+                dump($value->getSite()->getNomZone());
+            }
+            die();
             $services = null;
 
             if ($data instanceof Dom && $data->getAgence()) {
@@ -203,8 +215,9 @@ class DomForm2Type extends AbstractType
                 'label' => 'Indeminté forfaitaire journalière(s)',
                 'attr' => [
                     'readonly' => true
-                ]
-                ]);
+                ],
+                'data' => '45000'
+            ]);
       
             $form->add('service',
             EntityType::class,

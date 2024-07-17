@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Dom;
 use App\Entity\Agence;
+use App\Entity\Indemnite;
 use App\Entity\Personnel;
+use App\Entity\Rmq;
 use App\Form\DomForm1Type;
 use App\Form\DomForm2Type;
 use App\Entity\SousTypeDocument;
@@ -36,12 +38,12 @@ class DomsController extends Controller
 
         
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
     
-    $this->dom->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-    $this->dom->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-    $this->dom->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2));
-   $this->dom->setSalarier('PERMANENT');
+        $this->dom->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
+        $this->dom->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+        $this->dom->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2));
+        $this->dom->setSalarier('PERMANENT');
 
    
         $form =self::$validator->createBuilder(DomForm1Type::class, $this->dom)->getForm();
@@ -77,7 +79,7 @@ class DomsController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
-
+dd(self::$em->getRepository(Indemnite::class)->findAll());
        /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
@@ -87,6 +89,7 @@ class DomsController extends Controller
         $this->dom->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
         $this->dom->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
         $this->dom->setSite(self::$em->getRepository(Site::class)->find(1));
+        
         /** INITIALISATION des données qui vent de FirstFORM */
         $form1Data = $this->sessionService->get('form1Data', []);
         $this->dom->setMatricule($form1Data['matricule']);
@@ -132,10 +135,27 @@ class DomsController extends Controller
      * @return void
      */
     public function categoriefetch(int $id)
-    {
+    {   $this->SessionStart();
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($id);
-     
-
+        if($CodeServiceofCours[0]['agence_ips'] === '50'){
+            $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+           
+       } else {
+        $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+       }
+        
+       $criteria = [
+        'sousTypeDoc' => $sousTypedocument,
+        'rmq' => $rmq
+     ];
+        
+        $indemnite = self::$em->getRepository(Indemnite::class)->findBy($criteria);
+        foreach ($indemnite as $key => $value) {
+            dump($value->getCategorie()->getId());
+        }
+        die();
         $catg = $sousTypedocument->getCatg();
 
         $categories = [];

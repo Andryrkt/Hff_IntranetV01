@@ -76,7 +76,7 @@ class Rmq
     {
         if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
-            $indemnite->setRmqs($this);
+            $indemnite->setRmq($this);
         }
         return $this;
     }
@@ -85,8 +85,8 @@ class Rmq
     {
         if ($this->indemnites->contains($indemnite)) {
             $this->indemnites->removeElement($indemnite);
-            if ($indemnite->getRmqs() === $this) {
-                $indemnite->setRmqs(null);
+            if ($indemnite->getRmq() === $this) {
+                $indemnite->setRmq(null);
             }
         }
 

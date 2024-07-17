@@ -9,8 +9,7 @@ use App\Traits\DateTrait;
 use App\Entity\SousTypeDocument;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\IdemniteRepository;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
+
 
 /**
  * @ORM\Table(name="idemnite")
@@ -37,27 +36,25 @@ class Indemnite
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="indemnites")
      * @ORM\JoinColumn(name="catg_id", referencedColumnName="id")
      */
-    private $categories;
+    private $categorie;
 
     /**
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="indemnites")
      * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
      */
-    private $sites;
+    private $site;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rmq::class, inversedBy="indemnites")
      * @ORM\JoinColumn(name="rmq_id", referencedColumnName="id")
      */
-    private $rmqs;
+    private $rmq;
 
     /**
      * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="indemnites")
      * @ORM\JoinColumn(name="sousTypeDoc_id", referencedColumnName="ID_Sous_Type_Document")
      */
     private $sousTypeDoc;
-
-    
 
     public function getId(): int
     {
@@ -75,48 +72,38 @@ class Indemnite
         return $this;
     }
 
-    
-    public function getCatg()
+    public function getCategorie(): ?Catg
     {
-        return $this->categories;
+        return $this->categorie;
     }
 
-    public function setCatg($categorie): self
+    public function setCategorie(?Catg $categorie): self
     {
-        $this->categories = $categorie;
+        $this->categorie = $categorie;
         return $this;
     }
 
-    
-
-   
-    public function getSites()
+    public function getSite(): ?Site
     {
-        return $this->sites;
+        return $this->site;
     }
 
-    public function setSites($site)
+    public function setSite(?Site $site): self
     {
-        $this->sites = $site;
-
-        return $this;
-    }
-    
-
-    
-    public function getRmqs()
-    {
-        return $this->rmqs;
-    }
-
-    public function setRmqs($rmq): self
-    {
-        $this->rmqs = $rmq;
-
+        $this->site = $site;
         return $this;
     }
 
-    
+    public function getRmq(): ?Rmq
+    {
+        return $this->rmq;
+    }
+
+    public function setRmq(?Rmq $rmq): self
+    {
+        $this->rmq = $rmq;
+        return $this;
+    }
 
     public function getSousTypeDoc(): ?SousTypeDocument
     {

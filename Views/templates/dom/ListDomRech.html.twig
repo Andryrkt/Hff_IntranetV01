@@ -114,7 +114,8 @@
 		<div class=" row mb-2">
 			<div class="col-12 col-md-6 col-lg-3">
 				<a href="{{path("dom_newDom")}}" class="btn btn-sm bg-dark text-white">Nouvelle Demande</a>
-				<a href="{{path("domList_ShowListDomRecherche")}}?exportExcel=Export Excel" class="btn btn-sm btn-success">Export Excel</a>
+				{# <a href="{{path("domList_ShowListDomRecherche")}}?exportExcel=Export Excel" class="btn btn-sm btn-success" id="export_excel">Export Excel</a> #}
+				<a href="{{path("domList_ShowListDomRecherche")}}" class="btn btn-sm btn-success" id="export_excel">Export Excel</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-3">
 				<p class="fw-bold" id="nombreResultat">{{resultat}}
@@ -243,4 +244,5 @@
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	{#  <script src="/Hffintranet/Views/js/dom/ListDomRech.js"></script> #}
+	<script type="module" src="/Hffintranet/Views/js/dom/exportExcel.js"></script>
 {% endblock %}

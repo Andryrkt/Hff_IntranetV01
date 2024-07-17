@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use Exception;
+use SplFileObject;
+use App\Entity\User;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,7 @@ class ProfilControl extends Controller
                 $_SESSION['user'] = $Username;
                 $_SESSION['password'] = $Password;
 
-                
+               
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 

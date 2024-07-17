@@ -106,7 +106,7 @@ class Site
     {
         if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
-            $indemnite->setSites($this);
+            $indemnite->setSite($this);
         }
         return $this;
     }
@@ -115,8 +115,8 @@ class Site
     {
         if ($this->indemnites->contains($indemnite)) {
             $this->indemnites->removeElement($indemnite);
-            if ($indemnite->getSites() === $this) {
-                $indemnite->setSites(null);
+            if ($indemnite->getSite() === $this) {
+                $indemnite->setSite(null);
             }
         }
 
