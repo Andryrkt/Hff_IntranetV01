@@ -269,7 +269,7 @@ class Personnel
     {
         if (!$this->users->contains($user)) {
             $this->users[] = $user;
-            $user->setAgences($this);
+            $user->setPersonnels($this);
         }
 
         return $this;
@@ -279,8 +279,8 @@ class Personnel
     {
         if ($this->users->contains($user)) {
             $this->users->removeElement($user);
-            if ($user->getAgences() === $this) {
-                $user->setAgences(null);
+            if ($user->getPersonnels() === $this) {
+                $user->setPersonnels(null);
             }
         }
         

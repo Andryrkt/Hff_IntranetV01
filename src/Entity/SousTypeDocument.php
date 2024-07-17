@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
+use App\Entity\Indemnite;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -45,9 +46,15 @@ class SousTypeDocument
      */
     private $catg;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Indemnite::class, mappedBy="sousTypeDoc")
+     */
+    private $indemnites;
+
     public function __construct()
     {
         $this->catg = new ArrayCollection();
+        $this->indemnites = new ArrayCollection();
     }
 
     public function getId(): int
@@ -113,7 +120,6 @@ class SousTypeDocument
             $this->catg[] = $catg;
             $catg->setSousTypeDocument($this);
         }
-
         return $this;
     }
 
@@ -123,6 +129,34 @@ class SousTypeDocument
             $this->catg->removeElement($catg);
             if ($catg->getSousTypeDocument() === $this) {
                 $catg->setSousTypeDocument(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection|Indemnite[]
+     */
+    public function getIndemnites(): Collection
+    {
+        return $this->indemnites;
+    }
+
+    public function addIndemnite(Indemnite $indemnite): self
+    {
+        if (!$this->indemnites->contains($indemnite)) {
+            $this->indemnites[] = $indemnite;
+            $indemnite->setSousTypeDoc($this);
+        }
+        return $this;
+    }
+
+    public function removeIndemnite(Indemnite $indemnite): self
+    {
+        if ($this->indemnites->contains($indemnite)) {
+            $this->indemnites->removeElement($indemnite);
+            if ($indemnite->getSousTypeDoc() === $this) {
+                $indemnite->setSousTypeDoc(null);
             }
         }
 

@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\Dom;
 use App\Entity\Catg;
 
-use App\Entity\Idemnity;
 
 use App\Entity\Personnel;
 
@@ -13,17 +12,13 @@ use App\Controller\Controller;
 use App\Entity\SousTypeDocument;
 use App\Repository\CatgRepository;
 use Symfony\Component\Form\FormEvent;
-
 use Symfony\Component\Form\FormEvents;
-
 use Symfony\Component\Form\AbstractType;
-
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
@@ -67,13 +62,7 @@ class DomForm1Type extends AbstractType
             ],
             'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
-        ->add('sousTypeDocument',
-        EntityType::class,
-        [
-            'label' => 'Type de Mission',
-            'class' => SousTypeDocument::class,
-            'choice_label' => 'codeSousType'
-        ])
+        
         ->add('salarie',
         ChoiceType::class,
         [
@@ -82,15 +71,12 @@ class DomForm1Type extends AbstractType
             'choices' => self::SALARIE,
             'data' => 'PERMANENT'
         ])
-        ->add('categorie',
+        ->add('sousTypeDocument',
         EntityType::class,
         [
-            'label' => 'Catégorie',
-            'class' => Catg::class,
-            'choice_label' => 'description',
-            'query_builder' => function(CatgRepository $catg) {
-                    return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                },
+            'label' => 'Type de Mission',
+            'class' => SousTypeDocument::class,
+            'choice_label' => 'codeSousType'
         ])
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
             $form = $event->getForm();
@@ -99,7 +85,7 @@ class DomForm1Type extends AbstractType
             if ($data->getSousTypeDocument()) {
                 $categories = $data->getSousTypeDocument()->getCatg();
             }
-      
+  
             $form->add('categorie',
             EntityType::class,
             [
@@ -141,7 +127,8 @@ class DomForm1Type extends AbstractType
             'placeholder' => '-- choisir une personnel',
             'choice_label' => function(Personnel $personnel): string {
                 return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
-            }
+            },
+            'required' => false
         ])
         ->add('matricule',
         TextType::class,
@@ -149,7 +136,8 @@ class DomForm1Type extends AbstractType
             'label' => 'Matricule',
             'attr' => [
                 'readonly' => true
-            ]
+            ],
+            'required' => false
         ]
         )
         ->add('nom',

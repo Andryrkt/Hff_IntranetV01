@@ -6,16 +6,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const prenom = document.querySelector("#dom_form1_prenom");
   const cin = document.querySelector("#dom_form1_cin");
   const salarier = document.querySelector("#dom_form1_salarie");
+  const matriculeNomInput = document.querySelector("#dom_form1_matriculeNom");
+  const matriculeInput = document.querySelector("#dom_form1_matricule");
 
   function toggleFields() {
     if (salarier.value === "TEMPORAIRE") {
       nom.parentElement.style.display = "block";
       prenom.parentElement.style.display = "block";
       cin.parentElement.style.display = "block";
+      matriculeNomInput.parentElement.style.display = "none";
+      matriculeInput.parentElement.style.display = "none";
     } else {
       nom.parentElement.style.display = "none";
       prenom.parentElement.style.display = "none";
       cin.parentElement.style.display = "none";
+      matriculeNomInput.parentElement.style.display = "block";
+      matriculeInput.parentElement.style.display = "block";
     }
   }
 
@@ -83,10 +89,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     width: "100%", // Optionnel : ajustez la largeur selon vos besoins
     placeholder: "-- choisir une personnel --",
   });
-
-  // Sélectionner les éléments de formulaire
-  const matriculeNomInput = document.querySelector("#dom_form1_matriculeNom");
-  const matriculeInput = document.querySelector("#dom_form1_matricule");
 
   // Ajouter un écouteur d'événement pour Select2
   $("#dom_form1_matriculeNom").on("select2:select", function (e) {

@@ -4,29 +4,27 @@ namespace App\Form;
 
 use App\Entity\Dom;
 use App\Entity\Agence;
-use App\Entity\Idemnity;
-use App\Entity\Societte;
-use App\Entity\StatutDemande;
-use App\Entity\WorTypeDocument;
-use App\Entity\SousTypeDocument;
-use Doctrine\ORM\Mapping\Entity;
-use App\Repository\RoleRepository;
+use App\Entity\Service;
+use App\Controller\Controller;
+use App\Entity\DemandeIntervention;
+use App\Entity\Site;
+use App\Repository\AgenceRepository;
+use App\Repository\ServiceRepository;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+
 
 
 
@@ -34,25 +32,128 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class DomForm2Type extends AbstractType
 {
+    private $agenceRepository;
 
     const OUI_NON = [
         'NON' => 'NON',
         'OUI' => 'OUI'
     ];
     const DEVISE = [
-        'MGA' => 'MGA'
+        'MGA' => 'MGA',
+        'EUR' => 'EUR',
+        'USD' => 'USD'
     ];
 
     const MODE_PAYEMENT = [
-            'ESPECES' => 'ESPECES',
-            'CARTE DE CREDIT' => 'CARTE DE CREDIT',
-            'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
-            'CHEQUE' => 'CHEQUE',
+        'MOBILE MONEY' => 'MOBILE MONEY',
+        'ESPECES' => 'ESPECES',
+        'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
+         
     ];
+
+    public function __construct()
+    {
+     $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+        ->add('agence', 
+        EntityType::class,
+        [
+            'label' => 'Agence Debiteur',
+            'placeholder' => '-- Choisir une agence Debiteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'required' => false,
+            //'data' => $options["data"]->getAgence() ?? null,
+            'query_builder' => function(AgenceRepository $agenceRepository) {
+                    return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                },
+                'attr' => [ 'class' => 'agenceDebiteur']
+        ])
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();
+          
+            $services = null;
+
+            if ($data instanceof Dom && $data->getAgence()) {
+                $services = $data->getAgence()->getServices();
+            }
+         
+      
+            $form->add('service',
+            EntityType::class,
+            [
+            
+            'label' => 'Service Débiteur',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            },
+            'choices' => $services,
+            // 'disabled' => $agence === null,
+            'required' => false,
+            'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+            //'data' => $options['data']->getService(),
+                'attr' => [ 'class' => 'serviceDebiteur']
+            ]);
+            
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            $form = $event->getForm();
+            $data = $event->getData();
+        
+            
+                $agenceId = $data['agence'];
+               
+                $agence = $this->agenceRepository->find($agenceId);
+                $services = $agence->getServices();
+                
+                $form->add('service', EntityType::class, [
+                    'label' => 'Service Débiteur',
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'choices' => $services,
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'serviceDebiteur',
+                        'disabled' => false,
+                        ]
+                ]);
+                
+            })
+        ->add('agenceEmetteur', 
+        TextType::class,
+        [
+           'mapped' => false,
+                    'label' => 'Agence',
+                    'required' => false,
+                    'attr' => [
+                        'disabled' => true
+                    ],
+                    'data' => $options["data"]->getAgenceEmetteur() ?? null        
+        ])
+       
+        ->add('serviceEmetteur', 
+        TextType::class,
+        [
+            'mapped' => false,
+                    'label' => 'Service',
+                    'required' => false,
+                    'attr' => [
+                        'disabled' => true
+                    ],
+                    'data' => $options["data"]->getServiceEmetteur() ?? null
+        ])
        ->add('dateDemande',
        TextType::class,
        [
@@ -61,50 +162,159 @@ class DomForm2Type extends AbstractType
             'disabled' => true
         ]
        ])
+       ->add('sousTypeDocument',
+        TextType::class,
+       [
+        'label' => 'Type de Mission :',
+        'attr' => [
+            'disabled' => true
+        ],
+        'data' => $options["data"]->getSousTypeDocument()->getCodeSousType()
+       ])
+       ->add('categorie',
+       TextType::class,
+       [
+        'label' => 'Catégorie :',
+        'attr' => [
+            'disabled' => true
+        ],
+        'data' => $options["data"]->getCategorie() !== null ? $options["data"]->getCategorie()->getDescription() : null
+       ])
         ->add('site',
+        EntityType::class,
+        [
+            'label' => 'Site:',
+            'class' => Site::class,
+            'choice_label' => 'nomZone'
+        ])
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();
+          dd($data);
+            $services = null;
+
+            if ($data instanceof Dom && $data->getAgence()) {
+                $services = $data->getAgence()->getServices();
+            }
+         
+            $form ->add('indemniteForfaitaire',
+            TextType::class,
+            [
+                'label' => 'Indeminté forfaitaire journalière(s)',
+                'attr' => [
+                    'readonly' => true
+                ]
+                ]);
+      
+            $form->add('service',
+            EntityType::class,
+            [
+            
+            'label' => 'Service Débiteur',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            },
+            'choices' => $services,
+            // 'disabled' => $agence === null,
+            'required' => false,
+            'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+            //'data' => $options['data']->getService(),
+                'attr' => [ 'class' => 'serviceDebiteur']
+            ]);
+            
+        })
+        
+        ->add('matricule',
+        TextType::class,
+       [
+        'label' => 'Matricule',
+        'attr' => [
+            'disabled' => true
+        ],
+        'data' => $options["data"]->getMatricule() ?? null
+       ])
+       ->add('nom',
         TextType::class,
         [
-            'label' => 'site',
-            'required' => false,
-        ]) 
-        
+            'label' => 'Nom',
+            'attr' => [
+                'disabled' => true
+            ],
+            'data' => $options["data"]->getNom() ?? null
+        ])
+        ->add('prenom',
+        TextType::class,
+        [
+            'label' => 'Prénoms',
+            'attr' => [
+                'disabled' => true
+            ],
+            'data' => $options["data"]->getPrenom() ?? null
+        ])
+        ->add('cin',
+        NumberType::class,
+        [
+            'mapped' => false,
+            'label' => 'CIN',
+            'attr' => [
+                'disabled' => true
+            ],
+            'data' => $options["data"]->getCin() ?? null
+        ])
 
         ->add('dateDebut', 
         DateType::class,
          [
             'widget' => 'single_text',
             'label' => 'Date debut',
-            'required' => false,
+            
         ]) 
 
         ->add('heureDebut',
         TimeType::class,
         [
-            'label' => 'Heure debut',
-            'required' => false,
+           'label' => 'Heure début',
+            'widget' => 'single_text', // Pour utiliser un champ de saisie unique
+            'attr' => [
+                'class' => 'form-control', // Pour ajouter des classes CSS si nécessaire
+                'value' => '08:00', // Définit la valeur par défaut
+             ],
+            'input' => 'datetime', // Spécifie que l'entrée est une instance de \DateTime
         ])
 
-        
         ->add('dateFin', 
         DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date fin',
-            'required' => false,
+            
         ]) 
-
         ->add('heureFin',
         TimeType::class,
         [
             'label' => 'Heure fin',
-            'required' => false,
+            'widget' => 'single_text', // Pour utiliser un champ de saisie unique
+            'attr' => [
+                'class' => 'form-control', // Pour ajouter des classes CSS si nécessaire
+                'value' => '18:00', // Définit la valeur par défaut
+            ],
+            'input' => 'datetime', // Spécifie que l'entrée est une instance de \DateTime
         ])
-
-       
+        ->add('nombreJour',
+        TextType::class,
+        [
+            'label' => 'Nombre de Jour',
+            'attr' => [
+                'readonly' => true
+            ]
+        ])
         ->add('motifDeplacement',
         TextType::class,
         [
-                'label' => 'motif de deplacement',
-                'required' => false,
+                'label' => 'Motif',
+                
         ])    
         ->add('client',
         TextType::class,
@@ -128,110 +338,123 @@ class DomForm2Type extends AbstractType
         ])
         ->add('vehiculeSociete', 
         ChoiceType::class, [
-            'label' => "Vehicule de la societe",
+            'label' => "Véhicule société",
             'choices' => self::OUI_NON,
             'data' => "OUI",  
         ])
         ->add('numVehicule', 
         TextType::class,
         [
-            'label' => 'Numero de vehicule'
+            'label' => 'N°'
         ]) 
         ->add('idemnityDepl', 
         NumberType::class, [
-            'label' => 'indemnite de deplacement',
+            'label' => 'Indemnité de déplacement',
         ])
 
-        ->add('indemniteForfaitaire', 
-        EntityType::class, [
-            'label' => "Indemnite forfaitaire",
-            'class' => Idemnity::class,
-            'choice_label' =>'catg',
-            'required' => false,  
+        ->add('totalIndemniteDeplacement',
+        TextType::class,
+        [
+            'mapped' => false,
+            'label' => 'Total indemnité de déplacement',
+            'attr' => [
+                'readonly' => true
+            ]
         ])
-
         ->add('devis',
          ChoiceType::class, 
          [
-            'label' => 'devis',
+            'label' => 'Devise :',
             'choices' => self::DEVISE,
             'data' => 'MGA'
         ])
-        ->add('indemniteForfaitaireJournaliere',
-        NumberType::class,
-        [
-            'mapped' => false,
-            'label' => 'Indeminté forfaitaire journalière(s)'
-        ])
+       
         ->add('supplementJournaliere',
         NumberType::class,
         [
             'mapped' => false,
-            'label' => 'Supplément journalié'
+            'label' => 'supplément journalier'
         ])
         ->add('totalIndemniteForfaitaire', 
-            NumberType::class, [
+            NumberType::class, 
+            [
             'label' => "Total de l'indemnite forfaitaire",
+            'attr' => [
+                'readonly' => true
+            ]
         ])
         ->add('motifAutresDepense1',
             TextType::class,
             [
-                'label' => 'motif autre depense numero1',
+                'label' => 'Motif Autre dépense 1',
                 'required' => false,
             ]) 
         ->add('autresDepense1', 
         NumberType::class,
          [
-            'label' => 'Type de depense',
+            'label' => 'Montant',
             'required' => false,
         ]) 
         ->add('motifAutresDepense2',
         TextType::class,
         [
-                'label' => 'motif de l\'autre depense numero2',
+                'label' => 'Motif Autre dépense 2',
                 'required' => false,
         ]) 
         ->add('autresDepense2', 
         NumberType::class,
          [
-            'label' => 'Type de depense',
+            'label' => 'Montant',
             'required' => false,
         ]) 
         ->add('motifAutresDepense3',
         TextType::class,
         [
-                'label' => 'motif de l\'autre depense numero3',
+                'label' => 'Motif Autre dépense 3',
                 'required' => false,
         ]) 
         ->add('autresDepense3', 
         NumberType::class,
          [
-            'label' => 'Type de depense',
+            'label' => 'Montant',
             'required' => false,
         ]) 
 
         ->add('totalAutresDepenses', 
-        MoneyType::class,
+        TextType::class,
          [
-            'label' => 'total Montant autre depense',
-            'currency' => 'Ariary', // Spécifiez la devise si nécessaire
+            'label' => 'Total Montant Autre Dépense',
             'required' => true,
+            'attr' => [
+                'readonly' => true
+            ]
         ]) 
         ->add('totalGeneralPayer', 
-        MoneyType::class,
+        TextType::class,
          [
-            'label' => 'Montant total',
-            'currency' => 'Ariary', // Spécifiez la devise si nécessaire
+            'label' => 'Montant Total',
             'required' => true,
+            'attr' => [
+                'readonly' => true
+            ]
         ]) 
 
         ->add('modePayement', 
         ChoiceType::class, [
-            'label' => 'Mode de paiement',
+            'label' => 'Mode paiement',
             'choices' => self::MODE_PAYEMENT
         ])
+        ->add('mode',
+        TextType::class,
+        [
+            'mapped' => false,
+            'label' => 'Mode',
+            'attr' => [
+                'readonly' => true
+            ]
+        ])
 
-        ->add('pieceJoint01',
+        ->add('pieceJoint1',
         FileType::class, 
         [
             'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
@@ -248,10 +471,10 @@ class DomForm2Type extends AbstractType
             ],
         ]
         )
-        ->add('pieceJoint02',
+        ->add('pieceJoint2',
         FileType::class, 
         [
-            'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
+            'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
             'required' => true,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),

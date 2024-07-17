@@ -54,7 +54,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Matricule",nullable=true)
      */
-    private ?string $matricule;
+    private ?string $matricule = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Session_Utilisateur")
@@ -117,8 +117,7 @@ class Dom
     private string $vehiculeSociete;
 
     /**
-     * @ORM\ManyToOne(targetEntity="idemnity", inversedBy="dom")
-     * @ORM\JoinColumn(name="Indemnite_Forfaitaire", referencedColumnName="ID_Idemnity")
+     * @ORM\Column(type="string",name= "Idemnite_Forfaitaire")
      */
     private ?string $indemniteForfaitaire;//relation avec la table idemnity
 
@@ -130,7 +129,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_1",nullable=true)
      */
-    private ?string $motifAutresDepense1 = null;
+    private $motifAutresDepense1 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_1",nullable=true)
@@ -175,17 +174,17 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_1",nullable=true)
      */
-    private ?string $pieceJointe1 = null;
+    private ?string $pieceJoint1 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_2",nullable=true)
      */
-    private ?string $pieceJointe2 = null;
+    private ?string $pieceJoint2 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_3",nullable=true)
      */
-    private ?string $pieceJointe3 = null;
+    private ?string $pieceJoint3 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Utilisateur_Creation")
@@ -259,13 +258,13 @@ class Dom
 /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
      */
-    private ?string $site = null;
+    private ?Site $site = null;
 
     
-/**
-     * @ORM\Column(type="string", length=50, name="idemnity_depl",nullable=true)
+ /**
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $idemnityDepl = null;
+    private $idemnityDepl;
 
 /**
      * @ORM\Column(type="string",  name="Date_CPT",nullable=true)
@@ -304,7 +303,7 @@ class Dom
     private ?datetime $dateHeureModifStatut = null;
 
 
-    private int $cin;
+    private ?int $cin = null;
 
     private string $salarier;
 
@@ -383,12 +382,12 @@ class Dom
     }
 
 
-    public function getMatricule(): string
+    public function getMatricule(): ?string
     {
         return $this->matricule;
     }
 
-    public function setMatricule(string $matricule): self
+    public function setMatricule(?string $matricule): self
     {
         $this->matricule = $matricule;
 
@@ -586,24 +585,24 @@ class Dom
     }
 
 
-    public function gettMotifAutreDepense1(): string
+    public function getMotifAutresDepense1(): ?string
     {
         return $this->motifAutresDepense1;
     }
 
-    public function setMotifAutresDepense1(string $motifAutresDepense1): self
+    public function setMotifAutresDepense1(?string $motifAutresDepense1): self
     {
         $this->motifAutresDepense1 = $motifAutresDepense1;
 
         return $this;
     }
 
-    public function gettAutreDepense1(): string
+    public function getAutresDepense1(): ?string
     {
         return $this->autresDepense1;
     }
 
-    public function setAutresDepense1(string $autresDepense1): self
+    public function setAutresDepense1(?string $autresDepense1): self
     {
         $this->autresDepense1 = $autresDepense1;
 
@@ -612,12 +611,12 @@ class Dom
 
 
     
-    public function gettMotifAutreDepense2(): string
+    public function getMotifAutresDepense2(): ?string
     {
         return $this->motifAutresDepense2;
     }
 
-    public function setMotifAutresDepense2(string $motifAutresDepense2): self
+    public function setMotifAutresDepense2(?string $motifAutresDepense2): self
     {
         $this->motifAutresDepense2 = $motifAutresDepense2;
 
@@ -626,12 +625,12 @@ class Dom
 
 
 
-    public function gettAutreDepense2(): string
+    public function getAutresDepense2(): ?string
     {
         return $this->autresDepense2;
     }
 
-    public function setAutresDepense2(string $autresDepense2): self
+    public function setAutresDepense2(?string $autresDepense2): self
     {
         $this->autresDepense2 = $autresDepense2;
 
@@ -641,24 +640,24 @@ class Dom
 
     
     
-    public function gettMotifAutreDepense3(): string
+    public function getMotifAutresDepense3(): ?string
     {
         return $this->motifAutresDepense3;
     }
 
-    public function setMotifAutresDepense3(string $motifAutresDepense3): self
+    public function setMotifAutresDepense3(?string $motifAutresDepense3): self
     {
         $this->motifAutresDepense3 = $motifAutresDepense3;
 
         return $this;
     }
 
-    public function getAutreDepense3(): string
+    public function getAutresDepense3(): ?string
     {
         return $this->autresDepense3;
     }
 
-    public function setAutreDepense3(string $autresDepense3): self
+    public function setAutresDepense3(?string $autresDepense3): self
     {
         $this->autresDepense3 = $autresDepense3;
 
@@ -666,7 +665,7 @@ class Dom
     }
 
 
-    public function gettTotalAutresDepenses(): string
+    public function getTotalAutresDepenses(): string
     {
         return $this->totalAutresDepenses;
     }
@@ -706,41 +705,41 @@ class Dom
     }
 
 
-    public function getPieceJointe1(): string
+    public function getPieceJoint1(): string
     {
-        return $this->pieceJointe1;
+        return $this->pieceJoint1;
     }
 
-    public function setPieceJointe1(string $pieceJointe1): self
+    public function setPieceJoint1(string $pieceJointe1): self
     {
-        $this->pieceJointe1 = $pieceJointe1;
+        $this->pieceJoint1 = $pieceJointe1;
 
         return $this;
     }
 
 
     
-    public function getPieceJointe2(): string
+    public function getPieceJoint2(): string
     {
-        return $this->pieceJointe2;
+        return $this->pieceJoint2;
     }
 
-    public function setPieceJointe2(string $pieceJointe2): self
+    public function setPieceJoint2(string $pieceJointe2): self
     {
-        $this->pieceJointe2 = $pieceJointe2;
+        $this->pieceJoint2 = $pieceJointe2;
 
         return $this;
     }
 
 
-    public function getPieceJointe3(): string
+    public function getPieceJoint3(): string
     {
-        return $this->pieceJointe3;
+        return $this->pieceJoint3;
     }
 
-    public function setPieceJointe3(string $pieceJointe3): self
+    public function setPieceJoint3(string $pieceJointe3): self
     {
-        $this->pieceJointe3 = $pieceJointe3;
+        $this->pieceJoint3 = $pieceJointe3;
 
         return $this;
     }
@@ -812,12 +811,12 @@ class Dom
     }
 
 
-    public function getNom(): string
+    public function getNom(): ?string
     {
         return $this->nom;
     }
 
-    public function setNom(string $nom): self
+    public function setNom(?string $nom): self
     {
         $this->nom = $nom;
 
@@ -825,12 +824,12 @@ class Dom
     }
 
 
-    public function getPrenom(): string
+    public function getPrenom(): ?string
     {
         return $this->prenom;
     }
 
-    public function setPrenom(string $prenom): self
+    public function setPrenom(?string $prenom): self
     {
         $this->prenom = $prenom;
 
@@ -909,7 +908,7 @@ class Dom
         return $this->categorie;
     }
 
-    public function setCategorie(Catg $categorie): self
+    public function setCategorie(?Catg $categorie): self
     {
         $this->categorie = $categorie;
 
@@ -917,12 +916,12 @@ class Dom
     }
 
 
-    public function getSite(): string
+    public function getSite()
     {
         return $this->site;
     }
 
-    public function setSite(string $site): self
+    public function setSite($site): self
     {
         $this->site = $site;
 
@@ -930,12 +929,12 @@ class Dom
     }
 
 
-    public function geIdemnityDepl(): string
+    public function getIdemnityDepl(): ?string
     {
         return $this->idemnityDepl;
     }
 
-    public function setIdemnityDepl(string $idemnityDepl): self
+    public function setIdemnityDepl(?string $idemnityDepl): self
     {
         $this->idemnityDepl = $idemnityDepl;
 
@@ -1036,12 +1035,12 @@ class Dom
     }
 
 
-    public function getCin(): int
+    public function getCin(): ?int
     {
         return $this->cin;
     }
 
-    public function setCin(int $cin): self
+    public function setCin(?int $cin): self
     {
         $this->cin = $cin;
         return $this;
@@ -1066,7 +1065,10 @@ class Dom
             'sousTypeDocument' => $this->sousTypeDocument,
             'salarier' => $this->salarier,
             'categorie' => $this->categorie,
-            'matricule' => $this->matricule
+            'matricule' => $this->matricule,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'cin' => $this->cin
         ];
     }
 
