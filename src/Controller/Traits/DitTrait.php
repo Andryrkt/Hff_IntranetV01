@@ -149,33 +149,48 @@ trait DitTrait
      * @param [type] $nomFichier
      * @return void
      */
-    private function uplodeFile($form, $dits, $nomFichier)
+    private function uplodeFile($form, $dits, $nomFichier, &$pdfFiles)
     {
-
+        
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
-        $fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\DIT\\';
+       
+        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/fichier/';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
+
+        if ($file->getClientOriginalExtension() === 'pdf') {
+            $pdfFiles[] = $fileDossier.$fileName;
+        }
+
         $setPieceJoint = 'set'.ucfirst($nomFichier);
         $dits->$setPieceJoint($fileName);
+
+        
     }
 
-    private function envoiePieceJoint($form, $dits)
+    private function envoiePieceJoint($form, $dits, $fusionPdf)
 {
-    if($form->get('pieceJoint03')->getData() !== null){
-        $this->uplodeFile($form, $dits, 'pieceJoint03');
+
+    $pdfFiles = [];
+
+    for ($i=1; $i < 4; $i++) { 
+       $nom = "pieceJoint0{$i}";
+       if($form->get($nom)->getData() !== null){
+            $this->uplodeFile($form, $dits, $nom, $pdfFiles);
+        }
     }
-    if($form->get('pieceJoint02')->getData() !== null){
-        
-    $this->uplodeFile($form, $dits, 'pieceJoint02');
-    
-    }
-    if($form->get('pieceJoint01')->getData() !== null){
-        
-    $this->uplodeFile($form, $dits, 'pieceJoint01');
-    }
+    array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+
+    // Nom du fichier PDF fusionné
+     $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+
+     // Appeler la fonction pour fusionner les fichiers PDF
+     if (!empty($pdfFiles)) {
+         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+         echo "Le fichier PDF fusionné est : " . $mergedPdfFile;
+     }
 }
 
 

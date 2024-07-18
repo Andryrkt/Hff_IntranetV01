@@ -49,8 +49,8 @@ class DitController extends Controller
         {
             $dits = $this->infoEntrerManuel($form, self::$em);
 
-            //envoie des pièce jointe dans une dossier
-            $this->envoiePieceJoint($form, $dits);
+            
+         
             
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
@@ -59,10 +59,7 @@ class DitController extends Controller
             self::$em->persist($application);
             self::$em->flush();
         
-            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
-            self::$em->persist($insertDemandeInterventions);
-            self::$em->flush();
+            
 
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
@@ -72,7 +69,15 @@ class DitController extends Controller
             //genere le PDF
             $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
 
+            //envoie des pièce jointe dans une dossier et le fusionner
+            $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
+
+            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
+            self::$em->persist($insertDemandeInterventions);
+            self::$em->flush();
+
             //ENVOYER le PDF DANS DOXCUWARE
             if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
