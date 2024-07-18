@@ -8,6 +8,39 @@ use setasign\Fpdi\Tcpdf\Fpdi;
 
 class FusionPdf
 {
+
+    /**
+     * FONCTION GENERALE POUR FUSIONNER DES PDF
+     *
+     * @param array $files
+     * @param [type] $outputFile
+     * @return void
+     */
+    function mergePdfs(array $files, $outputFile) {
+        // Instancier FPDI
+        $pdf = new FPDI();
+
+        // Désactiver les en-têtes et pieds de page automatiques
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // Boucle sur chaque fichier PDF à fusionner
+        foreach ($files as $file) {
+            $pageCount = $pdf->setSourceFile($file);
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $tplIdx = $pdf->importPage($pageNo);
+                $specs = $pdf->getTemplateSize($tplIdx);
+                $pdf->AddPage($specs['orientation'], [$specs['width'], $specs['height']]);
+                $pdf->useTemplate($tplIdx);
+            }
+        }
+
+        // Enregistrer le fichier PDF fusionné
+        $pdf->Output($outputFile, 'F');
+    }
+
+
+
     /**
      * Fusion du Pdf avec les 2 Pièce Joints
      */

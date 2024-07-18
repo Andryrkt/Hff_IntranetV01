@@ -95,8 +95,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
         errorMessage.style.display = "none";
         const timeDifference = dateFin - dateDebut;
         const dayDifference = timeDifference / (1000 * 3600 * 24);
-        nombreDeJourInput.value = dayDifference;
+        nombreDeJourInput.value = dayDifference + 1;
+
         updateTotalIndemnity();
+
+        //ajout d'une nouvelle evenement qui sera utiliser en bas
+        const event = new Event("valueAdded");
+        nombreDeJourInput.dispatchEvent(event);
       }
     }
   }
@@ -119,6 +124,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       const totalIndemnity = nombreDeJour * indemnityDepl;
 
       totalIdemniteDeplacementInput.value = formatNumberInt(totalIndemnity);
+
+      const event = new Event("valueAdded");
+      totalIdemniteDeplacementInput.dispatchEvent(event);
     } else {
       totalIdemniteDeplacementInput.value = "";
     }
@@ -169,6 +177,150 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function indemnitySite() {
     const siteValue = siteInput.value;
-    console.log(siteValue);
+    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((indemnite) => {
+        console.log(indemnite);
+        indemniteForfaitaireJournaliereInput.value = indemnite.montant;
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
+  const supplementJournalierInput = document.querySelector(
+    "#dom_form2_supplementJournaliere"
+  );
+  const totalindemniteForfaitaireInput = document.querySelector(
+    "#dom_form2_totalIndemniteForfaitaire"
+  );
+
+  nombreDeJourInput.addEventListener("valueAdded", calculTotalForfaitaire);
+
+  function calculTotalForfaitaire() {
+    if (supplementJournalierInput.value === "") {
+      const nombreDeJour = parseInt(nombreDeJourInput.value);
+      const indemniteForfaitaireJournaliere = parseInt(
+        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
+      );
+      totalindemniteForfaitaireInput.value = formatNumberInt(
+        nombreDeJour * indemniteForfaitaireJournaliere
+      );
+    } else {
+      const supplementJournalier = parseInt(
+        supplementJournalierInput.value.replace(/[^\d]/g, "")
+      );
+      const nombreDeJour = parseInt(nombreDeJourInput.value);
+      const indemniteForfaitaireJournaliere = parseInt(
+        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
+      );
+
+      totalindemniteForfaitaireInput.value = formatNumberInt(
+        nombreDeJour * (indemniteForfaitaireJournaliere + supplementJournalier)
+      );
+    }
+
+    const event = new Event("valueAdded");
+    totalindemniteForfaitaireInput.dispatchEvent(event);
+  }
+  //si l'utilisateur saisie une suplement journalier
+  supplementJournalierInput.addEventListener(
+    "input",
+    calculTotalForfaitaireAvecSupplement
+  );
+  function calculTotalForfaitaireAvecSupplement() {
+    supplementJournalierInput.value = formatNumberInt(
+      supplementJournalierInput.value
+    );
+    calculTotalForfaitaire();
+  }
+
+  /** CALCUL TOTAL MONTANT AUTRES DEPENSE */
+  const autreDepenseInput_1 = document.querySelector(
+    "#dom_form2_autresDepense1"
+  );
+  const autreDepenseInput_2 = document.querySelector(
+    "#dom_form2_autresDepense2"
+  );
+  const autreDepenseInput_3 = document.querySelector(
+    "#dom_form2_autresDepense3"
+  );
+  const totaAutreDepenseInput = document.querySelector(
+    "#dom_form2_totalAutresDepenses"
+  );
+
+  autreDepenseInput_1.addEventListener("input", () => {
+    autreDepenseInput_1.value = formatNumberInt(autreDepenseInput_1.value);
+    fonction();
+  });
+  autreDepenseInput_2.addEventListener("input", () => {
+    autreDepenseInput_2.value = formatNumberInt(autreDepenseInput_2.value);
+    fonction();
+  });
+  autreDepenseInput_3.addEventListener("input", () => {
+    autreDepenseInput_3.value = formatNumberInt(autreDepenseInput_3.value);
+    fonction();
+  });
+
+  function fonction() {
+    const autreDepense_1 =
+      parseInt(autreDepenseInput_1.value.replace(/[^\d]/g, "")) || 0;
+    const autreDepense_2 =
+      parseInt(autreDepenseInput_2.value.replace(/[^\d]/g, "")) || 0;
+    const autreDepense_3 =
+      parseInt(autreDepenseInput_3.value.replace(/[^\d]/g, "")) || 0;
+    let totaAutreDepense = autreDepense_1 + autreDepense_2 + autreDepense_3;
+
+    totaAutreDepenseInput.value = formatNumberInt(totaAutreDepense);
+    const event = new Event("valueAdded");
+    totaAutreDepenseInput.dispatchEvent(event);
+  }
+
+  /** CALCUL  MONTANT TOTAL */
+  const montantTotalInput = document.querySelector(
+    "#dom_form2_totalGeneralPayer"
+  );
+  totalIdemniteDeplacementInput.addEventListener("valueAdded", calculTotal);
+  totalindemniteForfaitaireInput.addEventListener("valueAdded", calculTotal);
+  totaAutreDepenseInput.addEventListener("valueAdded", calculTotal);
+
+  function calculTotal() {
+    const totaAutreDepense =
+      parseInt(totaAutreDepenseInput.value.replace(/[^\d]/g, "")) || 0;
+    const totalIdemniteDeplacement =
+      parseInt(totalIdemniteDeplacementInput.value.replace(/[^\d]/g, "")) || 0;
+    const totalindemniteForfaitaire =
+      parseInt(totalindemniteForfaitaireInput.value.replace(/[^\d]/g, "")) || 0;
+
+    let montantTotal =
+      totalindemniteForfaitaire + totaAutreDepense - totalIdemniteDeplacement;
+
+    montantTotalInput.value = formatNumberInt(montantTotal);
+  }
+
+  /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
+  const modePayementInput = document.querySelector("#dom_form2_modePayement");
+  const modeInput = document.querySelector("#dom_form2_mode");
+  const labelMode = modeInput.previousElementSibling;
+  const matriculeInput_2 = document.querySelector("#dom_form2_matricule");
+  modePayementInput.addEventListener("change", infoPersonnel);
+
+  function infoPersonnel($data) {
+    const matricule = matriculeInput_2.value;
+    let url = `/Hffintranet/personnel-fetch/${matricule}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((personne) => {
+        console.log(personne);
+        if (modePayementInput.value === "VIREMENT BANCAIRE") {
+          modeInput.readOnly = true;
+          modeInput.value = personne.compteBancaire;
+        } else {
+          modeInput.readOnly = false;
+          modeInput.value = "";
+        }
+        labelMode.innerHTML = modePayementInput.value;
+      })
+      .catch((error) => console.error("Error:", error));
   }
 });

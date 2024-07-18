@@ -3,20 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\Dom;
+use App\Entity\Rmq;
+use App\Entity\Site;
 use App\Entity\Agence;
+use App\Entity\Service;
+use App\Entity\Idemnity;
 use App\Entity\Indemnite;
 use App\Entity\Personnel;
-use App\Entity\Rmq;
 use App\Form\DomForm1Type;
 use App\Form\DomForm2Type;
 use App\Entity\SousTypeDocument;
+use App\Repository\IdemniteRepository;
+use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Service;
-use App\Entity\Site;
 
 class DomsController extends Controller
 {
+    use FormatageTrait;
+    
     private $dom;
 
     public function __construct()
@@ -79,7 +84,7 @@ class DomsController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
-dd(self::$em->getRepository(Indemnite::class)->findAll());
+//dd(self::$em->getRepository(Indemnite::class)->findAll());
        /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
@@ -88,7 +93,6 @@ dd(self::$em->getRepository(Indemnite::class)->findAll());
         $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
         $this->dom->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
         $this->dom->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
-        $this->dom->setSite(self::$em->getRepository(Site::class)->find(1));
         
         /** INITIALISATION des données qui vent de FirstFORM */
         $form1Data = $this->sessionService->get('form1Data', []);
@@ -102,10 +106,35 @@ dd(self::$em->getRepository(Indemnite::class)->findAll());
             $this->dom->setCin($form1Data['cin']);
         } else {
             $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
-            
             $this->dom->setNom($personnel->getNom());
             $this->dom->setPrenom($personnel->getPrenoms());
         }
+        //initialisation site
+        $sousTypedocument = $form1Data['sousTypeDocument'];
+            $catg = $form1Data['categorie'];
+            if($CodeServiceofCours[0]['agence_ips'] === '50'){
+                $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+               
+           } else {
+            $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+           }
+           $criteria = [
+            'sousTypeDoc' => $sousTypedocument,
+            'rmq' => $rmq,
+            'categorie' => $catg
+            ];
+
+            $indemites = self::$em->getRepository(Indemnite::class)->findBy($criteria);
+            $sites = [];
+            foreach ($indemites as $key => $value) {
+                $sites[] = $value->getSite()->getId();
+            }
+            if(in_array(8, $sites)){
+                $this->dom->setSite(self::$em->getRepository(Site::class)->find(8));
+            } else {
+                $this->dom->setSite(self::$em->getRepository(Site::class)->find(1));
+            }
+
 
         $is_temporaire = $form1Data['salarier'];
         $form =self::$validator->createBuilder(DomForm2Type::class, $this->dom)->getForm();
@@ -145,30 +174,20 @@ dd(self::$em->getRepository(Indemnite::class)->findAll());
        } else {
         $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
        }
-        
+       // dump($sousTypedocument);
+       // dump($rmq);
        $criteria = [
         'sousTypeDoc' => $sousTypedocument,
         'rmq' => $rmq
      ];
+      //dump($criteria);
         
-        $indemnite = self::$em->getRepository(Indemnite::class)->findBy($criteria);
-        foreach ($indemnite as $key => $value) {
-            dump($value->getCategorie()->getId());
-        }
-        die();
-        $catg = $sousTypedocument->getCatg();
-
-        $categories = [];
-        foreach ($catg as  $value) {
-          $categories[] = [
-              'value' => $value->getId(),
-              'text' => $value->getDescription() 
-          ];
-        }
+     $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
+    //dd($catg);
 
         header("Content-type:application/json");
 
-        echo json_encode($categories);
+        echo json_encode($catg);
     }
 
      /**
@@ -229,5 +248,40 @@ public function agence($id) {
  echo json_encode($services);
 
   //echo new JsonResponse($services);
+}
+
+/**
+ * @Route("/site-idemnite-fetch/{id}", name="fetch_siteIdemnite", methods={"GET"})
+ *
+ * @return void
+ */
+public function siteIndemniteFetch(int $id)
+{
+    $site = self::$em->getRepository(Site::class)->find($id);
+    $montant = self::$em->getRepository(Indemnite::class)->findOneBy(['site' => $site])->getMontant();
+
+    $montant = $this->formatNumber($montant);
+
+    header("Content-type:application/json");
+
+    echo json_encode(['montant' => $montant]);
+}
+
+/**
+ * @Route("/personnel-fetch/{matricule}", name="fetch_personnel", methods={"GET"})
+ *
+ * @param [type] $matricule
+ * @return void
+ */
+public function personnelFetch($matricule){
+    $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
+    
+    $tab = [
+        'compteBancaire' => $personne->getNumeroCompteBancaire(),
+    ];
+
+    header("Content-type:application/json");
+
+    echo json_encode($tab);
 }
 }

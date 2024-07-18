@@ -114,7 +114,7 @@ class Catg
     {
         if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
-            $indemnite->setCatg($this);
+            $indemnite->setCategorie($this);
         }
         return $this;
     }
@@ -123,8 +123,8 @@ class Catg
     {
         if ($this->indemnites->contains($indemnite)) {
             $this->indemnites->removeElement($indemnite);
-            if ($indemnite->getCatg() === $this) {
-                $indemnite->setCatg(null);
+            if ($indemnite->getCategorie() === $this) {
+                $indemnite->setCategorie(null);
             }
         }
 

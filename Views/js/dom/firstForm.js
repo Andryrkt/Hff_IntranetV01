@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const sousTypeDocument = document.querySelector(
     "#dom_form1_sousTypeDocument"
   );
+  const agenceInput = document.querySelector("#dom_form1_agenceEmetteur");
 
   const categorie = document.querySelector("#dom_form1_categorie");
 
@@ -41,8 +42,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function changementSelon() {
     const sousTypeDocumentValue = sousTypeDocument.value;
+    const codeAgence = agenceInput.value.split(" ")[0];
     console.log(sousTypeDocumentValue);
-    if (sousTypeDocumentValue !== "5" && sousTypeDocumentValue !== "2") {
+    console.log(codeAgence);
+    if (
+      sousTypeDocumentValue !== "5" &&
+      sousTypeDocumentValue !== "2" &&
+      codeAgence !== "50"
+    ) {
+      categorie.parentElement.style.display = "none";
+    } else if (sousTypeDocumentValue === "5" && codeAgence === "50") {
       categorie.parentElement.style.display = "none";
     } else {
       categorie.parentElement.style.display = "block";
@@ -66,8 +75,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         //Ajouter les nouvelles options à partir du tableau services
         for (var i = 0; i < categories.length; i++) {
           var option = document.createElement("option");
-          option.value = categories[i].value;
-          option.text = categories[i].text;
+          option.value = categories[i].id;
+          option.text = categories[i].description;
           categorie.add(option);
         }
 

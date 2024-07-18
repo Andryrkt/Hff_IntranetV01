@@ -141,12 +141,20 @@ trait DitTrait
         return $historiqueMateriel;
     }
 
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     *(copier le fichier uploder dans une repertoire et le donner un nom)
+     * @param [type] $form
+     * @param [type] $dits
+     * @param [type] $nomFichier
+     * @return void
+     */
     private function uplodeFile($form, $dits, $nomFichier)
     {
 
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
-        $fileName = '0'. substr($nomFichier,-1,1) . $dits->getNumeroDemandeIntervention() . '.' . $file->getClientOriginalExtension();
+        $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
         $fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\DIT\\';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);

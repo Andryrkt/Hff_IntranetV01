@@ -3,17 +3,19 @@
 namespace App\Form;
 
 use App\Entity\Dom;
+use App\Entity\Rmq;
+use App\Entity\Catg;
+use App\Entity\Site;
 use App\Entity\Agence;
 use App\Entity\Service;
-use App\Controller\Controller;
-use App\Entity\Catg;
-use App\Entity\DemandeIntervention;
 use App\Entity\Idemnity;
 use App\Entity\Indemnite;
-use App\Entity\Site;
+use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
+use App\Repository\SiteRepository;
+use App\Entity\DemandeIntervention;
 use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
-use App\Repository\SiteRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -36,6 +38,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class DomForm2Type extends AbstractType
 {
+    use FormatageTrait;
     private $em;
 
     const OUI_NON = [
@@ -184,30 +187,45 @@ class DomForm2Type extends AbstractType
         ],
         'data' => $options["data"]->getCategorie() !== null ? $options["data"]->getCategorie()->getDescription() : null
        ])
-        ->add('site',
-        EntityType::class,
-        [
-            'label' => 'Site:',
-            'class' => Site::class,
-            'choice_label' => 'nomZone',
-        ])
+       ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
+            $form = $event->getForm();
+            $data = $event->getData();
+            $sousTypedocument = $data->getSousTypeDocument();
+            $catg = $data->getCategorie();
+            if(substr($data->getAgenceEmetteur(),0,2) === '50'){
+                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+               
+           } else {
+            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+           }
+           $criteria = [
+            'sousTypeDoc' => $sousTypedocument,
+            'rmq' => $rmq,
+            'categorie' => $catg
+            ];
+
+            $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
+            $sites = [];
+            foreach ($indemites as $key => $value) {
+                $sites[] = $value->getSite();
+            }
+            $form->add('site',
+            EntityType::class,
+            [
+                'label' => 'Site:',
+                'class' => Site::class,
+                'choice_label' => 'nomZone',
+                'choices' => $sites,
+            ]);
+       })
+        
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
             $form = $event->getForm();
             $data = $event->getData();
-            /** @var Catg */
-          $catg = $data->getCategorie();
-          /** @var array */
-            $categories = $this->em->getRepository(Indemnite::class)->findBy(['categorie'=> $catg]);
-dd($categories);
-            foreach ($categories as  $value) {
-                dump($value->getSite()->getNomZone());
-            }
-            die();
-            $services = null;
+          
+         $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
 
-            if ($data instanceof Dom && $data->getAgence()) {
-                $services = $data->getAgence()->getServices();
-            }
+         $montant = $this->formatNumber($montant);
          
             $form ->add('indemniteForfaitaire',
             TextType::class,
@@ -216,26 +234,7 @@ dd($categories);
                 'attr' => [
                     'readonly' => true
                 ],
-                'data' => '45000'
-            ]);
-      
-            $form->add('service',
-            EntityType::class,
-            [
-            
-            'label' => 'Service Débiteur',
-            'class' => Service::class,
-            'choice_label' => function (Service $service): string {
-                return $service->getCodeService() . ' ' . $service->getLibelleService();
-            },
-            'choices' => $services,
-            // 'disabled' => $agence === null,
-            'required' => false,
-            'query_builder' => function(ServiceRepository $serviceRepository) {
-                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                },
-            //'data' => $options['data']->getService(),
-                'attr' => [ 'class' => 'serviceDebiteur']
+                'data' => $montant
             ]);
             
         })
@@ -462,9 +461,6 @@ dd($categories);
         [
             'mapped' => false,
             'label' => 'Mode',
-            'attr' => [
-                'readonly' => true
-            ]
         ])
 
         ->add('pieceJoint1',

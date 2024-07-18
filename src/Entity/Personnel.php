@@ -53,9 +53,9 @@ class Personnel
     private ?string $Numero_Telephone = null;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private ?int $Numero_Compte_Bancaire;
+    private ?string $Numero_Compte_Bancaire;
 
     /**
      * @ORM\Column(type="date", nullable=true)
@@ -179,12 +179,12 @@ class Personnel
         return $this;
     }
 
-    public function getNumeroCompteBancaire(): int
+    public function getNumeroCompteBancaire(): ?string
     {
         return $this->Numero_Compte_Bancaire;
     }
 
-    public function setNumeroCompteBancaire(int $Numero_Compte_Bancaire): self
+    public function setNumeroCompteBancaire(string $Numero_Compte_Bancaire): self
     {
         $this->Numero_Compte_Bancaire = $Numero_Compte_Bancaire;
         return $this;
