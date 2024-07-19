@@ -162,17 +162,14 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
     {
      
         $statement = "SELECT trim(Atab_Code) AS ATAB_CODE,
-trim(Atab_lib)  AS ATAB_LIB
-FROM AGR_TAB
-WHERE Atab_nom = 'TYI'
+                  trim(Atab_lib)  AS ATAB_LIB
+                  FROM AGR_TAB
+                  WHERE Atab_nom = 'TYI'
       ";
 
-      
         $result = $this->connect->executeQuery($statement);
 
-
         $data = $this->connect->fetchResults($result);
-
 
         return $this->convertirEnUtf8($data);
     }

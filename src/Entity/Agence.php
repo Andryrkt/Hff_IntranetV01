@@ -54,10 +54,17 @@ class Agence
     private Collection $services;
 
 
+    /**
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="agenceRattacher")
+     */
+    private $casiers;
+
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->casiers = new ArrayCollection();
     }
 
     public function getId()
@@ -153,6 +160,43 @@ class Agence
         return $this;
     }
 
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getCasiers()
+    {
+        return $this->casiers;
+    }
+
+    public function addCasier(Casier $casier): self
+    {
+        if (!$this->casiers->contains($casier)) {
+            $this->casiers[] = $casier;
+            $casier->setAgenceRattacher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCasier(Casier $casier): self
+    {
+        if ($this->casiers->contains($casier)) {
+            $this->casiers->removeElement($casier);
+            if ($casier->getAgenceRattacher() === $this) {
+                $casier->setAgenceRattacher(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setCasiers($casier)
+    {
+        $this->casiers = $casier;
+
+        return $this;
+    }
 
     public function __toString()
     {

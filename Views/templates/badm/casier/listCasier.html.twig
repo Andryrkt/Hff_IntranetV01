@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
 {% endblock%}
 
-{% import "macroForm.html.twig" as form %}
+{% import "macroForm.html.twig" as formMacro %}
 
 
 {% block content %}
@@ -22,32 +22,27 @@
 
 		<!-- DEBUT recherche -->
 
-		<form action="" method="post">
-			<div class="row">
-				{{form.select_1('agence', 'Agence', agence,{endpoint: '12', class: ' col-md-6 ', default: 'true', valueDefault:'Sélectionnez un type'})}}
-				<div class="col-12 col-md-6  ">
-					<div class="input-group mb-2">
-						<span class="input-group-text">Casier</span>
-						<input type="search" name="casier" id="casier" class="form-control">
-					</div>
-				</div>
+		{{ form_start(form)}}
+		<div class="row">
+			<div class="col-12 col-md-6">{{ form_row(form.agence)}}</div>
+
+			<div class="col-12 col-md-6  ">
+				{{ form_row(form.casier)}}
 			</div>
-			<div class="boutonRecherche">
-				<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
-				<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-				<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
-			</div>
-		</form>
+		</div>
+		<div class="boutonRecherche">
+			<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
+			<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
+			<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
+		</div>
+		{{ form_end(form)}}
 
 		<!-- FIN recherche -->
 
 
 		<!-- DEBUT bouton -->
-		<div
-			class="row justify-content-center my-4">
-
-
-			<!-- DEBUT Pagination -->
+			<div
+			class="row justify-content-center my-4"> <!-- DEBUT Pagination -->
 			<div class="col-12 col-md-12 col-lg-4  mt-1">
 				<div id="pagination-wrapper"></div>
 			</div>
@@ -66,26 +61,13 @@
 				<a href="{{ path("listeTemporaire_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-2  mt-1">
-				<p class="fw-bold" id="nombreResultat">{{ nombreLigne.nbrLigne }}
-					Résultats</p>
+				<p class="fw-bold" id="nombreResultat">0 Résultats</p>
 			</div>
 			<div class="col-12 col-md-6 col-lg-2">
-				<p class="fw-bold" id="nombreResultat">{{page ~' / '~ (totalPage + 1)}}
-					pages</p>
-			</div>
-			<div class="col-12 col-md-6 col-lg-4  mt-1">
-				{% if page >= 2 %}
-					<a href="{{path("liste_affichageListeCasier", {"page": (page - 1 )})}}" class="btn btn-sm bg-dark text-white">
-						&laquo précédent</a>
-				{% endif %}
-				{% if page <= totalPage %}
-
-					<a href="{{path("liste_affichageListeCasier", {"page": (page + 1 )})}}" class="btn btn-sm bg-dark text-white">suivant &raquo</a>
-
-				{% endif %}
+				<p class="fw-bold" id="nombreResultat">0/0 pages</p>
 			</div>
 		</div>
-		<table class="table  table-striped table-shadow shadow  rounded " style="text-align: center;">
+		<table class="table  table-shadow shadow  rounded " style="text-align: center;">
 			<thead class="table-dark">
 				<tr>
 					<th>Agence rattaché</th>
@@ -97,10 +79,10 @@
 			<tbody id="table-container">
 				{% for item in casier %}
 					<tr>
-						<td>{{item.Agence_Rattacher}}</td>
+						<td>{{item.AgenceRattacher}}</td>
 						<td style="text-align:left">{{item.Casier}}</td>
 						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
-						<td>{{item.Numero_CAS}}</td>
+						<td>{{item.NumeroCAS}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

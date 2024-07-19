@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use App\Form\demandeInterventionType;
+use App\Entity\Casier;
 use App\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Form\demandeInterventionType;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -43,15 +44,22 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="statutDemande")
      */
     private $badms;
+
   /**
      * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="idStatutDemande")
      */
     private $demandeInterventions;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="idStatutDemande")
+     */
+    private $casiers;
     
     public function __construct()
     {
         $this->badms = new ArrayCollection();
         $this->demandeInterventions = new ArrayCollection();
+        $this->casiers = new ArrayCollection();
     }
 
     public function getId()
@@ -160,6 +168,43 @@ class StatutDemande
     public function setDemandeInterventions($demandeInterventions)
     {
         $this->demandeInterventions = $demandeInterventions;
+
+        return $this;
+    }
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getCasiers()
+    {
+        return $this->casiers;
+    }
+
+    public function addCasier(Casier $casier): self
+    {
+        if (!$this->casiers->contains($casier)) {
+            $this->casiers[] = $casier;
+            $casier->setIdStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCasier(Casier $casier): self
+    {
+        if ($this->casiers->contains($casier)) {
+            $this->casiers->removeElement($casier);
+            if ($casier->getIdStatutDemande() === $this) {
+                $casier->setIdStatutDemande(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setCasiers($casier)
+    {
+        $this->casiers = $casier;
 
         return $this;
     }

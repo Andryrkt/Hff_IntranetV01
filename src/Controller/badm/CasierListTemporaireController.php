@@ -4,6 +4,10 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
+use App\Entity\Casier;
+use App\Entity\CasierValider;
+use App\Entity\StatutDemande;
+use App\Form\CasierSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CasierListTemporaireController extends Controller
@@ -22,12 +26,15 @@ class CasierListTemporaireController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        $casier = $this->caiserListTemporaire->recuperToutesCasier();
+        //$casier = $this->caiserListTemporaire->recuperToutesCasier();
 
-        $nombreLigne = $this->caiserListTemporaire->NombreDeLigne();
-        if (!$nombreLigne) {
-            $nombreLigne = 0;
-        }
+        $data = self::$em->getRepository(Casier::class)->findBy([ 'idStatutDemande' => 52]);
+
+        $form = self::$validator->createBuilder(CasierSearchType::class, null, [
+            'method' => 'GET'
+        ])->getForm();
+
+        
 
 
         self::$twig->display(
@@ -35,31 +42,42 @@ class CasierListTemporaireController extends Controller
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
-                'casier' => $casier,
-                'nombreLigne' => $nombreLigne
+                'casier' => $data,
+                'form' => $form->createView(),
             ]
         );
     }
 
+
+    
     /**
      * @Route("/btnValide/{id}", name="CasierListTemporaire_btnValide")
      */
     public function tratitementBtnValide($id)
     {
-       
-        $CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
+       $casierValide = new CasierValider();
+        //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
-        $casier = [
-            'Agence' => $CasierSeul[0]['Agence_Rattacher'],
-            'Casier' => $CasierSeul[0]['Casier'],
-            'Nom_Session_Utilisateur' => $CasierSeul[0]['Nom_Session_Utilisateur'],
-            'Date_Creation' => $CasierSeul[0]['Date_Creation'],
-            'Numero_CAS' => $CasierSeul[0]['Numero_CAS']
-        ];
-        $this->caiserListTemporaire->insererDansBaseDeDonnees($casier);
-        //$this->caiserListTemporaire->Delete($_GET['id']);
-        header('Location: /Hffintranet/listCasier');
-        exit();
+         $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
+         $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(53));
+
+         self::$em->persist($CasierSeul);
+            self::$em->flush();
+
+        $casierValide
+        ->setCasier($CasierSeul->getCasier())
+        ->setDateCreation($CasierSeul->getDateCreation())
+        ->setNumeroCas($CasierSeul->getNumeroCas())
+        ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
+        ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
+        ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
+        ;
+
+        self::$em->persist($casierValide);
+        self::$em->flush();
+      
+        
+        $this->redirectToRoute("liste_affichageListeCasier");
 
         
     }

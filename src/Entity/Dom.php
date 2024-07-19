@@ -44,7 +44,7 @@ class Dom
      * @ORM\ManyToOne(targetEntity="sousTypeDocument", inversedBy="dom")
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
-    private SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
+    private ?SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
 
     /**
      * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
@@ -74,7 +74,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Debut")
      */
-    private string $heureDebut;
+    private \DateTime $heureDebut;
 
     /**
      * @ORM\Column(type="date", name="Date_Fin")
@@ -84,7 +84,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Fin")
      */
-    private string $heureFin;
+    private \DateTime $heureFin;
 
     /**
      * @ORM\Column(type="integer", name="Nombre_Jour", nullable=true)
@@ -134,7 +134,7 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_1",nullable=true)
      */
-    private ?string $autresDepense1 = null;
+    private  $autresDepense1 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_2",nullable=true)
@@ -144,7 +144,7 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_2",nullable=true)
      */
-    private ?string $autresDepense2 = null;
+    private  $autresDepense2 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_3",nullable=true)
@@ -154,7 +154,7 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_3",nullable=true)
      */
-    private ?string $autresDepense3 = null;
+    private  $autresDepense3 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Total_Autres_Depenses",nullable=true)
@@ -362,7 +362,7 @@ class Dom
         return $this->sousTypeDocument;
     }
 
-    public function setSousTypeDocument(SousTypeDocument $sousTypeDocument): self
+    public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
 
@@ -439,12 +439,12 @@ class Dom
 
 
     
-    public function getHeureDebut(): string
+    public function getHeureDebut()
     {
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(string $heureDebut): self
+    public function setHeureDebut($heureDebut): self
     {
         $this->heureDebut = $heureDebut;
 
@@ -468,12 +468,12 @@ class Dom
 
 
     
-    public function getHeureFin(): string
+    public function getHeureFin()
     {
         return $this->heureFin;
     }
 
-    public function setHeureFin(string $heureFin): self
+    public function setHeureFin( $heureFin): self
     {
         $this->heureFin = $heureFin;
 
@@ -587,24 +587,24 @@ class Dom
     }
 
 
-    public function getMotifAutresDepense1(): ?string
+    public function getMotifAutresDepense1()
     {
         return $this->motifAutresDepense1;
     }
 
-    public function setMotifAutresDepense1(?string $motifAutresDepense1): self
+    public function setMotifAutresDepense1( $motifAutresDepense1): self
     {
         $this->motifAutresDepense1 = $motifAutresDepense1;
 
         return $this;
     }
 
-    public function getAutresDepense1(): ?string
+    public function getAutresDepense1() 
     {
         return $this->autresDepense1;
     }
 
-    public function setAutresDepense1(?string $autresDepense1): self
+    public function setAutresDepense1($autresDepense1): self
     {
         $this->autresDepense1 = $autresDepense1;
 
@@ -613,12 +613,12 @@ class Dom
 
 
     
-    public function getMotifAutresDepense2(): ?string
+    public function getMotifAutresDepense2()
     {
         return $this->motifAutresDepense2;
     }
 
-    public function setMotifAutresDepense2(?string $motifAutresDepense2): self
+    public function setMotifAutresDepense2($motifAutresDepense2): self
     {
         $this->motifAutresDepense2 = $motifAutresDepense2;
 
@@ -627,12 +627,12 @@ class Dom
 
 
 
-    public function getAutresDepense2(): ?string
+    public function getAutresDepense2() 
     {
         return $this->autresDepense2;
     }
 
-    public function setAutresDepense2(?string $autresDepense2): self
+    public function setAutresDepense2( $autresDepense2): self
     {
         $this->autresDepense2 = $autresDepense2;
 
@@ -642,24 +642,24 @@ class Dom
 
     
     
-    public function getMotifAutresDepense3(): ?string
+    public function getMotifAutresDepense3()
     {
         return $this->motifAutresDepense3;
     }
 
-    public function setMotifAutresDepense3(?string $motifAutresDepense3): self
+    public function setMotifAutresDepense3( $motifAutresDepense3): self
     {
         $this->motifAutresDepense3 = $motifAutresDepense3;
 
         return $this;
     }
 
-    public function getAutresDepense3(): ?string
+    public function getAutresDepense3()
     {
         return $this->autresDepense3;
     }
 
-    public function setAutresDepense3(?string $autresDepense3): self
+    public function setAutresDepense3( $autresDepense3): self
     {
         $this->autresDepense3 = $autresDepense3;
 
@@ -667,12 +667,12 @@ class Dom
     }
 
 
-    public function getTotalAutresDepenses(): string
+    public function getTotalAutresDepenses()
     {
         return $this->totalAutresDepenses;
     }
 
-    public function setTotalAutresDepenses(string $totalAutresDepenses): self
+    public function setTotalAutresDepenses($totalAutresDepenses): self
     {
         $this->totalAutresDepenses = $totalAutresDepenses;
 
@@ -681,12 +681,12 @@ class Dom
 
 
 
-    public function getTotalGeneralPayer(): string
+    public function getTotalGeneralPayer()
     {
         return $this->totalGeneralPayer;
     }
 
-    public function setTotalGeneralPayer(string $totalGeneralPayer): self
+    public function setTotalGeneralPayer( $totalGeneralPayer): self
     {
         $this->totalGeneralPayer = $totalGeneralPayer;
 
@@ -931,12 +931,12 @@ class Dom
     }
 
 
-    public function getIdemnityDepl(): ?string
+    public function getIdemnityDepl()
     {
         return $this->idemnityDepl;
     }
 
-    public function setIdemnityDepl(?string $idemnityDepl): self
+    public function setIdemnityDepl( $idemnityDepl): self
     {
         $this->idemnityDepl = $idemnityDepl;
 

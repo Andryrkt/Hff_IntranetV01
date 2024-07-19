@@ -95,12 +95,19 @@ class User
      */
     private $superieurs = [];
 
+
+    /**
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur")
+     */
+    private $casiers;
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
         $this->societtes = new ArrayCollection();
         $this->services = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->casiers = new ArrayCollection();
        
        
     }
@@ -325,4 +332,40 @@ class User
         return $this;
     }
 
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getCasiers()
+    {
+        return $this->casiers;
+    }
+
+    public function addCasier(Casier $casier): self
+    {
+        if (!$this->casiers->contains($casier)) {
+            $this->casiers[] = $casier;
+            $casier->setNomSessionUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCasier(Casier $casier): self
+    {
+        if ($this->casiers->contains($casier)) {
+            $this->casiers->removeElement($casier);
+            if ($casier->getNomSessionUtilisateur() === $this) {
+                $casier->setNomSessionUtilisateur(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setCasiers($casier)
+    {
+        $this->casiers = $casier;
+
+        return $this;
+    }
 }

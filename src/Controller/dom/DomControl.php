@@ -260,7 +260,6 @@ class DomControl extends Controller
                     'form' => $form->createView()
                 ]
             );
-            
         }
     }
 

@@ -2,18 +2,17 @@
 
 namespace App\Controller;
 
+use App\Controller\Traits\DomsTrait;
 use App\Entity\Dom;
 use App\Entity\Rmq;
 use App\Entity\Site;
 use App\Entity\Agence;
 use App\Entity\Service;
-use App\Entity\Idemnity;
 use App\Entity\Indemnite;
 use App\Entity\Personnel;
 use App\Form\DomForm1Type;
 use App\Form\DomForm2Type;
 use App\Entity\SousTypeDocument;
-use App\Repository\IdemniteRepository;
 use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DomsController extends Controller
 {
     use FormatageTrait;
+    use DomsTrait;
     
     private $dom;
 
@@ -86,74 +86,17 @@ class DomsController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
-//dd(self::$em->getRepository(Indemnite::class)->findAll());
- /** INITIALISATION des données qui vent de FirstFORM */
- $form1Data = $this->sessionService->get('form1Data', []);
- $this->dom->setMatricule($form1Data['matricule']);
- $this->dom->setSalarier($form1Data['salarier']);
- $this->dom->setSousTypeDocument($form1Data['sousTypeDocument']);
- $this->dom->setCategorie($form1Data['categorie']);
- if ($form1Data['salarier'] === "TEMPORAIRE") {
-     $this->dom->setNom($form1Data['nom']);
-     $this->dom->setPrenom($form1Data['prenom']);
-     $this->dom->setCin($form1Data['cin']);
-     
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-        $agenceEmetteur = $CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-        $serviceEmetteur = $CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-        $codeAgenceEmetteur = $CodeServiceofCours[0]['agence_ips'] ;
-        $codeServiceEmetteur = $CodeServiceofCours[0]['service_ips'] ;
-        
- } else {
-     $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
-    
-     $this->dom->setNom($personnel->getNom());
-     $this->dom->setPrenom($personnel->getPrenoms());
- }
-/** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
-        $this->dom->setAgenceEmetteur($agenceEmetteur);
-        $this->dom->setServiceEmetteur($serviceEmetteur);
-        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgenceEmetteur])->getId();
-        $this->dom->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
-        $this->dom->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
-       
-      
-       
-        //initialisation site
-        $sousTypedocument = $form1Data['sousTypeDocument'];
-            $catg = $form1Data['categorie'];
-            if($CodeServiceofCours[0]['agence_ips'] === '50'){
-                $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-               
-           } else {
-            $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
-           $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq,
-            'categorie' => $catg
-            ];
 
-            $indemites = self::$em->getRepository(Indemnite::class)->findBy($criteria);
-            $sites = [];
-            foreach ($indemites as $key => $value) {
-                $sites[] = $value->getSite()->getId();
-            }
-            if(in_array(8, $sites)){
-                $this->dom->setSite(self::$em->getRepository(Site::class)->find(8));
-            } else {
-                $this->dom->setSite(self::$em->getRepository(Site::class)->find(1));
-            }
-
+        /** INITIALISATION des données  */
+        $form1Data = $this->sessionService->get('form1Data', []);// donner qui vient du first form
+        $this->initialisationSecondForm($form1Data, self::$em);
 
         $is_temporaire = $form1Data['salarier'];
         $form =self::$validator->createBuilder(DomForm2Type::class, $this->dom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Ici, vous pouvez enregistrer les données dans la base de données si nécessaire
-
+           dd($form->getData());
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('some_success_route');
         }

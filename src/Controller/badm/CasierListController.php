@@ -4,6 +4,9 @@ namespace App\Controller\badm;
 
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
+use App\Entity\Casier;
+use App\Entity\CasierValider;
+use App\Form\CasierSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,27 +28,17 @@ class CasierListController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-        $limit = 10;
-        //$page = 1;
-        $nombreLigne = $this->casierList->NombreDeLigne($request->request->all());
-        $totalPage = ceil((int)$nombreLigne/$limit);
+       $data = self::$em->getRepository(CasierValider::class)->findAll();
 
-        $agence = $this->transformEnSeulTableau($this->casierList->recupAgence());
-
-        $casier = $this->casierList->recuperToutesCasier($request->request->all(), (int)$page, (int)$limit);
-
-
+       $form = self::$validator->createBuilder(CasierSearchType::class)->getForm();
 
         self::$twig->display(
             'badm/casier/listCasier.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
-                'casier' => $casier,
-                'agence' => $agence,
-                'nombreLigne' => $nombreLigne,
-                'page' => $page,
-                'totalPage' => $totalPage
+                'casier' => $data,
+                'form' => $form->createView()
             ]
         );
     }
