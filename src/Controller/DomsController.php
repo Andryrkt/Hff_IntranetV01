@@ -59,7 +59,9 @@ class DomsController extends Controller
 
         if ($form->isSubmitted() ) {
           
+            $this->dom->setSalarier($form->get('salarie')->getData());
             $formData = $form->getData()->toArray();
+        
 
             $this->sessionService->set('form1Data', $formData);
 
@@ -85,30 +87,39 @@ class DomsController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 //dd(self::$em->getRepository(Indemnite::class)->findAll());
-       /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
+ /** INITIALISATION des données qui vent de FirstFORM */
+ $form1Data = $this->sessionService->get('form1Data', []);
+ $this->dom->setMatricule($form1Data['matricule']);
+ $this->dom->setSalarier($form1Data['salarier']);
+ $this->dom->setSousTypeDocument($form1Data['sousTypeDocument']);
+ $this->dom->setCategorie($form1Data['categorie']);
+ if ($form1Data['salarier'] === "TEMPORAIRE") {
+     $this->dom->setNom($form1Data['nom']);
+     $this->dom->setPrenom($form1Data['prenom']);
+     $this->dom->setCin($form1Data['cin']);
+     
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-        $this->dom->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-        $this->dom->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-        $this->dom->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
-        $this->dom->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
+        $agenceEmetteur = $CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
+        $serviceEmetteur = $CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
+        $codeAgenceEmetteur = $CodeServiceofCours[0]['agence_ips'] ;
+        $codeServiceEmetteur = $CodeServiceofCours[0]['service_ips'] ;
         
-        /** INITIALISATION des données qui vent de FirstFORM */
-        $form1Data = $this->sessionService->get('form1Data', []);
-        $this->dom->setMatricule($form1Data['matricule']);
-        $this->dom->setSalarier($form1Data['salarier']);
-        $this->dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $this->dom->setCategorie($form1Data['categorie']);
-        if ($form1Data['salarier'] === "TEMPORAIRE") {
-            $this->dom->setNom($form1Data['nom']);
-            $this->dom->setPrenom($form1Data['prenom']);
-            $this->dom->setCin($form1Data['cin']);
-        } else {
-            $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
-            $this->dom->setNom($personnel->getNom());
-            $this->dom->setPrenom($personnel->getPrenoms());
-        }
+ } else {
+     $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
+    
+     $this->dom->setNom($personnel->getNom());
+     $this->dom->setPrenom($personnel->getPrenoms());
+ }
+/** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
+        $this->dom->setAgenceEmetteur($agenceEmetteur);
+        $this->dom->setServiceEmetteur($serviceEmetteur);
+        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgenceEmetteur])->getId();
+        $this->dom->setAgence(self::$em->getRepository(Agence::class)->find($idAgence));
+        $this->dom->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
+       
+      
+       
         //initialisation site
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];

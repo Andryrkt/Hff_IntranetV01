@@ -460,7 +460,7 @@ class DomForm2Type extends AbstractType
         TextType::class,
         [
             'mapped' => false,
-            'label' => 'Mode',
+            'label' => 'MOBILE MONEY',
         ])
 
         ->add('pieceJoint1',

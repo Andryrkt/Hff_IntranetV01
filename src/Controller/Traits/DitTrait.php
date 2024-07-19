@@ -189,7 +189,6 @@ trait DitTrait
      // Appeler la fonction pour fusionner les fichiers PDF
      if (!empty($pdfFiles)) {
          $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-         echo "Le fichier PDF fusionné est : " . $mergedPdfFile;
      }
 }
 
