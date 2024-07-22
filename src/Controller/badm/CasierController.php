@@ -12,7 +12,6 @@ use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
-use App\Controller\Traits\IncrementationTrait;
 use App\Entity\StatutDemande;
 use Symfony\Component\Routing\Annotation\Route;
 

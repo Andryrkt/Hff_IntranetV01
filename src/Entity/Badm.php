@@ -2,7 +2,8 @@
 
 namespace App\Entity;
 
-
+use App\Traits\AgenceServiceEmetteurTrait;
+use App\Traits\AgenceServiceTrait;
 use DateTime;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Badm
 {
-    //use DateTrait;
+    use AgenceServiceEmetteurTrait;
+    use AgenceServiceTrait;
 
     /**
      * @ORM\Id
@@ -172,11 +174,11 @@ class Badm
     private int $kmMachine;
 
     /**
-     * @ORM\Column(type="string", length=15 ,name="Num_Parc")
+     * @ORM\Column(type="string", length=15 ,name="Num_Parc", nullable=true)
      *
      * @var string
      */
-    private string $numParc;
+    private ?string $numParc = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Nom_Image", nullable=true)
@@ -208,9 +210,22 @@ class Badm
      */
     private $statutDemande;
 
-    /**
-     * Get the value of id
-     */ 
+    private $numSerie;
+
+    private $constructeur = "";
+
+    private $designation = "";
+ 
+    private $modele = "";
+
+    private $groupe;
+
+    private $anneeDuModele;
+
+    private $affectation;
+
+    private $dateAchat;
+
     public function getId()
     {
         return $this->id;
@@ -618,24 +633,13 @@ class Badm
         return $this;
     }
 
-    /**
-     * Get the value of numParc
-     *
-     * @return  string
-     */ 
+    
     public function getNumParc()
     {
         return $this->numParc;
     }
 
-    /**
-     * Set the value of numParc
-     *
-     * @param  string  $numParc
-     *
-     * @return  self
-     */ 
-    public function setNumParc(string $numParc)
+    public function setNumParc($numParc): self
     {
         $this->numParc = $numParc;
 
@@ -778,6 +782,131 @@ class Badm
     public function setCasierEmetteur(string $casierEmetteur)
     {
         $this->casierEmetteur = $casierEmetteur;
+
+        return $this;
+    }
+
+    public function getNumSerie()
+    {
+        return $this->numSerie;
+    }
+
+   
+    public function setNumSerie($numSerie): self
+    {
+        $this->numSerie = $numSerie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupe
+     */ 
+    public function getGroupe()
+    {
+        return $this->groupe;
+    }
+
+    /**
+     * Set the value of groupe
+     *
+     * @return  self
+     */ 
+    public function setGroupe($groupe)
+    {
+        $this->groupe = $groupe;
+
+        return $this;
+    }
+
+    
+
+    /**
+     * Get the value of anneeDuModele
+     */ 
+    public function getAnneeDuModele()
+    {
+        return $this->anneeDuModele;
+    }
+
+    /**
+     * Set the value of anneeDuModele
+     *
+     * @return  self
+     */ 
+    public function setAnneeDuModele($anneeDuModele)
+    {
+        $this->anneeDuModele = $anneeDuModele;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of affectation
+     */ 
+    public function getAffectation()
+    {
+        return $this->affectation;
+    }
+
+    
+    public function setAffectation($affectation): self
+    {
+        $this->affectation = $affectation;
+
+        return $this;
+    }
+
+  
+    public function getDateAchat()
+    {
+        return $this->dateAchat;
+    }
+
+   
+    public function setDateAchat($dateAchat): self
+    {
+        $this->dateAchat = $dateAchat;
+
+        return $this;
+    }
+
+    public function getConstructeur()
+    {
+        return $this->constructeur;
+    }
+
+   
+    public function setConstructeur($constructeur): self
+    {
+        $this->constructeur = $constructeur;
+
+        return $this;
+    }
+
+    public function getDesignation()
+    {
+        return $this->designation;
+    }
+
+   
+    public function setDesignation($designation): self
+    {
+        $this->designation = $designation;
+
+        return $this;
+    }
+
+
+    public function getModele()
+    {
+        return $this->modele;
+    }
+
+   
+    public function setModele($modele): self
+    {
+        $this->modele = $modele;
 
         return $this;
     }

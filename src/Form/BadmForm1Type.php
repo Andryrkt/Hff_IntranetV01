@@ -51,13 +51,13 @@ class BadmForm1Type extends AbstractType
             'label' => "N° Serie",
             'required' => false
         ])
-            ->add('typeMouvement', EntityType::class, [
-                'label' => 'Type Mouvement',
-                'class' => TypeMouvement::class,
-                'choice_label' => 'description',
-                'placeholder' => '-- Choisir une type de mouvement--',
-                'required' => false,
-            ])
+        ->add('typeMouvement', EntityType::class, [
+            'label' => 'Type Mouvement',
+            'class' => TypeMouvement::class,
+            'choice_label' => 'description',
+            'placeholder' => '-- Choisir une type de mouvement--',
+            'required' => false,
+        ])
         ; 
     }
 
