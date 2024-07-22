@@ -34,6 +34,7 @@ trait DomsTrait
         } else {
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
             $agenceServiceIrium = $em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnel->getCodeAgenceServiceSage()]);
+            dump($agenceServiceIrium);
         
             $this->dom->setNom($personnel->getNom());
             $this->dom->setPrenom($personnel->getPrenoms());
@@ -41,6 +42,7 @@ trait DomsTrait
             $serviceEmetteur = $agenceServiceIrium->getServiceips() . ' ' . $agenceServiceIrium->getLibelleserviceips();
             $codeAgenceEmetteur = $agenceServiceIrium->getAgenceips()  ;
             $codeServiceEmetteur =  $agenceServiceIrium->getServiceips();
+            dump($agenceEmetteur, $serviceEmetteur);
 
         }
         /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
@@ -49,15 +51,13 @@ trait DomsTrait
         $idAgence = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgenceEmetteur])->getId();
         $this->dom->setAgence($em->getRepository(Agence::class)->find($idAgence));
         $this->dom->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
-       
-      
-       
+
         //initialisation site
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];
+            
             if($CodeServiceofCours[0]['agence_ips'] === '50'){
                 $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-               
            } else {
                 $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
            }

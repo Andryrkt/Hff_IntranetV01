@@ -51,7 +51,7 @@ trait BilanFinancierMaterielTrait
      *
      * @var float
      */
-    private float $resultatExploitation;
+    private float $resultatExploitation = 0.0;
    
     
     
@@ -91,12 +91,12 @@ trait BilanFinancierMaterielTrait
     }
 
     
-    // public function setValeurNetComptable(float $valeurNetComptable)
-    // {
-    //     $this->valeurNetComptable = $valeurNetComptable;
+    public function setValeurNetComptable(float $valeurNetComptable)
+    {
+        $this->valeurNetComptable = $valeurNetComptable;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
     
     public function getChiffreAffaire(): float
@@ -147,10 +147,10 @@ trait BilanFinancierMaterielTrait
     }
 
    
-    // public function setResultatExploitation(float $resultatExploitation)
-    // {
-    //     $this->resultatExploitation = $resultatExploitation;
+    public function setResultatExploitation(float $resultatExploitation)
+    {
+        $this->resultatExploitation = $resultatExploitation;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 }

@@ -115,7 +115,7 @@
 							<div class="cadre">
 								<div class="row">
 									<div class="col-12 col-md-6">
-										{{ macroForm.affichage('CA', dit.coutAcquisition | number_format(2, ',', '.'))}}
+										{{ macroForm.affichage('CA', dit.chiffreAffaire | number_format(2, ',', '.'))}}
 										{{ macroForm.affichage('Charge d\'entretien', dit.chargeEntretient | number_format(2, ',', '.'))}}
                                         {{ macroForm.affichage('Charge Locative', dit.chargeLocative | number_format(2, ',', '.'))}}
                                         {{ macroForm.affichage('Résultat d\'exploitation', dit.resultatExploitation | number_format(2, ',', '.'))}}
@@ -123,7 +123,7 @@
 									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition | number_format(2, ',', '.'))}}
                                     	{{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
-                                        {{ macroForm.affichage('VNC', valeurNetComptable | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('VNC', dit.valeurNetComptable | number_format(2, ',', '.'))}}
 									</div>
 								</div>
 						</div>

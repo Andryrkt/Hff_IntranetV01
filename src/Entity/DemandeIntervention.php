@@ -392,7 +392,12 @@ class DemandeIntervention
      */
     private ?string $utilisateurIntervenant = null;
 
-
+    /**
+     * @ORM\Column(type="string", length=255, name="section_affectee")
+     *
+     * @var string|null
+     */
+    private ?string $sectionAffectee = null;
 
     public function getId()
     {

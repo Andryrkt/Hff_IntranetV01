@@ -649,7 +649,7 @@ class BadmController extends Controller
                     'Date_Mise_Location' => $dateMiseLocation,
                     'Cout_Acquisition' => (float)$coutAcquisition,
                     'Amortissement' => (float)$data[0]['amortissement'],
-                    'Valeur_Net_Comptable' => (float)$vnc,
+                    'Valeur_Net_Comptable' => (float) str_replace(',', '.', $this->formatNumber($vnc)),
                     'Nom_Client'  => $nomClient,
                     'Modalite_Paiement'  => $modalitePaiement,
                     'Prix_Vente_HT'  => (float)$prixHt,
@@ -665,6 +665,8 @@ class BadmController extends Controller
                 foreach ($insertDbBadm as $cle => $valeur) {
                     $insertDbBadm[$cle] = strtoupper($valeur);
                 }
+
+               
                 //var_dump($insertDbBadm);
                 // die();
                 if ($codeMouvement === 'CESSION D\'\'ACTIF') {

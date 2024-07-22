@@ -56,6 +56,8 @@ class DitValidationController extends Controller
             $dit->setChiffreAffaire($data[0]['chiffreaffaires']);
             $dit->setChargeEntretient($data[0]['chargeentretien']);
             $dit->setChargeLocative($data[0]['chargelocative']);
+            $dit->setResultatExploitation($data[0]['chiffreaffaires'] - ($data[0]['chargeentretien'] + $data[0]['chargelocative']));
+            $dit->setValeurNetComptable($data[0]['prix_achat'] - $data[0]['amortissement']);
             //Etat machine
             $dit->setKm($data[0]['km']);
             $dit->setHeure($data[0]['heure']);
@@ -65,7 +67,7 @@ class DitValidationController extends Controller
             } elseif($dit->getInternetExterne() === 'E') {
                 $dit->setInternetExterne('EXTERNE');
             }
-    
+   
     $form = self::$validator->createBuilder(DitValidationType::class, $dit)->getForm();
 
     $form->handleRequest($request);

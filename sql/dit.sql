@@ -1,0 +1,1 @@
+ALTER TABLE demande_intervention ADD section_affectee VARCHAR(255)

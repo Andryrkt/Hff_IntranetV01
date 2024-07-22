@@ -190,8 +190,10 @@ class DomForm2Type extends AbstractType
        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
             $form = $event->getForm();
             $data = $event->getData();
+            dump($data);
             $sousTypedocument = $data->getSousTypeDocument();
             $catg = $data->getCategorie();
+            dump(substr($data->getAgenceEmetteur(),0,2));
             if(substr($data->getAgenceEmetteur(),0,2) === '50'){
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
                
@@ -203,12 +205,14 @@ class DomForm2Type extends AbstractType
             'rmq' => $rmq,
             'categorie' => $catg
             ];
-
+            dump($criteria);
             $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
+            dump($indemites);
             $sites = [];
             foreach ($indemites as $key => $value) {
                 $sites[] = $value->getSite();
             }
+            dd($sites);
             $form->add('site',
             EntityType::class,
             [

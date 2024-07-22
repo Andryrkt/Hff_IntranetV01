@@ -61,7 +61,6 @@ class DomsController extends Controller
           
             $this->dom->setSalarier($form->get('salarie')->getData());
             $formData = $form->getData()->toArray();
-        
 
             $this->sessionService->set('form1Data', $formData);
 
@@ -90,6 +89,7 @@ class DomsController extends Controller
         /** INITIALISATION des données  */
         $form1Data = $this->sessionService->get('form1Data', []);// donner qui vient du first form
         $this->initialisationSecondForm($form1Data, self::$em);
+        
 
         $is_temporaire = $form1Data['salarier'];
         $form =self::$validator->createBuilder(DomForm2Type::class, $this->dom)->getForm();
