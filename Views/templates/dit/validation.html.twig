@@ -16,9 +16,7 @@
 						Détail de la demande
 					</h2>
 
-
 					<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
-
 
 					<div class="row">
 						<div class="col-12 col-md-4">
@@ -26,15 +24,12 @@
 						</div>
 						<div class="col-12 col-md-4">{{ macroForm.affichage('Date Demande', dit.dateDemande|date('d/m/Y'))}}
 						</div>
-
-
 					</div>
 
 					<div class="">
 						{{ macroForm.affichage('Objet de la demande', dit.objetDemande)}}
 						{{ macroForm.affichage('Détail de la demande', dit.detailDemande)}}
 					</div>
-
 
 					<div class="row">
 
@@ -155,13 +150,27 @@
 								{# DEBUT PIECE JOINTE#}
 								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-								{{ macroForm.affichage('Pièce jointe 01', dit.pieceJoint01)}}
+								{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Hffintranet/Upload/dit/fichier")}}
 
-								{{ macroForm.affichage('Pièce jointe 02', dit.pieceJoint02)}}
+								{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Hffintranet/Upload/dit/fichier")}}
 
-								{{ macroForm.affichage('Pièce jointe 03', dit.pieceJoint03)}}
+								{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Hffintranet/Upload/dit/fichier")}}
 								{# FIN PIECE JOINTE #}
 
+								{# DEBUT AUTRES #}
+								{{ macroForm.sousTitre('Autres', {class: 'sousTitre'})}}
+									<div class="row"> <div class="col-12 col-md-6">
+										{{ macroForm.affichage('Section affectée', dit.sectionAffectee)}}
+										{{ macroForm.affichage('Statut commande', dit.statutCommande)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('N° Or', dit.numeroOr)}}
+										{{ macroForm.affichage('Statut Or', dit.statutOr)}}
+									</div>
+								</div>
+
+
+								{# FIN AUTRES #}
 
 								{% if autoriser %}
 									{# DEBUT OBSERVATION TECHNIQUE#}

@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document
       .getElementById("agenceDestinataire")
       .addEventListener("change", changeService);
-
     fetchCasier();
 
     document

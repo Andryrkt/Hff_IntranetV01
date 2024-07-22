@@ -399,6 +399,22 @@ class DemandeIntervention
      */
     private ?string $sectionAffectee = null;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="statut_or")
+     *
+     * @var string|null
+     */
+    private ?string $statutOr = null;
+
+
+    /**
+     * @ORM\Column(type="string", length=255, name="statut_commande")
+     *
+     * @var string|null
+     */
+    private ?string $statutCommande = null;
+
+
     public function getId()
     {
         return $this->id;
@@ -1137,6 +1153,39 @@ class DemandeIntervention
     {
         $this->utilisateurIntervenant = $utilisateurIntervenant;
 
+        return $this;
+    }
+
+    public function getSectionAffectee()
+    {
+        return $this->sectionAffectee;
+    }
+
+    public function setSectionAffectee($sectionAffectee): self
+    {
+        $this->sectionAffectee = $sectionAffectee;
+        return $this;
+    }
+
+    public function getStatutOr()
+    {
+        return $this->statutOr;
+    }
+
+    public function setStatutOr($statutOr): self
+    {
+        $this->statutOr = $statutOr;
+        return $this;
+    }
+
+    public function getStatutCommande()
+    {
+        return $this->statutCommande;
+    }
+
+    public function setStatutCommande($statutCommande): self
+    {
+        $this->statutCommande = $statutCommande;
         return $this;
     }
 }

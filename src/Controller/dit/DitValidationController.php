@@ -13,8 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DitValidationController extends Controller
 {
-
-   
     /**
  * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
  *

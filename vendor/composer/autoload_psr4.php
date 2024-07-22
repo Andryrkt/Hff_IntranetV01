@@ -122,6 +122,7 @@ return array(
     'App\\Controller\\doc\\fonctionnel\\badm\\' => array($baseDir . '/src/Controller/doc/fonctionnel/badm'),
     'App\\Controller\\doc\\fonctionnel\\' => array($baseDir . '/src/Controller/doc/fonctionnel'),
     'App\\Controller\\dit\\' => array($baseDir . '/src/Controller/dit'),
+    'App\\Controller\\badms\\' => array($baseDir . '/src/Controller/badms'),
     'App\\Controller\\admin\\user\\' => array($baseDir . '/src/Controller/admin/user'),
     'App\\Controller\\admin\\personnel\\' => array($baseDir . '/src/Controller/admin/personnel'),
     'App\\Controller\\admin\\' => array($baseDir . '/src/Controller/admin'),

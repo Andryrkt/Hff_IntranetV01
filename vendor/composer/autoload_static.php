@@ -194,6 +194,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'App\\Controller\\doc\\fonctionnel\\badm\\' => 36,
             'App\\Controller\\doc\\fonctionnel\\' => 31,
             'App\\Controller\\dit\\' => 19,
+            'App\\Controller\\badms\\' => 21,
             'App\\Controller\\admin\\user\\' => 26,
             'App\\Controller\\admin\\personnel\\' => 31,
             'App\\Controller\\admin\\' => 21,
@@ -671,6 +672,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'App\\Controller\\dit\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Controller/dit',
+        ),
+        'App\\Controller\\badms\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/Controller/badms',
         ),
         'App\\Controller\\admin\\user\\' => 
         array (

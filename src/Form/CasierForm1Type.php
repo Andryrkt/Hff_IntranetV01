@@ -20,11 +20,11 @@ class CasierForm1Type extends AbstractType
         TextType::class,
         [
            'mapped' => false,
-                    'label' => 'Agence',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true
-                    ],
+            'label' => 'Agence',
+            'required' => false,
+            'attr' => [
+                'readonly' => true
+            ],
             'data' => $options['data']->getAgenceEmetteur()
         ])
        
@@ -32,13 +32,13 @@ class CasierForm1Type extends AbstractType
         TextType::class,
         [
             'mapped' => false,
-                    'label' => 'Service',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true,
-                        'disable' => true
-                    ],
-                    'data' => $options['data']->getServiceEmetteur()
+            'label' => 'Service',
+            'required' => false,
+            'attr' => [
+                'readonly' => true,
+                'disable' => true
+            ],
+            'data' => $options['data']->getServiceEmetteur()
         ])
         ->add('idMateriel', TextType::class, [
             'label' => 'Id Materiel',

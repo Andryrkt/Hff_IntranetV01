@@ -105,8 +105,7 @@ class BadmController extends Controller
              elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);
-            } 
-            elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+            } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
                 $message = " l\'affectation matériel ne permet pas cette opération";
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
@@ -134,7 +133,6 @@ class BadmController extends Controller
                     foreach ($agenceServiceAutoriser as $key => $value) {
                        $agenceAutoriser[]= substr($value, 0, 2);
                     }
-                
                     
                 //$codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
                 $codeAgence = $data[0]['agence'];
@@ -233,8 +231,6 @@ class BadmController extends Controller
         }
     }
 
-
-   
 
     /**
      * agence devient la clé du tableaut et le service devient la valeur
@@ -613,11 +609,12 @@ class BadmController extends Controller
             $agenceServDest = $this->transformEnSeulTableau($this->badm->recupAgenceServDest($idMateriel));
 
 
-
             // var_dump($agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire);
             // die();
             $conditionAgenceService = $agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire;
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';
+
+            
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
                 $this->alertRedirection($message);

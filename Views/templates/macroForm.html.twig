@@ -103,3 +103,12 @@
 <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle fw-bold">{{value}}</div>
 {% endmacro %}
 
+{% macro affichageFile(label, value = "", directory) %}
+<label for="">{{label}}</label>
+<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle fw-bold">
+<a href=" {{directory}}/{{value}}" target="_blank">
+{{value}}
+</a>
+</div>
+{% endmacro %}
+
