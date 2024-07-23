@@ -1,0 +1,132 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as formMacro %}
+
+
+{% block content %}
+
+
+<div class="container my-5">
+
+	<div class="row">
+		<div class="col-12 col-md-11">
+			<h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
+		</div>
+
+		<div class=" col-12 col-md-1">
+			<a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+		</div>
+	</div>
+
+
+	{{ form_start(form)}}
+
+	<div class="row">
+		<div class="col-12 col-md-3">
+			{{ form_row(form.dateDemande)}}
+		</div>
+		<div class="codeMouvement">
+			<h3 id="codeMouvement">{{form1Data.typeMouvemnt.description}}</h3>
+		</div>
+	</div>
+
+	{# DEBUT Caractéristiques du matériel#}
+	<div class="row">{{ formMacro.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.designation)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.idMateriel)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.numSerie)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.numParc)}}</div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.groupe)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.constructeur)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.modele)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.anneeDuModele)}}</div>
+		</div>
+		<div class="row d-flex">
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.affectation)}}</div>
+			<div class="col-12 col-md-6 col-lg-3">{{ form_row(form.dateAchat)}}</div>
+		</div>
+	</div>
+	{# FIN Caractéristiques du matériel#}
+
+	{# DEBUT Etat machine#}
+	<div class="row">{{ formMacro.sousTitre('Etat machine', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6">{{ form_row(form.heureMachine)}}</div>
+		<div class="col-12 col-md-6">{{ form_row(form.kmMachine)}}</div>
+	</div>
+	{# FIN Etat machine#}
+
+	{# DEBUT Agence et Service Emetteur#}
+	<div class="row">{{ formMacro.sousTitre('Agence et Service émetteur', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.agenceEmetteur)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.serviceEmetteur)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.casierEmetteur)}}</div>
+	</div>
+	{# FIN Agence et Service Emetteur#}
+
+	{# DEBUT Agence et Service Destiantaire#}
+	<div class="row">{{ formMacro.sousTitre('Agence et Service destinataire', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.agence)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.service)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.casierDestinataire)}}</div>
+	</div>
+	<div class="row">{{ form_row(form.motifMateriel)}}</div>
+	{# FIN Agence et Service Destiantaire#}
+
+	{# DEBUT ENTREE EN PARC#}
+	<div class="row">{{ formMacro.sousTitre('Entrée en parc', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6">{{ form_row(form.etatAchat)}}</div>
+		<div class="col-12 col-md-6">{{ form_row(form.dateMiseLocation)}}</div>
+	</div>
+	{# FIN Agence et Service Destiantaire#}
+
+	{# DEBUT Bilan Financière#}
+	<div class="row">{{ formMacro.sousTitre('Valeur (MGA)', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.coutAcquisition)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.amortissement)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.valeurNetComptable)}}</div>
+	</div>
+	{# FIN Bilan Financière#}
+
+	<div class="row">{{ formMacro.sousTitre('Cession d’actif', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.nomClient)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.modalitePaiement)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ form_row(form.prixVenteHt)}}</div>
+	</div>
+
+
+	<div class="row">{{ formMacro.sousTitre('Mise au rebut', {class: 'sousTitre'})}}</div>
+
+	<div class="row">{{ form_row(form.motifMiseRebut)}}</div>
+
+	<div class="row">
+		<div class="col-12 col-md-6">{{ form_row(form.nomImage)}}</div>
+		<div class="col-12 col-md-6">{{ form_row(form.nomFichier)}}</div>
+	</div>
+
+	<div class="row mt-5">
+		{{formMacro.button('submit', 'Envoyer', 'badmComplet', 'primary', {onclick: 'return confirm("Veuillez vérifier attentivement avant d\'envoyer.")'})}}
+</div>
+
+        
+    {{ form_end(form)}}
+</div>        
+    {% endblock content %}
+
+
+    {% block javascript %}
+    <script type="module" src="/Hffintranet/Views/js/badm/secondForm.js"></script>
+    {% endblock %}

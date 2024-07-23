@@ -6,6 +6,7 @@ namespace App\Entity;
 use App\Entity\User;
 use App\Entity\Service;
 use App\Traits\DateTrait;
+use App\Entity\CasierValider;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -55,7 +56,7 @@ class Agence
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="agenceRattacher")
+     * @ORM\OneToMany(targetEntity=CasierValider::class, mappedBy="agenceRattacher")
      */
     private $casiers;
 

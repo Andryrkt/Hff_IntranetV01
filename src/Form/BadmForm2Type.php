@@ -8,7 +8,10 @@ use App\Entity\Agence;
 use App\Entity\Casier;
 use App\Entity\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\CasierValider;
 use App\Repository\AgenceRepository;
+use App\Repository\casierRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -23,8 +26,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
-class BadmForm1Type extends AbstractType
+class BadmForm2Type extends AbstractType
 {
+    use FormatageTrait;
     private $em;
 
     const MODE_PAYEMENT = [
@@ -40,6 +44,8 @@ class BadmForm1Type extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $idTypeMouvement = $options["data"]->getTypeMouvement()->getId();
+        
         $builder
         ->add('agenceEmetteur', 
         TextType::class,
@@ -102,9 +108,10 @@ class BadmForm1Type extends AbstractType
             [
                 'label' => 'N° Parc',
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => $idTypeMouvement !== 1
                 ],
-                'data' => $options["data"]->getNumParc()
+                'data' => $options["data"]->getNumParc(),
+                'required' => $idTypeMouvement === 1
             ]
         )
         ->add('groupe', 
@@ -185,7 +192,7 @@ class BadmForm1Type extends AbstractType
             'attr' => [
                 'disabled' => true
             ],
-            'data' => $options["data"]->getDateCreation()
+            'data' => $options["data"]->getDateDemande()
         ])
         //ETAT MACHINE
         ->add('heureMachine', 
@@ -237,35 +244,39 @@ class BadmForm1Type extends AbstractType
                 'disabled' => true
             ]
         ])
-        //AGENCE -SERVICE EMETTEUR
+        //AGENCE -SERVICE DESTINATAIRE
         ->add('agence', 
         EntityType::class,
         [
             'label' => 'Agence Debiteur',
-            'placeholder' => '-- Choisir une agence Debiteur --',
+            'placeholder' => '-- Choisir une agence --',
             'class' => Agence::class,
             'choice_label' => function (Agence $agence): string {
                 return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
             },
-            'required' => false,
-            //'data' => $options["data"]->getAgence() ?? null,
+            
             'query_builder' => function(AgenceRepository $agenceRepository) {
                     return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                 },
-                'attr' => [ 'class' => 'agenceDebiteur']
+                'attr' => [ 
+                    'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5 || $idTypeMouvement === 3
+                ],
+                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
         ])
-        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idTypeMouvement){
             $form = $event->getForm();
             $data = $event->getData();
           
-            $services = null;
+            $services = [];
+            $casiers = [];
 
             if ($data instanceof Badm && $data->getAgence()) {
                 $services = $data->getAgence()->getServices();
+                $casiers = $data->getAgence()->getCasiers();
             }
-         
-      
-            $form->add('service',
+
+            $form
+            ->add('service',
             EntityType::class,
             [
             
@@ -274,49 +285,89 @@ class BadmForm1Type extends AbstractType
             'choice_label' => function (Service $service): string {
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
+            'placeholder' => ' -- Choisir une service --',
             'choices' => $services,
             // 'disabled' => $agence === null,
-            'required' => false,
+           
             'query_builder' => function(ServiceRepository $serviceRepository) {
                     return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
-            //'data' => $options['data']->getService(),
-                'attr' => [ 'class' => 'serviceDebiteur']
-            ]);
+                'attr' => [ 
+                    'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5 || $idTypeMouvement === 3
+                ],
+                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+            ])
+            ->add('casierDestinataire',
+                EntityType::class,
+                [
+                    'label' => 'Casier Destinataire',
+                    'class' => CasierValider::class,
+                    'choice_label' => 'casier',
+                    'placeholder' => ' -- Choisir un casier --',
+                    'choices' => $casiers,
+                    'query_builder' => function(casierRepository $casierRepository) {
+                    return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
+                },
+                'attr' => [ 
+                    'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
+                ],
+                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                ])
+        ;
             
         })
-        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idTypeMouvement) {
             $form = $event->getForm();
-            $data = $event->getData();
-        
-            
-                $agenceId = $data['agence'];
-               
-                $agence = $this->em->getRepository(Agence::class)->find($agenceId);
-                $services = $agence->getServices();
-                
-                $form->add('service', EntityType::class, [
-                    'label' => 'Service Débiteur',
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'choices' => $services,
-                    'required' => false,
-                    'attr' => [
-                        'class' => 'serviceDebiteur',
-                        'disabled' => false,
-                        ]
-                ]);
-                
+                $data = $event->getData();
+                $agenceId = $data['agence'] ?? null;
+
+                if ($agenceId) {
+                    $agence = $this->em->getRepository(Agence::class)->find($agenceId);
+                    if ($agence) {
+                        $services = $agence->getServices();
+                        $casiers = $agence->getCasiers();
+
+                        $form
+                        ->add('service', EntityType::class, [
+                            'label' => 'Service Débiteur',
+                            'class' => Service::class,
+                            'choice_label' => function (Service $service): string {
+                                return $service->getCodeService() . ' ' . $service->getLibelleService();
+                            },
+                            'placeholder' => ' -- Choisir une service --',
+                            'choices' => $services,
+                            'required' => false,
+                            'attr' => [ 
+                                'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
+                            ],
+                            'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                        ])
+                        ->add('casierDestinataire', EntityType::class, [
+                            'label' => 'Casier Destinataire',
+                            'class' => Casier::class,
+                            'choice_label' => 'casier',
+                            'placeholder' => ' -- Choisir un casier --',
+                            'choices' => $casiers,
+                            'required' => false,
+                            'attr' => [ 
+                            'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
+                            ],
+                        'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+    
+                        ]);
+                    }
+                }
             })
-        ->add('casierDestinataire',
-        EntityType::class,
+        
+        ->add('motifMateriel',
+        TextType::class,
         [
-            'label' => 'Casier Destinataire',
-            'class' => Casier::class,
-            'choice_label' => 'casier',
-            'placeholder' => ' -- Choisir un casier --'
+            'label' => 'Motif',
+            'attr' => [
+                'disabled' => $idTypeMouvement !== 1 && $idTypeMouvement !==2 && $idTypeMouvement !==3,
+            ],
+            'required' => $idTypeMouvement === 1 || $idTypeMouvement === 2||$idTypeMouvement === 3,
+
         ])
         //ENTREE EN PARC
         ->add('etatAchat',
@@ -329,15 +380,20 @@ class BadmForm1Type extends AbstractType
             'required' => false,
         ])
         ->add('dateMiseLocation',
-        TextType::class,
+        DateTimeType::class,
         [
-            'label' => 'Date de mise en location',
+            'label' => 'Date mise en location',
+            'mapped' => false,
+                'widget' => 'single_text', 
+                'html5' => false, 
+                'format' => 'dd/MM/yyyy', 
             'attr' => [
                 'disabled' => true
             ],
             'required' => false,
+            'data' => $options["data"]->getDateMiseLocation()
         ])
-        //Valeur
+        //BILAN FINANCIERE
         ->add('coutAcquisition',
         TextType::class,
         [
@@ -346,6 +402,7 @@ class BadmForm1Type extends AbstractType
                 'disabled' => true
             ],
             'required' => false,
+            'data' => $this->formatNumber($options["data"]->getCoutAcquisition())
         ])
         ->add('amortissement',
         TextType::class,
@@ -355,6 +412,7 @@ class BadmForm1Type extends AbstractType
                 'disabled' => true
             ],
             'required' => false,
+            'data' => $this->formatNumber($options["data"]->getAmortissement())
         ])
         ->add('valeurNetComptable',
         TextType::class,
@@ -364,6 +422,7 @@ class BadmForm1Type extends AbstractType
                 'disabled' => true
             ],
             'required' => false,
+            'data' => $this->formatNumber($options["data"]->getValeurNetComptable())
         ])
         //CESSION ACTIF
         ->add('nomClient',
@@ -371,24 +430,28 @@ class BadmForm1Type extends AbstractType
         [
             'label' => 'Nom client',
             'attr' => [
-                'disabled' => true
+                'disabled' => $idTypeMouvement !== 4
             ],
-            'required' => false,
+            'required' => $idTypeMouvement === 4,
         ])
         ->add('modalitePaiement',
         ChoiceType::class,
         [
             'label' => 'Modalité de paiement',
-            'choices' => self::MODE_PAYEMENT
+            'choices' => self::MODE_PAYEMENT,
+            'attr' => [
+                'disabled' => $idTypeMouvement !== 4
+            ],
+            'required' => $idTypeMouvement === 4,
         ])
         ->add('prixVenteHt',
         TextType::class,
         [
             'label' => 'Prix HT',
             'attr' => [
-                'disabled' => true
+                'disabled' => $idTypeMouvement !== 4
             ],
-            'required' => false,
+            'required' => $idTypeMouvement === 4,
         ])
         //MISE AU REBUT
         ->add('motifMiseRebut',
@@ -396,15 +459,16 @@ class BadmForm1Type extends AbstractType
         [
             'label' => 'Motif de mise au rebut',
             'attr' => [
-                'disabled' => true
+                'disabled' =>  $idTypeMouvement !== 5
             ],
+            'required' => $idTypeMouvement === 5,
         ]
         )
         ->add('nomImage',
         FileType::class, 
         [
             'label' => 'Image (Merci de mettre un fichier image)',
-            'required' => true,
+            'required' => false,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),
                 new File([
@@ -421,16 +485,18 @@ class BadmForm1Type extends AbstractType
         ->add('nomFichier',
         FileType::class, 
         [
-            'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
-            'required' => true,
+            'label' => 'Fichier (Merci de mettre un fichier PDF)',
+            'required' => false,
             'constraints' => [
                 new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
-                        'application/pdf'
+                        'application/pdf',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                     ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    'mimeTypesMessage' => 'Please upload a valid PDF, DOCX file.',
                 ])
             ],
         ]

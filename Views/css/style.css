@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap');
+
 body
 {
     background-color: #f8f9fa;
+    font-family: 'Noto Sans Nandinagari', sans-serif;
 }
 
 
@@ -8,3 +11,4 @@ label {
     font-weight: bold;
     /* font-style: italic; */
 }
+

@@ -87,7 +87,7 @@ class Badm
      *
      * @var ?string
      */
-    private ?string $casierDestinataire="";
+    private  $casierDestinataire = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Arret_Materiel", nullable=true)
@@ -365,24 +365,14 @@ class Badm
         return $this;
     }
 
-    /**
-     * Get the value of casierDestinataire
-     *
-     * @return  string
-     */ 
+   
     public function getCasierDestinataire()
     {
         return $this->casierDestinataire;
     }
 
-    /**
-     * Set the value of casierDestinataire
-     *
-     * @param  string  $casierDestinataire
-     *
-     * @return  self
-     */ 
-    public function setCasierDestinataire(string $casierDestinataire)
+   
+    public function setCasierDestinataire( $casierDestinataire): self
     {
         $this->casierDestinataire = $casierDestinataire;
 

@@ -5,13 +5,10 @@
 namespace App\Entity;
 
 use DateTime;
-use App\Entity\User;
 use App\Entity\Agence;
-use App\Entity\StatutDemande;
 use Doctrine\ORM\Mapping as ORM;
-use App\Traits\AgenceServiceTrait;
 use App\Repository\CasierRepository;
-use App\Traits\AgenceServiceEmetteurTrait;
+
 
 
 /**
