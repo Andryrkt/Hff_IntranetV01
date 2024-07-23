@@ -44,7 +44,7 @@ FROM MAT_MAT, mat_bil
         or('" . $numParc ."' is not null and mmat_recalph ='" . $numParc ."')
         )
 and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
+and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
        and mbil_dateclot = '12/31/1899'
         
@@ -116,7 +116,7 @@ $result = $this->connect->executeQuery($statement);
         from mat_mat
         where mmat_nummat IN ".$matricule."
          and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
+and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 
          
         
@@ -144,7 +144,7 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
         or('" . $numParc ."' is not null and mmat_recalph ='" . $numParc ."')
         )
         and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
+and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
       

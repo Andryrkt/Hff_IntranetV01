@@ -47,20 +47,25 @@ class DitController extends Controller
         
         if($form->isSubmitted() && $form->isValid())
         {
-            $dits = $this->infoEntrerManuel($form, self::$em);
+           
+           
+           if($demandeIntervention->getIdMateriel() === null){
+                $message = 'Renseigner l\'information matériel';
+                $this->alertRedirection($message);
+                dd('Renseigner l\'information matériel');
+           } else {
 
-            
-         
-            
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($dits->getNumeroDemandeIntervention());
+               $dits = $this->infoEntrerManuel($form, self::$em);
+               
+               //RECUPERATION de la dernière NumeroDemandeIntervention 
+               $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+               $application->setDerniereId($dits->getNumeroDemandeIntervention());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
-        
             
-
+            
+            
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
@@ -68,22 +73,23 @@ class DitController extends Controller
             $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
             //genere le PDF
             $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
-
+            
             //envoie des pièce jointe dans une dossier et le fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
-
+            
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
             self::$em->persist($insertDemandeInterventions);
             self::$em->flush();
-
+            
             //ENVOYER le PDF DANS DOXCUWARE
             if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
-
+            
             $this->redirectToRoute("dit_index");
+        }
             
         }
 

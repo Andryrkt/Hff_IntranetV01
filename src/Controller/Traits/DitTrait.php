@@ -13,7 +13,10 @@ use App\Entity\DemandeIntervention;
 
 trait DitTrait
 {
-    
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/dit/new")
+    {
+        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
+    } 
 
     private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
     {
@@ -39,8 +42,15 @@ trait DitTrait
             $demandeIntervention->setNumeroTel($dits->getNumeroTel());
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-            $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
+            if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                if (empty($data)) {
+                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                    $this->alertRedirection($message);
+                } else {
+                $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
+                }
+            }
             //PIECE JOINT
             $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
             $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
@@ -95,25 +105,31 @@ trait DitTrait
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
 
-            //Caractéristiques du matériel
+            
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-            $demandeIntervention->setNumParc($data[0]['num_parc']);
-            $demandeIntervention->setNumSerie($data[0]['num_serie']);
-            $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
-            $demandeIntervention->setConstructeur($data[0]['constructeur']);
-            $demandeIntervention->setModele($data[0]['modele']);
-            $demandeIntervention->setDesignation($data[0]['designation']);
-            $demandeIntervention->setCasier($data[0]['casier_emetteur']);
-            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-            //Bilan financière
-            $demandeIntervention->setCoutAcquisition($data[0]['prix_achat']);
-            $demandeIntervention->setAmortissement($data[0]['amortissement']);
-            $demandeIntervention->setChiffreAffaire($data[0]['chiffreaffaires']);
-            $demandeIntervention->setChargeEntretient($data[0]['chargeentretien']);
-            $demandeIntervention->setChargeLocative($data[0]['chargelocative']);
-            //Etat machine
-            $demandeIntervention->setKm($data[0]['km']);
-            $demandeIntervention->setHeure($data[0]['heure']);
+            if (empty($data)) {
+                $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                $this->alertRedirection($message);
+            } else {
+                //Caractéristiques du matériel
+                $demandeIntervention->setNumParc($data[0]['num_parc']);
+                $demandeIntervention->setNumSerie($data[0]['num_serie']);
+                $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
+                $demandeIntervention->setConstructeur($data[0]['constructeur']);
+                $demandeIntervention->setModele($data[0]['modele']);
+                $demandeIntervention->setDesignation($data[0]['designation']);
+                $demandeIntervention->setCasier($data[0]['casier_emetteur']);
+                $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+                //Bilan financière
+                $demandeIntervention->setCoutAcquisition($data[0]['prix_achat']);
+                $demandeIntervention->setAmortissement($data[0]['amortissement']);
+                $demandeIntervention->setChiffreAffaire($data[0]['chiffreaffaires']);
+                $demandeIntervention->setChargeEntretient($data[0]['chargeentretien']);
+                $demandeIntervention->setChargeLocative($data[0]['chargelocative']);
+                //Etat machine
+                $demandeIntervention->setKm($data[0]['km']);
+                $demandeIntervention->setHeure($data[0]['heure']);
+            }
         }
         
         //INFORMATION ENTRER MANUELEMENT

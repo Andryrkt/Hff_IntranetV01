@@ -24,7 +24,7 @@
 
 
 	{{ form_start(form)}}
-
+	{{ form_errors(form)}}
 	<div class="row">
 		<div class="col-12 col-md-3">
 			{{ form_row(form.dateDemande)}}
@@ -116,6 +116,7 @@
 		<div class="col-12 col-md-6">{{ form_row(form.nomImage)}}</div>
 		<div class="col-12 col-md-6">{{ form_row(form.nomFichier)}}</div>
 	</div>
+
 
 	<div class="row mt-5">
 		{{formMacro.button('submit', 'Envoyer', 'badmComplet', 'primary', {onclick: 'return confirm("Veuillez vérifier attentivement avant d\'envoyer.")'})}}

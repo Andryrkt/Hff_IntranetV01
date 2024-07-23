@@ -238,4 +238,7 @@ public function personnelFetch($matricule){
 
     echo json_encode($tab);
 }
+
+
+ 
 }

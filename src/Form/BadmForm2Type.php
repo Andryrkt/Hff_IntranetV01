@@ -7,23 +7,27 @@ use App\Entity\Badm;
 use App\Entity\Agence;
 use App\Entity\Casier;
 use App\Entity\Service;
-use App\Controller\Controller;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\CasierValider;
+use App\Controller\Controller;
 use App\Repository\AgenceRepository;
 use App\Repository\casierRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\TypeMouvement;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 class BadmForm2Type extends AbstractType
@@ -47,6 +51,14 @@ class BadmForm2Type extends AbstractType
         $idTypeMouvement = $options["data"]->getTypeMouvement()->getId();
         
         $builder
+        ->add('typeMouvement', 
+        HiddenType::class,
+        [
+            'attr' => [
+                'class' => 'typeMission'
+            ],
+            'data' => $options['data']->getTypeMouvement()->getId()
+        ])
         ->add('agenceEmetteur', 
         TextType::class,
         [
@@ -293,7 +305,7 @@ class BadmForm2Type extends AbstractType
                     return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
                 'attr' => [ 
-                    'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5 || $idTypeMouvement === 3
+                    'disabled' => true
                 ],
                 'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
             ])
@@ -309,7 +321,8 @@ class BadmForm2Type extends AbstractType
                     return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
                 },
                 'attr' => [ 
-                    'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
+                    'disabled' => $idTypeMouvement !== 3,
+                    'class' => 'selectCasier'
                 ],
                 'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
                 ])
@@ -320,7 +333,10 @@ class BadmForm2Type extends AbstractType
             $form = $event->getForm();
                 $data = $event->getData();
                 $agenceId = $data['agence'] ?? null;
-
+                //changement de type de mouvement en objet
+                $data['typeMouvement'] = $this->em->getRepository(TypeMouvement::class)->find($data['typeMouvement']);
+                $event->setData($data);
+                
                 if ($agenceId) {
                     $agence = $this->em->getRepository(Agence::class)->find($agenceId);
                     if ($agence) {
@@ -338,9 +354,9 @@ class BadmForm2Type extends AbstractType
                             'choices' => $services,
                             'required' => false,
                             'attr' => [ 
-                                'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
-                            ],
-                            'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                                    'disabled' => true
+                                ],
+                                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
                         ])
                         ->add('casierDestinataire', EntityType::class, [
                             'label' => 'Casier Destinataire',
@@ -350,11 +366,13 @@ class BadmForm2Type extends AbstractType
                             'choices' => $casiers,
                             'required' => false,
                             'attr' => [ 
-                            'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5
+                                'disabled' => $idTypeMouvement !== 3,
+                                'class' => 'selectCasier'
                             ],
-                        'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                            'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
     
-                        ]);
+                        ])
+                        ;
                     }
                 }
             })
@@ -367,7 +385,12 @@ class BadmForm2Type extends AbstractType
                 'disabled' => $idTypeMouvement !== 1 && $idTypeMouvement !==2 && $idTypeMouvement !==3,
             ],
             'required' => $idTypeMouvement === 1 || $idTypeMouvement === 2||$idTypeMouvement === 3,
-
+            'constraints' => [
+                    new Assert\Length([
+                        'max' => 100,
+                        'maxMessage' => 'Le champ motif ne doit pas dépasser {{ limit }} caractères.',
+                    ]),
+                ]
         ])
         //ENTREE EN PARC
         ->add('etatAchat',
@@ -380,18 +403,17 @@ class BadmForm2Type extends AbstractType
             'required' => false,
         ])
         ->add('dateMiseLocation',
-        DateTimeType::class,
+        DateType::class,
         [
             'label' => 'Date mise en location',
-            'mapped' => false,
                 'widget' => 'single_text', 
-                'html5' => false, 
-                'format' => 'dd/MM/yyyy', 
+                'html5' => true, 
+                 //'format' => 'dd/MM/yyyy', 
             'attr' => [
-                'disabled' => true
+                'disabled' => $idTypeMouvement !== 1
             ],
-            'required' => false,
-            'data' => $options["data"]->getDateMiseLocation()
+            'required' => $idTypeMouvement === 1,
+             'data' => $options["data"]->getDateMiseLocation()
         ])
         //BILAN FINANCIERE
         ->add('coutAcquisition',
@@ -462,6 +484,12 @@ class BadmForm2Type extends AbstractType
                 'disabled' =>  $idTypeMouvement !== 5
             ],
             'required' => $idTypeMouvement === 5,
+            'constraints' => [
+                    new Assert\Length([
+                        'max' => 100,
+                        'maxMessage' => 'Le champ motif ne doit pas dépasser {{ limit }} caractères.',
+                    ]),
+                ]
         ]
         )
         ->add('nomImage',
@@ -470,7 +498,6 @@ class BadmForm2Type extends AbstractType
             'label' => 'Image (Merci de mettre un fichier image)',
             'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
@@ -488,7 +515,6 @@ class BadmForm2Type extends AbstractType
             'label' => 'Fichier (Merci de mettre un fichier PDF)',
             'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [

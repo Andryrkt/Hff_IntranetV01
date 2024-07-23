@@ -8,6 +8,8 @@ use DateTime;
 use App\Entity\Agence;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CasierRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 
@@ -65,6 +67,15 @@ class CasierValider
     private $idStatutDemande = null;
 
     
+     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="casierDestinataire")
+     */
+    private $badms;
+
+    public function __construct()
+    {
+        $this->badms = new ArrayCollection();
+    }
  
 
     public function getId()
@@ -154,5 +165,34 @@ class CasierValider
         return $this;
     }
 
+    public function getBadms(): Collection
+    {
+        return $this->badms;
+    }
 
+    public function addBadm(Badm $badm): self
+    {
+        if (!$this->badms->contains($badm)) {
+            $this->badms[] = $badm;
+            $badm->setCasierDestinataire($this);
+        }
+        return $this;
+    }
+
+    public function removeBadm(Badm $badm): self
+    {
+        if ($this->badms->contains($badm)) {
+            $this->badms->removeElement($badm);
+            if ($badm->getCasierDestinataire() === $this) {
+                $badm->setCasierDestinataire(null);
+            }
+        }
+        return $this;
+    }
+
+    public function setBadms($badms): self
+    {
+        $this->badms = $badms;
+        return $this;
+    }
 }

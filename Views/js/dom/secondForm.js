@@ -251,18 +251,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   autreDepenseInput_1.addEventListener("input", () => {
     autreDepenseInput_1.value = formatNumberInt(autreDepenseInput_1.value);
-    fonction();
+    calculTotal();
   });
   autreDepenseInput_2.addEventListener("input", () => {
     autreDepenseInput_2.value = formatNumberInt(autreDepenseInput_2.value);
-    fonction();
+    calculTotal();
   });
   autreDepenseInput_3.addEventListener("input", () => {
     autreDepenseInput_3.value = formatNumberInt(autreDepenseInput_3.value);
-    fonction();
+    calculTotal();
   });
 
-  function fonction() {
+  function calculTotal() {
     const autreDepense_1 =
       parseInt(autreDepenseInput_1.value.replace(/[^\d]/g, "")) || 0;
     const autreDepense_2 =
