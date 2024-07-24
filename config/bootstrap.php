@@ -10,23 +10,24 @@ use App\Controller\Controller;
 use core\SimpleManagerRegistry;
 
 use Doctrine\ORM\EntityManager;
+use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Knp\Component\Pager\Paginator;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Form\FormRenderer;
-use Symfony\Component\Config\FileLocator;
 
+use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
+
 use Symfony\Component\HttpFoundation\Request;
-
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Security\Core\Security;
 
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
@@ -142,6 +143,7 @@ $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
+$twig->addExtension(new DeleteWordExtension());
 
 
 // Configure Form Renderer Engine and Runtime Loader

@@ -97,7 +97,7 @@ class DitDuplicationController extends Controller
                 $dits = $this->infoEntrerManuel($form, self::$em);
 
                 //envoie des pièce jointe dans une dossier
-                $this->envoiePieceJoint($form, $dits);
+                $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
                 
                 //RECUPERATION de la dernière NumeroDemandeIntervention 
                 $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);

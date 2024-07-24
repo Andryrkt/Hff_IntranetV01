@@ -172,7 +172,7 @@
 							{# FIN Statut #}
 
 							<td>
-								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}">{{ item.numeroDemandeIntervention }}</a>
+								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank">{{ item.numeroDemandeIntervention }}</a>
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
@@ -199,7 +199,8 @@
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
-							<td>{{ item.sectionAffectee}}</td>
+							{% set mots_a_supprimer = ['Chef section', 'chef sections', 'Responsable section '] %}
+							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
 							<td>
 								{% if item.numeroOr == '' %}
 

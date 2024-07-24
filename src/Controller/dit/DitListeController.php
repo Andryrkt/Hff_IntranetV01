@@ -205,6 +205,7 @@ class DitListeController extends Controller
         ];
 
         $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+     
         $idMat = [];
         $numSerieParc = [];
         if (!empty($data)) {

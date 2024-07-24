@@ -47,13 +47,6 @@ class DitController extends Controller
         
         if($form->isSubmitted() && $form->isValid())
         {
-            dd($demandeIntervention);
-           if($demandeIntervention->getIdMateriel() === null){
-                $message = 'Renseigner l\'information matériel';
-                $this->alertRedirection($message);
-                dd('Renseigner l\'information matériel');
-           } else {
-
                $dits = $this->infoEntrerManuel($form, self::$em);
                
                //RECUPERATION de la dernière NumeroDemandeIntervention 
@@ -62,8 +55,6 @@ class DitController extends Controller
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
-            
-            
             
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
@@ -86,9 +77,7 @@ class DitController extends Controller
             if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
-            
             $this->redirectToRoute("dit_index");
-        }
             
         }
 
