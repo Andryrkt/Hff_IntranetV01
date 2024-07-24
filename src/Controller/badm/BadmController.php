@@ -141,7 +141,6 @@ class BadmController extends Controller
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
 
 
-
                 if ($boolean) {
 
                     self::$twig->display(

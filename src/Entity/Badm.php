@@ -147,11 +147,11 @@ class Badm
     private ?string $modalitePaiement=null;
 
     /**
-     * @ORM\Column(type="string", name="Prix_Vente_HT")
+     * @ORM\Column(type="float", scale="2", name="Prix_Vente_HT")
      *
-     * @var string
+     * @var float
      */
-    private ?string $prixVenteHt = null;
+    private ?float $prixVenteHt = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Mise_Rebut", nullable=true)
@@ -161,18 +161,18 @@ class Badm
     private ?string $motifMiseRebut = null;
 
     /**
-     * @ORM\Column(type="string", name="Heure_machine")
+     * @ORM\Column(type="integer", name="Heure_machine")
      *
-     * @var string
+     * @var int
      */
-    private ?string $heureMachine;
+    private ?int $heureMachine;
 
     /**
-     * @ORM\Column(type="string", name="KM_machine")
+     * @ORM\Column(type="integer", name="KM_machine")
      *
-     * @var string
+     * @var int
      */
-    private ?string $kmMachine;
+    private ?int $kmMachine;
 
     /**
      * @ORM\Column(type="string", length=15 ,name="Num_Parc", nullable=true)

@@ -4,11 +4,28 @@ body
 {
     background-color: #f8f9fa;
     font-family: 'Noto Sans Nandinagari', sans-serif;
+    font-size: 0.6875rem;
+}
+
+a, select, input, button, nav
+{
+    font-size: 0.6875rem ! important;
+}
+
+h2 
+{
+    font-size: 1.5rem ! important;
+}
+
+h3
+{
+    font-size: 1rem ! important;
 }
 
 
 label {
     font-weight: bold;
+    margin-top: 5px;
     /* font-style: italic; */
 }
 

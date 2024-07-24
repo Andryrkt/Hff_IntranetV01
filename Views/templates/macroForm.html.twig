@@ -99,8 +99,8 @@
 
 
 {% macro affichage(label, value = "") %}
-<label for="">{{label}}</label>
-<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle fw-bold">{{value}}</div>
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-3 rounded px-2 pt-1 bg-secondary-subtle fw-bold">{{value}}</div>
 {% endmacro %}
 
 {% macro affichageFile(label, value = "", directory) %}

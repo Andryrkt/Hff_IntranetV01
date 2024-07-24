@@ -10,6 +10,7 @@ use App\Entity\CasierValider;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
+use App\Entity\StatutDemande;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -47,6 +48,57 @@ class BadmsForm2Controller extends Controller
 
             if($form->isSubmitted() && $form->isValid())
             {
+                dump($form->getData());
+                $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
+       $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
+       $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
+       $badm->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
+       ->setCasierEmetteur($data[0]["casier_emetteur"]);
+                $idTypeMouvement = $badm->getTypeMouvement()->getId();
+       if( $idTypeMouvement === 1) {
+        $agencedestinataire = null;
+         $serviceEmetteur = null;
+        $casierDestinataire = null;
+        $dateMiseLocation = null;
+        
+       } elseif ($idTypeMouvement === 2) {
+        $agencedestinataire = null;
+        $serviceEmetteur = null;
+       $casierDestinataire = null;
+       $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+       } elseif ($idTypeMouvement === 3) {
+            if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
+                $agencedestinataire = self::$em->getRepository(Agence::class)->find(9);
+                $serviceEmetteur = self::$em->getRepository(Service::class)->find(2);
+            } else {
+                $agencedestinataire = self::$em->getRepository(Agence::class)->find(1);
+                $serviceEmetteur = self::$em->getRepository(Service::class)->find(2);
+            }
+        $casierDestinataire = null;
+        $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+       } elseif ($idTypeMouvement === 4) {
+        $agencedestinataire = self::$em->getRepository(Agence::class)->find($agenceEmetteur->getId());
+        $casierDestinataire = self::$em->getRepository(CasierValider::class)->findOneBy(['casier' => $data[0]["casier_emetteur"]]);
+        $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+       } elseif($idTypeMouvement === 5) {
+        $agencedestinataire = self::$em->getRepository(Agence::class)->find($agenceEmetteur->getId());
+        $casierDestinataire = self::$em->getRepository(CasierValider::class)->findOneBy(['casier' => $data[0]["casier_emetteur"]]);
+        $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+       }
+                $badm
+                ->setNumParc($data[0]["num_parc"])
+                ->setHeureMachine((int)$data[0]['heure'])
+                ->setKmMachine((int)$data[0]['km'])
+                ->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]))
+                ->setCoutAcquisition((float)$data[0]["droits_taxe"])
+        ->setAmortissement((float)$data[0]["amortissement"])
+        ->setValeurNetComptable((float)$data[0]["droits_taxe"] - $data[0]["amortissement"])
+        ->setAgence($agencedestinataire)
+        ->setService($serviceEmetteur)
+        ->setCasierDestinataire($casierDestinataire)
+        ->setDateMiseLocation($dateMiseLocation)
+        ->setStatutDemande(self::$em->getRepository(StatutDemande::class)->find(15))
+        ;
                 dd($badm);
             }
        self::$twig->display(

@@ -142,6 +142,8 @@ public function fetchMateriel($idMateriel,  $numParc, $numSerie)
     // Récupérer les données depuis le modèle
 $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
 
+dd($data);
+
 // Vérifiez si les données existent
 if (!$data) {
     return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);

@@ -10,7 +10,7 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-		<h2 class="text-center fs-1 fw-bold  py-2 rounded color-perso-titre">
+		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
 			Liste de Demande d'intervention
 		</h2>
 
@@ -74,150 +74,150 @@
 		{% endif %}
 		<!-- DEBUT tableau -->
 
-		<div class="container">
-			{% if empty == true %}
-				<div class="fw-bold fs-4 text-danger">
-					Aucun résultat correspond à votre recherche.
-					<p>Veuillez actualiser (bouton F5) avant de faire une nouvelle recherche.</p>
+	</div>
+	<div class="container-fluid">
+		{% if empty == true %}
+			<div class="fw-bold fs-4 text-danger">
+				Aucun résultat correspond à votre recherche.
+				<p>Veuillez actualiser (bouton F5) avant de faire une nouvelle recherche.</p>
+			</div>
+		{% else %}
+			<div class="d-flex justify-content-between">
+				<div>
+					<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+						<i class="fas fa-table"></i>
+						Excel</a>
+
+					<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
 				</div>
-			{% else %}
-				<div class="d-flex justify-content-between">
-					<div>
-						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-
-
-						<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-							Resultats</p>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-							pages</p>
-					</div>
-					<div class="navigation">
-						{% set queryParams = criteria  %}
-
-						{% if currentPage > 1 %}
-							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
-								<i class="fas fa-angle-left text-warning"></i>
-							</a>
-						{% endif %}
-
-
-						{% if currentPage < totalPages %}
-							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
-								<i class="fas fa-angle-right text-warning"></i>
-							</a>
-						{% endif %}
-					</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+						Resultats</p>
 				</div>
+				<div>
+					<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+						pages</p>
+				</div>
+				<div class="navigation">
+					{% set queryParams = criteria  %}
+
+					{% if currentPage > 1 %}
+						<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+							<i class="fas fa-angle-left text-warning"></i>
+						</a>
+					{% endif %}
 
 
-				<table class="table rounded">
-					<thead class="table-dark">
+					{% if currentPage < totalPages %}
+						<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+							<i class="fas fa-angle-right text-warning"></i>
+						</a>
+					{% endif %}
+				</div>
+			</div>
+
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
+					<tr>
+						<th>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</th>
+						<th>Statut</th>
+						<th>N° DIT</th>
+						<th>type Document</th>
+						<th>Niveau</th>
+						<th>Categories</th>
+						<th>N° Serie</th>
+						<th>N° Parc</th>
+						<th>Date Demande</th>
+						<th>Int/Ext</th>
+						<th>Emetteur</th>
+						<th>Débiteur</th>
+						<th>Objet</th>
+						<th>Section affectée</th>
+						<th>N° Or</th>
+						<th>Statut Or</th>
+						<th>Statut Command</th>
+						<th>Utilisateur</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in data %}
 						<tr>
-							<th>
-								<i class="fas fa-ellipsis-vertical"></i>
-							</th>
-							<th>Statut</th>
-							<th>N° DIT</th>
-							<th>type Document</th>
-							<th>Niveau</th>
-							<th>Categories</th>
-							<th>N° Serie</th>
-							<th>N° Parc</th>
-							<th>date Demande</th>
-							<th>Int/Ext</th>
-							<th>emetteur</th>
-							<th>débiteur</th>
-							<th>Objet</th>
-							<th>Section affectée</th>
-							<th>N° Or</th>
-							<th>Statut Or</th>
-							<th>Statut Command</th>
-							<th>Utilisateur</th>
+							{# Début Action #}
+							<td>
+								<div class="dropdown">
+									<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="fas fa-ellipsis-vertical"></i>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
+										</li>
+									</ul>
+								</div>
+							</td>
+							{# Fin Actions #}
+
+							{# DEBUT Statut #}
+							{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
+								<td class="bg-warning bg-gradient fw-bold text-cente">
+									{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% else %}
+								<td>{{item.idStatutDemande.description | trim}}</td>
+							{% endif %}
+							{# FIN Statut #}
+
+							<td>
+								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}">{{ item.numeroDemandeIntervention }}</a>
+							</td>
+							<td>{{ item.typeDocument.description}}</td>
+							<td>{{ item.idNiveauUrgence.description}}</td>
+							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+
+							{% if item.idMateriel not in idMat %}
+								<td>
+									-
+								</td>
+								<td>
+									-
+								</td>
+							{% else %}
+								{% for num in numSerieParc %}
+									{% if item.idMateriel == num.num_matricule %}
+										<td>{{ num.num_serie}}</td>
+										<td>{{ num.num_parc}}</td>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+
+							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+							<td>{{ item.internetExterne}}</td>
+							<td>{{ item.agenceServiceEmetteur }}</td>
+							<td>{{ item.agenceServiceDebiteur}}</td>
+							<td>{{ item.objetDemande}}</td>
+							<td>{{ item.sectionAffectee}}</td>
+							<td>{{ item.numeroOr}}</td>
+							<td>{{ item.statutOr}}</td>
+							<td>{{ item.statutCommande}}</td>
+							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
-					</thead>
-					<tbody>
-						{% for item in data %}
-							<tr>
-								{# Début Action #}
-								<td>
-									<div class="dropdown">
-										<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-ellipsis-vertical"></i>
-										</button>
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	</div>
 
-											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
-											</li>
-										</ul>
-									</div>
-								</td>
-								{# Fin Actions #}
-
-								{# DEBUT Statut #}
-								{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
-									<td class="bg-warning bg-gradient fw-bold text-cente">
-										{{item.idStatutDemande.description | trim}}</td>
-								{% elseif item.idStatutDemande.description | trim == 'AFFECTEE'  %}
-									<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-								{% else %}
-									<td>{{item.idStatutDemande.description | trim}}</td>
-								{% endif %}
-								{# FIN Statut #}
-
-								<td>
-									<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}">{{ item.numeroDemandeIntervention }}</a>
-								</td>
-								<td>{{ item.typeDocument.description}}</td>
-								<td>{{ item.idNiveauUrgence.description}}</td>
-								<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-
-								{% if item.idMateriel not in idMat %}
-									<td>
-										-
-									</td>
-									<td>
-										-
-									</td>
-								{% else %}
-									{% for num in numSerieParc %}
-										{% if item.idMateriel == num.num_matricule %}
-											<td>{{ num.num_serie}}</td>
-											<td>{{ num.num_parc}}</td>
-										{% endif %}
-									{% endfor %}
-								{% endif %}
-
-								<td>{{ item.dateDemande|date('d/m/Y')}}</td>
-								<td>{{ item.internetExterne}}</td>
-								<td>{{ item.agenceServiceEmetteur }}</td>
-								<td>{{ item.agenceServiceDebiteur}}</td>
-								<td>{{ item.objetDemande}}</td>
-								<td>{{ item.sectionAffectee}}</td>
-								<td>{{ item.numeroOr}}</td>
-								<td>{{ item.statutOr}}</td>
-								<td>{{ item.statutCommande}}</td>
-								<td>{{item.utilisateurDemandeur}}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			{% endif %}
-		</div>
-		<!-- FIN tableau -->
+	<!-- FIN tableau -->
 
 
-	{% endblock %}
+{% endblock %}
 
-	{% block javascript %}
-		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-		<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
 
-	{% endblock %}
+{% endblock %}
