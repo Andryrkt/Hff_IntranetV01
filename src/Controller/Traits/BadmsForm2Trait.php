@@ -18,6 +18,11 @@ trait BadmsForm2Trait
         }
     }
 
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet/formBadm")
+    {
+        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
+    }
+
 
     private function initialisation(Badm $badm, array $form1Data, $data, $em): Badm
     {

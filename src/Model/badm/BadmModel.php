@@ -101,7 +101,7 @@ class BadmModel extends Model
         trim((case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end)||' '||asuc_lib) as agence
         
          from mat_mat, agr_succ
-         WHERE (MMAT_SUCC in ('01','20','30','40', '50','60','80','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '20', '30', '40', '50', '60', '80', '90','91','92') ))
+         WHERE (MMAT_SUCC in ('01','02', '20','30','40', '50','60','80','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '02', '20', '30', '40', '50', '60', '80', '90','91','92') ))
 
 
           and trim(MMAT_ETSTOCK) in ('ST','AT')

@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Traits\AgenceServiceEmetteurTrait;
-use App\Traits\AgenceServiceTrait;
 use DateTime;
-
+use App\Entity\CasierValider;
 use Doctrine\ORM\Mapping as ORM;
+
+use App\Traits\AgenceServiceTrait;
+use App\Traits\AgenceServiceEmetteurTrait;
 
 
 /**
@@ -82,13 +83,11 @@ class Badm
      */
     private string $agenceServiceDestinataire;
 
-
-    
      /**
      * @ORM\ManyToOne(targetEntity=CasierValider::class, inversedBy="Badms")
      * @ORM\JoinColumn(name="Casier_Destinataire", referencedColumnName="id")
      */
-    private  ?CasierValider $casierDestinataire = null;
+    private  ?CasierValider $casierDestinataire;
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Arret_Materiel", nullable=true)

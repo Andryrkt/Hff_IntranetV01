@@ -335,11 +335,14 @@ class BadmForm2Type extends AbstractType
                 $agenceId = $data['agence'] ?? null;
                 //changement de type de mouvement en objet
                 $data['typeMouvement'] = $this->em->getRepository(TypeMouvement::class)->find($data['typeMouvement']);
+                // $data['agence'] = $this->em->getRepository(Agence::class)->find($data['agence']);
+                // $data['service'] = $this->em->getRepository(Service::class)->find($data['service']);
+                // $data['casierDestinataire'] = $this->em->getRepository(CasierValider::class)->find($data['casierDestinataire']);
                 $event->setData($data);
-                
+                //dd($data);
                 if ($agenceId) {
                     $agence = $this->em->getRepository(Agence::class)->find($agenceId);
-                    if ($agence) {
+                    
                         $services = $agence->getServices();
                         $casiers = $agence->getCasiers();
 
@@ -372,9 +375,8 @@ class BadmForm2Type extends AbstractType
                             'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
     
                         ])
-                        ;
-                    }
-                }
+                        ;  
+               }
             })
         
         ->add('motifMateriel',

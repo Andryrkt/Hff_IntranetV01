@@ -11,6 +11,7 @@ use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
+use App\Entity\CasierValider;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\StatutDemande;
 use Symfony\Component\Routing\Annotation\Route;
@@ -112,7 +113,7 @@ class CasierController extends Controller
     ->setIdMateriel($data[0]["num_matricule"])
     ->setAnneeDuModele($data[0]["annee"])
     ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
-    ->setDateCreation(new \DateTime())
+    ->setDateCreation(\DateTime::createFromFormat('Y-m-d',$this->getDatesystem()))
     ;
 
 
@@ -189,9 +190,6 @@ class CasierController extends Controller
             ]
         );
     }
-
-
-
     
     /**
      * @Route("/casierDestinataire", name="badm_casierDestinataire")
@@ -199,9 +197,19 @@ class CasierController extends Controller
     public function casierDestinataire()
     {
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
-        $casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+        $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();
 
+        $casierDestinataireSqlServer = [];
+        foreach ($casierDestinataire as $value) {
+            $casierDestinataireSqlServer[] = [
+                'Agence_Rattacher' => $value->getAgenceRattacher()->getCodeAgence(),
+                'Casier' => $value->getCasier()
+            ];
+        }
 
+        
+        
         // Combinaison des deux tableaux
         $resultat = [];
 

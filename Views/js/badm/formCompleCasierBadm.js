@@ -16,7 +16,7 @@ export function fetchCasier(selectOption = undefined) {
             .getElementById("agenceDestinataire")
             .value.toUpperCase();
           console.log(selectOption);
-        }, 300);
+        }, 1000);
       }
 
       setTimeout(() => {
@@ -33,7 +33,7 @@ export function fetchCasier(selectOption = undefined) {
           ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
         }
         casierDestinataire.innerHTML = optionsHTML;
-      }, 300);
+      }, 1000);
     })
     .catch((error) => console.error(error));
 }
