@@ -47,8 +47,7 @@ class DitController extends Controller
         
         if($form->isSubmitted() && $form->isValid())
         {
-           
-           
+            dd($demandeIntervention);
            if($demandeIntervention->getIdMateriel() === null){
                 $message = 'Renseigner l\'information matériel';
                 $this->alertRedirection($message);
@@ -138,11 +137,9 @@ public function agence($id) {
 public function fetchMateriel($idMateriel,  $numParc, $numSerie)
 {
 
-    
     // Récupérer les données depuis le modèle
 $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
 
-dd($data);
 
 // Vérifiez si les données existent
 if (!$data) {

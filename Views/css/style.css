@@ -7,11 +7,15 @@ body
     font-size: 0.6875rem;
 }
 
-a, select, input, button, nav
+a, select, input, button, textarea
 {
     font-size: 0.6875rem ! important;
 }
 
+nav 
+{
+    font-size: 0.6975rem!important;
+}
 h2 
 {
     font-size: 1.5rem ! important;

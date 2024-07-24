@@ -3,15 +3,16 @@
     color: black;
     font-weight: bold;
     font-size: 1rem;
+    margin-bottom: 0px;
 }
 
 .sousTitre div {
     width: 100%; 
-    height: 15px; 
+    height: 3px; 
     background-color: #FBBB01;
     border-radius: 2px; 
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     border: none;
 }
 

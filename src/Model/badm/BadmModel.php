@@ -2,8 +2,6 @@
 
 namespace App\Model\badm;
 
-use PDO;
-use PDOException;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
@@ -155,6 +153,26 @@ class BadmModel extends Model
      */
     public function findAll($matricule = '',  $numParc = '', $numSerie = '')
     {
+
+        if($matricule === '' || $matricule === '0' || $matricule === null){
+            $conditionNummat = "";
+           } else {
+             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+           }
+     
+     
+           if($numParc === '' || $numParc === '0' || $numParc === null){
+             $conditionNumParc = "";
+           } else {
+             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+           }
+     
+           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
+             $conditionNumSerie = "";
+           } else {
+             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+           }
+
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
         trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
@@ -211,8 +229,10 @@ class BadmModel extends Model
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-         and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
-      ";
+        ".$conditionNummat."
+        ".$conditionNumParc."
+        ".$conditionNumSerie."
+        ";
 
         $result = $this->connect->executeQuery($statement);
 

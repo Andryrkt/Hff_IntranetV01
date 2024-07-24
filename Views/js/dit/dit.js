@@ -119,7 +119,7 @@ function InfoMateriel() {
     if (numSerie) {
       url += `/${numSerie}`;
     } else if (!numParc && !idMateriel) {
-      url += "/"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
+      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
     }
     fetch(url)
       .then((response) => response.json())

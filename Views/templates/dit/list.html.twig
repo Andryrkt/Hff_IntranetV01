@@ -200,7 +200,14 @@
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
 							<td>{{ item.sectionAffectee}}</td>
-							<td>{{ item.numeroOr}}</td>
+							<td>
+								{% if item.numeroOr == '' %}
+
+									{% else %}
+										<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">{{ item.numeroOr}}</button>
+								{% endif %}
+
+							</td>
 							<td>{{ item.statutOr}}</td>
 							<td>{{ item.statutCommande}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>
@@ -213,6 +220,32 @@
 
 	<!-- FIN tableau -->
 
+	<div class="modal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Modal title</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+
+					<table class="table rounded">
+						<thead class="table-dark">
+							<tr>
+								<th>Statut</th>
+								<th>N° commande</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}
 

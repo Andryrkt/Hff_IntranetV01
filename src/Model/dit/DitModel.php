@@ -15,99 +15,58 @@ class DitModel extends Model
     /**
      * informix
      */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = '')
+    public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
-      // $statement = "SELECT
-      //   case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
-      //   trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
-      //   when null then 'COMMERCIAL' 
-      //   else(select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = 'HF' and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER')
-      //   end as service,
-        
-      //   case (select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat) when null then 'LCD' 
-      //   else(select mimm_service  from mmo_imm where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat)
-      //   end as code_service,
-      //   trim((select atab_lib from agr_tab where atab_code = mmat_etstock and atab_nom = 'ETM')) as groupe1,
-      //   trim((select atab_lib from agr_tab where atab_code = mmat_affect and atab_nom = 'AFF')) as affectation,
-      //   mmat_marqmat as constructeur,
-      
-      //   trim(mmat_desi) as designation,
-      //   trim(mmat_typmat) as modele,
-      //   mmat_nummat as num_matricule,
-      //   trim(mmat_numserie) as num_serie,
-      //   trim(mmat_recalph) as num_parc ,
-     
-      //   (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
-      //   (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
-      //   (select mhir_daterel from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as Date_compteur,
-      //   trim(mmat_numparc) as casier_emetteur,
-      //   year(mmat_datemser) as annee,
-      //   date(mmat_datentr) as date_achat,
-      //   (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R' and mofi_lib like 'Prix d''achat') as Prix_achat,
-      //   (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
-     
-      //   (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Charge_Entretien,
-       
-      //   (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Droits_Taxe,
-        
-      //   (select mtxt_comment from mat_txt where mtxt_code = 'LOC' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
-      //   (select mtxt_comment from mat_txt where mtxt_code = 'CLT' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' ' and mtxt_nolign = 10 ),
-      //   (select commentaire_materiel from hff_lien_materiel where  id_materiel = mmat_nummat),
-      //   (select lien_materiel from hff_lien_materiel where  id_materiel = mmat_nummat),
-        
-      //   mmat_nouo,
-        
-       
-      //   trim((select atab_lib from agr_tab where atab_code = mmat_natmat and atab_nom = 'NAT')) as famille,
-      //   trim(mmat_affect) as code_affect,
-      //   (select  mimm_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
-        
-      //   from mat_mat, agr_succ, outer mat_bil
-      //   WHERE (MMAT_SUCC in ('01', '02', '20', '30', '40', '50', '60', '80', '90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01','02', '20', '30', '40', '50', '60', '80', '90','91','92') ))
-        
-        
-      //    and trim(MMAT_ETSTOCK) in ('ST','AT')
-      //    and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-      //   and mmat_soc = 'HF'
-      //   and (mmat_succ = asuc_num or mmat_succ = asuc_parc)
-      //   and mmat_nummat = mbil_nummat
-      //   and mbil_dateclot = '12/31/1899'
-      //   and mmat_datedisp < '12/31/2999'
-      //    and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
-      // ";
 
       
+      
+      if($matricule === '' || $matricule === '0' || $matricule === null){
+       $conditionNummat = "";
+      } else {
+        $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+      }
+
+
+      if($numParc === '' || $numParc === '0' || $numParc === null){
+        $conditionNumParc = "";
+      } else {
+        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+      }
+
+      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
+        $conditionNumSerie = "";
+      } else {
+        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+      }
+      
+
         $statement = "SELECT
 
- mmat_marqmat as constructeur,
-       
+        mmat_marqmat as constructeur,
         trim(mmat_desi) as designation,
         trim(mmat_typmat) as modele,
         trim(mmat_numparc) as casier_emetteur,
- mmat_nummat as num_matricule,
+        mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc,
 
-(select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
-      (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
-(select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Prix_achat,
-         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
+        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
+        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Prix_achat,
+        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
 
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 10 and mofi_ssclasse in (100,21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChiffreAffaires,
-         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (100,110) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChargeLocative,
+        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (100,110) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChargeLocative,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as ChargeEntretien
 
-FROM MAT_MAT, mat_bil
-  WHERE(
-        ('".$matricule."' is not null and mmat_nummat ='".$matricule."') 
-        or('" . $numSerie ."' is not null and mmat_numserie ='" .$numSerie."') 
-        or('" . $numParc ."' is not null and mmat_recalph ='" . $numParc ."')
-        )
-and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO')
-and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
-       and mbil_dateclot = '12/31/1899'
-        
+      FROM MAT_MAT, mat_bil
+      WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
+      and mbil_dateclot = '12/31/1899'
+      ".$conditionNummat."
+      ".$conditionNumParc."
+      ".$conditionNumSerie."
       ";
 
         $result = $this->connect->executeQuery($statement);
@@ -193,19 +152,26 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 
     public function recuperationIdMateriel($numParc = '', $numSerie = '')
     {
-     
+      if($numParc === '' || $numParc === '0' || $numParc === null){
+        $conditionNumParc = "";
+      } else {
+        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+      }
+
+      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
+        $conditionNumSerie = "";
+      } else {
+        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+      }
+
         $statement = "SELECT
         mmat_nummat as num_matricule
-      
-
         from mat_mat
-        where (
-        ('" . $numSerie ."' is not null and mmat_numserie ='" .$numSerie."') 
-        or('" . $numParc ."' is not null and mmat_recalph ='" . $numParc ."')
-        )
-        and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
-      ";
+        where  MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+        ".$conditionNumParc."
+        ".$conditionNumSerie."
+        ";
 
       
         $result = $this->connect->executeQuery($statement);
