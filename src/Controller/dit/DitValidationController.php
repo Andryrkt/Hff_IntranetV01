@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DitValidationController extends Controller
 {
+    
     /**
  * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
  *
@@ -125,13 +126,15 @@ class DitValidationController extends Controller
         
     }
         
-
+    
+    $commandes = $this->ditModel->RecupereCommandeOr($dit->getNumeroOR());
     self::$twig->display('dit/validation.html.twig', [
         'form' => $form->createView(),
         'infoUserCours' => $infoUserCours,
         'boolean' => $boolean,
         'dit' => $dit,
-        'autoriser' => $autoriser
+        'autoriser' => $autoriser,
+        'commandes' => $commandes
     ]);
    }
 

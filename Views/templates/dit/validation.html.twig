@@ -51,7 +51,8 @@
 							<div class="row">
 								<div class="col-12 col-md-6">{{ macroForm.affichage('N° Or', dit.numeroOr)}}</div>
 								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
-								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee)}}</div>
+								{% set mots_a_supprimer = ['Chef section', 'chef sections', 'Responsable section '] %}
+								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
 							</div>
 						</div>
 						{# FIN OR #}
@@ -67,16 +68,14 @@
 									</tr>
 								</thead>
 								<tbody>
+								
+								{% for command in commandes %}
 									<tr>
-										<td>5</td>
-										<td>02/07/2025</td>
-										<td>jlkjmlk</td>
+										<td>{{ command.slor_numcf}}</td>
+										<td>{{ command.fcde_date}}</td>
+										<td> -- </td>
 									</tr>
-									<tr>
-										<td>20774298</td>
-										<td>02/07/2025</td>
-										<td>jlkjmlk</td>
-									</tr>
+								{% endfor %}
 								</tbody>
 							</table>
 						</div>
