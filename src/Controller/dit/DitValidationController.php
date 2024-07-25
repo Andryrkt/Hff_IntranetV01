@@ -126,8 +126,9 @@ class DitValidationController extends Controller
         
     }
         
-    
+    //RECUPERATION DE LISTE COMMANDE 
     $commandes = $this->ditModel->RecupereCommandeOr($dit->getNumeroOR());
+
     self::$twig->display('dit/validation.html.twig', [
         'form' => $form->createView(),
         'infoUserCours' => $infoUserCours,

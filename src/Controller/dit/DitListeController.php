@@ -229,7 +229,7 @@ class DitListeController extends Controller
 
 
        
-        
+        //AFFICHAGE LISTE ANNULLER
         if($request->query->get("envoyer") === "listAnnuler") {
         
             $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
@@ -239,6 +239,9 @@ class DitListeController extends Controller
 
             $totalPages = ceil($totalBadms / $limit);
         }
+
+
+         
     
         self::$twig->display('dit/list.html.twig', [
             'infoUserCours' => $infoUserCours,
@@ -317,4 +320,25 @@ class DitListeController extends Controller
 
          $this->excelService->createSpreadsheet($data);
     }
+
+
+    /**
+     * @Route("/command-modal/{numOr}", name="liste_commandModal")
+     *
+     * @return void
+     */
+    public function commandModal($numOr)
+    {
+        //RECUPERATION DE LISTE COMMANDE 
+        if ($numOr === '') {
+            $commandes = [];
+        } else {
+            $commandes = $this->ditModel->RecupereCommandeOr($numOr);
+        }
+
+        header("Content-type:application/json");
+
+        echo json_encode($commandes);
+    }
+
 }

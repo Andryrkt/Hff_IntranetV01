@@ -126,3 +126,40 @@ function recherche() {
       console.error("Error:", error);
     });
 }
+/** LIST COMMANDE MODAL */
+
+document.addEventListener("DOMContentLoaded", (event) => {
+  var listeCommandeModal = document.getElementById("listeCommande");
+  listeCommandeModal.addEventListener("show.bs.modal", function (event) {
+    var button = event.relatedTarget; // Button that triggered the modal
+    var id = button.getAttribute("data-id"); // Extract info from data-* attributes
+
+    // Fetch request to get the data
+    fetch(`/Hffintranet/command-modal/${id}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        var tableBody = document.getElementById("commandesTableBody");
+        tableBody.innerHTML = ""; // Clear previous data
+
+        data.forEach((command) => {
+          var row = `<tr>
+                      <td>${command.slor_numcf}</td>
+                      <td>${command.fcde_date}</td>
+                      <td> -- </td>
+                  </tr>`;
+          tableBody.innerHTML += row;
+        });
+      })
+      .catch((error) => {
+        var tableBody = document.getElementById("commandesTableBody");
+        tableBody.innerHTML =
+          '<tr><td colspan="3">Could not retrieve data.</td></tr>';
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  });
+});

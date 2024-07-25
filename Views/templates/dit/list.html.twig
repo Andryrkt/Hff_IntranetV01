@@ -84,10 +84,11 @@
 		{% else %}
 			<div class="d-flex justify-content-between">
 				<div>
+				{# Bouton EXCEL#}
 					<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
 						<i class="fas fa-table"></i>
 						Excel</a>
-
+				{# Bouton LISTE ANNULER#}
 					<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
 				</div>
 				<div>
@@ -202,12 +203,9 @@
 							{% set mots_a_supprimer = ['Chef section', 'chef sections', 'Responsable section '] %}
 							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
 							<td>
-								{% if item.numeroOr == '' %}
-
-									{% else %}
-										<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">{{ item.numeroOr}}</button>
+								{% if item.numeroOr != '' %}
+								<a href="#"  data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
 								{% endif %}
-
 							</td>
 							<td>{{ item.statutOr}}</td>
 							<td>{{ item.statutCommande}}</td>
@@ -221,32 +219,7 @@
 
 	<!-- FIN tableau -->
 
-	<div class="modal" tabindex="-1">
-		<div class="modal-dialog modal-dialog-scrollable">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Modal title</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-
-					<table class="table rounded">
-						<thead class="table-dark">
-							<tr>
-								<th>Statut</th>
-								<th>N° commande</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save changes</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	{% include "/dit/_modal.html.twig"  %}
 
 {% endblock %}
 

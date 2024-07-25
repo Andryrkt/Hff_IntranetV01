@@ -1,0 +1,38 @@
+<div class="modal" tabindex="-1" id="listeCommande">
+		<div class="modal-dialog modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Listes des commandes </h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+                {# body du modal#}
+				<div class="modal-body">
+            
+					<table class="table rounded mt-1">
+								<thead class="table">
+									<tr>
+										<th>N°</th>
+										<th>Date</th>
+										<th>Statut</th>
+									</tr>
+								</thead>
+								<tbody id="commandesTableBody">
+								
+								{# {% for command in commandes %}
+									<tr>
+										<td>{{ command.slor_numcf}}</td>
+										<td>{{ command.fcde_date}}</td>
+										<td> -- </td>
+									</tr>
+								{% endfor %} #}
+								</tbody>
+							</table>
+				</div>
+                {# Footer du modal#}
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>

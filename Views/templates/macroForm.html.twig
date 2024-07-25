@@ -112,3 +112,10 @@
 </div>
 {% endmacro %}
 
+{% macro affichageModal(label, value = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href="#"  data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{value}}" id="numOr">{{value}}</a>
+</div>
+{% endmacro %}
+

@@ -30,6 +30,7 @@ class CasierListController extends Controller
 
        $data = self::$em->getRepository(CasierValider::class)->findAll();
 
+
        $form = self::$validator->createBuilder(CasierSearchType::class)->getForm();
 
         self::$twig->display(
