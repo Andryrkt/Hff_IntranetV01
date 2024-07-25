@@ -75,6 +75,9 @@ define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
+
 $request = Request::createFromGlobals();
 $response = new Response();
 

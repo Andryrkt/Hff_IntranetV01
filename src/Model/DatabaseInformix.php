@@ -4,7 +4,6 @@ namespace App\Model;
 
 class DatabaseInformix
 {
-
     private $dsn = 'IPS_HFFPROD';
     private $user = 'informix';
     private $password = 'informix';

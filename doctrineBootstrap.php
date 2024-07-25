@@ -17,11 +17,11 @@ $isDevMode = true;
 // Configuration de la base de données
 $dbParams = array(
     'driver'   => 'pdo_sqlsrv',
-    'host'     => '192.168.0.28', 
+    'host'     => $_ENV["DB_HOST"], 
     'port'     => '1433',
-    'user'     => 'sa',
-    'password' => 'Hff@sql2024',
-    'dbname'   => 'HFF_INTRANET_TEST',
+    'user'     => $_ENV["DB_USERNAME"] ,
+    'password' => $_ENV["DB_PASSWORD"],
+    'dbname'   => $_ENV["DB_NAME"],
 );
 
 // Configuration du lecteur d'annotations
