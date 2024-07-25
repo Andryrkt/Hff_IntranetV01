@@ -68,14 +68,16 @@
 									</tr>
 								</thead>
 								<tbody>
-								
-								{% for command in commandes %}
-									<tr>
-										<td>{{ command.slor_numcf}}</td>
-										<td>{{ command.fcde_date}}</td>
-										<td> -- </td>
-									</tr>
-								{% endfor %}
+
+									{% for command in commandes %}
+										<tr>
+											<td>{{ command.slor_numcf}}</td>
+											<td>{{ command.fcde_date | date("d/m/Y")}}</td>
+											<td>
+												--
+											</td>
+										</tr>
+									{% endfor %}
 								</tbody>
 							</table>
 						</div>

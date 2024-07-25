@@ -21,7 +21,7 @@ $dbParams = array(
     'port'     => '1433',
     'user'     => 'sa',
     'password' => 'Hff@sql2024',
-    'dbname'   => 'HFF_INTRANET_TEST',
+    'dbname'   => 'HFF_INTRANET',
 );
 
 // Configuration du lecteur d'annotations

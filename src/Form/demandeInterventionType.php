@@ -359,36 +359,36 @@ class demandeInterventionType extends AbstractType
        ->add('pieceJoint03',
         FileType::class, 
         [
-            'label' => 'Pièce Jointe 03 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 03 (PDF)',
             'required' => false,
             'constraints' => [
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
                         'application/pdf',
-                        'image/jpeg',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                     ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
                 ])
             ],
         ])
         ->add('pieceJoint02',
         FileType::class, 
         [
-            'label' => 'Pièce Jointe 02 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 02 (PDF)',
             'required' => false,
             'constraints' => [
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
                         'application/pdf',
-                        'image/jpeg',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                     ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
                 ])
             ],
         ]
@@ -396,18 +396,18 @@ class demandeInterventionType extends AbstractType
         ->add('pieceJoint01',
         FileType::class, 
         [
-            'label' => 'Pièce Jointe 01 (PDF, JPEG, XLSX, DOCX)',
+            'label' => 'Pièce Jointe 01 (PDF)',
             'required' => false,
             'constraints' => [
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
                         'application/pdf',
-                        'image/jpeg',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                     ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF, JPEG, XLSX, or DOCX file.',
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
                 ])
             ],
         ]
