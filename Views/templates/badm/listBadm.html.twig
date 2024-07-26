@@ -10,82 +10,29 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-		<h2 class="text-center fs-1 fw-bold  py-2 rounded color-perso-titre">
+		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
 			Liste de mouvement matériel
 		</h2>
 
 		<!-- DEBUT recherche -->
 		<div class="w-50">
-			{{ form_start(form, {'method': 'GET'}) }}
-			<div class="row">
-				<div class="col-12 col-md-4">
-					{{ form_row(form.statut) }}
-					{{ form_row(form.typeMouvement) }}
-				</div>
-				<div class="col-12 col-md-4">
-					{{ form_row(form.dateDebut) }}
-					{{ form_row(form.dateFin) }}
-				</div>
-				<div class="col-12 col-md-4">
-					{{ form_row(form.idMateriel)}}
-					{{ form_row(form.numParc)}}
-					{{ form_row(form.numSerie)}}
-				</div>
-			</div>
-
-			<div class="d-flex justify-content-end">
-				<button class="btn btn-warning fw-bold" type="submit">
-					<i class="fab fa-searchengin"></i>
-					Recherche</button>
-			</div>
-
-			{{ form_end(form) }}
+			{% include "/badm/_formulaireRecherche.html.twig" %}
 		</div>
+	</div>
+	</div>
 
 		<!-- DEBUT tableau -->
-		<div class="container">
+	<div class="container-fluid">
 			{% if empty == true %}
-				<div class="fw-bold fs-4 text-danger">
-					Aucun résultat correspond à votre recherche.
-					<p>Veuillez actualiser (bouton F5) avant de faire une nouvelle recherche.</p>
-				</div>
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
 			{% else %}
-				<div class="d-flex justify-content-between">
-					<div>
-						<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=excelBadm" name="excelBadm" id="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
+			<div class="container">
+				{% include "/badm/_pagination.html.twig" %}
+			</div>
 
-
-						<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-							Resultats</p>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-							pages</p>
-					</div>
-					<div class="navigation">
-						{% set queryParams = criteria  %}
-
-						{% if currentPage > 1 %}
-							<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
-								<i class="fas fa-angle-left text-warning"></i>
-							</a>
-						{% endif %}
-
-
-						{% if currentPage < totalPages %}
-							<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
-								<i class="fas fa-angle-right text-warning"></i>
-							</a>
-						{% endif %}
-					</div>
-				</div>
-
-				<table class="table rounded">
+				<table class="table rounded table-plein-ecran">
 					<thead class="table-dark">
 						<tr>
 							<th>
@@ -93,19 +40,21 @@
 							</th>
 							<th>Statut</th>
 							<th>N° BADM</th>
-							<th>Code_Mouvement</th>
+							<th>Date demande</th>
+							<th>Code Mouvement</th>
 							<th>Id Materiel</th>
 							<th>Ag\Serv Emetteur</th>
 							<th>Ag\Serv Destinataire</th>
+							<th> Nbr jours</th>
 						</tr>
 					</thead>
 					<tbody>
 						{% for item in data %}
 							<tr>
 								{# Début Action #}
-								<td>
+								<td style="padding: 0px;" class="align-middle">
 									<div class="dropdown">
-										<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<button class="btn btn-sm dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 											<i class="fas fa-ellipsis-vertical"></i>
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
@@ -122,20 +71,20 @@
 
 								{# DEBUT Statut #}
 								{% if item.statutDemande.description | trim == 'OUVERT' %}
-									<td class="bg-warning bg-gradient fw-bold text-cente">
+									<td class="bg-warning bg-gradient text-cente">
 										{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'CLOTURE' or item.statutDemande.description | trim == 'CLOTURE COMPTA' %}
-									<td class="bg-success bg-gradient fw-bold">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-success bg-gradient">{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
-									<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-success " style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
-									<td class="bg-info fw-bold">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-info">{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.statutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.statutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
-									<td class="bg-danger fw-bold">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-danger">{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
-									<td class="bg-primary fw-bold">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-primary">{{item.statutDemande.description | trim}}</td>
 								{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
-									<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+									<td class="bg-primary" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
 								{% else %}
 									<td>{{item.statutDemande.description | trim}}</td>
 								{% endif %}
@@ -144,16 +93,22 @@
 								<td>
 									<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}">{{ item.numBadm }}</a>
 								</td>
+								<td>{{ item.dateDemande | date('d/m/Y')}}</td>
 								<td>{{ item.typeMouvement}}</td>
 								<td>{{ item.idMateriel}}</td>
 								<td>{{ item.agenceServiceEmetteur }}</td>
 								<td>{{ item.agenceServiceDestinataire}}</td>
+								{% set startDate = item.dateDemande | date('Y-m-d') %}
+								{% set currentDate = "now"|date("Y-m-d") %}
+								{% set diff = date(currentDate).diff(date(startDate)) %}
+								<td> {{ diff.days }} jours</td>
 							</tr>
 						{% endfor %}
 					</tbody>
 				</table>
 			{% endif %}
-		</div>
+	</div>
+	
 		<!-- FIN tableau -->
 
 

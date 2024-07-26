@@ -13,7 +13,6 @@
 		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
 			Liste de Demande d'intervention
 		</h2>
-
 		{% include "/dit/_formulaireRecherche.html.twig" %}
 		
 		{% include "/partials/_notification.html.twig" %}
@@ -22,11 +21,11 @@
 	<div class="container-fluid">
 			<!-- DEBUT tableau -->
 			{% if empty == true %}
-				<div class="container fw-bold fs-4 text-danger">
-					Aucun résultat correspond à votre recherche.
-					<p>Veuillez actualiser (bouton F5) avant de faire une nouvelle recherche.</p>
-				</div>
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
 			{% else %}
+			<div class="container">
 			<div class="d-flex justify-content-between">
 				<div>
 				{# Bouton EXCEL#}
@@ -61,6 +60,7 @@
 					{% endif %}
 				</div>
 			</div>
+			</div>
 
 			<table class="table rounded table-plein-ecran">
 				<thead class="table-dark">
@@ -91,9 +91,9 @@
 					{% for item in data %}
 						<tr>
 							{# Début Action #}
-							<td>
+							<td class="align-middle" style="padding: 0px">
 								<div class="dropdown">
-									<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
@@ -163,8 +163,9 @@
 	</div>
 
 	<!-- FIN tableau -->
-
+	{# body modal #}
 	{% include "/dit/_modal.html.twig"  %}
+
 
 {% endblock %}
 

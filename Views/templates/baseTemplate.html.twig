@@ -20,14 +20,18 @@
 			{% endblock %}
 		{% endblock %}
 	</head>
-	<body style="">
-		<section id="content">
+	<body>
+		<div class="main-content">
+        <div class="content">
 			{% block nav %}
 				{% include "/main/Principe.html.twig" %}
 			{% endblock %}
 
 			{% block content %}{% endblock %}
-		</section>
+	</div>
+        </div>
+	{% include "/partials/_footer.html.twig" %}
+		
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
 

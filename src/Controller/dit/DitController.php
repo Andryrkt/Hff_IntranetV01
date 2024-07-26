@@ -67,7 +67,6 @@ class DitController extends Controller
             //envoie des pièce jointe dans une dossier et le fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
-            
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
             self::$em->persist($insertDemandeInterventions);
