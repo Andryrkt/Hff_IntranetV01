@@ -31,13 +31,11 @@ class DitSearchType extends AbstractType
         'EXTERNE' => 'E'
     ];
 
-    private $serviceRepository;
     private $agenceRepository;
     
     public function __construct()
    {
-    $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
-    $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
+        $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -114,24 +112,28 @@ class DitSearchType extends AbstractType
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
                 $form = $event->getForm();
-            $data = $event->getData();
-           
-            $services = null;
-            $services = $data->getAgenceEmetteur()->getServices();
-            $form->add('serviceEmetteur', EntityType::class, [
-                'label' => "Service Emetteur",
-                'class' => Service::class,
-                'choice_label' => function (Service $service): string {
-                    return $service->getCodeService() . ' ' . $service->getLibelleService();
-                },
-                'placeholder' => '-- Choisir une service--',
-                'choices' => $services,
-                'required' => false,
-                'query_builder' => function(ServiceRepository $serviceRepository) {
-                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                },
-                'attr' => [ 'class' => 'serviceEmetteur']
-            ]);
+                $data = $event->getData();
+
+                if ($data->getAgenceEmetteur() === null) {
+                    $services = null;
+                } else {
+                    $services = $data->getAgenceEmetteur()->getServices();
+                }
+
+                $form->add('serviceEmetteur', EntityType::class, [
+                    'label' => "Service Emetteur",
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'placeholder' => '-- Choisir une service--',
+                    'choices' => $services,
+                    'required' => false,
+                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                    },
+                    'attr' => [ 'class' => 'serviceEmetteur']
+                ]);
             })
             ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($options) {
                 $form = $event->getForm();

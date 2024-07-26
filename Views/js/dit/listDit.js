@@ -1,5 +1,5 @@
 /**
- * recuperer l'agence debiteur et changer le service emetteur selon l'agence
+ * recuperer l'agence emetteur et changer le service emetteur selon l'agence
  */
 const agenceEmetteurInput = document.querySelector(".agenceEmetteur");
 const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
@@ -18,6 +18,11 @@ function selectAgenceEmetteur() {
       while (serviceEmetteurInput.options.length > 0) {
         serviceEmetteurInput.remove(0);
       }
+
+      // var defaultOption = document.createElement("option");
+      // defaultOption.value = "";
+      // defaultOption.text = " -- Choisir une service -- ";
+      // serviceEmetteurInput.add(defaultOption);
 
       // Ajouter les nouvelles options à partir du tableau services
       for (var i = 0; i < services.length; i++) {

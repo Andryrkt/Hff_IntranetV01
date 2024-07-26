@@ -34,77 +34,20 @@ class DitListeController extends Controller
     
 //dd($this->accessControl);
 
-        if($request->query->get('page') !== null){
-            if($request->query->get('typeDocument') !==null){
-                $idTypeDocument = self::$em->getRepository(WorTypeDocument::class)->findBy(['description' => $request->query->get('typeDocument')], [])[0]->getId();
-                $typeDocument = self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument) ;
-            } else {
-                $typeDocument = $request->query->get('typeDocument', null);
-            }
-
-            if($request->query->get('niveauUrgence') !==null){
-                $idNiveauUrgence = self::$em->getRepository(WorNiveauUrgence::class)->findBy(['description' => $request->query->get('niveauUrgence')], [])[0]->getId();
-                
-                $niveauUrgence = self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence) ;
-            } else {
-                $niveauUrgence = $request->query->get('niveauUrgence', null);
-            }
-           
-            if($request->query->get('statut') !==null){
-                $idStatut = self::$em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])[0]->getId();
-                $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut) ;
-            } else {
-                $statut = $request->query->get('statut', null);
-            }
-            
-        } else {
-            $typeDocument = $request->query->get('typeDocument', null);
-            $niveauUrgence = $request->query->get('niveauUrgence', null);
-            $statut = $request->query->get('statut', null);
-            
-            
-            if($request->query->get('dit_search') !== null) {
-                if($request->query->get('dit_search')['typeDocument'] !== null){
-                    $idTypeDocument = $request->query->get('dit_search')['typeDocument'];
-                    $typeDocument = self::$em->getRepository(WorTypeDocument::class)->find($idTypeDocument);
-                } else {
-                    $typeDocument = $request->query->get('typeDocument', null);
-                }
-
-                if($request->query->get('dit_search')['niveauUrgence'] !== null){
-                    $idNiveauUrgence = $request->query->get('dit_search')['niveauUrgence'];
-                    
-                    $niveauUrgence = self::$em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence);
-                } else {
-                    $niveauUrgence = $request->query->get('niveauUrgence', null);
-                }
-                
-                if($request->query->get('dit_search')['statut'] !== null){
-                    $idStatut = $request->query->get('dit_search')['statut'];
-                    $statut = self::$em->getRepository(StatutDemande::class)->find($idStatut);
-                } else {
-                    $statut = $request->query->get('statut', null);
-                }
-            
-            } else {
-                $typeDocument = $request->query->get('typeDocument', null);
-                $niveauUrgence = $request->query->get('niveauUrgence', null);
-                $statut = $request->query->get('statut', null);
-            }
-    }
-       
-        
-       
-
         $ditSearch = new DitSearch();
-
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-        $agence = self::$em->getRepository(Agence::class)->find($idAgence);
-        $service = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]);
+        //initialisation agence et service
+        if($boolean){
+            $agence = null;
+            $service = null;
+        } else {
+            $agence = self::$em->getRepository(Agence::class)->find($idAgence);
+            $service = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]);
+        }
         
-        $this->initialisationRechercheDit($ditSearch, $statut, $niveauUrgence, $typeDocument, $request, $agence, $service);
+        $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
@@ -112,7 +55,6 @@ class DitListeController extends Controller
             'idAgenceEmetteur' => $idAgence
         ])->getForm();
 
-        /**  */
         $form->handleRequest($request);
         //recupération du repository demande d'intervention
         $repository= self::$em->getRepository(DemandeIntervention::class);
@@ -128,14 +70,12 @@ class DitListeController extends Controller
                 if(!empty($idMateriel)){
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
-                    $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
                 } elseif(empty($idMateriel)) {
                   $empty = true;
                 }
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
-                $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
             }
         } 
        
@@ -153,14 +93,18 @@ class DitListeController extends Controller
      
         $option = [
             'boolean' => $boolean,
-            'codeAgence' => $agence->getCodeAgence(),
-            'codeService' =>$service->getCodeService()
+            'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
+            'codeService' =>$service === null ? null : $service->getCodeService()
         ];
 
+        $totalBadms = $repository->countFiltered($ditSearch);
+        //nombre total de page
+        $totalPages = ceil($totalBadms / $limit);
        
         //recupération des données filtrée
         $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
      
+        //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];
         if (!empty($data)) {
@@ -173,28 +117,8 @@ class DitListeController extends Controller
         } else {
             $empty = true;
         }
-        
-
-        $totalBadms = $repository->countFiltered($ditSearch);
-
-        $totalPages = ceil($totalBadms / $limit);
 
 
-       
-        //AFFICHAGE LISTE ANNULLER
-        if($request->query->get("envoyer") === "listAnnuler") {
-        
-            $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
-            $idMateriels = $this->recupIdMaterielEnChaine($data);
-            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-            $totalBadms = $repository->countFilteredListAnnuller($criteria);
-
-            $totalPages = ceil($totalBadms / $limit);
-        }
-
-
-         
-    
         self::$twig->display('dit/list.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
@@ -203,15 +127,15 @@ class DitListeController extends Controller
             'idMat' => $idMat,
             'empty' => $empty,
             'form' => $form->createView(),
-                'currentPage' => $page,
-                'totalPages' =>$totalPages,
-                'criteria' => $criteria,
-               'resultat' => $totalBadms,
+            'currentPage' => $page,
+            'totalPages' =>$totalPages,
+            'criteria' => $criteria,
+            'resultat' => $totalBadms,
         ]);
     }
 
     
- /**
+    /**
      * @Route("/export-excel", name="export_excel")
      */
     public function exportExcel(Request $request)
@@ -272,6 +196,56 @@ class DitListeController extends Controller
          $this->excelService->createSpreadsheet($data);
     }
 
+    /**
+     * TODO: MBOLA MILA ATAO
+     *
+     * AFFICHAGE LISTE ANNULLER
+     * @return void
+     */
+    public function listeAnnuler(Request $request)
+    {
+        // $this->SessionStart();
+        // $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        // $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        // $text = file_get_contents($fichier);
+        // $boolean = strpos($text, $_SESSION['user']);
+
+        // //recuperation des critère à partir de session
+        // $criteria = $this->sessionService->get('dit_search_criteria', []);
+
+        // $repository= self::$em->getRepository(DemandeIntervention::class);
+        //  //recupère le numero de page
+        //  $page = $request->query->getInt('page', 1);
+        //  //nombre de ligne par page
+        //  $limit = 10;
+      
+        //  $option = [
+        //      'boolean' => $boolean,
+        //      'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
+        //      'codeService' =>$service === null ? null : $service->getCodeService()
+        //  ];
+        // $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
+        //     $idMateriels = $this->recupIdMaterielEnChaine($data);
+        //     $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
+        //     $totalBadms = $repository->countFilteredListAnnuller($criteria);
+
+        //     $totalPages = ceil($totalBadms / $limit);
+
+
+        //     self::$twig->display('dit/list.html.twig', [
+        //         'infoUserCours' => $infoUserCours,
+        //         'boolean' => $boolean,
+        //         'data' => $data,
+        //         'numSerieParc' => $numSerieParc,
+        //         'idMat' => $idMat,
+        //         'empty' => $empty,
+        //         'form' => $form->createView(),
+        //         'currentPage' => $page,
+        //         'totalPages' =>$totalPages,
+        //         'criteria' => $criteria,
+        //         'resultat' => $totalBadms,
+        //     ]);
+    }
 
     /**
      * @Route("/command-modal/{numOr}", name="liste_commandModal")
