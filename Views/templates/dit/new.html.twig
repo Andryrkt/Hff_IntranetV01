@@ -12,13 +12,17 @@
 			<div class="card-body">
 
 				<div class="container">
-					<h2 class="text-center  fw-bold bg-black py-2 text-white">
-						Formulaire Demande d'intervention
-					</h2>
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h2 class="text-center align-middle rounded fw-bold  py-2 text-white" style="background-color: #212529;">
+								Formulaire Demande d'intervention
+							</h2>
+						</div>
 
-
-					<a href="{{ path("profil_acceuil")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Retour</a>
-
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
 					{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 					{{ form_errors(form)}}
 

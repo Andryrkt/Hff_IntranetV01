@@ -33,6 +33,7 @@ class DitListeController extends Controller
         $boolean = strpos($text, $_SESSION['user']);
     
 //dd($this->accessControl);
+
         if($request->query->get('page') !== null){
             if($request->query->get('typeDocument') !==null){
                 $idTypeDocument = self::$em->getRepository(WorTypeDocument::class)->findBy(['description' => $request->query->get('typeDocument')], [])[0]->getId();
@@ -103,19 +104,7 @@ class DitListeController extends Controller
         $agence = self::$em->getRepository(Agence::class)->find($idAgence);
         $service = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]);
         
-        $ditSearch
-        ->setStatut($statut)
-        ->setNiveauUrgence($niveauUrgence)
-        ->setTypeDocument($typeDocument)
-        ->setIdMateriel($request->query->get('idMateriel'))
-        ->setInternetExterne($request->query->get('internetExterne'))
-        ->setDateDebut($request->query->get('dateDebut'))
-        ->setDateFin($request->query->get('dateFin'))
-        ->setAgenceEmetteur($agence)
-        ->setServiceEmetteur($service)
-        //->setAgenceDebiteur(self::$em->getRepository(Agence::class)->find(1))
-        ;
-
+        $this->initialisationRechercheDit($ditSearch, $statut, $niveauUrgence, $typeDocument, $request, $agence, $service);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
@@ -123,79 +112,43 @@ class DitListeController extends Controller
             'idAgenceEmetteur' => $idAgence
         ])->getForm();
 
+        /**  */
         $form->handleRequest($request);
-
+        //recupération du repository demande d'intervention
         $repository= self::$em->getRepository(DemandeIntervention::class);
+        //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
-        $criteria = [];
+        
         if($form->isSubmitted() && $form->isValid()) {
+
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-           
-            
             if(!empty($numParc) || !empty($numSerie)){
-                
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
-                    $ditSearch
-                    ->setStatut($form->get('statut')->getData())
-                    ->setNiveauUrgence($form->get('niveauUrgence')->getData())
-                    ->setTypeDocument($form->get('typeDocument')->getData())
-                    ->setIdMateriel($idMateriel[0]['num_matricule'])
-                    ->setInternetExterne($form->get('internetExterne')->getData())
-                    ->setDateDebut($form->get('dateDebut')->getData())
-                    ->setDateFin($form->get('dateFin')->getData())
-                    ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
-                    ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
-                    ;
-                    
-                    if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
-                        $ditSearch
-                        ->setAgenceDebiteur(null)
-                        ->setServiceDebiteur(null);
-                    } else {
-                        $ditSearch
-                        ->setAgenceDebiteur($form->get('agenceDebiteur')->getData())
-                        ->setServiceDebiteur($form->get('serviceDebiteur')->getData());
-
-                    }
+                    $this->ajoutDonnerRecherche($form, $ditSearch);
+                    $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
+                    $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
                 } elseif(empty($idMateriel)) {
-                    $empty = true;
+                  $empty = true;
                 }
-                
             } else {
-                $ditSearch
-                    ->setStatut($form->get('statut')->getData())
-                    ->setNiveauUrgence($form->get('niveauUrgence')->getData())
-                    ->setTypeDocument($form->get('typeDocument')->getData())
-                    ->setIdMateriel($form->get('idMateriel')->getData())
-                    ->setInternetExterne($form->get('internetExterne')->getData())
-                    ->setDateDebut($form->get('dateDebut')->getData())
-                  ->setDateFin($form->get('dateFin')->getData())
-                  ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
-                  ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
-                  ;
-                  
-                  if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
-                      $ditSearch
-                      ->setAgenceDebiteur(null)
-                      ->setServiceDebiteur(null);
-                  } else {
-                      $ditSearch
-                      ->setAgenceDebiteur($form->get('agenceDebiteur')->getData())
-                      ->setServiceDebiteur($form->get('serviceDebiteur')->getData());
-                  }
-
+                $this->ajoutDonnerRecherche($form, $ditSearch);
+                $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
+                $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
             }
-            
         } 
        
-
+        $criteria = [];
+        //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
       
+
+        //recupère le numero de page
         $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
         $limit = 10;
      
         $option = [
@@ -204,6 +157,8 @@ class DitListeController extends Controller
             'codeService' =>$service->getCodeService()
         ];
 
+       
+        //recupération des données filtrée
         $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
      
         $idMat = [];
@@ -219,10 +174,7 @@ class DitListeController extends Controller
             $empty = true;
         }
         
-//         dump($data);    
-// dump($idMateriels);
-// dump($numSerieParc);
-// dd($idMat);
+
         $totalBadms = $repository->countFiltered($ditSearch);
 
         $totalPages = ceil($totalBadms / $limit);
@@ -314,7 +266,6 @@ class DitListeController extends Controller
             $entity->getMailDemandeur(),
             $entity->getDateDemande(),
             $entity->getIdStatutDemande()->getDescription()
-            
         ];
     }
 

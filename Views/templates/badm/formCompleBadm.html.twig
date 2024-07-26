@@ -9,17 +9,20 @@
 
 {% block content %}
 
+<div class=" container">
+		<div class="card">
+			<div class="card-body">
 
-<div class="container my-5">
+<div class="container ">
 
 	<div class="row">
 		<div class="col-12 col-md-11">
 			{% if detail == 'disabled' %}
-				<h2 class="fw-bold fs-1" style="color:#0e4194;">Détail Bordereau d’Acquisition et de Mouvement Matériel</h2>
+				<h2 class="text-center rounded align-middle  fw-bold  py-2 text-white " style="background-color: #212529;" >Détail Bordereau d’Acquisition et de Mouvement Matériel</h2>
 			{% elseif duplication %}
-				<h2 class="fw-bold fs-1" style="color:#0e4194;">Duplication Bordereau d’Acquisition et de Mouvement Matériel</h2>
+				<h2 class="text-center rounded align-middle  fw-bold  py-2 text-white " style="background-color: #212529;" >Duplication Bordereau d’Acquisition et de Mouvement Matériel</h2>
 			{% else %}
-				<h2 class="fw-bold fs-1" style="color:#0e4194;">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
+				<h2 class="text-center rounded align-middle  fw-bold  py-2 text-white " style="background-color: #212529;" >Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h2>
 			{% endif %}
 		</div>
 
@@ -83,7 +86,7 @@
 
 
 		<div class="row">
-			{{ form.sousTitre('Service émetteur', {class: 'sousTitre'})}}
+			{{ form.sousTitre('Agence et Service émetteur', {class: 'sousTitre'})}}
 		</div>
 		<div class="row">
 
@@ -95,7 +98,7 @@
 
 
 		<div class="row">
-			{{ form.sousTitre('Service destinataire', {class: 'sousTitre'})}}
+			{{ form.sousTitre('Agence et Service destinataire', {class: 'sousTitre'})}}
 		</div>
 		<div
 			class="row">
@@ -208,15 +211,19 @@
         {% endif %}
 
 
-{% if detail != 'disabled' %}
-    <div class="row mt-5">
-            {{form.button('submit', 'Envoyer', 'badmComplet', 'primary', {onclick: 'return confirm("Veuillez vérifier attentivement avant d\'envoyer.")'})}}
-            {# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
-        </div>
-{% endif %}
+		{% if detail != 'disabled' %}
+			<div class="row mt-5">
+					{{form.button('submit', 'Envoyer', 'badmComplet', 'bouton', {onclick: 'return confirm("Veuillez vérifier attentivement avant d\'envoyer.")'})}}
+					{# {{form.button('annuler', 'Annuler', 'reset', 'secondary')}} #}
+				</div>
+		{% endif %}
         
     </form>
-</div>        
+</div> 
+</div> 
+</div> 
+</div> 
+
     {% endblock content %}
 
 
