@@ -10,6 +10,24 @@ use Doctrine\ORM\EntityRepository;
 class BadmRepository extends EntityRepository
 {
 
+    public function findIdMateriel()
+    {
+        $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.idMateriel')
+            ->leftJoin('d.statutDemande', 's');
+            $queryBuilder->where($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+            ->setParameter('excludedStatuses', $excludedStatuses);
+
+            $results = $queryBuilder->getQuery()->getArrayResult();
+
+            // Extraire les IDs des matériels dans un tableau simple
+            $idMateriels = array_column($results, 'idMateriel');
+            
+            return $idMateriels;
+    }
+
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')

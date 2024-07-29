@@ -273,7 +273,7 @@ class BadmForm2Type extends AbstractType
                 'attr' => [ 
                     'disabled' => $idTypeMouvement === 4 || $idTypeMouvement === 5 || $idTypeMouvement === 3
                 ],
-                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                'required' => $idTypeMouvement === 1 && $idTypeMouvement !== 2,
         ])
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idTypeMouvement){
             $form = $event->getForm();
@@ -298,9 +298,7 @@ class BadmForm2Type extends AbstractType
                 return $service->getCodeService() . ' ' . $service->getLibelleService();
             },
             'placeholder' => ' -- Choisir une service --',
-            'choices' => $services,
-            // 'disabled' => $agence === null,
-           
+            'choices' => $services,           
             'query_builder' => function(ServiceRepository $serviceRepository) {
                     return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
@@ -321,7 +319,7 @@ class BadmForm2Type extends AbstractType
                     return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
                 },
                 'attr' => [ 
-                    'disabled' => $idTypeMouvement !== 3,
+                     'disabled' => $idTypeMouvement !== 3,
                     'class' => 'selectCasier'
                 ],
                 'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
@@ -334,48 +332,54 @@ class BadmForm2Type extends AbstractType
                 $data = $event->getData();
                 $agenceId = $data['agence'] ?? null;
                 //changement de type de mouvement en objet
-                $data['typeMouvement'] = $this->em->getRepository(TypeMouvement::class)->find($data['typeMouvement']);
-                // $data['agence'] = $this->em->getRepository(Agence::class)->find($data['agence']);
-                // $data['service'] = $this->em->getRepository(Service::class)->find($data['service']);
-                // $data['casierDestinataire'] = $this->em->getRepository(CasierValider::class)->find($data['casierDestinataire']);
-                $event->setData($data);
-                //dd($data);
-                if ($agenceId) {
+                 $event->setData($data);
+                 if ($agenceId) {
                     $agence = $this->em->getRepository(Agence::class)->find($agenceId);
                     
                         $services = $agence->getServices();
                         $casiers = $agence->getCasiers();
-
+                        
                         $form
-                        ->add('service', EntityType::class, [
-                            'label' => 'Service Débiteur',
-                            'class' => Service::class,
-                            'choice_label' => function (Service $service): string {
-                                return $service->getCodeService() . ' ' . $service->getLibelleService();
+                        ->add('service',
+                        EntityType::class,
+                        [
+                        
+                        'label' => 'Service Débiteur',
+                        'class' => Service::class,
+                        'choice_label' => function (Service $service): string {
+                            return $service->getCodeService() . ' ' . $service->getLibelleService();
+                        },
+                        'placeholder' => ' -- Choisir une service --',
+                        'choices' => $services,
+                        // 'disabled' => $agence === null,
+                       
+                        'query_builder' => function(ServiceRepository $serviceRepository) {
+                                return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                             },
-                            'placeholder' => ' -- Choisir une service --',
-                            'choices' => $services,
-                            'required' => false,
                             'attr' => [ 
-                                    'disabled' => true
-                                ],
-                                'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
+                                'disabled' => false
+                            ],
+                            'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
                         ])
-                        ->add('casierDestinataire', EntityType::class, [
-                            'label' => 'Casier Destinataire',
-                            'class' => Casier::class,
-                            'choice_label' => 'casier',
-                            'placeholder' => ' -- Choisir un casier --',
-                            'choices' => $casiers,
-                            'required' => false,
+                        ->add('casierDestinataire',
+                            EntityType::class,
+                            [
+                                'label' => 'Casier Destinataire',
+                                'class' => CasierValider::class,
+                                'choice_label' => 'casier',
+                                'placeholder' => ' -- Choisir un casier --',
+                                'choices' => $casiers,
+                                'query_builder' => function(casierRepository $casierRepository) {
+                                return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
+                            },
                             'attr' => [ 
-                                'disabled' => $idTypeMouvement !== 3,
+                                'disabled' => false,
                                 'class' => 'selectCasier'
                             ],
                             'required' => $idTypeMouvement !== 4 && $idTypeMouvement !== 5,
-    
-                        ])
-                        ;  
+                            ])
+                    ; 
+                       
                }
             })
         

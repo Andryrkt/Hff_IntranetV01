@@ -211,7 +211,7 @@ trait DitTrait
 
 
     /**
-     * INFO AJOUTER MANUELEMENT DANS LA CLASSE DEMANDE D'INTERVENTION
+     * INFO AJOUTER MANUELEMENT des entités DANS LA CLASSE DEMANDE D'INTERVENTION
      *
      * @param [type] $form
      * @param [type] $em

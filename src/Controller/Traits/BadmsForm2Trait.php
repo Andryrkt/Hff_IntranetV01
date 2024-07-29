@@ -6,15 +6,16 @@ use App\Entity\Agence;
 use App\Entity\Badm;
 use App\Entity\Service;
 use App\Entity\CasierValider;
+use App\Service\fusionPdf\FusionPdf;
 
 trait BadmsForm2Trait
 {
     private function changeEtatAchat($dataEtatAchat)
     {
         if ($dataEtatAchat === 'N') {
-            return 'Neuf';
+            return 'NEUF';
         } else {
-            return 'Occasion';
+            return 'OCCASION';
         }
     }
 
@@ -69,15 +70,17 @@ trait BadmsForm2Trait
         $agencedestinataire = null;
         $serviceEmetteur = null;
        $casierDestinataire = null;
-       $serviceEmetteure = 
+       $serviceEmetteure = $em->getRepository(Service::class)->find(2);
        $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
        } elseif ($idTypeMouvement === 3) {
             if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
                 $serviceEmetteur = $em->getRepository(Service::class)->find(2);
+               
             } else {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(1);
                 $serviceEmetteur = $em->getRepository(Service::class)->find(2);
+                
             }
         $casierDestinataire = null;
         $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
@@ -109,4 +112,46 @@ trait BadmsForm2Trait
 
        return $badm;
     }
+
+/**
+     * TRAITEMENT DES FICHIER UPLOAD
+     *(copier le fichier uploder dans une repertoire et le donner un nom)
+     * @param [type] $form
+     * @param [type] $dits
+     * @param [type] $nomFichier
+     * @return void
+     */
+    private function uplodeFile($form, $badm, $nomFichier)
+    {
+        
+        /** @var UploadedFile $file*/
+        $file = $form->get($nomFichier)->getData();
+        $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
+       
+        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/';
+        //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
+        $file->move($fileDossier, $fileName);
+
+
+        $setPieceJoint = 'set'.ucfirst($nomFichier);
+        $badm->$setPieceJoint($fileName);
+
+        
+    }
+
+    private function envoiePieceJoint($form, $badm)
+    {
+        
+        if($form->get("nomImage")->getData() !== null){
+                $this->uplodeFile($form, $badm, "nomImage");
+            }
+
+            if($form->get("nomFichier")->getData() !== null){
+                $this->uplodeFile($form, $badm, "nomFichier");
+            }
+        
+    }
+
+    
+
 }

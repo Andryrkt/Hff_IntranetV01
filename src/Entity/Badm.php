@@ -84,13 +84,15 @@ class Badm
     private string $agenceServiceDestinataire;
 
      /**
-     * @ORM\ManyToOne(targetEntity=CasierValider::class, inversedBy="Badms")
-     * @ORM\JoinColumn(name="Casier_Destinataire", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity=CasierValider::class, inversedBy="badms")
+     * @ORM\JoinColumn(name="Casier_Destinataire", referencedColumnName="id", nullable=true)
      */
-    private  ?CasierValider $casierDestinataire;
+    private  ?CasierValider $casierDestinataire = null;
+
+
 
     /**
-     * @ORM\Column(type="string", length=100, name="Motif_Arret_Materiel", nullable=true)
+     * @ORM\Column(type="string", length=100, name="motif_materiel", nullable=true)
      *
      * @var ?string
      */
@@ -277,24 +279,13 @@ class Badm
         return $this;
     }
 
-    /**
-     * Get the value of nom_utilisateur
-     *
-     * @return  string
-     */ 
+ 
     public function getNomUtilisateur()
     {
         return $this->nomUtilisateur;
     }
 
-    /**
-     * Set the value of nom_utilisateur
-     *
-     * @param  string  $nom_utilisateur
-     *
-     * @return  self
-     */ 
-    public function setNomUtilisateur(string $nom_utilisateur)
+    public function setNomUtilisateur(string $nom_utilisateur): self
     {
         $this->nomUtilisateur = $nom_utilisateur;
 
@@ -384,7 +375,7 @@ class Badm
     }
 
   
-    public function setMotifMateriel(?string $motifMateriel): self
+    public function setMotifMateriel($motifMateriel): self
     {
         $this->motifMateriel = $motifMateriel;
 
@@ -803,4 +794,6 @@ class Badm
 
         return $this;
     }
+
+    
 }

@@ -5,6 +5,7 @@
 namespace App\Entity;
 
 use DateTime;
+use App\Entity\Badm;
 use App\Entity\Agence;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CasierRepository;
@@ -68,7 +69,7 @@ class CasierValider
 
     
      /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Badm", mappedBy="casierDestinataire")
+     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="casierDestinataire")
      */
     private $badms;
 
