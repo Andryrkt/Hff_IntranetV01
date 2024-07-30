@@ -19,10 +19,10 @@ function selectAgenceEmetteur() {
         serviceEmetteurInput.remove(0);
       }
 
-      // var defaultOption = document.createElement("option");
-      // defaultOption.value = "";
-      // defaultOption.text = " -- Choisir une service -- ";
-      // serviceEmetteurInput.add(defaultOption);
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une service -- ";
+      serviceEmetteurInput.add(defaultOption);
 
       // Ajouter les nouvelles options à partir du tableau services
       for (var i = 0; i < services.length; i++) {
@@ -47,9 +47,9 @@ function selectAgenceEmetteur() {
 const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
 
-agenceDebiteurInput.addEventListener("change", selectAgence);
+agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
 
-function selectAgence() {
+function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
   let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
   fetch(url)
@@ -61,6 +61,11 @@ function selectAgence() {
       while (serviceDebiteurInput.options.length > 0) {
         serviceDebiteurInput.remove(0);
       }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une service -- ";
+      serviceDebiteurInput.add(defaultOption);
 
       // Ajouter les nouvelles options à partir du tableau services
       for (var i = 0; i < services.length; i++) {
@@ -75,8 +80,6 @@ function selectAgence() {
         var option = serviceDebiteurInput.options[i];
         console.log("Value: " + option.value + ", Text: " + option.text);
       }
-
-      serviceDebiteurInput.removeAttribute("disabled");
     })
     .catch((error) => console.error("Error:", error));
 }

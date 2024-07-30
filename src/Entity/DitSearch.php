@@ -85,17 +85,6 @@ class DitSearch
      */
     private ?Service $serviceDebiteur = null;
 
-  
-
-    
-
-    
-
-    
-
-    
-
-    
 
     /**
      * Get undocumented variable

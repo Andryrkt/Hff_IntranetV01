@@ -114,6 +114,10 @@ class DitRepository extends EntityRepository
                 ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
         }
 
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            dd('Okey');
+        }
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 

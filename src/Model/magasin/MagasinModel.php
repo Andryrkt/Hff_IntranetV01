@@ -33,6 +33,7 @@ class MagasinModel extends Model
             and seor_serv ='SAV'
             --and slor_qtewait > 0
             and slor_constp not like 'Z%'
+            and slor_constp not like 'LUB'
         ";
 
 

@@ -13,6 +13,7 @@ use App\Entity\WorTypeDocument;
 
 use App\Entity\WorNiveauUrgence;
 use App\Repository\ServiceRepository;
+use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -56,11 +57,16 @@ class DitSearchType extends AbstractType
             'label' => 'Statut',
             'class' => StatutDemande::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau--',
+            'placeholder' => '-- Choisir une niveau --',
             'required' => false,
             'attr' => [
                 'class' => 'statut'
-            ]
+            ],
+            'query_builder' => function (StatutDemandeRepository $er) {
+                return $er->createQueryBuilder('s')
+                          ->where('s.codeApp = :codeApp')
+                          ->setParameter('codeApp', 'DIT');
+            },
         ])
             ->add('idMateriel', NumberType::class, [
                 'label' => 'Id Materiel',
@@ -214,7 +220,6 @@ class DitSearchType extends AbstractType
                 },
                 'attr' => [ 
                     'class' => 'serviceDebiteur',
-                    'disabled' => false
                     ]
             ]);
         } else {
@@ -232,7 +237,6 @@ class DitSearchType extends AbstractType
                 },
                 'attr' => [ 
                     'class' => 'serviceDebiteur',
-                    'disabled' => true
                     ]
             ]);
         }
@@ -261,7 +265,6 @@ class DitSearchType extends AbstractType
                     },
                     'attr' => [ 
                         'class' => 'serviceDebiteur',
-                        'disabled' => false
                         ]
                 ]);
             }
