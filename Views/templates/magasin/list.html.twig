@@ -1,0 +1,57 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock%}
+
+
+{% block content %}
+
+	<div class="container">
+		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
+			Liste des pièces non allouées des OR
+		</h2>
+		<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
+	</div>
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>N° OR</th>
+					<th>Constructeur</th>
+					<th>Référence pièce</th>
+					<th>Désignation</th>
+					<th>Quantité</th>
+					<th>N° DIT</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
+					<tr>
+						<td>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</td>
+						<td class="fw-bold">{{item.numeroor}}</td>
+						<td>{{item.constructeur}}</td>
+						<td>{{item.referencepiece}}</td>
+						<td>{{item.designationi}}</td>
+						<td>{{item.quantite}}</td>
+						<td class="fw-bold">{{item.numDit}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+
+	<!-- FIN tableau -->
+
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/magasin/listMagasin.js" type="module"></script>
+{% endblock %}

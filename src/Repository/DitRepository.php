@@ -8,6 +8,49 @@ use Doctrine\ORM\EntityRepository;
 
 class DitRepository extends EntityRepository
 {
+    /** MAGASIN  */
+    public function findNumOr()
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder
+        ->select('d.numeroOR')
+        ->Where('d.statutOr = :statut')
+        ->setParameter('statut', "Attente rapport d'intervention")
+        ;
+
+        $results = $queryBuilder->getQuery()->getArrayResult();
+
+            // Extraire les resultats dans un tableau simple
+            $numOr = array_column($results, 'numeroOR');
+            
+            return $numOr;
+            
+    }
+
+    public function findNumDit($numOr)
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder
+        ->select('d.numeroDemandeIntervention')
+        ->Where('d.numeroOR = :numOR')
+        ->setParameter('numOR', $numOr )
+        ;
+       
+        
+      return $queryBuilder->getQuery()->getResult();
+
+    }
+    
+    /** LISTE DIT */
+    /**
+     * FONCTION Pour récupérer les donnée filtrer
+     *
+     * @param integer $page
+     * @param integer $limit
+     * @param DitSearch $ditSearch
+     * @param array $options
+     * @return void
+     */
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
         

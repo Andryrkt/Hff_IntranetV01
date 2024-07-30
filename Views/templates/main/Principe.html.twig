@@ -19,15 +19,15 @@
 					</li>
 				{% endif %}
 				{% set hasBDM = false %}
-{% set hasDOM = false %}
+				{% set hasDOM = false %}
 
-{% for item in infoUserCours %}
-    {% if item.App == 'BDM' %}
-        {% set hasBDM = true %}
-    {% elseif item.App == 'DOM' %}
-        {% set hasDOM = true %}
-    {% endif %}
-	<!-- DEBUT Demande d'intervention-->
+				{% for item in infoUserCours %}
+					{% if item.App == 'BDM' %}
+						{% set hasBDM = true %}
+					{% elseif item.App == 'DOM' %}
+						{% set hasDOM = true %}
+					{% endif %}
+					<!-- DEBUT Demande d'intervention-->
 					{% if item.App == 'DIT' %}
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -43,18 +43,20 @@
 						</li>
 					{% endif %}
 					<!-- FIN Demande d'intervention -->
-{% endfor %}
-			
+				{% endfor %}
 
-					<!-- DEBUT Dématérialisation -->
-					{% if hasBDM or hasDOM %}
-						<li class="nav-item dropdown" id="Dematerialisation">
-							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								Dématérialisation</a>
-							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-								<!-- Demande d'ordre de mission -->
-								{% if hasDOM %}
-								<li class="dropdown-header"> Ordre de Mission</li>
+
+				<!-- DEBUT Dématérialisation -->
+				{% if hasBDM or hasDOM %}
+					<li class="nav-item dropdown" id="Dematerialisation">
+						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Dématérialisation</a>
+						<ul
+							class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<!-- Demande d'ordre de mission -->
+							{% if hasDOM %}
+								<li class="dropdown-header">
+									Ordre de Mission</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("dom_newDom")}}">Nouvelle Demande</a>
 								</li>
@@ -64,33 +66,35 @@
 								<li>
 									<hr class="dropdown-divider">
 								</li>
-								{% endif %}
+							{% endif %}
 
-								<!-- Bordereau d’acquisition et de Mouvement Matériel -->
-								{% if hasBDM %}
-								<li class="dropdown-header"> Mouvement matériel (BADM)</li>
+							<!-- Bordereau d’acquisition et de Mouvement Matériel -->
+							{% if hasBDM %}
+								<li class="dropdown-header">
+									Mouvement matériel (BADM)</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("badms_newForm1")}}">Nouvelle Demande</a>
 								</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">Consultation</a>
 								</li>
-								<li class="dropdown-header"> Casier </li>
+								<li class="dropdown-header">
+									Casier
+								</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("casier_nouveau")}}">Nouveau Casier</a>
 								</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">Consultation Casier</a>
 								</li>
-								
-								{% endif %}
-							</ul>
-						</li>
-					{% endif %}
-					<!-- FIN Dématérialisation -->
+
+							{% endif %}
+						</ul>
+					</li>
+				{% endif %}
+				<!-- FIN Dématérialisation -->
 
 
-			
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Demande d'Appro</a>
@@ -109,7 +113,7 @@
 						Magasin</a>
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 						<li>
-							<a class="dropdown-item" href="#">Liste à traiter</a>
+							<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
 						</li>
 					</ul>
 				</li>
