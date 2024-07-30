@@ -243,10 +243,10 @@ class GenererPdfBadm extends GeneratePdf
         $pdf->cell(0, 6, $tab['Modalite_Paiement'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
         $pdf->cell(35, 6, 'Prix HT :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(63, 6, $tab['Prix_HT'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(63, 6, $this->formatNumber($tab['Prix_HT']), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-
+        /** DEBUT MISE AU REBUT */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Mise au rebut', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -262,8 +262,7 @@ class GenererPdfBadm extends GeneratePdf
         $pdf->cell(35, 6, 'Motif :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $tab['Motif_Mise_Rebut'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
-
+        /** FIN MISE AUREBUT */
 
 
         // entête email
@@ -271,8 +270,6 @@ class GenererPdfBadm extends GeneratePdf
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
-
-
 
         //2ème pages
         if ($tab['OR'] === 'OUI') {
@@ -282,8 +279,6 @@ class GenererPdfBadm extends GeneratePdf
         if ($tab['typeMouvement'] === 'MISE AU REBUT' && $tab['image'] !== '') {
             $this->AjoutImage($pdf, $tab);
         }
-
-      
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');

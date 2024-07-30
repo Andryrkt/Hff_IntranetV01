@@ -36,10 +36,8 @@ class Badm
 
     /**
      * @ORM\Column(type="integer", name="ID_Materiel")
-     *
-     * @var integer
      */
-    private int $idMateriel;
+    private ?int $idMateriel = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Nom_Session_Utilisateur")
@@ -210,7 +208,7 @@ class Badm
      */
     private $statutDemande;
 
-    private $numSerie;
+    private $numSerie = null;
 
     private $constructeur = "";
 
@@ -231,48 +229,27 @@ class Badm
         return $this->id;
     }
 
-    /**
-     * Get the value of numBadm
-     *
-     * @return  string
-     */ 
+   
     public function getNumBadm()
     {
         return $this->numBadm;
     }
 
-    /**
-     * Set the value of numBadm
-     *
-     * @param  string  $numBadm
-     *
-     * @return  self
-     */ 
-    public function setNumBadm(string $numBadm)
+    public function setNumBadm(string $numBadm): self
     {
         $this->numBadm = $numBadm;
 
         return $this;
     }
 
-    /**
-     * Get the value of idMateriel
-     *
-     * @return  integer
-     */ 
+    
     public function getIdMateriel()
     {
         return $this->idMateriel;
     }
 
-    /**
-     * Set the value of idMateriel
-     *
-     * @param  integer  $idMateriel
-     *
-     * @return  self
-     */ 
-    public function setIdMateriel($idMateriel)
+   
+    public function setIdMateriel($idMateriel): self
     {
         $this->idMateriel = $idMateriel;
 

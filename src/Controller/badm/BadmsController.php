@@ -48,8 +48,24 @@ class BadmsController extends Controller
         
           if($form->isSubmitted() && $form->isValid())
           {
-            
+            //recuperation de l'id du type de mouvement
+            $idTypeMouvement = $badm->getTypeMouvement()->getId();
+
+            //recuperation des information du materiel dans la base de donnée informix
             $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie());
+
+            //recuperation du materiel dan sl abase de donner sqlserver
+            $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ]);
+            
+            //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
+            $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
+
+            $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
+            $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
+            $conditionChangementAgServ_1 = $idTypeMouvement === 2 && $data[0]['code_affect'] === 'VTE';
+            $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
+            $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
+            $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
 
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
@@ -57,30 +73,40 @@ class BadmsController extends Controller
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
-            }  elseif ($badm->getTypeMouvement()->getDescription() === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
+            } elseif ($conditionEntreeParc) {
                 $message = 'Ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
-            }
-             elseif ($badm->getTypeMouvement()->getDescription() === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
+            } elseif ($conditionChangementAgServ_1) {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);
-            } elseif ($badm->getTypeMouvement()->getDescription() === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+            } elseif ($conditionChangementAgServ_2) {
                 $message = " l\'affectation matériel ne permet pas cette opération";
                 $this->alertRedirection($message);
-            } elseif ($badm->getTypeMouvement()->getDescription() === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+            } elseif ($conditionCessionActif) {
                 $message = "Cession d\'actif ";
                 $this->alertRedirection($message);
-            } elseif ($badm->getTypeMouvement()->getDescription() === 'MISE AU REBUT' && $data[0]['code_affect'] === 'CAS') {
+            } elseif ($conditionMiseAuRebut) {
                 $message = 'Ce matériel ne peut pas être mis au rebut';
                 $this->alertRedirection($message);
+            } elseif ($conditionTypeMouvStatut) {
+                $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+                $this->alertRedirection($message);
             } else {
+                $badm 
+                ->setIdMateriel($data[0]['num_matricule']) 
+                ->setNumParc($data[0]['num_parc'])
+                ->setNumSerie($data[0]['num_serie'])
+                ;
+
                 $formData = [
                     'idMateriel' => $badm->getIdMateriel(),
                     'numParc' => $badm->getNumParc(),
                     'numSerie' => $badm->getNumSerie(),
                     'typeMouvemnt' => $badm->getTypeMouvement()
                 ];
+                //envoie des donner dan la session
                 $this->sessionService->set('badmform1Data', $formData);
+                
                 $this->redirectToRoute("badms_newForm2");
             }
           }

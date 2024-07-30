@@ -331,6 +331,10 @@ class BadmForm2Type extends AbstractType
             $form = $event->getForm();
                 $data = $event->getData();
                 $agenceId = $data['agence'] ?? null;
+
+                if (isset($data['prixVenteHt'])) {
+                    $data['prixVenteHt'] = str_replace('.', '', $data['prixVenteHt']);
+                }
                 //changement de type de mouvement en objet
                  $event->setData($data);
                  if ($agenceId) {
@@ -467,6 +471,7 @@ class BadmForm2Type extends AbstractType
         [
             'label' => 'Modalité de paiement',
             'choices' => self::MODE_PAYEMENT,
+            'placeholder' => ' -- Choisir mode paiement --',
             'attr' => [
                 'disabled' => $idTypeMouvement !== 4
             ],

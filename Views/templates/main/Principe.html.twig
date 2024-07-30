@@ -52,7 +52,7 @@
 							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								Dématérialisation</a>
 							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-<!-- Demande d'ordre de mission -->
+								<!-- Demande d'ordre de mission -->
 								{% if hasDOM %}
 								<li class="dropdown-header"> Ordre de Mission</li>
 								<li>
@@ -70,7 +70,7 @@
 								{% if hasBDM %}
 								<li class="dropdown-header"> Mouvement matériel (BADM)</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("badm_formBadm")}}">Nouvelle Demande</a>
+									<a class="dropdown-item" href="{{ path("badms_newForm1")}}">Nouvelle Demande</a>
 								</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">Consultation</a>

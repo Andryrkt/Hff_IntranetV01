@@ -14,6 +14,8 @@
 			Liste de mouvement matériel
 		</h2>
 
+		{% include "/partials/_notification.html.twig" %}
+		
 		<!-- DEBUT recherche -->
 		<div class="w-50">
 			{% include "/badm/_formulaireRecherche.html.twig" %}
@@ -45,7 +47,7 @@
 							<th>Id Materiel</th>
 							<th>Ag\Serv Emetteur</th>
 							<th>Ag\Serv Destinataire</th>
-							<th> Nbr jours</th>
+							<th> Durée Traitement</th>
 						</tr>
 					</thead>
 					<tbody>
