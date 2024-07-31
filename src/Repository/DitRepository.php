@@ -15,6 +15,8 @@ class DitRepository extends EntityRepository
         $queryBuilder
         ->select('d.numeroOR')
         ->Where('d.dateValidationOr IS NOT NULL')
+        ->andWhere('d.dateValidationOr != :empty')
+        ->setParameter('empty', '')
         ;
 
         $results = $queryBuilder->getQuery()->getArrayResult();
@@ -26,7 +28,7 @@ class DitRepository extends EntityRepository
             
     }
 
-    public function findNumDit($numOr)
+    public function findNumDit($numOr, $criteria)
     {
         $queryBuilder = $this->createQueryBuilder('d')
         ->leftJoin('d.idNiveauUrgence', 'nu')
@@ -36,6 +38,10 @@ class DitRepository extends EntityRepository
         ->Where('d.numeroOR = :numOR')
         ->setParameter('numOR', $numOr )
         ;
+        if($criteria['niveauUrgence'] !== null){
+           $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
+            ->setParameter('idniveau', $criteria['niveauUrgence'] ) ;
+        }
 
       return $queryBuilder->getQuery()->getResult();
 

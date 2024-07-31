@@ -11,7 +11,23 @@
 		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
 			Liste des OR à traiter
 		</h2>
-		<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
+		{# <input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher..."> #}
+		{{ form_start(form)}}
+		<div class="row">
+			<div class="col-12 col-md-3">
+				{{form_row(form.niveauUrgence)}}
+			</div>
+		</div>
+		<class class="row">
+			<div class="col-12 col-md-3">
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche</button>
+				</div>
+			</div>
+		</class>
+		{{ form_end(form)}}
 	</div>
 	{% if empty == true %}
 		<div class="container">

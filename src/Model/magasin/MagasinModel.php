@@ -11,7 +11,8 @@ class MagasinModel extends Model
     
     public function recupereListeMaterielValider( $numOrValide = "")
     {
-        
+       
+
         if ($numOrValide === "") {
             $numOrValide = '0';
         }

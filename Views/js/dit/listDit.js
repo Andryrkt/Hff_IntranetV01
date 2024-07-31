@@ -113,7 +113,6 @@ function selectAgenceDebiteur() {
 /**
  * CREATION D'EXCEL
  */
-
 const typeDocumentInput = document.querySelector("#dit_search_typeDocument");
 const niveauUrgenceInput = document.querySelector("#dit_search_niveauUrgence");
 const statutInput = document.querySelector("#dit_search_statut");

@@ -4,7 +4,9 @@ namespace App\Controller\magasin;
 
 use App\Controller\Controller;
 use App\Entity\DemandeIntervention;
+use App\Form\MagasinSearchType;
 use App\Model\magasin\MagasinModel;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MagasinListeController extends Controller
@@ -14,7 +16,7 @@ class MagasinListeController extends Controller
      *
      * @return void
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
@@ -22,18 +24,27 @@ class MagasinListeController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        $form = self::$validator->createBuilder(MagasinSearchType::class, null, [
+            'method' => 'GET'
+        ])->getForm();
         
+        $form->handleRequest($request);
+           $criteria = [];
+        if($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        } 
         $magasinModel = new MagasinModel();
 
         $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr();
+       
         $numOrValideString = implode(',', $numOrValide);
-        
-        $data = $magasinModel->recupereListeMaterielValider($numOrValideString);
+        dd($numOrValideString);
+        $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
         
         // ajouter le numero dit dans data
         for ($i=0; $i < count($data) ; $i++) { 
             $numeroOr = $data[$i]['numeroor'];
-            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr, $criteria);
             $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
             $data[$i]['niveauUrgence'] = $dit[0]['description'];
         }
@@ -47,7 +58,8 @@ class MagasinListeController extends Controller
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
             'data' => $data,
-            'empty' => $empty
+            'empty' => $empty,
+            'form' => $form->createView()
         ]);
     }
 }
