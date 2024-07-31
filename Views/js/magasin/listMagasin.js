@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   /** RECHERCHE */
-  document.getElementById("searchInput").addEventListener("keyup", function () {
-    let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll("#tableBody tr");
+  // document.getElementById("searchInput").addEventListener("keyup", function () {
+  //   let filter = this.value.toLowerCase();
+  //   let rows = document.querySelectorAll("#tableBody tr");
 
-    rows.forEach(function (row) {
-      let text = row.textContent.toLowerCase();
-      row.style.display = text.includes(filter) ? "" : "none";
-    });
-  });
+  //   rows.forEach(function (row) {
+  //     let text = row.textContent.toLowerCase();
+  //     row.style.display = text.includes(filter) ? "" : "none";
+  //   });
+  // });
 
   /** pour le separateur et fusion des numOR */
   const tableBody = document.querySelector("#tableBody");
@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
       rowSpanCount++;
       if (firstRowInGroup !== currentRow) {
         currentRow.getElementsByTagName("td")[2].style.display = "none"; // Masquer la cellule OR dans les lignes suivantes
+        currentRow.getElementsByTagName("td")[1].style.display = "none";
       }
     }
 

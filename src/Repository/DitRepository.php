@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityRepository;
 class DitRepository extends EntityRepository
 {
     /** MAGASIN  */
-    public function findNumOr()
+    public function findNumOr($criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('d');
         $queryBuilder
@@ -18,6 +18,12 @@ class DitRepository extends EntityRepository
         ->andWhere('d.dateValidationOr != :empty')
         ->setParameter('empty', '')
         ;
+
+        if(!empty($criteria)){
+            $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
+            ->setParameter('idniveau', $criteria['niveauUrgence']->getId()) ;
+        }
+
 
         $results = $queryBuilder->getQuery()->getArrayResult();
 
@@ -28,7 +34,7 @@ class DitRepository extends EntityRepository
             
     }
 
-    public function findNumDit($numOr, $criteria)
+    public function findNumDit($numOr)
     {
         $queryBuilder = $this->createQueryBuilder('d')
         ->leftJoin('d.idNiveauUrgence', 'nu')
@@ -38,10 +44,8 @@ class DitRepository extends EntityRepository
         ->Where('d.numeroOR = :numOR')
         ->setParameter('numOR', $numOr )
         ;
-        if($criteria['niveauUrgence'] !== null){
-           $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
-            ->setParameter('idniveau', $criteria['niveauUrgence'] ) ;
-        }
+       
+      
 
       return $queryBuilder->getQuery()->getResult();
 

@@ -32,25 +32,37 @@ class MagasinListeController extends Controller
            $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
+            if ($criteria['niveauUrgence'] === null){
+                $criteria = [];
+            }
         } 
         $magasinModel = new MagasinModel();
 
-        $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr();
-       
-        $numOrValideString = implode(',', $numOrValide);
-        dd($numOrValideString);
-        $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
-        
-        // ajouter le numero dit dans data
-        for ($i=0; $i < count($data) ; $i++) { 
-            $numeroOr = $data[$i]['numeroor'];
-            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr, $criteria);
-            $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            $data[$i]['niveauUrgence'] = $dit[0]['description'];
-        }
-
         $empty = false;
-        if(empty($data)){
+       
+
+            $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr($criteria);
+            
+            $numOrValideString = implode(',', $numOrValide);
+            
+            $data = $magasinModel->recupereListeMaterielValider($numOrValideString);
+            
+            // ajouter le numero dit dans data
+            for ($i=0; $i < count($data) ; $i++) { 
+                $numeroOr = $data[$i]['numeroor'];
+                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                if( !empty($dit)){
+                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                } else {
+                    $empty = true;
+                    break;
+                }
+            }
+       
+
+        
+        if(empty($data)  ){
             $empty = true;
         }
        
