@@ -55,7 +55,7 @@
 									{{ macroForm.affichage('N° Or', dit.numeroOr)}}
 								</div>
 								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
-								{% set mots_a_supprimer = ['Chef section', 'chef sections', 'Responsable section '] %}
+								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
 								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
 							</div>
 						</div>

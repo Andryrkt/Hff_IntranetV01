@@ -3,6 +3,7 @@
 namespace App\Controller\dit;
 
 
+use App\Entity\User;
 use App\Entity\Agence;
 use App\Entity\Application;
 use App\Controller\Controller;
@@ -34,6 +35,8 @@ class DitController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        
+        $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
        $this->initialisationForm($demandeIntervention, self::$em);
@@ -68,7 +71,7 @@ class DitController extends Controller
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention);
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
             self::$em->persist($insertDemandeInterventions);
             self::$em->flush();
             
@@ -97,24 +100,24 @@ class DitController extends Controller
 public function agence($id) {
     $agence = self::$em->getRepository(Agence::class)->find($id);
   
-   $service = $agence->getServices();
+    $service = $agence->getServices();
 
-//   $services = $service->getValues();
-    $services = [];
-  foreach ($service as $key => $value) {
-    $services[] = [
-        'value' => $value->getId(),
-        'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-    ];
-  }
+    //   $services = $service->getValues();
+        $services = [];
+    foreach ($service as $key => $value) {
+        $services[] = [
+            'value' => $value->getId(),
+            'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+        ];
+    }
 
-  
-  //dd($services);
- header("Content-type:application/json");
+    
+    //dd($services);
+    header("Content-type:application/json");
 
- echo json_encode($services);
+    echo json_encode($services);
 
-  //echo new JsonResponse($services);
+    //echo new JsonResponse($services);
 }
 
 
@@ -126,20 +129,20 @@ public function fetchMateriel($idMateriel,  $numParc, $numSerie)
 {
 
     // Récupérer les données depuis le modèle
-$data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
+    $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
 
 
-// Vérifiez si les données existent
-if (!$data) {
-    return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
-}
-header("Content-type:application/json");
+    // Vérifiez si les données existent
+    if (!$data) {
+        return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+    }
+    header("Content-type:application/json");
 
-$jsonData = json_encode($data);
+    $jsonData = json_encode($data);
 
-    $this->testJson($jsonData);
-// Renvoyer les données en réponse JSON
- //echo new JsonResponse($data);
+        $this->testJson($jsonData);
+    // Renvoyer les données en réponse JSON
+    //echo new JsonResponse($data);
 }
 
 

@@ -50,15 +50,26 @@ class Service
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="services")
-     
      */
     private Collection $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="serviceEmetteurId")
+     */
+    private $ditServiceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="serviceDebiteurId")
+     */
+    private $ditServiceDebiteur;
 
 
     public function __construct()
     {
         $this->agences = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->ditServiceEmetteur = new ArrayCollection();
+        $this->ditServiceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -142,4 +153,80 @@ class Service
         }
         return $this;
     }
+
+       /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDitServiceEmetteurs()
+    {
+        return $this->ditServiceEmetteur;
+    }
+
+    public function addDitServiceEmetteur(DemandeIntervention $demandeIntervention): self
+    {
+        if (!$this->ditServiceEmetteur->contains($demandeIntervention)) {
+            $this->ditServiceEmetteur[] = $demandeIntervention;
+            $demandeIntervention->setServiceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDitServiceEmetteur(DemandeIntervention $ditAgenceEmetteur): self
+    {
+        if ($this->ditServiceEmetteur->contains($ditAgenceEmetteur)) {
+            $this->ditServiceEmetteur->removeElement($ditAgenceEmetteur);
+            if ($ditAgenceEmetteur->getServiceEmetteurId() === $this) {
+                $ditAgenceEmetteur->setServiceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDitServiceEmetteurs($ditAgenceEmetteur)
+    {
+        $this->ditServiceEmetteur = $ditAgenceEmetteur;
+
+        return $this;
+    }
+    
+
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDitServiceDebiteurs()
+    {
+        return $this->ditServiceDebiteur;
+    }
+
+    public function addDitServiceDebiteurs(DemandeIntervention $demandeIntervention): self
+    {
+        if (!$this->ditServiceDebiteur->contains($demandeIntervention)) {
+            $this->ditServiceDebiteur[] = $demandeIntervention;
+            $demandeIntervention->setServiceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDitServiceDebiteur(DemandeIntervention $ditAgenceDebiteur): self
+    {
+        if ($this->ditServiceDebiteur->contains($ditAgenceDebiteur)) {
+            $this->ditServiceDebiteur->removeElement($ditAgenceDebiteur);
+            if ($ditAgenceDebiteur->getServiceDebiteurId() === $this) {
+                $ditAgenceDebiteur->setServiceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setDitServiceDebiteurs($ditAgenceDebiteur)
+    {
+        $this->ditServiceDebiteur = $ditAgenceDebiteur;
+
+        return $this;
+    }
+
 }

@@ -14,52 +14,53 @@
 			Liste de Demande d'intervention
 		</h2>
 		{% include "/dit/_formulaireRecherche.html.twig" %}
-		
+
 		{% include "/partials/_notification.html.twig" %}
 	</div>
 
-	<div class="container-fluid">
-			<!-- DEBUT tableau -->
-			{% if empty == true %}
+	<div
+		class="container-fluid">
+		<!-- DEBUT tableau -->
+		{% if empty == true %}
 			<div class="container">
 				{% include "/partials/_noResultList.html.twig" %}
 			</div>
-			{% else %}
+		{% else %}
 			<div class="container">
-			<div class="d-flex justify-content-between">
-				<div>
-				{# Bouton EXCEL#}
-					<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-						<i class="fas fa-table"></i>
-						Excel</a>
-				{# Bouton LISTE ANNULER#}
-					<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
-				</div>
-				<div>
-					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-						Resultats</p>
-				</div>
-				<div>
-					<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-						pages</p>
-				</div>
-				<div class="navigation">
-					{% set queryParams = criteria  %}
+				<div class="d-flex justify-content-between">
+					<div>
+						{# Bouton EXCEL#}
+						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+						{# Bouton LISTE ANNULER#}
+						<a href="{{path("dit_index")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+							Resultats</p>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+							pages</p>
+					</div>
+					<div class="navigation">
+						{% set queryParams = criteria  %}
 
-					{% if currentPage > 1 %}
-						<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
-							<i class="fas fa-angle-left text-warning"></i>
-						</a>
-					{% endif %}
+						{% if currentPage > 1 %}
+							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+								<i class="fas fa-angle-left text-warning"></i>
+							</a>
+						{% endif %}
 
 
-					{% if currentPage < totalPages %}
-						<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
-							<i class="fas fa-angle-right text-warning"></i>
-						</a>
-					{% endif %}
+						{% if currentPage < totalPages %}
+							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+								<i class="fas fa-angle-right text-warning"></i>
+							</a>
+						{% endif %}
+					</div>
 				</div>
-			</div>
 			</div>
 
 			<table class="table rounded table-plein-ecran">
@@ -145,11 +146,11 @@
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
-							{% set mots_a_supprimer = ['Chef section', 'chef sections', 'Responsable section '] %}
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
 							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
 							<td>
 								{% if item.numeroOr != '' %}
-								<a href="#"  data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
 							<td>{{ item.statutOr}}</td>

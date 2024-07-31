@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use DateTime;
+use App\Entity\Agence;
+use App\Entity\Service;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\DitRepository;
 use App\Traits\AgenceServiceTrait;
@@ -13,9 +15,9 @@ use App\Traits\CaracteristiqueMaterielTrait;
 use App\Validator\DemandeInterventionValidator;
 use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=DitRepository::class)
@@ -230,15 +232,15 @@ class DemandeIntervention
      */
     private ?string $pieceJoint01 =null;
 
-    /**
- * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
- * @Assert\File(
- *     maxSize="5M",
- *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
- *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
- * )
- * @Groups("intervention")
- */
+        /**
+     * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
+     * @Assert\File(
+     *     maxSize="5M",
+     *     mimeTypes={"application/pdf", "image/jpeg", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+     *     mimeTypesMessage="Please upload a valid PDF, JPEG, XLSX, or DOCX file."
+     * )
+     * @Groups("intervention")
+     */
     private ?string $pieceJoint02=null;
 
     /**
@@ -320,7 +322,7 @@ class DemandeIntervention
      */
     private ?datetime $dateSoumissionDevis = null;
 
-/**
+    /**
      * @ORM\Column(type="datetime", name="date_devis_rattache", nullable=true)
      * @Groups("intervention")
      *
@@ -414,6 +416,42 @@ class DemandeIntervention
      */
     private ?string $statutCommande = null;
 
+    /**
+     * @ORM\Column(type="date", name="date_validation_or", nullable=true)
+     *
+     * @var \DateTime|null
+     */
+    private ?\DateTime $dateValidationOr = null;
+
+     /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $agenceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $serviceDebiteurId;
+
+    //===================================================================================================================
 
     public function getId()
     {
@@ -1186,6 +1224,76 @@ class DemandeIntervention
     public function setStatutCommande($statutCommande): self
     {
         $this->statutCommande = $statutCommande;
+        return $this;
+    }
+
+    
+    public function getDateValidationOr()
+    {
+        return $this->dateValidationOr;
+    }
+
+    
+    public function setDateValidationOr(?\DateTime $dateValidationOr): self
+    {
+        $this->dateValidationOr = $dateValidationOr;
+
+        return $this;
+    }
+
+    
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
+   
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
+
         return $this;
     }
 }

@@ -18,7 +18,7 @@ trait DitTrait
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     } 
 
-    private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
+    private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em) : DemandeIntervention
     {
             $demandeIntervention->setObjetDemande($dits->getObjetDemande());
             $demandeIntervention->setDetailDemande($dits->getDetailDemande());
@@ -65,6 +65,14 @@ trait DitTrait
             $demandeIntervention->getUtilisateurDemandeur($dits->getUtilisateurDemandeur());
 
             
+            //Agence et service emetteur debiteur ID
+            $demandeIntervention->setAgenceEmetteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dits->getAgenceEmetteur(), 0, 2)]));
+            $demandeIntervention->setServiceEmetteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dits->getServiceEmetteur(), 0, 3)]));
+            $demandeIntervention->setAgenceDebiteurId($dits->getAgence());
+            $demandeIntervention->setServiceDebiteurId($dits->getService());
+            
+            //societte
+           
         return $demandeIntervention;
     }
 
