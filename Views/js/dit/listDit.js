@@ -8,6 +8,19 @@ agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
 
 function selectAgenceEmetteur() {
   const agenceDebiteur = agenceEmetteurInput.value;
+
+  if (agenceDebiteur === "") {
+    while (serviceEmetteurInput.options.length > 0) {
+      serviceEmetteurInput.remove(0);
+    }
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = " -- Choisir une service -- ";
+    serviceEmetteurInput.add(defaultOption);
+    return; // Sortir de la fonction
+  }
+
   let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
   fetch(url)
     .then((response) => response.json())
@@ -51,6 +64,19 @@ agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
 
 function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
+
+  if (agenceDebiteur === "") {
+    while (serviceEmetteurInput.options.length > 0) {
+      serviceEmetteurInput.remove(0);
+    }
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = " -- Choisir une service -- ";
+    serviceEmetteurInput.add(defaultOption);
+    return; // Sortir de la fonction
+  }
+
   let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
   fetch(url)
     .then((response) => response.json())

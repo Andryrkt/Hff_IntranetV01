@@ -96,8 +96,10 @@ class DitListeController extends Controller
             'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
             'codeService' =>$service === null ? null : $service->getCodeService()
         ];
+        //recupère les donnees de option dans la session
+        $this->sessionService->set('dit_search_option', $option);
 
-        $totalBadms = $repository->countFiltered($ditSearch);
+        $totalBadms = $repository->countFiltered($ditSearch, $option);
         //nombre total de page
         $totalPages = ceil($totalBadms / $limit);
        
@@ -141,9 +143,10 @@ class DitListeController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        
+        //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
 
+        //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
         $ditSearch
         ->setTypeDocument($criteria["typeDocument"])
@@ -161,8 +164,10 @@ class DitListeController extends Controller
         ->setServiceDebiteur($criteria["serviceDebiteur"])
         ;
         
-    
-        $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch);
+        //recupère les critères dans la session 
+        $options = $this->sessionService->get('dit_search_option', []);
+
+        $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
        
     // Convertir les entités en tableau de données
     $data = [];

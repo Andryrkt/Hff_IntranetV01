@@ -36,8 +36,7 @@ class DitRepository extends EntityRepository
         ->Where('d.numeroOR = :numOR')
         ->setParameter('numOR', $numOr )
         ;
-       
-        
+
       return $queryBuilder->getQuery()->getResult();
 
     }
@@ -65,58 +64,76 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
-            if (!empty($ditSearch->getStatut())) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-            }
+        //filtre pour le statut        
+        if (!empty($ditSearch->getStatut())) {
+            $queryBuilder->andWhere('s.description LIKE :statut')
+                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+        }
 
+        //filtre pour le type de document
         if (!empty($ditSearch->getTypeDocument())) {
             $queryBuilder->andWhere('td.description LIKE :typeDocument')
                 ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
         }
 
+        //filtre pour le niveau d'urgence
         if (!empty($ditSearch->getNiveauUrgence())) {
             $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
                 ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
         }
 
+        //filtre pour l'id materiel
         if (!empty($ditSearch->getIdMateriel())) {
             $queryBuilder->andWhere('d.idMateriel = :idMateriel')
                 ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
         }
 
+        //filtre sur l'interne ou externe
         if (!empty($ditSearch->getInternetExterne())) {
             $queryBuilder->andWhere('d.internetExterne = :internetExterne')
                 ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
         }
 
+        //filtre date debut
         if (!empty($ditSearch->getDateDebut())) {
             $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $ditSearch->getDateDebut());
         }
 
+        //filtre date fin
         if (!empty($ditSearch->getDateFin())) {
             $queryBuilder->andWhere('d.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $ditSearch->getDateFin());
         }
 
+        
         if ($options['boolean']) {
+            //filtre selon l'agence emettteur
             if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+                $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
+                ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
+            }
+            //filtre selon le service emetteur
+            if (!empty($ditSearch->getServiceEmetteur())) {
+                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
             }
         } else {
+            //ceci est figer pour les utilisateur autre que l'administrateur
                 $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
                 ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
         }
 
+        //filtre selon l'agence debiteur
         if (!empty($ditSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+            $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
+                ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
         }
 
+        //filtre selon le service debiteur
         if(!empty($ditSearch->getServiceDebiteur())) {
-            dd('Okey');
+            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+            ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
         }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -133,7 +150,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function countFiltered(DitSearch $ditSearch)
+    public function countFiltered(DitSearch $ditSearch,  array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('COUNT(d.id)')
@@ -180,20 +197,39 @@ class DitRepository extends EntityRepository
                     ->setParameter('dateFin', $ditSearch->getDateFin());
             }
     
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            if ($options['boolean']) {
+                //filtre selon l'agence emettteur
+                if (!empty($ditSearch->getAgenceEmetteur())) {
+                    $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
+                }
+                //filtre selon le service emetteur
+                if (!empty($ditSearch->getServiceEmetteur())) {
+                    $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+                }
+            } else {
+                //ceci est figer pour les utilisateur autre que l'administrateur
+                    $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
             }
     
+            //filtre selon l'agence debiteur
             if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+                $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
+            }
+    
+            //filtre selon le service debiteur
+            if(!empty($ditSearch->getServiceDebiteur())) {
+                $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
-    public function findAndFilteredExcel( DitSearch $ditSearch)
+    public function findAndFilteredExcel( DitSearch $ditSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
         ->leftJoin('d.typeDocument', 'td')
@@ -241,14 +277,33 @@ class DitRepository extends EntityRepository
                     ->setParameter('dateFin', $ditSearch->getDateFin());
             }
     
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            if ($options['boolean']) {
+                //filtre selon l'agence emettteur
+                if (!empty($ditSearch->getAgenceEmetteur())) {
+                    $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
+                }
+                //filtre selon le service emetteur
+                if (!empty($ditSearch->getServiceEmetteur())) {
+                    $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+                }
+            } else {
+                //ceci est figer pour les utilisateur autre que l'administrateur
+                    $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
             }
     
+            //filtre selon l'agence debiteur
             if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+                $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
+            }
+    
+            //filtre selon le service debiteur
+            if(!empty($ditSearch->getServiceDebiteur())) {
+                $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -258,7 +313,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, DitSearch $ditSearch)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -305,14 +360,33 @@ class DitRepository extends EntityRepository
                     ->setParameter('dateFin', $ditSearch->getDateFin());
             }
     
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
+            if ($options['boolean']) {
+                //filtre selon l'agence emettteur
+                if (!empty($ditSearch->getAgenceEmetteur())) {
+                    $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
+                }
+                //filtre selon le service emetteur
+                if (!empty($ditSearch->getServiceEmetteur())) {
+                    $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+                }
+            } else {
+                //ceci est figer pour les utilisateur autre que l'administrateur
+                    $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                    ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
             }
     
+            //filtre selon l'agence debiteur
             if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
+                $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
+                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
+            }
+    
+            //filtre selon le service debiteur
+            if(!empty($ditSearch->getServiceDebiteur())) {
+                $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');

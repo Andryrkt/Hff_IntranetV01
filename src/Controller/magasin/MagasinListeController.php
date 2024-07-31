@@ -30,13 +30,13 @@ class MagasinListeController extends Controller
         
         $data = $magasinModel->recupereListeMaterielValider($numOrValideString);
         
-        // // ajouter le numero dit dans data
-        // for ($i=0; $i < count($data) ; $i++) { 
-        //     $numeroOr = $data[$i]['numeroor'];
-        //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-        //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-        //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
-        // }
+        // ajouter le numero dit dans data
+        for ($i=0; $i < count($data) ; $i++) { 
+            $numeroOr = $data[$i]['numeroor'];
+            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+            $data[$i]['niveauUrgence'] = $dit[0]['description'];
+        }
 
         $empty = false;
         if(empty($data)){
