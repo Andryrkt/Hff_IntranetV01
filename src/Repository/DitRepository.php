@@ -14,8 +14,7 @@ class DitRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d');
         $queryBuilder
         ->select('d.numeroOR')
-        ->Where('d.statutOr = :statut')
-        ->setParameter('statut', "Attente rapport d'intervention")
+        ->Where('d.dateValidationOr IS NOT NULL')
         ;
 
         $results = $queryBuilder->getQuery()->getArrayResult();
@@ -29,9 +28,11 @@ class DitRepository extends EntityRepository
 
     public function findNumDit($numOr)
     {
-        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder = $this->createQueryBuilder('d')
+        ->leftJoin('d.idNiveauUrgence', 'nu')
+        ;
         $queryBuilder
-        ->select('d.numeroDemandeIntervention')
+        ->select('d.numeroDemandeIntervention, nu.description')
         ->Where('d.numeroOR = :numOR')
         ->setParameter('numOR', $numOr )
         ;

@@ -11,3 +11,18 @@
     font-weight: 700;
     border: 1px solid #000;
 }
+
+.separator-row {
+    height: 5px;
+}
+
+.separator-row td{
+    height: 5px;
+    background-color: #212529;
+}
+
+.rowspan-cell {
+    vertical-align: middle; /* Centrer verticalement */
+    text-align: center; /* Centrer horizontalement */
+}
+

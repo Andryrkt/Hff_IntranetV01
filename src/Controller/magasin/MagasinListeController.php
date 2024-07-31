@@ -22,26 +22,32 @@ class MagasinListeController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
-
+        
         $magasinModel = new MagasinModel();
 
         $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr();
         $numOrValideString = implode(',', $numOrValide);
-  
+        
         $data = $magasinModel->recupereListeMaterielValider($numOrValideString);
         
-        
-        // ajouter le numero dit dans data
-        for ($i=0; $i < count($data) ; $i++) { 
-            $numeroOr = $data[$i]['numeroor'];
-            $data[$i]['numDit'] = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr)[0]['numeroDemandeIntervention'];
+        // // ajouter le numero dit dans data
+        // for ($i=0; $i < count($data) ; $i++) { 
+        //     $numeroOr = $data[$i]['numeroor'];
+        //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+        //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+        //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
+        // }
+
+        $empty = false;
+        if(empty($data)){
+            $empty = true;
         }
-       
        
         self::$twig->display('magasin/list.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
-            'data' => $data
+            'data' => $data,
+            'empty' => $empty
         ]);
     }
 }

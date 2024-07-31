@@ -9,44 +9,60 @@
 
 	<div class="container">
 		<h2 class="text-center fw-bold  py-2 rounded color-perso-titre">
-			Liste des pièces non allouées des OR
+			Liste des OR à traiter
 		</h2>
 		<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
 	</div>
-
-	<div class="container-fluid">
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
-				<tr>
-					<th>
-						<i class="fas fa-ellipsis-vertical"></i>
-					</th>
-					<th>N° OR</th>
-					<th>Constructeur</th>
-					<th>Référence pièce</th>
-					<th>Désignation</th>
-					<th>Quantité</th>
-					<th>N° DIT</th>
-				</tr>
-			</thead>
-			<tbody id="tableBody">
-				{% for item in data %}
+	{% if empty == true %}
+		<div class="container">
+			{% include "/partials/_noResultList.html.twig" %}
+		</div>
+	{% else %}
+		<div class="container-fluid">
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
 					<tr>
-						<td>
+						<th>
 							<i class="fas fa-ellipsis-vertical"></i>
-						</td>
-						<td class="fw-bold">{{item.numeroor}}</td>
-						<td>{{item.constructeur}}</td>
-						<td>{{item.referencepiece}}</td>
-						<td>{{item.designationi}}</td>
-						<td>{{item.quantite}}</td>
-						<td class="fw-bold">{{item.numDit}}</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+						</th>
+						<th>N° DIT</th>
+						<th>N° OR</th>
+						<th>Niveau d'urgence</th>
+						<th>date de création OR</th>
+						<th>Constructeur</th>
+						<th>Référence pièce</th>
+						<th>Désignation</th>
+						<th>Qté à allouer</th>
+						<th>Qté réservée</th>
+						<th>Qté livrée</th>
+						<th>Qté reliquat</th>
 
+					</tr>
+				</thead>
+				<tbody id="tableBody">
+					{% for item in data %}
+						<tr>
+							<td class="">
+								<i class="fas fa-ellipsis-vertical"></i>
+							</td>
+							<td class="fw-bold ">{{item.numDit}}</td>
+							<td class="fw-bold ">{{item.numeroor}}</td>
+							<td class="">{{item.niveauUrgence}}</td>
+							<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
+							<td class="">{{item.constructeur}}</td>
+							<td class="">{{item.referencepiece}}</td>
+							<td class="">{{item.designationi}}</td>
+							<td class="text-center">{{item.quantite | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitereserver | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitelivree | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitereliquat | number_format(0)}}</td>
+
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	{% endif %}
 
 	<!-- FIN tableau -->
 
