@@ -35,9 +35,6 @@ class BadmModel extends Model
 
         $services = $this->connect->fetchResults($result);
 
-
-
-
         return $this->convertirEnUtf8($services);
     }
 

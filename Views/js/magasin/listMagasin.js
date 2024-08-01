@@ -23,13 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentRow = rows[i];
     let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
     let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
-
+    console.log($i);
     if (previousOrNumber === null) {
       // Initialisation pour la première ligne
       firstRowInGroup = currentRow;
       rowSpanCount = 1;
     } else if (previousOrNumber && previousOrNumber !== currentOrNumber) {
       if (firstRowInGroup) {
+        console.log("miditra");
         let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
         let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
         cellToRowspanNumDit.rowSpan = rowSpanCount;

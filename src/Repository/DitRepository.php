@@ -44,8 +44,6 @@ class DitRepository extends EntityRepository
         ->Where('d.numeroOR = :numOR')
         ->setParameter('numOR', $numOr )
         ;
-       
-      
 
       return $queryBuilder->getQuery()->getResult();
 

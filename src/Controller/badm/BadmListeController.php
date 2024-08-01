@@ -120,12 +120,19 @@ class BadmListeController extends Controller
         } 
 
         
-        
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
         $repository= self::$em->getRepository(Badm::class);
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+
+        for ($i=0 ; $i < count($data)  ; $i++ ) { 
+            $badms = $this->badmRech->findDesiSerieParc($data[$i]->getIdMateriel());
+            $data[$i]->setDesignation($badms[0]['designation']);
+            $data[$i]->setNumSerie($badms[0]['num_serie']);
+            $data[$i]->setNumParc($badms[0]['num_parc']);
+        }
+
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
@@ -162,70 +169,8 @@ class BadmListeController extends Controller
                 'totalPages' =>$totalPages,
                 'criteria' => $criteria,
                'resultat' => $totalBadms,
-               
-               
             ]
         );
     }
 
-  
-    // /**
-    //  * @Route("/ListJsonBadm")
-    //  */
-    // public function envoiListJsonBadm()
-    // {
-    //     $this->SessionStart();
-
-    //     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    //     $text = file_get_contents($fichier);
-    //     $boolean = strpos($text, $_SESSION['user']);
-
-    //     if ($boolean) {
-    //         $badmJson = $this->badmRech->RechercheBadmModelAll();
-    //     } else {
-    //         $badmJson = $this->badmRech->RechercheBadmMode($_SESSION['user']);
-    //     }
-
-
-    //     header("Content-type:application/json");
-
-    //     $jsonData = json_encode($badmJson);
-
-
-    //     $this->testJson($jsonData);
-    // }
-
-
-    // private function testJson($jsonData)
-    // {
-    //     if ($jsonData === false) {
-    //         // L'encodage a échoué, vérifions pourquoi
-    //         switch (json_last_error()) {
-    //             case JSON_ERROR_NONE:
-    //                 echo 'Aucune erreur';
-    //                 break;
-    //             case JSON_ERROR_DEPTH:
-    //                 echo 'Profondeur maximale atteinte';
-    //                 break;
-    //             case JSON_ERROR_STATE_MISMATCH:
-    //                 echo 'Inadéquation des états ou mode invalide';
-    //                 break;
-    //             case JSON_ERROR_CTRL_CHAR:
-    //                 echo 'Caractère de contrôle inattendu trouvé';
-    //                 break;
-    //             case JSON_ERROR_SYNTAX:
-    //                 echo 'Erreur de syntaxe, JSON malformé';
-    //                 break;
-    //             case JSON_ERROR_UTF8:
-    //                 echo 'Caractères UTF-8 malformés, possiblement mal encodés';
-    //                 break;
-    //             default:
-    //                 echo 'Erreur inconnue';
-    //                 break;
-    //         }
-    //     } else {
-    //         // L'encodage a réussi
-    //         echo $jsonData;
-    //     }
-    // }
 }

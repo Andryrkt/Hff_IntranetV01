@@ -41,7 +41,7 @@ class MagasinModel extends Model
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'
-            and slor_qtewait > 0
+            --and slor_qtewait > 0
             and slor_constp not like 'Z%'
             and slor_constp not like 'LUB'
         ";

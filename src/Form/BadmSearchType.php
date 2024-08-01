@@ -6,6 +6,7 @@ namespace App\Form;
 use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
 use Symfony\Component\Form\AbstractType;
+use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -23,6 +24,11 @@ class BadmSearchType extends AbstractType
             'choice_label' => 'description',
             'placeholder' => '-- Choisir une statut--',
             'required' => false,
+            'query_builder' => function (StatutDemandeRepository $er) {
+                return $er->createQueryBuilder('s')
+                          ->where('s.codeApp = :codeApp')
+                          ->setParameter('codeApp', 'DIT');
+            },
         ])
             ->add('idMateriel', TextType::class, [
                 'label' => 'Id Materiel',
