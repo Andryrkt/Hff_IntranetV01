@@ -58,11 +58,11 @@ class User
     private $roles;
 
 
-     /**
-     * @ORM\ManyToOne(targetEntity="Agence", inversedBy="users")
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="users")
      * @ORM\JoinColumn(name="agence_id", referencedColumnName="id")
      */
-    private $agences;
+    private $agence;
 
 
      /**
@@ -106,6 +106,20 @@ class User
      */
     private ?string $fonction = null;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="userAgenceAutoriser")
+     * @ORM\JoinTable(name="users_agence_autoriser")
+     */
+    private $agenceAutoriser;
+
+
+     /**
+     * @ORM\ManyToOne(targetEntity="Service", inversedBy="userService")
+     * @ORM\JoinColumn(name="service_utilisateur", referencedColumnName="id")
+     */
+    private $servicesUtilisateur;
+
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
@@ -113,6 +127,7 @@ class User
         $this->services = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->casiers = new ArrayCollection();
+        $this->agenceAutoriser = new ArrayCollection();
     }
 
     
@@ -191,13 +206,13 @@ class User
 
     public function getAgences()
     {
-        return $this->agences;
+        return $this->agence;
     }
 
   
     public function setAgences($agence): self
     {
-        $this->agences = $agence;
+        $this->agence = $agence;
 
         return $this;
     }
@@ -380,6 +395,41 @@ class User
     public function setFonction($fonction): self
     {
         $this->fonction = $fonction;
+        return $this;
+    }
+
+    public function getAgenceAutoriser(): Collection
+    {
+        return $this->agenceAutoriser;
+    }
+
+    public function addAgenceAutoriser(Agence $agenceAutoriser): self
+    {
+        if (!$this->agenceAutoriser->contains($agenceAutoriser)) {
+            $this->agenceAutoriser[] = $agenceAutoriser;
+        }
+
+        return $this;
+    }
+
+    public function removeAgenceAutoriser(Agence $agenceAutoriser): self
+    {
+        if ($this->agenceAutoriser->contains($agenceAutoriser)) {
+            $this->agenceAutoriser->removeElement($agenceAutoriser);
+        }
+
+        return $this;
+    }
+
+    public function getServicesUtilisateur()
+    {
+        return $this->servicesUtilisateur;
+    }
+
+    public function setServicesUtilisateur($servicesUtilisateur): self
+    {
+        $this->servicesUtilisateur = $servicesUtilisateur;
+
         return $this;
     }
 }

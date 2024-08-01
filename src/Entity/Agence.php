@@ -43,9 +43,10 @@ class Agence
     private string $libelleAgence;
 
     /**
-     * @ORM\OneToMany(targetEntity="User", mappedBy="agences")
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="agence")
      */
     private $users;
+
 
 
     /**
@@ -81,6 +82,12 @@ class Agence
      */
     private $badmAgenceDebiteur;
 
+     /**
+     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="agences_autoriser")
+     * @ORM\JoinTable(name="users_agence_autoriser")
+     */
+    private $userAgenceAutoriser;
+
 
 
     public function __construct()
@@ -92,6 +99,7 @@ class Agence
         $this->ditAgenceDebiteur = new ArrayCollection();
         $this->badmAgenceEmetteur = new ArrayCollection();
         $this->badmAgenceDebiteur = new ArrayCollection();
+        $this->userAgenceAutoriser = new ArrayCollection();
     }
 
     public function getId()
@@ -376,6 +384,30 @@ class Agence
     public function setbadmAgenceDebiteurs($badmAgenceDebiteur)
     {
         $this->badmAgenceDebiteur = $badmAgenceDebiteur;
+
+        return $this;
+    }
+
+
+    public function getUserAgenceAutoriser(): Collection
+    {
+        return $this->userAgenceAutoriser;
+    }
+
+    public function addUserAgenceAutoriser(User $userAgenceAutoriser): self
+    {
+        if (!$this->userAgenceAutoriser->contains($userAgenceAutoriser)) {
+            $this->userAgenceAutoriser[] = $userAgenceAutoriser;
+        }
+
+        return $this;
+    }
+
+    public function removeUserAgenceAutoriser(User $userAgenceAutoriser): self
+    {
+        if ($this->userAgenceAutoriser->contains($userAgenceAutoriser)) {
+            $this->userAgenceAutoriser->removeElement($userAgenceAutoriser);
+        }
 
         return $this;
     }

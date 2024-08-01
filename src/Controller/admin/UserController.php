@@ -29,13 +29,9 @@ class UserController extends Controller
                 $values->setSuperieurs($superieurs);
                 $superieurs = [];
         }
-        
-        
         return $data;
     
     }
-
-    
     
 
      /**
@@ -82,7 +78,7 @@ class UserController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $utilisateur= $form->getData(); 
-              
+        
             $selectedApplications = $form->get('applications')->getData();
 
             foreach ($selectedApplications as $application) {
@@ -104,7 +100,6 @@ class UserController extends Controller
            
             // Mettre à jour les supérieurs de l'utilisateur
             $user->setSuperieurs($superieurIds);
-
             self::$em->persist($utilisateur);
  
             self::$em->flush();

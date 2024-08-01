@@ -74,6 +74,12 @@ class Service
     private $badmServiceDebiteur;
 
 
+    /**
+     * @ORM\OneToMany(targetEntity="User", mappedBy="servicesUtilisateur")
+     */
+    private $userService;
+
+
     public function __construct()
     {
         $this->agences = new ArrayCollection();
@@ -82,6 +88,7 @@ class Service
         $this->ditServiceDebiteur = new ArrayCollection();
         $this->badmServiceEmetteur = new ArrayCollection();
         $this->badmServiceDebiteur = new ArrayCollection();
+        $this->userService = new ArrayCollection();
     }
 
     public function getId()
@@ -317,6 +324,45 @@ class Service
     public function setBadmServiceDebiteurs($badmAgenceDebiteur)
     {
         $this->badmServiceDebiteur = $badmAgenceDebiteur;
+
+        return $this;
+    }
+
+
+
+      /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getUserServices()
+    {
+        return $this->userService;
+    }
+
+    public function addUserService(User $userService): self
+    {
+        if (!$this->userService->contains($userService)) {
+            $this->userService[] = $userService;
+            $userService->setServiceUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removUserService(User $userService): self
+    {
+        if ($this->userService->contains($userService)) {
+            $this->userService->removeElement($userService);
+            if ($userService->getServiceUtilisateur() === $this) {
+                $userService->setServiceUtilisateur(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setUserServices($userService)
+    {
+        $this->userService = $userService;
 
         return $this;
     }

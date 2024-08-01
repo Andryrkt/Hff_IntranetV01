@@ -116,6 +116,7 @@ class UserType extends AbstractType
                 'label' => 'Supérieurs',
                 'class' => User::class,
                 'choice_label' => 'nom_utilisateur',
+                'required' => false,
                 'multiple' => true,
                 'expanded' => false,
                 
@@ -137,6 +138,7 @@ class UserType extends AbstractType
             'attr' => [ 'class' => 'agenceDebiteur']
                 
         ])
+       
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
             $form = $event->getForm();
             $data = $event->getData();
@@ -145,31 +147,23 @@ class UserType extends AbstractType
             if ($data instanceof User && $data->getAgences()) {
                 $services = $data->getAgences()->getServices();
             }
-            //$services = $data->getAgence()->getServices();
-            // $agence = $event->getData()->getAgence() ?? null;
-            // $services = $agence->getServices();
-      
-            $form->add('services',
+           
+            $form ->add('servicesUtilisateur', 
             EntityType::class,
             [
-            
-            'label' => 'Service Debiteur',
-            'class' => Service::class,
-            'choice_label' => function (Service $service): string {
-                return $service->getCodeService() . ' ' . $service->getLibelleService();
-            },
-            'choices' => $services,
-            // 'disabled' => $agence === null,
-            'required' => false,
-            'query_builder' => function(ServiceRepository $serviceRepository) {
-                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                'label' => 'service de l\'utilisateur',
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
                 },
-            //'data' => $options['data']->getService(),
-                'attr' => [ 'class' => 'serviceDebiteur'],
-                'multiple' => true,
-                'expanded' => false
-            ]);
-
+                'choices' => $services,
+                'query_builder' => function(ServiceRepository $serviceRepository) {
+                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                    },
+                    'attr' => [ 'class' => 'serviceDebiteur'],
+                ]);
+      
+            
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
@@ -182,24 +176,59 @@ class UserType extends AbstractType
                 $agence = $this->agenceRepository->find($agenceId);
                 $services = $agence ? $agence->getServices() : [];
 
-                $form->add('services', EntityType::class, [
-                    'label' => 'Service Debiteur',
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                $form ->add('servicesUtilisateur', 
+            EntityType::class,
+            [
+                'label' => 'service de l\'utilisateur',
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'choices' => $services,
+                'query_builder' => function(ServiceRepository $serviceRepository) {
+                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'choices' => $services,
-                    'required' => false,
-                    'attr' => ['class' => 'serviceDebiteur'],
-                    'multiple' => true,
-                'expanded' => false
+                    'attr' => [ 'class' => 'serviceDebiteur'],
                 ]);
             //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
         }})
-        // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event){
-        //     $nomUtilisateur = $event->getData();
-        //     dd($nomUtilisateur);
-        // })
+
+        ->add('agenceAutoriser',
+        EntityType::class,
+        [
+            'label' => 'Agence Autoriser',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'required' => false,
+            'query_builder' => function(AgenceRepository $agenceRepository) {
+                    return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                },
+            //'data' => $options['data']->getService(),
+              
+                'multiple' => true,
+                'expanded' => false
+        ])
+        ->add('services',
+        EntityType::class,
+        [
+        
+        'label' => 'Service Autoriser',
+        'class' => Service::class,
+        'choice_label' => function (Service $service): string {
+            return $service->getCodeService() . ' ' . $service->getLibelleService();
+        },
+        'required' => false,
+        'query_builder' => function(ServiceRepository $serviceRepository) {
+                return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+            },
+        //'data' => $options['data']->getService(),
+            
+            'multiple' => true,
+            'expanded' => false
+        ])
+
     ;
     }
 
