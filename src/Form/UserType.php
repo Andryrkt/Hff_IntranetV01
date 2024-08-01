@@ -26,6 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class UserType extends AbstractType
 {
@@ -57,7 +58,6 @@ class UserType extends AbstractType
             'label' => "Nom d'utilisateur",
             'choices' => array_combine($nom, $nom),
             'placeholder' => '-- Choisir un nom d\'utilisateur --'
-           
         ])
         ->add('matricule', 
             NumberType::class,
@@ -119,6 +119,12 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 
+            ])
+            ->add('fonction',
+            TextType::class,
+            [
+                'label' => 'Fonction de l\'utilisateur',
+                'required' => false
             ])
         ->add('agences',
         EntityType::class,

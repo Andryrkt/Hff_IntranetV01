@@ -101,6 +101,11 @@ class User
      */
     private $casiers;
 
+    /**
+     * @ORM\Column(type="string", length ="255", nullable=true)
+     */
+    private ?string $fonction = null;
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
@@ -108,8 +113,6 @@ class User
         $this->services = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->casiers = new ArrayCollection();
-       
-       
     }
 
     
@@ -366,6 +369,17 @@ class User
     {
         $this->casiers = $casier;
 
+        return $this;
+    }
+
+    public function getFonction()
+    {
+        return $this->fonction;
+    }
+
+    public function setFonction($fonction): self
+    {
+        $this->fonction = $fonction;
         return $this;
     }
 }

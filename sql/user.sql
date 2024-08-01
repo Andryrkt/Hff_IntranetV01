@@ -1,0 +1,1 @@
+ALTER TABLE users ADD fonction VARCHAR(255)

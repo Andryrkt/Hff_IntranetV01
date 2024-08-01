@@ -46,21 +46,19 @@ class UserController extends Controller
     public function index()
     {
         $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
 
-    $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
-    $data = $this->transformIdEnObjetEntitySuperieur($data);
+        $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->transformIdEnObjetEntitySuperieur($data);
 
-    
-    
-    self::$twig->display('admin/utilisateur/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
-        'data' => $data
-    ]);
+        self::$twig->display('admin/utilisateur/list.html.twig', [
+            'infoUserCours' => $infoUserCours,
+            'boolean' => $boolean,
+            'data' => $data
+        ]);
     }
 
     /**
