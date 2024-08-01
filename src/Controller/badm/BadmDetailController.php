@@ -3,6 +3,7 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
+use App\Entity\Badm;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -32,36 +33,23 @@ class BadmDetailController extends Controller
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
-        // $NumBDM = $_GET['NumBDM'];
-        // $id = $_GET['Id'];
+      
 
-        $badmDetailSqlServer = $this->badmDetail->DetailBadmModelAll($numBadm, $id);
-        $badmDetailInformix = $this->badmDetail->findAll($badmDetailSqlServer[0]['ID_Materiel']);
-        $agenceServiceEmetteur = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Emetteur']);
-        $agenceServiceDestinataire = $this->badmDetail->recupeAgenceServiceInformix($badmDetailSqlServer[0]['Agence_Service_Destinataire']);
-        $agence = $this->badmDetail->recupAgence();
-        $agenceDestinataire = $this->rendreSeultableau($agence);
-        //$codeAgence = substr(trim($agenceServiceDestinataire[0]['agence']), 0, 2);
-        // $service = $this->badmDetail->recupService($codeAgence);
-        // $serviceDestinataire = $this->rendreSeultableau($service);
-        // var_dump($serviceDestinataire);
-        // die();
-        // $agenceDestinataire = $badmDetailSqlServer['agencedestinataire'] .' '.$badmDetailInformix[''];
-        // var_dump($badmDetailSqlServer, $badmDetailInformix);
+        $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
+        
 
-        // die();
+        $data = $this->badmDetail->findAll($badm->getIdMateriel());
+    
+       
+ 
+      
         self::$twig->display(
-            'badm/formCompleBadm.html.twig',
+            'badm/detail.html.twig',
             [
                 'infoUserCours' => $infoUserCours,
                 'boolean' => $boolean,
-                'Server' => $badmDetailSqlServer,
-                'Informix' => $badmDetailInformix,
-                'detail' => 'disabled',
-                'Emetteur' => $agenceServiceEmetteur,
-                'Destinataire' => $agenceServiceDestinataire,
-                'agenceDestinataire' => $agenceDestinataire,
-                'numBdm' => $numBadm
+                'badm' => $badm,
+                'data' => $data
             ]
         );
     }

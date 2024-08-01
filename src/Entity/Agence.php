@@ -70,6 +70,19 @@ class Agence
      */
     private $ditAgenceDebiteur;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity="Badm", mappedBy="agenceEmetteurId")
+     */
+    private $badmAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Badm", mappedBy="agenceDebiteurId")
+     */
+    private $badmAgenceDebiteur;
+
+
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -77,6 +90,8 @@ class Agence
         $this->casiers = new ArrayCollection();
         $this->ditAgenceEmetteur = new ArrayCollection();
         $this->ditAgenceDebiteur = new ArrayCollection();
+        $this->badmAgenceEmetteur = new ArrayCollection();
+        $this->badmAgenceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -211,6 +226,8 @@ class Agence
     }
 
 
+    /** DIT */
+
      /**
      * Get the value of demandeInterventions
      */ 
@@ -282,6 +299,83 @@ class Agence
     public function setDitAgenceDebiteurs($ditAgenceDebiteur)
     {
         $this->ditAgenceDebiteur = $ditAgenceDebiteur;
+
+        return $this;
+    }
+
+
+    /** BADM */
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getbadmAgenceEmetteurs()
+    {
+        return $this->badmAgenceEmetteur;
+    }
+
+    public function addbadmAgenceEmetteur(Badm $badm): self
+    {
+        if (!$this->badmAgenceEmetteur->contains($badm)) {
+            $this->badmAgenceEmetteur[] = $badm;
+            $badm->setAgenceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removebadmAgenceEmetteur(Badm $badmAgenceEmetteur): self
+    {
+        if ($this->badmAgenceEmetteur->contains($badmAgenceEmetteur)) {
+            $this->badmAgenceEmetteur->removeElement($badmAgenceEmetteur);
+            if ($badmAgenceEmetteur->getAgenceEmetteurId() === $this) {
+                $badmAgenceEmetteur->setAgenceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setbadmAgenceEmetteurs($badmAgenceEmetteur)
+    {
+        $this->badmAgenceEmetteur = $badmAgenceEmetteur;
+
+        return $this;
+    }
+    
+
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getbadmAgenceDebiteurs()
+    {
+        return $this->badmAgenceDebiteur;
+    }
+
+    public function addbadmAgenceDebiteurs(Badm $badm): self
+    {
+        if (!$this->badmAgenceDebiteur->contains($badm)) {
+            $this->badmAgenceDebiteur[] = $badm;
+            $badm->setAgenceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removebadmAgenceDebiteur(Badm $badmAgenceDebiteur): self
+    {
+        if ($this->badmAgenceDebiteur->contains($badmAgenceDebiteur)) {
+            $this->badmAgenceDebiteur->removeElement($badmAgenceDebiteur);
+            if ($badmAgenceDebiteur->getAgenceDebiteurId() === $this) {
+                $badmAgenceDebiteur->setAgenceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setbadmAgenceDebiteurs($badmAgenceDebiteur)
+    {
+        $this->badmAgenceDebiteur = $badmAgenceDebiteur;
 
         return $this;
     }

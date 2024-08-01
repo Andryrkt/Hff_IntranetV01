@@ -3,9 +3,11 @@
 namespace App\Entity;
 
 use DateTime;
+use App\Entity\Agence;
+use App\Entity\Service;
+
 use App\Entity\CasierValider;
 use Doctrine\ORM\Mapping as ORM;
-
 use App\Traits\AgenceServiceTrait;
 use App\Traits\AgenceServiceEmetteurTrait;
 
@@ -208,6 +210,32 @@ class Badm
      */
     private $statutDemande;
 
+
+      /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="badmAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     */
+    private  $agenceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="badmServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="badmAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="badmServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     */
+    private  $serviceDebiteurId;
+
+
     private $numSerie = null;
 
     private $constructeur = "";
@@ -224,6 +252,8 @@ class Badm
 
     private $dateAchat;
 
+
+    //==============================================================================================================
     public function getId()
     {
         return $this->id;
@@ -643,6 +673,61 @@ class Badm
     public function setCasierEmetteur(?string $casierEmetteur): self
     {
         $this->casierEmetteur = $casierEmetteur;
+
+        return $this;
+    }
+
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
+   
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
 
         return $this;
     }
