@@ -37,7 +37,7 @@ class MagasinModel extends Model
             slor_soc = 'HF'
 
             and slor_succ = '01'
-            and slor_numor in (". $numOrValide .")
+            --and slor_numor in (". $numOrValide .")
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'

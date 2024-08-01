@@ -62,7 +62,7 @@ class DitListeController extends Controller
         $empty = false;
         
         if($form->isSubmitted() && $form->isValid()) {
-
+            
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if(!empty($numParc) || !empty($numSerie)){
@@ -118,6 +118,7 @@ class DitListeController extends Controller
                 $idMat[] = $value['num_matricule'];
             }
         } else {
+           
             $empty = true;
         }
 

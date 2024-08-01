@@ -120,8 +120,8 @@ class DitRepository extends EntityRepository
         if ($options['boolean']) {
             //filtre selon l'agence emettteur
             if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
+                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+                ->setParameter('agEmet',  $ditSearch->getAgenceEmetteur()->getId());
             }
             //filtre selon le service emetteur
             if (!empty($ditSearch->getServiceEmetteur())) {
@@ -136,8 +136,8 @@ class DitRepository extends EntityRepository
 
         //filtre selon l'agence debiteur
         if (!empty($ditSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
-                ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
+            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
+                ->setParameter('agDebit',  $ditSearch->getAgenceDebiteur()->getId() );
         }
 
         //filtre selon le service debiteur
