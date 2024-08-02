@@ -11,6 +11,7 @@
 				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
 					Listes des utilisateurs
 				</h2>
+				<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
 
 				<div class="d-flex flex-row ">
 					<div class="p-2">
@@ -34,7 +35,7 @@
 							<th>Supérieur</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="tableBody">
 						{% for item in data %}
 
 							<tr>
@@ -101,4 +102,8 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/admin/utilisateur/listUtilisateur.js" type="module"></script>
 {% endblock %}

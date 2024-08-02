@@ -79,7 +79,7 @@
 			<tbody id="table-container">
 				{% for item in casier %}
 					<tr>
-						<td>{{item.AgenceRattacher}}</td>
+						<td>{{item.AgenceRattacher.codeAgence}}</td>
 						<td style="text-align:left">{{item.Casier}}</td>
 						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
 						<td>{{item.NumeroCAS}}</td>

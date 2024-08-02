@@ -67,7 +67,7 @@
 			</div>
 			<div class="col-12 col-md-6 col-lg-4  mt-1">
 				<p class="fw-bold" id="nombreResultat">0
-																																	Résultats</p>
+																																											Résultats</p>
 			</div>
 		</div>
 		<table class="table   table-shadow shadow  rounded " style="text-align: center;">
@@ -87,7 +87,7 @@
 				{% for item in casier %}
 					<tr>
 						<td>{{ item.idStatutDemande}}</td>
-						<td>{{item.agenceRattacher}}</td>
+						<td>{{item.agenceRattacher.codeAgence()}}</td>
 						<td style="text-align:left">{{item.Casier}}</td>
 						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
 						<td>{{item.NumeroCAS}}</td>
