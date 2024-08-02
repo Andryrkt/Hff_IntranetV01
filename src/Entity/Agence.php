@@ -42,12 +42,6 @@ class Agence
      */
     private string $libelleAgence;
 
-    /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="agence")
-     */
-    private $users;
-
-
 
     /**
      * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="agences", fetch="EAGER")
@@ -82,24 +76,26 @@ class Agence
      */
     private $badmAgenceDebiteur;
 
-     /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="agences_autoriser")
-     * @ORM\JoinTable(name="users_agence_autoriser")
-     */
-    private $userAgenceAutoriser;
-
+   /**
+ * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
+ * @ORM\JoinTable(name="agence_user", 
+ *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
+ *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+ * )
+ */
+private $usersAutorises;
 
 
     public function __construct()
     {
         $this->services = new ArrayCollection();
-        $this->users = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->ditAgenceEmetteur = new ArrayCollection();
         $this->ditAgenceDebiteur = new ArrayCollection();
         $this->badmAgenceEmetteur = new ArrayCollection();
         $this->badmAgenceDebiteur = new ArrayCollection();
-        $this->userAgenceAutoriser = new ArrayCollection();
+        $this->usersAutorises = new ArrayCollection();
+       
     }
 
     public function getId()
@@ -153,44 +149,6 @@ class Agence
         if ($this->services->contains($service)) {
             $this->services->removeElement($service);
         }
-
-        return $this;
-    }
-
-
-     /**
-     * @return Collection|User[]
-     */ 
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setAgences($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            if ($user->getAgences() === $this) {
-                $user->setAgences(null);
-            }
-        }
-        
-        return $this;
-    }
-
-    public function setUsers($users): self
-    {
-        $this->users = $users;
 
         return $this;
     }
@@ -389,31 +347,29 @@ class Agence
     }
 
 
-    public function getUserAgenceAutoriser(): Collection
-    {
-        return $this->userAgenceAutoriser;
+    public function getUsersAutorises(): Collection
+{
+    return $this->usersAutorises;
+}
+
+public function addUserAutorise(User $user): self
+{
+    if (!$this->usersAutorises->contains($user)) {
+        $this->usersAutorises[] = $user;
+        $user->addAgenceAutorise($this);
     }
 
-    public function addUserAgenceAutoriser(User $userAgenceAutoriser): self
-    {
-        if (!$this->userAgenceAutoriser->contains($userAgenceAutoriser)) {
-            $this->userAgenceAutoriser[] = $userAgenceAutoriser;
-        }
+    return $this;
+}
 
-        return $this;
+public function removeUserAutorise(User $user): self
+{
+    if ($this->usersAutorises->contains($user)) {
+        $this->usersAutorises->removeElement($user);
+        $user->removeAgenceAutorise($this);
     }
 
-    public function removeUserAgenceAutoriser(User $userAgenceAutoriser): self
-    {
-        if ($this->userAgenceAutoriser->contains($userAgenceAutoriser)) {
-            $this->userAgenceAutoriser->removeElement($userAgenceAutoriser);
-        }
-
-        return $this;
-    }
-
-    public function __toString()
-    {
-        return $this->codeAgence . $this->libelleAgence;
-    }
+    return $this;
+}
+   
 }

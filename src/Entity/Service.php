@@ -48,10 +48,7 @@ class Service
     private Collection $agences;
 
 
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="services")
-     */
-    private Collection $users;
+   
 
     /**
      * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="serviceEmetteurId")
@@ -75,20 +72,20 @@ class Service
 
 
     /**
-     * @ORM\OneToMany(targetEntity="User", mappedBy="servicesUtilisateur")
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="serviceAutoriser")
      */
-    private $userService;
+    private $userServiceAutoriser;
 
+    //=========================================================================
 
     public function __construct()
     {
         $this->agences = new ArrayCollection();
-        $this->users = new ArrayCollection();
         $this->ditServiceEmetteur = new ArrayCollection();
         $this->ditServiceDebiteur = new ArrayCollection();
         $this->badmServiceEmetteur = new ArrayCollection();
         $this->badmServiceDebiteur = new ArrayCollection();
-        $this->userService = new ArrayCollection();
+        $this->userServiceAutoriser = new ArrayCollection();
     }
 
     public function getId()
@@ -150,28 +147,6 @@ class Service
     }
 
 
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if(!$this->users->contains($user)){
-            $this->users[] = $user;
-            $user->addService($this);
-        }
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if($this->users->contains($user)) {
-            $this->users->removeElement($user);
-          $user->removeService($this);
-        }
-        return $this;
-    }
 
 
     /** DIT */
@@ -330,41 +305,28 @@ class Service
 
 
 
-      /**
-     * Get the value of demandeInterventions
-     */ 
-    public function getUserServices()
+    public function getUserServiceAutoriser(): Collection
     {
-        return $this->userService;
+        return $this->userServiceAutoriser;
     }
 
-    public function addUserService(User $userService): self
+    public function addUserServiceAutoriser(User $userServiceAutoriser): self
     {
-        if (!$this->userService->contains($userService)) {
-            $this->userService[] = $userService;
-            $userService->setServiceUtilisateur($this);
+        if (!$this->userServiceAutoriser->contains($userServiceAutoriser)) {
+            $this->userServiceAutoriser[] = $userServiceAutoriser;
+            $userServiceAutoriser->addServiceAutoriser($this);
         }
-
         return $this;
     }
 
-    public function removUserService(User $userService): self
+    public function removeUserServiceAutoriser(User $userServiceAutoriser): self
     {
-        if ($this->userService->contains($userService)) {
-            $this->userService->removeElement($userService);
-            if ($userService->getServiceUtilisateur() === $this) {
-                $userService->setServiceUtilisateur(null);
-            }
+        if ($this->userServiceAutoriser->contains($userServiceAutoriser)) {
+            $this->userServiceAutoriser->removeElement($userServiceAutoriser);
+            $userServiceAutoriser->removeServiceAutoriser($this);
         }
-        
         return $this;
     }
-    
-    public function setUserServices($userService)
-    {
-        $this->userService = $userService;
 
-        return $this;
-    }
 
 }

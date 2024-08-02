@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'b24a643a7bebe28eec80c9f33835ba5c5be5c1b5',
+        'reference' => 'b4598ffb885da98085444c1a83423e87f7080b82',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -35,7 +35,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/collections',
             'aliases' => array(),
-            'dev_requirement' => false,
+            'dev_requirement' => true,
         ),
         'doctrine/common' => array(
             'pretty_version' => '3.4.4',
@@ -44,7 +44,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/common',
             'aliases' => array(),
-            'dev_requirement' => false,
+            'dev_requirement' => true,
         ),
         'doctrine/dbal' => array(
             'pretty_version' => '3.8.4',
@@ -80,7 +80,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/inflector',
             'aliases' => array(),
-            'dev_requirement' => false,
+            'dev_requirement' => true,
         ),
         'doctrine/instantiator' => array(
             'pretty_version' => '1.5.0',
@@ -89,7 +89,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/instantiator',
             'aliases' => array(),
-            'dev_requirement' => false,
+            'dev_requirement' => true,
         ),
         'doctrine/lexer' => array(
             'pretty_version' => '2.1.1',
@@ -110,13 +110,13 @@
             'dev_requirement' => false,
         ),
         'doctrine/orm' => array(
-            'pretty_version' => '2.19.5',
-            'version' => '2.19.5.0',
-            'reference' => '94986af28452da42a46a4489d1c958a2e5d710e5',
+            'pretty_version' => '2.19.6',
+            'version' => '2.19.6.0',
+            'reference' => 'c1bb2ccf4b19c845f91ff7c4c01dc7cbba7f4073',
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/orm',
             'aliases' => array(),
-            'dev_requirement' => false,
+            'dev_requirement' => true,
         ),
         'doctrine/persistence' => array(
             'pretty_version' => '3.3.2',
@@ -202,7 +202,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'b24a643a7bebe28eec80c9f33835ba5c5be5c1b5',
+            'reference' => 'b4598ffb885da98085444c1a83423e87f7080b82',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

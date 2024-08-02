@@ -59,13 +59,12 @@
 
 						</div>
 						<div class="col-12 col-md-6">
-							{{form_row(form.agences)}}
-							{{ form_row(form.servicesUtilisateur)}}
-							{{ form_row(form.agenceAutoriser)}}
-							{{form_row(form.services)}}
+							{{ form_row(form.agenceServiceIrium)}}
 							{{ form_row(form.personnels, {'attr': {'class': 'selectUser form-control'}})}}
 							{{form_row(form.superieurs, {'attr': {'class': 'superieurs'}})}}
 							{{ form_row(form.fonction)}}
+							{{ form_row(form.agencesAutorisees)}}
+							{{ form_row(form.serviceAutoriser)}}
 						</div>
 					</div>
 

@@ -12,3 +12,11 @@ CREATE TABLE users_agence_autoriser (
     CONSTRAINT FK_users_agence_autoriser_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT FK_users_agence_autoriser_agence_autoriser_id FOREIGN KEY (agence_autoriser_id) REFERENCES agences (id)
 );
+
+CREATE TABLE agence_user (
+    agence_id INT NOT NULL,
+    user_id INT NOT NULL,
+    PRIMARY KEY (agence_id, user_id),
+    FOREIGN KEY (agence_id) REFERENCES agences (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);

@@ -9,6 +9,7 @@ use App\Entity\Societte;
 use App\Traits\DateTrait;
 use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\AgenceServiceIrium;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -28,7 +29,6 @@ class User
      */
     private $id;
 
-   
 
     /**
      * @ORM\Column(type="string", length="255")
@@ -58,13 +58,6 @@ class User
     private $roles;
 
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="users")
-     * @ORM\JoinColumn(name="agence_id", referencedColumnName="id")
-     */
-    private $agence;
-
-
      /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
      * @ORM\JoinTable(name="users_applications")
@@ -77,11 +70,6 @@ class User
      */
     private $societtes;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="users")
-     * @ORM\JoinTable(name="users_service")
-     */
-    private $services;
 
      /**
      * @ORM\ManyToOne(targetEntity="Personnel", inversedBy="users")
@@ -107,27 +95,37 @@ class User
     private ?string $fonction = null;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="userAgenceAutoriser")
-     * @ORM\JoinTable(name="users_agence_autoriser")
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
+     * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
-    private $agenceAutoriser;
+    private $agenceServiceIrium;
+
+    /**
+ * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
+ * @ORM\JoinTable(name="agence_user", 
+ *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+ *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
+ * )
+ */
+private $agencesAutorisees;
 
 
-     /**
-     * @ORM\ManyToOne(targetEntity="Service", inversedBy="userService")
-     * @ORM\JoinColumn(name="service_utilisateur", referencedColumnName="id")
+      /**
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
+     * @ORM\JoinTable(name="users_service")
      */
-    private $servicesUtilisateur;
+    private $serviceAutoriser;
 
+    //=================================================================================================================================
 
     public function __construct()
     {
         $this->applications = new ArrayCollection();
         $this->societtes = new ArrayCollection();
-        $this->services = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->casiers = new ArrayCollection();
-        $this->agenceAutoriser = new ArrayCollection();
+        $this->agencesAutorisees = new ArrayCollection();
+        $this->serviceAutoriser = new ArrayCollection();
     }
 
     
@@ -204,18 +202,7 @@ class User
     }
 
 
-    public function getAgences()
-    {
-        return $this->agence;
-    }
-
-  
-    public function setAgences($agence): self
-    {
-        $this->agence = $agence;
-
-        return $this;
-    }
+    
    
      /**
      * @return Collection|Application[]
@@ -269,28 +256,7 @@ class User
     }
 
 
-    public function getServices(): Collection
-    {
-        return $this->services;
-    }
-
-    public function addService(Service $service): self
-    {
-        if (!$this->services->contains($service)) {
-            $this->services[] = $service;
-        }
-
-        return $this;
-    }
-
-    public function removeService(Service $service): self
-    {
-        if ($this->services->contains($service)) {
-            $this->services->removeElement($service);
-        }
-
-        return $this;
-    }
+   
 
     public function getPersonnels()
     {
@@ -398,38 +364,63 @@ class User
         return $this;
     }
 
-    public function getAgenceAutoriser(): Collection
+    public function getAgenceServiceIrium()
     {
-        return $this->agenceAutoriser;
+        return $this->agenceServiceIrium;
     }
 
-    public function addAgenceAutoriser(Agence $agenceAutoriser): self
+    public function setAgenceServiceIrium($agenceServiceIrium)
     {
-        if (!$this->agenceAutoriser->contains($agenceAutoriser)) {
-            $this->agenceAutoriser[] = $agenceAutoriser;
+        $this->agenceServiceIrium = $agenceServiceIrium;
+
+        return $this;
+    }
+
+    public function getAgencesAutorisees(): Collection
+{
+    return $this->agencesAutorisees;
+}
+
+public function addAgenceAutorise(Agence $agence): self
+{
+    if (!$this->agencesAutorisees->contains($agence)) {
+        $this->agencesAutorisees[] = $agence;
+    }
+
+    return $this;
+}
+
+public function removeAgenceAutorise(Agence $agence): self
+{
+    if ($this->agencesAutorisees->contains($agence)) {
+        $this->agencesAutorisees->removeElement($agence);
+    }
+
+    return $this;
+}
+
+
+    public function getServiceAutoriser(): Collection
+    {
+        return $this->serviceAutoriser;
+    }
+
+    public function addServiceAutoriser(Service $serviceAutoriser): self
+    {
+        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser[] = $serviceAutoriser;
         }
 
         return $this;
     }
 
-    public function removeAgenceAutoriser(Agence $agenceAutoriser): self
+    public function removeServiceAutoriser(Service $serviceAutoriser): self
     {
-        if ($this->agenceAutoriser->contains($agenceAutoriser)) {
-            $this->agenceAutoriser->removeElement($agenceAutoriser);
+        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser->removeElement($serviceAutoriser);
         }
 
         return $this;
     }
 
-    public function getServicesUtilisateur()
-    {
-        return $this->servicesUtilisateur;
-    }
-
-    public function setServicesUtilisateur($servicesUtilisateur): self
-    {
-        $this->servicesUtilisateur = $servicesUtilisateur;
-
-        return $this;
-    }
 }

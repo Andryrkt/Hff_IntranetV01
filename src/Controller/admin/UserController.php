@@ -69,7 +69,6 @@ class UserController extends Controller
         $boolean = strpos($text, $_SESSION['user']);
 
         $user = new User();
-        $user->setAgences(self::$em->getRepository(Agence::class)->find(1));
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
@@ -101,7 +100,7 @@ class UserController extends Controller
             // Mettre à jour les supérieurs de l'utilisateur
             $user->setSuperieurs($superieurIds);
             self::$em->persist($utilisateur);
- 
+    
             self::$em->flush();
            
 

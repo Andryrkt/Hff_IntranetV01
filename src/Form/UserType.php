@@ -11,6 +11,7 @@ use App\Model\LdapModel;
 use App\Entity\Personnel;
 use App\Entity\Application;
 use App\Controller\Controller;
+use App\Entity\AgenceServiceIrium;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
@@ -112,7 +113,8 @@ class UserType extends AbstractType
                 'choice_label' => 'Matricule',
                 'placeholder' => '-- Choisir un nom --',
             ])
-            ->add('superieurs', EntityType::class, [
+            ->add('superieurs', 
+            EntityType::class, [
                 'label' => 'Supérieurs',
                 'class' => User::class,
                 'choice_label' => 'nom_utilisateur',
@@ -127,108 +129,35 @@ class UserType extends AbstractType
                 'label' => 'Fonction de l\'utilisateur',
                 'required' => false
             ])
-        ->add('agences',
-        EntityType::class,
-        [
-            'label' => 'agence de l\'utilisateur',
-            'class' => Agence::class,
-                'choice_label' => function (Agence $service): string {
-                    return $service->getCodeAgence() . ' ' . $service->getLibelleAgence();
-                },
-            'attr' => [ 'class' => 'agenceDebiteur']
-                
-        ])
-       
-        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
-            $form = $event->getForm();
-            $data = $event->getData();
-            $services = null;
-            
-            if ($data instanceof User && $data->getAgences()) {
-                $services = $data->getAgences()->getServices();
-            }
-           
-            $form ->add('servicesUtilisateur', 
+            ->add('agenceServiceIrium',
             EntityType::class,
             [
-                'label' => 'service de l\'utilisateur',
-                'class' => Service::class,
-                'choice_label' => function (Service $service): string {
-                    return $service->getCodeService() . ' ' . $service->getLibelleService();
-                },
-                'choices' => $services,
-                'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceDebiteur'],
-                ]);
-      
-            
-        })
-        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
-            $form = $event->getForm();
-            $data = $event->getData();
-      
-            $agenceId = $data['agences'] ?? null;
-
-            if ($agenceId) {
-               
-                $agence = $this->agenceRepository->find($agenceId);
-                $services = $agence ? $agence->getServices() : [];
-
-                $form ->add('servicesUtilisateur', 
+                'label' => 'Code Sage',
+                'class' => AgenceServiceIrium::class,
+                'choice_label' => 'service_sage_paie'
+            ])
+            ->add('agencesAutorisees',
             EntityType::class,
             [
-                'label' => 'service de l\'utilisateur',
-                'class' => Service::class,
-                'choice_label' => function (Service $service): string {
-                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                'label' => 'Agence autoriser',
+                'class' => Agence::class,
+                'choice_label' => function (Agence $agence): string {
+                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
-                'choices' => $services,
-                'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceDebiteur'],
-                ]);
-            //Ajouter des validations ou des traitements supplémentaires ici si nécessaire
-        }})
-
-        ->add('agenceAutoriser',
-        EntityType::class,
-        [
-            'label' => 'Agence Autoriser',
-            'class' => Agence::class,
-            'choice_label' => function (Agence $agence): string {
-                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-            },
-            'required' => false,
-            'query_builder' => function(AgenceRepository $agenceRepository) {
-                    return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
-                },
-            //'data' => $options['data']->getService(),
-              
                 'multiple' => true,
                 'expanded' => false
-        ])
-        ->add('services',
-        EntityType::class,
-        [
-        
-        'label' => 'Service Autoriser',
-        'class' => Service::class,
-        'choice_label' => function (Service $service): string {
-            return $service->getCodeService() . ' ' . $service->getLibelleService();
-        },
-        'required' => false,
-        'query_builder' => function(ServiceRepository $serviceRepository) {
-                return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-            },
-        //'data' => $options['data']->getService(),
-            
-            'multiple' => true,
-            'expanded' => false
-        ])
-
+            ])
+            ->add('serviceAutoriser',
+            EntityType::class,
+            [
+                'label' => 'Service autoriser',
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'multiple' => true,
+                'expanded' => false
+            ])
     ;
     }
 

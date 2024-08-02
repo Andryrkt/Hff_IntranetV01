@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AgenceServiceIriumRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Table(name="Agence_Service_Irium")
@@ -88,6 +90,18 @@ class AgenceServiceIrium
      * @var string
      */
     private ?string $service_sage_paie;
+
+    /**
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="agenceServiceIrium")
+     */
+    private $userAgenceService;
+
+    //=============================================================================================
+
+    public function __construct()
+    {
+        $this->userAgenceService = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -217,6 +231,43 @@ class AgenceServiceIrium
     public function setService_sage_paie(?string $service_sage_paie): self
     {
         $this->service_sage_paie = $service_sage_paie;
+
+        return $this;
+    }
+
+      /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getUserAgenceService()
+    {
+        return $this->userAgenceService;
+    }
+
+    public function addUserAgenceService(User $userAgenceService): self
+    {
+        if (!$this->userAgenceService->contains($userAgenceService)) {
+            $this->userAgenceService[] = $userAgenceService;
+            $userAgenceService->setAgenceServiceIrium($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAgenceService(User $userAgenceService): self
+    {
+        if ($this->userAgenceService->contains($userAgenceService)) {
+            $this->userAgenceService->removeElement($userAgenceService);
+            if ($userAgenceService->getAgenceServiceIrium() === $this) {
+                $userAgenceService->setAgenceServiceIrium(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setUserAgenceService($userAgenceService)
+    {
+        $this->userAgenceService = $userAgenceService;
 
         return $this;
     }

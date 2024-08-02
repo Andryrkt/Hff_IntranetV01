@@ -31,13 +31,10 @@
 							<th>Rôle</th>
 							<th>Applications</th>
 							<th>Societtes</th>
-							<th>Agence - services</th>
 							<th>Supérieur</th>
 						</tr>
 					</thead>
 					<tbody>
-
-
 						{% for item in data %}
 
 							<tr>
@@ -85,19 +82,6 @@
 										{% endfor %}
 									</ul>
 								</td>
-								<td>
-
-									<p>
-										{{item.agences.codeAgence}}
-										{{item.agences.libelleAgence}}</p>
-									<ul>
-										{% for a in item.services %}
-											<li>{{a.codeService}}</li>
-										{% endfor %}
-									</ul>
-
-								</td>
-
 								<td>
 									<ul>
 										{% for a in item.superieurs %}
