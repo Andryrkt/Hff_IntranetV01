@@ -12,6 +12,7 @@ use App\Entity\Personnel;
 use App\Entity\Application;
 use App\Controller\Controller;
 use App\Entity\AgenceServiceIrium;
+use App\Entity\Fonction;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
@@ -124,9 +125,11 @@ class UserType extends AbstractType
                 
             ])
             ->add('fonction',
-            TextType::class,
+            EntityType::class,
             [
                 'label' => 'Fonction de l\'utilisateur',
+                'class' => Fonction::class,
+                'choice_label' => 'description',
                 'required' => false
             ])
             ->add('agenceServiceIrium',

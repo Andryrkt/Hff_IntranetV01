@@ -90,9 +90,10 @@ class User
     private $casiers;
 
     /**
-     * @ORM\Column(type="string", length ="255", nullable=true)
+     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users")
+     * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
      */
-    private ?string $fonction = null;
+    private  $fonction ;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
@@ -256,8 +257,6 @@ private $agencesAutorisees;
     }
 
 
-   
-
     public function getPersonnels()
     {
         return $this->personnels;
@@ -353,16 +352,20 @@ private $agencesAutorisees;
         return $this;
     }
 
-    public function getFonction()
+   public function getFonction()
     {
         return $this->fonction;
     }
 
+  
     public function setFonction($fonction): self
     {
         $this->fonction = $fonction;
+
         return $this;
     }
+
+    
 
     public function getAgenceServiceIrium()
     {
