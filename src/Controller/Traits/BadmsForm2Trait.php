@@ -213,8 +213,6 @@ trait BadmsForm2Trait
                 $agencedestinataire = $em->getRepository(Agence::class)->find(1);
                 $serviceDestinataire = $em->getRepository(Service::class)->find(2);
             }
-            $agencedestinataire = $agenceEmetteur;
-            $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = null;
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         } elseif($idTypeMouvement === 5) {

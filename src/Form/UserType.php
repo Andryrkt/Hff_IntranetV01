@@ -52,6 +52,7 @@ class UserType extends AbstractType
         foreach ($users as $key => $value) {
             $nom[]=$key;
         }
+ 
 
         $builder
         ->add('nom_utilisateur', 

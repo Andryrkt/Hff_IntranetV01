@@ -6,7 +6,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-class MagasinModel extends Model
+class MagasinListeOrModel extends Model
 { 
     use ConversionModel;
     use FormatageTrait;
@@ -25,6 +25,7 @@ class MagasinModel extends Model
         } else {
             $designation = null;
         }
+
         if(!empty($criteria['referencePiece'])){
             $referencePiece = " and slor_refp like '%" . $criteria['referencePiece'] . "%'";
         } else {
@@ -49,7 +50,29 @@ class MagasinModel extends Model
             $dateFin = null;
         }
 
-      
+        if(!empty($criteria['orATraiter']) && $criteria['orATraiter'] == true){
+            $orATraiter = " and slor_qtewait > 0 ";
+        } else {
+            $orATraiter = null;
+        }
+
+        if(!empty($criteria['qteReserve']) && $criteria['qteReserve'] == true){
+            $qteReserve = " and slor_qteres > 0 ";
+        } else {
+            $qteReserve = null;
+        }
+
+        if(!empty($criteria['qteLivree']) && $criteria['qteLivree'] == true){
+            $qteLivree = " and slor_qterea > 0 ";
+        } else {
+            $qteLivree = null;
+        }
+
+        if(!empty($criteria['qteReliquat']) && $criteria['qteReliquat'] == true){
+            $qteReliquat = " and slor_qterel > 0 ";
+        } else {
+            $qteReliquat = null;
+        }
 
         $statement = "SELECT 
             seor_numor as numeroOr,
@@ -79,7 +102,10 @@ class MagasinModel extends Model
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'
-            and slor_qtewait > 0
+            $orATraiter
+            $qteReserve
+            $qteLivree
+            $qteReliquat
             and slor_constp not like 'Z%'
             and slor_constp not like 'LUB'
         ";

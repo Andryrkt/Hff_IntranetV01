@@ -19,18 +19,17 @@ class DitRepository extends EntityRepository
         ->setParameter('empty', '')
         ;
 
-        if(!empty($criteria)){
+        if(!empty($criteria['niveauUrgence'])){
             $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
             ->setParameter('idniveau', $criteria['niveauUrgence']->getId()) ;
         }
 
-
         $results = $queryBuilder->getQuery()->getArrayResult();
 
-            // Extraire les resultats dans un tableau simple
-            $numOr = array_column($results, 'numeroOR');
-            
-            return $numOr;
+        // Extraire les resultats dans un tableau simple
+        $numOr = array_column($results, 'numeroOR');
+        
+        return $numOr;
             
     }
 

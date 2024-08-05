@@ -57,7 +57,7 @@ class PersonnelType extends AbstractType
             ]
         )
         ->add('NumeroCompteBancaire',
-                NumberType::class,
+                TextType::class,
                 [
                     'label' => 'N° Compte Bancaire',
                     'required' => false

@@ -16,13 +16,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 
-class MagasinSearchType extends AbstractType
+class MagasinListOrSearchType extends AbstractType
 {
-    
-    
-        
-    
-
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -53,7 +48,22 @@ class MagasinSearchType extends AbstractType
             'label' => 'Désignation',
             'required' => false
         ])
-        
+        ->add('orATraiter', CheckboxType::class, [
+            'label' => 'OR à taiter',
+            'required' => false
+        ])
+        ->add('qteReserve', CheckboxType::class, [
+            'label' => 'Qté réservé > 0',
+            'required' => false
+        ])
+        ->add('qteLivree', CheckboxType::class, [
+            'label' => 'Qté livrée > 0',
+            'required' => false
+        ])
+        ->add('qteReliquat', CheckboxType::class, [
+            'label' => 'Qté reliquat > 0',
+            'required' => false
+        ])
         ->add('constructeur', ChoiceType::class, [
             'label' =>  'Constructeur',
             'required' => false,
@@ -76,5 +86,6 @@ class MagasinSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([]);
+       
     }
 }

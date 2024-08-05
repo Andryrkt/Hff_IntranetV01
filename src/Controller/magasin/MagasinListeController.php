@@ -3,14 +3,18 @@
 namespace App\Controller\magasin;
 
 use App\Controller\Controller;
+use App\Controller\Traits\Transformation;
 use App\Entity\DemandeIntervention;
+use App\Form\MagasinListOrSearchType;
 use App\Form\MagasinSearchType;
+use App\Model\magasin\MagasinListeOrModel;
 use App\Model\magasin\MagasinModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MagasinListeController extends Controller
 {
+    use Transformation;
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
      *
@@ -24,6 +28,9 @@ class MagasinListeController extends Controller
         $text = file_get_contents($fichier);
         $boolean = strpos($text, $_SESSION['user']);
 
+        $magasinModel = new MagasinModel();
+        $empty = false;
+
         $form = self::$validator->createBuilder(MagasinSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
@@ -32,33 +39,31 @@ class MagasinListeController extends Controller
            $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-            if ($criteria['niveauUrgence'] === null){
-                $criteria = [];
-            }
+           
+            // if ($criteria['niveauUrgence'] === null){
+            //     $criteria = [];
+            // }
         } 
-        $magasinModel = new MagasinModel();
-
-        $empty = false;
-       
-
+        //dump($criteria);
+        //dd($magasinModel->recupNumOr($criteria));
             $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr($criteria);
             
             $numOrValideString = implode(',', $numOrValide);
             
-            $data = $magasinModel->recupereListeMaterielValider($numOrValideString);
+            $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
             
-            // ajouter le numero dit dans data
-            // for ($i=0; $i < count($data) ; $i++) { 
-            //     $numeroOr = $data[$i]['numeroor'];
-            //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            //     if( !empty($dit)){
-            //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
-            //     } else {
-            //         $empty = true;
-            //         break;
-            //     }
-            // }
+            //ajouter le numero dit dans data
+            for ($i=0; $i < count($data) ; $i++) { 
+                $numeroOr = $data[$i]['numeroor'];
+                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                if( !empty($dit)){
+                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                } else {
+                    $empty = true;
+                    break;
+                }
+            }
        
 
         
@@ -67,6 +72,74 @@ class MagasinListeController extends Controller
         }
        
         self::$twig->display('magasin/list.html.twig', [
+            'infoUserCours' => $infoUserCours,
+            'boolean' => $boolean,
+            'data' => $data,
+            'empty' => $empty,
+            'form' => $form->createView()
+        ]);
+    }
+
+
+
+
+    /**
+     * @Route("/liste-or", name="liste_or")
+     *
+     * @return void
+     */
+    public function listOr(Request $request)
+    {
+        $this->SessionStart();
+        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
+        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
+        $text = file_get_contents($fichier);
+        $boolean = strpos($text, $_SESSION['user']);
+
+        $magasinModel = new MagasinListeOrModel;
+        $empty = false;
+
+        $form = self::$validator->createBuilder(MagasinListOrSearchType::class, null, [
+            'method' => 'GET'
+        ])->getForm();
+        
+        $form->handleRequest($request);
+           $criteria = [];
+        if($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+           
+            // if ($criteria['niveauUrgence'] === null){
+            //     $criteria = [];
+            // }
+        } 
+        //dump($criteria);
+        //dd($magasinModel->recupNumOr($criteria));
+            $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr($criteria);
+            
+            $numOrValideString = implode(',', $numOrValide);
+            
+            $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
+            
+            //ajouter le numero dit dans data
+            for ($i=0; $i < count($data) ; $i++) { 
+                $numeroOr = $data[$i]['numeroor'];
+                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                if( !empty($dit)){
+                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                } else {
+                    $empty = true;
+                    break;
+                }
+            }
+       
+
+        
+        if(empty($data)  ){
+            $empty = true;
+        }
+       
+        self::$twig->display('magasin/listOr.html.twig', [
             'infoUserCours' => $infoUserCours,
             'boolean' => $boolean,
             'data' => $data,
