@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentRow = rows[i];
     let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
     let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
-    console.log($i);
+    console.log(i);
     if (previousOrNumber === null) {
       // Initialisation pour la première ligne
       firstRowInGroup = currentRow;

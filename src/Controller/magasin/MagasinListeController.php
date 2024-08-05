@@ -44,12 +44,12 @@ class MagasinListeController extends Controller
             //     $criteria = [];
             // }
         } 
-        //dump($criteria);
-        //dd($magasinModel->recupNumOr($criteria));
-            $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr($criteria);
-            
+
+
+            $numOrValide = $this->transformEnSeulTableau($magasinModel->recupNumOr($criteria));
+
             $numOrValideString = implode(',', $numOrValide);
-            
+
             $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
             
             //ajouter le numero dit dans data
@@ -112,10 +112,9 @@ class MagasinListeController extends Controller
             //     $criteria = [];
             // }
         } 
-        //dump($criteria);
-        //dd($magasinModel->recupNumOr($criteria));
-            $numOrValide = self::$em->getRepository(DemandeIntervention::class)->findNumOr($criteria);
-            
+        
+            $numOrValide = $this->transformEnSeulTableau($magasinModel->recupNumOr($criteria));
+
             $numOrValideString = implode(',', $numOrValide);
             
             $data = $magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
