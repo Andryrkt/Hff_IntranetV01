@@ -130,6 +130,8 @@ class MagasinListeController extends Controller
         } 
         $data = $this->magasinListOrModel->recupereListeMaterielValider($criteria);
    
+        $this->sessionService->set('magasin_liste_or_search_criteria', $criteria);
+
         if(empty($data)  ){
             $empty = true;
         }
@@ -143,7 +145,44 @@ class MagasinListeController extends Controller
         ]);
     }
 
-    
+
+    /**
+     * @Route("/magasin-export-excel", name="magasinExportExcel")
+     *
+     * @return void
+     */
+    public function exportExcel()
+    {
+        //recupères les critère dans la session 
+        $criteria = $this->sessionService->get('magasin_liste_or_search_criteria', []);
+
+        $entities = $this->magasinListOrModel->recupereListeMaterielValider($criteria);
+    // Convertir les entités en tableau de données
+    $data = [];
+    $data[] = ['N° DIT', 'N° Or', "Pos Or", "Date Or", "cmde rel", 'N° Intv', 'N° pie', 'Cst', 'Réf.', 'Dés', 'Qté alloc', 'Qté rés', 'Qté liv', 'Qté rel']; 
+    foreach ($entities as $entity) {
+        $data[] = [
+            $entity['referencedit'],
+            $entity['numeroor'],
+            $entity['posor'],
+            $entity['datecreation'],
+            $entity['numcommande'],
+            $entity['numinterv'],
+            $entity['numeroligne'],
+            $entity['constructeur'],
+            $entity['referencepiece'],
+            $entity['designationi'],
+            $entity['quantiteaallouer'],
+            $entity['quantitereserver'],
+            $entity['quantitelivree'],
+            $entity['quantitereliquat'],
+            
+        ];
+    }
+
+         $this->excelService->createSpreadsheet($data);
+
+    }
 
     /**
      * @Route("/designation-fetch/{designation}")
