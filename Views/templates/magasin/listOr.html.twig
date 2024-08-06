@@ -76,12 +76,13 @@
 					<th>Niv. d'urg</th>
 					<th class="text-center">Pos Or</th>
 					<th>Date OR</th>
-					<th>cmde rel</th>
+					<th>Cmde rel</th>
+					<th class="text-center">Pos liv</th>
 					<th class="text-center">N° Intv</th>
 					<th class="text-center">N° pie</th>
 					<th>Cst</th>
 					<th>Réf.</th>
-					<th>Dés</th>
+					<th>Désignation</th>
 					<th class="text-center">Qté alloc</th>
 					<th class="text-center">Qté rés</th>
 					<th class="text-center">Qté liv</th>
@@ -101,6 +102,7 @@
 						<td class="text-center">{{ item.posor}}</td>
 						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
 						<td class="">{{ item.numcommande}}</td>
+						<td class="text-center">{{ item.fcde_posl}}</td>
 						<td class="text-center">{{item.numinterv | number_format(0)}}</td>
 						<td class="text-center">{{ item.numeroligne}}</td>
 						<td class="">{{item.constructeur}}</td>

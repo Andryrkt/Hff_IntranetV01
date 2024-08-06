@@ -126,6 +126,9 @@ class BadmListeController extends Controller
         $repository= self::$em->getRepository(Badm::class);
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
 
+        //enregistre le critère dans la session
+        $this->sessionService->set('badm_search_criteria', $criteria);
+
         for ($i=0 ; $i < count($data)  ; $i++ ) { 
             $badms = $this->badmRech->findDesiSerieParc($data[$i]->getIdMateriel());
             $data[$i]->setDesignation($badms[0]['designation']);
@@ -141,9 +144,7 @@ class BadmListeController extends Controller
             $empty = true;
         }
         
-        if($request->query->get("envoyer") === "excelBadm") {
-         $this->excelExport->exportToExcelBadm($repository->findAndFilteredExcel($criteria));
-        }
+      
 
         if($request->query->get("envoyer") === "listAnnuler") {
         
@@ -172,5 +173,47 @@ class BadmListeController extends Controller
             ]
         );
     }
+
+
+
+     /**
+     * @Route("/export-badm-excel", name="export_badm_excel")
+     */
+    public function exportExcel(Request $request)
+{
+    // Récupère les critères dans la session
+    $criteria = $this->sessionService->get('badm_search_criteria', []);
+
+    // Récupère les entités filtrées
+    $entities = self::$em->getRepository(Badm::class)->findAndFilteredExcel($criteria);
+
+    // Convertir les entités en tableau de données
+    $data = [];
+    $data[] = [
+        "Statut", "N°BADM", "Date demande", "Mouvement", "Id matériel", "Ag/Serv émetteur", "Désignation", 
+        "N° série", "N° Parc", "Casier émetteur", "Casier destinataire"
+    ];
+
+    foreach ($entities as $entity) {
+        $data[] = [
+            $entity->getStatutDemande() ? $entity->getStatutDemande()->getDescription() : 'N/A',
+            $entity->getNumBadm(),
+            $entity->getDateDemande() ? $entity->getDateDemande()->format('d/m/Y') : 'N/A',
+            $entity->getTypeMouvement() ? $entity->getTypeMouvement()->getDescription() : 'N/A',
+            $entity->getIdMateriel(),
+            $entity->getAgenceServiceEmetteur(),
+            $entity->getDesignation(),
+            $entity->getNumSerie(),
+            $entity->getNumParc(),
+            $entity->getCasierEmetteur(),
+            $entity->getCasierDestinataire() ? $entity->getCasierDestinataire()->getCasier() : 'N/A',
+        ];
+    }
+
+    // Crée le fichier Excel
+    $this->excelService->createSpreadsheet($data);
+}
+
+
 
 }

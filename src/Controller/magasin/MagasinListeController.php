@@ -159,7 +159,7 @@ class MagasinListeController extends Controller
         $entities = $this->magasinListOrModel->recupereListeMaterielValider($criteria);
     // Convertir les entités en tableau de données
     $data = [];
-    $data[] = ['N° DIT', 'N° Or', "Pos Or", "Date Or", "cmde rel", 'N° Intv', 'N° pie', 'Cst', 'Réf.', 'Dés', 'Qté alloc', 'Qté rés', 'Qté liv', 'Qté rel']; 
+    $data[] = ['N° DIT', 'N° Or', "Pos Or", "Date Or", "cmde rel", "Pos liv", 'N° Intv', 'N° pie', 'Cst', 'Réf.', 'Dés', 'Qté alloc', 'Qté rés', 'Qté liv', 'Qté rel']; 
     foreach ($entities as $entity) {
         $data[] = [
             $entity['referencedit'],
@@ -167,6 +167,7 @@ class MagasinListeController extends Controller
             $entity['posor'],
             $entity['datecreation'],
             $entity['numcommande'],
+            $entity['fcde_posl'],
             $entity['numinterv'],
             $entity['numeroligne'],
             $entity['constructeur'],
