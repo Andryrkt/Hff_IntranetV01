@@ -1,6 +1,9 @@
 <?php
 
+
 namespace App\Controller\magasin;
+
+ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
 use App\Controller\Traits\MagasinTrait;
@@ -18,13 +21,16 @@ class MagasinListeController extends Controller
     use Transformation;
     use MagasinTrait;
 
+    
 
     private $magasinModel;
+    private $magasinListOrModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->magasinModel = new MagasinModel();
+        $this->magasinListOrModel = new MagasinListeOrModel();
     }
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
@@ -108,33 +114,22 @@ class MagasinListeController extends Controller
 
         $empty = false;
 
-        $form = self::$validator->createBuilder(MagasinListOrSearchType::class, null, [
+
+        $monday = $this->firstDateOfWeek();
+
+        $dateDay = new \DateTime($this->getDatesystem());
+
+        $form = self::$validator->createBuilder(MagasinListOrSearchType::class, ['monday' => $monday, 'dateDay' => $dateDay], [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
-           $criteria = [];
+           $criteria = ['dateDebut' => $monday];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
-        
-        $numOrValideString = $this->orEnString($criteria);
-            
-            $data = $this->magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
-            
-            //ajouter le numero dit dans data
-            for ($i=0; $i < count($data) ; $i++) { 
-                $numeroOr = $data[$i]['numeroor'];
-                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-                if( !empty($dit)){
-                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
-                } else {
-                    $empty = true;
-                    break;
-                }
-            }
-
+        $data = $this->magasinListOrModel->recupereListeMaterielValider($criteria);
+   
         if(empty($data)  ){
             $empty = true;
         }
@@ -157,10 +152,36 @@ class MagasinListeController extends Controller
      */
     public function autocompletionDesignation($designation)
     {
-        $designations = $this->magasinModel->recupereAutocompletionDesignation($designation);
-        
+        if(!empty($designation)){
+            $designations = $this->magasinModel->recupereAutocompletionDesignation($designation);
+        } else {
+            $designations = [];
+        }
+
         header("Content-type:application/json");
 
         echo json_encode($designations);
     }
+
+
+    /**
+     * @Route("/refpiece-fetch/{refPiece}")
+     *
+     * @return void
+     */
+    public function autocompletionRefPiece($refPiece)
+    {
+        if(!empty($refPiece)){
+            $refPieces = $this->magasinModel->recuperAutocompletionRefPiece($refPiece);
+        } else {
+            $refPieces = [];
+        }
+
+
+        header("Content-type:application/json");
+
+        echo json_encode($refPieces);
+    }
+
+
 }

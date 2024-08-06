@@ -60,7 +60,9 @@ class MagasinModel extends Model
             slor_qteres as quantiteReserver,
             slor_qterea as quantiteLivree,
             slor_qterel as quantiteReliquat,
-            slor_datec as dateCreation
+            slor_datec as dateCreation,
+            slor_nogrp/100 as numInterv,
+            slor_nolign as numeroLigne
 
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc 
@@ -85,7 +87,6 @@ class MagasinModel extends Model
         ";
 
         $result = $this->connect->executeQuery($statement);
-
 
         $data = $this->connect->fetchResults($result);
 
@@ -164,7 +165,6 @@ class MagasinModel extends Model
 
     public function recupereAutocompletionDesignation($designations)
     {      
-
         $statement = "SELECT DISTINCT
             
             trim(slor_desi) as designationi
@@ -178,8 +178,6 @@ class MagasinModel extends Model
             and slor_desi like '%" . $designations . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
-            and seor_serv ='SAV'
-            --and slor_qtewait > 0
             and slor_constp not like 'Z%'
             and slor_constp not like 'LUB'
         ";
@@ -191,4 +189,32 @@ class MagasinModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+
+    public function recuperAutocompletionRefPiece($refPiece)
+    {
+        $statement ="SELECT 
+            
+            trim(slor_refp) as referencePiece
+           
+            from sav_lor 
+            
+            where 
+            slor_soc = 'HF'
+            and slor_succ = '01'
+            and slor_refp like '%" . $refPiece . "%'
+            and slor_typlig = 'P'
+            and slor_pos = 'EC'
+            and slor_constp not like 'Z%'
+            and slor_constp not like 'LUB'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
 }

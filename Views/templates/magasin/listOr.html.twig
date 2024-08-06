@@ -21,6 +21,7 @@
 			<div class="col-12 col-md-2">
 				{{form_row(form.numDit)}}
 				{{form_row(form.referencePiece)}}
+				<ul id="suggestionsRefPiece" class="list-group position-absolute"></ul>
 			</div>
 			<div class="col-12 col-md-2">
 				{{form_row(form.numOr)}}
@@ -32,6 +33,9 @@
 				{{form_row(form.dateFin)}}
 			</div>
 			<div class="col-12 col-md-2">
+				{{ form_row(form.numCommande)}}
+			</div>
+			<div class="col-12 col-md-2">
 				{{form_row(form.orATraiter)}}
 				{{form_row(form.qteReserve)}}
 				{{form_row(form.qteLivree)}}
@@ -39,7 +43,7 @@
 			</div>
 		</div>
 		<class class="row">
-			<div class="col-12 col-md-9">
+			<div class="col-12 ">
 				<div class="d-flex justify-content-end mb-2">
 					<button class="btn btn-warning fw-bold" type="submit">
 						<i class="fab fa-searchengin"></i>
@@ -49,64 +53,60 @@
 		</class>
 		{{ form_end(form)}}
 	</div>
-	{% if empty == true %}
-		<div class="container">
-			{% include "/partials/_noResultList.html.twig" %}
-		</div>
-	{% else %}
-		<div class="container-fluid">
-			<table class="table rounded table-plein-ecran">
-				<thead class="table-dark">
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>N° DIT</th>
+					<th>N° OR</th>
+					<th>Niv. d'urg</th>
+					<th class="text-center">Pos Or</th>
+					<th>Date OR</th>
+					<th>cmde rel</th>
+					<th class="text-center">N° Intv</th>
+					<th class="text-center">N° pie</th>
+					<th>Cst</th>
+					<th>Réf.</th>
+					<th>Dés</th>
+					<th class="text-center">Qté alloc</th>
+					<th class="text-center">Qté rés</th>
+					<th class="text-center">Qté liv</th>
+					<th class="text-center">Qté rel</th>
+
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
 					<tr>
-						<th>
+						<td class="">
 							<i class="fas fa-ellipsis-vertical"></i>
-						</th>
-						<th>N° DIT</th>
-						<th>N° OR</th>
-						<th>Niv. d'urg</th>
-						<th>Date OR</th>
-						<th>Cst</th>
-						<th>Réf.</th>
-						<th>Dés</th>
-						<th>cmde rel</th>
-						<th>Pos Or</th>
-						<th>N° Intv</th>
-						<th>N° pie</th>
-						<th class="text-center">Qté alloc</th>
-						<th class="text-center">Qté rés</th>
-						<th class="text-center">Qté liv</th>
-						<th class="text-center">Qté rel</th>
+						</td>
+						<td class="fw-bold ">{{item.referencedit}}</td>
+						<td class="fw-bold ">{{item.numeroor}}</td>
+						<td class="">{{item.niveauUrgence}}</td>
+						<td class="text-center">{{ item.posor}}</td>
+						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
+						<td class="">{{ item.numcommande}}</td>
+						<td class="text-center">{{item.numinterv | number_format(0)}}</td>
+						<td class="text-center">{{ item.numeroligne}}</td>
+						<td class="">{{item.constructeur}}</td>
+						<td class="">{{item.referencepiece}}</td>
+						<td class="">{{item.designationi}}</td>
+						<td class="text-center">{{item.quantiteaallouer == 0 ? '-': item.quantiteaallouer | number_format(0)}}</td>
+						<td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>
+						<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
+						<td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td>
 
 					</tr>
-				</thead>
-				<tbody id="tableBody">
-					{% for item in data %}
-						<tr>
-							<td class="">
-								<i class="fas fa-ellipsis-vertical"></i>
-							</td>
-							<td class="fw-bold ">{{item.numDit}}</td>
-							<td class="fw-bold ">{{item.numeroor}}</td>
-							<td class="">{{item.niveauUrgence}}</td>
-							<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
-							<td class="">{{item.constructeur}}</td>
-							<td class="">{{item.referencepiece}}</td>
-							<td class="">{{item.designationi}}</td>
-							<td class="">N° commande reliquat</td>
-							<td class="">pos or</td>
-							<td class="">N° Intv</td>
-							<td class="">N° pie</td>
-							<td class="text-center">{{item.quantite == 0 ? '-': item.quantite | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-		</div>
-	{% endif %}
 
 	<!-- FIN tableau -->
 

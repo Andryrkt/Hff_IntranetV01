@@ -55,7 +55,8 @@ class BadmsController extends Controller
             $data = $this->badm->findAll($badm->getIdMateriel(),  $badm->getNumParc(), $badm->getNumSerie());
 
             //recuperation du materiel dan sl abase de donner sqlserver
-            $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ]);
+            $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ], ['numBadm' => 'DESC']);
+     
             
             //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
             $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
@@ -66,9 +67,10 @@ class BadmsController extends Controller
             $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
             $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
             $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
-
+           
+            
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
-                $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
+                $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
                 $this->alertRedirection($message);
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";

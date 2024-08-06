@@ -21,8 +21,9 @@ class MagasinListOrSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+  
         $magasinModel = new MagasinModel();
-       $constructeur = $magasinModel->recuperationConstructeur();
+        $constructeur = $magasinModel->recuperationConstructeur();
         
         $builder
         ->add('niveauUrgence', EntityType::class, [
@@ -77,11 +78,17 @@ class MagasinListOrSearchType extends AbstractType
             'widget' => 'single_text',
             'label' => 'Date de création OR (début)',
             'required' => false,
+            'data' => $options['data']['monday'],
         ])
         ->add('dateFin', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date de création OR (fin)',
             'required' => false,
+            'data' => $options['data']['dateDay']
+        ])
+        ->add('numCommande', TextType::class, [
+            'label' => 'N° de commande',
+            'required' => false
         ])
         ;
     }

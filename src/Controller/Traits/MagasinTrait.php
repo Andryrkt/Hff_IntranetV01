@@ -10,4 +10,12 @@ trait MagasinTrait
 
          return implode(',', $numOrValide);
     }
+
+    private function firstDateOfWeek()
+    {
+        $today = new \DateTime();
+        $dayOfWeek = $today->format('N');
+        $daysToMonday = $dayOfWeek - 1;
+        return $today->modify("-$daysToMonday days");
+    }
 }

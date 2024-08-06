@@ -59,12 +59,11 @@
 						<th>N° OR</th>
 						<th>Niv. d'urg</th>
 						<th>Date  OR</th>
+						<th>N° Intv</th>
+						<th>N° pie</th>
 						<th>Cst</th>
 						<th>Réf</th>
 						<th>Dés</th>
-						<th>cmde rel</th>
-						<th>N° Intv</th>
-						<th>N° pie</th>
 						<th class="text-center">Qté alloc</th>
 						<th class="text-center">Qté rés</th>
 						<th class="text-center">Qté liv</th>
@@ -82,12 +81,11 @@
 							<td class="fw-bold ">{{item.numeroor}}</td>
 							<td class="">{{item.niveauUrgence}}</td>
 							<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
+							<td class="text-center">{{item.numinterv | number_format(0)}}</td>
+							<td class="text-center">{{ item.numeroligne}}</td>
 							<td class="">{{item.constructeur}}</td>
 							<td class="">{{item.referencepiece}}</td>
 							<td class="">{{item.designationi}}</td>
-							<td class="">N° commande reliquat</td>
-							<td class="">N° Intv</td>
-							<td class="">N° pie</td>
 							<td class="text-center">{{item.quantite == 0 ? '-': item.quantite | number_format(0)}}</td>
 							<td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>
 							<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>

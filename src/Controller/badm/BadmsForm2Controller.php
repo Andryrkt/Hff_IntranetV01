@@ -70,6 +70,7 @@ class BadmsForm2Controller extends Controller
                 $conditionVide = $badm->getAgence() === null && $badm->getService() === null && $badm->getCasierDestinataire() === null && $badm->getDateMiseLocation() === null;
                 $idMateriel = (int)$data[0]['num_matricule'];
                 $idMateriels = self::$em->getRepository(Badm::class)->findIdMateriel();
+
             
                 if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                     $message = 'compléter tous les champs obligatoires';

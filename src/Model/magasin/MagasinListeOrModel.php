@@ -13,13 +13,9 @@ class MagasinListeOrModel extends Model
 
 
     
-    public function recupereListeMaterielValider( $numOrValide = "", $criteria = [])
+    public function recupereListeMaterielValider( $criteria = [])
     {
     
-        if ($numOrValide === "") {
-            $numOrValide = '0';
-        }
-
         if(!empty($criteria['designation'])){
             $designation = " and slor_desi like '%" . $criteria['designation'] . "%'";
         } else {
@@ -36,6 +32,24 @@ class MagasinListeOrModel extends Model
             $constructeur = " and slor_constp  ='" . $criteria['constructeur'] . "'";
         } else {
             $constructeur = null;
+        }
+
+        if(!empty($criteria['numDit'])){
+            $numDit = " and seor_refdem  ='" . $criteria['numDit'] . "'";
+        } else {
+            $numDit = null;
+        }
+
+        if(!empty($criteria['numOr'])){
+            $numOr = " and seor_numor  = '" . $criteria['numOr'] . "'";
+        } else {
+            $numOr = null;
+        }
+
+        if(!empty($criteria['numCommande'])){
+            $numCommande = " and slornumcf  ='" . $criteria['numCommande'] . "'";
+        } else {
+            $numCommande = null;
         }
 
         if(!empty($criteria['dateDebut'])){
@@ -74,41 +88,75 @@ class MagasinListeOrModel extends Model
             $qteReliquat = null;
         }
 
-        $statement = "SELECT 
+        $statement = "SELECT
+            seor_refdem as referenceDIT,
             seor_numor as numeroOr,
-            trim(slor_constp) as constructeur, 
-            trim(slor_refp) as referencePiece, 
-            trim(slor_desi) as designationi, 
-            slor_qtewait as quantite,
+            seor_pos as posOr,
+            slornumcf as numCommande,
+            slor_typcf as typeCf,
+            slor_natcm,
+            slor_nogrp/100 as numInterv,
+            slor_nolign as numeroLigne,
+            slor_noligncm as numeroLigneCmde,
+            trim(slor_constp) as constructeur,
+            trim(slor_refp) as referencePiece,
+            trim(slor_desi) as designationi,
+            slor_qtewait as quantiteAAllouer,
             slor_qteres as quantiteReserver,
             slor_qterea as quantiteLivree,
             slor_qterel as quantiteReliquat,
+            fcde_posc,
+            fcde_posl,
+            fcde_posf,
             slor_datec as dateCreation
-
-            from sav_lor 
-            inner join sav_eor on seor_soc = slor_soc 
-            and seor_succ = slor_succ 
+            from sav_lor
+            inner join sav_eor on seor_soc = slor_soc
+            and seor_succ = slor_succ
             and seor_numor = slor_numor
-            where 
-            slor_soc = 'HF'
+            -- recuperation info commande --
+            left join HFFV_OR_CDEF on
+            slorsoc = slor_soc and
+            slorsucc = slorsucc and
+            slornumor = slor_numor and
+            slornolign = slor_nolign and
+            slornoligncm = slor_noligncm
 
+            -- information commande fournisseur --
+            left join frn_cde on
+            fcde_numcde = slornumcf
+            and fcde_succ = slorsucc
+            and fcde_soc = slorsoc
+            where
+            slor_soc = 'HF'
             and slor_succ = '01'
-            and slor_numor in (". $numOrValide .")
+            and slor_typlig = 'P'
+            --and slor_pos = 'EC'
+            and seor_serv in ('SAV')
+            -- and seor_serv in ('SAV','VTE') -- a activer pour d'autre agence autre que 92
+            --and slor_qtewait > 0
+            and slor_constp not like 'Z%'
+            and slor_constp not like 'LUB'
+            --and slor_numcf = <numero_commande>
+            --and slor_numor = <numero_or>
+            and year(slor_datel) >= '2024'
+            --and slor_datel >= '08/05/2024'
+            and seor_refdem like 'DIT%'
             $designation
             $referencePiece 
             $constructeur 
             $dateDebut
             $dateFin
-            and slor_typlig = 'P'
-            and slor_pos = 'EC'
-            and seor_serv ='SAV'
             $orATraiter
             $qteReserve
             $qteLivree
             $qteReliquat
-            and slor_constp not like 'Z%'
-            and slor_constp not like 'LUB'
+            $numDit
+            $numOr
+            $numCommande
+            order by referencedit desc, numeroor desc, numeroligne asc
         ";
+
+
 
         $result = $this->connect->executeQuery($statement);
 
@@ -145,44 +193,8 @@ class MagasinListeOrModel extends Model
     }
 
 
-    public function recupNumOr($criteria = [])
-    {   
-        if(!empty($criteria['niveauUrgence'])){
-            $niveauUrgence = " and id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
-        } else {
-            $niveauUrgence = null;
-        }
+    
 
-        if(!empty($criteria['numDit'])){
-            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] ."'";
-        } else {
-            $numDit = null;
-        }
-
-        if(!empty($criteria['numOr'])){
-            $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
-        } else {
-            $numOr = null;
-        }
-
-        $statement = "SELECT 
-        numero_or 
-        FROM demande_intervention
-        WHERE date_validation_or is not null
-        and date_validation_or <>'' 
-        {$niveauUrgence}
-        {$numDit}
-        {$numOr}
-        ";
-
-        $execQueryNumOr = $this->connexion->query($statement);
-
-        $numOr = array();
-
-        while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-            $numOr[] = $row_num_or;
-        }
-
-        return $numOr;
-    }
+    
+    
 }

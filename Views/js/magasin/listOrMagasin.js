@@ -59,36 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cellToRowspanNumOr.classList.add("rowspan-cell");
   }
 
-  /** Autocompletion Designation */
-  const designationInput = document.querySelector(
-    "#magasin_list_or_search_designation"
-  );
-
-  designationInput.addEventListener("input", autocompleteDesignation);
-
-  function autocompleteDesignation() {
-    const designation = designationInput.value;
-    const url = `/Hffintranet/designation-fetch/${designation}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((designations) => {
-        console.log(designations);
-        const suggestions = document.getElementById("suggestions");
-        suggestions.innerHTML = "";
-        designations.forEach((item) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = item.designationi; // Changez 'designation' par le champ pertinent
-          li.addEventListener("click", function () {
-            designationInput.value = this.textContent;
-            suggestions.innerHTML = ""; // Effacez les suggestions après sélection
-          });
-          suggestions.appendChild(li);
-        });
-      })
-      .catch((error) => console.error("Error:", error));
-  }
-
   /** MISE EN MAJUSCULE */
   const numDitInput = document.querySelector("#magasin_list_or_search_numDit");
   const refPieceInput = document.querySelector(
@@ -97,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   numDitInput.addEventListener("input", MiseMajusculeNumDit);
   refPieceInput.addEventListener("input", MiseMajusculeRefPiece);
+  designationInput.addEventListener("input", MiseMajusculeDesignation);
 
   function MiseMajusculeNumDit() {
     numDitInput.value = numDitInput.value.toUpperCase();
@@ -105,11 +76,104 @@ document.addEventListener("DOMContentLoaded", function () {
     refPieceInput.value = refPieceInput.value.toUpperCase();
   }
 
-  /** chiffre au lielu de lettre */
+  function MiseMajusculeDesignation() {
+    designationInput.value = designationInput.value.toUpperCase();
+  }
+
+  /** chiffre au lieu de lettre */
   const numOrInput = document.querySelector("#magasin_list_or_search_numOr");
-  console.log(numOrInput);
 
   numOrInput.addEventListener("input", () => {
     numOrInput.value = numOrInput.value.replace(/[^0-9]/g, "");
   });
 });
+
+/** Autocompletion Designation */
+/** Autocompletion Designation */
+const designationInput = document.querySelector(
+  "#magasin_list_or_search_designation"
+);
+const suggestions = document.getElementById("suggestions");
+
+let debounceTimer;
+
+function debounce(func, delay) {
+  return function (...args) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+designationInput.addEventListener(
+  "input",
+  debounce(autocompleteDesignation, 300)
+); // 300ms delay
+
+function autocompleteDesignation() {
+  const designation = designationInput.value.trim().toUpperCase();
+
+  if (designation.length < 2) {
+    // Minimum length for input
+    suggestions.innerHTML = "";
+    return;
+  }
+
+  let url = `/Hffintranet/designation-fetch/${encodeURIComponent(designation)}`;
+
+  fetch(url)
+    .then((response) => response.json())
+    .then((designations) => {
+      suggestions.innerHTML = "";
+      designations.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = item.designationi.toUpperCase();
+        li.addEventListener("click", function () {
+          designationInput.value = this.textContent;
+          suggestions.innerHTML = "";
+        });
+        suggestions.appendChild(li);
+      });
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+/** Autocompletion RefPiece */
+/** Autocompletion RefPiece */
+const refPieceInput = document.querySelector(
+  "#magasin_list_or_search_referencePiece"
+);
+const suggestionsRefPiece = document.getElementById("suggestionsRefPiece");
+
+let debounceTimerRefpiece;
+
+refPieceInput.addEventListener("input", debounce(autocompleteRefPiece, 300));
+
+function autocompleteRefPiece() {
+  const refPiece = refPieceInput.value.trim().toUpperCase();
+
+  if (refPiece.length < 2) {
+    // Minimum length for input
+    suggestionsRefPiece.innerHTML = "";
+    return;
+  }
+
+  let url = `/Hffintranet/refpiece-fetch/${encodeURIComponent(refPiece)}`;
+
+  fetch(url)
+    .then((response) => response.json())
+    .then((refPieces) => {
+      suggestionsRefPiece.innerHTML = "";
+      refPieces.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = item.referencepiece.toUpperCase();
+        li.addEventListener("click", function () {
+          refPieceInput.value = this.textContent;
+          suggestionsRefPiece.innerHTML = "";
+        });
+        suggestionsRefPiece.appendChild(li);
+      });
+    })
+    .catch((error) => console.error("Error:", error));
+}
