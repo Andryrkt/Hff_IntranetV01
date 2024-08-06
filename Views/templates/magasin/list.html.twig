@@ -16,15 +16,16 @@
 		<div class="row">
 			<div class="col-12 col-md-2">
 				{{form_row(form.niveauUrgence)}}
-				{{form_row(form.referencePiece)}}
+				{{form_row(form.constructeur)}}
 			</div>
 			<div class="col-12 col-md-2">
 				{{form_row(form.numDit)}}
-				{{form_row(form.numOr)}}
+				{{form_row(form.referencePiece)}}
 			</div>
 			<div class="col-12 col-md-2">
+				{{form_row(form.numOr)}}
 				{{form_row(form.designation)}}
-				{{form_row(form.constructeur)}}
+				<ul id="suggestions" class="list-group position-absolute"></ul>
 			</div>
 			<div class="col-12 col-md-2">
 				{{form_row(form.dateDebut)}}
@@ -56,16 +57,18 @@
 						</th>
 						<th>N° DIT</th>
 						<th>N° OR</th>
-						<th>Niveau d'urgence</th>
-						<th>date de création OR</th>
-						<th>Constructeur</th>
-						<th>Référence pièce</th>
-						<th>Désignation</th>
-						<th>N° commande reliquat</th>
-						<th class="text-center">Qté à allouer</th>
-						<th class="text-center">Qté réservée</th>
-						<th class="text-center">Qté livrée</th>
-						<th class="text-center">Qté reliquat</th>
+						<th>Niv. d'urg</th>
+						<th>Date  OR</th>
+						<th>Cst</th>
+						<th>Réf</th>
+						<th>Dés</th>
+						<th>cmde rel</th>
+						<th>N° Intv</th>
+						<th>N° pie</th>
+						<th class="text-center">Qté alloc</th>
+						<th class="text-center">Qté rés</th>
+						<th class="text-center">Qté liv</th>
+						<th class="text-center">Qté rel</th>
 
 					</tr>
 				</thead>
@@ -83,10 +86,12 @@
 							<td class="">{{item.referencepiece}}</td>
 							<td class="">{{item.designationi}}</td>
 							<td class="">N° commande reliquat</td>
-							<td class="text-center">{{item.quantite | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitereserver | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitelivree | number_format(0)}}</td>
-							<td class="text-center">{{item.quantitereliquat | number_format(0)}}</td>
+							<td class="">N° Intv</td>
+							<td class="">N° pie</td>
+							<td class="text-center">{{item.quantite == 0 ? '-': item.quantite | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>
+							<td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td>
 
 						</tr>
 					{% endfor %}

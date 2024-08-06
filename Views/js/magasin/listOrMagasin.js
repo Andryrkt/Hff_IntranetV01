@@ -1,15 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  /** RECHERCHE */
-  // document.getElementById("searchInput").addEventListener("keyup", function () {
-  //   let filter = this.value.toLowerCase();
-  //   let rows = document.querySelectorAll("#tableBody tr");
-
-  //   rows.forEach(function (row) {
-  //     let text = row.textContent.toLowerCase();
-  //     row.style.display = text.includes(filter) ? "" : "none";
-  //   });
-  // });
-
   /** pour le separateur et fusion des numOR */
   const tableBody = document.querySelector("#tableBody");
   const rows = document.querySelectorAll("#tableBody tr");
@@ -72,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /** Autocompletion Designation */
   const designationInput = document.querySelector(
-    "#magasin_search_designation"
+    "#magasin_list_or_search_designation"
   );
 
   designationInput.addEventListener("input", autocompleteDesignation);
@@ -101,9 +90,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /** MISE EN MAJUSCULE */
-  const numDitInput = document.querySelector("#magasin_search_numDit");
+  const numDitInput = document.querySelector("#magasin_list_or_search_numDit");
   const refPieceInput = document.querySelector(
-    "#magasin_search_referencePiece"
+    "#magasin_list_or_search_referencePiece"
   );
 
   numDitInput.addEventListener("input", MiseMajusculeNumDit);
@@ -117,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /** chiffre au lielu de lettre */
-  const numOrInput = document.querySelector("#magasin_search_numOr");
+  const numOrInput = document.querySelector("#magasin_list_or_search_numOr");
   console.log(numOrInput);
 
   numOrInput.addEventListener("input", () => {

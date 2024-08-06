@@ -160,4 +160,35 @@ class MagasinModel extends Model
 
         return $numOr;
     }
+
+
+    public function recupereAutocompletionDesignation($designations)
+    {      
+
+        $statement = "SELECT DISTINCT
+            
+            trim(slor_desi) as designationi
+
+            from sav_lor 
+            
+            where 
+            slor_soc = 'HF'
+
+            and slor_succ = '01'
+            and slor_desi like '%" . $designations . "%'
+            and slor_typlig = 'P'
+            and slor_pos = 'EC'
+            and seor_serv ='SAV'
+            --and slor_qtewait > 0
+            and slor_constp not like 'Z%'
+            and slor_constp not like 'LUB'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

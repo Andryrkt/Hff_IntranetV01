@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class MagasinListOrSearchType extends AbstractType
 {
@@ -36,7 +36,7 @@ class MagasinListOrSearchType extends AbstractType
             'label' => 'n° DIT',
             'required' => false
         ])
-        ->add('numOr', TextType::class, [
+        ->add('numOr', NumberType::class, [
             'label' => 'n° Or',
             'required' => false
         ])
@@ -46,7 +46,10 @@ class MagasinListOrSearchType extends AbstractType
         ])
         ->add('designation', TextType::class, [
             'label' => 'Désignation',
-            'required' => false
+            'required' => false,
+            'attr' => [
+                'autocomplete' => 'off',
+            ],
         ])
         ->add('orATraiter', CheckboxType::class, [
             'label' => 'OR à taiter',

@@ -26,3 +26,13 @@
     text-align: center; /* Centrer horizontalement */
 }
 
+
+#suggestions {
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#suggestions .list-group-item {
+    cursor: pointer;
+}
