@@ -52,7 +52,11 @@ trait BadmsForm2Trait
        $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
        $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
        $serviceEmetteur = $em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
-       $casierEmetteur =  $data[0]["casier_emetteur"];
+       if($data[0]["casier_emetteur"] === null){
+           $casierEmetteur = '';
+        } else {
+            $casierEmetteur =  $data[0]["casier_emetteur"];
+       }
        $badm
         ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
        ->setCasierEmetteur($casierEmetteur)
@@ -185,7 +189,11 @@ trait BadmsForm2Trait
         $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
         $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
         $serviceEmetteur = $em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
-        $casierEmetteur = $data[0]["casier_emetteur"];
+        if($data[0]["casier_emetteur"] === null){
+            $casierEmetteur = '';
+         } else {
+             $casierEmetteur =  $data[0]["casier_emetteur"];
+        }
         $badm
         ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
         ->setCasierEmetteur($casierEmetteur);
@@ -221,7 +229,7 @@ trait BadmsForm2Trait
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         }
-
+            
         $badm
         ->setNumParc($data[0]["num_parc"])
         ->setHeureMachine((int)$data[0]['heure'])

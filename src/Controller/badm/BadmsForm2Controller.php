@@ -55,13 +55,7 @@ class BadmsForm2Controller extends Controller
                 $badm->setTypeMouvement(self::$em->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
                 $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
-                $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
                 
-
-                //recuperation des ordres de réparation
-                $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
-                $OR = $this->ouiNonOr($orDb);
-                $orDb = $this->miseEnformeOrDb($orDb);
 
 
                 //condition
@@ -86,6 +80,14 @@ class BadmsForm2Controller extends Controller
                     $this->alertRedirection($message);
                 } else {
 
+                    $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
+                
+
+                    //recuperation des ordres de réparation
+                    $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
+                    $OR = $this->ouiNonOr($orDb);
+                    $orDb = $this->miseEnformeOrDb($orDb);
+                    
                     //envoie des pièce jointe dans une dossier et le fusionner
                     $this->envoiePieceJoint($form, $badm);
 

@@ -74,7 +74,7 @@ class Badm
      *
      * @var ?string
      */
-    private ?string $casierEmetteur = null; 
+    private ?string $casierEmetteur = ''; 
 
     /**
      * @ORM\Column(type="string", length=5, name="Agence_Service_Destinataire")
