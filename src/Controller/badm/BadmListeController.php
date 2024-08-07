@@ -190,11 +190,17 @@ class BadmListeController extends Controller
     // Convertir les entités en tableau de données
     $data = [];
     $data[] = [
-        "Statut", "N°BADM", "Date demande", "Mouvement", "Id matériel", "Ag/Serv émetteur", "Désignation", 
-        "N° série", "N° Parc", "Casier émetteur", "Casier destinataire"
+        "Statut", "N°BADM", "Date demande", "Mouvement", "Id matériel", "Ag/Serv émetteur", "N° Parc", "Casier émetteur", "Casier destinataire"
     ];
 
     foreach ($entities as $entity) {
+        if($entity->getCasierDestinataire() === null){
+            $casierDestinataire = 'N/A';
+        } elseif ($entity->getCasierDestinataire()->getId() == 0 ||  $entity->getCasierDestinataire()->getId() == '' || $entity->getCasierDestinataire()->getId() == null) {
+            $casierDestinataire = 'N/A';
+        } else {
+$casierDestinataire = $entity->getCasierDestinataire()->getCasier();
+        }
         $data[] = [
             $entity->getStatutDemande() ? $entity->getStatutDemande()->getDescription() : 'N/A',
             $entity->getNumBadm(),
@@ -202,11 +208,9 @@ class BadmListeController extends Controller
             $entity->getTypeMouvement() ? $entity->getTypeMouvement()->getDescription() : 'N/A',
             $entity->getIdMateriel(),
             $entity->getAgenceServiceEmetteur(),
-            $entity->getDesignation(),
-            $entity->getNumSerie(),
             $entity->getNumParc(),
             $entity->getCasierEmetteur(),
-            $entity->getCasierDestinataire() ? $entity->getCasierDestinataire()->getCasier() : 'N/A',
+           $casierDestinataire
         ];
     }
 

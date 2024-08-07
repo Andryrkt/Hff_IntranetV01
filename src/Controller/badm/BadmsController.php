@@ -56,12 +56,12 @@ class BadmsController extends Controller
 
             //recuperation du materiel dan sl abase de donner sqlserver
             $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ], ['numBadm' => 'DESC']);
-     
-            
+
+
             //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
             $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
-
             $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
+           
             $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
             $conditionChangementAgServ_1 = $idTypeMouvement === 2 && $data[0]['code_affect'] === 'VTE';
             $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
