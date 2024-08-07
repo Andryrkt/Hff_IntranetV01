@@ -13,6 +13,7 @@ use App\Entity\Application;
 use App\Controller\Controller;
 use App\Entity\AgenceServiceIrium;
 use App\Entity\Fonction;
+use App\Entity\Permission;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
@@ -60,20 +61,21 @@ class UserType extends AbstractType
         [
             'label' => "Nom d'utilisateur",
             'choices' => array_combine($nom, $nom),
-            'placeholder' => '-- Choisir un nom d\'utilisateur --'
+            'placeholder' => '-- Choisir un nom d\'utilisateur --',
+            
         ])
         ->add('matricule', 
             NumberType::class,
             [
                 'label' => 'Numero Matricule',
-                'required'=>false,
-                // 'disabled' => true
+                'required'=>true,
+                
             ])
         ->add('mail', 
             EmailType::class, [
                 'label' => 'Email',
-                'required' =>false,
-                // 'disabled' => true
+                'required' =>true,
+                
             ])
         ->add('roles', 
             EntityType::class, [
@@ -85,7 +87,9 @@ class UserType extends AbstractType
                     return $roleRepository->createQueryBuilder('r')->orderBy('r.role_name', 'ASC');
                 },
                 'multiple' => true,
-                'expanded' => true
+                'expanded' => true,
+                'required' => true,
+                
             ])
         ->add('applications',
             EntityType::class,
@@ -94,7 +98,9 @@ class UserType extends AbstractType
                 'class' => Application::class,
                 'choice_label' => 'codeApp',
                 'multiple' => true,
-                'expanded' => true
+                'expanded' => true,
+                'required' => true,
+              
             ])
         ->add('societtes',
             EntityType::class,
@@ -105,7 +111,9 @@ class UserType extends AbstractType
                     return $societte->getCodeSociete() . ' ' . $societte->getNom();
                 },
                 'multiple' => true,
-                'expanded' => true
+                'expanded' => true,
+                'required' => true,
+                
             ])
             ->add('personnels', 
             EntityType::class,
@@ -114,6 +122,8 @@ class UserType extends AbstractType
                 'class' => Personnel::class,
                 'choice_label' => 'Matricule',
                 'placeholder' => '-- Choisir un nom --',
+                'required' => true,
+                
             ])
             ->add('superieurs', 
             EntityType::class, [
@@ -122,8 +132,7 @@ class UserType extends AbstractType
                 'choice_label' => 'nom_utilisateur',
                 'required' => false,
                 'multiple' => true,
-                'expanded' => false,
-                
+                'expanded' => false                
             ])
             ->add('fonction',
             EntityType::class,
@@ -138,7 +147,10 @@ class UserType extends AbstractType
             [
                 'label' => 'Code Sage',
                 'class' => AgenceServiceIrium::class,
-                'choice_label' => 'service_sage_paie'
+                'choice_label' => 'service_sage_paie',
+                'placeholder' => "-- choisir une code sage --",
+                'required' => true,
+          
             ])
             ->add('agencesAutorisees',
             EntityType::class,
@@ -149,7 +161,9 @@ class UserType extends AbstractType
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
                 'multiple' => true,
-                'expanded' => false
+                'expanded' => false,
+                'required' => true,
+             
             ])
             ->add('serviceAutoriser',
             EntityType::class,
@@ -160,7 +174,19 @@ class UserType extends AbstractType
                     return $service->getCodeService() . ' ' . $service->getLibelleService();
                 },
                 'multiple' => true,
-                'expanded' => false
+                'expanded' => false,
+                'required' => true,
+                
+            ])
+            ->add('permissions', 
+            EntityType::class,
+            [
+                'label' => "Permission utilisateur",
+                'class' => Permission::class,
+                'choice_label' => 'permissionName',
+                'multiple' => true,
+                'expanded' => false,
+                'required' => false
             ])
     ;
     }

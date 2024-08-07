@@ -7,6 +7,7 @@ use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\Societte;
 use App\Traits\DateTrait;
+use App\Entity\Permission;
 use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\AgenceServiceIrium;
@@ -101,14 +102,14 @@ class User
      */
     private $agenceServiceIrium;
 
-    /**
- * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
- * @ORM\JoinTable(name="agence_user", 
- *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
- *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
- * )
- */
-private $agencesAutorisees;
+        /**
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
+     * @ORM\JoinTable(name="agence_user", 
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
+     * )
+     */
+    private $agencesAutorisees;
 
 
       /**
@@ -116,6 +117,14 @@ private $agencesAutorisees;
      * @ORM\JoinTable(name="users_service")
      */
     private $serviceAutoriser;
+
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_permission")
+     */
+    private $permissions;
 
     //=================================================================================================================================
 
@@ -127,6 +136,7 @@ private $agencesAutorisees;
         $this->casiers = new ArrayCollection();
         $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
+        $this->permissions = new ArrayCollection();
     }
 
     
@@ -425,5 +435,29 @@ public function removeAgenceAutorise(Agence $agence): self
 
         return $this;
     }
+
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
+
+    public function addPermisssion(Permission $permissions): self
+    {
+        if (!$this->permissions->contains($permissions)) {
+            $this->permissions[] = $permissions;
+        }
+
+        return $this;
+    }
+
+    public function removePermission(Permission $permissions): self
+    {
+        if ($this->permissions->contains($permissions)) {
+            $this->permissions->removeElement($permissions);
+        }
+
+        return $this;
+    }
+
 
 }
