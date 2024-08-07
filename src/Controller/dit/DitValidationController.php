@@ -21,12 +21,6 @@ class DitValidationController extends Controller
  */
    public function validationDit($numDit, $id, Request $request)
    {
-    
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
 
     /** CREATION D'AUTORISATION */
     $userId = $this->sessionService->get('user_id');
@@ -130,8 +124,6 @@ class DitValidationController extends Controller
 
     self::$twig->display('dit/validation.html.twig', [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
         'dit' => $dit,
         'autoriser' => $autoriser,
         'commandes' => $commandes

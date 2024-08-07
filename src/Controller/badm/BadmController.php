@@ -98,10 +98,11 @@ class BadmController extends Controller
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
-            }  elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
-                $message = 'Ce matériel est déjà en PARC';
-                $this->alertRedirection($message);
-            }
+            }  
+            // elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
+            //     $message = 'Ce matériel est déjà en PARC';
+            //     $this->alertRedirection($message);
+            // }
              elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);

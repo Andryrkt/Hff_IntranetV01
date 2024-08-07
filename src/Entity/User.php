@@ -171,13 +171,13 @@ class User
     }
 
     
-    public function getNomutilisateur(): string
+    public function getNomUtilisateur(): string
     {
         return $this->nom_utilisateur;
     }
 
     
-    public function setNomutilisateur( string $nom_utilisateur): self
+    public function setNomUtilisateur( string $nom_utilisateur): self
     {
         $this->nom_utilisateur = $nom_utilisateur;
 

@@ -57,22 +57,18 @@ trait BadmsForm2Trait
         } else {
             $casierEmetteur =  $data[0]["casier_emetteur"];
        }
-       $badm
-        ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
-       ->setCasierEmetteur($casierEmetteur)
-       ;
        //Agence - service - casier destinataire
        if( $idTypeMouvement === 1) {
             $agencedestinataire = null;
             $serviceDestinataire = null;
             $casierDestinataire = null;
             $dateMiseLocation = null;
-            $serviceEmetteure = $em->getRepository(Service::class)->find(2);
+            $serviceEmetteur = $em->getRepository(Service::class)->find(2);
        } elseif ($idTypeMouvement === 2) {
             $agencedestinataire = null;
             $serviceDestinataire = null;
             $casierDestinataire = null;
-            $serviceEmetteure = $em->getRepository(Service::class)->find(2);
+            //$serviceEmetteur = $em->getRepository(Service::class)->find(2);
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
        } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
@@ -100,6 +96,8 @@ trait BadmsForm2Trait
         $badm->setService($serviceDestinataire);
         $badm->setCasierDestinataire($casierDestinataire);
         $badm->setDateMiseLocation($dateMiseLocation);
+        $badm->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService());
+       $badm->setCasierEmetteur($casierEmetteur);
        
         //ENTREE EN PARC
         $badm->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]));
@@ -194,15 +192,14 @@ trait BadmsForm2Trait
          } else {
              $casierEmetteur =  $data[0]["casier_emetteur"];
         }
-        $badm
-        ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
-        ->setCasierEmetteur($casierEmetteur);
+        
         
         if( $idTypeMouvement === 1) {
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $form->getData()->getDateMiseLocation();
+            $serviceEmetteur = $em->getRepository(Service::class)->find(2);
         } elseif ($idTypeMouvement === 2) {
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
@@ -248,6 +245,8 @@ trait BadmsForm2Trait
         ->setAgenceServiceEmetteur(substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3))
         ->setAgenceServiceDestinataire($badm->getAgence()->getCodeAgence() . $badm->getService()->getCodeService())
         ->setNomUtilisateur($em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getNomUtilisateur())
+        ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
+        ->setCasierEmetteur($casierEmetteur)
         ;
         
     }

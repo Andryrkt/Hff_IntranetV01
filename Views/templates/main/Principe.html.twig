@@ -153,7 +153,7 @@
 
 				<li class="nav-item dropdown">
 
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ infoUserCours.0.Utilisateur}}</a>
+					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>
 
 
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -171,7 +171,7 @@
 				</li>
 
 
-				{% if 1 in role_ids or infoUserCours.0.Utilisateur == 'Laetitia' or infoUserCours.0.Utilisateur == 'henintsoa.ramarojaon' %}
+				{% if 1 in role_ids or App.user.nomUtilisateur == 'Laetitia' or App.user.nomUtilisateur == 'henintsoa.ramarojaon' %}
 					<li class="nav-item dropdown" id="Setting">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

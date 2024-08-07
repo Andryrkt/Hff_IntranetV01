@@ -2,6 +2,7 @@
 
 namespace App\Controller\dit;
 
+use App\Entity\User;
 use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\DitSearch;
@@ -25,21 +26,26 @@ class DitListeController extends Controller
      *
      * @return void
      */
-    public function index( Request $request){
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-    
-//dd($this->accessControl);
+    public function index( Request $request)
+    {
+        
+        /** CREATION D'AUTORISATION */
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = self::$em->getRepository(User::class)->find($userId);
+        $roleNames = [];
+        foreach ($userConnecter->getRoles() as $role) {
+            $roleNames[] = $role->getRoleName();
+        }
+            //dd($this->accessControl);
+        $autoriser = in_array('ADMINISTRATEUR', $roleNames);
+        //FIN AUTORISATION
 
         $ditSearch = new DitSearch();
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
         //initialisation agence et service
-        if($boolean){
+        if($autoriser){
             $agence = null;
             $service = null;
         } else {
@@ -92,7 +98,7 @@ class DitListeController extends Controller
         $limit = 10;
      
         $option = [
-            'boolean' => $boolean,
+            'boolean' => $autoriser,
             'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
             'codeService' =>$service === null ? null : $service->getCodeService()
         ];
@@ -124,8 +130,6 @@ class DitListeController extends Controller
 
 
         self::$twig->display('dit/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'data' => $data,
             'numSerieParc' => $numSerieParc,
             'idMat' => $idMat,

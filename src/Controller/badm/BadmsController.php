@@ -72,16 +72,19 @@ class BadmsController extends Controller
             $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
            
             
-            if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
+            if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) 
+            {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
                 $this->alertRedirection($message);
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
-            } elseif ($conditionEntreeParc) {
-                $message = 'Ce matériel est déjà en PARC';
-                $this->alertRedirection($message);
-            } elseif ($conditionChangementAgServ_1) {
+            } 
+            // elseif ($conditionEntreeParc) {
+            //     $message = 'Ce matériel est déjà en PARC';
+            //     $this->alertRedirection($message);
+            // } 
+            elseif ($conditionChangementAgServ_1) {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);
             } elseif ($conditionChangementAgServ_2) {
@@ -93,10 +96,12 @@ class BadmsController extends Controller
             } elseif ($conditionMiseAuRebut) {
                 $message = 'Ce matériel ne peut pas être mis au rebut';
                 $this->alertRedirection($message);
-            } elseif ($conditionTypeMouvStatut) {
-                $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
-                $this->alertRedirection($message);
-            } else {
+            } 
+            // elseif ($conditionTypeMouvStatut) {
+            //     $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+            //     $this->alertRedirection($message);
+            //  } 
+            else {
                 $badm 
                 ->setIdMateriel($data[0]['num_matricule']) 
                 ->setNumParc($data[0]['num_parc'])

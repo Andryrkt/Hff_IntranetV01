@@ -31,15 +31,6 @@ class DitController extends Controller
     public function new(Request $request){
         
 
-        
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-        
-        $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
        $this->initialisationForm($demandeIntervention, self::$em);
@@ -49,8 +40,6 @@ class DitController extends Controller
 
         $form->handleRequest($request);
 
-        
-        
         if($form->isSubmitted() && $form->isValid())
         {
                $dits = $this->infoEntrerManuel($form, self::$em);
@@ -87,8 +76,6 @@ class DitController extends Controller
         }
 
         self::$twig->display('dit/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'form' => $form->createView()
         ]);
     }
