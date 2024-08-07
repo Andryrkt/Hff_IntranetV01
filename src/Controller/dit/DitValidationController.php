@@ -123,7 +123,6 @@ class DitValidationController extends Controller
         }
 
         $this->redirectToRoute("dit_index");
-        
     }
         
     //RECUPERATION DE LISTE COMMANDE 
