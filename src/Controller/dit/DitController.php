@@ -29,6 +29,9 @@ class DitController extends Controller
      * @return void
      */
     public function new(Request $request){
+        
+
+        
         $this->SessionStart();
         $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
         $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";

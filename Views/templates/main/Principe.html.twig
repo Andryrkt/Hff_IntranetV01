@@ -5,9 +5,20 @@
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
+
 		<div class="collapse navbar-collapse" id="navbarSupportedContent" style="color: #fbbb01;">
-			<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-				{% if boolean  %}
+			<ul
+				class="navbar-nav ms-auto mb-2 mb-lg-0">
+				{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
+				{% set role_ids = [] %}
+
+				{% for item in App.user.roles %}
+					{% set role_ids = role_ids | merge([ item.id ]) %}
+				{% endfor %}
+				{# FIN Récupération des id de role de l'utilisateur dans un tableau role_ids #}
+
+				{# DEBUT Affiche le menu "Documentation" si un administrateur #}
+				{% if 1 in role_ids  %}
 					<li class="nav-item dropdown" id="DOCUWARE">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							Documentation</a>
@@ -18,17 +29,20 @@
 						</ul>
 					</li>
 				{% endif %}
+				{# FIN Affiche le menu "Documentation" si un administrateur #}
+
+				{# DEBUT Affiche le menu "Dematerialisation"  #}
 				{% set hasBDM = false %}
 				{% set hasDOM = false %}
 
-				{% for item in infoUserCours %}
-					{% if item.App == 'BDM' %}
+				{% for item in App.user.Applications %}
+					{% if item.codeApp == 'BDM' %}
 						{% set hasBDM = true %}
-					{% elseif item.App == 'DOM' %}
+					{% elseif item.codeApp == 'DOM' %}
 						{% set hasDOM = true %}
 					{% endif %}
 					<!-- DEBUT Demande d'intervention-->
-					{% if item.App == 'DIT' %}
+					{% if item.codeApp == 'DIT' %}
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								Demande d'Intervention</a>
@@ -93,7 +107,7 @@
 					</li>
 				{% endif %}
 				<!-- FIN Dématérialisation -->
-
+				{# DEBUT Affiche le menu "Dematerialisation"  #}
 
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -157,10 +171,11 @@
 				</li>
 
 
-				{% if boolean or infoUserCours.0.Utilisateur == 'Laetitia' or infoUserCours.0.Utilisateur == 'henintsoa.ramarojaon' %}
+				{% if 1 in role_ids or infoUserCours.0.Utilisateur == 'Laetitia' or infoUserCours.0.Utilisateur == 'henintsoa.ramarojaon' %}
 					<li class="nav-item dropdown" id="Setting">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">Setting</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+
 							<li>
 								<a class="dropdown-item" href="{{ path("user_list")}}">Profil User</a>
 							</li>
@@ -191,8 +206,6 @@
 							<li>
 								<a class="dropdown-item" href="/Hffintranet/index.php?action=Statut">Statut App</a>
 							</li>
-
-
 						</ul>
 					</li>
 				{% endif %}
