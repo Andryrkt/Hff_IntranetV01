@@ -5,6 +5,7 @@ namespace App\Form;
 
 use App\Entity\Badm;
 use App\Entity\TypeMouvement;
+use App\Controller\Controller;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -12,7 +13,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class BadmForm1Type extends AbstractType
-{
+{   
+    private $em;
+
+    public function __construct()
+    {
+        $this->em = Controller::getEntity();
+    }
+
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -56,7 +65,8 @@ class BadmForm1Type extends AbstractType
             'class' => TypeMouvement::class,
             'choice_label' => 'description',
             'placeholder' => '-- Choisir une type de mouvement--',
-            'required' => false,
+            'required' => true,
+            'data' => $this->em->getRepository(TypeMouvement::class)->find(1)
         ])
         ; 
     }

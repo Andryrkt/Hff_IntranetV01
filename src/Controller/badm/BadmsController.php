@@ -48,6 +48,9 @@ class BadmsController extends Controller
         
           if($form->isSubmitted() && $form->isValid())
           {
+            if ($badm->getTypeMouvement() === null) {
+                throw new \Exception('choisir une type de mouvement');
+            }
             //recuperation de l'id du type de mouvement
             $idTypeMouvement = $badm->getTypeMouvement()->getId();
 

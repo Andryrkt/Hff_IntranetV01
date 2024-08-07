@@ -13,15 +13,17 @@
 
 					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
+
 					{{ form_start(form) }}
 					{{ form_errors(form)}}
 
 					<div class="row">
 						<div class="col-12 col-md-6">
 
-							{{ form_row(form.nom_utilisateur) }}
+							{{ form_row(form.nom_utilisateur, {'attr': {'class': 'selectUser form-control'}}) }}
 							{{ form_row(form.matricule) }}
 							{{ form_row(form.mail) }}
+							{{ form_row(form.permissions)}}
 							{{ form_row(form.roles)}}
 							<div class="row">
 								<div class="col-12 col-md-6">
@@ -34,10 +36,12 @@
 
 						</div>
 						<div class="col-12 col-md-6">
-							{{form_row(form.agences)}}
-							{{form_row(form.services)}}
+							{{ form_row(form.agenceServiceIrium)}}
 							{{ form_row(form.personnels, {'attr': {'class': 'selectUser form-control'}})}}
 							{{form_row(form.superieurs, {'attr': {'class': 'superieurs'}})}}
+							{{ form_row(form.fonction)}}
+							{{ form_row(form.agencesAutorisees)}}
+							{{ form_row(form.serviceAutoriser)}}
 						</div>
 					</div>
 

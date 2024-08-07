@@ -53,27 +53,27 @@ class User
     private $mail;
     
      /**
-     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="user_roles")
      */
     private $roles;
 
 
      /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
+     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
     
      /**
-     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users")
+     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="users_societe")
      */
     private $societtes;
 
 
      /**
-     * @ORM\ManyToOne(targetEntity="Personnel", inversedBy="users")
+     * @ORM\ManyToOne(targetEntity="Personnel", inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
     private $personnels;
@@ -86,24 +86,24 @@ class User
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur")
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
      */
     private $casiers;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users")
+     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
      */
     private  $fonction ;
 
     /**
-     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService")
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
      * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
      */
     private $agenceServiceIrium;
 
         /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises")
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
      * @ORM\JoinTable(name="agence_user", 
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
@@ -113,7 +113,7 @@ class User
 
 
       /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser")
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
      * @ORM\JoinTable(name="users_service")
      */
     private $serviceAutoriser;
@@ -121,7 +121,7 @@ class User
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users")
+     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinTable(name="users_permission")
      */
     private $permissions;
