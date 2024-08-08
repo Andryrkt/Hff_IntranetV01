@@ -50,3 +50,14 @@ label {
 .color {
     background-color: #FBBB01;
 }
+
+.perso-titre {
+    /* color: #FBBB01; */
+    color: white;
+    background-color: #212529;
+    font-size: 1rem;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 5px;
+}

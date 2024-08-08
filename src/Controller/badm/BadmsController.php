@@ -76,6 +76,7 @@ class BadmsController extends Controller
             $conditionRoleUtilisateur = in_array(1, $user->getRoleIds());
             $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds()) ;
             
+           
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) 
             {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
@@ -105,10 +106,6 @@ class BadmsController extends Controller
                 $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
                 $this->notification($message);
             } 
-            elseif (!$conditionRoleUtilisateur || !$conditionAgenceServiceAutoriser) {
-                $message = " vous n'êtes pas autoriser à consulter ce matériel";
-                $this->notification($message);
-            }
             else {
 
                 $badm 
@@ -125,8 +122,15 @@ class BadmsController extends Controller
                 ];
                 //envoie des donner dan la session
                 $this->sessionService->set('badmform1Data', $formData);
-                
-                $this->redirectToRoute("badms_newForm2");
+                if($conditionRoleUtilisateur){
+                    $this->redirectToRoute("badms_newForm2");
+                } elseif (!$conditionAgenceServiceAutoriser) {
+                    $message = " vous n'êtes pas autoriser à consulter ce matériel";
+                $this->notification($message);
+                } else {
+                    $this->redirectToRoute("badms_newForm2");
+                }
+               
             }
           }
 
