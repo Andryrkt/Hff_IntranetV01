@@ -31,10 +31,20 @@ document.addEventListener("DOMContentLoaded", function () {
       if (firstRowInGroup) {
         let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
         let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
+        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
+        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+        let cellToRowspanService =
+          firstRowInGroup.getElementsByTagName("td")[6];
         cellToRowspanNumDit.rowSpan = rowSpanCount;
         cellToRowspanNumOr.rowSpan = rowSpanCount;
-        cellToRowspanNumDit.classList.add("rowspan-cell"); // Appliquer les styles pour centrer le texte
-        cellToRowspanNumOr.classList.add("rowspan-cell"); // Appliquer les styles pour centrer le texte
+        cellToRowspanInter.rowSpan = rowSpanCount;
+        cellToRowspanAgence.rowSpan = rowSpanCount;
+        cellToRowspanService.rowSpan = rowSpanCount;
+        cellToRowspanNumDit.classList.add("rowspan-cell");
+        cellToRowspanNumOr.classList.add("rowspan-cell");
+        cellToRowspanInter.classList.add("rowspan-cell");
+        cellToRowspanAgence.classList.add("rowspan-cell");
+        cellToRowspanService.classList.add("rowspan-cell");
       }
 
       // Début pour le séparateur
@@ -52,8 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       rowSpanCount++;
       if (firstRowInGroup !== currentRow) {
-        currentRow.getElementsByTagName("td")[2].style.display = "none"; // Masquer la cellule OR dans les lignes suivantes
+        currentRow.getElementsByTagName("td")[2].style.display = "none";
         currentRow.getElementsByTagName("td")[1].style.display = "none";
+        currentRow.getElementsByTagName("td")[7].style.display = "none";
+        currentRow.getElementsByTagName("td")[5].style.display = "none";
+        currentRow.getElementsByTagName("td")[6].style.display = "none";
       }
     }
 
@@ -64,10 +77,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (firstRowInGroup) {
     let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
     let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
+    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
+    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[6];
     cellToRowspanNumDit.rowSpan = rowSpanCount;
     cellToRowspanNumOr.rowSpan = rowSpanCount;
-    cellToRowspanNumDit.classList.add("rowspan-cell"); // Appliquer les styles pour centrer le texte
+    cellToRowspanInter.rowSpan = rowSpanCount;
+    cellToRowspanAgence.rowSpan = rowSpanCount;
+    cellToRowspanService.rowSpan = rowSpanCount;
+    cellToRowspanNumDit.classList.add("rowspan-cell");
     cellToRowspanNumOr.classList.add("rowspan-cell");
+    cellToRowspanInter.classList.add("rowspan-cell");
+    cellToRowspanAgence.classList.add("rowspan-cell");
+    cellToRowspanService.classList.add("rowspan-cell");
   }
 
   /** Autocompletion Designation */

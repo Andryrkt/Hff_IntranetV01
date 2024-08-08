@@ -24,30 +24,30 @@
 		{% endif %}
 		<div class="row">
 			<div class="col">
-				<h2 class="text-center rounded fw-bold py-2" style="background-color: #212529; color: #fff">
+				<h3 class="text-center rounded fw-bold py-2" style="background-color: #212529; color: #fff">
 					Liste de la demande d'ordre de mission
-				</h2>
+				</h3>
 			</div>
 		</div>
 
 		<form action="" method="get" class="my-4">
-		<div class="row">
-		<div class="col-12 col-md-3">
-			{{form.select_1('Description', 'Statut', statut,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un statut'})}}
-			{{form.select_1('Sous_type_document', 'Sous Type', sousTypeDoc ,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un type'})}}
-		</div>
-		<div class="col-12 col-md-3">
-		<div class="input-group mb-2">
+			<div class="row">
+				<div class="col-12 col-md-3">
+					{{form.select_1('Description', 'Statut', statut,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un statut'})}}
+					{{form.select_1('Sous_type_document', 'Sous Type', sousTypeDoc ,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un type'})}}
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="input-group mb-2">
 						<span class="input-group-text">N° DOM</span>
 						<input type="search" name="Numero_Ordre_Mission" id="numDom" class="form-control">
 					</div>
-		<div class="input-group mb-2">
+					<div class="input-group mb-2">
 						<span class="input-group-text">Matricule</span>
 						<input type="search" name="Matricule" id="matricule" class="form-control">
 					</div>
-		</div>
-		<div class="col-12 col-md-3">
-			<div class="input-group mb-2">
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="input-group mb-2">
 						<span class="input-group-text">Date de création (début)</span>
 						<input type="date" name="dateDemandeDebut" id="dateCreationDebut" class="form-control">
 					</div>
@@ -56,9 +56,9 @@
 						<span class="input-group-text">Date de création (fin)</span>
 						<input type="date" name="dateDemandeFin" id="dateCreationFin" class="form-control">
 					</div>
-		</div>
-		<div class="col-12 col-md-3">
-		<div class="input-group mb-2">
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="input-group mb-2">
 						<span class="input-group-text">Date de Mission (début)</span>
 						<input type="date" name="dateMissionDebut" id="dateDebutDebut" class="form-control">
 					</div>
@@ -67,8 +67,8 @@
 						<span class="input-group-text">Date de Mission (fin)</span>
 						<input type="date" name="dateMissionFin" id="dateDebutFin" class="form-control">
 					</div>
-		</div>
-		</div>
+				</div>
+			</div>
 
 			<!-- FIN recherche -->
 
@@ -76,9 +76,9 @@
 			<!-- DEBUT bouton -->
 
 			<div class="d-flex justify-content-end">
-				<button type="submit" id="recherche" class="btn btn-sm m-1 fw-bold" style="background-color: #FBBB01 ;" > 
-				<i class="fab fa-searchengin"></i>
-				Recherche
+				<button type="submit" id="recherche" class="btn btn-sm m-1 fw-bold" style="background-color: #FBBB01 ;">
+					<i class="fab fa-searchengin"></i>
+					Recherche
 				</button>
 			</div>
 
@@ -150,7 +150,7 @@
 					{% for item in dom %}
 						<tr>
 							{# Début Action #}
-							<td class = "p-0 mx-2 align-middle">
+							<td class="p-0 mx-2 align-middle">
 								<div class="dropdown">
 									<button class="btn btn-sm btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
 										Actions
@@ -218,8 +218,6 @@
 		<ul class="pagination justify-content-end"></ul>
 	</nav>
 	<!-- FIN Pagination -->
-
-
 
 
 {% endblock %}

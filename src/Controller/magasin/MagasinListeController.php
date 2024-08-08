@@ -63,22 +63,22 @@ class MagasinListeController extends Controller
         } 
 
 
-        $numOrValideString = $this->orEnString($criteria);
+        //$numOrValideString = $this->orEnString($criteria);
 
-            $data = $this->magasinModel->recupereListeMaterielValider($numOrValideString, $criteria);
+            $data = $this->magasinModel->recupereListeMaterielValider($criteria);
             
             //ajouter le numero dit dans data
-            for ($i=0; $i < count($data) ; $i++) { 
-                $numeroOr = $data[$i]['numeroor'];
-                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-                if( !empty($dit)){
-                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
-                } else {
-                    $empty = true;
-                    break;
-                }
-            }
+            // for ($i=0; $i < count($data) ; $i++) { 
+            //     $numeroOr = $data[$i]['numeroor'];
+            //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            //     if( !empty($dit)){
+            //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+            //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
+            //     } else {
+            //         $empty = true;
+            //         break;
+            //     }
+            // }
        
 
         
