@@ -71,6 +71,8 @@ class DitController extends Controller
             if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
                 $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
+
+            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
             $this->redirectToRoute("dit_index");
             
         }
@@ -82,58 +84,55 @@ class DitController extends Controller
 
    
    
-/**
- * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
- * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
- * @return void
- */
-public function agence($id) {
-    $agence = self::$em->getRepository(Agence::class)->find($id);
-  
-    $service = $agence->getServices();
-
-    //   $services = $service->getValues();
-        $services = [];
-    foreach ($service as $key => $value) {
-        $services[] = [
-            'value' => $value->getId(),
-            'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-        ];
-    }
-
+    /**
+     * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
+     * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
+     * @return void
+     */
+    public function agence($id) {
+        $agence = self::$em->getRepository(Agence::class)->find($id);
     
-    //dd($services);
-    header("Content-type:application/json");
+        $service = $agence->getServices();
 
-    echo json_encode($services);
+        //   $services = $service->getValues();
+            $services = [];
+        foreach ($service as $key => $value) {
+            $services[] = [
+                'value' => $value->getId(),
+                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+            ];
+        }
 
-    //echo new JsonResponse($services);
-}
+        
+        //dd($services);
+        header("Content-type:application/json");
 
+        echo json_encode($services);
 
-/**
- * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
- * cette fonctin permet d'envoyer les informations materiels en ajax
- */
-public function fetchMateriel($idMateriel,  $numParc, $numSerie)
-{
-
-    // Récupérer les données depuis le modèle
-    $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
-
-
-    // Vérifiez si les données existent
-    if (!$data) {
-        return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+        //echo new JsonResponse($services);
     }
-    header("Content-type:application/json");
 
-    $jsonData = json_encode($data);
+
+    /**
+     * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
+     * cette fonctin permet d'envoyer les informations materiels en ajax
+     */
+    public function fetchMateriel($idMateriel,  $numParc, $numSerie)
+    {
+        // Récupérer les données depuis le modèle
+        $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
+
+        // Vérifiez si les données existent
+        if (!$data) {
+            return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+        }
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($data);
 
         $this->testJson($jsonData);
-    // Renvoyer les données en réponse JSON
-    //echo new JsonResponse($data);
-}
+       
+    }
 
 
 }

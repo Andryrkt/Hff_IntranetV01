@@ -50,6 +50,12 @@ class MagasinModel extends Model
             $dateFin = null;
         }
 
+        if(!empty($criteria['numOr'])){
+            $numOr = " and seor_numor  = '" . $criteria['numOr'] . "'";
+        } else {
+            $numOr = null;
+        }
+
       
 
         $statement = "SELECT 
@@ -81,6 +87,7 @@ class MagasinModel extends Model
             $constructeur 
             $dateDebut
             $dateFin
+            $numOr
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'

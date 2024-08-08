@@ -20,14 +20,6 @@ class CasierListTemporaireController extends Controller
     public function AffichageListeCasier()
     {
 
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-        //$casier = $this->caiserListTemporaire->recuperToutesCasier();
-
         $data = self::$em->getRepository(Casier::class)->findBy([ 'idStatutDemande' => 52]);
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
@@ -40,8 +32,6 @@ class CasierListTemporaireController extends Controller
         self::$twig->display(
             'badm/casier/listTemporaireCasier.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'casier' => $data,
                 'form' => $form->createView(),
             ]
@@ -78,7 +68,5 @@ class CasierListTemporaireController extends Controller
       
         
         $this->redirectToRoute("liste_affichageListeCasier");
-
-        
     }
 }

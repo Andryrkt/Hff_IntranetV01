@@ -2,7 +2,7 @@
 
 {% block stylesheets%}
 <link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
-<link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
 {% endblock%}
 
 {% import "macroForm.html.twig" as formMacro %}
@@ -23,16 +23,14 @@
 		<!-- DEBUT recherche -->
 		{{ form_start(form)}}
 		<div class="row">
-			<div class="col-12 col-md-6">{{ form_row(form.agence)}}</div>
+			<div class="col-12 col-md-2">{{ form_row(form.agence)}}</div>
 
-			<div class="col-12 col-md-6  ">
+			<div class="col-12 col-md-2  ">
 				{{ form_row(form.casier)}}
 			</div>
 		</div>
-		<div class="boutonRecherche">
+		<div class="boutonRecherche col-md-4">
 			<input type="submit" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-			<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-			<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
 		</div>
 
 		{{ form_end(form)}}
@@ -60,14 +58,15 @@
 
 			<div class="col-12 col-md-6 col-lg-4">
 				<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
-
-				{% if boolean %}
+				{# recupé&ration de l'id du role de l'utilisateur #}
+				{% set role_ids = App.user.roleIds %}
+				{# est-ce que l'id 1 est dans le tableaut id #}
+				{% if 1 in role_ids  %}
 					<a href="{{ path("liste_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Définitives</a>
 				{% endif %}
 			</div>
 			<div class="col-12 col-md-6 col-lg-4  mt-1">
-				<p class="fw-bold" id="nombreResultat">0
-																																																					Résultats</p>
+				<p class="fw-bold" id="nombreResultat">0 Résultats</p>
 			</div>
 		</div>
 		<table class="table   table-shadow shadow  rounded " style="text-align: center;">
@@ -78,7 +77,7 @@
 					<th>Casier</th>
 					<th>Date de création</th>
 					<th>Numero Casier</th>
-					{% if boolean %}
+					{% if 1 in role_ids  %}
 						<th>Action</th>
 					{% endif %}
 				</tr>
@@ -91,7 +90,7 @@
 						<td style="text-align:left">{{item.Casier}}</td>
 						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
 						<td>{{item.NumeroCAS}}</td>
-						{% if boolean %}
+						{% if 1 in role_ids  %}
 							<td>
 								{# <a href="/Hffintranet/index.php?action=formValide&id={{item.Id}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a> #}
 								<a href="{{ path("CasierListTemporaire_btnValide", { id: item.Id})}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a>

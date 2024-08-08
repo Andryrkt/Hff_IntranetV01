@@ -109,25 +109,12 @@ class Controller
         $this->fusionPdf = new FusionPdf();
         $this->genererPdf = new GenererPdf();
 
-        //$this->loader = new FilesystemLoader(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Views/templates');
-       
-        //$this->twig = new Environment($this->loader);
-        //$this->twig = new Environment($this->loader, ['debug' => true]);
-        //$this->twig->addExtension(new DebugExtension());
-        //$this->twig->addExtension(new RoutingExtension(self::$generator));
-        // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
-        // $this->package = new Package($this->strategy);
-        // $this->twig->addExtension(new AssetExtension($this->package));
-
         $this->ldap = new LdapModel();
 
         $this->profilModel = new ProfilModel();
 
         $this->odbcCrud = new OdbcCrudModel();
 
-        $this->casier = new CasierModel();
-        $this->casierList = new CasierListModel();
-        $this->caiserListTemporaire = new CasierListTemporaireModel();
 
         $this->badmRech = new BadmRechercheModel();
         $this->badm = new BadmModel();

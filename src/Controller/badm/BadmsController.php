@@ -3,17 +3,17 @@
 namespace App\Controller\badm;
 
 use App\Entity\Badm;
+use App\Entity\User;
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Form\BadmForm1Type;
-use App\Entity\TypeMouvement;
 use App\Controller\Controller;
-use App\Controller\Traits\BadmsTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class BadmsController extends Controller
 {
-    use BadmsTrait;
-
+    
     /**
      * @Route("/badm-form1", name="badms_newForm1")
      *
@@ -21,15 +21,9 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
-        $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-
-            /**
-             * INITIALISATION
-             */
+            /** RECUPERATION ID USER CONNECTER */
+            $userId = $this->sessionService->get('user_id');
+            /** INITIALISATION*/
             $badm = new Badm();
             $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
             $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
@@ -63,45 +57,60 @@ class BadmsController extends Controller
 
             //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
             $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
+            
+            //recuperati
+            $user = self::$em->getRepository(User::class)->find($userId);
+            $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
+            if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null || $data[0]["code_service"] === 'LCD') {
+                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM']);
+            } else {
+                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
+            }
+            //condition de blocage
             $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
-           
             $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
             $conditionChangementAgServ_1 = $idTypeMouvement === 2 && $data[0]['code_affect'] === 'VTE';
             $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
             $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
             $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
-           
+            $conditionRoleUtilisateur = in_array(1, $user->getRoleIds());
+            $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds()) ;
             
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) 
             {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
-                $this->alertRedirection($message);
+                $this->notification($message);
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
-                $this->alertRedirection($message);
+                $this->notification($message);
             } 
-            // elseif ($conditionEntreeParc) {
-            //     $message = 'Ce matériel est déjà en PARC';
-            //     $this->alertRedirection($message);
-            // } 
+            elseif ($conditionEntreeParc) {
+                $message = 'Ce matériel est déjà en PARC';
+                $this->notification($message);
+            } 
             elseif ($conditionChangementAgServ_1) {
-                $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
-                $this->alertRedirection($message);
+                $message = "L'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
+                $this->notification($message);
             } elseif ($conditionChangementAgServ_2) {
-                $message = " l\'affectation matériel ne permet pas cette opération";
-                $this->alertRedirection($message);
+                $message = " l'affectation matériel ne permet pas cette opération";
+                $this->notification($message);
             } elseif ($conditionCessionActif) {
-                $message = "Cession d\'actif ";
-                $this->alertRedirection($message);
+                $message = "Ce matériel ne peut pas mise en cession d'actif ";
+                $this->notification($message);
             } elseif ($conditionMiseAuRebut) {
                 $message = 'Ce matériel ne peut pas être mis au rebut';
-                $this->alertRedirection($message);
+                $this->notification($message);
             } 
-            // elseif ($conditionTypeMouvStatut) {
-            //     $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
-            //     $this->alertRedirection($message);
-            //  } 
+            elseif ($conditionTypeMouvStatut) {
+                $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+                $this->notification($message);
+            } 
+            elseif (!$conditionRoleUtilisateur || !$conditionAgenceServiceAutoriser) {
+                $message = " vous n'êtes pas autoriser à consulter ce matériel";
+                $this->notification($message);
+            }
             else {
+
                 $badm 
                 ->setIdMateriel($data[0]['num_matricule']) 
                 ->setNumParc($data[0]['num_parc'])
@@ -120,19 +129,20 @@ class BadmsController extends Controller
                 $this->redirectToRoute("badms_newForm2");
             }
           }
-        $agenceAutoriser = $this->badm->recupeSessionAutoriser($_SESSION['user']);
-            if (empty($agenceAutoriser)) {
-                $message = "verifiez votre Autorisation";
-                $this->alertRedirection($message);
-            } else {
-                self::$twig->display(
-                    'badm/firstForm.html.twig',
-                    [
-                        'infoUserCours' => $infoUserCours,
-                        'boolean' => $boolean,
-                        'form' => $form->createView()
-                    ]
-                );
-            }
+
+        
+        self::$twig->display(
+            'badm/firstForm.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
+            
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("badms_newForm1");
     }
 }

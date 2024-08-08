@@ -36,3 +36,10 @@
 #suggestions .list-group-item {
     cursor: pointer;
 }
+
+
+.boutonRecherche {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

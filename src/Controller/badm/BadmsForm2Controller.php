@@ -30,32 +30,27 @@ class BadmsForm2Controller extends Controller
      */
     public function newForm1(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $badm = new Badm();
 
+        //recupération des donnée qui vient du formulaire 1
         $form1Data = $this->sessionService->get('badmform1Data', []);
-
+        // recuperation des information du matériel entrer par l'utilisateur dans le formulaire 1
         $data = $this->badm->findAll($form1Data['idMateriel'],  $form1Data['numParc'], $form1Data['numSerie']);
 
-       /** INITIALISATION */
+       /** INITIALISATION du formulaire 2*/
        $badm = $this->initialisation($badm, $form1Data, $data, self::$em);
       
+       //création du formulaire
        $form = self::$validator->createBuilder(BadmForm2Type::class, $badm)->getForm();
        
-       $form->handleRequest($request);
+            $form->handleRequest($request);
 
             if($form->isSubmitted() && $form->isValid())
             {
                 
                 $badm->setTypeMouvement(self::$em->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
+                //recuperatin de l'id du type de mouvemnet choisi par l'utilisateur dans le formulaire 1
                 $idTypeMouvement = $badm->getTypeMouvement()->getId();
-
-                
 
 
                 //condition
@@ -68,16 +63,16 @@ class BadmsForm2Controller extends Controller
             
                 if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                     $message = 'compléter tous les champs obligatoires';
-                    $this->alertRedirection($message);
+                    $this->notification($message);
                 } elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
                     $message = 'ce matériel est déjà en PARC';
-                    $this->alertRedirection($message);
+                    $this->notification($message);
                 } elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                     $message = 'le choix du type devrait être Changement de Casier';
-                    $this->alertRedirection($message);
+                    $this->notification($message);
                 } elseif ($idTypeMouvement === 2 && $conditionAgenceServices) {
                     $message = 'le choix du type devrait être Changement de Casier';
-                    $this->alertRedirection($message);
+                    $this->notification($message);
                 } else {
 
                     $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
@@ -128,8 +123,6 @@ class BadmsForm2Controller extends Controller
        self::$twig->display(
             'badm/secondForm.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'items' => $data,
                 'form1Data' => $form1Data,
                 'form' => $form->createView()

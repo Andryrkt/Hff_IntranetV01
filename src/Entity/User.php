@@ -126,6 +126,8 @@ class User
      */
     private $permissions;
 
+
+
     //=================================================================================================================================
 
     public function __construct()
@@ -460,4 +462,35 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
 
+    /**
+     * RECUPERE LES id de role
+     */
+    public function getRoleIds(): array
+    {
+        return $this->roles->map(function($role) {
+            return $role->getId();
+        })->toArray();
+    }
+
+
+    /**
+     * RECUPERE LES id de l'agence Autoriser
+     */
+    public function getAgenceAutoriserIds(): array
+    {
+        return $this->agencesAutorisees->map(function($agenceAutorise) {
+            return $agenceAutorise->getId();
+        })->toArray();
+    }
+
+
+     /**
+     * RECUPERE LES id du service Autoriser
+     */
+    public function getServiceAutoriserIds(): array
+    {
+        return $this->serviceAutoriser->map(function($serviceAutorise) {
+            return $serviceAutorise->getId();
+        })->toArray();
+    }
 }

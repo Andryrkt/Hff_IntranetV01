@@ -24,16 +24,14 @@
 
 		{{ form_start(form)}}
 		<div class="row">
-			<div class="col-12 col-md-6">{{ form_row(form.agence)}}</div>
+			<div class="col-12 col-md-2">{{ form_row(form.agence)}}</div>
 
-			<div class="col-12 col-md-6  ">
+			<div class="col-12 col-md-2">
 				{{ form_row(form.casier)}}
 			</div>
 		</div>
-		<div class="boutonRecherche">
+		<div class="boutonRecherche col-md-4">
 			<input type="submit" class="btn  fw-bold" id="recherche" style="background-color: #FBBB01 ;" value="Rechercher">
-			<input type="submit" name="recherche" id="reset" class="btn btn-dark text-white" value="Effacer">
-			<input type="submit" name="exportExcel" id="export" class="btn btn-success" value="Export Excel">
 		</div>
 		{{ form_end(form)}}
 
@@ -59,6 +57,7 @@
 			<div class="col-12 col-md-6 col-lg-4">
 				<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
 				<a href="{{ path("listeTemporaire_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
+				<a href="#" class="btn btn-success mb-3">Export Excel</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-2  mt-1">
 				<p class="fw-bold" id="nombreResultat">0 Résultats</p>

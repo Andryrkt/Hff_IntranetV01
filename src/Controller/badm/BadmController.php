@@ -117,8 +117,6 @@ class BadmController extends Controller
                 $this->alertRedirection($message);
             } else {
 
-
-
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
 
@@ -278,11 +276,6 @@ class BadmController extends Controller
 
         $this->testJson($jsonData);
     }
-
-
-
-
-
 
 
     private function imageDansDossier($image, string $imagename, string $chemin)

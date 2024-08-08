@@ -5,15 +5,17 @@ namespace App\Controller\badm;
 use App\Entity\User;
 use App\Entity\Casier;
 use App\Entity\Application;
+use App\Entity\CasierValider;
+use App\Entity\StatutDemande;
 use App\Form\CasierForm1Type;
 use App\Form\CasierForm2Type;
 use App\Controller\Controller;
+use App\Model\badm\CasierModel;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
-use App\Entity\CasierValider;
+use App\Service\genererPdf\GenererPdfCasier;
 use Symfony\Component\HttpFoundation\Request;
-use App\Entity\StatutDemande;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -25,20 +27,12 @@ class CasierController extends Controller
     use FormatageTrait;
 
 
-    
-
     /**
      * @Route("/nouveauCasier", name="casier_nouveau")
      */
     public function NouveauCasier(Request $request)
     {
 
-
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
 
             $casier = new Casier();
 
@@ -55,7 +49,8 @@ class CasierController extends Controller
         
             if($form->isSubmitted() && $form->isValid())
             {
-                $data = $this->casier->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
+                $casierModel = new CasierModel();
+                $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
                 if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                     $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
                     $this->alertRedirection($message);
@@ -78,8 +73,6 @@ class CasierController extends Controller
             self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',
                 [
-                    'infoUserCours' => $infoUserCours,
-                    'boolean' => $boolean,
                     'form' => $form->createView()
                 ]
             );
@@ -91,33 +84,31 @@ class CasierController extends Controller
      */
     public function FormulaireCasier(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);
         
-        $data = $this->casier->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"]);
+        //Recupérations de tous les matériel
+        $casierModel = new CasierModel();
+        $data = $casierModel->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"]);
     
 
-    $casier
-    ->setGroupe($data[0]["famille"])
-    ->setAffectation($data[0]["affectation"])
-    ->setConstructeur($data[0]["constructeur"])
-    ->setDesignation($data[0]["designation"])
-    ->setModele($data[0]["modele"])
-    ->setNumParc($data[0]["num_parc"])
-    ->setNumSerie($data[0]["num_serie"])
-    ->setIdMateriel($data[0]["num_matricule"])
-    ->setAnneeDuModele($data[0]["annee"])
-    ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
-    ->setDateCreation(\DateTime::createFromFormat('Y-m-d',$this->getDatesystem()))
-    ;
+        $casier
+        ->setGroupe($data[0]["famille"])
+        ->setAffectation($data[0]["affectation"])
+        ->setConstructeur($data[0]["constructeur"])
+        ->setDesignation($data[0]["designation"])
+        ->setModele($data[0]["modele"])
+        ->setNumParc($data[0]["num_parc"])
+        ->setNumSerie($data[0]["num_serie"])
+        ->setIdMateriel($data[0]["num_matricule"])
+        ->setAnneeDuModele($data[0]["annee"])
+        ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
+        ->setDateCreation(\DateTime::createFromFormat('Y-m-d',$this->getDatesystem()))
+        ;
 
 
-    $form =self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
+        $form =self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
 
 
         $form->handleRequest($request);
@@ -144,35 +135,12 @@ class CasierController extends Controller
             $MailUser = $user->getMail();
             $dateDemande = $this->getDatesystem();           
     
-            $generPdfCasier = [
+            $generPdfCasier = $this->generPdfCasier($NumCAS, $dateDemande, $data, $casier, $MailUser, $agenceEmetteur, $serviceEmetteur);
     
-                'Num_CAS' => $NumCAS,
-                'Date_Demande' => $this->formatageDate($dateDemande),
-                'Designation' => $data[0]['designation'],
-                'Num_ID' => $data[0]['num_matricule'],
-                'Num_Serie' => $data[0]['num_serie'],
-                'Groupe' => $data[0]['famille'],
-                'Num_Parc' => $casier->getNumParc(),
-                'Affectation' => $data[0]['affectation'],
-                'Constructeur' => $data[0]['constructeur'],
-                'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
-                'Annee_Model' => $data[0]['annee'],
-                'Modele' => $data[0]['modele'],
-                'Agence' => $casier->getAgence()->getCodeAgence() . '-' . $casier->getAgence()->getLibelleAgence(),
-                'Motif_Creation' => $casier->getMotif(),
-                'Client' => $casier->getClient(),
-                'Chantier' => $casier->getChantier(),
-                'Email_Emetteur' => $MailUser,
-                'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
-            ];
-    
-            // $insertDbBadm = $this->convertirEnUtf8($insertDbCasier);
-            // $this->casier->insererDansBaseDeDonnees($insertDbBadm);
-
-            
-
-            $this->genererPdf->genererPdfCasier($generPdfCasier);
-            $this->genererPdf->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+            /** CREATION PDF */
+            $genererPdfCasier = new GenererPdfCasier();
+            $genererPdfCasier->genererPdfCasier($generPdfCasier);
+            $genererPdfCasier->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
           
             self::$em->persist($casier);
             self::$em->flush();
@@ -181,14 +149,37 @@ class CasierController extends Controller
         }
         
 
-        self::$twig->display(
-            'badm/casier/formulaireCasier.html.twig',
-            [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-                'form' => $form->createView()
-            ]
-        );
+            self::$twig->display('badm/casier/formulaireCasier.html.twig',
+                [
+                    'form' => $form->createView()
+                ]
+            );
+    }
+
+
+    private function generPdfCasier($NumCAS, $dateDemande, $data, $casier, $MailUser, $agenceEmetteur, $serviceEmetteur): array
+    {
+        return [
+    
+            'Num_CAS' => $NumCAS,
+            'Date_Demande' => $this->formatageDate($dateDemande),
+            'Designation' => $data[0]['designation'],
+            'Num_ID' => $data[0]['num_matricule'],
+            'Num_Serie' => $data[0]['num_serie'],
+            'Groupe' => $data[0]['famille'],
+            'Num_Parc' => $casier->getNumParc(),
+            'Affectation' => $data[0]['affectation'],
+            'Constructeur' => $data[0]['constructeur'],
+            'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
+            'Annee_Model' => $data[0]['annee'],
+            'Modele' => $data[0]['modele'],
+            'Agence' => $casier->getAgence()->getCodeAgence() . '-' . $casier->getAgence()->getLibelleAgence(),
+            'Motif_Creation' => $casier->getMotif(),
+            'Client' => $casier->getClient(),
+            'Chantier' => $casier->getChantier(),
+            'Email_Emetteur' => $MailUser,
+            'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
+        ];
     }
     
     /**
@@ -208,8 +199,6 @@ class CasierController extends Controller
             ];
         }
 
-        
-        
         // Combinaison des deux tableaux
         $resultat = [];
 
@@ -227,8 +216,6 @@ class CasierController extends Controller
                 $resultat[$agence['agence']] = [];
             }
         }
-
-
 
         header("Content-type:application/json");
 

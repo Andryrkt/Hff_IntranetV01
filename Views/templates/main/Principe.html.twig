@@ -10,17 +10,12 @@
 			<ul
 				class="navbar-nav ms-auto mb-2 mb-lg-0">
 				{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
-				{% set role_ids = [] %}
-
-				{% for item in App.user.roles %}
-					{% set role_ids = role_ids | merge([ item.id ]) %}
-				{% endfor %}
+				{% set role_ids = App.user.roleIds %}
 				{# FIN Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 
 				{# DEBUT Affiche le menu "Documentation" si un administrateur #}
-				{% if 1 in role_ids  %}
-					<li class="nav-item dropdown" id="DOCUWARE">
-						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					{% if 1 in role_ids  %}
+						<li class="nav-item dropdown" id="DOCUWARE"> <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							Documentation</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
@@ -130,8 +125,8 @@
 							<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
 						</li>
 						{# <li>
-																			<a class="dropdown-item" href="{{ path("liste_or")}}">Consultation or</a>
-																		</li> #}
+																																																																															<a class="dropdown-item" href="{{ path("liste_or")}}">Consultation or</a>
+																																																																														</li> #}
 					</ul>
 				</li>
 

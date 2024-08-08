@@ -22,9 +22,10 @@ trait BadmsForm2Trait
         }
     }
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/badm-form1")
+    private function notification($message)
     {
-        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("badms_newForm1");
     }
 
 
@@ -92,6 +93,11 @@ trait BadmsForm2Trait
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
        }
 
+       if ($data[0]['code_affect'] === 'LCD') {
+        $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+    } else {
+        $dateMiseLocation = '';
+    }
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
         $badm->setCasierDestinataire($casierDestinataire);
@@ -117,10 +123,7 @@ trait BadmsForm2Trait
     /**
      * TRAITEMENT DES FICHIER UPLOAD
      *(copier le fichier uploder dans une repertoire et le donner un nom)
-     * @param [type] $form
-     * @param [type] $dits
-     * @param [type] $nomFichier
-     * @return void
+     * 
      */
     private function uplodeFile($form, $badm, $nomFichier)
     {
@@ -130,7 +133,7 @@ trait BadmsForm2Trait
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
        
         $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/';
-        //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
+       
         $file->move($fileDossier, $fileName);
 
         $setPieceJoint = 'set'.ucfirst($nomFichier);
@@ -226,7 +229,13 @@ trait BadmsForm2Trait
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         }
-            
+           
+        if ($data[0]['code_affect'] === 'LCD') {
+            $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+        } else {
+            $dateMiseLocation = '';
+        }
+
         $badm
         ->setNumParc($data[0]["num_parc"])
         ->setHeureMachine((int)$data[0]['heure'])
