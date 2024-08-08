@@ -10,6 +10,8 @@ use Parsedown;
 
 use App\Entity\User;
 use Twig\Environment;
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
@@ -423,7 +425,7 @@ class Controller
     }
     
 
-    public function arrayToObjet(User $user): User
+    protected function arrayToObjet(User $user): User
     {
      
         $superieurs = [];
@@ -440,4 +442,31 @@ class Controller
        return $user;
     } 
     
+
+    protected function agenceServiceIpsObjet(): array
+    {
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+        $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+        $codeService = $user->getAgenceServiceIrium()->getServiceips();
+        $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+        return [$agenceIps, $serviceIps];
+    }
+
+    protected function agenceServiceIpsString()
+    {
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+        $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+        $codeService = $user->getAgenceServiceIrium()->getServiceips();
+        $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+
+
+        return [
+            'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
+            'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
+        ];
+    }
 }

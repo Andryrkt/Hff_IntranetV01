@@ -11,6 +11,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -57,7 +58,8 @@ class DitController extends Controller
             //récupération des historique de materiel (informix)
             $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
             //genere le PDF
-            $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+            $genererPdfDit = new GenererPdfDit();
+            $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
             
             //envoie des pièce jointe dans une dossier et le fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
@@ -69,7 +71,7 @@ class DitController extends Controller
             
             //ENVOYER le PDF DANS DOXCUWARE
             if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
-                $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+                $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
 
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrer']);

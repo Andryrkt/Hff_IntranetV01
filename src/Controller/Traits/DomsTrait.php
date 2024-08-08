@@ -21,6 +21,7 @@ trait DomsTrait
         $this->dom->setSalarier($form1Data['salarier']);
         $this->dom->setSousTypeDocument($form1Data['sousTypeDocument']);
         $this->dom->setCategorie($form1Data['categorie']);
+        $this->dom->setDateDemande(new \DateTime());
         if ($form1Data['salarier'] === "TEMPORAIRE") {
             $this->dom->setNom($form1Data['nom']);
             $this->dom->setPrenom($form1Data['prenom']);
@@ -34,15 +35,13 @@ trait DomsTrait
         } else {
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
             $agenceServiceIrium = $em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnel->getCodeAgenceServiceSage()]);
-            dump($agenceServiceIrium);
-        
+         
             $this->dom->setNom($personnel->getNom());
             $this->dom->setPrenom($personnel->getPrenoms());
             $agenceEmetteur = $agenceServiceIrium->getAgenceips() . ' ' . strtoupper($agenceServiceIrium->getNomagencei100());
             $serviceEmetteur = $agenceServiceIrium->getServiceips() . ' ' . $agenceServiceIrium->getLibelleserviceips();
             $codeAgenceEmetteur = $agenceServiceIrium->getAgenceips()  ;
             $codeServiceEmetteur =  $agenceServiceIrium->getServiceips();
-            dump($agenceEmetteur, $serviceEmetteur);
 
         }
         /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */

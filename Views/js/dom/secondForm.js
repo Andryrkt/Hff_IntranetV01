@@ -251,27 +251,39 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   autreDepenseInput_1.addEventListener("input", () => {
     autreDepenseInput_1.value = formatNumberInt(autreDepenseInput_1.value);
-    calculTotal();
+    calculTotalAutreDepense();
   });
   autreDepenseInput_2.addEventListener("input", () => {
     autreDepenseInput_2.value = formatNumberInt(autreDepenseInput_2.value);
-    calculTotal();
+    calculTotalAutreDepense();
   });
   autreDepenseInput_3.addEventListener("input", () => {
     autreDepenseInput_3.value = formatNumberInt(autreDepenseInput_3.value);
-    calculTotal();
+    calculTotalAutreDepense();
   });
 
-  function calculTotal() {
+  function calculTotalAutreDepense() {
+    console.log("Function calculTotal() called");
+
     const autreDepense_1 =
       parseInt(autreDepenseInput_1.value.replace(/[^\d]/g, "")) || 0;
     const autreDepense_2 =
       parseInt(autreDepenseInput_2.value.replace(/[^\d]/g, "")) || 0;
     const autreDepense_3 =
       parseInt(autreDepenseInput_3.value.replace(/[^\d]/g, "")) || 0;
+
+    console.log(
+      "Values before sum:",
+      autreDepense_1,
+      autreDepense_2,
+      autreDepense_3
+    );
     let totaAutreDepense = autreDepense_1 + autreDepense_2 + autreDepense_3;
 
+    console.log("Total:", totaAutreDepense);
     totaAutreDepenseInput.value = formatNumberInt(totaAutreDepense);
+
+    //creation d'une evement personaliser
     const event = new Event("valueAdded");
     totaAutreDepenseInput.dispatchEvent(event);
   }

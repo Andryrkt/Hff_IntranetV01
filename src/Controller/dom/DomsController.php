@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\dom;
 
-use App\Controller\Traits\DomsTrait;
 use App\Entity\Dom;
 use App\Entity\Rmq;
 use App\Entity\Site;
@@ -12,8 +11,11 @@ use App\Entity\Indemnite;
 use App\Entity\Personnel;
 use App\Form\DomForm1Type;
 use App\Form\DomForm2Type;
+use App\Controller\Controller;
 use App\Entity\SousTypeDocument;
+use App\Controller\Traits\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -35,26 +37,21 @@ class DomsController extends Controller
      */
     public function firstForm(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //INITIALISATION 
+        $agenceServiceIps= $this->agenceServiceIpsString();
+        $this->dom
+            ->setAgenceEmetteur($agenceServiceIps['agenceIps'] )
+            ->setServiceEmetteur($agenceServiceIps['serviceIps'])
+            ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2))
+            ->setSalarier('PERMANENT')
+        ;
 
-        
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-    
-        $this->dom->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-        $this->dom->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-        $this->dom->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2));
-        $this->dom->setSalarier('PERMANENT');
+ 
 
    
         $form =self::$validator->createBuilder(DomForm1Type::class, $this->dom)->getForm();
 
- 
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() ) {
@@ -70,8 +67,6 @@ class DomsController extends Controller
         
         self::$twig->display('doms/firstForm.html.twig', [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
         ]);
     }
 
@@ -80,14 +75,10 @@ class DomsController extends Controller
      */
     public function secondForm(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
+        
         /** INITIALISATION des données  */
-        $form1Data = $this->sessionService->get('form1Data', []);// donner qui vient du first form
+        //recupération des données qui vient du formulaire 1
+        $form1Data = $this->sessionService->get('form1Data', []);
         $this->initialisationSecondForm($form1Data, self::$em);
         
 
@@ -96,15 +87,13 @@ class DomsController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-           dd($form->getData());
+           //dd($form->getData());
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('some_success_route');
         }
 
         self::$twig->display('doms/secondForm.html.twig', [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'is_temporaire' => $is_temporaire
         ]);
     }
@@ -128,16 +117,15 @@ class DomsController extends Controller
        } else {
         $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
        }
-       // dump($sousTypedocument);
-       // dump($rmq);
+    
        $criteria = [
         'sousTypeDoc' => $sousTypedocument,
         'rmq' => $rmq
      ];
-      //dump($criteria);
+
         
      $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
-    //dd($catg);
+ 
 
         header("Content-type:application/json");
 
@@ -195,8 +183,6 @@ public function agence($id) {
     ];
   }
 
-  
-  //dd($services);
  header("Content-type:application/json");
 
  echo json_encode($services);

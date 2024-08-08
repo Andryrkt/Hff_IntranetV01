@@ -25,13 +25,12 @@ class BadmsController extends Controller
             $userId = $this->sessionService->get('user_id');
             /** INITIALISATION*/
             $badm = new Badm();
-            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+            $agenceServiceIps= $this->agenceServiceIpsString();
         
 
             $badm
-            ->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']))
-            ->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']))
+            ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
+            ->setServiceEmetteur($agenceServiceIps['serviceIps'])
           ;
 
           $form = self::$validator->createBuilder(BadmForm1Type::class, $badm)->getForm();

@@ -10,9 +10,9 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-		<h2 class="text-center fs-1 fw-bold  py-2 rounded color-perso-titre">
+		<h3 class="perso-titre">
 			Liste de Demande d'intervention
-		</h2>
+		</h3>
 
 		<table class="table rounded">
 			<thead class="table-dark">
@@ -53,7 +53,8 @@
 
 						{# FIN Statut #}
 
-							<td><a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}"> {{ item.numBadm }}</a>
+							<td>
+								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}"> {{ item.numBadm }}</a>
 						</td>
 						<td>{{ item.typeMouvement}}</td>
 						<td>{{ item.idMateriel}}</td>

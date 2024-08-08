@@ -33,7 +33,7 @@ class Dom
      /**
      * @ORM\Column(type="date", name="Date_Demande")
      */
-    private \DateTime $dateDemande;
+    private  $dateDemande;
 
     /**
      * @ORM\Column(type="string", length=10, name="Type_Document")
@@ -69,22 +69,22 @@ class Dom
     /**
      * @ORM\Column(type="date", name="Date_Debut")
      */
-    private \DateTime $dateDebut;
+    private  $dateDebut;
 
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Debut")
      */
-    private \DateTime $heureDebut;
+    private  $heureDebut;
 
     /**
      * @ORM\Column(type="date", name="Date_Fin")
      */
-    private \DateTime $dateFin;
+    private  $dateFin;
 
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Fin")
      */
-    private \DateTime $heureFin;
+    private  $heureFin;
 
     /**
      * @ORM\Column(type="integer", name="Nombre_Jour", nullable=true)
