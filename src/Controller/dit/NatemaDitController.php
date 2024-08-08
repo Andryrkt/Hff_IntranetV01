@@ -11,18 +11,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class NatemaDitController extends Controller
 {
     public function index(){
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-    
+           
         $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
         self::$twig->display('natemadit/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'data' => $data
         ]);
     }
@@ -34,11 +27,7 @@ class NatemaDitController extends Controller
      * @return void
      */
     public function new(Request $request){
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        
 
         $form = self::$validator->createBuilder(NatemaDitType::class)->getForm();
 
@@ -63,8 +52,6 @@ class NatemaDitController extends Controller
         }
 
         self::$twig->display('natemadit/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'form' => $form->createView()
         ]);
     }

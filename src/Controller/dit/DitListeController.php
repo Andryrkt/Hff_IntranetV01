@@ -146,7 +146,7 @@ class DitListeController extends Controller
     /**
      * @Route("/export-excel", name="export_excel")
      */
-    public function exportExcel(Request $request)
+    public function exportExcel()
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);

@@ -25,13 +25,7 @@ class DitDuplicationController extends Controller
     */
     public function Duplication($numDit, $id, Request $request)
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
-
-
+       
          //INITIALISATION DU FORMULAIRE
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $codeEmetteur = explode('-', $dit->getAgenceServiceEmetteur());
@@ -109,7 +103,7 @@ class DitDuplicationController extends Controller
                 
             
                 //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-                $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeInterventions);
+                $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeInterventions, self::$em);
                 
                 self::$em->persist($insertDemandeInterventions);
                 self::$em->flush();
@@ -133,10 +127,7 @@ class DitDuplicationController extends Controller
         
             self::$twig->display('dit/duplication.html.twig', [
                 'form' => $form->createView(),
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'dit' => $dit,
-                
             ]);
     }
 }
