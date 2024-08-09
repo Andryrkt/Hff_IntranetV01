@@ -77,7 +77,8 @@
         "phpmailer/phpmailer": "^6.9",
         "html2text/html2text": "^4.3",
         "pelago/emogrifier": "^7.2",
-        "wa72/htmlpagedom": "^2.0"
+        "wa72/htmlpagedom": "^2.0",
+        "symfony/webpack-encore-bundle": "^1.17"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43",

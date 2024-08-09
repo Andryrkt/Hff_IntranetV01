@@ -16,17 +16,19 @@ use Twig\Loader\FilesystemLoader;
 use Knp\Component\Pager\Paginator;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
-use Symfony\Component\Form\FormRenderer;
+use Symfony\Component\Asset\Packages;
 
+use Symfony\Component\Asset\PathPackage;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
+
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
-
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
@@ -36,6 +38,7 @@ use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -55,6 +58,7 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
@@ -66,6 +70,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
 
 define('DEFAULT_FORM_THEME', 'form_div_layout.html.twig');
 
@@ -148,6 +153,12 @@ $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
 
+// Configurer le package pour le dossier 'public'
+$publicPath = '/Hffintranet/public';
+$packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
+
+// Ajouter l'extension Asset à Twig
+$twig->addExtension(new AssetExtension($packages));
 
 // Configure Form Renderer Engine and Runtime Loader
 // $defaultFormTheme = 'form_div_layout.html.twig';
@@ -158,9 +169,6 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
         return new FormRenderer($formEngine);
     },
 ]));
-
-
-
 
 
 

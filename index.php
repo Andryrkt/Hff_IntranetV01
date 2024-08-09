@@ -50,17 +50,7 @@ try {
     
     $controller = $controllerResolver->getController($request);
     $arguments = $argumentResolver->getArguments($request, $controller);
-    //dd($controller);
-    // $controller = $curentRoute['_controller'];
-
-    // //$curentRoute['generator'] = $generator;
-
-    // $className = substr($controller, 0, strpos($controller, '::'));
-
-    // $methodName = substr($controller, strpos($controller, '::') + 2);
-
-    // $instance = new $className();
-//$controller =[$instance, $methodName];
+   
     call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
     $htmlContent = $twig->render('404.html.twig');

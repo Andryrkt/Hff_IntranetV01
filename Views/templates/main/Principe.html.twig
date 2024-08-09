@@ -1,7 +1,9 @@
 <!-- Responsive navbar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
-	<div class="container">
-		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a>
+	<div
+		class="container">
+		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
+		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset("build/images/logoHFF.jpg")}}" id="LogoHFF" alt="" width="150px"></a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -125,8 +127,8 @@
 							<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
 						</li>
 						{# <li>
-																																																																															<a class="dropdown-item" href="{{ path("liste_or")}}">Consultation or</a>
-																																																																														</li> #}
+																																																																																																																																											<a class="dropdown-item" href="{{ path("liste_or")}}">Consultation or</a>
+																																																																																																																																										</li> #}
 					</ul>
 				</li>
 

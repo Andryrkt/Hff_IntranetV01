@@ -11,6 +11,7 @@ return array(
     'ZipStream\\' => array($vendorDir . '/maennchen/zipstream-php/src'),
     'Wa72\\HtmlPageDom\\' => array($vendorDir . '/wa72/htmlpagedom/src'),
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
+    'Symfony\\WebpackEncoreBundle\\' => array($vendorDir . '/symfony/webpack-encore-bundle/src'),
     'Symfony\\Polyfill\\Php81\\' => array($vendorDir . '/symfony/polyfill-php81'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'Symfony\\Polyfill\\Php73\\' => array($vendorDir . '/symfony/polyfill-php73'),
