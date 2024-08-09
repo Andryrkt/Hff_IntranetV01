@@ -451,7 +451,10 @@ class Controller
         $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
         $codeService = $user->getAgenceServiceIrium()->getServiceips();
         $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-        return [$agenceIps, $serviceIps];
+        return [
+            'agenceIps' => $agenceIps,
+            'serviceIps' => $serviceIps
+        ];
     }
 
     protected function agenceServiceIpsString()

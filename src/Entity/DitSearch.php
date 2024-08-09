@@ -4,130 +4,79 @@ namespace App\Entity;
 
 class DitSearch
 {
-      /**
-     * Undocumented variable
-     *
-     * @var WorNiveauUrgence|null
-     */
+   
     private ?WorNiveauUrgence $niveauUrgence;
 
-    /**
-     * Undocumented variable
-     *
-     * @var StatutDemande|null
-     */
+    
     private ?StatutDemande $statut;
 
-    /**
-     * @var int|null
-     */
-    private ?int $idMateriel;
+    
+    private ?int $idMateriel = 0;
 
-    /**
-     * Undocumented variable
-     *
-     * @var WorTypeDocument|null
-     */
+    
     private ?WorTypeDocument $typeDocument;
 
-    /**
-     * Undocumented variable
-     *
-     * @var string|null
-     */
+   
     private ?string $internetExterne;
 
     
-    /**
-     * @var \DateTime|null
-     */
+   
     private ?\Datetime $dateDebut;
 
-    /**
-     * @var \DateTime|null
-     */
     private ?\DateTime $dateFin;
 
-    /**
-     * @var string|null
-     */
+   
     private ?string $numParc = '';
 
-    /**
-     * @var string|null
-     */
     private ?string $numSerie = '';
 
 
-    /**
-     * @var Agence|null
-     */
+  
     private ?Agence $agenceEmetteur = null;
 
-    /**
-     * Undocumented variable
-     *
-     * @var Service|null
-     */
+   
     private ?Service $serviceEmetteur = null;
 
-    /**
-     * Undocumented variable
-     *
-     * @var Agence|null
-     */
     private ?Agence $agenceDebiteur = null;
 
-    /**
-     * Undocumented variable
-     *
-     * @var Service|null
-     */
+   
     private ?Service $serviceDebiteur = null;
 
 
-    /**
-     * Get undocumented variable
-     *
-     * @return  WorNiveauUrgence|null
-     */ 
+    private ?string $numDit = '';
+
+    private ?int $numOr = 0;
+
+    private ?string $statutOr = '';
+    
+    private bool $ditRattacherOr = false;
+
+    private ?string $categorie = '';
+
+    private ?string $utilisateur = '';
+
+    //-===============================================================================================================================
     public function getNiveauUrgence()
     {
         return $this->niveauUrgence;
     }
 
-    /**
-     * Set undocumented variable
-     *
-     * @param  WorNiveauUrgence|null  $niveauUrgence  Undocumented variable
-     *
-     * @return  self
-     */ 
-    public function setNiveauUrgence($niveauUrgence)
+    
+    public function setNiveauUrgence($niveauUrgence): self
     {
         $this->niveauUrgence = $niveauUrgence;
 
         return $this;
     }
 
-    /**
-     * Get undocumented variable
-     *
-     * @return  StatutDemande|null
-     */ 
+    
     public function getStatut()
     {
         return $this->statut;
     }
 
-    /**
-     * Set undocumented variable
-     *
-     * @param  StatutDemande|null  $statutDemande  Undocumented variable
-     *
-     * @return  self
-     */ 
-    public function setStatut($statutDemande)
+
+    public function setStatut($statutDemande): self
     {
         $this->statut = $statutDemande;
 
@@ -399,6 +348,128 @@ class DitSearch
     }
 
 
+
+    /**
+     * Get the value of numDit
+     */ 
+    public function getNumDit()
+    {
+        return $this->numDit;
+    }
+
+    /**
+     * Set the value of numDit
+     *
+     * @return  self
+     */ 
+    public function setNumDit($numDit)
+    {
+        $this->numDit = $numDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numOr
+     */ 
+    public function getNumOr()
+    {
+        return $this->numOr;
+    }
+
+    /**
+     * Set the value of numOr
+     *
+     * @return  self
+     */ 
+    public function setNumOr($numOr)
+    {
+        $this->numOr = $numOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutOr
+     */ 
+    public function getStatutOr()
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     *
+     * @return  self
+     */ 
+    public function setStatutOr($statutOr)
+    {
+        $this->statutOr = $statutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ditRattacherOr
+     */ 
+    public function getDitRattacherOr()
+    {
+        return $this->ditRattacherOr;
+    }
+
+    /**
+     * Set the value of ditRattacherOr
+     *
+     * @return  self
+     */ 
+    public function setDitRattacherOr($ditRattacherOr)
+    {
+        $this->ditRattacherOr = $ditRattacherOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categorie
+     */ 
+    public function getCategorie()
+    {
+        return $this->categorie;
+    }
+
+    /**
+     * Set the value of categorie
+     *
+     * @return  self
+     */ 
+    public function setCategorie($categorie)
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of utilisateur
+     */ 
+    public function getUtilisateur()
+    {
+        return $this->utilisateur;
+    }
+
+    /**
+     * Set the value of utilisateur
+     *
+     * @return  self
+     */ 
+    public function setUtilisateur($utilisateur)
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    
     public function toArray(): array
     {
         return [
@@ -414,7 +485,13 @@ class DitSearch
             'agenceEmetteur' => $this->agenceEmetteur,
             'serviceEmetteur' => $this->serviceEmetteur,
             'agenceDebiteur' => $this->agenceDebiteur,
-            'serviceDebiteur' => $this->serviceDebiteur
+            'serviceDebiteur' => $this->serviceDebiteur,
+            'numDit' => $this->numDit,
+            'numOr' => $this->numOr,
+            'statutOr' => $this->statutOr,
+            'ditRattacherOr' => $this->ditRattacherOr,
+            'categorie' => $this->categorie,
+            'utilisateur' => $this->utilisateur
         ];
     }
 }

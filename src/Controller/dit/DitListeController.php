@@ -32,25 +32,19 @@ class DitListeController extends Controller
         /** CREATION D'AUTORISATION */
         $userId = $this->sessionService->get('user_id');
         $userConnecter = self::$em->getRepository(User::class)->find($userId);
-        $roleNames = [];
-        foreach ($userConnecter->getRoles() as $role) {
-            $roleNames[] = $role->getRoleName();
-        }
-            //dd($this->accessControl);
-        $autoriser = in_array('ADMINISTRATEUR', $roleNames);
+        $roleIds = $userConnecter->getRoleIds();
+        $autoriser = in_array(1, $roleIds);
         //FIN AUTORISATION
 
         $ditSearch = new DitSearch();
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-        $idAgence = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
+        $agenceServiceIps= $this->agenceServiceIpsObjet();
         //initialisation agence et service
         if($autoriser){
             $agence = null;
             $service = null;
         } else {
-            $agence = self::$em->getRepository(Agence::class)->find($idAgence);
-            $service = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]);
+            $agence = $agenceServiceIps['agenceIps'];
+            $service = $agenceServiceIps['serviceIps'];
         }
         
         $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
@@ -58,12 +52,12 @@ class DitListeController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $idAgence
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
         $form->handleRequest($request);
         //recupération du repository demande d'intervention
-        $repository= self::$em->getRepository(DemandeIntervention::class);
+        $ditRepository= self::$em->getRepository(DemandeIntervention::class);
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
         
@@ -105,13 +99,13 @@ class DitListeController extends Controller
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
-        $totalBadms = $repository->countFiltered($ditSearch, $option);
+        $totalBadms = $ditRepository->countFiltered($ditSearch, $option);
         //nombre total de page
         $totalPages = ceil($totalBadms / $limit);
        
         
         //recupération des données filtrée
-        $data = $repository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
      
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];

@@ -64,10 +64,12 @@ class BadmsForm2Controller extends Controller
                 if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                     $message = 'compléter tous les champs obligatoires';
                     $this->notification($message);
-                } elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
-                    $message = 'ce matériel est déjà en PARC';
-                    $this->notification($message);
-                } elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
+                } 
+                // elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
+                //     $message = 'ce matériel est déjà en PARC';
+                //     $this->notification($message);
+                // } 
+                elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                     $message = 'le choix du type devrait être Changement de Casier';
                     $this->notification($message);
                 } elseif ($idTypeMouvement === 2 && $conditionAgenceServices) {

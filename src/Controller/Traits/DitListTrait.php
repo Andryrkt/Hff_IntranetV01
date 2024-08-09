@@ -64,6 +64,12 @@ trait DitListTrait
           ->setDateFin($form->get('dateFin')->getData())
           ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
           ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
+          ->setNumDit($form->get('numDit')->getData())
+          ->setNumOr($form->get('numOr')->getData())
+          ->setStatutOr($form->get('statutOr')->getData())
+          ->setDitRattacherOr($form->get('ditRattacherOr')->getData())
+          ->setCategorie($form->get('categorie')->getData())
+          ->setUtilisateur($form->get('utilisateur')->getData())
           ;
           $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
         

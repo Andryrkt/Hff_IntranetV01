@@ -61,9 +61,9 @@ class BadmsController extends Controller
             $user = self::$em->getRepository(User::class)->find($userId);
             $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
             if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null || $data[0]["code_service"] === 'LCD') {
-                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM']);
+                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
             } else {
-                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
+                $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
             }
             //condition de blocage
             $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
@@ -84,10 +84,10 @@ class BadmsController extends Controller
                 $message = "Matériel déjà vendu";
                 $this->notification($message);
             } 
-            elseif ($conditionEntreeParc) {
-                $message = 'Ce matériel est déjà en PARC';
-                $this->notification($message);
-            } 
+            // elseif ($conditionEntreeParc) {
+            //     $message = 'Ce matériel est déjà en PARC';
+            //     $this->notification($message);
+            // } 
             elseif ($conditionChangementAgServ_1) {
                 $message = "L'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->notification($message);
@@ -101,10 +101,10 @@ class BadmsController extends Controller
                 $message = 'Ce matériel ne peut pas être mis au rebut';
                 $this->notification($message);
             } 
-            elseif ($conditionTypeMouvStatut) {
-                $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
-                $this->notification($message);
-            } 
+            // elseif ($conditionTypeMouvStatut) {
+            //     $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+            //     $this->notification($message);
+            // } 
             else {
 
                 $badm 

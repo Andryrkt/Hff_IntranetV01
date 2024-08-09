@@ -28,6 +28,16 @@ trait BadmsForm2Trait
         $this->redirectToRoute("badms_newForm1");
     }
 
+    private function dateMiseEnlocation($data)
+    {
+        if($data[0]["date_location"] === null){
+            $dateMiseLocation = null;
+        } else {
+
+            $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+        }
+        return $dateMiseLocation;
+    }
 
     private function initialisation(Badm $badm, array $form1Data, $data, $em): Badm
     {
@@ -58,6 +68,8 @@ trait BadmsForm2Trait
         } else {
             $casierEmetteur =  $data[0]["casier_emetteur"];
        }
+
+       
        //Agence - service - casier destinataire
        if( $idTypeMouvement === 1) {
             $agencedestinataire = null;
@@ -70,12 +82,12 @@ trait BadmsForm2Trait
             $serviceDestinataire = null;
             $casierDestinataire = null;
             //$serviceEmetteur = $em->getRepository(Service::class)->find(2);
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
        } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = null;
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
        } elseif ($idTypeMouvement === 4) {
             if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
@@ -85,19 +97,20 @@ trait BadmsForm2Trait
                 $serviceDestinataire = $em->getRepository(Service::class)->find(2);
             }
             $casierDestinataire = null;
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
        } elseif($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
        }
 
-       if ($data[0]['code_affect'] === 'LCD') {
-        $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
-    } else {
-        $dateMiseLocation = '';
-    }
+    //    if ($data[0]['code_affect'] === 'LCD') {
+    //     $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+    // } else {
+    //     $dateMiseLocation = '';
+    // }
+
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
         $badm->setCasierDestinataire($casierDestinataire);
@@ -230,11 +243,11 @@ trait BadmsForm2Trait
             $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         }
            
-        if ($data[0]['code_affect'] === 'LCD') {
-            $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
-        } else {
-            $dateMiseLocation = '';
-        }
+        // if ($data[0]['code_affect'] === 'LCD') {
+        //     $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+        // } else {
+        //     $dateMiseLocation = null;
+        // }
 
         $badm
         ->setNumParc($data[0]["num_parc"])

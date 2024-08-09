@@ -1,48 +1,49 @@
 <!-- DEBUT recherche -->
-		
-			{{ form_start(form, {'method': 'GET'}) }}
-			<div class="row">
-				<div class="col-12 col-md-2">
-					{{ form_row(form.statut) }}
-					{{ form_row(form.typeDocument) }}
-				</div>
-				<div class="col-12 col-md-2">
-					{{ form_row(form.niveauUrgence) }}
-					{{form_row(form.internetExterne)}}
-				</div>
-				<div class="col-12 col-md-2">
-					{{ form_row(form.dateDebut) }}
-					{{ form_row(form.dateFin) }}
-				</div>
+{% set role_ids = App.user.roleIds %}
+{{ form_start(form, {'method': 'GET'}) }}
+<div class="row">
+	<div class="col-12 col-md-2">
+		{{ form_row(form.statut) }}
+		{{ form_row(form.typeDocument) }}
+		{{ form_row(form.numDit) }}
+		{{form_row(form.ditRattacherOr)}}
+	</div>
+	<div class="col-12 col-md-2">
+		{{ form_row(form.niveauUrgence) }}
+		{{form_row(form.internetExterne)}}
+		{{form_row(form.numOr)}}
+	</div>
+	<div class="col-12 col-md-2">
+		{{ form_row(form.dateDebut) }}
+		{{ form_row(form.dateFin) }}
+		{{ form_row(form.statutOr) }}
+	</div>
+	<div class="col-12 col-md-2">
+		{% if 1 in role_ids  %}
+			{{form_row(form.agenceEmetteur)}}
+			{{form_row(form.serviceEmetteur)}}
+		{% else %}
+			{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
+			{{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
+		{% endif %}
+		{{form_row(form.categorie)}}
+	</div>
+	<div class="col-12 col-md-2">
+		{{form_row(form.agenceDebiteur)}}
+		{{form_row(form.serviceDebiteur)}}
+		{{form_row(form.utilisateur)}}
+	</div>
+	<div class="col-12 col-md-2">
+		{{form_row(form.idMateriel)}}
+		{{form_row(form.numParc)}}
+		{{form_row(form.numSerie)}}
+	</div>
+</div>
 
-				{% if boolean %}
-					<div class="col-12 col-md-2">
-						{{form_row(form.agenceEmetteur)}}
-						{{form_row(form.serviceEmetteur)}}
-					</div>
-				{% else %}
-					<div class="col-12 col-md-2">
-						{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-						{{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-					</div>
-				{% endif %}
+<div class="d-flex justify-content-end mb-2">
+	<button class="btn btn-warning fw-bold" type="submit">
+		<i class="fab fa-searchengin"></i>
+		Recherche</button>
+</div>
 
-
-				<div class="col-12 col-md-2">
-					{{form_row(form.agenceDebiteur)}}
-					{{form_row(form.serviceDebiteur)}}
-				</div>
-				<div class="col-12 col-md-2">
-					{{form_row(form.idMateriel)}}
-					{{form_row(form.numParc)}}
-					{{form_row(form.numSerie)}}
-				</div>
-			</div>
-
-			<div class="d-flex justify-content-end mb-2">
-				<button class="btn btn-warning fw-bold" type="submit">
-					<i class="fab fa-searchengin"></i>
-					Recherche</button>
-			</div>
-
-			{{ form_end(form) }}
+{{ form_end(form) }}

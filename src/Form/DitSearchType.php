@@ -19,6 +19,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -240,6 +241,42 @@ class DitSearchType extends AbstractType
                     'attr' => [ 'class' => 'serviceDebiteur']
                 ]);
             }) 
+            ->add('numDit',
+            TextType::class,
+            [
+                'label' => 'N° DIT',
+                'required' => false
+            ])
+            ->add('numOr',
+            NumberType::class,
+            [
+                'label' => 'N° Or',
+                'required' => false
+            ])
+            ->add('statutOr',
+            TextType::class,
+            [
+                'label' => 'Statut Or',
+                'required' => false
+            ])
+            ->add('ditRattacherOr', 
+            CheckboxType::class,
+            [
+                'label' => 'Dit rattaché Or',
+                'required' => false
+            ])
+            ->add('categorie',
+            TextType::class,
+            [
+                'label' => 'Catégorie',
+                'required' => false
+            ])
+            ->add('utilisateur',
+            TextType::class,
+            [
+                'label' => 'Utilisateur',
+                'required' => false
+            ])
             ;
     }
 

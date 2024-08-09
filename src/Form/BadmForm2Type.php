@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\TypeMouvement;
+use DateTime;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
@@ -423,7 +424,7 @@ class BadmForm2Type extends AbstractType
                 'disabled' => $idTypeMouvement !== 1
             ],
             'required' => $idTypeMouvement === 1,
-             'data' => $options["data"]->getDateMiseLocation()
+            'data' => $options["data"]->getDateMiseLocation(),
         ])
         //BILAN FINANCIERE
         ->add('coutAcquisition',
