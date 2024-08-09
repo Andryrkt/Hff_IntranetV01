@@ -408,4 +408,36 @@ class DomModel extends Model
                         '" . $tab['doitIdemn'] . "', '" . $tab['CategoriePers'] . "','" . $tab['Site'] . "','" . $tab['Idemn_depl'] . "','" . $tab['codeServEmeteur'] . "','" . $tab['codeServDebiteur'] . "', 1)";
         $excec_insertDOM = $this->connexion->query($Insert_DOM);
     }
+
+
+    public function agenceDebiteur()
+    {
+        $statement = " SELECT 
+        a.code_agence + ' ' + a.libelle_agence as agenceDebiteur 
+         FROM agences a";
+
+        $sql= $this->connexion->query($statement);
+        $agences = array();
+        while ($tab = odbc_fetch_array($sql)) {
+            $agences[] = $tab;
+        }
+        return $agences;
+    }
+    
+    public function serviceDebiteur($agenceId)
+    {
+        $statement = "SELECT DISTINCT 
+        s.code_service + ' ' + s.libelle_service as serviceDebiteur
+        FROM services s
+        INNER JOIN agence_service ags ON s.id = ags.service_id
+        INNER JOIN agences a ON a.id = ags.agence_id
+        WHERE a.code_agence + ' ' + a.libelle_agence = '". $agenceId ."'
+        ";
+        $sql= $this->connexion->query($statement);
+        $services = array();
+        while ($tab = odbc_fetch_array($sql)) {
+            $services[] = $tab;
+        }
+        return $services;
+    }
 }

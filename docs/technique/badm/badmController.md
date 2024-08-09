@@ -1,5 +1,7 @@
+## INITIALISATION du formulaire selon le type de mouvement
+
 type de mouvement : ENTREE EN PARC
-service emetteur => COM COMMERCIAL
+changer le service emetteur service emetteur => COM COMMERCIAL
 
 # Autorlisation
 

@@ -18,46 +18,46 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   }
 
-  function fetchData(selectOption = undefined) {
-    const url = "/Hffintranet/agServDest";
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur de réseau");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data, selectOption);
-        Select1Value(data, selectOption);
-        //Sélectionner l'option spécifiée
-        if (selectOption === undefined) {
-          setTimeout(() => {
-            selectOption = document
-              .getElementById("select1")
-              .value.toUpperCase();
-            console.log(selectOption);
-          }, 1000);
-        }
+  // function fetchData(selectOption = undefined) {
+  //   const url = "/Hffintranet/agServDest";
+  //   fetch(url)
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Erreur de réseau");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       console.log(data, selectOption);
+  //       Select1Value(data, selectOption);
+  //       //Sélectionner l'option spécifiée
+  //       if (selectOption === undefined) {
+  //         setTimeout(() => {
+  //           selectOption = document
+  //             .getElementById("select1")
+  //             .value.toUpperCase();
+  //           console.log(selectOption);
+  //         }, 1000);
+  //       }
 
-        setTimeout(() => {
-          console.log("jereo :" + selectOption);
-          const serviceIriumElement = document.getElementById("serviceIrium");
-          let taille = data[selectOption].length;
-          console.log(taille);
-          let optionsHTML = ""; // Chaîne pour stocker les options HTML
-          for (let i = 0; i < taille; i++) {
-            optionsHTML += `<option value="${data[selectOption][
-              i
-            ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
-          }
-          serviceIriumElement.innerHTML = optionsHTML;
-        }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+  //       setTimeout(() => {
+  //         console.log("jereo :" + selectOption);
+  //         const serviceIriumElement = document.getElementById("serviceIrium");
+  //         let taille = data[selectOption].length;
+  //         console.log(taille);
+  //         let optionsHTML = ""; // Chaîne pour stocker les options HTML
+  //         for (let i = 0; i < taille; i++) {
+  //           optionsHTML += `<option value="${data[selectOption][
+  //             i
+  //           ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
+  //         }
+  //         serviceIriumElement.innerHTML = optionsHTML;
+  //       }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // }
 
   //DEBUT Duplication
 
@@ -70,139 +70,139 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // Appel initial de fetchData sans argument
     fetchData();
 
-    document.getElementById("select1").addEventListener("change", function () {
-      selectedOption = this.value.toUpperCase();
-      fetchData(selectedOption);
-    });
+    // document.getElementById("select1").addEventListener("change", function () {
+    //   selectedOption = this.value.toUpperCase();
+    //   fetchData(selectedOption);
+    // });
 
-    let check = document.getElementById("radiochek").value;
-    if (check === "Interne") {
-      setTimeout(() => {
-        // console.log( document.querySelector(`#select1 option`));
-        console.log(
-          "oeoe : " +
-            document.querySelector("#ServINt").value.toUpperCase().trim()
-        );
-        selectedOption = document.querySelector(
-          `#select1 option[value="${document
-            .querySelector("#ServINt")
-            .value.toUpperCase()
-            .trim()}"]`
-        ).value;
-        //console.log('valiny :' + selectedOption);
-        fetchData(selectedOption);
-      }, 2000);
-      setTimeout(() => {
-        //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
-        libserv = document
-          .querySelector("#LibServINT")
-          .value.toUpperCase()
-          .trim();
-        console.log(document.querySelector(`#serviceIrium`));
-        document.querySelector(
-          `#serviceIrium option[value="${libserv}"]`
-        ).selected = true;
-      }, 5000);
-    } else {
-      setTimeout(() => {
-        const serv = document.querySelector("#Serv").value.toUpperCase().trim();
-        //console.log(serv);
-        //console.log(document.querySelector(`#select1 option[value="${serv}"]`));
-        selectedOption = document.querySelector(
-          `#select1 option[value="${serv}"]`
-        ).value;
-        //console.log(selectedOption)
-        fetchData(selectedOption);
-      }, 3000);
-      setTimeout(() => {
-        console.log(
-          document.querySelector("#LibServ").value.toUpperCase().trim()
-        );
-        $serv = document.querySelector("#LibServ").value.toUpperCase().trim();
-        document.querySelector(
-          `#serviceIrium option[value="${$serv}"]`
-        ).selected = true;
-      }, 6000);
-    }
+    //   let check = document.getElementById("radiochek").value;
+    //   if (check === "Interne") {
+    //     setTimeout(() => {
+    //       // console.log( document.querySelector(`#select1 option`));
+    //       console.log(
+    //         "oeoe : " +
+    //           document.querySelector("#ServINt").value.toUpperCase().trim()
+    //       );
+    //       selectedOption = document.querySelector(
+    //         `#select1 option[value="${document
+    //           .querySelector("#ServINt")
+    //           .value.toUpperCase()
+    //           .trim()}"]`
+    //       ).value;
+    //       //console.log('valiny :' + selectedOption);
+    //       fetchData(selectedOption);
+    //     }, 2000);
+    //     setTimeout(() => {
+    //       //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
+    //       libserv = document
+    //         .querySelector("#LibServINT")
+    //         .value.toUpperCase()
+    //         .trim();
+    //       console.log(document.querySelector(`#serviceIrium`));
+    //       document.querySelector(
+    //         `#serviceIrium option[value="${libserv}"]`
+    //       ).selected = true;
+    //     }, 5000);
+    //   } else {
+    //     setTimeout(() => {
+    //       const serv = document.querySelector("#Serv").value.toUpperCase().trim();
+    //       //console.log(serv);
+    //       //console.log(document.querySelector(`#select1 option[value="${serv}"]`));
+    //       selectedOption = document.querySelector(
+    //         `#select1 option[value="${serv}"]`
+    //       ).value;
+    //       //console.log(selectedOption)
+    //       fetchData(selectedOption);
+    //     }, 3000);
+    //     setTimeout(() => {
+    //       console.log(
+    //         document.querySelector("#LibServ").value.toUpperCase().trim()
+    //       );
+    //       $serv = document.querySelector("#LibServ").value.toUpperCase().trim();
+    //       document.querySelector(
+    //         `#serviceIrium option[value="${$serv}"]`
+    //       ).selected = true;
+    //     }, 6000);
+    //   }
 
-    console.log(check);
+    //   console.log(check);
 
-    //FIN Javascript pour le débitteur select
-  } else {
-    function fetchDataDuplier() {
-      const url = "/Hffintranet/dupliquer";
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erreur de réseau");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          //console.log(data);
-          $donnerFiltrer = filtre(data);
-          console.log($donnerFiltrer);
+    //   //FIN Javascript pour le débitteur select
+    // } else {
+    //   function fetchDataDuplier() {
+    //     const url = "/Hffintranet/dupliquer";
+    //     fetch(url)
+    //       .then((response) => {
+    //         if (!response.ok) {
+    //           throw new Error("Erreur de réseau");
+    //         }
+    //         return response.json();
+    //       })
+    //       .then((data) => {
+    //         //console.log(data);
+    //         $donnerFiltrer = filtre(data);
+    //         console.log($donnerFiltrer);
 
-          // console.log($donnerFiltrer[0].Debiteur.toUpperCase());
-          //   console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
-          console.log($donnerFiltrer[0].Debiteur.split("-")[1].toUpperCase());
+    //         // console.log($donnerFiltrer[0].Debiteur.toUpperCase());
+    //         //   console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
+    //         console.log($donnerFiltrer[0].Debiteur.split("-")[1].toUpperCase());
 
-          //   console.log($donnerFiltrer[0].Site.toUpperCase());
+    //         //   console.log($donnerFiltrer[0].Site.toUpperCase());
 
-          setTimeout(() => {
-            if (
-              $donnerFiltrer[0].Debiteur.split("-")[0].toUpperCase() ===
-              "60 PNEU "
-            ) {
-              document.querySelector(
-                `#select1 option[value="60 PNEU - OUTIL - LUB"]`
-              ).selected = true;
-            } else {
-              //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
-              selectedOption = document.querySelector(
-                `#select1 option[value="${$donnerFiltrer[0].Debiteur.split(
-                  "-"
-                )[0].toUpperCase()}"]`
-              ).value;
-              fetchData(selectedOption);
-            }
-          }, 500);
-          //console.log(document.querySelector(`#SiteRental`));
-          document.querySelector(
-            `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
-          ).selected = true;
-          // Appel initial de fetchData sans argument
-          fetchData();
+    //         setTimeout(() => {
+    //           if (
+    //             $donnerFiltrer[0].Debiteur.split("-")[0].toUpperCase() ===
+    //             "60 PNEU "
+    //           ) {
+    //             document.querySelector(
+    //               `#select1 option[value="60 PNEU - OUTIL - LUB"]`
+    //             ).selected = true;
+    //           } else {
+    //             //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
+    //             selectedOption = document.querySelector(
+    //               `#select1 option[value="${$donnerFiltrer[0].Debiteur.split(
+    //                 "-"
+    //               )[0].toUpperCase()}"]`
+    //             ).value;
+    //             fetchData(selectedOption);
+    //           }
+    //         }, 500);
+    //         //console.log(document.querySelector(`#SiteRental`));
+    //         document.querySelector(
+    //           `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
+    //         ).selected = true;
+    //         // Appel initial de fetchData sans argument
+    //         fetchData();
 
-          document
-            .getElementById("select1")
-            .addEventListener("change", function () {
-              selectedOption = this.value.toUpperCase();
-              fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
-            });
+    //         document
+    //           .getElementById("select1")
+    //           .addEventListener("change", function () {
+    //             selectedOption = this.value.toUpperCase();
+    //             fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+    //           });
 
-          setTimeout(() => {
-            if ($donnerFiltrer[0].Debiteur.split("-")[1] === " OUTIL ") {
-              document.querySelector(
-                `#serviceIrium option[value="${
-                  $donnerFiltrer[0].Debiteur.split("-")[3]
-                }"]`
-              ).selected = true;
-            } else {
-              console.log($donnerFiltrer[0].Debiteur.split("-")[1]);
-              console.log(document.querySelector(`#serviceIrium`));
-              document.querySelector(
-                `#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split(
-                  "-"
-                )[1].trim()}"]`
-              ).selected = true;
-            }
-          }, 3000);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+    //         setTimeout(() => {
+    //           if ($donnerFiltrer[0].Debiteur.split("-")[1] === " OUTIL ") {
+    //             document.querySelector(
+    //               `#serviceIrium option[value="${
+    //                 $donnerFiltrer[0].Debiteur.split("-")[3]
+    //               }"]`
+    //             ).selected = true;
+    //           } else {
+    //             console.log($donnerFiltrer[0].Debiteur.split("-")[1]);
+    //             console.log(document.querySelector(`#serviceIrium`));
+    //             document.querySelector(
+    //               `#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split(
+    //                 "-"
+    //               )[1].trim()}"]`
+    //             ).selected = true;
+    //           }
+    //         }, 3000);
+    //       })
+    //       .catch((error) => {
+    //         console.error(error);
+    //       });
+    //   }
 
     fetchDataDuplier();
 
@@ -475,3 +475,74 @@ $(document).ready(function () {
   MobileMoney();
   FicheAtelier();
 });
+
+/**
+ * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
+ */
+const agenceDebiteurInterneInput = document.querySelector(
+  "#agenceDebiteurInterne"
+);
+const agenceDebiteurExterneInput = document.querySelector(
+  "#agenceDebiteurExterne"
+);
+const serviceDebiteurInterneInput = document.querySelector(
+  "#serviceDebiteurInterne"
+);
+const serviceDebiteurExterneInput = document.querySelector(
+  "#serviceDebiteurExterne"
+);
+
+agenceDebiteurInterneInput.addEventListener("change", selectAgenceInterne);
+
+function selectAgenceInterne() {
+  const agenceDebiteur = agenceDebiteurInterneInput.value;
+  let url = `/Hffintranet/serviceDebiteur-fetch/${agenceDebiteur}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+      console.log(services[1].serviceDebiteur);
+
+      // Supprimer toutes les options existantes
+      while (serviceDebiteurInterneInput.options.length > 0) {
+        serviceDebiteurInterneInput.remove(0);
+      }
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].serviceDebiteur;
+        option.text = services[i].serviceDebiteur;
+        serviceDebiteurInterneInput.add(option);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+/** EXTERNE */
+agenceDebiteurExterneInput.addEventListener("change", selectAgenceExterne);
+
+function selectAgenceExterne() {
+  const agenceDebiteur = agenceDebiteurExterneInput.value;
+  let url = `/Hffintranet/serviceDebiteur-fetch/${agenceDebiteur}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+      console.log(services[1].serviceDebiteur);
+
+      // Supprimer toutes les options existantes
+      while (serviceDebiteurExterneInput.options.length > 0) {
+        serviceDebiteurExterneInput.remove(0);
+      }
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].serviceDebiteur;
+        option.text = services[i].serviceDebiteur;
+        serviceDebiteurExterneInput.add(option);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}

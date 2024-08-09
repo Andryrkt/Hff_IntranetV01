@@ -4,8 +4,13 @@ namespace App\Controller\dom;
 
 
 use App\Controller\Controller;
+
 use App\Form\AgenceServiceType;
 use App\Controller\Traits\DomTrait;
+
+use App\Controller\Traits\Transformation;
+use App\Entity\Agence;
+
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -13,6 +18,7 @@ class DomControl extends Controller
 {
 
     use DomTrait;
+    use Transformation;
  
 
     public function filterStatut()
@@ -205,10 +211,13 @@ class DomControl extends Controller
             $text = file_get_contents($fichier);
             $boolean = strpos($text, $_SESSION['user']);
 
+   
+            
             $CategPers = $_POST['categPers'];
             //$NumDom = $_POST['NumDOM'];
-            $code_service = $_POST['Serv'];
-            $service = $_POST['LibServ'];
+            $code_service = $_POST['Serv'];//agence emetteur
+            $service = $_POST['LibServ']; // service emetteur
+
             $typeMission = $_POST['typeMission'];
             // $autrtype = $_POST['AutreType'];
             $Maricule = $_POST['matricule'];
@@ -234,13 +243,27 @@ class DomControl extends Controller
                 $numCompteBancaire = '';
             }
 
+            //dd($code_service, $service, $codeServ, $servLib);
+
+            //recupération de toutes les agences
+            $agenceDebiteurs = $this->transformEnSeulTableau($this->DomModel->agenceDebiteur());
+           
+           
+        
+            if($check === "Interne") {
+                $serviceDebiteurs = $this->transformEnSeulTableau($this->DomModel->serviceDebiteur($codeServ));
+            } else {
+                $serviceDebiteurs = $this->transformEnSeulTableau($this->DomModel->serviceDebiteur($code_service));
+            }
+
+
             $form = self::$validator->createBuilder(AgenceServiceType::class)->getForm();
             self::$twig->display(
                 'dom/FormCompleDOM.html.twig',
                 [
                     'CategPers' => $CategPers,
-                    'code_service' => $code_service,
-                    'service' => $service,
+                    'code_service' => $code_service,//agence emetteru externe
+                    'service' => $service, // agence emetteur externe
                     'typeMission' => $typeMission,
                     'Maricule' => $Maricule,
                     'UserConnect' => $UserConnect,
@@ -251,13 +274,15 @@ class DomControl extends Controller
                     'datesyst' => $datesyst,
                     'nom' => $nom,
                     'prenom' => $prenom,
-                    'codeServ' => $codeServ,
-                    'servLib' => $servLib,
+                    'codeServ' => $codeServ,//agence emetteur interne
+                    'servLib' => $servLib,//service emetteur interne
                     'numTel' => $numTel,
                     'numCompteBancaire' => $numCompteBancaire,
                     'infoUserCours' => $infoUserCours,
                     'boolean' => $boolean,
-                    'form' => $form->createView()
+                    'form' => $form->createView(),
+                    'agenceDebiteur' => $agenceDebiteurs,
+                    'serviceDebiteur' => $serviceDebiteurs
                 ]
             );
         }
@@ -1316,5 +1341,18 @@ class DomControl extends Controller
         header("Content-type:application/json");
 
         echo json_encode($codeServiceIrium);
+    }
+
+
+    /**
+     * @Route("/serviceDebiteur-fetch/{agenceId}")
+     */
+    public function serviceDebiteur($agenceId)
+    {
+        $serviceDebiteur = $this->DomModel->serviceDebiteur($agenceId);
+
+        header("Content-type:application/json");
+
+        echo json_encode($serviceDebiteur);
     }
 }
