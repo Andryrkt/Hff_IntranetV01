@@ -23,15 +23,7 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-        $this->SessionStart();
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-
-       
+               
         if($request->query->get('page') !== null){
             if($request->query->get('typeMouvement') !==null){
                 $idTypeMouvement = self::$em->getRepository(TypeMouvement::class)->findBy(['description' => $request->query->get('typeMouvement')], [])[0]->getId();
@@ -159,11 +151,7 @@ class BadmListeController extends Controller
         self::$twig->display(
             'badm/listBadm.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'form' => $form->createView(),
-                // 'pagination' => $pagination
-                // 'typeMouvement' => $typeMouvement,
                 'data' => $data,
                 'empty' => $empty,
                 'currentPage' => $page,

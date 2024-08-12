@@ -65,10 +65,10 @@ class BadmsForm2Controller extends Controller
                     $message = 'compléter tous les champs obligatoires';
                     $this->notification($message);
                 } 
-                // elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
-                //     $message = 'ce matériel est déjà en PARC';
-                //     $this->notification($message);
-                // } 
+                elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
+                    $message = 'ce matériel est déjà en PARC';
+                    $this->notification($message);
+                } 
                 elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                     $message = 'le choix du type devrait être Changement de Casier';
                     $this->notification($message);
@@ -84,7 +84,7 @@ class BadmsForm2Controller extends Controller
                     $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
                     $OR = $this->ouiNonOr($orDb);
                     $orDb = $this->miseEnformeOrDb($orDb);
-                    
+                     
                     //envoie des pièce jointe dans une dossier et le fusionner
                     $this->envoiePieceJoint($form, $badm);
 

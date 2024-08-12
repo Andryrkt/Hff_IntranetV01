@@ -32,7 +32,7 @@ class BadmForm1Type extends AbstractType
             'label' => 'Agence',
             'required' => false,
             'attr' => [
-                'readonly' => true
+                'readonly' => true,
             ],
             'data' => $options['data']->getAgenceEmetteur()
         ])
@@ -43,8 +43,7 @@ class BadmForm1Type extends AbstractType
             'label' => 'Service',
             'required' => false,
             'attr' => [
-                'readonly' => true,
-                'disable' => true
+                'readonly' => true
             ],
             'data' => $options['data']->getServiceEmetteur()
         ])
@@ -54,7 +53,7 @@ class BadmForm1Type extends AbstractType
         ])
         ->add('numParc', TextType::class, [
             'label' => "N° Parc",
-            'required' => false
+            'required' => false,
         ])
         ->add('numSerie', TextType::class, [
             'label' => "N° Serie",

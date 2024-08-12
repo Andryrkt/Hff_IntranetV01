@@ -110,6 +110,7 @@ trait BadmsForm2Trait
     // } else {
     //     $dateMiseLocation = '';
     // }
+  
 
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
@@ -220,12 +221,12 @@ trait BadmsForm2Trait
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
             $casierDestinataire = $form->getData()->getCasierDestinataire();
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
         } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $form->getData()->getCasierDestinataire();
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
         } elseif ($idTypeMouvement === 4) {
             if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
@@ -235,12 +236,12 @@ trait BadmsForm2Trait
                 $serviceDestinataire = $em->getRepository(Service::class)->find(2);
             }
             $casierDestinataire = null;
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
         } elseif($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
-            $dateMiseLocation =\DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
+            $dateMiseLocation = $this->dateMiseEnlocation($data);
         }
            
         // if ($data[0]['code_affect'] === 'LCD') {
@@ -283,6 +284,7 @@ trait BadmsForm2Trait
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 
+
         $generPdfBadm = [
             'typeMouvement' => $badm->getTypeMouvement()->getDescription(),
             'Num_BDM' => $badm->getNumBadm(),
@@ -303,7 +305,7 @@ trait BadmsForm2Trait
             'Casier_Destinataire' => $badm->getCasierDestinataire() === null ? '' : $badm->getCasierDestinataire()->getCasier(),
             'Motif_Arret_Materiel' => $badm->getMotifMateriel(),
             'Etat_Achat' => $badm->getEtatAchat(),
-            'Date_Mise_Location' => $badm->getDateMiseLocation()->format('d/m/Y'),
+            'Date_Mise_Location' => $badm->getDateMiseLocation() === null ? '': $badm->getDateMiseLocation()->format('d/m/Y'),
             'Cout_Acquisition' => (float)$badm->getCoutAcquisition(),
             'Amort' => (float)$data[0]['amortissement'],
             'VNC' => (float)$badm->getValeurNetComptable(),
