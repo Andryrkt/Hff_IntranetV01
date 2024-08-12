@@ -53,3 +53,11 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'MAH' THEN '27'
         ELSE '0'
     END;
+
+UPDATE demande_intervention
+SET
+    internet_externe = CASE
+        WHEN internet_externe = 'I' THEN 'INTERNE'
+        WHEN internet_externe = 'E' THEN 'EXTERNE'
+        ELSE internet_externe
+    END

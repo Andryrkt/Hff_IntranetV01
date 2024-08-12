@@ -52,8 +52,8 @@ class demandeInterventionType extends AbstractType
     ];
 
     const INTERNE_EXTERNE = [
-        'INTERNE' => 'I',
-        'EXTERNE' => 'E'
+        'INTERNE' => 'INTERNE',
+        'EXTERNE' => 'EXTERNE'
     ];
 
     const OUI_NON = [

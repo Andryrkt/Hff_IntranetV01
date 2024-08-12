@@ -99,11 +99,6 @@ trait DitTrait
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());
-        if($dits->getInternetExterne() === 'I'){
-            $dits->setInternetExterne('INTERNE');
-        } elseif($dits->getInternetExterne() === 'E') {
-            $dits->setInternetExterne('EXTERNE');
-        }
         $demandeIntervention->setInternetExterne($dits->getInternetExterne());
         
         //INFO CLIENT
@@ -195,26 +190,26 @@ trait DitTrait
     }
 
     private function envoiePieceJoint($form, $dits, $fusionPdf)
-{
+    {
 
-    $pdfFiles = [];
+        $pdfFiles = [];
 
-    for ($i=1; $i < 4; $i++) { 
-       $nom = "pieceJoint0{$i}";
-       if($form->get($nom)->getData() !== null){
-            $this->uplodeFile($form, $dits, $nom, $pdfFiles);
+        for ($i=1; $i < 4; $i++) { 
+        $nom = "pieceJoint0{$i}";
+        if($form->get($nom)->getData() !== null){
+                $this->uplodeFile($form, $dits, $nom, $pdfFiles);
+            }
+        }
+        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
-    array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
-
-    // Nom du fichier PDF fusionné
-     $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
-
-     // Appeler la fonction pour fusionner les fichiers PDF
-     if (!empty($pdfFiles)) {
-         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-     }
-}
 
 
 
@@ -229,7 +224,7 @@ trait DitTrait
     {
         $dits = $form->getData();
         
-        $dits->setUtilisateurDemandeur($_SESSION['user']);
+            $dits->setUtilisateurDemandeur($_SESSION['user']);
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
             $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
@@ -238,8 +233,7 @@ trait DitTrait
             $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
             $dits->setMailDemandeur($email);
 
-         
-            return $dits;
+        return $dits;
     }
 
 /**

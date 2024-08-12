@@ -29,8 +29,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class DitSearchType extends AbstractType
 {
     const INTERNE_EXTERNE = [
-        'INTERNE' => 'I',
-        'EXTERNE' => 'E'
+        'INTERNE' => 'INTERNE',
+        'EXTERNE' => 'EXTERNE'
     ];
 
     private $agenceRepository;
