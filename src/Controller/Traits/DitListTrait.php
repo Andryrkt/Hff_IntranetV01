@@ -147,6 +147,7 @@ trait DitListTrait
             $statut = $request->query->get('statut', null);
         }
       }
+
       $ditSearch
         ->setStatut($statut)
         ->setNiveauUrgence($niveauUrgence)

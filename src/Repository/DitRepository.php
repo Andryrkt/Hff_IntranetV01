@@ -143,6 +143,41 @@ class DitRepository extends EntityRepository
             ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
         }
 
+        //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
+            ->setParameter('statutOr', $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+        }
+
+        if($ditSearch->getDitRattacherOr()){
+            $queryBuilder->andWhere("d.numeroOR <> ''");
+        }
+
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 
@@ -233,6 +268,40 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
 
+             //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
+            ->setParameter('statutOr', $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+        }
+
+        if($ditSearch->getDitRattacherOr()){
+            $queryBuilder->andWhere("d.numeroOR <> ''");
+        }
+
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
@@ -312,6 +381,40 @@ class DitRepository extends EntityRepository
                 $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
+
+             //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
+            ->setParameter('statutOr', $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+        }
+
+        if($ditSearch->getDitRattacherOr()){
+            $queryBuilder->andWhere("d.numeroOR <> ''");
+        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -396,6 +499,40 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
             }
 
+             //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
+            ->setParameter('statutOr', $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+        }
+
+        if($ditSearch->getDitRattacherOr()){
+            $queryBuilder->andWhere("d.numeroOR <> ''");
+        }
+
         $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -464,6 +601,40 @@ class DitRepository extends EntityRepository
                 $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
                     ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
             }
+
+             //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
+            ->setParameter('statutOr', $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+        }
+
+        if($ditSearch->getDitRattacherOr()){
+            $queryBuilder->andWhere("d.numeroOR <> ''");
+        }
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
     }

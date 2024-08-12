@@ -161,6 +161,12 @@ class DitListeController extends Controller
         ->setServiceEmetteur($criteria["serviceEmetteur"])
         ->setAgenceDebiteur($criteria["agenceDebiteur"])
         ->setServiceDebiteur($criteria["serviceDebiteur"])
+        ->setNumDit($criteria["numDit"])
+        ->setNumOr($criteria["numOr"])
+        ->setStatutOr($criteria["statutOr"])
+        ->setDitRattacherOr($criteria["ditRattacherOr"])
+        ->setCategorie($criteria["categorie"])
+        ->setUtilisateur($criteria["utilisateur"])
         ;
         
         //recupère les critères dans la session 
