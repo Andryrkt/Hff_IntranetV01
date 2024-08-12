@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // DEBUT javascript pour selecte debiteur
 
     // Appel initial de fetchData sans argument
-    fetchData();
+    //fetchData();
 
     // document.getElementById("select1").addEventListener("change", function () {
     //   selectedOption = this.value.toUpperCase();
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     //       });
     //   }
 
-    fetchDataDuplier();
+    //fetchDataDuplier();
 
     // document.getElementById('select1').addEventListener('change', function() {
     //     var selectedOption = this.value.toUpperCase();
@@ -482,17 +482,22 @@ $(document).ready(function () {
 const agenceDebiteurInterneInput = document.querySelector(
   "#agenceDebiteurInterne"
 );
-const agenceDebiteurExterneInput = document.querySelector(
-  "#agenceDebiteurExterne"
-);
 const serviceDebiteurInterneInput = document.querySelector(
   "#serviceDebiteurInterne"
+);
+const agenceDebiteurExterneInput = document.querySelector(
+  "#agenceDebiteurExterne"
 );
 const serviceDebiteurExterneInput = document.querySelector(
   "#serviceDebiteurExterne"
 );
-
-agenceDebiteurInterneInput.addEventListener("change", selectAgenceInterne);
+const interneExternInput = document.querySelector("#radiochek");
+console.log(interneExternInput.value);
+if (interneExternInput.value === "Externe") {
+  agenceDebiteurExterneInput.addEventListener("change", selectAgenceExterne);
+} else {
+  agenceDebiteurInterneInput.addEventListener("change", selectAgenceInterne);
+}
 
 function selectAgenceInterne() {
   const agenceDebiteur = agenceDebiteurInterneInput.value;
@@ -520,7 +525,6 @@ function selectAgenceInterne() {
 }
 
 /** EXTERNE */
-agenceDebiteurExterneInput.addEventListener("change", selectAgenceExterne);
 
 function selectAgenceExterne() {
   const agenceDebiteur = agenceDebiteurExterneInput.value;

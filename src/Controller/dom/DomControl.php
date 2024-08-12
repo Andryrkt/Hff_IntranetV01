@@ -249,7 +249,6 @@ class DomControl extends Controller
             $agenceDebiteurs = $this->transformEnSeulTableau($this->DomModel->agenceDebiteur());
            
            
-        
             if($check === "Interne") {
                 $serviceDebiteurs = $this->transformEnSeulTableau($this->DomModel->serviceDebiteur($codeServ));
             } else {
