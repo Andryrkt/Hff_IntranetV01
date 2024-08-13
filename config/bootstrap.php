@@ -80,8 +80,7 @@ define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
-$dotenv->load();
+
 
 $request = Request::createFromGlobals();
 $response = new Response();
@@ -189,8 +188,10 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 
 
 
-require_once dirname(__DIR__)."/doctrineBootstrap.php";
+$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
 
+// Créer une instance de SimpleManagerRegistry
+$managerRegistry = new SimpleManagerRegistry($entityManager);
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
@@ -200,9 +201,6 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
-// Configurer KnpPaginator
-// $eventDispatcher = new EventDispatcher();
-// $paginator = new Paginator($eventDispatcher, $requestStack);
 
 //envoyer twig au controller
 Controller::setTwig($twig);

@@ -23,7 +23,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = 'C:/wamp64/www/Hffintranet/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -277,16 +277,33 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Cell(35, 6, "email : ". $dit->getMailDemandeur() , 0, 0, 'L');
 
 
-
-
-
         /**DEUXIEME PAGE */
        $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
 
 
     //$pdf->Output('exemple.pdf', 'I');
-      $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/';
-      $pdf->Output($Dossier . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()). '.pdf', 'F');
+     // Obtention du chemin absolu du répertoire de travail
+        //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
+        $documentRoot = 'C:/wamp64/www/Hffintranet/Upload/dit/';
+
+        $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
+        $filePath = $documentRoot . '/' . $fileName . '.pdf';
+
+        // Vérifiez si le répertoire existe et a les bonnes permissions
+        if (!is_dir($documentRoot) || !is_writable($documentRoot)) {
+            echo "Le répertoire $documentRoot n'existe pas ou n'est pas accessible en écriture.";
+            exit;
+        }
+
+        $pdf->Output($filePath, 'F');
+
+            // Vérification de la création du fichier
+        if (file_exists($filePath)) {
+            echo "Le fichier a été généré avec succès : $filePath";
+        } else {
+            echo "Erreur lors de la génération du fichier PDF.";
+        }
+
     }
 
 

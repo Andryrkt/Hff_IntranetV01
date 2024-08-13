@@ -167,16 +167,16 @@ trait DitListTrait
             if ($data[$i]->getNumeroOR() !== null) {
                 if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
                     foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
-                        $data[$i]->setQuantiteDemander($data[$i]->getQuantiteDemander()+$value['quantitedemander']);
-                        $data[$i]->setQuantiteReserver($data[$i]->getQuantiteReserver()+$value['quantitereserver']);
-                        $data[$i]->setQuantiteLivree($data[$i]->getQuantiteLivree()+$value['quantitelivree']);
+                        $data[$i]->setQuantiteDemander($value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($value['quantitelivree']);
                     }
-                    if($data[$i]->getQuantiteLivree() === 0){
-                        $data[$i]->setStatutAchatPiece("EN COURS");
+                    if($data[$i]->getQuantiteLivree() === 0 || $data[$i]->getQuantiteLivree() === null){
+                        $data[$i]->setStatutAchatPiece("En cours");
                     } elseif ($data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander()) {
-                        $data[$i]->setStatutAchatPiece("LIVRE PARTIELLEMENT");
+                        $data[$i]->setStatutAchatPiece("Livré partiellement");
                     } elseif ($data[$i]->getQuantiteLivree() === $data[$i]->getQuantiteDemander()) {
-                        $data[$i]->setStatutAchatPiece("LIVRE TOTALEMENT");
+                        $data[$i]->setStatutAchatPiece("Livré totalement");
                     }
                 }
             }
@@ -188,16 +188,16 @@ trait DitListTrait
             if ($data[$i]->getNumeroOR() !== null) {
                 if(!empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
                     foreach ($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
-                        $data[$i]->setQuantiteDemander($data[$i]->getQuantiteDemander()+$value['quantitedemander']);
-                        $data[$i]->setQuantiteReserver($data[$i]->getQuantiteReserver()+$value['quantitereserver']);
-                        $data[$i]->setQuantiteLivree($data[$i]->getQuantiteLivree()+$value['quantitelivree']);
+                        $data[$i]->setQuantiteDemander($value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($value['quantitelivree']);
                     }
-                    if($data[$i]->getQuantiteLivree() === 0){
-                        $data[$i]->setStatutAchatLocaux("EN COURS");
+                    if($data[$i]->getQuantiteLivree() === 0 || $data[$i]->getQuantiteLivree() === null){
+                        $data[$i]->setStatutAchatLocaux("En cours");
                     } elseif ($data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander()) {
-                        $data[$i]->setStatutAchatLocaux("LIVRE PARTIELLEMENT");
+                        $data[$i]->setStatutAchatLocaux("Livré partiellement");
                     } elseif ($data[$i]->getQuantiteLivree() === $data[$i]->getQuantiteDemander()) {
-                        $data[$i]->setStatutAchatLocaux("LIVRE TOTALEMENT");
+                        $data[$i]->setStatutAchatLocaux("Livré totalement");
                     }
                 }
             }

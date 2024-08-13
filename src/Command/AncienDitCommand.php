@@ -2,9 +2,10 @@
 
 namespace App\Command;
 
-use App\Controller\Controller;
 use App\Entity\AncienDit;
+use App\Controller\Controller;
 use App\Service\AncienDitService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,13 @@ class AncienDitCommand extends Command
     // Le nom de la commande
     protected static $defaultName = 'app:my-command';
 
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        parent::__construct();
+        $this->em = $em;
+    }
 
     protected function configure()
     {
@@ -25,19 +33,26 @@ class AncienDitCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // Supposons que vous ayez une collection de données à insérer
-        //$data = $this->em->getRepository(AncienDit::class)->findAll(); // Méthode qui retourne les données
-     
-        // $total = count($data);
-       
-        // $progressBar = new ProgressBar($output, $total);
-        // $progressBar->start();
-
-        // $progressBar->finish();
-
-        $ancienDit = new AncienDitService();
-
-        dd($ancienDit->recupDesAncienDonnee());
+        $ancienDit = new AncienDitService($this->em);
+        $repository = $this->em->getRepository(AncienDit::class);
+        //$count = $repository->count([]);
+        $numDit = $repository->findAllNumeroDit();
+        
+        $total = count($numDit);
+        $progressBar = new ProgressBar($output, $total);
+        $progressBar->start();
+        // Traitement des données
+        //$output->writeln('Traitement des données...');
+        for ($i = 0; $i < $total; $i++) {
+          
+            $ancienDit->recupDesAncienDonnee($numDit[$i]);
+            // Avancer la barre de progression d'une étape
+            $progressBar->advance();
+    
+        }
+        // Afficher le nombre de résultats
+        $output->writeln("\nNombre de résultats : " . count($numDit));
+        $progressBar->finish();
         $output->writeln("\nTerminé !");
         return Command::SUCCESS;
     }

@@ -88,10 +88,8 @@ class DitListeController extends Controller
       
 
         //recupère le numero de page
-        /**
-         * TODO: n'oublier pas de changer en 1
-         */
-        $page = $request->query->getInt('page', 2);
+       
+        $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 10;
      
@@ -118,6 +116,7 @@ class DitListeController extends Controller
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($data);
         
+
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];

@@ -8,6 +8,15 @@ use Doctrine\ORM\EntityRepository;
 
 class DitRepository extends EntityRepository
 {
+    public function findAllNumeroDit()
+{
+    $result = $this->createQueryBuilder('a')
+        ->select('a.numeroDemandeIntervention')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'numeroDemandeIntervention');
+}
+
     /** MAGASIN  */
     public function findNumOr($criteria = [])
     {
@@ -145,6 +154,7 @@ class DitRepository extends EntityRepository
 
         //filtrer selon le numero dit
         if(!empty($ditSearch->getNumDit())) {
+        
             $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
             ->setParameter('numDit', $ditSearch->getNumDit());
         }
@@ -185,7 +195,6 @@ class DitRepository extends EntityRepository
             ->setMaxResults($limit)
             ;
 
-        
             // $sql = $queryBuilder->getQuery()->getSQL();
             // echo $sql;
 

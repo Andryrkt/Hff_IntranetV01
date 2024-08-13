@@ -10,4 +10,9 @@ table >
 ADD CONSTRAINT UQ_numero_demande_dit UNIQUE (< colonne >);
 
 -- Ajouter une colonne à une table
-ALTER TABLE < table > ADD < nouveau_colonne > < type >
+ALTER TABLE <
+table >
+ADD < nouveau_colonne > < type >
+--copier une table dans une base de donné à une autre /// executé la requête dans le base de donnée ou l'on crée le nouveau table
+SELECT * INTO dbo.demande_intervention_migration
+FROM HFF_INTRANET_TEST.dbo.demande_intervention_migration;
