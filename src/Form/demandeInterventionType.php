@@ -191,7 +191,7 @@ class demandeInterventionType extends AbstractType
             'label' => "Interne et Externe",
             'choices' => self::INTERNE_EXTERNE,
             'placeholder' => '-- Choisir --',
-            'data' => 'I',
+            'data' => 'INTERNE',
            'required' => false,
            'attr' => [ 'class' => 'interneExterne']
         ])
