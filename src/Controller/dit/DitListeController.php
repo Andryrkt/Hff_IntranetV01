@@ -71,7 +71,7 @@ class DitListeController extends Controller
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
                 } elseif(empty($idMateriel)) {
-                  $empty = true;
+                    $empty = true;
                 }
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
@@ -87,7 +87,10 @@ class DitListeController extends Controller
       
 
         //recupère le numero de page
-        $page = $request->query->getInt('page', 1);
+        /**
+         * TODO: n'oublier pas de changer en 1
+         */
+        $page = $request->query->getInt('page', 2);
         //nombre de ligne par page
         $limit = 10;
      
@@ -99,6 +102,7 @@ class DitListeController extends Controller
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
+        //nombre total de ligne
         $totalBadms = $ditRepository->countFiltered($ditSearch, $option);
         //nombre total de page
         $totalPages = ceil($totalBadms / $limit);
@@ -106,7 +110,11 @@ class DitListeController extends Controller
         
         //recupération des données filtrée
         $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-     
+
+        //ajout de donner du statut achat piece dans data
+        $this->ajoutStatutAchatPiece($data);
+
+
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];
@@ -118,7 +126,6 @@ class DitListeController extends Controller
                 $idMat[] = $value['num_matricule'];
             }
         } else {
-           
             $empty = true;
         }
 
@@ -207,56 +214,7 @@ class DitListeController extends Controller
          $this->excelService->createSpreadsheet($data);
     }
 
-    /**
-     * TODO: MBOLA MILA ATAO
-     *
-     * AFFICHAGE LISTE ANNULLER
-     * @return void
-     */
-    public function listeAnnuler(Request $request)
-    {
-        // $this->SessionStart();
-        // $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        // $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        // $text = file_get_contents($fichier);
-        // $boolean = strpos($text, $_SESSION['user']);
-
-        // //recuperation des critère à partir de session
-        // $criteria = $this->sessionService->get('dit_search_criteria', []);
-
-        // $repository= self::$em->getRepository(DemandeIntervention::class);
-        //  //recupère le numero de page
-        //  $page = $request->query->getInt('page', 1);
-        //  //nombre de ligne par page
-        //  $limit = 10;
-      
-        //  $option = [
-        //      'boolean' => $boolean,
-        //      'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
-        //      'codeService' =>$service === null ? null : $service->getCodeService()
-        //  ];
-        // $data = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria);
-        //     $idMateriels = $this->recupIdMaterielEnChaine($data);
-        //     $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-        //     $totalBadms = $repository->countFilteredListAnnuller($criteria);
-
-        //     $totalPages = ceil($totalBadms / $limit);
-
-
-        //     self::$twig->display('dit/list.html.twig', [
-        //         'infoUserCours' => $infoUserCours,
-        //         'boolean' => $boolean,
-        //         'data' => $data,
-        //         'numSerieParc' => $numSerieParc,
-        //         'idMat' => $idMat,
-        //         'empty' => $empty,
-        //         'form' => $form->createView(),
-        //         'currentPage' => $page,
-        //         'totalPages' =>$totalPages,
-        //         'criteria' => $criteria,
-        //         'resultat' => $totalBadms,
-        //     ]);
-    }
+   
 
     /**
      * @Route("/command-modal/{numOr}", name="liste_commandModal")

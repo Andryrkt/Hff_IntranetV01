@@ -55,8 +55,14 @@ class MagasinListeOrLivrerModel extends Model
             $numOr = null;
         }
 
+        if(!empty($criteria['numDit'])){
+            $numDit = " and seor_refdem  = '" . $criteria['numDit'] . "'";
+        } else {
+            $numDit = null;
+        }
 
         $statement = "SELECT 
+            trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             trim(slor_constp) as constructeur, 
             trim(slor_refp) as referencePiece, 
@@ -75,23 +81,22 @@ class MagasinListeOrLivrerModel extends Model
             inner join sav_eor on seor_soc = slor_soc 
             and seor_succ = slor_succ 
             and seor_numor = slor_numor
-            where 
-            slor_soc = 'HF'
+              where slor_soc = 'HF'
+            and CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END = slor_qteres
+            and slor_qteres <> 0
+            and slor_typlig = 'P'
+            and slor_constp not like 'Z%'
+            and slor_constp not in ('LUB')
             and slor_succ = '01'
+            and seor_serv ='SAV'
             $designation
             $referencePiece 
             $constructeur 
             $dateDebut
             $dateFin
             $numOr
-            and slor_typlig = 'P'
-            and seor_serv ='SAV'
-            and slor_constp not like 'Z%'
-            and slor_constp not in('LUB')
-            and CASE 
-                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea END = slor_qteres
-            and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
+            $numDit
             order by seor_numor asc, slor_nolign asc
         ";
 

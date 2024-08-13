@@ -12,6 +12,7 @@ use App\Traits\AgenceServiceEmetteurTrait;
 use App\Traits\BilanFinancierMaterielTrait;
 use Doctrine\Common\Collections\Collection;
 use App\Traits\CaracteristiqueMaterielTrait;
+use App\Traits\QuantiteDitTrait;
 use App\Validator\DemandeInterventionValidator;
 use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -31,6 +32,8 @@ class DemandeIntervention
    use AgenceServiceTrait;
    use CaracteristiqueMaterielTrait;
    use BilanFinancierMaterielTrait;
+   use QuantiteDitTrait;
+   
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

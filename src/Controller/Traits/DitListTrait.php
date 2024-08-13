@@ -161,4 +161,25 @@ trait DitListTrait
         ;
     } 
 
+
+    private function ajoutStatutAchatPiece($data){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            if ($data[$i]->getNumeroOR() !== null) {
+                if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+                    foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
+                        $data[$i]->setQuantiteDemander($data[$i]->getQuantiteDemander()+$value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($data[$i]->getQuantiteReserver()+$value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($data[$i]->getQuantiteLivree()+$value['quantitelivree']);
+                    }
+                    if($data[$i]->getQuantiteLivree() === 0){
+                        $data[$i]->setStatutAchatPiece("EN COURS");
+                    } elseif ($data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander()) {
+                        $data[$i]->setStatutAchatPiece("LIVRE PARTIELLEMENT");
+                    } elseif ($data[$i]->getQuantiteLivree() === $data[$i]->getQuantiteDemander()) {
+                        $data[$i]->setStatutAchatPiece("LIVRE TOTALEMENT");
+                    }
+                }
+            }
+        }
+    }
 }

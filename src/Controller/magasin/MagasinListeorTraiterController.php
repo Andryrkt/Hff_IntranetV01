@@ -107,12 +107,11 @@ class MagasinListeOrTraiterController extends Controller
         $entities = $this->magasinModel->recupereListeMaterielValider($criteria);
     // Convertir les entités en tableau de données
     $data = [];
-    $data[] = ['N° DIT', 'N° Or', "Niv. d'urg", "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
+    $data[] = ['N° DIT', 'N° Or', "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
     foreach ($entities as $entity) {
         $data[] = [
-            //$entity['numDit'],//à rectifier
+            $entity['referenceDIT'],
             $entity['numeroor'],
-            //$entity['nivUrgence'],//à rectifier
             $entity['datecreation'],
             $entity['agence'],
             $entity['service'],

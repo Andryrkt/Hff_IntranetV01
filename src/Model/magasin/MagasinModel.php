@@ -56,9 +56,16 @@ class MagasinModel extends Model
             $numOr = null;
         }
 
+        if(!empty($criteria['numDit'])){
+            $numDit = " and seor_refdem  = '" . $criteria['numDit'] . "'";
+        } else {
+            $numDit = null;
+        }
+
       
 
         $statement = "SELECT 
+            trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             trim(slor_constp) as constructeur, 
             trim(slor_refp) as referencePiece, 
@@ -88,6 +95,7 @@ class MagasinModel extends Model
             $dateDebut
             $dateFin
             $numOr
+            $numDit
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'
