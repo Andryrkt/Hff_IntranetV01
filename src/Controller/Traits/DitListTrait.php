@@ -182,4 +182,25 @@ trait DitListTrait
             }
         }
     }
+
+    private function ajoutStatutAchatLocaux($data){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            if ($data[$i]->getNumeroOR() !== null) {
+                if(!empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
+                    foreach ($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
+                        $data[$i]->setQuantiteDemander($data[$i]->getQuantiteDemander()+$value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($data[$i]->getQuantiteReserver()+$value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($data[$i]->getQuantiteLivree()+$value['quantitelivree']);
+                    }
+                    if($data[$i]->getQuantiteLivree() === 0){
+                        $data[$i]->setStatutAchatLocaux("EN COURS");
+                    } elseif ($data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander()) {
+                        $data[$i]->setStatutAchatLocaux("LIVRE PARTIELLEMENT");
+                    } elseif ($data[$i]->getQuantiteLivree() === $data[$i]->getQuantiteDemander()) {
+                        $data[$i]->setStatutAchatLocaux("LIVRE TOTALEMENT");
+                    }
+                }
+            }
+        }
+    }
 }

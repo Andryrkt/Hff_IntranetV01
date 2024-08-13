@@ -14,6 +14,7 @@ trait QuantiteDitTrait
 
     private $statutAchatPiece = '';
     
+    private $statutAchatLocaux = '';
 
     /**
      * Get the value of quantiteDemander
@@ -111,6 +112,26 @@ trait QuantiteDitTrait
     public function setStatutAchatPiece($statutAchatPiece)
     {
         $this->statutAchatPiece = $statutAchatPiece;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutAchatLocaux
+     */ 
+    public function getStatutAchatLocaux()
+    {
+        return $this->statutAchatLocaux;
+    }
+
+    /**
+     * Set the value of statutAchatLocaux
+     *
+     * @return  self
+     */ 
+    public function setStatutAchatLocaux($statutAchatLocaux)
+    {
+        $this->statutAchatLocaux = $statutAchatLocaux;
 
         return $this;
     }

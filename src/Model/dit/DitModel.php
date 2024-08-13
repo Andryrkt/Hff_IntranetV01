@@ -245,6 +245,38 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
             and slor_constp not like 'LUB'
+            and slor_constp not like 'ZST'
+            and seor_numor  = '" . $numOr . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+    
+
+    public function recupQuantiteStatutAchatLocaux($numOr)
+    {
+      $statement = "SELECT 
+            trim(seor_refdem) as referenceDIT,
+            seor_numor as numeroOr,
+            CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END AS quantiteDemander,
+            slor_qteres as quantiteReserver,
+            slor_qterea as quantiteLivree,
+            slor_qterel as quantiteReliquat
+            from sav_lor 
+            inner join sav_eor on seor_soc = slor_soc 
+            and seor_succ = slor_succ 
+            and seor_numor = slor_numor
+            where 
+            slor_soc = 'HF'
+            and slor_succ = '01'
+            and slor_typlig = 'P'
+            and slor_pos = 'EC'
+            and seor_serv ='SAV'
+            and slor_constp like 'ZST'
             and seor_numor  = '" . $numOr . "'
         ";
 

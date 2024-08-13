@@ -13,6 +13,7 @@ use App\Entity\WorTypeDocument;
 use App\Entity\WorNiveauUrgence;
 use App\Entity\DemandeIntervention;
 use App\Controller\Traits\DitListTrait;
+use App\Service\AncienDitService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -114,7 +115,9 @@ class DitListeController extends Controller
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($data);
 
-
+        //ajout de donner du statut achat locaux dans data
+        $this->ajoutStatutAchatLocaux($data);
+        
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];
