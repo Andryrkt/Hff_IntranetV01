@@ -18,16 +18,16 @@ class DatabaseInformix
         $this->password = $_ENV['DB_PASSWORD_INFORMIX'];
         
         // Établissement de la connexion
-        $this->connect();
+        $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
+        if (!$this->conn) {
+            throw new \Exception("ODBC Connection failed: " . odbc_errormsg());
+        }
     }
 
     // Méthode pour établir la connexion à la base de données
     private function connect()
     {
-        $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
-        if (!$this->conn) {
-            throw new \Exception("ODBC Connection failed: " . odbc_errormsg());
-        }
+        return $this->conn ;
     }
 
     // Méthode pour exécuter une requête SQL
@@ -67,8 +67,5 @@ class DatabaseInformix
         }
     }
 
-    public function __destruct()
-    {
-        $this->close();
-    }
+   
 }

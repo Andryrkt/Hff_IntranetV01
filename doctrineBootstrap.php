@@ -10,8 +10,8 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+// $dotenv->load();
 
 // Chemin vers les entités
 $paths = array(dirname(__DIR__). "/src/Entity");

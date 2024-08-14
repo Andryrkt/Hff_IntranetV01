@@ -4,12 +4,16 @@ namespace App\Model;
 
 class connexionDote4
 {
-    private $DB = "HFF_INTRANET_V04_TEST";
-    private $User = "sa";
-    private $pswd = "catkpi";
+    private $DB;
+    private $User;
+    private $pswd;
     private $conn;
     public function __construct()
     {
+        $this->DB = $_ENV['DB_DNS_SQLSERV_4'];
+        $this->User = $_ENV['DB_USERNAME_SQLSERV_4'];
+        $this->pswd = $_ENV['DB_PASSWORD_SQLSERV_4'];
+
         $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
         if (!$this->conn) {
             throw new \Exception("ODBC Connection failed:" . odbc_error());

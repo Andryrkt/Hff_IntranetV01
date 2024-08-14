@@ -1,5 +1,4 @@
 const Encore = require("@symfony/webpack-encore");
-const FilterWarningsPlugin = require("webpack-filter-warnings-plugin");
 
 Encore.setOutputPath("public/build/")
   .setPublicPath("/build")
@@ -28,11 +27,6 @@ Encore.setOutputPath("public/build/")
       outputStyle: "expanded",
     };
   })
-  .enablePostCssLoader()
-  .addPlugin(
-    new FilterWarningsPlugin({
-      exclude: /export .* was not found in/,
-    })
-  );
+  .enablePostCssLoader();
 
 module.exports = Encore.getWebpackConfig();
