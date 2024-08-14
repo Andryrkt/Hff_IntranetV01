@@ -80,6 +80,8 @@ define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
+define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
+
 
 
 $request = Request::createFromGlobals();

@@ -200,6 +200,7 @@ trait DitTrait
                 $this->uplodeFile($form, $dits, $nom, $pdfFiles);
             }
         }
+        //ajouter le nom du pdf crée par dit en avant du tableau
         array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
 
         // Nom du fichier PDF fusionné

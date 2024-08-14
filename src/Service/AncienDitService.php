@@ -125,5 +125,20 @@ class AncienDitService
         return $historiqueMateriel;
     }
 
-   
+   private function prepareFunsion($ancienDit)
+   {
+
+    $fusionPdf = new FusionPdf();
+
+    //ajouter le nom du pdf crée par dit en avant du tableau
+    array_unshift($pdfFiles, 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
+
+    // Nom du fichier PDF fusionné
+    $mergedPdfFile = 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
+
+    // Appeler la fonction pour fusionner les fichiers PDF
+    if (!empty($pdfFiles)) {
+        $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+    }
+   }
 }

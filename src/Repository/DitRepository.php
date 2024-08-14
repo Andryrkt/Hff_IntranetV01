@@ -179,7 +179,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
             ->setParameter('utilisateur', $ditSearch->getUtilisateur());
         }
 
@@ -303,7 +303,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
             ->setParameter('utilisateur', $ditSearch->getUtilisateur());
         }
 
@@ -417,7 +417,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
             ->setParameter('utilisateur', $ditSearch->getUtilisateur());
         }
 
@@ -534,7 +534,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
             ->setParameter('utilisateur', $ditSearch->getUtilisateur());
         }
 
@@ -637,7 +637,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur = :utilisateur')
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
             ->setParameter('utilisateur', $ditSearch->getUtilisateur());
         }
 

@@ -116,7 +116,6 @@ class DitListeController extends Controller
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($data);
         
-
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];

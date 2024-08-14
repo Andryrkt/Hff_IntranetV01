@@ -23,7 +23,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = 'C:/wamp64/www/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = CHEMIN_DE_BASE . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -284,7 +284,7 @@ class GenererPdfDit extends GeneratePdf
     //$pdf->Output('exemple.pdf', 'I');
      // Obtention du chemin absolu du répertoire de travail
         //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
-        $documentRoot = 'C:/wamp64/www/Hffintranet/Upload/dit/';
+        $documentRoot = CHEMIN_DE_BASE .'/Upload/dit/';
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';
@@ -299,9 +299,9 @@ class GenererPdfDit extends GeneratePdf
 
             // Vérification de la création du fichier
         if (file_exists($filePath)) {
-            echo "Le fichier a été généré avec succès : $filePath";
+            echo "\nLe fichier a été généré avec succès : $filePath";
         } else {
-            echo "Erreur lors de la génération du fichier PDF.";
+            echo "\nErreur lors de la génération du fichier PDF.";
         }
 
     }

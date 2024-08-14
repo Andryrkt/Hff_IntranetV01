@@ -45,7 +45,7 @@ class DitSearch
 
     private ?string $numDit = '';
 
-    private ?int $numOr = 0;
+    private ?int $numOr = null ;
 
     private ?string $statutOr = '';
     
