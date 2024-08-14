@@ -168,7 +168,7 @@ class DitRepository extends EntityRepository
          //filtre selon le numero Or
          if(!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', $ditSearch->getStatutOr());
+            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
         }
 
         //filtre selon le categorie de demande
@@ -180,7 +180,7 @@ class DitRepository extends EntityRepository
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
             $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+            ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
         if($ditSearch->getDitRattacherOr()){
@@ -292,7 +292,7 @@ class DitRepository extends EntityRepository
          //filtre selon le numero Or
          if(!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', $ditSearch->getStatutOr());
+            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
         }
 
         //filtre selon le categorie de demande
@@ -304,7 +304,7 @@ class DitRepository extends EntityRepository
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
             $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+            ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
         if($ditSearch->getDitRattacherOr()){
@@ -406,7 +406,7 @@ class DitRepository extends EntityRepository
          //filtre selon le numero Or
          if(!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', $ditSearch->getStatutOr());
+            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
         }
 
         //filtre selon le categorie de demande
@@ -418,7 +418,7 @@ class DitRepository extends EntityRepository
         //filtre selon le categorie de demande
         if(!empty($ditSearch->getUtilisateur())) {
             $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
+            ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
         if($ditSearch->getDitRattacherOr()){
@@ -432,219 +432,4 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
-    {
-        $queryBuilder = $this->createQueryBuilder('b')
-            ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's')
-            ;
-
-            $includedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':includedStatuses'))
-                ->setParameter('includedStatuses', $includedStatuses);
-
-            
-                if (!empty($ditSearch->getStatut())) {
-                    $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-                }
-    
-            if (!empty($ditSearch->getTypeDocument())) {
-                $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
-            }
-    
-            if (!empty($ditSearch->getNiveauUrgence())) {
-                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
-            }
-    
-            if (!empty($ditSearch->getIdMateriel())) {
-                $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
-            }
-    
-            if (!empty($ditSearch->getInternetExterne())) {
-                $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
-            }
-    
-            if (!empty($ditSearch->getDateDebut())) {
-                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
-            }
-    
-            if (!empty($ditSearch->getDateFin())) {
-                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                    ->setParameter('dateFin', $ditSearch->getDateFin());
-            }
-    
-            if ($options['boolean']) {
-                //filtre selon l'agence emettteur
-                if (!empty($ditSearch->getAgenceEmetteur())) {
-                    $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
-                }
-                //filtre selon le service emetteur
-                if (!empty($ditSearch->getServiceEmetteur())) {
-                    $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
-                }
-            } else {
-                //ceci est figer pour les utilisateur autre que l'administrateur
-                    $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
-            }
-    
-            //filtre selon l'agence debiteur
-            if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
-            }
-    
-            //filtre selon le service debiteur
-            if(!empty($ditSearch->getServiceDebiteur())) {
-                $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
-            }
-
-             //filtrer selon le numero dit
-        if(!empty($ditSearch->getNumDit())) {
-            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $ditSearch->getNumDit());
-        }
-
-        //filtre selon le numero Or
-        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
-            $queryBuilder->andWhere('d.numeroOR = :numOr')
-            ->setParameter('numOr', $ditSearch->getNumOr());
-        }
-
-         //filtre selon le numero Or
-         if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', $ditSearch->getStatutOr());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
-            ->setParameter('categorieDemande', $ditSearch->getCategorie());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
-        }
-
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
-        }
-
-        $queryBuilder->orderBy('b.numBadm', 'DESC');
-        $queryBuilder->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ;
-
-        
-            // $sql = $queryBuilder->getQuery()->getSQL();
-            // echo $sql;
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-    public function countFilteredListAnnuller(DitSearch $ditSearch)
-    {
-        $queryBuilder = $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
-            ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's');
-
-            $includedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':includedStatuses'))
-                ->setParameter('includedStatuses', $includedStatuses);
-
-           
-                if (!empty($ditSearch->getStatut())) {
-                    $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-                }
-    
-            if (!empty($ditSearch->getTypeDocument())) {
-                $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
-            }
-    
-            if (!empty($ditSearch->getNiveauUrgence())) {
-                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
-            }
-    
-            if (!empty($ditSearch->getIdMateriel())) {
-                $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
-            }
-    
-            if (!empty($ditSearch->getInternetExterne())) {
-                $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
-            }
-    
-            if (!empty($ditSearch->getDateDebut())) {
-                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
-            }
-    
-            if (!empty($ditSearch->getDateFin())) {
-                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                    ->setParameter('dateFin', $ditSearch->getDateFin());
-            }
-    
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getCodeAgence() . '-' . $ditSearch->getServiceEmetteur()->getCodeService() );
-            }
-    
-            if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceServiceDebiteur = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getCodeAgence() . '-' . $ditSearch->getServiceDebiteur()->getCodeService() );
-            }
-
-             //filtrer selon le numero dit
-        if(!empty($ditSearch->getNumDit())) {
-            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $ditSearch->getNumDit());
-        }
-
-        //filtre selon le numero Or
-        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
-            $queryBuilder->andWhere('d.numeroOR = :numOr')
-            ->setParameter('numOr', $ditSearch->getNumOr());
-        }
-
-         //filtre selon le numero Or
-         if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', $ditSearch->getStatutOr());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
-            ->setParameter('categorieDemande', $ditSearch->getCategorie());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', $ditSearch->getUtilisateur());
-        }
-
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
-        }
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
 }
