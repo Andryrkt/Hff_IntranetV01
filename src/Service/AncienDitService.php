@@ -44,7 +44,7 @@ class AncienDitService
         //générer le pdf de dit
         $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
         //envoyer le pdf dans docuware
-        //$genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+        $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
         
     }
 

@@ -4,36 +4,44 @@ namespace App\Model;
 
 class DatabaseInformix
 {
-    private $dsn = 'IPS_HFFPROD';
-    private $user = 'informix';
-    private $password = 'informix';
+    private $dsn;
+    private $user;
+    private $password;
     private $conn;
 
     // Constructeur
     public function __construct()
     {
-        $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
-        if (!$this->conn) {
-            throw new \Exception("ODBC Conenction failed:" . odbc_error());
-        }
+        // Récupération des variables d'environnement
+        $this->dsn = $_ENV['DB_DNS_INFORMIX'] ;
+        $this->user = $_ENV['DB_USERNAME_INFORMIX'];
+        $this->password = $_ENV['DB_PASSWORD_INFORMIX'];
+        
+        // Établissement de la connexion
+        $this->connect();
     }
 
     // Méthode pour établir la connexion à la base de données
-    public function connect()
+    private function connect()
     {
-        return $this->conn;
+        $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
+        if (!$this->conn) {
+            throw new \Exception("ODBC Connection failed: " . odbc_errormsg());
+        }
     }
 
     // Méthode pour exécuter une requête SQL
     public function executeQuery($query)
     {
-        if ($this->conn) {
-            $result = odbc_exec($this->conn, $query);
-            return $result;
-        } else {
-            echo "La connexion à la base de données n'est pas établie.";
-            return false;
+        if (!$this->conn) {
+            throw new \Exception("La connexion à la base de données n'est pas établie.");
         }
+
+        $result = odbc_exec($this->conn, $query);
+        if (!$result) {
+            throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
+        }
+        return $result;
     }
 
     // Méthode pour récupérer les résultats d'une requête
@@ -57,5 +65,10 @@ class DatabaseInformix
         } else {
             echo "La connexion à la base de données n'est pas établie.";
         }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
     }
 }

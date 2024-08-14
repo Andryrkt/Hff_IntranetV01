@@ -48,7 +48,5 @@ class TransferDonnerModel extends Model
         }
     }
 
-    public function __destruct() {
-        odbc_close($this->connexion->getConnexion());
-    }
+    
 }
