@@ -110,7 +110,7 @@ class MagasinListeOrTraiterController extends Controller
     $data[] = ['N° DIT', 'N° Or', "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
     foreach ($entities as $entity) {
         $data[] = [
-            $entity['referenceDIT'],
+            $entity['referencedit'],
             $entity['numeroor'],
             $entity['datecreation'],
             $entity['agence'],
