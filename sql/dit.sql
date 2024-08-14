@@ -61,3 +61,28 @@ SET
         WHEN internet_externe = 'E' THEN 'EXTERNE'
         ELSE internet_externe
     END
+
+UPDATE demande_intervention_migration
+SET
+    type_document = CASE
+        WHEN ID_Materiel = 18179 THEN 1
+        WHEN ID_Materiel = 06412 THEN 1
+        WHEN ID_Materiel = 16242 THEN 3
+        WHEN ID_Materiel = 06412 THEN 2
+        WHEN ID_Materiel = 16243 THEN 1
+        WHEN ID_Materiel = 00978 THEN 1
+        WHEN ID_Materiel = 15789 THEN 1
+        WHEN ID_Materiel = 04064 THEN 1
+        WHEN ID_Materiel = 15593 THEN 1
+        WHEN ID_Materiel = 18049 THEN 1
+        WHEN ID_Materiel = 19043 THEN 2
+        WHEN ID_Materiel = 16118 THEN 1
+        WHEN ID_Materiel = 16802 THEN 1
+        WHEN ID_Materiel = 16803 THEN 1
+        WHEN ID_Materiel = 07676 THEN 2
+        WHEN ID_Materiel = 16118 THEN 1
+        WHEN ID_Materiel = 17495 THEN 1
+        WHEN ID_Materiel = 18118 THEN 1
+        WHEN ID_Materiel = 15783 THEN 1
+        ELSE ID_Materiel
+    END

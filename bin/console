@@ -9,7 +9,7 @@ use Dotenv\Dotenv;
 use App\Command\AncienDitCommand;
 use Symfony\Component\Console\Application;
 
-// Charger le fichier .env
+//Charger le fichier .env
 // $dotenv = Dotenv::createImmutable(dirname(__DIR__));
 // $dotenv->load();
 

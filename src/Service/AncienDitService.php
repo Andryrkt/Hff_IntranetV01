@@ -5,6 +5,8 @@ namespace App\Service;
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Entity\AncienDit;
 use App\Model\dit\DitModel;
 use App\Controller\Controller;
@@ -18,13 +20,13 @@ class AncienDitService
     use FormatageTrait;
 
     private $em;
-    private $dit;
+ 
     private $ditModel;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->dit = new DemandeIntervention();
+       
         $this->ditModel = new DitModel();
     }
 
@@ -32,10 +34,9 @@ class AncienDitService
     { 
           //recuperation des données dans l'intranet ancien
         $ancienDit = $this->em->getRepository(AncienDit::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-
+        $demandeIntervention = new DemandeIntervention();
         //creation de l'entité dit pour la creation pdf
-        $pdfDemandeInterventions = $this->pdfDemandeIntervention($ancienDit, $this->dit);
-
+        $pdfDemandeInterventions = $this->pdfDemandeIntervention($ancienDit, $demandeIntervention);
         //recupération et transformation des historique du materiel
         $historiqueMateriel = $this->historiqueInterventionMateriel($ancienDit);
 
@@ -45,11 +46,14 @@ class AncienDitService
         $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
         //envoyer le pdf dans docuware
         $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
-        
+        $insertDemandeInterventions = $this->insertDemandeIntervention($ancienDit, $demandeIntervention);
+        $this->em->persist($insertDemandeInterventions);
+        $this->em->flush();
     }
 
     private function pdfDemandeIntervention($ancienDit, DemandeIntervention $demandeIntervention) : DemandeIntervention
     {
+        $demandeIntervention->setTypeDocument($ancienDit->getTypeDocument());
         //Objet - Detail
         $demandeIntervention->setObjetDemande($ancienDit->getObjetDemande());
         $demandeIntervention->setDetailDemande($ancienDit->getDetailDemande());
@@ -123,6 +127,57 @@ class AncienDitService
                 }
             }
         return $historiqueMateriel;
+    }
+
+    private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
+    {
+            $demandeIntervention->setObjetDemande($dits->getObjetDemande());
+            $demandeIntervention->setDetailDemande($dits->getDetailDemande());
+            $demandeIntervention->setTypeDocument($dits->getTypeDocument());
+            $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
+            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+            $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
+            $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
+            //AGENCE - SERVICE
+            $demandeIntervention->setAgenceServiceEmetteur($dits->getAgenceServiceEmetteur());
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgenceServiceDebiteur());
+            //INTERVENTION
+            $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
+            $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
+            //REPARATION
+            $demandeIntervention->setTypeReparation($dits->getTypeReparation());
+            $demandeIntervention->setReparationRealise($dits->getReparationRealise());
+            $demandeIntervention->setInternetExterne($dits->getInternetExterne());
+            //INFO CLIENT
+            $demandeIntervention->setNomClient($dits->getNomClient());
+            $demandeIntervention->setNumeroTel($dits->getNumeroTel());
+            $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+            //INFORMATION MATERIEL
+                $demandeIntervention->setIdMateriel($dits->getIdMateriel());
+            
+            //PIECE JOINT
+            $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
+            $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
+            $demandeIntervention->setPieceJoint03($dits->getPieceJoint03());
+
+            //INFORMATION ENTRER MANUELEMENT
+            $demandeIntervention->setIdStatutDemande($dits->getIdStatutDemande());
+            $demandeIntervention->setNumeroDemandeIntervention($dits->getNumeroDemandeIntervention());
+            $demandeIntervention->setMailDemandeur($dits->getMailDemandeur());
+            $demandeIntervention->setDateDemande($dits->getDateDemande());
+            $demandeIntervention->setHeureDemande($dits->getHeureDemande());
+            $demandeIntervention->setUtilisateurDemandeur($dits->getUtilisateurDemandeur());
+
+            
+            //Agence et service emetteur debiteur ID
+            $demandeIntervention->setAgenceEmetteurId($dits->getAgenceEmetteurId());
+            $demandeIntervention->setServiceEmetteurId($dits->getServiceEmetteurId());
+            $demandeIntervention->setAgenceDebiteurId($dits->getAgenceDebiteurId());
+            $demandeIntervention->setServiceDebiteurId($dits->getServiceDebiteurId());
+            
+            //societte
+           
+        return $demandeIntervention;
     }
 
    private function prepareFunsion($ancienDit)

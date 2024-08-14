@@ -25,7 +25,7 @@ class GeneratePdf
         // }
 
         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = CHEMIN_DE_BASE . '/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Hffintranet/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
