@@ -51,7 +51,7 @@ class DitSearch
     
     private bool $ditRattacherOr = false;
 
-    private ?string $categorie = '';
+    private  $categorie;
 
     private ?string $utilisateur = '';
 

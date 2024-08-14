@@ -9,22 +9,23 @@ use App\Entity\DitSearch;
 use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
 use App\Controller\Controller;
+use App\Entity\CategorieAteApp;
+use App\Entity\DemandeIntervention;
 use App\Entity\WorTypeDocument;
-
 use App\Entity\WorNiveauUrgence;
 use App\Repository\ServiceRepository;
-use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class DitSearchType extends AbstractType
 {
@@ -34,12 +35,22 @@ class DitSearchType extends AbstractType
     ];
 
     private $agenceRepository;
+
+    private $em;
     
     public function __construct()
    {
-        $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
+    $this->em = controller::getEntity();
+        $this->agenceRepository = $this->em->getRepository(Agence::class);
    }
 
+   private function statutOr()
+   {
+        $statutOr = $this->em->getRepository(DemandeIntervention::class)->findStatutOr();
+
+        return array_combine($statutOr, $statutOr);
+   }
+   
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
        
@@ -254,10 +265,12 @@ class DitSearchType extends AbstractType
                 'required' => false
             ])
             ->add('statutOr',
-            TextType::class,
+            ChoiceType::class,
             [
                 'label' => 'Statut Or',
-                'required' => false
+                'required' => false,
+                'choices' => $this->statutOr(),
+                'placeholder' => '-- choisir une statut --'
             ])
             ->add('ditRattacherOr', 
             CheckboxType::class,
@@ -265,11 +278,15 @@ class DitSearchType extends AbstractType
                 'label' => 'Dit rattaché Or',
                 'required' => false
             ])
-            ->add('categorie',
-            TextType::class,
+           
+            ->add('categorie', 
+            EntityType::class, 
             [
-                'label' => 'Catégorie',
-                'required' => false
+                'label' => 'Catégorie de demande',
+                'placeholder' => '-- Choisir une catégorie --',
+                'class' => CategorieAteApp::class,
+                'choice_label' =>'libelleCategorieAteApp',
+                'required' => false,
             ])
             ->add('utilisateur',
             TextType::class,

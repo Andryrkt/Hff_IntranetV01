@@ -8,6 +8,16 @@ use Doctrine\ORM\EntityRepository;
 
 class DitRepository extends EntityRepository
 {
+    public function findStatutOr()
+    {
+        $result = $this->createQueryBuilder('d')
+        ->select('DISTINCT d.statutOr')
+        ->where('d.statutOr IS NOT NULL')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'statutOr');
+    }
+
     public function findAllNumeroDit()
 {
     $result = $this->createQueryBuilder('a')
@@ -167,12 +177,12 @@ class DitRepository extends EntityRepository
 
          //filtre selon le numero Or
          if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
+            $queryBuilder->andWhere('d.statutOr = :statutOr')
+            ->setParameter('statutOr',  $ditSearch->getStatutOr());
         }
 
         //filtre selon le categorie de demande
-        if(!empty($ditSearch->getServiceDebiteur())) {
+        if(!empty($ditSearch->getCategorie())) {
             $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
             ->setParameter('categorieDemande', $ditSearch->getCategorie());
         }
@@ -291,12 +301,12 @@ class DitRepository extends EntityRepository
 
          //filtre selon le numero Or
          if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
+            $queryBuilder->andWhere('d.statutOr = :statutOr')
+            ->setParameter('statutOr',  $ditSearch->getStatutOr());
         }
 
         //filtre selon le categorie de demande
-        if(!empty($ditSearch->getServiceDebiteur())) {
+        if(!empty($ditSearch->getCategorie())) {
             $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
             ->setParameter('categorieDemande', $ditSearch->getCategorie());
         }
@@ -403,14 +413,14 @@ class DitRepository extends EntityRepository
             ->setParameter('numOr', $ditSearch->getNumOr());
         }
 
-         //filtre selon le numero Or
-         if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr LIKE :statutOr')
-            ->setParameter('statutOr', '%' . $ditSearch->getStatutOr() . '%' );
+          //filtre selon le numero Or
+          if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr = :statutOr')
+            ->setParameter('statutOr',  $ditSearch->getStatutOr());
         }
 
         //filtre selon le categorie de demande
-        if(!empty($ditSearch->getServiceDebiteur())) {
+        if(!empty($ditSearch->getCategorie())) {
             $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
             ->setParameter('categorieDemande', $ditSearch->getCategorie());
         }

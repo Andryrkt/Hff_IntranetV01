@@ -52,28 +52,19 @@ class CategorieAteApp
         
     }
 
-    /**
-     * Get the value of id
-     */ 
+    
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * Get the value of libelleCategorieAteApp
-     */ 
     public function getLibelleCategorieAteApp()
     {
         return $this->libelleCategorieAteApp;
     }
 
-    /**
-     * Set the value of libelleCategorieAteApp
-     *
-     * @return  self
-     */ 
-    public function setLibelleCategorieAteApp($libelleCategorieAteApp)
+  
+    public function setLibelleCategorieAteApp($libelleCategorieAteApp): self
     {
         $this->libelleCategorieAteApp = $libelleCategorieAteApp;
 

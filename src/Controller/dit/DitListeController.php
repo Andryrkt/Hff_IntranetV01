@@ -106,7 +106,7 @@ class DitListeController extends Controller
         //nombre total de page
         $totalPages = ceil($totalBadms / $limit);
        
-        
+ 
         //recupération des données filtrée
         $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
 
