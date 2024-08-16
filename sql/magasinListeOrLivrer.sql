@@ -1,3 +1,4 @@
+-- reqête quetité à livrée
 select
     seor_numor,
     slor_nolign,
