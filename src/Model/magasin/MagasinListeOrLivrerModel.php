@@ -97,7 +97,7 @@ class MagasinListeOrLivrerModel extends Model
             $dateFin
             $numOr
             $numDit
-            order by seor_numor asc, slor_nolign asc, slor_datec desc
+            order by slor_datec desc, seor_numor asc, slor_nolign asc
         ";
 
         $result = $this->connect->executeQuery($statement);
