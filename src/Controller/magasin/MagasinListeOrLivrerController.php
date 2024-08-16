@@ -115,7 +115,7 @@ class MagasinListeOrLivrerController extends Controller
             $entity['referencepiece'],
             $entity['designationi'],
             $entity['quantitedemander'],
-            $entity['quantitelivree'],
+            $entity['qtealivrer'],
         ];
     }
 
