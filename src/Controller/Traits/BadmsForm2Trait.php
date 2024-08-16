@@ -280,7 +280,7 @@ trait BadmsForm2Trait
             $image = '';
             $extension = '';
         } elseif($idTypeMouvement === 5) {
-            $image = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 

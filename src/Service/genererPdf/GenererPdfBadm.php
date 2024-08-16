@@ -280,13 +280,20 @@ class GenererPdfBadm extends GeneratePdf
             $this->AjoutImage($pdf, $tab);
         }
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');
     }
 
 
+    /**
+     * Ajout d'image dans le pdf
+     *
+     * @param [type] $pdf
+     * @param [type] $tab
+     * @return void
+     */
     public function AjoutImage($pdf, $tab)
     {
         $pdf->AddPage();

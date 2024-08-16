@@ -124,7 +124,7 @@ class GenererPdfCasier extends GeneratePdf
 
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/cas/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cas/';
         $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
     }
 

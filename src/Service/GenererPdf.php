@@ -123,7 +123,7 @@ class GenererPdf
 
 
         //
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dom/';
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/';
         $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 
@@ -149,7 +149,7 @@ class GenererPdf
         // }
 
         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $_SERVER['DOCUMENT_ROOT'] . '/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
