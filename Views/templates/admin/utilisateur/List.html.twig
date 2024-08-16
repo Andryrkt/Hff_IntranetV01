@@ -8,9 +8,10 @@
 		<div class="card">
 			<div class="card-body">
 
-				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+				<h2 class="text-center  fw-bold bg-black py-2" style="color: #FBBB01">
 					Listes des utilisateurs
 				</h2>
+				<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
 
 				<div class="d-flex flex-row ">
 					<div class="p-2">
@@ -24,34 +25,36 @@
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
-							<th>Actions</th>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
 							<th>Nom d'utilisateur</th>
 							<th>matricule</th>
 							<th>mail</th>
 							<th>Rôle</th>
 							<th>Applications</th>
+							<th>Societtes</th>
+							<th>Supérieur</th>
 						</tr>
 					</thead>
-					<tbody>
-
-
+					<tbody id="tableBody">
 						{% for item in data %}
 
 							<tr>
 								<td>
 									<div class="dropdown">
-										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
-											Actions
+										<button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											<i class="fas fa-ellipsis-vertical"></i>
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_show", {id: item.id})}}">Détails</a>
+												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_show", {id: item.id})}}">Détails</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path("personnel_update", {id: item.id})}}">Modifier</a>
+												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_update", {id: item.id})}}">Modifier</a>
 											</li>
 											<li>
-												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("personnel_delete", {id: item.id})}}">Supprimer</a>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("utilisateur_delete", {id: item.id})}}">Supprimer</a>
 											</li>
 										</ul>
 									</div>
@@ -59,11 +62,38 @@
 								<td>{{item.nomUtilisateur}}</td>
 								<td>{{item.matricule}}</td>
 								<td>{{item.mail}}</td>
-								<td>{{item.role.rolename}}</td>
 								<td>
+									<ul>
+										{% for a in item.roles %}
+											<li>{{a.rolename}}</li>
+										{% endfor %}
+									</ul>
+								</td>
+								<td>
+
 									<ul>
 										{% for a in item.applications %}
 											<li>{{a.codeApp}}</li>
+										{% endfor %}
+									</ul>
+								</td>
+								<td>
+
+									<ul>
+										{% for a in item.societtes %}
+											<li>{{a.codeSociete}}</li>
+										{% endfor %}
+									</ul>
+								</td>
+								<td>
+									<ul>
+										{% for a in item.superieurs %}
+
+											<li>
+												{{ a.nomUtilisateur }}
+											</li>
+
+
 										{% endfor %}
 									</ul>
 								</td>
@@ -74,4 +104,8 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/admin/utilisateur/listUtilisateur.js" type="module"></script>
 {% endblock %}

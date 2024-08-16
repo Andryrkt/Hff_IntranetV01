@@ -77,17 +77,7 @@ class DomListController extends Controller
 
         $totalPages = ceil($resultat / $limit);
 
-//dd($request->query->get("exportExcel") === "Export Excel");
-        if($request->query->get("exportExcel") === "Export Excel"){
-          
-            $array_decoded = $this->domList->RechercheModelExcel($_SESSION['recherche'], $UserConnect);
-           
-            $this->excelExport->exportData($array_decoded);
-            $this->flashManager->addFlash('success', 'Votre opération a été effectuée avec succès!', 300);
-        }
-        $successMessages = $this->flashManager->getFlashes('success');
 
-      
         self::$twig->display(
             'dom/ListDomRech.html.twig',
             [
@@ -102,12 +92,23 @@ class DomListController extends Controller
                 'resultat' => $resultat,
                 'page' => $page,
                 'valeur' => $request->query->all(),
-                'flashes' => ['success' => $successMessages]
+                
             ]
         );
     }
 
-   
+   /**
+    * @Route("/data-fetch", name="data_fetch")
+    *
+    * @return void
+    */
+    public function dataFetch()
+    {
+        $array_decoded = $this->domList->RechercheModelExcel($_SESSION['recherche'], $_SESSION['user']);
+        header("Content-type:application/json");
+
+        echo json_encode($array_decoded);
+    }
 
 
 

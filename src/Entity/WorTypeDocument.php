@@ -18,12 +18,14 @@ use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
 class WorTypeDocument
 {
     use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_type_document")
+     * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
+    
     /**
      * @ORM\Column(type="string", length=3, name="code_document")
      */
@@ -35,7 +37,9 @@ class WorTypeDocument
     private string $description;
 
     
-   
+   /**
+     * @ORM\OneToMany(targetEntity="DemandeIntervention", mappedBy="typeDocument")
+     */
     private $demandeInterventions;
 
     
@@ -44,32 +48,20 @@ class WorTypeDocument
 
         $this->demandeInterventions = new ArrayCollection();
     }
-    /**
-     * Set the value of id
-     *
-     * @return  self
-     */
-    public function setId($id)
+    
+    public function getId(): int
     {
-        $this->id = $id;
-
-        return $this;
+        return $this->id;
     }
 
-    /**
-     * Get the value of codeDocument
-     */
+    
     public function getCodeDocument()
     {
         return $this->codeDocument;
     }
 
-    /**
-     * Set the value of codeDocument
-     *
-     * @return  self
-     */
-    public function setCodeDocument($codeDocument)
+  
+    public function setCodeDocument($codeDocument): self
     {
         $this->codeDocument = $codeDocument;
 
@@ -104,22 +96,22 @@ class WorTypeDocument
         return $this->demandeInterventions;
     }
 
-    public function addDemandeIntervention(User $demandeIntervention): self
+    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setRole($this);
+            $demandeIntervention->setTypeDocument($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeIntervention(User $demandeIntervention): self
+    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
         if ($this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getRole() === $this) {
-                $demandeIntervention->setRole(null);
+            if ($demandeIntervention->getTypeDocument() === $this) {
+                $demandeIntervention->setTypeDocument(null);
             }
         }
 
@@ -130,5 +122,10 @@ class WorTypeDocument
         $this->demandeInterventions = $demandeInterventions;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->description; 
     }
 }

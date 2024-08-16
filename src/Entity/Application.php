@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use App\Traits\DateTrait;
+use App\Entity\CategorieAteApp;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -39,73 +40,25 @@ class Application
      */
     private ?string $derniereId ;
 
-    //  /**
-    //  * @ORM\Column(type="date")
-    //  *
-    //  * @var [type]
-    //  */
-    // private $date_creation;
-
-    
-    // /**
-    //  * @ORM\Column(type="date")
-    //  *
-    //  * @var [type]
-    //  */
-    // private $date_modification;
-
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
      */
     private $users;
 
+
+    /**
+     * @ORM\ManyToMany(targetEntity=CategorieAteApp::class, mappedBy="applications")
+     */
+    private $categorieAtes;
+
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->categorieAtes = new ArrayCollection();
     }
 
-    //  /**
-    //  * @ORM\PrePersist
-    //  */
-    // public function onPrePersist(): void
-    // {
-    //     $this->date_creation = new \DateTime();
-    //     $this->date_modification = new \DateTime();
-    // }
-
-    // /**
-    //  * @ORM\PreUpdate
-    //  */
-    // public function onPreUpdate(): void
-    // {
-    //     $this->date_modification = new \DateTime();
-    // }
-    // public function getDatecreation()
-    // {
-    //     return $this->date_creation;
-    // }
-
-
-    // public function setDatecreation( $date_creation): self
-    // {
-    //     $this->date_creation = $date_creation;
-
-    //     return $this;
-    // }
-
-   
-    // public function getDatemodification()
-    // {
-    //     return $this->date_modification;
-    // }
-
-  
-    // public function setDatemodification( $date_modification): self
-    // {
-    //     $this->date_modification = $date_modification;
-
-    //     return $this;
-    // }
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -133,7 +86,22 @@ class Application
         return $this;
     }
 
-    /**
+   
+   
+    public function getDerniereId()
+    {
+        return $this->derniereId;
+    }
+
+  
+    public function setDerniereId(string $derniereId): self
+    {
+        $this->derniereId = $derniereId;
+
+        return $this;
+    }
+
+     /**
      * @return Collection|User[]
      */
     public function getUsers(): Collection
@@ -159,34 +127,32 @@ class Application
         return $this;
     }
 
-    // /**
-    //  * @ORM\PrePersist
-    //  */
-    // public function onPrePersist(): void
-    // {
-    //     $this->dateCreation = new \DateTime();
-    //     $this->dateModification = new \DateTime();
-    // }
-
-    // /**
-    //  * @ORM\PreUpdate
-    //  */
-    // public function onPreUpdate(): void
-    // {
-    //     $this->dateModification = new \DateTime();
-    // }
-
-   
-    public function getDerniereId()
+  
+    public function getCategorieAtes(): Collection
     {
-        return $this->derniereId;
+        return $this->categorieAtes;
     }
 
-  
-    public function setDerniereId(string $derniereId): self
+    public function addCategorieAte(CategorieAteApp $categorieAteApp): self
     {
-        $this->derniereId = $derniereId;
-
+        if (!$this->categorieAtes->contains($$categorieAteApp)) {
+            $this->categorieAtes[] = $$categorieAteApp;
+            $$categorieAteApp->addApplication($this);
+        }
         return $this;
+    }
+
+    public function removeCategorieAte(CategorieAteApp $categorieAteApp): self
+    {
+        if ($this->categorieAtes->contains($$categorieAteApp)) {
+            $this->categorieAtes->removeElement($$categorieAteApp);
+            $$categorieAteApp->removeApplication($this);
+        }
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->codeApp;
     }
 }

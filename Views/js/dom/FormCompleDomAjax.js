@@ -1,231 +1,235 @@
-let selectedOption;
+document.addEventListener("DOMContentLoaded", (event) => {
+  let selectedOption;
 
-function Select1Value(data, selectedOption) {
-  const select1 = document.querySelector("#select1");
+  function Select1Value(data, selectedOption) {
+    const select1 = document.querySelector("#select1");
 
-  // Vider le contenu de l'élément select
-  select1.innerHTML = "";
+    // Vider le contenu de l'élément select
+    //elect1.innerHTML = "";
 
-  // Ajouter les options
-  for (const key in data) {
-    select1.innerHTML += `<option value="${key.toUpperCase()}">${key.toUpperCase()}</option>`;
+    // Ajouter les options
+    for (const key in data) {
+      select1.innerHTML += `<option value="${key.toUpperCase()}">${key.toUpperCase()}</option>`;
+    }
+
+    // Sélectionner l'option spécifiée
+    if (selectedOption !== undefined) {
+      select1.value = selectedOption.toUpperCase();
+    }
   }
 
-  // Sélectionner l'option spécifiée
-  if (selectedOption !== undefined) {
-    select1.value = selectedOption.toUpperCase();
+  // function fetchData(selectOption = undefined) {
+  //   const url = "/Hffintranet/agServDest";
+  //   fetch(url)
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Erreur de réseau");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       console.log(data, selectOption);
+  //       Select1Value(data, selectOption);
+  //       //Sélectionner l'option spécifiée
+  //       if (selectOption === undefined) {
+  //         setTimeout(() => {
+  //           selectOption = document
+  //             .getElementById("select1")
+  //             .value.toUpperCase();
+  //           console.log(selectOption);
+  //         }, 1000);
+  //       }
+
+  //       setTimeout(() => {
+  //         console.log("jereo :" + selectOption);
+  //         const serviceIriumElement = document.getElementById("serviceIrium");
+  //         let taille = data[selectOption].length;
+  //         console.log(taille);
+  //         let optionsHTML = ""; // Chaîne pour stocker les options HTML
+  //         for (let i = 0; i < taille; i++) {
+  //           optionsHTML += `<option value="${data[selectOption][
+  //             i
+  //           ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
+  //         }
+  //         serviceIriumElement.innerHTML = optionsHTML;
+  //       }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // }
+
+  //DEBUT Duplication
+
+  console.log(document.querySelector("#NumDOM"));
+
+  // Vérifier si les données sont déjà disponibles
+  if (document.querySelector("#NumDOM") === null) {
+    // DEBUT javascript pour selecte debiteur
+
+    // Appel initial de fetchData sans argument
+    //fetchData();
+
+    // document.getElementById("select1").addEventListener("change", function () {
+    //   selectedOption = this.value.toUpperCase();
+    //   fetchData(selectedOption);
+    // });
+
+    //   let check = document.getElementById("radiochek").value;
+    //   if (check === "Interne") {
+    //     setTimeout(() => {
+    //       // console.log( document.querySelector(`#select1 option`));
+    //       console.log(
+    //         "oeoe : " +
+    //           document.querySelector("#ServINt").value.toUpperCase().trim()
+    //       );
+    //       selectedOption = document.querySelector(
+    //         `#select1 option[value="${document
+    //           .querySelector("#ServINt")
+    //           .value.toUpperCase()
+    //           .trim()}"]`
+    //       ).value;
+    //       //console.log('valiny :' + selectedOption);
+    //       fetchData(selectedOption);
+    //     }, 2000);
+    //     setTimeout(() => {
+    //       //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
+    //       libserv = document
+    //         .querySelector("#LibServINT")
+    //         .value.toUpperCase()
+    //         .trim();
+    //       console.log(document.querySelector(`#serviceIrium`));
+    //       document.querySelector(
+    //         `#serviceIrium option[value="${libserv}"]`
+    //       ).selected = true;
+    //     }, 5000);
+    //   } else {
+    //     setTimeout(() => {
+    //       const serv = document.querySelector("#Serv").value.toUpperCase().trim();
+    //       //console.log(serv);
+    //       //console.log(document.querySelector(`#select1 option[value="${serv}"]`));
+    //       selectedOption = document.querySelector(
+    //         `#select1 option[value="${serv}"]`
+    //       ).value;
+    //       //console.log(selectedOption)
+    //       fetchData(selectedOption);
+    //     }, 3000);
+    //     setTimeout(() => {
+    //       console.log(
+    //         document.querySelector("#LibServ").value.toUpperCase().trim()
+    //       );
+    //       $serv = document.querySelector("#LibServ").value.toUpperCase().trim();
+    //       document.querySelector(
+    //         `#serviceIrium option[value="${$serv}"]`
+    //       ).selected = true;
+    //     }, 6000);
+    //   }
+
+    //   console.log(check);
+
+    //   //FIN Javascript pour le débitteur select
+    // } else {
+    //   function fetchDataDuplier() {
+    //     const url = "/Hffintranet/dupliquer";
+    //     fetch(url)
+    //       .then((response) => {
+    //         if (!response.ok) {
+    //           throw new Error("Erreur de réseau");
+    //         }
+    //         return response.json();
+    //       })
+    //       .then((data) => {
+    //         //console.log(data);
+    //         $donnerFiltrer = filtre(data);
+    //         console.log($donnerFiltrer);
+
+    //         // console.log($donnerFiltrer[0].Debiteur.toUpperCase());
+    //         //   console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
+    //         console.log($donnerFiltrer[0].Debiteur.split("-")[1].toUpperCase());
+
+    //         //   console.log($donnerFiltrer[0].Site.toUpperCase());
+
+    //         setTimeout(() => {
+    //           if (
+    //             $donnerFiltrer[0].Debiteur.split("-")[0].toUpperCase() ===
+    //             "60 PNEU "
+    //           ) {
+    //             document.querySelector(
+    //               `#select1 option[value="60 PNEU - OUTIL - LUB"]`
+    //             ).selected = true;
+    //           } else {
+    //             //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
+    //             selectedOption = document.querySelector(
+    //               `#select1 option[value="${$donnerFiltrer[0].Debiteur.split(
+    //                 "-"
+    //               )[0].toUpperCase()}"]`
+    //             ).value;
+    //             fetchData(selectedOption);
+    //           }
+    //         }, 500);
+    //         //console.log(document.querySelector(`#SiteRental`));
+    //         document.querySelector(
+    //           `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
+    //         ).selected = true;
+    //         // Appel initial de fetchData sans argument
+    //         fetchData();
+
+    //         document
+    //           .getElementById("select1")
+    //           .addEventListener("change", function () {
+    //             selectedOption = this.value.toUpperCase();
+    //             fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+    //           });
+
+    //         setTimeout(() => {
+    //           if ($donnerFiltrer[0].Debiteur.split("-")[1] === " OUTIL ") {
+    //             document.querySelector(
+    //               `#serviceIrium option[value="${
+    //                 $donnerFiltrer[0].Debiteur.split("-")[3]
+    //               }"]`
+    //             ).selected = true;
+    //           } else {
+    //             console.log($donnerFiltrer[0].Debiteur.split("-")[1]);
+    //             console.log(document.querySelector(`#serviceIrium`));
+    //             document.querySelector(
+    //               `#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split(
+    //                 "-"
+    //               )[1].trim()}"]`
+    //             ).selected = true;
+    //           }
+    //         }, 3000);
+    //       })
+    //       .catch((error) => {
+    //         console.error(error);
+    //       });
+    //   }
+
+    //fetchDataDuplier();
+
+    // document.getElementById('select1').addEventListener('change', function() {
+    //     var selectedOption = this.value.toUpperCase();
+    //     fetchDataDuplier(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
+    // });
+
+    function filtre(data) {
+      // Récupérer les valeurs des champs de saisie
+
+      numDom = document.querySelector("#NumDOM").value;
+      idDom = document.querySelector("#IdDOM").value;
+
+      // Filtrer les données en fonction des critères
+      return (resultatsFiltres = data.filter(function (demande) {
+        var filtreNumDom = demande.Numero_Ordre_Mission === numDom;
+        var filtreIdDom = demande.ID_Demande_Ordre_Mission === idDom;
+
+        // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
+        return filtreNumDom && filtreIdDom;
+      }));
+    }
   }
-}
 
-function fetchData(selectOption = undefined) {
-  const url = "/Hffintranet/agServDest";
-  fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Erreur de réseau");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data, selectOption);
-      Select1Value(data, selectOption);
-      //Sélectionner l'option spécifiée
-      if (selectOption === undefined) {
-        setTimeout(() => {
-          selectOption = document.getElementById("select1").value.toUpperCase();
-          console.log(selectOption);
-        }, 300);
-      }
-
-      setTimeout(() => {
-        console.log("jereo :" + selectOption);
-        const serviceIriumElement = document.getElementById("serviceIrium");
-        let taille = data[selectOption].length;
-        console.log(taille);
-        let optionsHTML = ""; // Chaîne pour stocker les options HTML
-        for (let i = 0; i < taille; i++) {
-          optionsHTML += `<option value="${data[selectOption][
-            i
-          ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
-        }
-        serviceIriumElement.innerHTML = optionsHTML;
-      }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
-
-//DEBUT Duplication
-
-console.log(document.querySelector("#NumDOM"));
-
-// Vérifier si les données sont déjà disponibles
-if (document.querySelector("#NumDOM") === null) {
-  // DEBUT javascript pour selecte debiteur
-
-  // Appel initial de fetchData sans argument
-  fetchData();
-
-  document.getElementById("select1").addEventListener("change", function () {
-    selectedOption = this.value.toUpperCase();
-    fetchData(selectedOption);
-  });
-
-  let check = document.getElementById("radiochek").value;
-  if (check === "Interne") {
-    setTimeout(() => {
-      // console.log( document.querySelector(`#select1 option`));
-      console.log(
-        "oeoe : " +
-          document.querySelector("#ServINt").value.toUpperCase().trim()
-      );
-      selectedOption = document.querySelector(
-        `#select1 option[value="${document
-          .querySelector("#ServINt")
-          .value.toUpperCase()
-          .trim()}"]`
-      ).value;
-      //console.log('valiny :' + selectedOption);
-      fetchData(selectedOption);
-    }, 500);
-    setTimeout(() => {
-      //console.log('voici :'+ document.querySelector('#LibServINT').value.toUpperCase().trim());
-      libserv = document
-        .querySelector("#LibServINT")
-        .value.toUpperCase()
-        .trim();
-      console.log(document.querySelector(`#serviceIrium`));
-      document.querySelector(
-        `#serviceIrium option[value="${libserv}"]`
-      ).selected = true;
-    }, 3000);
-  } else {
-    setTimeout(() => {
-      const serv = document.querySelector("#Serv").value.toUpperCase().trim();
-      //console.log(serv);
-      //console.log(document.querySelector(`#select1 option[value="${serv}"]`));
-      selectedOption = document.querySelector(
-        `#select1 option[value="${serv}"]`
-      ).value;
-      //console.log(selectedOption)
-      fetchData(selectedOption);
-    }, 500);
-    setTimeout(() => {
-      //console.log(document.querySelector('#LibServ').value.toUpperCase().trim());
-      document.querySelector(
-        `#serviceIrium option[value="${document
-          .querySelector("#LibServ")
-          .value.toUpperCase()
-          .trim()}"]`
-      ).selected = true;
-    }, 3000);
-  }
-
-  console.log(check);
-
-  //FIN Javascript pour le débitteur select
-} else {
-  function fetchDataDuplier() {
-    const url = "/Hffintranet/dupliquer";
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur de réseau");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        //console.log(data);
-        $donnerFiltrer = filtre(data);
-        console.log($donnerFiltrer);
-
-        // console.log($donnerFiltrer[0].Debiteur.toUpperCase());
-        //   console.log($donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase());
-        console.log($donnerFiltrer[0].Debiteur.split("-")[1].toUpperCase());
-
-        //   console.log($donnerFiltrer[0].Site.toUpperCase());
-
-        setTimeout(() => {
-          if (
-            $donnerFiltrer[0].Debiteur.split("-")[0].toUpperCase() ===
-            "60 PNEU "
-          ) {
-            document.querySelector(
-              `#select1 option[value="60 PNEU - OUTIL - LUB"]`
-            ).selected = true;
-          } else {
-            //console.log(document.querySelector(`#select1 option[value="${$donnerFiltrer[0].Debiteur.split('-')[0].toUpperCase()}"]`));
-            selectedOption = document.querySelector(
-              `#select1 option[value="${$donnerFiltrer[0].Debiteur.split(
-                "-"
-              )[0].toUpperCase()}"]`
-            ).value;
-            fetchData(selectedOption);
-          }
-        }, 500);
-        //console.log(document.querySelector(`#SiteRental`));
-        document.querySelector(
-          `#SiteRental option[value="${$donnerFiltrer[0].Site.toUpperCase()}"]`
-        ).selected = true;
-        // Appel initial de fetchData sans argument
-        fetchData();
-
-        document
-          .getElementById("select1")
-          .addEventListener("change", function () {
-            selectedOption = this.value.toUpperCase();
-            fetchData(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
-          });
-
-        setTimeout(() => {
-          if ($donnerFiltrer[0].Debiteur.split("-")[1] === " OUTIL ") {
-            document.querySelector(
-              `#serviceIrium option[value="${
-                $donnerFiltrer[0].Debiteur.split("-")[3]
-              }"]`
-            ).selected = true;
-          } else {
-            console.log($donnerFiltrer[0].Debiteur.split("-")[1]);
-            console.log(document.querySelector(`#serviceIrium`));
-            document.querySelector(
-              `#serviceIrium option[value="${$donnerFiltrer[0].Debiteur.split(
-                "-"
-              )[1].trim()}"]`
-            ).selected = true;
-          }
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  fetchDataDuplier();
-
-  // document.getElementById('select1').addEventListener('change', function() {
-  //     var selectedOption = this.value.toUpperCase();
-  //     fetchDataDuplier(selectedOption); // Appeler fetchData avec la nouvelle option sélectionnée
-  // });
-
-  function filtre(data) {
-    // Récupérer les valeurs des champs de saisie
-
-    numDom = document.querySelector("#NumDOM").value;
-    idDom = document.querySelector("#IdDOM").value;
-
-    // Filtrer les données en fonction des critères
-    return (resultatsFiltres = data.filter(function (demande) {
-      var filtreNumDom = demande.Numero_Ordre_Mission === numDom;
-      var filtreIdDom = demande.ID_Demande_Ordre_Mission === idDom;
-
-      // Retourner true si toutes les conditions sont remplies ou si aucun critère n'est fourni, sinon false
-      return filtreNumDom && filtreIdDom;
-    }));
-  }
-}
-
-//FIN Duplication
+  //FIN Duplication
+});
 
 $(document).ready(function () {
   // Fonction pour gérer le changement du champ ServINt
@@ -471,3 +475,78 @@ $(document).ready(function () {
   MobileMoney();
   FicheAtelier();
 });
+
+/**
+ * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
+ */
+const agenceDebiteurInterneInput = document.querySelector(
+  "#agenceDebiteurInterne"
+);
+const serviceDebiteurInterneInput = document.querySelector(
+  "#serviceDebiteurInterne"
+);
+const agenceDebiteurExterneInput = document.querySelector(
+  "#agenceDebiteurExterne"
+);
+const serviceDebiteurExterneInput = document.querySelector(
+  "#serviceDebiteurExterne"
+);
+const interneExternInput = document.querySelector("#radiochek");
+console.log(interneExternInput.value);
+if (interneExternInput.value === "Externe") {
+  agenceDebiteurExterneInput.addEventListener("change", selectAgenceExterne);
+} else {
+  agenceDebiteurInterneInput.addEventListener("change", selectAgenceInterne);
+}
+
+function selectAgenceInterne() {
+  const agenceDebiteur = agenceDebiteurInterneInput.value;
+  let url = `/Hffintranet/serviceDebiteur-fetch/${agenceDebiteur}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+      console.log(services[1].serviceDebiteur);
+
+      // Supprimer toutes les options existantes
+      while (serviceDebiteurInterneInput.options.length > 0) {
+        serviceDebiteurInterneInput.remove(0);
+      }
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].serviceDebiteur;
+        option.text = services[i].serviceDebiteur;
+        serviceDebiteurInterneInput.add(option);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+/** EXTERNE */
+
+function selectAgenceExterne() {
+  const agenceDebiteur = agenceDebiteurExterneInput.value;
+  let url = `/Hffintranet/serviceDebiteur-fetch/${agenceDebiteur}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+      console.log(services[1].serviceDebiteur);
+
+      // Supprimer toutes les options existantes
+      while (serviceDebiteurExterneInput.options.length > 0) {
+        serviceDebiteurExterneInput.remove(0);
+      }
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].serviceDebiteur;
+        option.text = services[i].serviceDebiteur;
+        serviceDebiteurExterneInput.add(option);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}

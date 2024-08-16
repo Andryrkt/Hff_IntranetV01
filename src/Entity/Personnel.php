@@ -4,6 +4,8 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PersonnelRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -51,9 +53,9 @@ class Personnel
     private ?string $Numero_Telephone = null;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private ?int $Numero_Compte_Bancaire;
+    private ?string $Numero_Compte_Bancaire;
 
     /**
      * @ORM\Column(type="date", nullable=true)
@@ -85,9 +87,15 @@ class Personnel
      */
     private ?string $Qualification;
 
+    /**
+     * @ORM\OneToMany(targetEntity="User", mappedBy="personnels")
+     */
+    private $users;
+
     public function __construct()
     {
         $this->Date_creation = new \DateTime();
+        $this->users = new ArrayCollection();
     }
 
     /**
@@ -171,12 +179,12 @@ class Personnel
         return $this;
     }
 
-    public function getNumeroCompteBancaire(): int
+    public function getNumeroCompteBancaire(): ?string
     {
         return $this->Numero_Compte_Bancaire;
     }
 
-    public function setNumeroCompteBancaire(int $Numero_Compte_Bancaire): self
+    public function setNumeroCompteBancaire(string $Numero_Compte_Bancaire): self
     {
         $this->Numero_Compte_Bancaire = $Numero_Compte_Bancaire;
         return $this;
@@ -246,5 +254,51 @@ class Personnel
     {
         $this->Libelle_Service_Agence_IRIUM = $Libelle_Service_Agence_IRIUM;
         return $this;
+    }
+
+
+     /**
+     * @return Collection|User[]
+     */ 
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setPersonnels($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            if ($user->getPersonnels() === $this) {
+                $user->setPersonnels(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setUsers($users): self
+    {
+        $this->users = $users;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            
+            'Matricule' => $this->Matricule
+        ];
     }
 }

@@ -2,202 +2,415 @@
 
 namespace App\Form;
 
-
+use App\Controller\Controller;
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Entity\Societte;
 use App\Entity\Application;
 use App\Entity\CategorieATEAPP;
 use App\Entity\WorTypeDocument;
+use App\Entity\WorNiveauUrgence;
 use Doctrine\ORM\Mapping\Entity;
 use App\Repository\RoleRepository;
 use App\Entity\DemandeIntervention;
-use App\Entity\WorNiveauUrgence;
+use App\Repository\AgenceRepository;
+use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class demandeInterventionType extends AbstractType
 {
-   
+    private $serviceRepository;
+    private $agenceRepository;
+    const TYPE_REPARATION = [
+        'EN COURS' => 'EN COURS',
+        'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
+        'A REALISER' => 'A REALISER'
+    ];
+
+    const REPARATION_REALISE = [
+        'ATELIER' => 'ATELIER',
+        'ENERGIE' => 'ENERGIE'
+    ];
+
+    const INTERNE_EXTERNE = [
+        'INTERNE' => 'INTERNE',
+        'EXTERNE' => 'EXTERNE'
+    ];
+
+    const OUI_NON = [
+        'NON' => 'NON',
+        'OUI' => 'OUI'
+    ];
+
+   public function __construct()
+   {
+    $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+    $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
+   }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $typeReparation = [
-            'EN COURS' => 'EN COURS',
-            'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
-            'A REALISER' => 'A REALISER'
-        ];
-
-        $reparationRealise = [
-            'ATELIER' => 'ATELIER',
-            'ENERGIE' => 'ENERGIE'
-        ];
-
-        $internetExterne = [
-            'INTERNE' => 'INTERNE',
-            'EXTERNE' => 'EXTERNE'
-        ];
-
-        $ouiNon = [
-            'NON' => 'NON',
-            'OUI' => 'OUI'
-            
-        ];
+       
+        
         
         $builder
+        
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();
+            $services = null;
+
+            if ($data instanceof DemandeIntervention && $data->getAgence()) {
+                $services = $data->getAgence()->getServices();
+            }
+            //$services = $data->getAgence()->getServices();
+            // $agence = $event->getData()->getAgence() ?? null;
+            // $services = $agence->getServices();
+      
+            $form->add('service',
+            EntityType::class,
+            [
+            
+            'label' => 'Service Débiteur',
+            'class' => Service::class,
+            'choice_label' => function (Service $service): string {
+                return $service->getCodeService() . ' ' . $service->getLibelleService();
+            },
+            'choices' => $services,
+            // 'disabled' => $agence === null,
+            'required' => false,
+            'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+            //'data' => $options['data']->getService(),
+                'attr' => [ 'class' => 'serviceDebiteur']
+            ]);
+            
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
+            $form = $event->getForm();
+            $data = $event->getData();
+        
+            
+                $agenceId = $data['agence'];
+               
+                $agence = $this->agenceRepository->find($agenceId);
+                $services = $agence->getServices();
+                
+                $form->add('service', EntityType::class, [
+                    'label' => 'Service Débiteur',
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'choices' => $services,
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'serviceDebiteur',
+                        'disabled' => false,
+                        ]
+                ]);
+                
+            })
+              
+    
+        
         ->add('typeDocument', 
             EntityType::class, [
-                'label' => 'type de document',
-                'placeholder' => '-- Choisir un type de document --',
+                'label' => 'Type de document',
+                'placeholder' => '-- Choisir--',
                 'class' => WorTypeDocument::class,
-                'choice_label' =>'codeDocument',
-                'required' => false,
+                'choice_label' => 'description',
+                'required' => true,
+                'constraints' => [
+                    new Assert\NotBlank(['message'=>'le type de document doit être sélectionné'])
+                ]
                 // 'query_builder' => function(RoleRepository $roleRepository) {
                 //     return $roleRepository->createQueryBuilder('r')->orderBy('r.codeDocument', 'ASC');
                 // }
             ])
-        ->add('codeSociete', 
-        EntityType::class, [
-            'label' => 'Société',
-            'placeholder' => '-- Choisir une société --',
-            'class' => Societte::class,
-            'choice_label' =>'codeSociete',
-            'required' => false,
-        ])
+        
         ->add('typeReparation', 
         ChoiceType::class, 
         [
             'label' => "Type de réparation",
-            'choices' => $typeReparation,
+            'choices' => self::TYPE_REPARATION,
             'placeholder' => '-- Choisir un type de réparation --',
-            'required' => false,
+            'required' => true,
+            'data' => 'A REALISER',
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le type de réparation doit être sélectionné'])
+                ]
            
         ])
         ->add('reparationRealise', 
         ChoiceType::class, 
         [
-            'label' => "Type de réparation",
-            'choices' => $reparationRealise,
+            'label' => "Réparation réalisé par",
+            'choices' => self::REPARATION_REALISE,
             'placeholder' => '-- Choisir le répartion réalisé --',
-            'required' => false,
-           
+            'required' => true,
+            'data' => 'ATELIER',
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le réparation réalisé par doit être sélectionné'])
+                ]
         ])
         ->add('categorieDemande', 
         EntityType::class, [
-            'label' => 'catégorie de demande',
+            'label' => 'Catégorie de demande',
             'placeholder' => '-- Choisir une catégorie --',
             'class' => CategorieATEAPP::class,
-            'choice_label' =>'codeSociete',
-            'required' => false,
+            'choice_label' =>'libelleCategorieAteApp',
+            'required' => true,
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'le catégorie de demande doit être sélectionné'])
+                ]
         ])
         ->add('internetExterne', 
         ChoiceType::class, 
         [
             'label' => "Interne et Externe",
-            'choices' => $internetExterne,
+            'choices' => self::INTERNE_EXTERNE,
             'placeholder' => '-- Choisir --',
+            'data' => 'INTERNE',
            'required' => false,
+           'attr' => [ 'class' => 'interneExterne']
         ])
+        ->add('agence', 
+        EntityType::class,
+        [
+            
+            'label' => 'Agence Debiteur',
+            'placeholder' => '-- Choisir une agence Debiteur --',
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'required' => false,
+            //'data' => $options["data"]->getAgence() ?? null,
+            'query_builder' => function(AgenceRepository $agenceRepository) {
+                    return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                },
+                'attr' => [ 'class' => 'agenceDebiteur']
+        ])
+        
+        ->add('agenceEmetteur', 
+        TextType::class,
+        [
+           'mapped' => false,
+                    'label' => 'Agence',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true
+                    ],
+                    'data' => $options["data"]->getAgenceEmetteur() ?? null
+        ])
+       
+        ->add('serviceEmetteur', 
+        TextType::class,
+        [
+            'mapped' => false,
+                    'label' => 'Service',
+                    'required' => false,
+                    'attr' => [
+                        'readonly' => true,
+                        'disable' => true
+                    ],
+                    'data' => $options["data"]->getServiceEmetteur() ?? null
+        ])
+        // ->add('service', 
+        // EntityType::class,
+        // [
+            
+        //     'label' => 'Service Débiteut',
+        //     'placeholder' => '-- Choisir une service débiteur --',
+        //     'class' => Service::class,
+        //     'choice_label' => function (Service $service): string {
+        //         return $service->getCodeService() . ' ' . $service->getLibelleService();
+        //     },
+        //     'required' => false,
+            
+        // ])
         ->add('nomClient',
         TextType::class,
         [
             'label' => 'Nom du client',
-            'required' => false,
+            'required' => true,
+            'attr' => [
+                'class' => 'nomClient noEntrer'
+            ]
         ])
         ->add('numeroTel',
         TelType::class,
         [
             'label' => 'N° téléphone',
-            'required' => false,
+            'required' => true,
+            'attr' => [
+                'class' => 'numTel noEntrer'
+            ]
         ])
-        ->add('dateOr', DateType::class, [
-            'widget' => 'single_text',
-            'label' => 'Date OR',
-            'required' => false,
-        ])
-        ->add('heureOR',
-        TextType::class,
-        [
-            'label' => 'Heure OR',
-            'required' => false,
-        ])
+        
+
         ->add('datePrevueTravaux', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date prévue travaux',
-            'required' => false,
+            'required' => true,
+            'attr' => [ 'class' => 'noEntrer'],
+            'constraints' => [
+                    new Assert\NotBlank(['message'=>'la date ne doit pas être vide'])
+                ]
         ])
         ->add('demandeDevis', 
         ChoiceType::class, 
         [
             'label' => "Demande de devis",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
             'placeholder' => '-- Choisir --',
            'required' => false,
+           'data' => 'OUI'
         ])
         ->add('idNiveauUrgence', 
         EntityType::class, [
             'label' => 'Niveau d\'urgence',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un niveau --',
             'class' => WorNiveauUrgence::class,
-            'choice_label' =>'codeSociete',
+            'choice_label' =>'description',
             'required' => false,
         ])
         ->add('avisRecouvrement', 
         ChoiceType::class, 
         [
             'label' => "Avis de recouvrement",
-            'choices' => $ouiNon,
+            'choices' => self::OUI_NON,
            'required' => false,
+           'data' => 'NON'
         ])
         ->add('clientSousContrat', 
         ChoiceType::class, 
         [
-            'label' => "client sous contrat",
-            'choices' => $ouiNon,
+            'label' => "Client sous contrat",
+            'choices' => self::OUI_NON,
            'required' => false,
+           'data' => 'NON',
+           'attr' => [ 'class' => 'clientSousContrat']
         ])
         ->add('objetDemande',
         TextType::class,
         [
             'label' => 'Objet de la demande',
             'required' => false,
+            'attr' => [ 'class' => 'noEntrer']
         ])
         ->add('detailDemande',
         TextareaType::class,
         [
             'label' => 'Détail de la demande',
             'required' => false,
+            'attr' => [
+                'rows' => 5,
+                'class' => 'detailDemande'  
+              ],
         ])
         ->add('livraisonPartiel', 
         ChoiceType::class, 
         [
-            'label' => "livraison Partiel",
-            'choices' => $ouiNon,
+            'label' => "Livraison Partielle",
+            'choices' => self::OUI_NON,
            'required' => false,
+           'data' => 'NON'
         ])
-        ->add('mailDemandeur',
-        EmailType::class,
-        [
-            'label' => 'Mail du demandeur',
-            'required' => false,
-        ])
-        ->add('pieceJoint03',
+       ->add('idMateriel', 
+       TextType::class, [
+        'label' => " Id Matériel",
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
+       ])
+       ->add('numParc', 
+       TextType::class, [
+        'label' => " N° Parc",
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
+       ])
+       ->add('numSerie', 
+       TextType::class, [
+        'label' => " N° Serie",
+        'required' => true,
+        'attr' => [ 'class' => 'noEntrer']
+       ])
+       ->add('pieceJoint03',
         FileType::class, 
-        )
+        [
+            'label' => 'Pièce Jointe 03 (PDF)',
+            'required' => false,
+            'constraints' => [
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                ])
+            ],
+        ])
         ->add('pieceJoint02',
         FileType::class, 
+        [
+            'label' => 'Pièce Jointe 02 (PDF)',
+            'required' => false,
+            'constraints' => [
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                ])
+            ],
+        ]
         )
         ->add('pieceJoint01',
         FileType::class, 
+        [
+            'label' => 'Pièce Jointe 01 (PDF)',
+            'required' => false,
+            'constraints' => [
+                new File([
+                    'maxSize' => '5M',
+                    'mimeTypes' => [
+                        'application/pdf',
+                        // 'image/jpeg',
+                        // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                ])
+            ],
+        ]
         )
         
         // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event){

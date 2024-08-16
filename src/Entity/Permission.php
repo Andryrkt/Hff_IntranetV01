@@ -43,10 +43,18 @@ class Permission
      */
     private $roles;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="societtes")
+     */
+    private $users;
+
+    //=============================================================================
+
     public function __construct()
     {
         $this->date_creation = new \DateTime();
         $this->roles = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId()
@@ -137,5 +145,26 @@ class Permission
         return $this;
     }
 
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
 
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addPermisssion($this);
+        }
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            $user->removePermission($this);
+        }
+        return $this;
+    }
 }

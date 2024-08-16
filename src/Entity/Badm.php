@@ -2,10 +2,14 @@
 
 namespace App\Entity;
 
-
 use DateTime;
+use App\Entity\Agence;
+use App\Entity\Service;
 
+use App\Entity\CasierValider;
 use Doctrine\ORM\Mapping as ORM;
+use App\Traits\AgenceServiceTrait;
+use App\Traits\AgenceServiceEmetteurTrait;
 
 
 /**
@@ -13,9 +17,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="Demande_Mouvement_Materiel")
  * @ORM\HasLifecycleCallbacks
  */
-class badm
+class Badm
 {
-    //use DateTrait;
+    use AgenceServiceEmetteurTrait;
+    use AgenceServiceTrait;
 
     /**
      * @ORM\Id
@@ -33,10 +38,8 @@ class badm
 
     /**
      * @ORM\Column(type="integer", name="ID_Materiel")
-     *
-     * @var integer
      */
-    private int $idMateriel;
+    private ?int $idMateriel = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Nom_Session_Utilisateur")
@@ -71,7 +74,7 @@ class badm
      *
      * @var ?string
      */
-    private ?string $casierEmetteur="";
+    private ?string $casierEmetteur = ''; 
 
     /**
      * @ORM\Column(type="string", length=5, name="Agence_Service_Destinataire")
@@ -80,103 +83,104 @@ class badm
      */
     private string $agenceServiceDestinataire;
 
-    /**
-     * @ORM\Column(type="string", length=20, name="Casier_Destinataire", nullable=true)
-     *
-     * @var ?string
+     /**
+     * @ORM\ManyToOne(targetEntity=CasierValider::class, inversedBy="badms")
+     * @ORM\JoinColumn(name="Casier_Destinataire", referencedColumnName="id", nullable=true)
      */
-    private ?string $casierDestinataire="";
+    private  ?CasierValider $casierDestinataire = null;
+
+
 
     /**
-     * @ORM\Column(type="string", length=100, name="Motif_Arret_Materiel", nullable=true)
+     * @ORM\Column(type="string", length=100, name="motif_materiel", nullable=true)
      *
      * @var ?string
      */
-    private ?string $motifMateriel="";
+    private ?string $motifMateriel = null;
 
     /**
      * @ORM\Column(type="string", length=10, name="Etat_Achat")
      *
      * @var string
      */
-    private string $etatAchat;
+    private ?string $etatAchat = null;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Mise_Location")
      *
-     * @var DateTime
+     * 
      */
-    private DateTime $dateMiseLocation;
+    private  $dateMiseLocation = null;
 
     /**
      * @ORM\Column(type="float", scale="2", name="Cout_Acquisition")
      *
      * @var float
      */
-    private float $coutAcquisition;
+    private ?float $coutAcquisition;
 
     /**
      * @ORM\Column(type="float", scale="2", name="Amortissement")
      *
      * @var float
      */
-    private float $amortissement;
+    private ?float $amortissement;
 
     /**
      * @ORM\Column(type="float", scale="2", name="Valeur_Net_Comptable")
      *
      * @var float
      */
-    private float $valeurNetComptable;
+    private ?float $valeurNetComptable;
 
     /**
      * @ORM\Column(type="string", length=50, name="Nom_Client", nullable=true)
      *
      * @var ?string
      */
-    private ?string $nomClient="";
+    private ?string $nomClient= null;
 
     /**
      * @ORM\Column(type="string", length=20, name="Modalite_Paiement", nullable=true)
      *
      * @var ?string
      */
-    private ?string $modalitePaiement="";
+    private ?string $modalitePaiement=null;
 
     /**
      * @ORM\Column(type="float", scale="2", name="Prix_Vente_HT")
      *
      * @var float
      */
-    private float $prixVenteHt;
+    private ?float $prixVenteHt = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Mise_Rebut", nullable=true)
      *
      * @var ?string
      */
-    private ?string $motifMiseRebut ="";
+    private ?string $motifMiseRebut = null;
 
     /**
      * @ORM\Column(type="integer", name="Heure_machine")
      *
-     * @var integer
+     * @var int
      */
-    private int $heureMachine;
+    private ?int $heureMachine;
 
     /**
      * @ORM\Column(type="integer", name="KM_machine")
      *
-     * @var integer
+     * @var int
      */
-    private int $kmMachine;
+    private ?int $kmMachine;
 
     /**
-     * @ORM\Column(type="string", length=15 ,name="Num_Parc")
+     * @ORM\Column(type="string", length=15 ,name="Num_Parc", nullable=true)
      *
      * @var string
      */
-    private string $numParc;
+    private ?string $numParc = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Nom_Image", nullable=true)
@@ -203,85 +207,92 @@ class badm
     /**
      * @ORM\ManyToOne(targetEntity="StatutDemande", inversedBy="Badm")
      * @ORM\JoinColumn(name="ID_Statut_Demande", referencedColumnName="ID_Statut_Demande")
-     *
-     * @var [type]
      */
     private $statutDemande;
 
+
+      /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="badmAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     */
+    private  $agenceEmetteurId;
+
     /**
-     * Get the value of id
-     */ 
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="badmServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="badmAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="badmServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     */
+    private  $serviceDebiteurId;
+
+
+    private $numSerie = null;
+
+    private $constructeur = "";
+
+    private $designation = "";
+ 
+    private $modele = "";
+
+    private $groupe;
+
+    private $anneeDuModele;
+
+    private $affectation;
+
+    private $dateAchat;
+
+
+    //==============================================================================================================
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * Get the value of numBadm
-     *
-     * @return  string
-     */ 
+   
     public function getNumBadm()
     {
         return $this->numBadm;
     }
 
-    /**
-     * Set the value of numBadm
-     *
-     * @param  string  $numBadm
-     *
-     * @return  self
-     */ 
-    public function setNumBadm(string $numBadm)
+    public function setNumBadm(string $numBadm): self
     {
         $this->numBadm = $numBadm;
 
         return $this;
     }
 
-    /**
-     * Get the value of idMateriel
-     *
-     * @return  integer
-     */ 
+    
     public function getIdMateriel()
     {
         return $this->idMateriel;
     }
 
-    /**
-     * Set the value of idMateriel
-     *
-     * @param  integer  $idMateriel
-     *
-     * @return  self
-     */ 
-    public function setIdMateriel($idMateriel)
+   
+    public function setIdMateriel($idMateriel): self
     {
         $this->idMateriel = $idMateriel;
 
         return $this;
     }
 
-    /**
-     * Get the value of nom_utilisateur
-     *
-     * @return  string
-     */ 
+ 
     public function getNomUtilisateur()
     {
         return $this->nomUtilisateur;
     }
 
-    /**
-     * Set the value of nom_utilisateur
-     *
-     * @param  string  $nom_utilisateur
-     *
-     * @return  self
-     */ 
-    public function setNomUtilisateur(string $nom_utilisateur)
+    public function setNomUtilisateur(string $nom_utilisateur): self
     {
         $this->nomUtilisateur = $nom_utilisateur;
 
@@ -350,90 +361,56 @@ class badm
         return $this;
     }
 
-    /**
-     * Get the value of casierDestinataire
-     *
-     * @return  string
-     */ 
+   
     public function getCasierDestinataire()
     {
         return $this->casierDestinataire;
     }
 
-    /**
-     * Set the value of casierDestinataire
-     *
-     * @param  string  $casierDestinataire
-     *
-     * @return  self
-     */ 
-    public function setCasierDestinataire(string $casierDestinataire)
+   
+    public function setCasierDestinataire( $casierDestinataire): self
     {
         $this->casierDestinataire = $casierDestinataire;
 
         return $this;
     }
 
-    /**
-     * Get the value of motifMateriel
-     *
-     * @return  string
-     */ 
+    
     public function getMotifMateriel()
     {
         return $this->motifMateriel;
     }
 
-    /**
-     * Set the value of motifMateriel
-     *
-     * @param  string  $motifMateriel
-     *
-     * @return  self
-     */ 
-    public function setMotifMateriel(string $motifMateriel)
+  
+    public function setMotifMateriel($motifMateriel): self
     {
         $this->motifMateriel = $motifMateriel;
 
         return $this;
     }
 
-    /**
-     * Get the value of etatAchat
-     *
-     * @return  string
-     */ 
+   
     public function getEtatAchat()
     {
         return $this->etatAchat;
     }
 
-    /**
-     * Set the value of etatAchat
-     *
-     * @param  string  $etatAchat
-     *
-     * @return  self
-     */ 
-    public function setEtatAchat(string $etatAchat)
+   
+    public function setEtatAchat(?string $etatAchat): self
     {
         $this->etatAchat = $etatAchat;
 
         return $this;
     }
 
-    /**
-     * Get the value of dateMiseLocation
-     *
-     * @return  DateTime
-     */ 
+  
     public function getDateMiseLocation()
     {
         return $this->dateMiseLocation;
     }
 
    
-    public function setDateMiseLocation(DateTime $dateMiseLocation): self
+    public function setDateMiseLocation( $dateMiseLocation): self
     {
         $this->dateMiseLocation = $dateMiseLocation;
 
@@ -447,7 +424,7 @@ class badm
     }
 
     
-    public function setCoutAcquisition(float $coutAcquisition): self
+    public function setCoutAcquisition(?float $coutAcquisition): self
     {
         $this->coutAcquisition = $coutAcquisition;
 
@@ -461,7 +438,7 @@ class badm
     }
 
     
-    public function setAmortissement(float $amortissement): self
+    public function setAmortissement(?float $amortissement): self
     {
         $this->amortissement = $amortissement;
 
@@ -475,55 +452,35 @@ class badm
     }
 
  
-    public function setValeurNetComptable(float $valeurNetComptable): self
+    public function setValeurNetComptable(?float $valeurNetComptable): self
     {
         $this->valeurNetComptable = $valeurNetComptable;
 
         return $this;
     }
 
-    /**
-     * Get the value of nomClient
-     *
-     * @return  string
-     */ 
+    
     public function getNomClient()
     {
         return $this->nomClient;
     }
 
-    /**
-     * Set the value of nomClient
-     *
-     * @param  string  $nomClient
-     *
-     * @return  self
-     */ 
-    public function setNomClient(string $nomClient)
+    
+    public function setNomClient(?string $nomClient): self
     {
         $this->nomClient = $nomClient;
 
         return $this;
     }
 
-    /**
-     * Get the value of modalitePaiement
-     *
-     * @return  string
-     */ 
+   
     public function getModalitePaiement()
     {
         return $this->modalitePaiement;
     }
 
-    /**
-     * Set the value of modalitePaiement
-     *
-     * @param  string  $modalitePaiement
-     *
-     * @return  self
-     */ 
-    public function setModalitePaiement(string $modalitePaiement)
+   
+    public function setModalitePaiement(?string $modalitePaiement)
     {
         $this->modalitePaiement = $modalitePaiement;
 
@@ -537,31 +494,20 @@ class badm
     }
 
     
-    public function setPrixVenteHt(float $prixVenteHt): self
+    public function setPrixVenteHt( $prixVenteHt): self
     {
         $this->prixVenteHt = $prixVenteHt;
 
         return $this;
     }
 
-    /**
-     * Get the value of motifMiseRebut
-     *
-     * @return  string
-     */ 
+    
     public function getMotifMiseRebut()
     {
         return $this->motifMiseRebut;
     }
 
-    /**
-     * Set the value of motifMiseRebut
-     *
-     * @param  string  $motifMiseRebut
-     *
-     * @return  self
-     */ 
-    public function setMotifMiseRebut(string $motifMiseRebut)
+    public function setMotifMiseRebut(?string $motifMiseRebut): self
     {
         $this->motifMiseRebut = $motifMiseRebut;
 
@@ -570,72 +516,41 @@ class badm
 
    
 
-    /**
-     * Get the value of heureMachine
-     *
-     * @return  integer
-     */ 
+   
     public function getHeureMachine()
     {
         return $this->heureMachine;
     }
 
-    /**
-     * Set the value of heureMachine
-     *
-     * @param  integer  $heureMachine
-     *
-     * @return  self
-     */ 
-    public function setHeureMachine($heureMachine)
+   
+    public function setHeureMachine($heureMachine): self
     {
         $this->heureMachine = $heureMachine;
 
         return $this;
     }
 
-    /**
-     * Get the value of kmMachine
-     *
-     * @return  integer
-     */ 
+    
     public function getKmMachine()
     {
         return $this->kmMachine;
     }
 
-    /**
-     * Set the value of kmMachine
-     *
-     * @param  integer  $kmMachine
-     *
-     * @return  self
-     */ 
-    public function setKmMachine($kmMachine)
+  
+    public function setKmMachine($kmMachine): self
     {
         $this->kmMachine = $kmMachine;
 
         return $this;
     }
 
-    /**
-     * Get the value of numParc
-     *
-     * @return  string
-     */ 
+    
     public function getNumParc()
     {
         return $this->numParc;
     }
 
-    /**
-     * Set the value of numParc
-     *
-     * @param  string  $numParc
-     *
-     * @return  self
-     */ 
-    public function setNumParc(string $numParc)
+    public function setNumParc($numParc): self
     {
         $this->numParc = $numParc;
 
@@ -714,24 +629,14 @@ class badm
         return $this;
     }
 
-    /**
-     * Get the value of statutDemande
-     *
-     * @return  [type]
-     */ 
+    
     public function getStatutDemande()
     {
         return $this->statutDemande;
     }
 
-    /**
-     * Set the value of statutDemande
-     *
-     * @param  [type]  $statutDemande
-     *
-     * @return  self
-     */ 
-    public function setStatutDemande( $statutDemande)
+   
+    public function setStatutDemande( $statutDemande): self
     {
         $this->statutDemande = $statutDemande;
 
@@ -758,27 +663,199 @@ class badm
         return $this;
     }
 
-    /**
-     * Get the value of casierEmetteur
-     *
-     * @return  string
-     */ 
+  
     public function getCasierEmetteur()
     {
         return $this->casierEmetteur;
     }
 
-    /**
-     * Set the value of casierEmetteur
-     *
-     * @param  string  $casierEmetteur
-     *
-     * @return  self
-     */ 
-    public function setCasierEmetteur(string $casierEmetteur)
+   
+    public function setCasierEmetteur(?string $casierEmetteur): self
     {
         $this->casierEmetteur = $casierEmetteur;
 
         return $this;
     }
+
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
+   
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
+
+        return $this;
+    }
+
+    public function getNumSerie()
+    {
+        return $this->numSerie;
+    }
+
+   
+    public function setNumSerie($numSerie): self
+    {
+        $this->numSerie = $numSerie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of groupe
+     */ 
+    public function getGroupe()
+    {
+        return $this->groupe;
+    }
+
+    /**
+     * Set the value of groupe
+     *
+     * @return  self
+     */ 
+    public function setGroupe($groupe)
+    {
+        $this->groupe = $groupe;
+
+        return $this;
+    }
+
+    
+
+    /**
+     * Get the value of anneeDuModele
+     */ 
+    public function getAnneeDuModele()
+    {
+        return $this->anneeDuModele;
+    }
+
+    /**
+     * Set the value of anneeDuModele
+     *
+     * @return  self
+     */ 
+    public function setAnneeDuModele($anneeDuModele)
+    {
+        $this->anneeDuModele = $anneeDuModele;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of affectation
+     */ 
+    public function getAffectation()
+    {
+        return $this->affectation;
+    }
+
+    
+    public function setAffectation($affectation): self
+    {
+        $this->affectation = $affectation;
+
+        return $this;
+    }
+
+  
+    public function getDateAchat()
+    {
+        return $this->dateAchat;
+    }
+
+   
+    public function setDateAchat($dateAchat): self
+    {
+        $this->dateAchat = $dateAchat;
+
+        return $this;
+    }
+
+    public function getConstructeur()
+    {
+        return $this->constructeur;
+    }
+
+   
+    public function setConstructeur($constructeur): self
+    {
+        $this->constructeur = $constructeur;
+
+        return $this;
+    }
+
+    public function getDesignation()
+    {
+        return $this->designation;
+    }
+
+   
+    public function setDesignation($designation): self
+    {
+        $this->designation = $designation;
+
+        return $this;
+    }
+
+
+    public function getModele()
+    {
+        return $this->modele;
+    }
+
+   
+    public function setModele($modele): self
+    {
+        $this->modele = $modele;
+
+        return $this;
+    }
+
+    
 }

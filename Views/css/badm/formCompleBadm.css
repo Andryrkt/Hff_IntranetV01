@@ -1,28 +1,40 @@
 .sousTitre h3{
     color: #0e4194;
     font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0px;
 }
 
 .sousTitre div {
     width: 100%; 
-    height: 15px; 
+    height: 3px; 
     background-color: #0e4194; 
     border-radius: 2px; 
-    margin-top: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     border: none;
+}
+
+.bouton {
+    background-color: #FBBB01;
+    color: black;
+    font-weight: bold;
 }
 
 .sosuTitreGiser h3{
     color: #aaa;
     font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0px;
 }
 
 .sosuTitreGiser div{
     width: 100%; 
-    height: 15px; 
+    height: 3px; 
     background-color:#aaa;
     border-radius: 2px; 
-    margin-top: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     border: none;
 }
 

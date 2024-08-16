@@ -139,62 +139,30 @@ class BadmRechercheModel extends Model
         return $this->convertirEnUtf8($tab);
     }
 
-    // public function RechercheBadmModelAll(): array
-    // {
-
-    //     $sql = "SELECT 
-    //     dmm.ID_Demande_Mouvement_Materiel, 
-    //     sd.Description AS Statut,
-    //     dmm.Numero_Demande_BADM, 
-    //     dmm.Code_Mouvement, 
-    //     dmm.ID_Materiel,
-    //     dmm.Date_Demande,
-    //     dmm.Agence_Service_Emetteur, 
-    //     dmm.Casier_Emetteur,
-    //     dmm.Agence_Service_Destinataire,
-    //     dmm.Casier_Destinataire, 
-    //     dmm.Motif_Arret_Materiel, 
-    //     dmm.Etat_Achat, 
-    //     dmm.Date_Mise_Location, 
-    //     dmm.Cout_Acquisition, 
-    //     dmm.Amortissement, 
-    //     dmm.Valeur_Net_Comptable, 
-    //     dmm.Nom_Client, 
-    //     dmm.Modalite_Paiement, 
-    //     dmm.Prix_Vente_HT, 
-    //     dmm.Motif_Mise_Rebut, 
-    //     dmm.Heure_machine, 
-    //     dmm.KM_machine
-    // FROM Demande_Mouvement_Materiel dmm
-    // JOIN Statut_demande sd ON dmm.Code_Statut = sd.Code_Statut
-    // WHERE sd.Code_Application = 'BDM'
-    // ORDER BY Numero_Demande_BADM DESC
-
-    // ";
+    
 
 
-    //     try {
-    //         $stmt = $this->sqlServer->conn->prepare($sql);
-    //         $stmt->execute();
-    //         $results = $stmt->fetchAll(PDO::FETCH_OBJ);
-    //     } catch (PDOException $e) {
-    //         echo 'PDOException: ' . $e->getMessage();
-    //         // Vous pouvez également enregistrer cette erreur dans un fichier de log si nécessaire
-    //         file_put_contents('path_to_log_file', $e->getMessage(), FILE_APPEND);
-    //         return [];
-    //     }
+    public function findDesiSerieParc($matricule = ''): array
+    {
+        $statement = "SELECT
 
-    //     if (!$results) {
-    //         return []; // Si aucun résultat n'est récupéré, retournez un tableau vide pour éviter des erreurs plus loin dans le code
-    //     }
+        trim(mmat_desi) as designation,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc
 
-    //     // Nettoyer les données
-    //     foreach ($results as $result) {
-    //         foreach ($result as $value) {
-    //             $value = $this->clean_string($value);
-    //         }
-    //     }
+        from mat_mat
+        WHERE trim(MMAT_ETSTOCK) in ('ST','AT')
+         and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
+        and mmat_soc = 'HF'
+        and mmat_datedisp < '12/31/2999'
+        and mmat_nummat ='" . $matricule . "'
+      ";
 
-    //     return $this->convertirEnUtf8($results);
-    // }
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
 }

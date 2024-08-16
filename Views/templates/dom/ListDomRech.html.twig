@@ -24,81 +24,62 @@
 		{% endif %}
 		<div class="row">
 			<div class="col">
-				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+				<h3 class="perso-titre">
 					Liste de la demande d'ordre de mission
-				</h2>
+				</h3>
 			</div>
 		</div>
 
 		<form action="" method="get" class="my-4">
 			<div class="row">
-				{{form.select_1('Description', 'Statut', statut,{endpoint: '12', class: ' col-md-6 col-xl-3', default: 'true', valueDefault:'Choisir un statut'})}}
-
-				{{form.select_1('Sous_type_document', 'Sous Type', sousTypeDoc ,{endpoint: '12', class: ' col-md-6 col-xl-3', default: 'true', valueDefault:'Choisir un type'})}}
-
-				<div class="col-12 col-md-6  col-xl-3">
+				<div class="col-12 col-md-3">
+					{{form.select_1('Description', 'Statut', statut,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un statut'})}}
+					{{form.select_1('Sous_type_document', 'Sous Type', sousTypeDoc ,{endpoint: '12', class: ' col-md-12', default: 'true', valueDefault:'Choisir un type'})}}
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="input-group mb-2">
+						<span class="input-group-text">N° DOM</span>
+						<input type="search" name="Numero_Ordre_Mission" id="numDom" class="form-control">
+					</div>
 					<div class="input-group mb-2">
 						<span class="input-group-text">Matricule</span>
 						<input type="search" name="Matricule" id="matricule" class="form-control">
 					</div>
 				</div>
-				<div class="col-12 col-md-6 col-xl-3">
-					<div class="input-group mb-2">
-						<span class="input-group-text">N° DOM</span>
-						<input type="search" name="Numero_Ordre_Mission" id="numDom" class="form-control">
-					</div>
-				</div>
-			</div>
-
-
-			<div class="row">
-				<small class="dateCreationMessage" id="dateCreationMessage"></small>
-				<div class="col-12 col-md-6  ">
+				<div class="col-12 col-md-3">
 					<div class="input-group mb-2">
 						<span class="input-group-text">Date de création (début)</span>
 						<input type="date" name="dateDemandeDebut" id="dateCreationDebut" class="form-control">
 					</div>
-				</div>
-				<div class="col-12 col-md-6  ">
-					<div class="input-group mb-2">
-						<span class="input-group-text">Date de Mission (début)</span>
-						<input type="date" name="dateMissionDebut" id="dateDebutDebut" class="form-control">
-					</div>
-				</div>
-
-			</div>
-
-			<div class="row">
-				<div class="col-12 col-md-6 col-lg-6 ">
+					<small class="dateCreationMessage" id="dateCreationMessage"></small>
 					<div class="input-group mb-2">
 						<span class="input-group-text">Date de création (fin)</span>
 						<input type="date" name="dateDemandeFin" id="dateCreationFin" class="form-control">
 					</div>
 				</div>
-				<div class="col-12 col-md-6 col-lg-6 ">
+				<div class="col-12 col-md-3">
+					<div class="input-group mb-2">
+						<span class="input-group-text">Date de Mission (début)</span>
+						<input type="date" name="dateMissionDebut" id="dateDebutDebut" class="form-control">
+					</div>
+					<small class="dateCreationMessage" id="dateCreationMessage"></small>
 					<div class="input-group mb-2">
 						<span class="input-group-text">Date de Mission (fin)</span>
 						<input type="date" name="dateMissionFin" id="dateDebutFin" class="form-control">
 					</div>
 				</div>
-
 			</div>
-
-			<div class="row">
-				<small class="dateCreationMessage" id="dateCreationMessage"></small>
-			</div>
-
 
 			<!-- FIN recherche -->
 
 
 			<!-- DEBUT bouton -->
 
-			<div class="col-xxl-4 ms-auto">
-				<input type="submit" id="recherche" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
-				<input
-				type="reset" id="reset" class="btn btn-dark text-white" value="Effacer">
-			{# <input type="submit" name="exportExcel" id="export" class="btn btn-success" value=""> #}
+			<div class="d-flex justify-content-end">
+				<button type="submit" id="recherche" class="btn btn-sm m-1 fw-bold" style="background-color: #FBBB01 ;">
+					<i class="fab fa-searchengin"></i>
+					Recherche
+				</button>
 			</div>
 
 			<!-- FIN bouton -->
@@ -114,7 +95,8 @@
 		<div class=" row mb-2">
 			<div class="col-12 col-md-6 col-lg-3">
 				<a href="{{path("dom_newDom")}}" class="btn btn-sm bg-dark text-white">Nouvelle Demande</a>
-				<a href="{{path("domList_ShowListDomRecherche")}}?exportExcel=Export Excel" class="btn btn-sm btn-success">Export Excel</a>
+				{# <a href="{{path("domList_ShowListDomRecherche")}}?exportExcel=Export Excel" class="btn btn-sm btn-success" id="export_excel">Export Excel</a> #}
+				<a href="{{path("domList_ShowListDomRecherche")}}" class="btn btn-sm btn-success" id="export_excel">Export Excel</a>
 			</div>
 			<div class="col-12 col-md-6 col-lg-3">
 				<p class="fw-bold" id="nombreResultat">{{resultat}}
@@ -168,9 +150,9 @@
 					{% for item in dom %}
 						<tr>
 							{# Début Action #}
-							<td>
+							<td class="p-0 mx-2 align-middle">
 								<div class="dropdown">
-									<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+									<button class="btn btn-sm btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
 										Actions
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
@@ -187,19 +169,19 @@
 							{# Fin Actions #}
 							{# DEBUT Statut #}
 							{% if item.Description == 'OUVERT' %}
-								<td class="bg-warning bg-gradient fw-bold text-cente">{{item.Description}}</td>
+								<td class="bg-warning bg-gradient text-cente">{{item.Description}}</td>
 							{% elseif item.Description == 'PAYE' %}
-								<td class="bg-success bg-gradient fw-bold">{{item.Description}}</td>
+								<td class="bg-success bg-gradient">{{item.Description}}</td>
 							{% elseif item.Description == 'ATTENTE PAIEMENT' %}
-								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
+								<td class="bg-success" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
 							{% elseif item.Description == 'CONTROLE SERVICE' %}
-								<td class="bg-info fw-bold">{{item.Description}}</td>
+								<td class="bg-info">{{item.Description}}</td>
 							{% elseif item.Description == 'ANNULE CHEF DE SERVICE' or item.Description == 'ANNULE COMPTABILITE' or item.Description == 'ANNULE SECRETARIAT RH' or item.Description =='ANNULE' %}
-								<td class="bg-danger fw-bold">{{item.Description}}</td>
+								<td class="bg-danger">{{item.Description}}</td>
 							{% elseif item.Description == 'VALIDE' or item.Description == 'VALIDE COMPTABILITE' or item.Description == 'VALIDATION RH' or item.Description == 'VALIDATION DG' %}
-								<td class="bg-primary fw-bold">{{item.Description}}</td>
+								<td class="bg-primary">{{item.Description}}</td>
 							{% elseif item.Description == 'A VALIDER SERVICE EMETTEUR'%}
-								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
+								<td class="bg-primary" style="--bs-bg-opacity: .5;">{{item.Description}}</td>
 							{% else %}
 								<td>{{item.Description}}</td>
 							{% endif %}
@@ -217,7 +199,8 @@
 							<td style="text-align: center;">{{item.Date_Fin|date('d/m/Y')}}</td>
 							<td>{{item.Client}}</td>
 							<td>{{item.Lieu_Intervention}}</td>
-							<td style="text-align: right;">{{item.Total_General_Payer | number_format(2, ',', '.')}}</td>
+							<td style="text-align: right;">{{item.Total_General_Payer}}</td>
+							{# <td style="text-align: right;">{{item.Total_General_Payer | number_format(2, ',', '.') }}</td> #}
 							<td>{{item.Devis}}</td>
 
 						</tr>
@@ -242,4 +225,5 @@
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	{#  <script src="/Hffintranet/Views/js/dom/ListDomRech.js"></script> #}
+	<script type="module" src="/Hffintranet/Views/js/dom/exportExcel.js"></script>
 {% endblock %}

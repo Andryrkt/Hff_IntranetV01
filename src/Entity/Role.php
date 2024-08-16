@@ -24,10 +24,6 @@ class Role
      */
     private $id;
 
-    /**
-     * @ORM\OneToMany(targetEntity="User", mappedBy="role")
-     */
-    private $users;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -44,6 +40,14 @@ class Role
      */
     private $date_modification;
 
+    
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="roles")
+     *
+     * @var [type]
+     */
+    private $users;
+    
     /**
      * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="roles")
      * @ORM\JoinTable(name="role_permissions")
@@ -63,7 +67,7 @@ class Role
     }
 
     /**
-     * @return Collection|User[]
+     * @return Collection|Roles[]
      */ 
     public function getUsers(): Collection
     {
@@ -72,32 +76,22 @@ class Role
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if(!$this->users->contains($user)){
             $this->users[] = $user;
-            $user->setRole($this);
+            $user->addRole($this);
         }
-
         return $this;
     }
 
     public function removeUser(User $user): self
     {
-        if ($this->users->contains($user)) {
+        if($this->users->contains($user)) {
             $this->users->removeElement($user);
-            if ($user->getRole() === $this) {
-                $user->setRole(null);
-            }
+          $user->removeRole($this);
         }
-        
         return $this;
     }
 
-    public function setUsers($users): self
-    {
-        $this->users = $users;
-
-        return $this;
-    }
 
     public function getRoleName(): ?string
     {

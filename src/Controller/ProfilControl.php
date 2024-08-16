@@ -3,12 +3,18 @@
 namespace App\Controller;
 
 use Exception;
+use SplFileObject;
+use App\Entity\User;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 class ProfilControl extends Controller
 {
+
 
     /**
      * @Route("/Authentification", name="profil_authentification")
@@ -28,11 +34,17 @@ class ProfilControl extends Controller
                     document.location.href = "/Hffintranet";
                 </script>';
             } else {
+                
+                //$session->start();
+                $userId = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username])->getId();
+                $this->sessionService->set('user_id', $userId);
+
+
                 // session_start();
                 $_SESSION['user'] = $Username;
                 $_SESSION['password'] = $Password;
 
-                
+               
                 //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
                 $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
 

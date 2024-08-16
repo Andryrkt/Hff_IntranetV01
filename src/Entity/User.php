@@ -2,8 +2,15 @@
 
 namespace App\Entity;
 
+use App\Entity\Role;
+use App\Entity\Agence;
+use App\Entity\Service;
+use App\Entity\Societte;
+use App\Traits\DateTrait;
+use App\Entity\Permission;
 use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\AgenceServiceIrium;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -14,6 +21,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class User
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -21,18 +30,13 @@ class User
      */
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Role", inversedBy="users")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
-     */
-    private $role;
 
     /**
      * @ORM\Column(type="string", length="255")
      *
      * @var [type]
      */
-    private $nom_utilisateur;
+    private $nom_utilisateur = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -47,51 +51,94 @@ class User
      * @var [type]
      */
     private $mail;
-
     
-    /**
-     * @ORM\Column(type="date")
-     *
-     * @var [type]
+     /**
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
+     * @ORM\JoinTable(name="user_roles")
      */
-    private $date_creation;
+    private $roles;
 
-    
-    /**
-     * @ORM\Column(type="date")
-     *
-     * @var [type]
-     */
-    private $date_modification;
 
-    public function __construct()
-    {
-        $this->date_creation = new \DateTime();
-        $this->applications = new ArrayCollection();
-    }
-
-    
-    /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users")
+     /**
+     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
+    
+     /**
+     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users", cascade={"remove"})
+     * @ORM\JoinTable(name="users_societe")
+     */
+    private $societtes;
+
 
      /**
-     * @ORM\PrePersist
+     * @ORM\ManyToOne(targetEntity="Personnel", inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
-    public function onPrePersist(): void
-    {
-        $this->date_creation = new \DateTime();
-        $this->date_modification = new \DateTime();
-    }
+    private $personnels;
+
+    
+   /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $superieurs = [];
+
 
     /**
-     * @ORM\PreUpdate
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
      */
-    public function onPreUpdate(): void
+    private $casiers;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
+     */
+    private  $fonction ;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
+     * @ORM\JoinColumn(name="agence_utilisateur", referencedColumnName="id")
+     */
+    private $agenceServiceIrium;
+
+        /**
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
+     * @ORM\JoinTable(name="agence_user", 
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
+     * )
+     */
+    private $agencesAutorisees;
+
+
+      /**
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
+     * @ORM\JoinTable(name="users_service")
+     */
+    private $serviceAutoriser;
+
+
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinTable(name="users_permission")
+     */
+    private $permissions;
+
+
+
+    //=================================================================================================================================
+
+    public function __construct()
     {
-        $this->date_modification = new \DateTime();
+        $this->applications = new ArrayCollection();
+        $this->societtes = new ArrayCollection();
+        $this->roles = new ArrayCollection();
+        $this->casiers = new ArrayCollection();
+        $this->agencesAutorisees = new ArrayCollection();
+        $this->serviceAutoriser = new ArrayCollection();
+        $this->permissions = new ArrayCollection();
     }
 
     
@@ -101,57 +148,52 @@ class User
     }
 
    
-    public function getRole()
+    
+    public function getRoles(): Collection
     {
-        return $this->role;
+        return $this->roles;
     }
 
-  
-    public function setRole($role): self
+    public function addRole(Role $role): self
     {
-        $this->role = $role;
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
 
         return $this;
     }
 
-    /**
-     * Get the value of nom_utilisateur
-     *
-     * @return  [type]
-     */ 
-    public function getNomutilisateur()
+    public function removeRole(Role $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+        }
+
+        return $this;
+    }
+
+    
+    public function getNomUtilisateur(): string
     {
         return $this->nom_utilisateur;
     }
 
-    /**
-     * Set the value of nom_utilisateur
-     *
-     * @param  string  $nom_utilisateur
-     *
-     * @return  self
-     */ 
-    public function setNomutilisateur( $nom_utilisateur)
+    
+    public function setNomUtilisateur( string $nom_utilisateur): self
     {
         $this->nom_utilisateur = $nom_utilisateur;
 
         return $this;
     }
 
-    /**
-     * Get the value of matricule
-     */ 
-    public function getMatricule()
+    
+    public function getMatricule(): int
     {
         return $this->matricule;
     }
 
-    /**
-     * Set the value of matricule
-     *
-     * @return  self
-     */ 
-    public function setMatricule($matricule)
+    
+    public function setMatricule($matricule): self
     {
         $this->matricule = $matricule;
 
@@ -172,34 +214,9 @@ class User
         return $this;
     }
 
-    public function getDatecreation()
-    {
-        return $this->date_creation;
-    }
 
-
-    public function setDatecreation( $date_creation): self
-    {
-        $this->date_creation = $date_creation;
-
-        return $this;
-    }
-
+    
    
-    public function getDatemodification()
-    {
-        return $this->date_modification;
-    }
-
-  
-    public function setDatemodification( $date_modification): self
-    {
-        $this->date_modification = $date_modification;
-
-        return $this;
-    }
-
-
      /**
      * @return Collection|Application[]
      */
@@ -224,5 +241,256 @@ class User
         }
 
         return $this;
+    }
+
+
+    
+    public function getSociettes(): Collection
+    {
+        return $this->societtes;
+    }
+
+    public function addSociette(Societte $societte): self
+    {
+        if (!$this->societtes->contains($societte)) {
+            $this->societtes[] = $societte;
+        }
+
+        return $this;
+    }
+
+    public function removeSociette(Societte $societte): self
+    {
+        if ($this->societtes->contains($societte)) {
+            $this->societtes->removeElement($societte);
+        }
+
+        return $this;
+    }
+
+
+    public function getPersonnels()
+    {
+        return $this->personnels;
+    }
+
+  
+    public function setPersonnels($personnel): self
+    {
+        $this->personnels = $personnel;
+
+        return $this;
+    }
+
+    public function getSuperieurs(): array
+    {
+        if($this->superieurs !== null){
+            return $this->superieurs;
+        } else {
+            return [];
+        }
+        
+    }
+
+    public function setSuperieurs(array $superieurs): self
+    {
+        $this->superieurs = $superieurs;
+
+        return $this;
+    }
+
+    public function addSuperieur( User $superieurId): self
+    {
+        
+        $superieurIds[] = $superieurId->getId();
+
+        if($this->superieurs === null ){
+            $this->superieurs = [];
+        }
+
+        if (!in_array($superieurIds, $this->superieurs, true)) {
+            $this->superieurs[] = $superieurId;
+        }
+
+        return $this;
+    }
+
+    public function removeSuperieur(User $superieurId): self
+    {
+        $superieurIds[] = $superieurId->getId();
+        
+        if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
+            unset($this->superieurs[$key]);
+            $this->superieurs = array_values($this->superieurs);
+        }
+
+        return $this;
+    }
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getCasiers()
+    {
+        return $this->casiers;
+    }
+
+    public function addCasier(Casier $casier): self
+    {
+        if (!$this->casiers->contains($casier)) {
+            $this->casiers[] = $casier;
+            $casier->setNomSessionUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCasier(Casier $casier): self
+    {
+        if ($this->casiers->contains($casier)) {
+            $this->casiers->removeElement($casier);
+            if ($casier->getNomSessionUtilisateur() === $this) {
+                $casier->setNomSessionUtilisateur(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setCasiers($casier)
+    {
+        $this->casiers = $casier;
+
+        return $this;
+    }
+
+   public function getFonction()
+    {
+        return $this->fonction;
+    }
+
+  
+    public function setFonction($fonction): self
+    {
+        $this->fonction = $fonction;
+
+        return $this;
+    }
+
+    
+
+    public function getAgenceServiceIrium()
+    {
+        return $this->agenceServiceIrium;
+    }
+
+    public function setAgenceServiceIrium($agenceServiceIrium)
+    {
+        $this->agenceServiceIrium = $agenceServiceIrium;
+
+        return $this;
+    }
+
+    public function getAgencesAutorisees(): Collection
+{
+    return $this->agencesAutorisees;
+}
+
+public function addAgenceAutorise(Agence $agence): self
+{
+    if (!$this->agencesAutorisees->contains($agence)) {
+        $this->agencesAutorisees[] = $agence;
+    }
+
+    return $this;
+}
+
+public function removeAgenceAutorise(Agence $agence): self
+{
+    if ($this->agencesAutorisees->contains($agence)) {
+        $this->agencesAutorisees->removeElement($agence);
+    }
+
+    return $this;
+}
+
+
+    public function getServiceAutoriser(): Collection
+    {
+        return $this->serviceAutoriser;
+    }
+
+    public function addServiceAutoriser(Service $serviceAutoriser): self
+    {
+        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser[] = $serviceAutoriser;
+        }
+
+        return $this;
+    }
+
+    public function removeServiceAutoriser(Service $serviceAutoriser): self
+    {
+        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser->removeElement($serviceAutoriser);
+        }
+
+        return $this;
+    }
+
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
+
+    public function addPermisssion(Permission $permissions): self
+    {
+        if (!$this->permissions->contains($permissions)) {
+            $this->permissions[] = $permissions;
+        }
+
+        return $this;
+    }
+
+    public function removePermission(Permission $permissions): self
+    {
+        if ($this->permissions->contains($permissions)) {
+            $this->permissions->removeElement($permissions);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * RECUPERE LES id de role
+     */
+    public function getRoleIds(): array
+    {
+        return $this->roles->map(function($role) {
+            return $role->getId();
+        })->toArray();
+    }
+
+
+    /**
+     * RECUPERE LES id de l'agence Autoriser
+     */
+    public function getAgenceAutoriserIds(): array
+    {
+        return $this->agencesAutorisees->map(function($agenceAutorise) {
+            return $agenceAutorise->getId();
+        })->toArray();
+    }
+
+
+     /**
+     * RECUPERE LES id du service Autoriser
+     */
+    public function getServiceAutoriserIds(): array
+    {
+        return $this->serviceAutoriser->map(function($serviceAutorise) {
+            return $serviceAutorise->getId();
+        })->toArray();
     }
 }

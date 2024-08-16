@@ -14,9 +14,9 @@
 
 			<div class="col-12 col-md-8">
 				{% if data is defined and data is not null %}
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">Duplication de demande d'ordre de mission</h2>
+					<h3 class="perso-titre">Duplication de demande d'ordre de mission</h3>
 				{% else %}
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">Nouvelle demande d'ordre de mission</h2>
+					<h3 class="perso-titre">Nouvelle demande d'ordre de mission</h3>
 				{% endif %}
 			</div>
 
@@ -62,17 +62,51 @@
 					<!-- DEBUT Debiteur selecte -->
 					<label for="" class="col-4  fw-bold">Agence service débiteur</label>
 
-					<div class="row">
-						<div class="col-6">
-							<label for="Serv" class="label-form">Agence :</label>
-							<select class="form-select " aria-label="Default select example" id="select1" name="codeService"></select>
+
+					{% if check == "Interne" %}
+						<div class="row">
+							<div class="col-6">
+								<label for="Serv" class="label-form">Agence :</label>
+								<select class="form-select " name="codeService" id="agenceDebiteurInterne">
+									{% for item in agenceDebiteur %}
+										<option value="{{item}}" {% if item == codeServ|upper %} selected {% endif %}>{{item}}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<div class="col-6 ">
+								<label for="LibServ" class="label-form">Service :</label>
+								<select class="form-select" name="service" id="serviceDebiteurInterne">
+									{% for item in serviceDebiteur %}
+										<option value="{{item}}" {% if item == servLib|upper %} selected {% endif %}>{{item}}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					{% else %}
+						<div class="row">
+							<div class="col-6">
+								<label for="Serv" class="label-form">Agence :</label>
+								<select class="form-select " name="codeService" id="agenceDebiteurExterne">
+									{% for item in agenceDebiteur %}
+										<option value="{{item}}" {% if item == code_service|upper %} selected {% endif %}>{{item}}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<div class="col-6 ">
+								<label for="LibServ" class="label-form">Service :</label>
+								<select class="form-select" name="service" id="serviceDebiteurExterne">
+									{% for item in serviceDebiteur %}
+										<option value="{{item}}" {% if item == service|upper %} selected {% endif %}>{{item}}</option>
+									{% endfor %}
+								</select>
+							</div>
 						</div>
 
-						<div class="col-6 ">
-							<label for="LibServ" class="label-form">Service :</label>
-							<select class="form-select" name="service" aria-label="Default select example" id="serviceIrium"></select>
-						</div>
-					</div>
+					{% endif %}
+
+
 				</div>
 				<!-- FIN Debiteur selecte -->
 

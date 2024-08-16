@@ -17,6 +17,12 @@
 </div>
 {% endmacro %}
 
+{% macro readOnly(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
+</div>
+{% endmacro %}
 
 {% macro inputText(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
@@ -78,7 +84,11 @@
 
 {% macro button(type, label, id=null, color, option = []) %}
     <div class="col-3 col-md-2 col-lg-1">
-        <button type="{{type}}" class="btn btn-{{color}}" name="{{ id }}" onclick="{{option.onclick}}" >{{label}}</button>
+    
+        <button type="{{type}}" class="btn {{color}}" name="{{ id }}" onclick="{{option.onclick}}" >
+        <i class="fas fa-save"></i>
+        {{label}}
+        </button>
     </div>
 {% endmacro %}
 
@@ -89,3 +99,46 @@
     <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
 </div>
 {% endmacro %}
+
+
+
+{% macro affichage(label, value = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">{{value}}</div>
+{% endmacro %}
+
+{% macro affichageFile(label, value = "", directory) %}
+<label for="">{{label}}</label>
+<div class="d-flex align-items-center border border-secondary border-1 rounded px-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href=" {{directory}}/{{value}}" target="_blank">
+{{value}}
+</a>
+</div>
+{% endmacro %}
+
+{% macro affichageModal(label, value = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href="#"  data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{value}}" id="numOr">{{value}}</a>
+</div>
+{% endmacro %}
+
+{% macro list(label, items, propriete) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ attribute(item, propriete)}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 
+
+{% macro listSansProp(label, items) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ item}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 

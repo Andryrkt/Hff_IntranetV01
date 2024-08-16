@@ -1,5 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block stylesheets %}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/utilisateur/new.css">
+{% endblock %}
 
 {% block content %}
 	<div class=" container">
@@ -7,8 +10,8 @@
 			<div class="card-body">
 
 				<div class="container">
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-						Formulaire Utilisateur
+					<h2 class="text-center fw-bold bg-black py-2" style="color: #FBBB01">
+						Formulaire d'ajout Utilisateur
 					</h2>
 
 					<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
@@ -19,22 +22,30 @@
 					<div class="row">
 						<div class="col-12 col-md-6">
 
-							{{ form_row(form.nom_utilisateur) }}
+							{{ form_row(form.nom_utilisateur, {'attr': {'class': 'selectUser form-control'}}) }}
 							{{ form_row(form.matricule) }}
 							{{ form_row(form.mail) }}
-
+							{{ form_row(form.permissions)}}
+							{{ form_row(form.roles)}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.applications)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.societtes)}}
+								</div>
+							</div>
 
 						</div>
 						<div class="col-12 col-md-6">
-
-							{{ form_row(form.role)}}
-
-							{{ form_row(form.applications)}}
-
-
+							{{ form_row(form.agenceServiceIrium, {'attr': {'class': 'selectUser form-control'}})}}
+							{{ form_row(form.personnels, {'attr': {'class': 'selectUser form-control'}})}}
+							{{form_row(form.superieurs, {'attr': {'class': 'superieurs'}})}}
+							{{ form_row(form.fonction)}}
+							{{ form_row(form.agencesAutorisees, {'attr': {'class': 'superieurs'}})}}
+							{{ form_row(form.serviceAutoriser, {'attr': {'class': 'superieurs'}})}}
 						</div>
 					</div>
-
 
 					<button type="submit" class="btn btn-primary">
 						<i class="fas fa-save"></i>
@@ -46,4 +57,8 @@
 			</div>
 		</div>
 
+	{% endblock %}
+
+	{% block javascript %}
+		<script src="/Hffintranet/Views/js/admin/users.js"></script>
 	{% endblock %}

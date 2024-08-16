@@ -1,0 +1,5 @@
+{% if App.notification %}
+	<div class="alert alert-{{ App.notification.type }}">
+		<p class=" fw-bold text-break">{{ App.notification.message }}</p>
+	</div>
+{% endif %}

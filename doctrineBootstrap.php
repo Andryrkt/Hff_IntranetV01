@@ -9,19 +9,23 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+require_once __DIR__ . '/config/dotenv.php';
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+// $dotenv->load();
+
 // Chemin vers les entités
-$paths = array(dirname(__DIR__) . "/src/Entity");
+$paths = array(dirname(__DIR__). "/src/Entity");
 // Mode de développement
 $isDevMode = true;
 
 // Configuration de la base de données
 $dbParams = array(
     'driver'   => 'pdo_sqlsrv',
-    'host'     => '192.168.0.28', 
+    'host'     => $_ENV["DB_HOST"], 
     'port'     => '1433',
-    'user'     => 'sa',
-    'password' => 'Hff@sql2024',
-    'dbname'   => 'HFF_INTRANET_TEST',
+    'user'     => $_ENV["DB_USERNAME"] ,
+    'password' => $_ENV["DB_PASSWORD"],
+    'dbname'   => $_ENV["DB_NAME"],
 );
 
 // Configuration du lecteur d'annotations
@@ -40,6 +44,7 @@ $config->setMetadataDriverImpl($driver);
 //Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
+return $entityManager;
 // Configurez Doctrine pour utiliser l'AnnotationReader standard
 // $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
 // $annotationReader = new AnnotationReader();
@@ -52,5 +57,3 @@ $entityManager = EntityManager::create($dbParams, $config);
 // $entityManager = EntityManager::create($dbParams, $config);
 
 
-// Créer une instance de SimpleManagerRegistry
-$managerRegistry = new SimpleManagerRegistry($entityManager);

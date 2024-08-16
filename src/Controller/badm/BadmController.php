@@ -21,7 +21,6 @@ class BadmController extends Controller
 
     use Transformation;
     use ConversionTrait;
-    use IncrementationTrait;
     use FormatageTrait;
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/formBadm")
@@ -100,11 +99,14 @@ class BadmController extends Controller
                 $message = "Matériel déjà vendu";
                 $this->alertRedirection($message);
             }  
+            // elseif ($_POST['typeMission'] === 'ENTREE EN PARC' && $data[0]['code_affect'] !== 'VTE') {
+            //     $message = 'Ce matériel est déjà en PARC';
+            //     $this->alertRedirection($message);
+            // }
              elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] === 'VTE') {
                 $message = "L\'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
                 $this->alertRedirection($message);
-            } 
-            elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
+            } elseif ($_POST['typeMission'] === 'CHANGEMENT AGENCE/SERVICE' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
                 $message = " l\'affectation matériel ne permet pas cette opération";
                 $this->alertRedirection($message);
             } elseif ($_POST['typeMission'] === 'CESSION D\'ACTIF' && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM') {
@@ -114,8 +116,6 @@ class BadmController extends Controller
                 $message = 'Ce matériel ne peut pas être mis au rebut';
                 $this->alertRedirection($message);
             } else {
-
-
 
                 $agenceEmetteur = $data[0]['agence'] . ' ' . explode('-', $data[0]['service'])[0];
                 $serviceEmetteur = trim($data[0]['code_service'] . ' ' . explode('-', $data[0]['service'])[1]);
@@ -132,14 +132,12 @@ class BadmController extends Controller
                     foreach ($agenceServiceAutoriser as $key => $value) {
                        $agenceAutoriser[]= substr($value, 0, 2);
                     }
-                
                     
                 //$codeAgenceService = $data[0]['agence'] . trim($data[0]['code_service']);
                 $codeAgence = $data[0]['agence'];
                
                 $coutAcquisition = $data[0]['droits_taxe'];
                 $vnc = $coutAcquisition - $data[0]['amortissement'];
-
 
 
                 if ($boolean) {
@@ -232,39 +230,6 @@ class BadmController extends Controller
     }
 
 
-    private function testJson($jsonData)
-    {
-        if ($jsonData === false) {
-            // L'encodage a échoué, vérifions pourquoi
-            switch (json_last_error()) {
-                case JSON_ERROR_NONE:
-                    echo 'Aucune erreur';
-                    break;
-                case JSON_ERROR_DEPTH:
-                    echo 'Profondeur maximale atteinte';
-                    break;
-                case JSON_ERROR_STATE_MISMATCH:
-                    echo 'Inadéquation des états ou mode invalide';
-                    break;
-                case JSON_ERROR_CTRL_CHAR:
-                    echo 'Caractère de contrôle inattendu trouvé';
-                    break;
-                case JSON_ERROR_SYNTAX:
-                    echo 'Erreur de syntaxe, JSON malformé';
-                    break;
-                case JSON_ERROR_UTF8:
-                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
-                    break;
-                default:
-                    echo 'Erreur inconnue';
-                    break;
-            }
-        } else {
-            // L'encodage a réussi
-            echo $jsonData;
-        }
-    }
-
     /**
      * agence devient la clé du tableaut et le service devient la valeur
      *
@@ -311,11 +276,6 @@ class BadmController extends Controller
 
         $this->testJson($jsonData);
     }
-
-
-
-
-
 
 
     private function imageDansDossier($image, string $imagename, string $chemin)
@@ -642,11 +602,12 @@ class BadmController extends Controller
             $agenceServDest = $this->transformEnSeulTableau($this->badm->recupAgenceServDest($idMateriel));
 
 
-
             // var_dump($agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire);
             // die();
             $conditionAgenceService = $agenceDestinataire === '' && $serviceDestinataire === '' || $agenceServiceEmetteur === $agenceServiceDestinataire;
             $conditionVide = $agenceDestinataire === '' && $serviceDestinataire === '' && $_POST['casierDestinataire'] === '' && $dateMiseLocation === '';
+
+            
             if (($codeMouvement === 'ENTREE EN PARC' || $codeMouvement === 'CHANGEMENT AGENCE/SERVICE') && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
                 $this->alertRedirection($message);
@@ -654,8 +615,7 @@ class BadmController extends Controller
             elseif ($codeMouvement === 'ENTREE EN PARC' && in_array($idMateriel, $idMateriels)) {
                 $message = 'ce matériel est déjà en PARC';
                 $this->alertRedirection($message);
-            } 
-            elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && in_array($idMateriel, $idMateriels)) {
+            } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $agenceServiceEmetteur === $agenceServiceDestinataire) {
                 $message = 'le choix du type devrait être Changement de Casier';
                 $this->alertRedirection($message);
             } elseif ($codeMouvement === 'CHANGEMENT AGENCE/SERVICE' && $conditionAgenceService) {
@@ -679,7 +639,7 @@ class BadmController extends Controller
                     'Date_Mise_Location' => $dateMiseLocation,
                     'Cout_Acquisition' => (float)$coutAcquisition,
                     'Amortissement' => (float)$data[0]['amortissement'],
-                    'Valeur_Net_Comptable' => (float)$vnc,
+                    'Valeur_Net_Comptable' => (float) str_replace(',', '.', $this->formatNumber($vnc)),
                     'Nom_Client'  => $nomClient,
                     'Modalite_Paiement'  => $modalitePaiement,
                     'Prix_Vente_HT'  => (float)$prixHt,
@@ -695,6 +655,8 @@ class BadmController extends Controller
                 foreach ($insertDbBadm as $cle => $valeur) {
                     $insertDbBadm[$cle] = strtoupper($valeur);
                 }
+
+               
                 //var_dump($insertDbBadm);
                 // die();
                 if ($codeMouvement === 'CESSION D\'\'ACTIF') {

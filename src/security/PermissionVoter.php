@@ -2,16 +2,41 @@
 
 namespace App\security;
 
-use App\Controller\ProfilControl;
+use App\Entity\User;
+use app\security\PermissionDebugger;
 
-
-
-class PermissionVoter
+final class Permission
 {
+    /**
+     * Undocumented variable
+     *
+     * @var array
+     */
     private array $voters = [];
 
-    public function can(ProfilControl $user, string $permission, $subject = null): bool
+    private ?PermissionDebugger $debugger;
+
+
+    public function __construct(?PermissionDebugger $debugger = null)
     {
+        $this->debugger = $debugger;
+    }
+
+    public function can(User $user, string $permission, $subject = null): bool
+    {
+        
+        foreach($this->voters as $voter) {
+            if($voter->canVote($permission, $subject)) 
+            {
+                $vote = $voter->vote($user, $permission, $subject);
+                if($this->debugger) {
+                    $this->debugger->debug($voter, $vote, $permission, $user, $subject);
+                }
+                if ($vote === true) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 

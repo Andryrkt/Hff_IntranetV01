@@ -64,3 +64,9 @@ th {
     justify-content: flex-end;
     gap: 1px;
 }
+
+/* .enlevePadding {
+    padding: 0px ! important;
+    margin-right: 1px ! important;
+    background: #000;
+} */

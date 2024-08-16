@@ -74,7 +74,7 @@ export function fetchData(selectOption = undefined) {
           //selectOption = document.getElementById('agenceDestinataire').value.toUpperCase();
           selectOption = agenceDestinataire.value.toUpperCase();
           //console.log(selectOption);
-        }, 300);
+        }, 1000);
       }
 
       setTimeout(() => {
@@ -89,7 +89,7 @@ export function fetchData(selectOption = undefined) {
           ].toUpperCase()}">${data[selectOption][i].toUpperCase()}</option>`;
         }
         serviceDestinataire.innerHTML = optionsHTML;
-      }, 300); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
+      }, 1000); // Mettre à jour le contenu de serviceIrium une fois que toutes les options ont été ajoutées
     })
     .catch((error) => {
       console.error(error);

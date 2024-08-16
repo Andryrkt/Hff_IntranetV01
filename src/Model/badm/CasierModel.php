@@ -13,6 +13,26 @@ class CasierModel extends Model
      */
     public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
     {
+
+        if($matricule === '' || $matricule === '0' || $matricule === null){
+            $conditionNummat = "";
+           } else {
+             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+           }
+     
+     
+           if($numParc === '' || $numParc === '0' || $numParc === null){
+             $conditionNumParc = "";
+           } else {
+             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+           }
+     
+           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
+             $conditionNumSerie = "";
+           } else {
+             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+           }
+
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
         trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
@@ -26,13 +46,12 @@ class CasierModel extends Model
         trim((select atab_lib from agr_tab where atab_code = mmat_etstock and atab_nom = 'ETM')) as groupe1,
         trim((select atab_lib from agr_tab where atab_code = mmat_affect and atab_nom = 'AFF')) as affectation,
         mmat_marqmat as constructeur,
-        --trim(mmat_natmat)||' - '||(select trim(atab_lib) from agr_tab where atab_code = mmat_natmat and atab_nom = 'NAT'),
         trim(mmat_desi) as designation,
         trim(mmat_typmat) as modele,
         mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc ,
-        --(select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)),
+     
         (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
         (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
         (select mhir_daterel from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as Date_compteur,
@@ -41,23 +60,15 @@ class CasierModel extends Model
         date(mmat_datentr) as date_achat,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R' and mofi_lib like 'Prix d''achat') as Prix_achat,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
-        (select fcde_lib from frn_cde where fcde_soc = mmat_soc and fcde_numcde = mbil_numcde),
+     
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 40 and mofi_ssclasse in (21,22,23) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Charge_Entretien,
-        (select fcde_devise from frn_cde where fcde_soc = mmat_soc and fcde_numcde = mmat_numcde),
-        (select ffac_txdev from frn_fac, mat_vem WHERE ffac_soc = mmat_soc AND mvem_numcde = mmat_numcde and mvem_nummat = mmat_nummat and mvem_numfac = ffac_numfac),
-        --(select fcde_txdev from frn_cde where fcde_soc = mmat_soc and fcde_numcde = mmat_numcde),
-        --(select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 10 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Droit_taxe,
-        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Droits_Taxe,
         
-        (select mtxt_comment from mat_txt where mtxt_code = 'LOC' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
-        (select mtxt_comment from mat_txt where mtxt_code = 'CLT' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' ' and mtxt_nolign = 10 ),
-        (select commentaire_materiel from hff_lien_materiel where  id_materiel = mmat_nummat),
-        (select lien_materiel from hff_lien_materiel where  id_materiel = mmat_nummat),
+       
+        (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Droits_Taxe,
         
         mmat_nouo,
         
-        (select mtxt_comment from mat_txt where mtxt_code = 'PRI' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
-        (select mtxt_comment from mat_txt where mtxt_code = 'FLA' and mtxt_nummat = mmat_nummat and trim(mtxt_comment)<>' '),
+     
         trim((select atab_lib from agr_tab where atab_code = mmat_natmat and atab_nom = 'NAT')) as famille,
         trim(mmat_affect) as code_affect,
         (select  mimm_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
@@ -76,7 +87,9 @@ class CasierModel extends Model
         and mmat_datedisp < '12/31/2999'
         and mmat_affect in ('LCD','IMM','VTE','SDO')
         and (MMAT_ETACHAT = 'FA' and MMAT_ETVENTE = '--')
-        and(('" . $matricule . "' is not null and mmat_nummat ='" . $matricule . "') or('" . $numSerie . "' is not null and mmat_numserie ='" . $numSerie . "') or('" . $numParc . "' is not null and mmat_recalph ='" . $numParc . "'))
+        ".$conditionNummat."
+      ".$conditionNumParc."
+      ".$conditionNumSerie."
       ";
 
         $result = $this->connect->executeQuery($statement);

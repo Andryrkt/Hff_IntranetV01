@@ -4,15 +4,21 @@ use Twig\Environment;
 
 use App\Model\ProfilModel;
 
+use App\Twig\AppExtension;
 use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
 use core\SimpleManagerRegistry;
-use Doctrine\ORM\EntityManager;
 
+use Doctrine\ORM\EntityManager;
+use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Knp\Component\Pager\Paginator;
+use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
+use Symfony\Component\Asset\Packages;
+
+use Symfony\Component\Asset\PathPackage;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
@@ -20,18 +26,19 @@ use App\Loader\CustomAnnotationClassLoader;
 
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Translation\Translator;
-
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -51,13 +58,19 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
 
 define('DEFAULT_FORM_THEME', 'form_div_layout.html.twig');
 
@@ -66,6 +79,10 @@ define('VENDOR_FORM_DIR', VENDOR_DIR . '/symfony/form');
 define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
+
+define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
+
+
 
 $request = Request::createFromGlobals();
 $response = new Response();
@@ -93,6 +110,9 @@ $csrfTokenManager = new CsrfTokenManager();
 $validator = Validation::createValidator();
 
 
+
+
+
 // Translator
 $translator = new Translator('fr_Fr');
 $translator->addLoader('xlf', new XliffFileLoader());
@@ -114,13 +134,32 @@ $twig = new Environment(new FilesystemLoader(array(
 )), ['debug' => true]);
 
 
+//configurer securite
+$tokenStorage = new TokenStorage();
+$accessDecisionManager = new AccessDecisionManager([new AffirmativeStrategy()]);
+$authorizationChecker = new AuthorizationChecker($tokenStorage, $accessDecisionManager);
+
+$session = new Session(new NativeSessionStorage());
+
+$requestStack = new RequestStack();
+$request = Request::createFromGlobals();
+$requestStack->push($request);
+
 $twig->addExtension(new TranslationExtension($translator));
 //$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
 //$twig = new Environment($loader, ['debug' => true]);
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
+$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
+$twig->addExtension(new DeleteWordExtension());
 
+// Configurer le package pour le dossier 'public'
+$publicPath = '/Hffintranet/public';
+$packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
+
+// Ajouter l'extension Asset à Twig
+$twig->addExtension(new AssetExtension($packages));
 
 // Configure Form Renderer Engine and Runtime Loader
 // $defaultFormTheme = 'form_div_layout.html.twig';
@@ -132,13 +171,10 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
-$session = new Session(new NativeSessionStorage());
 
-$requestStack = new RequestStack();
-$request = Request::createFromGlobals();
-$requestStack->push($request);
 
-// Initialisation du conteneur de services
+
+//Initialisation du conteneur de services
 // $containerBuilder = new ContainerBuilder();
 // $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
 // $loader->load('services.yaml');
@@ -150,12 +186,14 @@ $requestStack->push($request);
 // Initialisation des services nécessaires
 // $containerBuilder->set('session', $session);
 // $containerBuilder->set('app.profil_model', new ProfilModel()); // Assurez-vous que ProfilModel est correctement défini
-// $containerBuilder->compile();
+//  $containerBuilder->compile();
 
 
 
-require_once dirname(__DIR__)."/doctrineBootstrap.php";
+$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
 
+// Créer une instance de SimpleManagerRegistry
+$managerRegistry = new SimpleManagerRegistry($entityManager);
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
@@ -165,9 +203,6 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
-// Configurer KnpPaginator
-// $eventDispatcher = new EventDispatcher();
-// $paginator = new Paginator($eventDispatcher, $requestStack);
 
 //envoyer twig au controller
 Controller::setTwig($twig);

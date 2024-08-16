@@ -4,6 +4,8 @@ parameters:
 services:
   _defaults:
     autowire: true
+    autoconfigure: true
+    public: false
 
   # App\Service\GlobalVariablesService:
   #   arguments:

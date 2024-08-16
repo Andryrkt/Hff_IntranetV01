@@ -31,15 +31,16 @@
 // use App\Controller\badm\CasierListTemporaireController;
 // use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 
-use App\Model\LdapModel;
+//require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
+use App\Entity\User;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+
+
 require __DIR__ . '/config/bootstrap.php';
-
-// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-// $dotenv->load();
-
+require_once __DIR__ . '/config/dotenv.php';
 
 
 
@@ -49,17 +50,7 @@ try {
     
     $controller = $controllerResolver->getController($request);
     $arguments = $argumentResolver->getArguments($request, $controller);
-    //dd($controller);
-    // $controller = $curentRoute['_controller'];
-
-    // //$curentRoute['generator'] = $generator;
-
-    // $className = substr($controller, 0, strpos($controller, '::'));
-
-    // $methodName = substr($controller, strpos($controller, '::') + 2);
-
-    // $instance = new $className();
-//$controller =[$instance, $methodName];
+   
     call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
     $htmlContent = $twig->render('404.html.twig');
@@ -81,7 +72,6 @@ $response->send();
 // $ldap = new LdapModel();
 
 // $ldap->searchLdapUser();
-
 
 
 

@@ -1,12 +1,40 @@
-.color-perso-titre {
-    /* color: #FBBB01; */
-    color: white;
-    background-color: #212529;
-}
+
 
 .trois-points-vertical {
     text-decoration: none; 
     color: #212529; 
     font-weight: 700;
     border: 1px solid #000;
+}
+
+.separator-row {
+    height: 5px;
+}
+
+.separator-row td{
+    height: 5px;
+    background-color: #212529;
+}
+
+.rowspan-cell {
+    vertical-align: middle; /* Centrer verticalement */
+    text-align: center; /* Centrer horizontalement */
+}
+
+
+#suggestions {
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#suggestions .list-group-item {
+    cursor: pointer;
+}
+
+
+.boutonRecherche {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }

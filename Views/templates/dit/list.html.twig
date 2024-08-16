@@ -10,99 +10,97 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-		<h2 class="text-center fs-1 fw-bold  py-2 rounded color-perso-titre">
-			Liste de mouvement matériel
-		</h2>
+		<h3 class="perso-titre">
+			Liste de Demande d'intervention
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
 
-		<!-- DEBUT recherche -->
-		<div class="w-50">
-			{{ form_start(form, {'method': 'GET'}) }}
-			<div class="row">
-				<div class="col-12 col-md-6">
-					{{ form_row(form.statut) }}
-					{{ form_row(form.typeMouvement) }}
-				</div>
-				<div class="col-12 col-md-6">
-					{{ form_row(form.dateDebut) }}
-					{{ form_row(form.dateFin) }}
-				</div>
-			</div>
+		{% include "/dit/_formulaireRecherche.html.twig" %}
+	</div>
 
-			<div class="d-flex justify-content-end">
-				<button class="btn btn-warning fw-bold" type="submit">
-					<i class="fab fa-searchengin"></i>
-					Recherche</button>
-			</div>
-
-			{{ form_end(form) }}
-		</div>
-
+	<div
+		class="container-fluid">
 		<!-- DEBUT tableau -->
-		<div class="container">
-			<div class="d-flex justify-content-between">
-				<div>
-					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=excelBadm" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-						<i class="fas fa-table"></i>
-						Excel</a>
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
+		{% else %}
+			<div class="container">
+				<div class="d-flex justify-content-between">
+					<div>
+						{# Bouton EXCEL#}
+						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+							Resultats</p>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+							pages</p>
+					</div>
+					<div class="navigation">
+						{% set queryParams = criteria  %}
+
+						{% if currentPage > 1 %}
+							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+								<i class="fas fa-angle-left text-warning"></i>
+							</a>
+						{% endif %}
 
 
-					<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn bg-danger text-white my-3 fw-bold">Listes Annulés</a>
-				</div>
-				<div>
-					<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-						Resultats</p>
-				</div>
-				<div>
-					<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-						pages</p>
-				</div>
-				<div class="navigation">
-					{% set queryParams = criteria  %}
-
-					{% if currentPage > 1 %}
-						<a class="btn btn-dark my-3" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage - 1})) }}">
-							<i class="fas fa-angle-left text-warning"></i>
-						</a>
-					{% endif %}
-
-
-					{% if currentPage < totalPages %}
-						<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
-							<i class="fas fa-angle-right text-warning"></i>
-						</a>
-					{% endif %}
+						{% if currentPage < totalPages %}
+							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+								<i class="fas fa-angle-right text-warning"></i>
+							</a>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 
-			<table class="table rounded">
+			<table class="table rounded table-plein-ecran">
 				<thead class="table-dark">
 					<tr>
 						<th>
 							<i class="fas fa-ellipsis-vertical"></i>
 						</th>
 						<th>Statut</th>
-						<th>N° BADM</th>
-						<th>Code_Mouvement</th>
-						<th>Id Materiel</th>
-						<th>Ag\Serv Emetteur</th>
-						<th>Ag\Serv Destinataire</th>
+						<th>N° DIT</th>
+						<th>type Document</th>
+						<th>Niveau</th>
+						<th>Categories</th>
+						<th>N° Serie</th>
+						<th>N° Parc</th>
+						<th>Date Demande</th>
+						<th>Int/Ext</th>
+						<th>Emetteur</th>
+						<th>Débiteur</th>
+						<th>Objet</th>
+						<th>Section affectée</th>
+						<th>N° Or</th>
+						<th>Statut Or</th>
+
+						<th>Statut Livraison Pièces</th>
+						<th>Statut Achats Locaux</th>
+						<th>Utilisateur</th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for item in data %}
 						<tr>
 							{# Début Action #}
-							<td>
+							<td class="align-middle" style="padding: 0px">
 								<div class="dropdown">
-									<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+
 										<li>
-											<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
-										</li>
-										<li>
-											<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
+											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
 										</li>
 									</ul>
 								</div>
@@ -110,45 +108,67 @@
 							{# Fin Actions #}
 
 							{# DEBUT Statut #}
-							{% if item.statutDemande.description | trim == 'OUVERT' %}
+							{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
 								<td class="bg-warning bg-gradient fw-bold text-cente">
-									{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'CLOTURE' or item.statutDemande.description | trim == 'CLOTURE COMPTA' %}
-								<td class="bg-success bg-gradient fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE' %}
-								<td class="bg-success p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE DESTINATAIRE  ' %}
-								<td class="bg-info fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'ANNULE INFORMATIQUE' or item.statutDemande.description | trim == 'ANNULE SERVICE DESTINATAIRE' or item.statutDemande.description | trim == 'ANNULE SERVICE EMETTEUR' or item.statutDemande.description | trim =='ANNULE' %}
-								<td class="bg-danger fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'ATTENTE VALIDATION DG'  %}
-								<td class="bg-primary fw-bold">{{item.statutDemande.description | trim}}</td>
-							{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR'%}
-								<td class="bg-primary p-2 fw-bold" style="--bs-bg-opacity: .5;">{{item.statutDemande.description | trim}}</td>
+									{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
 							{% else %}
-								<td>{{item.statutDemande.description | trim}}</td>
+								<td>{{item.idStatutDemande.description | trim}}</td>
 							{% endif %}
 							{# FIN Statut #}
 
 							<td>
-								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}">{{ item.numBadm }}</a>
+								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank">{{ item.numeroDemandeIntervention }}</a>
 							</td>
-							<td>{{ item.typeMouvement}}</td>
-							<td>{{ item.idMateriel}}</td>
+							<td>{{ item.typeDocument.description}}</td>
+							<td>{{ item.idNiveauUrgence.description}}</td>
+							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+
+							{% if item.idMateriel not in idMat %}
+								<td>
+									-
+								</td>
+								<td>
+									-
+								</td>
+							{% else %}
+								{% for num in numSerieParc %}
+									{% if item.idMateriel == num.num_matricule %}
+										<td>{{ num.num_serie}}</td>
+										<td>{{ num.num_parc}}</td>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+
+							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
-							<td>{{ item.agenceServiceDestinataire}}</td>
+							<td>{{ item.agenceServiceDebiteur}}</td>
+							<td>{{ item.objetDemande}}</td>
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
+							<td>
+								{% if item.numeroOr != '' %}
+									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
+								{% endif %}
+							</td>
+							<td>{{ item.statutOr}}</td>
+							<td>{{ item.statutachatpiece}}</td>
+							<td>{{ item.statutachatlocaux}}</td>
+							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
 					{% endfor %}
 				</tbody>
 			</table>
-		</div>
-		<!-- FIN tableau -->
+		{% endif %}
+	</div>
 
-
-	{% endblock %}
-
-	{% block javascript %}
-		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-		<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
-
-	{% endblock %}
+	<!-- FIN tableau -->
+	{# body modal #}
+	{% include "/dit/_modal.html.twig"  %}
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+{% endblock %}

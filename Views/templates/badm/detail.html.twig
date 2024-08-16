@@ -1,0 +1,128 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
+{% endblock%}
+
+{% block nav %}{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+
+{% block content %}
+
+
+	<div class="container my-5">
+
+		<div class="row">
+			<div class="col-12 col-md-11">
+				<h2 class="fw-bold " style="color:#0e4194;">Liste Bordereau d’Acquisition et de Mouvement Matériel</h2>
+			</div>
+
+			<div class=" col-12 col-md-1">
+				<a href="/Hffintranet/index.php?action=formBadm" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+			</div>
+		</div>
+
+
+		<div class="row">
+			<div class="col-12 col-md-3">
+				{{  macroForm.affichage('Date', badm.dateDemande | date('d/m/Y'))}}
+			</div>
+			<div class="col-12 col-md-3">{{  macroForm.affichage('N° BADM', badm.numBadm)}}</div>
+			<div class="codeMouvement">
+				<h3 id="codeMouvement">{{ macroForm.affichage('Type de Mouvement', badm.typeMouvement.description)}}</h3>
+			</div>
+		</div>
+
+		{# DEBUT Caractéristiques du matériel#}
+		<div class="row">{{ macroForm.sousTitre('Caractéristiques du matériel', {class: 'sousTitre'})}}</div>
+		<div class="row">
+			<div class="row">
+				<div class="col-12 col-md-6 col-lg-3">{{  macroForm.affichage('Désignation', data.0.designation)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Id Matériel', data.0.num_matricule)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('N° Serie', data.0.num_serie)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('N° Parc', data.0.num_parc)}}</div>
+			</div>
+			<div class="row">
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Groupe', data.0.famille)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Constructeur', data.0.constructeur)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Modele', data.0.modele)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Année du Modele', data.0.annee)}}</div>
+			</div>
+			<div class="row d-flex">
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Affectation', data.0.affectation)}}</div>
+				<div class="col-12 col-md-6 col-lg-3">{{ macroForm.affichage('Date d\'Achat', data.0.date_achat | date('d/m/Y'))}}</div>
+		</div>
+	</div>
+	{# FIN Caractéristiques du matériel#}
+
+	{# DEBUT Etat machine#}
+	<div class="row">{{ macroForm.sousTitre('Etat machine', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6">{{  macroForm.affichage('Heure Machine', data.0.heure)}}</div>
+		<div class="col-12 col-md-6">{{ macroForm.affichage('Km Machine', data.0.km)}}</div>
+	</div>
+	{# FIN Etat machine#}
+
+	{# DEBUT Agence et Service Emetteur#}
+	<div class="row">{{ macroForm.sousTitre('Agence et Service émetteur', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{  macroForm.affichage('Agence', badm.agenceEmetteurId.codeAgence ~ ' ' ~ badm.agenceEmetteurId.libelleAgence)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Service', badm.serviceEmetteurId.codeService ~ ' ' ~  badm.serviceEmetteurId.libelleService)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{  macroForm.affichage('Casier', badm.casierEmetteur)}}</div>
+	</div>
+	{# FIN Agence et Service Emetteur#}
+
+	{# DEBUT Agence et Service Destiantaire#}
+	<div class="row">{{ macroForm.sousTitre('Agence et Service destinataire', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{  macroForm.affichage('Agence', badm.agenceDebiteurId.codeAgence ~ ' ' ~  badm.agenceDebiteurId.libelleAgence)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Service', badm.serviceDebiteurId.codeService ~ ' ' ~ badm.serviceDebiteurId.libelleService)}}</div>
+		<div class="col-12 col-md-6 col-lg-4">{{  macroForm.affichage('Casier', badm.casierDestinataire.casier)}}</div>
+	</div>
+	<div class="row"><div class="col-12">{{ macroForm.affichage('Motif', badm.motifMateriel) }}</div></div>
+	{# FIN Agence et Service Destiantaire#}
+
+	{# DEBUT ENTREE EN PARC#}
+	<div class="row">{{ macroForm.sousTitre('Entrée en parc', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6">{{ macroForm.affichage('Etat achat', badm.etatAchat)}}</div>
+		<div class="col-12 col-md-6">{{ macroForm.affichage('Date Mise en Location', badm.dateMiseLocation | date('d/m/Y'))}}</div>
+	</div>
+	{# FIN Agence et Service Destiantaire#}
+
+	{# DEBUT Bilan Financière#}
+	<div class="row">{{ macroForm.sousTitre('Valeur (MGA)', {class: 'sousTitre'})}}</div>
+	<div class="row">
+		<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Coût d\'acquisition', badm.coutAcquisition |number_format(2,',', '.'))}}</div>
+				<div class="col-12 col-md-6 col-lg-4">{{  macroForm.affichage('Amortissement', badm.amortissement  |number_format(2,',', '.'))}}</div>
+				<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('VNC', badm.valeurNetComptable  |number_format(2,',', '.'))}}</div>
+			</div>
+			{# FIN Bilan Financière#}
+
+			<div class="row">{{ macroForm.sousTitre('Cession d’actif', {class: 'sousTitre'})}}</div>
+			<div class="row">
+				<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Nom Client', badm.nomClient) }}</div>
+				<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Modalité de paiement', badm.modalitePaiement) }}</div>
+				<div class="col-12 col-md-6 col-lg-4">{{ macroForm.affichage('Prix de Vente HT', badm.prixVenteHt |number_format(2,',', '.'))}}</div>
+			</div>
+
+
+			<div class="row">
+				<div class="col-12">{{ macroForm.sousTitre('Mise au rebut', {class: 'sousTitre'})}}</div>
+			</div>
+
+			<div class="row">{{ macroForm.affichage('Motif de mise au rebut', badm.motifMiseRebut)}}</div>
+
+			<div class="row">
+				<div class="col-12 col-md-6">{{ macroForm.affichage('Nom Image', badm.nomImage)}}</div>
+				<div class="col-12 col-md-6">{{ macroForm.affichage('Nom fichier', badm.nomFichier)}}</div>
+			</div>
+		</div>
+	{% endblock content %}
+
+
+	{% block javascript %}
+		<script type="module" src="/Hffintranet/Views/js/badm/secondForm.js"></script>
+	{% endblock %}

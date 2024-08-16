@@ -8,26 +8,36 @@ namespace App\Controller;
 use Parsedown;
 
 
+use App\Entity\User;
 use Twig\Environment;
+use App\Entity\Agence;
+use App\Entity\Service;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
+use App\Entity\Application;
+use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
 use App\Model\badm\BadmModel;
+use App\Service\ExcelService;
 use App\Model\badm\CasierModel;
 use App\Model\dom\DomListModel;
+use App\Service\SessionManager;
 use App\Model\dom\DomDetailModel;
 use Twig\Loader\FilesystemLoader;
+use App\Model\TransferDonnerModel;
 use Twig\Extension\DebugExtension;
 use App\Model\badm\BadmDetailModel;
 use App\Model\badm\CasierListModel;
 use App\Service\FlashManagerService;
 use Symfony\Component\Asset\Package;
+use App\Service\AccessControlService;
 use App\Service\ExcelExporterService;
 use App\Model\badm\BadmRechercheModel;
 use App\Model\dom\DomDuplicationModel;
+use App\Service\SessionManagerService;
 use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use App\Model\badm\CasierListTemporaireModel;
@@ -85,21 +95,21 @@ class Controller
     protected static $em;
     protected static $paginator;
 
+    protected $ditModel;
+
+    protected $transfer04;
+
+    protected $sessionService;
+
+    protected $accessControl;
+
+    protected $excelService;
+
     public function __construct()
     {
 
         $this->fusionPdf = new FusionPdf();
         $this->genererPdf = new GenererPdf();
-
-        //$this->loader = new FilesystemLoader(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Views/templates');
-       
-        //$this->twig = new Environment($this->loader);
-        //$this->twig = new Environment($this->loader, ['debug' => true]);
-        //$this->twig->addExtension(new DebugExtension());
-        //$this->twig->addExtension(new RoutingExtension(self::$generator));
-        // $this->strategy = new JsonManifestVersionStrategy('/path/to/manifest.json');
-        // $this->package = new Package($this->strategy);
-        // $this->twig->addExtension(new AssetExtension($this->package));
 
         $this->ldap = new LdapModel();
 
@@ -107,9 +117,6 @@ class Controller
 
         $this->odbcCrud = new OdbcCrudModel();
 
-        $this->casier = new CasierModel();
-        $this->casierList = new CasierListModel();
-        $this->caiserListTemporaire = new CasierListTemporaireModel();
 
         $this->badmRech = new BadmRechercheModel();
         $this->badm = new BadmModel();
@@ -136,6 +143,17 @@ class Controller
         $this->parsedown = new Parsedown();
 
         $this->profilUser = new ProfilUserModel();
+
+        $this->ditModel = new DitModel();
+
+        $this->transfer04 = new TransferDonnerModel();
+
+
+        $this->sessionService = new SessionManagerService();
+
+        $this->accessControl = new AccessControlService();
+
+        $this->excelService = new ExcelService();
     }
 
 
@@ -145,19 +163,34 @@ class Controller
     {
         self::$twig = $twig;
     }
+    public static function getTwig()
+    {
+        return self::$twig;
+    }
 
     public static function setValidator($validator)
     {
         self::$validator = $validator;
     }
+
     public static function setGenerator($generator)
     {
         self::$generator = $generator;
     }
 
+    public static function getGenerator()
+    {
+        return self::$generator;
+    }
+    
     public static function setEntity($em)
     {
         self::$em = $em;
+    }
+
+    public static function getEntity()
+    {
+        return self::$em;
     }
 
     public static function setPaginator($paginator)
@@ -265,9 +298,227 @@ class Controller
     }
 
 
+    protected function testJson($jsonData)
+    {
+        if ($jsonData === false) {
+            // L'encodage a échoué, vérifions pourquoi
+            switch (json_last_error()) {
+                case JSON_ERROR_NONE:
+                    echo 'Aucune erreur';
+                    break;
+                case JSON_ERROR_DEPTH:
+                    echo 'Profondeur maximale atteinte';
+                    break;
+                case JSON_ERROR_STATE_MISMATCH:
+                    echo 'Inadéquation des états ou mode invalide';
+                    break;
+                case JSON_ERROR_CTRL_CHAR:
+                    echo 'Caractère de contrôle inattendu trouvé';
+                    break;
+                case JSON_ERROR_SYNTAX:
+                    echo 'Erreur de syntaxe, JSON malformé';
+                    break;
+                case JSON_ERROR_UTF8:
+                    echo 'Caractères UTF-8 malformés, possiblement mal encodés';
+                    break;
+                default:
+                    echo 'Erreur inconnue';
+                    break;
+            }
+        } else {
+            // L'encodage a réussi
+            echo $jsonData;
+        }
+    }
     
+
+    /**
+     * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
+     */
+    protected function autoINcriment(string $nomDemande)
+    {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
+        //var_dump($AnneMoisOfcours);
+        // dernier NumDOM dans la base
+        if ($nomDemande === 'BDM') {
+            //$Max_Num = $this->badm->RecupereNumBDM();
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM'])->getDerniereId();
+        } elseif ($nomDemande === 'CAS') {
+            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS'])->getDerniereId();
+        } elseif ($nomDemande === 'DIT') {
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
+        } elseif ($nomDemande === 'DOM') {
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM'])->getDerniereId();
+        } 
+        else {
+            $Max_Num = $nomDemande . $AnneMoisOfcours . '0000';
+        }
+
+        //var_dump($Max_Num);
+        //$Max_Num = 'CAS24040000';
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        //var_dump($vNumSequential);
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        //var_dump($DateAnneemoisnum);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        //var_dump($DateYearsMonthOfMax);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential + 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 1;
+            }
+        }
+        //var_dump($vNumSequential);
+        $Result_Num = $nomDemande . $AnneMoisOfcours . $this->CompleteChaineCaractere($vNumSequential, 4, "0", "G");
+        //var_dump($Result_Num);
+
+        return $Result_Num;
+    }
     
+    protected function autoDecrementDIT(string $nomDemande)
+    {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        //$MonthOfcours = "08"; //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
+        //var_dump($AnneMoisOfcours);
+        // dernier NumDOM dans la base
+       
+            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+            
+        if ($nomDemande === 'DIT') {
+            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
+        } else {
+            $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
+        }
+
+        //var_dump($Max_Num);
+        //$Max_Num = 'CAS24040000';
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        //dump($vNumSequential);
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        //dump($DateAnneemoisnum);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        //dump($DateYearsMonthOfMax);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential - 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 9999;
+            }
+        }
+
+        //dump($vNumSequential);
+        //var_dump($vNumSequential);
+        $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
+        //var_dump($Result_Num);
+        //dd($Result_Num);
+        return $Result_Num;
+    }
     
+
+    protected function arrayToObjet(User $user): User
+    {
+     
+        $superieurs = [];
+        foreach ($user->getSuperieurs() as  $value) {
+            if (empty($value)) {
+                return $user;
+            } else {
+                $superieurs[] = self::$em->getRepository(user::class)->find($value);
+           $user->setSuperieurs($superieurs);
+            }
+           
+       }
+   
+       return $user;
+    } 
     
+
+    protected function agenceServiceIpsObjet(): array
+    {
+        try {
+            $userId = $this->sessionService->get('user_id');
+            if (!$userId) {
+                throw new \Exception("User ID not found in session");
+            }
     
+            $user = self::$em->getRepository(User::class)->find($userId);
+            if (!$user) {
+                throw new \Exception("User not found with ID $userId");
+            }
+    
+            $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
+            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+            if (!$agenceIps) {
+                throw new \Exception("Agence not found with code $codeAgence");
+            }
+    
+            $codeService = $user->getAgenceServiceIrium()->getServiceIps();
+            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            if (!$serviceIps) {
+                throw new \Exception("Service not found with code $codeService");
+            }
+    
+            return [
+                'agenceIps' => $agenceIps,
+                'serviceIps' => $serviceIps
+            ];
+        } catch (\Exception $e) {
+            // Gérer l'erreur ici, par exemple en loguant l'erreur et en retournant une réponse par défaut ou vide.
+            error_log($e->getMessage());
+            return [
+                'agenceIps' => null,
+                'serviceIps' => null
+            ];
+        }
+    }
+
+    protected function agenceServiceIpsString()
+    {
+        try {
+
+       
+        $userId = $this->sessionService->get('user_id');
+        if (!$userId) {
+            throw new \Exception("User ID not found in session");
+        }
+
+        $user = self::$em->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new \Exception("User not found with ID $userId");
+        }
+
+        $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+        $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+        if (!$agenceIps) {
+            throw new \Exception("Agence not found with code $codeAgence");
+        }
+
+        $codeService = $user->getAgenceServiceIrium()->getServiceips();
+        $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+        if (!$serviceIps) {
+            throw new \Exception("Service not found with code $codeService");
+        }
+
+        return [
+            'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
+            'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
+        ];
+    } catch (\Throwable $e) {
+        error_log($e->getMessage());
+            return [
+                'agenceIps' => '',
+                'serviceIps' => ''
+            ];
+    }
+    }
 }

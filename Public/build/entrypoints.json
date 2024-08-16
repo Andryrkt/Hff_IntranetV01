@@ -1,0 +1,18 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/build/runtime.js",
+        "/build/app.js"
+      ]
+    },
+    "global": {
+      "js": [
+        "/build/runtime.js"
+      ],
+      "css": [
+        "/build/global.css"
+      ]
+    }
+  }
+}

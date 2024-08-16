@@ -23,15 +23,7 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-        $this->SessionStart();
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-
-       
+               
         if($request->query->get('page') !== null){
             if($request->query->get('typeMouvement') !==null){
                 $idTypeMouvement = self::$em->getRepository(TypeMouvement::class)->findBy(['description' => $request->query->get('typeMouvement')], [])[0]->getId();
@@ -75,6 +67,7 @@ class BadmListeController extends Controller
         $criteria = [
             'statut' => $statut,
             'typeMouvement' => $typeMouvement,
+            'idMateriel'=> $request->query->get('idMateriel'),
             'dateDebut' => $request->query->get('dateDebut'),
             'dateFin' => $request->query->get('dateFin')
         ];
@@ -90,29 +83,60 @@ class BadmListeController extends Controller
 
         $form->handleRequest($request);
 
-
+        $empty = false;
         if($form->isSubmitted() && $form->isValid()) {
-            $criteria['statut'] = $form->get('statut')->getData();
-            $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
-            $criteria['dateDebut'] = $form->get('dateDebut')->getData();
-            $criteria['dateFin'] = $form->get('dateFin')->getData();
+            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
+            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+
+            if(!empty($numParc) || !empty($numSerie)){
+                
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                
+                if(!empty($idMateriel)){
+                    $criteria['statut'] = $form->get('statut')->getData();
+                    $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
+                    $criteria['idMateriel'] = $idMateriel[0]['num_matricule'];
+                    $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                    $criteria['dateFin'] = $form->get('dateFin')->getData();
+                } elseif(empty($idMateriel)) {
+                    $empty = true;
+                }
+            } else {
+
+                $criteria['statut'] = $form->get('statut')->getData();
+                $criteria['typeMouvement'] = $form->get('typeMouvement')->getData();
+                $criteria['idMateriel'] = $form->get('idMateriel')->getData();
+                $criteria['dateDebut'] = $form->get('dateDebut')->getData();
+                $criteria['dateFin'] = $form->get('dateFin')->getData();
+            }
         } 
 
-        
         
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
         $repository= self::$em->getRepository(Badm::class);
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+
+        //enregistre le critère dans la session
+        $this->sessionService->set('badm_search_criteria', $criteria);
+
+        for ($i=0 ; $i < count($data)  ; $i++ ) { 
+            $badms = $this->badmRech->findDesiSerieParc($data[$i]->getIdMateriel());
+            $data[$i]->setDesignation($badms[0]['designation']);
+            $data[$i]->setNumSerie($badms[0]['num_serie']);
+            $data[$i]->setNumParc($badms[0]['num_parc']);
+        }
+
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
-        
-        if($request->query->get("envoyer") === "excelBadm") {
-        
-         $this->excelExport->exportToExcelBadm($repository->findAndFilteredExcel($criteria));
+
+        if(empty($data)){
+            $empty = true;
         }
+        
+      
 
         if($request->query->get("envoyer") === "listAnnuler") {
         
@@ -122,86 +146,66 @@ class BadmListeController extends Controller
             $totalPages = ceil($totalBadms / $limit);
         }
         
-        
-        
-      
+
 
         self::$twig->display(
             'badm/listBadm.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'form' => $form->createView(),
-                // 'pagination' => $pagination
-                // 'typeMouvement' => $typeMouvement,
                 'data' => $data,
+                'empty' => $empty,
                 'currentPage' => $page,
                 'totalPages' =>$totalPages,
                 'criteria' => $criteria,
                'resultat' => $totalBadms,
-               
-               
             ]
         );
     }
 
-    // /**
-    //  * @Route("/ListJsonBadm")
-    //  */
-    // public function envoiListJsonBadm()
-    // {
-    //     $this->SessionStart();
-
-    //     $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    //     $text = file_get_contents($fichier);
-    //     $boolean = strpos($text, $_SESSION['user']);
-
-    //     if ($boolean) {
-    //         $badmJson = $this->badmRech->RechercheBadmModelAll();
-    //     } else {
-    //         $badmJson = $this->badmRech->RechercheBadmMode($_SESSION['user']);
-    //     }
 
 
-    //     header("Content-type:application/json");
+     /**
+     * @Route("/export-badm-excel", name="export_badm_excel")
+     */
+    public function exportExcel(Request $request)
+{
+    // Récupère les critères dans la session
+    $criteria = $this->sessionService->get('badm_search_criteria', []);
 
-    //     $jsonData = json_encode($badmJson);
+    // Récupère les entités filtrées
+    $entities = self::$em->getRepository(Badm::class)->findAndFilteredExcel($criteria);
+
+    // Convertir les entités en tableau de données
+    $data = [];
+    $data[] = [
+        "Statut", "N°BADM", "Date demande", "Mouvement", "Id matériel", "Ag/Serv émetteur", "N° Parc", "Casier émetteur", "Casier destinataire"
+    ];
+
+    foreach ($entities as $entity) {
+        if($entity->getCasierDestinataire() === null){
+            $casierDestinataire = 'N/A';
+        } elseif ($entity->getCasierDestinataire()->getId() == 0 ||  $entity->getCasierDestinataire()->getId() == '' || $entity->getCasierDestinataire()->getId() == null) {
+            $casierDestinataire = 'N/A';
+        } else {
+$casierDestinataire = $entity->getCasierDestinataire()->getCasier();
+        }
+        $data[] = [
+            $entity->getStatutDemande() ? $entity->getStatutDemande()->getDescription() : 'N/A',
+            $entity->getNumBadm(),
+            $entity->getDateDemande() ? $entity->getDateDemande()->format('d/m/Y') : 'N/A',
+            $entity->getTypeMouvement() ? $entity->getTypeMouvement()->getDescription() : 'N/A',
+            $entity->getIdMateriel(),
+            $entity->getAgenceServiceEmetteur(),
+            $entity->getNumParc(),
+            $entity->getCasierEmetteur(),
+           $casierDestinataire
+        ];
+    }
+
+    // Crée le fichier Excel
+    $this->excelService->createSpreadsheet($data);
+}
 
 
-    //     $this->testJson($jsonData);
-    // }
 
-
-    // private function testJson($jsonData)
-    // {
-    //     if ($jsonData === false) {
-    //         // L'encodage a échoué, vérifions pourquoi
-    //         switch (json_last_error()) {
-    //             case JSON_ERROR_NONE:
-    //                 echo 'Aucune erreur';
-    //                 break;
-    //             case JSON_ERROR_DEPTH:
-    //                 echo 'Profondeur maximale atteinte';
-    //                 break;
-    //             case JSON_ERROR_STATE_MISMATCH:
-    //                 echo 'Inadéquation des états ou mode invalide';
-    //                 break;
-    //             case JSON_ERROR_CTRL_CHAR:
-    //                 echo 'Caractère de contrôle inattendu trouvé';
-    //                 break;
-    //             case JSON_ERROR_SYNTAX:
-    //                 echo 'Erreur de syntaxe, JSON malformé';
-    //                 break;
-    //             case JSON_ERROR_UTF8:
-    //                 echo 'Caractères UTF-8 malformés, possiblement mal encodés';
-    //                 break;
-    //             default:
-    //                 echo 'Erreur inconnue';
-    //                 break;
-    //         }
-    //     } else {
-    //         // L'encodage a réussi
-    //         echo $jsonData;
-    //     }
-    // }
 }

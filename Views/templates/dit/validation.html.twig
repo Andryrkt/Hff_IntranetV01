@@ -1,0 +1,255 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block nav %}{% endblock %}
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class=" container mt-3">
+		<div class="card mb-3">
+			<div class="card-body">
+
+				<class="container">
+					<h3 class="perso-titre">
+						Détail de la demande
+					</h3>
+					<div class="d-flex justify-content-between">
+						<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold  fond-btn">Retour</a>
+						{% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %}
+						<a href="/Hffintranet/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank">
+							<i class="fas fa-print"></i>
+							Imprimer
+						</a>
+					</div>
+
+
+					<div
+						class="row">
+						{# DEBUT DIT #}
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('DIT', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Date Demande', dit.dateDemande|date('d/m/Y'))}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Statut DIT', '')}}</div>
+							</div>
+							<div class="row">
+								<div class="col-12">{{ macroForm.affichage('Objet de la demande', dit.objetDemande)}}</div>
+								<div class="col-12">{{ macroForm.affichage('Détail de la demande', dit.detailDemande)}}</div>
+							</div>
+							<div class="row">
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Type de document', dit.typeDocument)}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Demande de devis', dit.demandeDevis)}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Livraison Partielle', dit.livraisonPartiel)}}</div>
+							</div>
+							<div class="row">
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Avis de recouvrement', dit.avisRecouvrement)}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Catégorie de demande', dit.categorieDemande.libelleCategorieAteApp)}}</div>
+								<div class="col-12 col-md-4">{{ macroForm.affichage('Interne et Externe', dit.internetExterne)}}</div>
+							</div>
+						</div>
+						{# FIN DIT #}
+						{# DEBUT OR #}
+						<div class="col-12 col-md-3">
+							{{ macroForm.sousTitre('Or', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+
+									{{ macroForm.affichage('N° Or', dit.numeroOr)}}
+								</div>
+								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
+								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
+							</div>
+						</div>
+						{# FIN OR #}
+						{# DEBUT Commande #}
+						<div class="col-12 col-md-3">
+							{{ macroForm.sousTitre('Commande', {class: 'sousTitre'})}}
+							<table class="table rounded mt-1">
+								<thead class="table">
+									<tr>
+										<th>N°</th>
+										<th>Date</th>
+										<th>Statut</th>
+									</tr>
+								</thead>
+								<tbody>
+
+									{% for command in commandes %}
+										<tr>
+											<td>{{ command.slor_numcf}}</td>
+											<td>{{ command.fcde_date | date("d/m/Y")}}</td>
+											<td>
+												--
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						{# FIN Commande#}
+					</div>
+
+
+					<div class="row">
+						<div
+							class="col-12 col-md-6">
+							{# DEBUT Agence et service #}
+							{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ macroForm.affichage('Débiteur', dit.agenceServiceDebiteur)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ macroForm.affichage('Emetteur', dit.agenceServiceEmetteur)}}
+								</div>
+							</div>
+							{# FIN Agence et service #}
+							{# DEBUT Info Client #}
+
+							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Nom du client', dit.nomClient)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('N° téléphone', dit.numeroTel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Client sous contrat', dit.clientSousContrat)}}
+								</div>
+							</div>
+							{# FIN Info Client #}
+
+							{# DEBUT CARACTERISTIQUE MACHINE #}
+							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Id Materiel', dit.idMateriel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('n° Serie', dit.numSerie)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('n° Parc', dit.numParc)}}
+								</div>
+							</div>
+							<div>
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Constructeur', dit.constructeur)}}
+										{{ macroForm.affichage('Designation', dit.designation)}}
+										{{ macroForm.affichage('Km', dit.km)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Modele', dit.modele)}}
+										{{ macroForm.affichage('Casier', dit.casier)}}
+										{{ macroForm.affichage('Heure', heure)}}
+									</div>
+								</div>
+							</div>
+							{# FIN CARACTERISTIQUE MACHINE#}
+
+							{# DEBUT Bilan financière#}
+							{{ macroForm.sousTitre('Bilan Financière', {class: 'sousTitre mb-3'})}}
+							<div class="cadre">
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('CA', dit.chiffreAffaire | number_format(2, ',', '.'))}}
+										{{ macroForm.affichage('Charge d\'entretien', dit.chargeEntretient | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('Charge Locative', dit.chargeLocative | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('Résultat d\'exploitation', dit.resultatExploitation | number_format(2, ',', '.'))}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Coût d\'acquisition', dit.coutAcquisition | number_format(2, ',', '.'))}}
+                                    	{{ macroForm.affichage('Amortissement', dit.amortissement | number_format(2, ',', '.'))}}
+                                        {{ macroForm.affichage('VNC', dit.valeurNetComptable | number_format(2, ',', '.'))}}
+									</div>
+								</div>
+						</div>
+					</div>
+						{# FIN Bilan #}
+
+						{# DEBUT INTERVENTION#}
+					<div class="col-12 col-md-6">
+						{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ macroForm.affichage('Niveau d\'urgence', dit.idNiveauUrgence)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Date prévu travaux', dit.datePrevueTravaux|date('d/m/Y'))}}
+									</div>
+								</div>
+								{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Type de réparation',  dit.typeReparation)}}
+									</div>
+									<div class="col-12 col-md-6">
+										{{ macroForm.affichage('Réparation réalisé par', dit.reparationRealise)}}
+									</div>
+								</div>
+								{# FIN INTERVENTION#}
+
+								{# DEBUT PIECE JOINTE#}
+								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+								{{ macroForm.affichageFile('Pièce jointe 01', dit.pieceJoint01, "/Hffintranet/Upload/dit/fichier")}}
+
+								{{ macroForm.affichageFile('Pièce jointe 02', dit.pieceJoint02, "/Hffintranet/Upload/dit/fichier")}}
+
+								{{ macroForm.affichageFile('Pièce jointe 03', dit.pieceJoint03, "/Hffintranet/Upload/dit/fichier")}}
+								{# FIN PIECE JOINTE #}
+
+
+								{% if autoriser %}
+									{# DEBUT OBSERVATION TECHNIQUE#}
+									{{ form_start(form, {'attr':{'id':'formDit'}}
+									) }}
+									{{ form_errors(form)}}
+									{{ macroForm.sousTitre('Observation DT', {class: 'sousTitre mb-3'})}}
+									<div class="row">
+										<div class="col-12 col-md-6">{{form_row(form.idServiceIntervenant)}}</div>
+										<div class="col-12 col-md-6">{{form_row(form.codeSection)}}</div>
+									</div>
+
+									{{ form_row(form.observationDirectionTechnique)}}
+
+								</div>
+							</div>
+
+
+							<div class="d-flex justify-content-end">
+								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
+									<i class="fas fa-xmark"></i>
+									Réfuser
+								</button>
+								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
+									<i class="fas fa-check"></i>
+									Valider
+								</button>
+							</div>
+
+
+							{{ form_end(form) }}
+							{# FIN OBSERVATION#}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="materielInfos"></div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dit/ditValidation.js"></script>
+{% endblock %}

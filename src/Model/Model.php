@@ -10,6 +10,7 @@ class Model
     protected $connect;
     protected $sqlServer;
     protected $informix;
+    protected $connexion04;
 
 
 
@@ -20,6 +21,7 @@ class Model
 
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
+        $this->connexion04 = new ConnexionDote4();
     }
 
     public function RecupereNumDom($colonne)
