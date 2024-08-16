@@ -22,7 +22,6 @@ class UserController extends Controller
                     if(empty($value)){
                         return $data;
                     } else {
-
                         $superieurs[] = self::$em->getRepository(user::class)->find($value);
                     }
                 }
@@ -41,18 +40,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
         $data = $this->transformIdEnObjetEntitySuperieur($data);
 
         self::$twig->display('admin/utilisateur/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'data' => $data
         ]);
     }
@@ -62,12 +54,6 @@ class UserController extends Controller
      */
     public function new(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $user = new User();
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
@@ -108,8 +94,6 @@ class UserController extends Controller
         }
 
         self::$twig->display('admin/utilisateur/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'form' => $form->createView()
         ]);
     }
@@ -123,11 +107,7 @@ class UserController extends Controller
  */
 public function edit(Request $request, $id)
 {
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+
 
     $user = self::$em->getRepository(User::class)->find($id);
     // Conversion de l'utilisateur en objet s'il est en tableau
@@ -159,8 +139,6 @@ public function edit(Request $request, $id)
 
     self::$twig->display('admin/utilisateur/edit.html.twig', [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
     ]);
 }
 
@@ -217,4 +195,17 @@ public function delete(Request $request, $id)
     return $this->redirectToRoute("utilisateur_index");
 }
 
+  /**
+ * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
+ *
+ * @return void
+ */
+public function show($id)
+{
+    $data = self::$em->getRepository(User::class)->find($id);
+
+    self::$twig->display('admin/utilisateur/details.html.twig', [
+        'data' => $data
+    ]);
+}
 }

@@ -59,7 +59,7 @@ class UserType extends AbstractType
         ->add('nom_utilisateur', 
         ChoiceType::class, 
         [
-            'label' => "Nom d'utilisateur",
+            'label' => "Nom d'utilisateur *",
             'choices' => array_combine($nom, $nom),
             'placeholder' => '-- Choisir un nom d\'utilisateur --',
             
@@ -67,7 +67,7 @@ class UserType extends AbstractType
         ->add('matricule', 
             NumberType::class,
             [
-                'label' => 'Numero Matricule',
+                'label' => 'Numero Matricule *',
                 'required'=>true,
                 
             ])
@@ -79,7 +79,7 @@ class UserType extends AbstractType
             ])
         ->add('roles', 
             EntityType::class, [
-                'label' => 'Role',
+                'label' => 'Role *',
                 'placeholder' => '-- Choisir une role --',
                 'class' => Role::class,
                 'choice_label' =>'role_name',
@@ -94,7 +94,7 @@ class UserType extends AbstractType
         ->add('applications',
             EntityType::class,
             [
-                'label' => 'Applications',
+                'label' => 'Applications *',
                 'class' => Application::class,
                 'choice_label' => 'codeApp',
                 'multiple' => true,
@@ -105,7 +105,7 @@ class UserType extends AbstractType
         ->add('societtes',
             EntityType::class,
             [
-                'label' => 'Sociétes',
+                'label' => 'Sociétes *',
                 'class' => Societte::class,
                 'choice_label' => function (Societte $societte): string {
                     return $societte->getCodeSociete() . ' ' . $societte->getNom();
@@ -118,7 +118,7 @@ class UserType extends AbstractType
             ->add('personnels', 
             EntityType::class,
             [
-                'label' => 'Nom Personnel',
+                'label' => 'Nom Personnel *',
                 'class' => Personnel::class,
                 'choice_label' => 'Matricule',
                 'placeholder' => '-- Choisir un nom --',
@@ -145,7 +145,7 @@ class UserType extends AbstractType
             ->add('agenceServiceIrium',
             EntityType::class,
             [
-                'label' => 'Code Sage',
+                'label' => 'Code Sage *',
                 'class' => AgenceServiceIrium::class,
                 'choice_label' => 'service_sage_paie',
                 'placeholder' => "-- choisir une code sage --",
@@ -155,7 +155,7 @@ class UserType extends AbstractType
             ->add('agencesAutorisees',
             EntityType::class,
             [
-                'label' => 'Agence autoriser',
+                'label' => 'Agence autoriser *',
                 'class' => Agence::class,
                 'choice_label' => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
@@ -168,7 +168,7 @@ class UserType extends AbstractType
             ->add('serviceAutoriser',
             EntityType::class,
             [
-                'label' => 'Service autoriser',
+                'label' => 'Service autoriser *',
                 'class' => Service::class,
                 'choice_label' => function (Service $service): string {
                     return $service->getCodeService() . ' ' . $service->getLibelleService();

@@ -123,3 +123,22 @@
 </div>
 {% endmacro %}
 
+{% macro list(label, items, propriete) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ attribute(item, propriete)}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 
+
+{% macro listSansProp(label, items) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ item}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 
