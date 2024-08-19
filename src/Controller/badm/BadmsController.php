@@ -60,31 +60,32 @@ class BadmsController extends Controller
                     $message = "Matériel déjà vendu ou L'information saisie n'est pas correcte.";
                     $this->notification($message);
                 } else {
-                    //recuperation du materiel dan sl abase de donner sqlserver
-                 $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ], ['numBadm' => 'DESC']);
+                        //recuperation du materiel dan sl abase de donner sqlserver
+                    $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule'] ], ['numBadm' => 'DESC']);
 
-                 //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
-                 $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
- 
-                 //recuperati
-                 $user = self::$em->getRepository(User::class)->find($userId);
-         
-                 $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
+                    //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
+                    $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
+    
+                    //recuperati
+                    $user = self::$em->getRepository(User::class)->find($userId);
+            
+                    $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
 
-                 if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
-                     $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
-                 } else {
-                     $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
-                 }
-                 //condition de blocage
-                 $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
-                 $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
-                 $conditionChangementAgServ_1 = $idTypeMouvement === 2 && $data[0]['code_affect'] === 'VTE';
-                 $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
-                 $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
-                 $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
-                 $conditionRoleUtilisateur = in_array(1, $user->getRoleIds());
-                 $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds());
+                
+                    if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
+                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
+                    } else {
+                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
+                    }
+                    //condition de blocage
+                    $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
+                    $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';
+                    $conditionChangementAgServ_1 = $idTypeMouvement === 2 && $data[0]['code_affect'] === 'VTE';
+                    $conditionChangementAgServ_2 = $idTypeMouvement === 2 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
+                    $conditionCessionActif = $idTypeMouvement === 4 && $data[0]['code_affect'] !== 'LCD' && $data[0]['code_affect'] !== 'IMM';
+                    $conditionMiseAuRebut = $idTypeMouvement === 5 && $data[0]['code_affect'] === 'CAS';
+                    $conditionRoleUtilisateur = in_array(1, $user->getRoleIds());
+                    $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds());
                 }
             }
             

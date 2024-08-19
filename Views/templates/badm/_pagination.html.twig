@@ -12,7 +12,7 @@
 			Résultats</p>
 	</div>
 	<div>
-		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
 			pages</p>
 	</div>
 	<div class="navigation">
@@ -25,7 +25,7 @@
 		{% endif %}
 
 
-		{% if currentPage < totalPages %}
+		{% if currentPage < lastPage %}
 			<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
 				<i class="fas fa-angle-right text-warning"></i>
 			</a>

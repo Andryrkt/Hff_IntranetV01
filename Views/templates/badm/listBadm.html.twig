@@ -69,9 +69,7 @@
 									<li>
 										<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
 									</li>
-									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
-									</li>
+									{# <li><a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a></li> #}
 								</ul>
 							</div>
 						</td>
@@ -99,7 +97,7 @@
 						{# FIN Statut #}
 
 						<td>
-							<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}" target="_blank">{{ item.numBadm }}</a>
+							<a href="{{ path('BadmDetail_detailBadm', {id: item.id}) }}" target="_blank">{{ item.numBadm }}</a>
 						</td>
 						<td>{{ item.dateDemande | date('d/m/Y')}}</td>
 						<td>{{ item.typeMouvement}}</td>

@@ -3,6 +3,7 @@
 // src/Form/SearchType.php
 namespace App\Form;
 
+use App\Controller\Controller;
 use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
 use Symfony\Component\Form\AbstractType;
@@ -15,19 +16,21 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class BadmSearchType extends AbstractType
 {
+ 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        //dd($options);
         $builder
         ->add('statut', EntityType::class, [
             'label' => 'Statut',
             'class' => StatutDemande::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une statut--',
+            'placeholder' => '-- Choisir un statut --',
             'required' => false,
             'query_builder' => function (StatutDemandeRepository $er) {
                 return $er->createQueryBuilder('s')
-                          ->where('s.codeApp = :codeApp')
-                          ->setParameter('codeApp', 'DIT');
+                    ->where('s.codeApp = :codeApp')
+                    ->setParameter('codeApp', 'BDM');
             },
         ])
             ->add('idMateriel', TextType::class, [

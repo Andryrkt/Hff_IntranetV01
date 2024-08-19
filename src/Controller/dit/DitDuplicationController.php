@@ -10,6 +10,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -114,7 +115,8 @@ class DitDuplicationController extends Controller
                 //récupération des historique de materiel (informix)
                 $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
                 //genere le PDF
-                $this->genererPdf->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+                $genererPdfDit = new GenererPdfDit();
+                $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
 
                 
                 //ENVOYER le PDF DANS DOXCUWARE

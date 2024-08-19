@@ -1,0 +1,427 @@
+<?php
+
+namespace App\Entity;
+
+class DitSearch
+{
+   
+    private ?StatutDemande $statut;
+
+    
+    private ?int $idMateriel = 0;
+
+    
+    private TypeMouvement $typeMouvement;
+
+   
+    private ?string $internetExterne;
+
+    
+   
+    private ?\Datetime $dateDebut;
+
+    private ?\DateTime $dateFin;
+
+   
+    private ?string $numParc = '';
+
+    private ?string $numSerie = '';
+
+
+  
+    private ?Agence $agenceEmetteur = null;
+
+   
+    private ?Service $serviceEmetteur = null;
+
+    private ?Agence $agenceDebiteur = null;
+
+   
+    private ?Service $serviceDebiteur = null;
+
+
+    private ?string $numDit = '';
+
+
+    //-===============================================================================================================================
+    
+
+    
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+
+    public function setStatut($statutDemande): self
+    {
+        $this->statut = $statutDemande;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idMateriel
+     *
+     * @return  int|null
+     */ 
+    public function getIdMateriel()
+    {
+        return $this->idMateriel;
+    }
+
+    /**
+     * Set the value of idMateriel
+     *
+     * @param  int|null  $idMateriel
+     *
+     * @return  self
+     */ 
+    public function setIdMateriel($idMateriel)
+    {
+        $this->idMateriel = $idMateriel;
+
+        return $this;
+    }
+
+   /**
+     * Get the value of typeMouvement
+     */ 
+    public function getTypeMouvement()
+    {
+        return $this->typeMouvement;
+    }
+
+    /**
+     * Set the value of typeMouvement
+     *
+     * @return  self
+     */ 
+    public function setTypeMouvement($typeMouvement)
+    {
+        $this->typeMouvement = $typeMouvement;
+
+        return $this;
+    }
+
+    /**
+     * Get undocumented variable
+     *
+     * @return  string|null
+     */ 
+    public function getInternetExterne()
+    {
+        return $this->internetExterne;
+    }
+
+    /**
+     * Set undocumented variable
+     *
+     * @param  string|null  $interneExterne  Undocumented variable
+     *
+     * @return  self
+     */ 
+    public function setInternetExterne($interneExterne)
+    {
+        $this->internetExterne = $interneExterne;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDebut
+     *
+     * @return  \DateTime|null
+     */ 
+    public function getDateDebut()
+    {
+        return $this->dateDebut;
+    }
+
+    /**
+     * Set the value of dateDebut
+     *
+     * @param  \DateTime|null  $dateDebut
+     *
+     * @return  self
+     */ 
+    public function setDateDebut($dateDebut)
+    {
+        $this->dateDebut = $dateDebut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFin
+     *
+     * @return  \DateTime|null
+     */ 
+    public function getDateFin()
+    {
+        return $this->dateFin;
+    }
+
+    /**
+     * Set the value of dateFin
+     *
+     * @param  \DateTime|null  $dateFin
+     *
+     * @return  self
+     */ 
+    public function setDateFin($dateFin)
+    {
+        $this->dateFin = $dateFin;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numParc
+     *
+     * @return  string|null
+     */ 
+    public function getNumParc()
+    {
+        return $this->numParc;
+    }
+
+    /**
+     * Set the value of numParc
+     *
+     * @param  string|null  $numParc
+     *
+     * @return  self
+     */ 
+    public function setNumParc($numParc)
+    {
+        $this->numParc = $numParc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numSerie
+     *
+     * @return  string|null
+     */ 
+    public function getNumSerie()
+    {
+        return $this->numSerie;
+    }
+
+    /**
+     * Set the value of numSerie
+     *
+     * @param  string|null  $numSerie
+     *
+     * @return  self
+     */ 
+    public function setNumSerie($numSerie)
+    {
+        $this->numSerie = $numSerie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceEmetteur
+     *
+     * @return  Agence|null
+     */ 
+    public function getAgenceEmetteur()
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     *
+     * @param  Agence|null  $agenceEmetteur
+     *
+     * @return  self
+     */ 
+    public function setAgenceEmetteur($agenceEmetteur)
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get undocumented variable
+     *
+     * @return  Service|null
+     */ 
+    public function getServiceEmetteur()
+    {
+        return $this->serviceEmetteur;
+    }
+
+    /**
+     * Set undocumented variable
+     *
+     * @param  Service|null  $serviceEmetteur  Undocumented variable
+     *
+     * @return  self
+     */ 
+    public function setServiceEmetteur($serviceEmetteur)
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get undocumented variable
+     *
+     * @return  Agence|null
+     */ 
+    public function getAgenceDebiteur()
+    {
+        return $this->agenceDebiteur;
+    }
+
+    /**
+     * Set undocumented variable
+     *
+     * @param  Agence|null  $agenceDebiteur  Undocumented variable
+     *
+     * @return  self
+     */ 
+    public function setAgenceDebiteur($agenceDebiteur)
+    {
+        $this->agenceDebiteur = $agenceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get undocumented variable
+     *
+     * @return  Service|null
+     */ 
+    public function getServiceDebiteur()
+    {
+        return $this->serviceDebiteur;
+    }
+
+    /**
+     * Set undocumented variable
+     *
+     * @param  Service|null  $serviceDebiteur  Undocumented variable
+     *
+     * @return  self
+     */ 
+    public function setServiceDebiteur($serviceDebiteur)
+    {
+        $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
+
+
+    /**
+     * Get the value of numDit
+     */ 
+    public function getNumDit()
+    {
+        return $this->numDit;
+    }
+
+    /**
+     * Set the value of numDit
+     *
+     * @return  self
+     */ 
+    public function setNumDit($numDit)
+    {
+        $this->numDit = $numDit;
+
+        return $this;
+    }
+
+
+
+    /**
+     * Set the value of ditRattacherOr
+     *
+     * @return  self
+     */ 
+    public function setDitRattacherOr($ditRattacherOr)
+    {
+        $this->ditRattacherOr = $ditRattacherOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categorie
+     */ 
+    public function getCategorie()
+    {
+        return $this->categorie;
+    }
+
+    /**
+     * Set the value of categorie
+     *
+     * @return  self
+     */ 
+    public function setCategorie($categorie)
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of utilisateur
+     */ 
+    public function getUtilisateur()
+    {
+        return $this->utilisateur;
+    }
+
+    /**
+     * Set the value of utilisateur
+     *
+     * @return  self
+     */ 
+    public function setUtilisateur($utilisateur)
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    
+    public function toArray(): array
+    {
+        return [
+            'typeDocument' => $this->typeDocument,
+            'niveauUrgence' => $this->niveauUrgence,
+            'statut' => $this->statut,
+            'interneExterne' => $this->internetExterne,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'idMateriel' => $this->idMateriel,
+            'numParc' => $this->numParc,
+            'numSerie' => $this->numSerie,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'serviceDebiteur' => $this->serviceDebiteur,
+            'numDit' => $this->numDit,
+            'numOr' => $this->numOr,
+            'statutOr' => $this->statutOr,
+            'ditRattacherOr' => $this->ditRattacherOr,
+            'categorie' => $this->categorie,
+            'utilisateur' => $this->utilisateur
+        ];
+    }
+
+    
+}
+

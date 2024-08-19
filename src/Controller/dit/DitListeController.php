@@ -48,7 +48,7 @@ class DitListeController extends Controller
             $service = $agenceServiceIps['serviceIps'];
         }
         
-        $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
+         $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [

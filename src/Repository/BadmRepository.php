@@ -5,6 +5,7 @@ namespace App\Repository;
 
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 
 class BadmRepository extends EntityRepository
@@ -69,54 +70,20 @@ class BadmRepository extends EntityRepository
             ->setMaxResults($limit)
             ;
 
-        
-            // $sql = $queryBuilder->getQuery()->getSQL();
-            // echo $sql;
+            $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
-        return $queryBuilder->getQuery()->getResult();
+        $totalItems = count($paginator);
+        $lastPage = ceil($totalItems / $limit);
+        
+    return [
+        'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+        'totalItems' => $totalItems,
+        'currentPage' => $page,
+        'lastPage' => $lastPage,
+    ];
     }
 
-    public function countFiltered(array $criteria = [])
-    {
-        $queryBuilder = $this->createQueryBuilder('b')
-            ->select('COUNT(b.id)')
-            ->leftJoin('b.typeMouvement', 'tm')
-            ->leftJoin('b.statutDemande', 's');
-
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
-
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-        if (!empty($criteria['typeMouvement'])) {
-            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
-                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
-        }
-
-        if (!empty($criteria['idMateriel'])) {
-            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
-                ->setParameter('idMateriel',  $criteria['idMateriel'] );
-        }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
-
-        
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
+    
     public function findAndFilteredExcel( array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')

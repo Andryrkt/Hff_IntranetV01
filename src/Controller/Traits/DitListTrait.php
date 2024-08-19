@@ -159,6 +159,7 @@ trait DitListTrait
         ->setAgenceEmetteur($agence)
         ->setServiceEmetteur($service)
         ;
+
     } 
 
 

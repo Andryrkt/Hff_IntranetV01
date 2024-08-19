@@ -13,7 +13,8 @@ use Doctrine\ORM\EntityManager;
 use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
-use Knp\Component\Pager\Paginator;
+
+use Illuminate\Pagination\Paginator;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
 use Symfony\Component\Asset\Packages;
@@ -203,6 +204,7 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
+Paginator::useBootstrap();
 
 //envoyer twig au controller
 Controller::setTwig($twig);
