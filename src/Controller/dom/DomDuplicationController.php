@@ -3,37 +3,23 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use App\Controller\Traits\Transformation;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class DomDuplicationController extends Controller
 {
+    use Transformation;
 
     /**
      * @Route("/duplifierForm/{numDom}/{id}/{matricule}", name="domDuplication_duplificationForm")
      */
     public function duplificationFormController($numDom, $id, $matricule)
     {
-        $this->SessionStart();
-
-       
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-            // $numDom = $_GET['NumDOM'];
-            // $idDom = $_GET['IdDOM'];
-
-            // var_dump($numDom, $idDom, $matricule, $check);
-            // die();
             $datesyst = $this->duplicata->getDatesystem();
 
-            // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
-            // $LibServofCours = $this->DomModel->getLibeleAgence_Service($Servofcours);
-            //include 'Views/Principe.php';
             $data = $this->duplicata->DuplicaftionFormModel($numDom, $id);
 
-            // $matricule = $_GET['check'];
             $pattern = '/^\d{4}/';
             if (preg_match($pattern, $matricule)) {
                 $statutSalarier = 'Interne';
@@ -43,14 +29,6 @@ class DomDuplicationController extends Controller
                 $cin = explode('-', $data[0]['Matricule'])[2];
             }
 
-            if ($data[0]['Debiteur'] === null) {
-                $agentDebiteur = '';
-                $serviceDebiteur = '';
-            } else {
-                $agentDebiteur = explode('-', $data[0]['Debiteur'])[0];
-                $serviceDebiteur = explode('-', $data[0]['Debiteur'])[1];
-            }
-
             if ($data[0]['Emetteur'] === null) {
                 $agentEmetteur = $data[0]['Code_agence'] . ' ' . $data[0]['Libelle_agence'];
                 $serviceEmetteur = $data[0]['Code_Service'] . ' ' . $data[0]['Libelle_service'];
@@ -58,13 +36,6 @@ class DomDuplicationController extends Controller
                 $agentEmetteur = explode('-', $data[0]['Emetteur'])[0];
                 $serviceEmetteur = explode('-', $data[0]['Emetteur'])[1];
             }
-
-
-
-            $dateDemande = $data[0]['Date_Demande'];
-            $dateDebut = date("d/m/Y", strtotime($data[0]['Date_Debut']));
-            $dateFin = date("d/m/Y", strtotime($data[0]['Date_Debut']));
-
 
             if (trim($data[0]['Mode_Paiement']) === 'ESPECES') {
                 if (!isset(explode(' ', trim($data[0]['Mode_Paiement']))[1]) || explode(' ', trim($data[0]['Mode_Paiement']))[1] === null || explode(' ', trim($data[0]['Mode_Paiement']))[1] === '') {
@@ -93,18 +64,18 @@ class DomDuplicationController extends Controller
                 $data = $value;
             }
 
-            // var_dump($data);
-            // die();
+            $agenceDebiteurs = $this->transformEnSeulTableau($this->DomModel->agenceDebiteur());
+       
+           $serviceDebiteurs = $this->transformEnSeulTableau($this->DomModel->serviceDebiteur($agentEmetteur));
+
 
             self::$twig->display(
                 'dom/FormCompleDOM.html.twig',
                 [
-                    'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                     'data' => $data,
                     'numDom' => $numDom,
                     'idDom' => $id,
-                    'statutSalarier' => $statutSalarier,
+                    'check' => $statutSalarier,
                     'datesyst' => $datesyst,
                     'agentEmetteur' => $agentEmetteur,
                     'serviceEmetteur' => $serviceEmetteur,
@@ -112,31 +83,16 @@ class DomDuplicationController extends Controller
                     'modePaiement' => $modePaiement,
                     'modePaiementNumero' => $modePaiementNumero,
                     'idemnityDepl' => $idemnityDepl,
-                    'nombreJour' => $nombreJour
-
+                    'nombreJour' => $nombreJour,
+                    'agenceDebiteur' => $agenceDebiteurs,
+                    'serviceDebiteur' => $serviceDebiteurs,
+                    'code_service' => $agentEmetteur,//agence emetteru externe
+                    'service' => $serviceEmetteur, // agence emetteur externe
+                    'codeServ' => $agentEmetteur,//agence emetteur interne
+                    'servLib' => $serviceEmetteur,//service emetteur interne
                 ]
             );
-            // $_FILES['file01']['name'] = $data[0]['Piece_Jointe_1'];
-            // $_FILES['file02']['name'] = $data[0]['Piece_Jointe_1'];
-
-            //var_dump($statutSalarier);
-            // var_dump(trim($data[0]['Mode_Paiement']) === 'ESPECES');
-            // var_dump($data[0]);
-            // die();
-            //include 'Views/DOM/FormCompleDOM.php';
-        
     }
 
-    /**
-     * @Route("/dupliquer", name= "domDuplication_duplificationFormJsonController")
-     */
-    public function duplificationFormJsonController()
-    {
-
-        $data1 = $this->duplicata->DuplicaftionFormJsonModel();
-
-        header("Content-type:application/json");
-
-        echo json_encode($data1);
-    }
+   
 }

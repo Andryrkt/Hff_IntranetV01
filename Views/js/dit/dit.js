@@ -244,8 +244,6 @@ const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
 
-console.log(numTelInput, clientSousContratInput);
-
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
@@ -319,3 +317,14 @@ textarea.addEventListener("input", function () {
     textarea.value = lines.join("\n");
   }
 });
+
+/**
+ * GRISER LE BOUTTON APRES UNE CLICK
+ */
+const boutonInput = document.querySelector("#formDit");
+
+boutonInput.addEventListener("click", griserBoutton);
+
+function griserBoutton() {
+  boutonInput.style.display = "none";
+}

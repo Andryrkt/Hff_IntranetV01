@@ -216,8 +216,8 @@ class DomControl extends Controller
             
             $CategPers = $_POST['categPers'];
             //$NumDom = $_POST['NumDOM'];
-            $code_service = $_POST['Serv'];//agence emetteur
-            $service = $_POST['LibServ']; // service emetteur
+            $code_service = $_POST['Serv'];//agence emetteur externe
+            $service = $_POST['LibServ']; // service emetteur externe
 
             $typeMission = $_POST['typeMission'];
             // $autrtype = $_POST['AutreType'];
@@ -234,8 +234,8 @@ class DomControl extends Controller
 
             $nom = $Noms[0]['Nom'];
             $prenom = $Noms[0]['Prenoms'];
-            $codeServ = $Compte[0]['Code_serv'];
-            $servLib = $Compte[0]['Serv_lib'];
+            $codeServ = $Compte[0]['Code_serv']; //agence emetteeur interne
+            $servLib = $Compte[0]['Serv_lib']; //service emetteur interne
             if (isset($Compte[0]['NumeroTel_Recente']) || isset($Compte[0]['Numero_Compte_Bancaire'])) {
                 $numTel = $Compte[0]['NumeroTel_Recente'];
                 $numCompteBancaire = $Compte[0]['Numero_Compte_Bancaire'];
@@ -256,6 +256,7 @@ class DomControl extends Controller
                 $serviceDebiteurs = $this->transformEnSeulTableau($this->DomModel->serviceDebiteur($code_service));
             }
 
+            
 
             $form = self::$validator->createBuilder(AgenceServiceType::class)->getForm();
             self::$twig->display(

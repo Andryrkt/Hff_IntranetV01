@@ -110,7 +110,7 @@
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
 						<td>{{ item.casierEmetteur}}</td>
-						<td>{{ item.casierDestinataire.casier}}</td>
+						{# <td>{{ item.casierdestinataire.casier}}</td> #}
 						{% set startDate = item.dateDemande | date('Y-m-d') %}
 						{% set currentDate = "now"|date("Y-m-d") %}
 						{% set diff = date(currentDate).diff(date(startDate)) %}

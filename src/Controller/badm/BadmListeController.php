@@ -122,7 +122,9 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_criteria', $criteria);
 
         for ($i=0 ; $i < count($data)  ; $i++ ) { 
+
             $badms = $this->badmRech->findDesiSerieParc($data[$i]->getIdMateriel());
+
             $data[$i]->setDesignation($badms[0]['designation']);
             $data[$i]->setNumSerie($badms[0]['num_serie']);
             $data[$i]->setNumParc($badms[0]['num_parc']);
