@@ -188,7 +188,7 @@
 							{# FIN Statut #}
 							<td>{{item.Sous_type_document}}</td>
 							<td>
-								<a href="{{path("domDetail_detailDom", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission })}}">{{item.Numero_Ordre_Mission}}</a>
+								<a href="{{path("domDetail_detailDom", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission })}}" target="_blank">{{item.Numero_Ordre_Mission}}</a>
 							</td>
 							<td style="text-align: center;">{{item.Date_Demande|date('d/m/Y')}}</td>
 							<td>{{item.Motif_Deplacement}}</td>
