@@ -151,11 +151,7 @@ class BadmRechercheModel extends Model
         trim(mmat_recalph) as num_parc
 
         from mat_mat
-        WHERE trim(MMAT_ETSTOCK) in ('ST','AT')
-         and trim(MMAT_AFFECT) in ('IMM','VTE','LCD','SDO')
-        and mmat_soc = 'HF'
-        and mmat_datedisp < '12/31/2999'
-        and mmat_nummat ='" . $matricule . "'
+        WHERE mmat_nummat ='" . $matricule . "'
       ";
 
         $result = $this->connect->executeQuery($statement);

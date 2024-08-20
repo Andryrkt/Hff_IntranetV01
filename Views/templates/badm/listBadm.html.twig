@@ -69,9 +69,7 @@
 									<li>
 										<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
 									</li>
-									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
-									</li>
+									{# <li><a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a></li> #}
 								</ul>
 							</div>
 						</td>
@@ -110,7 +108,7 @@
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
 						<td>{{ item.casierEmetteur}}</td>
-						<td>{{ item.casierDestinataire.casier}}</td>
+						<td>{{ item.casierdestinataire.casier ?? ''}}</td>
 						{% set startDate = item.dateDemande | date('Y-m-d') %}
 						{% set currentDate = "now"|date("Y-m-d") %}
 						{% set diff = date(currentDate).diff(date(startDate)) %}

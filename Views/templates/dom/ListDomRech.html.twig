@@ -155,10 +155,9 @@
 									<button class="btn btn-sm btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
 										Actions
 									</button>
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a class="dropdown-item fw-bold" href="{{path("domDuplication_duplificationForm", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission, matricule: item.Matricule})}}">Dupliquer</a>
-										</li>
+									<ul
+										class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{# <li><a class="dropdown-item fw-bold" href="{{path("domDuplication_duplificationForm", {numDom: item.Numero_Ordre_Mission, id: item.ID_Demande_Ordre_Mission, matricule: item.Matricule})}}">Dupliquer</a></li> #}
 
 										<li>
 											<a class="dropdown-item fw-bold" style="color: red;" href="{{path("domList_annulationStatut", {numDom: item.Numero_Ordre_Mission})}}">Annuler</a>

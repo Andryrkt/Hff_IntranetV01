@@ -180,20 +180,33 @@ class AncienDitService
         return $demandeIntervention;
     }
 
-   private function prepareFunsion($ancienDit)
-   {
-
-    $fusionPdf = new FusionPdf();
-
-    //ajouter le nom du pdf crée par dit en avant du tableau
-    array_unshift($pdfFiles, 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
-
-    // Nom du fichier PDF fusionné
-    $mergedPdfFile = 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
-
-    // Appeler la fonction pour fusionner les fichiers PDF
-    if (!empty($pdfFiles)) {
-        $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+    private function prepareFunsion($ancienDit)
+    {
+ 
+     $pdfFiles = [];
+     if($ancienDit->getPieceJoint01() !== null || $ancienDit->getPieceJoint01() !== ""){
+ 
+         $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint01();
+     }
+ 
+     if($ancienDit->getPieceJoint02() !== null || $ancienDit->getPieceJoint02() !== ""){
+     $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint02();
+     }
+ 
+     if($ancienDit->getPieceJoint03() !== null || $ancienDit->getPieceJoint03() !== ""){
+     $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint03();
+     }
+ 
+     //ajouter le nom du pdf crée par dit en avant du tableau
+     array_unshift($pdfFiles, 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
+ 
+     // Nom du fichier PDF fusionné
+     $mergedPdfFile = 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
+ 
+     // Appeler la fonction pour fusionner les fichiers PDF
+     if (!empty($pdfFiles)) {
+         $fusionPdf = new FusionPdf();
+         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+     }
     }
-   }
 }

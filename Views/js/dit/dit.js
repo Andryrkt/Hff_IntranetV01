@@ -319,3 +319,14 @@ textarea.addEventListener("input", function () {
     textarea.value = lines.join("\n");
   }
 });
+
+/**
+ * GRISER LE BOUTTON APRES UNE CLICK
+ */
+const boutonInput = document.querySelector("#formDit");
+
+boutonInput.addEventListener("click", griserBoutton);
+
+function griserBoutton() {
+  boutonInput.style.display = "none";
+}
