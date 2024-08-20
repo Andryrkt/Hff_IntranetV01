@@ -17,7 +17,7 @@
 		{% include "/partials/_notification.html.twig" %}
 
 		<!-- DEBUT recherche -->
-		<div class="w-50">
+		<div class="">
 			{% include "/badm/_formulaireRecherche.html.twig" %}
 		</div>
 	</div>
@@ -108,7 +108,7 @@
 						<td>{{ item.numSerie}}</td>
 						<td>{{ item.numParc}}</td>
 						<td>{{ item.casierEmetteur}}</td>
-						{# <td>{{ item.casierdestinataire.casier}}</td> #}
+						<td>{{ item.casierdestinataire.casier ?? ''}}</td>
 						{% set startDate = item.dateDemande | date('Y-m-d') %}
 						{% set currentDate = "now"|date("Y-m-d") %}
 						{% set diff = date(currentDate).diff(date(startDate)) %}

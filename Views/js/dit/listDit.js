@@ -159,6 +159,7 @@ function recherche() {
       console.error("Error:", error);
     });
 }
+
 /** LIST COMMANDE MODAL */
 
 document.addEventListener("DOMContentLoaded", (event) => {

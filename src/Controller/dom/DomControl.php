@@ -3,16 +3,17 @@
 namespace App\Controller\dom;
 
 
+use App\Entity\Agence;
+
 use App\Controller\Controller;
 
 use App\Form\AgenceServiceType;
 
 use App\Controller\Traits\DomTrait;
-
 use App\Controller\Traits\Transformation;
-use App\Entity\Agence;
-
 use Symfony\Component\Routing\Annotation\Route;
+
+
 
 
 class DomControl extends Controller
@@ -150,13 +151,7 @@ class DomControl extends Controller
      */
     public function newDom()
     {
-        $this->SessionStart();
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
+        
         $Code_AgenceService_Sage = $this->DomModel->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->DomModel->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         // $Servofcours = $this->DomModel->getserviceofcours($_SESSION['user']);
@@ -189,8 +184,6 @@ class DomControl extends Controller
                 'PersonelServOfCours' => $PersonelServOfCours,
                 'TypeDocument' => $TypeDocument,
                 'boolean2' => $boolean2,
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean
             ]
         );
     
@@ -203,17 +196,10 @@ class DomControl extends Controller
      */
     public function ShowDomPDF()
     {
-        $this->SessionStart();
+   
 
         if ($_SERVER['REQUEST_METHOD']  === 'POST') {
 
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-
-   
-            
             $CategPers = $_POST['categPers'];
             //$NumDom = $_POST['NumDOM'];
             $code_service = $_POST['Serv'];//agence emetteur externe
@@ -279,8 +265,6 @@ class DomControl extends Controller
                     'servLib' => $servLib,//service emetteur interne
                     'numTel' => $numTel,
                     'numCompteBancaire' => $numCompteBancaire,
-                    'infoUserCours' => $infoUserCours,
-                    'boolean' => $boolean,
                     'form' => $form->createView(),
                     'agenceDebiteur' => $agenceDebiteurs,
                     'serviceDebiteur' => $serviceDebiteurs

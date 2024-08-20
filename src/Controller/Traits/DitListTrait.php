@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits;
 
+use App\Entity\User;
 use App\Entity\StatutDemande;
 use App\Entity\WorTypeDocument;
 use App\Entity\WorNiveauUrgence;
@@ -204,4 +205,16 @@ trait DitListTrait
             }
         }
     }
+
+
+    private function autorisationRole($em): bool
+{
+    /** CREATION D'AUTORISATION */
+    $userId = $this->sessionService->get('user_id');
+    $userConnecter = $em->getRepository(User::class)->find($userId);
+    $roleIds = $userConnecter->getRoleIds();
+    return in_array(1, $roleIds);
+    //FIN AUTORISATION
+}
+
 }

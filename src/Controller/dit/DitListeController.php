@@ -31,10 +31,7 @@ class DitListeController extends Controller
     {
         
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
-        $userConnecter = self::$em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        $autoriser = in_array(1, $roleIds);
+        $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
         $ditSearch = new DitSearch();

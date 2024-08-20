@@ -2,50 +2,34 @@
 
 namespace App\Entity;
 
-class DitSearch
+class BadmSearch
 {
-   
     private ?StatutDemande $statut;
 
-    
-    private ?int $idMateriel = 0;
+    private ?int $idMateriel = null;
 
-    
-    private TypeMouvement $typeMouvement;
-
+    private ?TypeMouvement $typeMouvement = null;
    
-    private ?string $internetExterne;
+    private ?\Datetime $dateDebut = null;
 
-    
-   
-    private ?\Datetime $dateDebut;
+    private ?\DateTime $dateFin = null;
 
-    private ?\DateTime $dateFin;
-
-   
     private ?string $numParc = '';
 
     private ?string $numSerie = '';
 
-
-  
     private ?Agence $agenceEmetteur = null;
 
-   
     private ?Service $serviceEmetteur = null;
 
     private ?Agence $agenceDebiteur = null;
 
-   
     private ?Service $serviceDebiteur = null;
 
-
-    private ?string $numDit = '';
+    private ?string $numBadm = '';
 
 
     //-===============================================================================================================================
-    
-
     
     public function getStatut()
     {
@@ -104,30 +88,7 @@ class DitSearch
         return $this;
     }
 
-    /**
-     * Get undocumented variable
-     *
-     * @return  string|null
-     */ 
-    public function getInternetExterne()
-    {
-        return $this->internetExterne;
-    }
-
-    /**
-     * Set undocumented variable
-     *
-     * @param  string|null  $interneExterne  Undocumented variable
-     *
-     * @return  self
-     */ 
-    public function setInternetExterne($interneExterne)
-    {
-        $this->internetExterne = $interneExterne;
-
-        return $this;
-    }
-
+   
     /**
      * Get the value of dateDebut
      *
@@ -322,88 +283,31 @@ class DitSearch
 
 
 
-    /**
-     * Get the value of numDit
-     */ 
-    public function getNumDit()
+    public function getNumBadm()
     {
-        return $this->numDit;
+        return $this->numBadm;
     }
 
-    /**
-     * Set the value of numDit
-     *
-     * @return  self
-     */ 
-    public function setNumDit($numDit)
+   
+    public function setNumBadm($numBadm):self
     {
-        $this->numDit = $numDit;
+        $this->numBadm = $numBadm;
 
         return $this;
     }
 
 
 
-    /**
-     * Set the value of ditRattacherOr
-     *
-     * @return  self
-     */ 
-    public function setDitRattacherOr($ditRattacherOr)
-    {
-        $this->ditRattacherOr = $ditRattacherOr;
+   
 
-        return $this;
-    }
-
-    /**
-     * Get the value of categorie
-     */ 
-    public function getCategorie()
-    {
-        return $this->categorie;
-    }
-
-    /**
-     * Set the value of categorie
-     *
-     * @return  self
-     */ 
-    public function setCategorie($categorie)
-    {
-        $this->categorie = $categorie;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of utilisateur
-     */ 
-    public function getUtilisateur()
-    {
-        return $this->utilisateur;
-    }
-
-    /**
-     * Set the value of utilisateur
-     *
-     * @return  self
-     */ 
-    public function setUtilisateur($utilisateur)
-    {
-        $this->utilisateur = $utilisateur;
-
-        return $this;
-    }
+  
 
     
     public function toArray(): array
     {
         return [
-            'typeDocument' => $this->typeDocument,
-            'niveauUrgence' => $this->niveauUrgence,
+            'typeMouvement' => $this->typeMouvement,
             'statut' => $this->statut,
-            'interneExterne' => $this->internetExterne,
             'dateDebut' => $this->dateDebut,
             'dateFin' => $this->dateFin,
             'idMateriel' => $this->idMateriel,
@@ -413,12 +317,7 @@ class DitSearch
             'serviceEmetteur' => $this->serviceEmetteur,
             'agenceDebiteur' => $this->agenceDebiteur,
             'serviceDebiteur' => $this->serviceDebiteur,
-            'numDit' => $this->numDit,
-            'numOr' => $this->numOr,
-            'statutOr' => $this->statutOr,
-            'ditRattacherOr' => $this->ditRattacherOr,
-            'categorie' => $this->categorie,
-            'utilisateur' => $this->utilisateur
+            'numBadm' => $this->numBadm,
         ];
     }
 
