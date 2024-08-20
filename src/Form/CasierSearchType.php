@@ -38,7 +38,8 @@ class CasierSearchType extends AbstractType
         ->add('casier',
         TextType::class,
         [
-            'label' => 'Casier'
+            'label' => 'Casier',
+            'required' => false,
         ])
         ;
         

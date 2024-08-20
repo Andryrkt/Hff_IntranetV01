@@ -20,7 +20,7 @@ class CasierListTemporaireController extends Controller
     public function AffichageListeCasier()
     {
 
-        $data = self::$em->getRepository(Casier::class)->findBy([ 'idStatutDemande' => 52]);
+        $data = self::$em->getRepository(Casier::class)->findBy([ 'idStatutDemande' => 52], ['numeroCas' =>'DESC']);
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
