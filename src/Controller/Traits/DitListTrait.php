@@ -3,6 +3,9 @@
 namespace App\Controller\Traits;
 
 use App\Entity\User;
+use App\Entity\Agence;
+use App\Entity\CategorieAteApp;
+use App\Entity\Service;
 use App\Entity\StatutDemande;
 use App\Entity\WorTypeDocument;
 use App\Entity\WorNiveauUrgence;
@@ -88,81 +91,61 @@ trait DitListTrait
      * @param [type] $service
      * @return void
      */
-    private function initialisationRechercheDit($ditSearch, $em, $request, $agence, $service)
+    private function initialisationRechercheDit($ditSearch, $em)
     {
-      if($request->query->get('page') !== null){
-        if($request->query->get('typeDocument') !== null){
-            $idTypeDocument = $em->getRepository(WorTypeDocument::class)->findBy(['description' => $request->query->get('typeDocument')], [])[0]->getId();
-            $typeDocument = $em->getRepository(WorTypeDocument::class)->find($idTypeDocument) ;
-        } else {
-            $typeDocument = $request->query->get('typeDocument', null);
-        }
+      
+        $criteria = $this->sessionService->get('dit_search_criteria', []);
 
-        if($request->query->get('niveauUrgence') !== null){
-            $idNiveauUrgence = $em->getRepository(WorNiveauUrgence::class)->findBy(['description' => $request->query->get('niveauUrgence')], [])[0]->getId();
-            
-            $niveauUrgence = $em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence) ;
-        } else {
-            $niveauUrgence = $request->query->get('niveauUrgence', null);
-        }
-       
-        if($request->query->get('statut') !== null){
-            $idStatut = $em->getRepository(StatutDemande::class)->findBy(['description' => $request->query->get('statut')], [])[0]->getId();
-            $statut = $em->getRepository(StatutDemande::class)->find($idStatut) ;
-        } else {
-            $statut = $request->query->get('statut', null);
-        }
-        
-      } else {
-        $typeDocument = $request->query->get('typeDocument', null);
-        $niveauUrgence = $request->query->get('niveauUrgence', null);
-        $statut = $request->query->get('statut', null);
-        
-        
-        if($request->query->get('dit_search') !== null) {
-            if($request->query->get('dit_search')['typeDocument'] !== null){
-                $idTypeDocument = $request->query->get('dit_search')['typeDocument'];
-                $typeDocument = $em->getRepository(WorTypeDocument::class)->find($idTypeDocument);
-            } else {
-                $typeDocument = $request->query->get('typeDocument', null);
-            }
-
-            if($request->query->get('dit_search')['niveauUrgence'] !== null){
-                $idNiveauUrgence = $request->query->get('dit_search')['niveauUrgence'];
-                
-                $niveauUrgence = $em->getRepository(WorNiveauUrgence::class)->find($idNiveauUrgence);
-            } else {
-                $niveauUrgence = $request->query->get('niveauUrgence', null);
-            }
-            
-            if($request->query->get('dit_search')['statut'] !== null){
-                $idStatut = $request->query->get('dit_search')['statut'];
-                $statut = $em->getRepository(StatutDemande::class)->find($idStatut);
-            } else {
-                $statut = $request->query->get('statut', null);
-            }
-        
-        } else {
-            $typeDocument = $request->query->get('typeDocument', null);
-            $niveauUrgence = $request->query->get('niveauUrgence', null);
-            $statut = $request->query->get('statut', null);
-        }
-      }
+        $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
+        $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
+        $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
+        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+        $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
+        $agenceEmetteur = $criteria['agenceEmetteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
+        $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
+        $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
 
       $ditSearch
         ->setStatut($statut)
         ->setNiveauUrgence($niveauUrgence)
         ->setTypeDocument($typeDocument)
-        ->setIdMateriel($request->query->get('idMateriel'))
-        ->setInternetExterne($request->query->get('internetExterne'))
-        ->setDateDebut($request->query->get('dateDebut'))
-        ->setDateFin($request->query->get('dateFin'))
-        ->setAgenceEmetteur($agence)
-        ->setServiceEmetteur($service)
+        ->setInternetExterne($criteria['interneExterne'])
+        ->setDateDebut($criteria['dateDebut'])
+        ->setDateFin($criteria['dateFin'])
+        ->setIdMateriel($criteria['idMateriel'])
+        ->setNumParc($criteria['numParc'])
+        ->setNumSerie($criteria['numSerie'])
+        ->setAgenceEmetteur($agenceEmetteur)
+        ->setServiceEmetteur($serviceEmetteur)
+        ->setAgenceDebiteur($agenceDebiteur)
+        ->setServiceDebiteur($serviceDebiteur)
+        ->setNumDit($criteria['numDit'])
+        ->setNumOr($criteria['numOr'])
+        ->setStatutOr($criteria['statutOr'])
+        ->setDitRattacherOr($criteria['ditRattacherOr'])
+        ->setCategorie($categorie)
+        ->setUtilisateur($criteria['utilisateur'])
         ;
 
     } 
 
+    private function agenceServiceEmetteur($agenceServiceIps, bool $autoriser): array
+{
+
+        //initialisation agence et service
+        if($autoriser){
+            $agence = null;
+            $service = null;
+        } else {
+            $agence = $agenceServiceIps['agenceIps'];
+            $service = $agenceServiceIps['serviceIps'];
+        }
+
+        return [
+            'agence' => $agence,
+            'service' => $service
+        ];
+}
 
     private function ajoutStatutAchatPiece($data){
         for ($i=0 ; $i < count($data) ; $i++ ) { 

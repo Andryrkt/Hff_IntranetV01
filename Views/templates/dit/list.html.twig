@@ -81,7 +81,7 @@
 						<th>Objet</th>
 						<th>Section affectée</th>
 						<th>N° Or</th>
-						<th>Statut Or</th>
+						<th class="fw-bold">Statut Or</th>
 
 						<th>Statut Livraison Pièces</th>
 						<th>Statut Achats Locaux</th>
@@ -153,7 +153,7 @@
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
-							<td>{{ item.statutOr}}</td>
+							<td class="fw-bold fst-italic">{{ item.statutOr}}</td>
 							<td>{{ item.statutachatpiece}}</td>
 							<td>{{ item.statutachatlocaux}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>

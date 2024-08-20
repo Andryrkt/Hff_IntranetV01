@@ -36,16 +36,9 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
-        //initialisation agence et service
-        if($autoriser){
-            $agence = null;
-            $service = null;
-        } else {
-            $agence = $agenceServiceIps['agenceIps'];
-            $service = $agenceServiceIps['serviceIps'];
-        }
+       
         
-         $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
+         $this->initialisationRechercheDit($ditSearch, self::$em);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
@@ -85,16 +78,19 @@ class DitListeController extends Controller
       
 
         //recupère le numero de page
-       
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 10;
+
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
      
         $option = [
             'boolean' => $autoriser,
-            'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
-            'codeService' =>$service === null ? null : $service->getCodeService()
+            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
+            'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
+
+        
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
@@ -149,6 +145,8 @@ class DitListeController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
+          //recupère les critères dans la session 
+          $options = $this->sessionService->get('dit_search_option', []);
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
@@ -174,8 +172,6 @@ class DitListeController extends Controller
         ->setUtilisateur($criteria["utilisateur"])
         ;
         
-        //recupère les critères dans la session 
-        $options = $this->sessionService->get('dit_search_option', []);
 
         $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
        
