@@ -50,22 +50,32 @@ private function agenceServiceEmetteur(bool $autoriser): array
         ];
 }
 
-private function initialisation($badmSearch, $em)
+private function initialisation($badmSearch, $em, $agenceServiceIps)
 {
     $criteria = $this->sessionService->get('badm_search_criteria', []);
-    $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
-    $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-    $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
-    $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-    $agenceEmetteur = $criteria['agenceEmetteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
-    $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
+
+    if($criteria !== null){
+        $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
+        $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
+        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIps['serviceIps'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+        $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
+        $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceServiceIps['agenceIps']: $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
+        $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
+    } else {
+        $typeMouvement = null;
+        $statut = null;
+        $serviceEmetteur = $agenceServiceIps['serviceIps'];
+        $serviceDebiteur = null;
+        $agenceEmetteur = $agenceServiceIps['agenceIps'];
+        $agenceDebiteur = null;
+    }
    
     $badmSearch
         ->setStatut($statut)
         ->setTypeMouvement($typeMouvement)
-        ->setDateDebut($criteria['dateDebut'])
-        ->setDateFin($criteria['dateFin'])
-        ->setIdMateriel($criteria['idMateriel'])
+        ->setDateDebut($criteria['dateDebut'] ?? null)
+        ->setDateFin($criteria['dateFin'] ?? null)
+        ->setIdMateriel($criteria['idMateriel'] ?? null)
         ->setAgenceEmetteur($agenceEmetteur)
         ->setServiceEmetteur($serviceEmetteur)
         ->setAgenceDebiteur($agenceDebiteur)

@@ -30,7 +30,7 @@ class BadmSearchType extends AbstractType
   }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        //dd($options);
+     
         $builder
         ->add('statut', EntityType::class, [
             'label' => 'Statut',
@@ -215,5 +215,6 @@ class BadmSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => BadmSearch::class
         ]);
+        $resolver->setDefined('idAgenceEmetteur');
     }
 }

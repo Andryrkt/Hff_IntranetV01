@@ -3,16 +3,10 @@
 namespace App\Controller\badm;
 
 use App\Entity\Badm;
-use App\Entity\User;
 use App\Entity\BadmSearch;
 use App\Form\BadmSearchType;
-use App\Entity\StatutDemande;
-use App\Entity\TypeMouvement;
 use App\Controller\Controller;
 use App\Controller\Traits\BadmListTrait;
-use App\Entity\Agence;
-use App\Entity\Service;
-use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,11 +23,15 @@ class BadmListeController extends Controller
          $autoriser = $this->autorisationRole(self::$em);
         
          $badmSearch = new BadmSearch();
+
+         $agenceServiceIps= $this->agenceServiceIpsObjet();
+
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
         $form->handleRequest($request);
@@ -164,8 +162,9 @@ public function listAnnuler(Request $request){
     $autoriser = $this->autorisationRole(self::$em);
         
          $badmSearch = new BadmSearch();
+         $agenceServiceIps= $this->agenceServiceIpsObjet();
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',

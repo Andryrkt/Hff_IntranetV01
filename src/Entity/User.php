@@ -10,16 +10,16 @@ use App\Traits\DateTrait;
 use App\Entity\Permission;
 use App\Entity\Application;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\AgenceServiceIrium;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="users")
  * @ORM\HasLifecycleCallbacks
  */
-class User
+class User implements UserInterface
 {
     use DateTrait;
 
@@ -493,4 +493,20 @@ public function removeAgenceAutorise(Agence $agence): self
             return $serviceAutorise->getId();
         })->toArray();
     }
+
+   
+
+    
+    public function getPassword(){}
+
+   
+    public function getSalt(){}
+
+ 
+    public function eraseCredentials(){}
+
+    
+    public function getUsername(){}
+
+    public function getUserIdentifier(){}
 }
