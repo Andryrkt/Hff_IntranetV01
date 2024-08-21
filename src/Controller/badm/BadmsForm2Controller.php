@@ -3,13 +3,10 @@
 namespace App\Controller\badm;
 
 use App\Entity\Badm;
-use App\Entity\User;
 use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\Application;
 use App\Form\BadmForm2Type;
-use App\Entity\CasierValider;
-use App\Entity\StatutDemande;
 use App\Entity\TypeMouvement;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
