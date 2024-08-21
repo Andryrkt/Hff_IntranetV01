@@ -7,7 +7,6 @@ use App\Entity\Agence;
 use App\Entity\Service;
 use App\Entity\DitSearch;
 use App\Entity\StatutDemande;
-use App\Entity\TypeMouvement;
 use App\Controller\Controller;
 use App\Entity\CategorieAteApp;
 use App\Entity\DemandeIntervention;

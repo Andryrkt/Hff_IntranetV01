@@ -97,7 +97,6 @@ trait DitListTrait
         $criteria = $this->sessionService->get('dit_search_criteria', []);
 
         if($criteria !== null){
-
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
@@ -142,7 +141,7 @@ trait DitListTrait
     } 
 
     private function agenceServiceEmetteur($agenceServiceIps, bool $autoriser): array
-{
+    {
 
         //initialisation agence et service
         if($autoriser){
@@ -157,7 +156,7 @@ trait DitListTrait
             'agence' => $agence,
             'service' => $service
         ];
-}
+    }
 
     private function ajoutStatutAchatPiece($data){
         for ($i=0 ; $i < count($data) ; $i++ ) { 
