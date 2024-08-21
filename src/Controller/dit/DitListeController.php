@@ -30,7 +30,7 @@ class DitListeController extends Controller
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
 
-        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps);
+        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
 
         //création et initialisation du formulaire de la recherche

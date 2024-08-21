@@ -27,7 +27,7 @@ class BadmListeController extends Controller
          $agenceServiceIps= $this->agenceServiceIpsObjet();
 
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',
@@ -164,7 +164,7 @@ public function listAnnuler(Request $request){
          $badmSearch = new BadmSearch();
          $agenceServiceIps= $this->agenceServiceIpsObjet();
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',
