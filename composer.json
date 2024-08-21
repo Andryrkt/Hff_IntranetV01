@@ -80,7 +80,9 @@
         "wa72/htmlpagedom": "^2.0",
         "symfony/webpack-encore-bundle": "^1.17",
         "illuminate/pagination": "^8.83",
-        "illuminate/view": "^8.83"
+        "illuminate/view": "^8.83",
+        "symfony/security-core": "^5.4",
+        "symfony/property-access": "^5.4"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43",

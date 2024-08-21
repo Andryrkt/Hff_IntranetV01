@@ -9,7 +9,7 @@ use App\Entity\Service;
 use App\Entity\CasierValider;
 use App\Entity\StatutDemande;
 
-trait BadmsForm2Trait
+trait BadmDuplicationTrait
 {
     private function changeEtatAchat($dataEtatAchat)
     {
@@ -37,10 +37,10 @@ trait BadmsForm2Trait
         return $dateMiseLocation;
     }
 
-    private function initialisation(Badm $badm, array $form1Data, $data, $em): Badm
+    private function initialisation(Badm $badm, $form1Data, $data, $em): Badm
     {
         $badm
-       ->setTypeMouvement($form1Data['typeMouvemnt'])
+       ->setTypeMouvement($form1Data)
        //caracteristique du materiel
        ->setGroupe($data[0]["famille"])
        ->setAffectation($data[0]["affectation"])
@@ -102,9 +102,6 @@ trait BadmsForm2Trait
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
        }
-
- 
-  
 
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);

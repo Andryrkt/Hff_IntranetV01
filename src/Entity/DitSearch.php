@@ -49,7 +49,7 @@ class DitSearch
 
     private ?string $statutOr = '';
     
-    private bool $ditRattacherOr = false;
+    private ?bool $ditRattacherOr = false;
 
     private  $categorie;
 

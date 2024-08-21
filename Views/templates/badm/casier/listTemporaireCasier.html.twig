@@ -32,75 +32,53 @@
 		<div class="boutonRecherche col-md-4">
 			<input type="submit" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
 		</div>
-
 		{{ form_end(form)}}
-
-
 		<!-- FIN recherche -->
-
-
-		<!-- DEBUT bouton -->
-			<div
-			class="row justify-content-center my-4"> <!-- DEBUT Pagination -->
-			<div class="col-12 col-md-12 col-lg-4  mt-1">
-				<div id="pagination-wrapper"></div>
-			</div>
-			<!-- FIN Pagination -->
-		</div>
-		<!-- FIN bouton -->
 
 
 	</div>
 
 	<!-- DEBUT tableau -->
 	<div class="container ">
-		<div class="row">
-
-			<div class="col-12 col-md-6 col-lg-4">
-				<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
-				{# recupé&ration de l'id du role de l'utilisateur #}
-				{% set role_ids = App.user.roleIds %}
-				{# est-ce que l'id 1 est dans le tableaut id #}
-				{% if 1 in role_ids  %}
-					<a href="{{ path("liste_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Définitives</a>
-				{% endif %}
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
 			</div>
-			<div class="col-12 col-md-6 col-lg-4  mt-1">
-				<p class="fw-bold" id="nombreResultat">0 Résultats</p>
+		{% else %}
+			<div class="row">
+				{% include "/badm/casier/_paginationTemporaire.html.twig" %}
 			</div>
-		</div>
-		<table class="table   table-shadow shadow  rounded " style="text-align: center;">
-			<thead class="table-dark">
-				<tr>
-					<th>Statut</th>
-					<th>Agence rattaché</th>
-					<th>Casier</th>
-					<th>Date de création</th>
-					<th>Numero Casier</th>
-					{% if 1 in role_ids  %}
-						<th>Action</th>
-					{% endif %}
-				</tr>
-			</thead>
-			<tbody id="table-container">
-				{% for item in casier %}
+			<table class="table   table-shadow shadow  rounded " style="text-align: center;">
+				<thead class="table-dark">
 					<tr>
-						<td>{{ item.idStatutDemande}}</td>
-						<td>{{item.agenceRattacher.codeAgence()}}</td>
-						<td style="text-align:left">{{item.Casier}}</td>
-						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
-						<td>{{item.NumeroCAS}}</td>
+						<th>Statut</th>
+						<th>Agence rattaché</th>
+						<th>Casier</th>
+						<th>Date de création</th>
+						<th>Numero Casier</th>
 						{% if 1 in role_ids  %}
-							<td>
-								{# <a href="/Hffintranet/index.php?action=formValide&id={{item.Id}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a> #}
-								<a href="{{ path("CasierListTemporaire_btnValide", { id: item.Id})}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a>
-							</td>
+							<th>Action</th>
 						{% endif %}
 					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-
+				</thead>
+				<tbody id="table-container">
+					{% for item in casier %}
+						<tr>
+							<td>{{ item.idStatutDemande}}</td>
+							<td>{{item.agenceRattacher.codeAgence()}}</td>
+							<td style="text-align:left">{{item.Casier}}</td>
+							<td>{{item.Date_Creation|date("d/m/Y")}}</td>
+							<td>{{item.NumeroCAS}}</td>
+							{% if 1 in role_ids  %}
+								<td>
+									<a href="{{ path("CasierListTemporaire_btnValide", { id: item.Id})}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a>
+								</td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
 	</div>
 	<!-- FIN tableau -->
 {% endblock %}

@@ -3,7 +3,11 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
+<<<<<<< HEAD
         'reference' => '2d4b8e862485aadaa10d24f818999c8207f2f6ff',
+=======
+        'reference' => '579e80d170e3f56c01dbe0d700e9ea0d6cd8536c',
+>>>>>>> 420db0e2d931799b53038b3d5e019a68a226c048
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -310,7 +314,11 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
+<<<<<<< HEAD
             'reference' => '2d4b8e862485aadaa10d24f818999c8207f2f6ff',
+=======
+            'reference' => '579e80d170e3f56c01dbe0d700e9ea0d6cd8536c',
+>>>>>>> 420db0e2d931799b53038b3d5e019a68a226c048
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -947,9 +955,9 @@
             'dev_requirement' => false,
         ),
         'symfony/property-access' => array(
-            'pretty_version' => 'v5.4.39',
-            'version' => '5.4.39.0',
-            'reference' => '1b93ca45890ce5555895efe27bd848c41396530c',
+            'pretty_version' => 'v5.4.40',
+            'version' => '5.4.40.0',
+            'reference' => '6e4834145c2231b34eafabe440aaac478a95b456',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/property-access',
             'aliases' => array(),
@@ -974,18 +982,18 @@
             'dev_requirement' => false,
         ),
         'symfony/security-core' => array(
-            'pretty_version' => 'v5.4.39',
-            'version' => '5.4.39.0',
-            'reference' => 'df88cf83d6b25d25106a63261d97adb78c5690c2',
+            'pretty_version' => 'v5.4.42',
+            'version' => '5.4.42.0',
+            'reference' => '3c6b81c68a828958ae0bcec9dd44a8e6ea0a38de',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/security-core',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
         'symfony/security-csrf' => array(
-            'pretty_version' => 'v5.4.39',
-            'version' => '5.4.39.0',
-            'reference' => '52773ed2b696c19e06480b8dccc234851ccaabca',
+            'pretty_version' => 'v5.4.40',
+            'version' => '5.4.40.0',
+            'reference' => '9058d522c1c33d7ba13f4b3c79555cc2c4c16028',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/security-csrf',
             'aliases' => array(),

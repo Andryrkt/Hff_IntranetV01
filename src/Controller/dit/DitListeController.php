@@ -2,25 +2,18 @@
 
 namespace App\Controller\dit;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
+
 use App\Entity\DitSearch;
 use App\Form\DitSearchType;
-use App\Entity\StatutDemande;
 use App\Controller\Controller;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
 use App\Entity\DemandeIntervention;
 use App\Controller\Traits\DitListTrait;
-use App\Service\AncienDitService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DitListeController extends Controller
 {
     use DitListTrait;
-
 
     /**
      * @Route("/dit", name="dit_index")
@@ -36,9 +29,9 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
-       
-        
-         $this->initialisationRechercheDit($ditSearch, self::$em);
+
+        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps);
+
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
@@ -70,12 +63,12 @@ class DitListeController extends Controller
             }
         } 
        
-        $criteria = [];
-        //transformer l'objet ditSearch en tableau
-        $criteria = $ditSearch->toArray();
-        //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('dit_search_criteria', $criteria);
-      
+       $criteria = [];
+       //transformer l'objet ditSearch en tableau
+       $criteria = $ditSearch->toArray();
+       //recupères les données du criteria dans une session nommé dit_serch_criteria
+       $this->sessionService->set('dit_search_criteria', $criteria);
+    
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
