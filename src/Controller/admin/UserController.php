@@ -57,7 +57,7 @@ class UserController extends Controller
         $user = new User();
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-
+        
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())

@@ -44,7 +44,7 @@ class DitListeController extends Controller
         $ditRepository= self::$em->getRepository(DemandeIntervention::class);
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
-        
+    
         if($form->isSubmitted() && $form->isValid()) {
             
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
@@ -58,6 +58,7 @@ class DitListeController extends Controller
                     $empty = true;
                 }
             } else {
+                
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
@@ -76,14 +77,14 @@ class DitListeController extends Controller
         $limit = 10;
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-     
+    
         $option = [
             'boolean' => $autoriser,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
-        
+       
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
@@ -95,7 +96,6 @@ class DitListeController extends Controller
  
         //recupération des données filtrée
         $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($data);
 
