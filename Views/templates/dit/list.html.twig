@@ -112,8 +112,14 @@
 								<td class="bg-warning bg-gradient fw-bold text-cente">
 									{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+								<td class="bg-warning bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
 								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% else %}
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}	
+								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}	
+								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>	
+							{% else %}	
 								<td>{{item.idStatutDemande.description | trim}}</td>
 							{% endif %}
 							{# FIN Statut #}
