@@ -27,7 +27,6 @@ class MagasinSearchType extends AbstractType
     {
         $magasinModel = new MagasinModel();
        $constructeur = $magasinModel->recuperationConstructeur();
-        
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',

@@ -1,0 +1,84 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock %}
+
+{# {% import "macroForm.html.twig" as form %} #}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Planning
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+
+		{% include "/planning/formulaire.html.twig" %}
+	</div>
+
+	<div
+		class="container-fluid">
+		<!-- DEBUT tableau -->
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
+		{% else %}
+			<div class="container">
+				<div class="d-flex justify-content-between">
+					<div>
+						{# Bouton EXCEL#}
+						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+							Resultats</p>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+							pages</p>
+					</div>
+					<div class="navigation">
+						{% set queryParams = criteria  %}
+
+						{% if currentPage > 1 %}
+							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+								<i class="fas fa-angle-left text-warning"></i>
+							</a>
+						{% endif %}
+
+
+						{% if currentPage < totalPages %}
+							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+								<i class="fas fa-angle-right text-warning"></i>
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
+					<tr>
+						
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		{% endif %}
+	</div>
+
+	<!-- FIN tableau -->
+	{# body modal #}
+	{% include "/dit/_modal.html.twig"  %}
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+{% endblock %}

@@ -134,7 +134,6 @@ class MagasinModel extends Model
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
-
         return array_combine(array_column($this->convertirEnUtf8($data), 'constructeur'), array_column($this->convertirEnUtf8($data), 'constructeur'));
     }
 
