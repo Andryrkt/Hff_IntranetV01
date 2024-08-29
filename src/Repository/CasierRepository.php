@@ -57,7 +57,7 @@ class casierRepository extends EntityRepository
 
         $queryBuilder
             ->andWhere('c.idStatutDemande = :idStatut')
-            ->setParameter('idStatut', 52)
+            ->setParameter('idStatut', 55)
             ->orderBy('c.numeroCas', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
