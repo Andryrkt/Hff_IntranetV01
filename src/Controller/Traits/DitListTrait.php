@@ -95,7 +95,7 @@ trait DitListTrait
     {
       
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
+        
         if($criteria !== null){
             if ($autoriser) {
                 $agenceIpsEmetteur = null;
@@ -150,6 +150,7 @@ trait DitListTrait
         ->setDitRattacherOr($criteria['ditRattacherOr'] ?? null)
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
+        ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
         ;
 
     } 

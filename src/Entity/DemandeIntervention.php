@@ -5,20 +5,16 @@ namespace App\Entity;
 use DateTime;
 use App\Entity\Agence;
 use App\Entity\Service;
+use App\Traits\QuantiteDitTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\DitRepository;
 use App\Traits\AgenceServiceTrait;
 use App\Traits\AgenceServiceEmetteurTrait;
 use App\Traits\BilanFinancierMaterielTrait;
-use Doctrine\Common\Collections\Collection;
 use App\Traits\CaracteristiqueMaterielTrait;
-use App\Traits\QuantiteDitTrait;
-use App\Validator\DemandeInterventionValidator;
-use Symfony\Component\HttpFoundation\File\File;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\ORM\Mapping\Driver\RepeatableAttributeCollection;
+
 
 /**
  * @ORM\Entity(repositoryClass=DitRepository::class)

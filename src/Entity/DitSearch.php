@@ -19,8 +19,7 @@ class DitSearch
    
     private ?string $internetExterne;
 
-    
-   
+
     private ?\Datetime $dateDebut;
 
     private ?\DateTime $dateFin;
@@ -54,6 +53,8 @@ class DitSearch
     private  $categorie;
 
     private ?string $utilisateur = '';
+
+    private ?string $sectionAffectee = null;
 
     //-===============================================================================================================================
     public function getNiveauUrgence()
@@ -469,6 +470,17 @@ class DitSearch
         return $this;
     }
 
+    public function getSectionAffectee()
+    {
+        return $this->sectionAffectee;
+    }
+
+    public function setSectionAffectee($sectionAffectee): self
+    {
+        $this->sectionAffectee = $sectionAffectee;
+
+        return $this;
+    }
     
     public function toArray(): array
     {
@@ -491,8 +503,12 @@ class DitSearch
             'statutOr' => $this->statutOr,
             'ditRattacherOr' => $this->ditRattacherOr,
             'categorie' => $this->categorie,
-            'utilisateur' => $this->utilisateur
+            'utilisateur' => $this->utilisateur,
+            'sectionAffectee' => $this->sectionAffectee
         ];
     }
+
+ 
+
 }
 
