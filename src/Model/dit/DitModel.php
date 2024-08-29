@@ -204,7 +204,13 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 
     public function RecupereCommandeOr($numero_or)
     {
-       $statement = "SELECT slor_numcf,fcde_date
+       $statement = "SELECT
+        slor_numcf,
+        fcde_date,
+        slor_typcf,
+        fcde_posc,
+        fcde_posl
+
       from sav_lor
       inner join frn_cde on frn_cde.fcde_numcde = slor_numcf
       where
@@ -213,7 +219,7 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
-      group by slor_numcf, fcde_date"
+      group by 1,2,3,4,5"
       ;
 
       $result = $this->connect->executeQuery($statement);

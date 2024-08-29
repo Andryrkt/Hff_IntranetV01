@@ -163,10 +163,10 @@ function recherche() {
 /** LIST COMMANDE MODAL */
 
 document.addEventListener("DOMContentLoaded", (event) => {
-  var listeCommandeModal = document.getElementById("listeCommande");
+  const listeCommandeModal = document.getElementById("listeCommande");
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
-    var button = event.relatedTarget; // Button that triggered the modal
-    var id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    const button = event.relatedTarget; // Button that triggered the modal
+    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
 
     // Fetch request to get the data
     fetch(`/Hffintranet/command-modal/${id}`)
@@ -177,14 +177,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        var tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("commandesTableBody");
+        console.log(tableBody);
+
         tableBody.innerHTML = ""; // Clear previous data
 
         data.forEach((command) => {
-          var row = `<tr>
-                      <td>${command.slor_numcf}</td>
+          let typeCommand;
+          if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
+            typeCommand = "Local";
+          } else if (command.slor_typcf == "CIS") {
+            typeCommand = "Agence";
+          } else {
+            typeCommand = "Import";
+          }
+          //affichage
+          let row = `<tr>
+                      <td>${command.slor_numcf}</td> 
                       <td>${command.fcde_date}</td>
-                      <td> -- </td>
+                      <td> ${typeCommand}</td>
+                      <td> ${command.fcde_posc}</td>
+                      <td> ${command.fcde_posl}</td>
                   </tr>`;
           tableBody.innerHTML += row;
         });
