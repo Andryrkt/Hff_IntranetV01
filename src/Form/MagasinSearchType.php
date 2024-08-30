@@ -25,6 +25,7 @@ class MagasinSearchType extends AbstractType
     }
 
     const OR_COMPLET_OU_NON = [
+        'TOUT LES OR' => 'TOUT LES OR',
         'ORs COMPLET' => 'ORs COMPLET',
         'ORs PARTIELLEMNT COMPLETS' => 'ORs PARTIELLEMNT COMPLETS'
     ];

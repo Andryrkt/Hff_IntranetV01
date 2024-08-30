@@ -2,11 +2,14 @@
 
 namespace App\Controller\Traits;
 
+use App\Model\magasin\MagasinModel;
+
 trait MagasinTrait
 {
     private function orEnString($criteria): string
     {
-        $numOrValide = $this->transformEnSeulTableau($this->magasinModel->recupNumOr($criteria));
+        $magasinModel = new MagasinModel();
+        $numOrValide = $this->transformEnSeulTableau($magasinModel->recupNumOr($criteria));
 
          return implode(',', $numOrValide);
     }

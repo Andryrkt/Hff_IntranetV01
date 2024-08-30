@@ -4,14 +4,17 @@
 namespace App\Controller\magasin;
 
 ini_set('max_execution_time', 10000);
+ini_set('memory_limit', '500M');
+
 
 use App\Controller\Controller;
+use App\Form\MagasinSearchType;
+use App\Entity\DemandeIntervention;
 use App\Controller\Traits\MagasinTrait;
 use App\Controller\Traits\Transformation;
-use App\Form\MagasinSearchType;
-use App\Model\magasin\MagasinListeOrLivrerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 
 class MagasinListeOrLivrerController extends Controller
 { 
@@ -26,9 +29,6 @@ class MagasinListeOrLivrerController extends Controller
         parent::__construct();
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
-
-
-
 
      /**
      * @Route("/liste-or-livrer", name="magasinListe_or_Livrer")

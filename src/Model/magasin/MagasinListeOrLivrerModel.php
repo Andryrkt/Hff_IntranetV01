@@ -78,7 +78,17 @@ class MagasinListeOrLivrerModel extends Model
                                                     and slor_constp not in ('LUB')
                                                     and slor_succ = '01'
                                                     and seor_serv ='SAV')";
-            } else {
+            } else if($criteria['orCompletNon'] === 'ORs PARTIELLEMNT COMPLETS') {
+                $orCompletNom = " AND slor_numor IN (
+                select distinct slor_numor from sav_lor where 
+                CASE 
+                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                END > slor_qteres 
+                and slor_typlig = 'P' 
+                and slor_constp not in ('LUB') 
+                and slor_constp not like 'Z%')";
+            } else if($criteria['orCompletNon'] === 'TOUT LES OR'){
                 $orCompletNom = " AND slor_numor IN (SELECT 
                                                     seor_numor as numeroOr
                                                     from sav_lor as A
@@ -87,7 +97,7 @@ class MagasinListeOrLivrerModel extends Model
                                                     and seor_numor = slor_numor
                                                     where slor_soc = 'HF'
                                                     AND  (Select SUM ( CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END ) from sav_lor as B where B.slor_numor =A.slor_numor ) 
-                                                    > (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
+                                                    >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
                                                     and slor_qteres <> 0
                                                     and slor_typlig = 'P'
                                                     and slor_constp not like 'Z%'
@@ -114,7 +124,7 @@ class MagasinListeOrLivrerModel extends Model
         }
           
 
-        
+
         $statement = " SELECT 
                         trim(seor_refdem) as referenceDIT,
                         seor_numor as numeroOr,
@@ -165,6 +175,7 @@ class MagasinListeOrLivrerModel extends Model
                         order by slor_datec desc, seor_numor asc, slor_nolign asc
         ";
 
+dd($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
