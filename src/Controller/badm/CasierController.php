@@ -32,8 +32,6 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
-
-
             $casier = new Casier();
 
             $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);

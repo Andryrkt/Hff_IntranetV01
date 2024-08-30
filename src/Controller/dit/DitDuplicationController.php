@@ -10,6 +10,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Model\dit\DitModel;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +34,8 @@ class DitDuplicationController extends Controller
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
         $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
-        $data = $this->ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+        $ditModel = new DitModel();
+        $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
         $dit
         ->setNumParc($data[0]['num_parc'])
         ->setNumSerie($data[0]['num_serie'])

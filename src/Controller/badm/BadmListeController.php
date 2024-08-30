@@ -7,6 +7,7 @@ use App\Entity\BadmSearch;
 use App\Form\BadmSearchType;
 use App\Controller\Controller;
 use App\Controller\Traits\BadmListTrait;
+use App\Model\badm\BadmRechercheModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -80,8 +81,8 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_option', $option);
 
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
-
-            $badms = $this->badmRech->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badmRechercheModel = new BadmRechercheModel();
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
@@ -216,8 +217,8 @@ public function listAnnuler(Request $request){
         $this->sessionService->set('badm_search_option', $option);
 
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
-
-            $badms = $this->badmRech->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badmRechercheModel = new BadmRechercheModel();
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);

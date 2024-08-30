@@ -90,7 +90,7 @@ class DitModel extends Model
             sitv_numor as numeroOr, 
             sitv_interv as numeroIntervention, 
             trim(sitv_comment) as commentaire,
-	sitv_pos as pos,
+	          sitv_pos as pos,
             sum(slor_qterea*slor_pmp) as somme
 
 
@@ -114,7 +114,7 @@ class DitModel extends Model
             order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
             ";
 
-$result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
 
         $data = $this->connect->fetchResults($result);
@@ -134,11 +134,8 @@ $result = $this->connect->executeQuery($statement);
 
         from mat_mat
         where mmat_nummat IN ".$matricule."
-         and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
-
-         
-        
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
         $result = $this->connect->executeQuery($statement);
