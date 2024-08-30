@@ -450,6 +450,8 @@ class DemandeIntervention
      */
     private  $serviceDebiteurId;
 
+    private $nbrPj;
+
     //===================================================================================================================
 
     public function getId()
@@ -1292,6 +1294,26 @@ class DemandeIntervention
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
         $this->serviceDebiteurId = $serviceDebiteurId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nbrPj
+     */ 
+    public function getNbrPj()
+    {
+        return $this->nbrPj;
+    }
+
+    /**
+     * Set the value of nbrPj
+     *
+     * @return  self
+     */ 
+    public function setNbrPj($nbrPj)
+    {
+        $this->nbrPj = $nbrPj;
 
         return $this;
     }

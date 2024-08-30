@@ -58,7 +58,6 @@ class DitListeController extends Controller
                     $empty = true;
                 }
             } else {
-                
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
@@ -96,6 +95,9 @@ class DitListeController extends Controller
 
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
+
+        $this->ajoutNbrPj($paginationData['data'], self::$em);
+
         
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
@@ -110,7 +112,6 @@ class DitListeController extends Controller
         } else {
             $empty = true;
         }
-
 
         self::$twig->display('dit/list.html.twig', [
             'data' => $paginationData['data'],

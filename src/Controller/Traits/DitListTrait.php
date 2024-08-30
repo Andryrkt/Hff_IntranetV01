@@ -215,6 +215,12 @@ trait DitListTrait
         }
     }
 
+    private function ajoutNbrPj($data, $em){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            $data[$i]->setNbrPj($em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention()));
+        }
+    }
+
 
     private function autorisationRole($em): bool
     {
