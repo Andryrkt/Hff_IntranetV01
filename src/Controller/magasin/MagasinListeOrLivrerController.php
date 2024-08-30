@@ -50,7 +50,6 @@ class MagasinListeOrLivrerController extends Controller
             $criteria = $form->getData();
         } 
 
-
         //$numOrValideString = $this->orEnString($criteria);
 
             $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria);
@@ -70,7 +69,6 @@ class MagasinListeOrLivrerController extends Controller
             //         break;
             //     }
             // }
-       
 
         
         if(empty($data)  ){
