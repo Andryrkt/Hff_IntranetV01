@@ -19,4 +19,24 @@ trait Transformation
         return $tab;
     }
 
+    public function transformEnSeulTableauAvecKey(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as   $values) {
+            foreach ($values as $key =>$value) {
+                $tab[$key] = $value;
+            }
+        }
+        return $tab;
+    }
+
+    public function transformEnSeulTableauAvecKeyService(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as   $values) {
+           
+            $tab[$values['text']] = $values['value'];
+        }
+        return $tab;
+    }
 }

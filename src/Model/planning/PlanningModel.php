@@ -17,18 +17,21 @@ class PlanningModel extends Model
                                trim(asuc_lib) as asuc_lib
                       FROM agr_succ
                       WHERE asuc_codsoc = 'HF'
-                      AND  (ASUC_NUM like '01' or ASUC_NUM like '10' or ASUC_NUM like '20' or ASUC_NUM like '30' or ASUC_NUM like '40')
+                      AND  (ASUC_NUM like '01' 
+                      or ASUC_NUM like '10' 
+                      or ASUC_NUM like '20' 
+                      or ASUC_NUM like '30'
+                       or ASUC_NUM like '40')
                       order by 1
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $dataUtf8 = $this->convertirEnUtf8($data);
-       return array_combine(
-         array_column($dataUtf8, 'asuc_lib'),
-         array_map(function($item) {
-             return $item['asuc_num'] . ' - ' . $item['asuc_lib'];
-         }, $dataUtf8)
-       );
+        return 
+          array_map(function($item) {
+              return [$item['asuc_num'].'-'.$item['asuc_lib'] => $item['asuc_num']] ;
+          }, $dataUtf8);
+        
         
    }
    
@@ -92,9 +95,12 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-
-   
-
+  public function recuperationMaterielplanifier($criteria = []){
+    $statement = "";
+    
+  }
+    
+ 
 
    
 
