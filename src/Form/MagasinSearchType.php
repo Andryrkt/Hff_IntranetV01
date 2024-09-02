@@ -17,16 +17,21 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class MagasinSearchType extends AbstractType
 {
-    
-    
-        
-    
 
+    private function recupConstructeur()
+    {
+        $magasinModel = new MagasinModel();
+       return  $magasinModel->recuperationConstructeur();
+    }
+
+    const OR_COMPLET_OU_NON = [
+        'TOUT LES OR' => 'TOUT LES OR',
+        'ORs COMPLET' => 'ORs COMPLET',
+        'ORs PARTIELLEMNT COMPLETS' => 'ORs PARTIELLEMNT COMPLETS'
+    ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $magasinModel = new MagasinModel();
-       $constructeur = $magasinModel->recuperationConstructeur();
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',
@@ -55,7 +60,7 @@ class MagasinSearchType extends AbstractType
         ->add('constructeur', ChoiceType::class, [
             'label' =>  'Constructeur',
             'required' => false,
-            'choices' => $constructeur,
+            'choices' => $this->recupConstructeur(),
             'placeholder' => ' -- choisir une constructeur --'
         ])
         ->add('dateDebut', DateType::class, [
@@ -67,6 +72,15 @@ class MagasinSearchType extends AbstractType
             'widget' => 'single_text',
             'label' => 'Date de création OR (fin)',
             'required' => false,
+        ])
+        ->add('orCompletNon',
+        ChoiceType::class,
+        [
+            'label' => 'ORs Complet ou incomplet',
+            'required' => false,
+            'choices' => self::OR_COMPLET_OU_NON,
+            'placeholder' => ' -- choisir une mode affichage --',
+            'data' => 'ORs COMPLET'
         ])
         ;
     }

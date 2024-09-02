@@ -95,7 +95,7 @@ trait DitListTrait
     {
       
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
+        
         if($criteria !== null){
             if ($autoriser) {
                 $agenceIpsEmetteur = null;
@@ -150,6 +150,7 @@ trait DitListTrait
         ->setDitRattacherOr($criteria['ditRattacherOr'] ?? null)
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
+        ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
         ;
 
     } 
@@ -211,6 +212,12 @@ trait DitListTrait
                     }
                 }
             }
+        }
+    }
+
+    private function ajoutNbrPj($data, $em){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            $data[$i]->setNbrPj($em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention()));
         }
     }
 

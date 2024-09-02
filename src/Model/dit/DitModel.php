@@ -90,7 +90,7 @@ class DitModel extends Model
             sitv_numor as numeroOr, 
             sitv_interv as numeroIntervention, 
             trim(sitv_comment) as commentaire,
-	sitv_pos as pos,
+	          sitv_pos as pos,
             sum(slor_qterea*slor_pmp) as somme
 
 
@@ -114,7 +114,7 @@ class DitModel extends Model
             order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
             ";
 
-$result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
 
         $data = $this->connect->fetchResults($result);
@@ -134,11 +134,8 @@ $result = $this->connect->executeQuery($statement);
 
         from mat_mat
         where mmat_nummat IN ".$matricule."
-         and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
-
-         
-        
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
         $result = $this->connect->executeQuery($statement);
@@ -204,7 +201,13 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 
     public function RecupereCommandeOr($numero_or)
     {
-       $statement = "SELECT slor_numcf,fcde_date
+       $statement = "SELECT
+        slor_numcf,
+        fcde_date,
+        slor_typcf,
+        fcde_posc,
+        fcde_posl
+
       from sav_lor
       inner join frn_cde on frn_cde.fcde_numcde = slor_numcf
       where
@@ -213,7 +216,7 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
-      group by slor_numcf, fcde_date"
+      group by 1,2,3,4,5"
       ;
 
       $result = $this->connect->executeQuery($statement);

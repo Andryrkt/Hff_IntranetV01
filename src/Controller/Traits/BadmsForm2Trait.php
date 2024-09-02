@@ -211,16 +211,19 @@ trait BadmsForm2Trait
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $form->getData()->getDateMiseLocation();
             $serviceEmetteur = $em->getRepository(Service::class)->find(2);
+            $numParc = $form->getData()->getNumParc();
         } elseif ($idTypeMouvement === 2) {
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif ($idTypeMouvement === 4) {
             if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
@@ -231,11 +234,13 @@ trait BadmsForm2Trait
             }
             $casierDestinataire = null;
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         }
            
         // if ($data[0]['code_affect'] === 'LCD') {
@@ -245,7 +250,7 @@ trait BadmsForm2Trait
         // }
 
         $badm
-        ->setNumParc($data[0]["num_parc"])
+        ->setNumParc($numParc)
         ->setHeureMachine((int)$data[0]['heure'])
         ->setKmMachine((int)$data[0]['km'])
         ->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]))

@@ -11,6 +11,7 @@ use App\Controller\Traits\DitTrait;
 use App\Entity\DemandeIntervention;
 use App\Form\demandeInterventionType;
 use App\Controller\Traits\FormatageTrait;
+use App\Model\dit\DitModel;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -121,8 +122,9 @@ class DitController extends Controller
      */
     public function fetchMateriel($idMateriel,  $numParc, $numSerie)
     {
+        $ditModel = new DitModel();
         // Récupérer les données depuis le modèle
-        $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
+        $data = $ditModel->findAll($idMateriel, $numParc, $numSerie);
 
         // Vérifiez si les données existent
         if (!$data) {

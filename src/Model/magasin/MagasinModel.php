@@ -12,7 +12,6 @@ class MagasinModel extends Model
     use FormatageTrait;
 
 
-    
     public function recupereListeMaterielValider(  $criteria = [])
     {
     

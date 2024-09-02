@@ -32,8 +32,6 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
-
-
             $casier = new Casier();
 
             $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
@@ -128,7 +126,7 @@ class CasierController extends Controller
             $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier( $casier->getClient() . ' - ' . $casier->getChantier());
-            $casier->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(52));
+            $casier->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(55));
             $casier->setNomSessionUtilisateur($user);
             $agenceEmetteur = $data[0]['agence'];
             $serviceEmetteur = $data[0]['code_service'];

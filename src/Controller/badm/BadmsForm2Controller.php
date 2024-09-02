@@ -84,7 +84,7 @@ class BadmsForm2Controller extends Controller
                      
                     //envoie des pièce jointe dans une dossier et le fusionner
                     $this->envoiePieceJoint($form, $badm);
-
+                    
                     $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
 
                     $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
@@ -96,6 +96,7 @@ class BadmsForm2Controller extends Controller
                     ->setAgenceDebiteurId($badm->getAgence())
                     ->setServiceDebiteurId($badm->getService())
                     ;
+                    
                     //ENVOIE DANS LE BASE DE DONNEE
                     self::$em->persist($badm);
                     self::$em->flush();

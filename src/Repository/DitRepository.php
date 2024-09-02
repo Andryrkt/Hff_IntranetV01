@@ -4,10 +4,36 @@ namespace App\Repository;
 
 use App\Entity\DitSearch;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 
 class DitRepository extends EntityRepository
 {
+    public function findNbrPj($numDit)
+    {
+        $nombrePiecesJointes = $this->createQueryBuilder('d')
+        ->select(
+            '(CASE WHEN d.pieceJoint01 IS NOT NULL THEN 1 ELSE 0 END + 
+            CASE WHEN d.pieceJoint02 IS NOT NULL THEN 1 ELSE 0 END + 
+            CASE WHEN d.pieceJoint03 IS NOT NULL THEN 1 ELSE 0 END) AS nombrePiecesJointes'
+        )
+        ->where('d.numeroDemandeIntervention = :numDit')
+        ->setParameter('numDit', $numDit)
+        ->getQuery()
+        ->getSingleScalarResult();
+
+        return (int) $nombrePiecesJointes;
+    }
+
+    public function findSectionAffectee()
+    {
+        $result = $this->createQueryBuilder('d')
+        ->select('DISTINCT d.sectionAffectee')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'sectionAffectee');
+    }
+
     public function findStatutOr()
     {
         $result = $this->createQueryBuilder('d')
@@ -79,7 +105,7 @@ class DitRepository extends EntityRepository
      */
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
-        
+       
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
@@ -197,6 +223,21 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere("d.numeroOR <> ''");
         }
 
+         //filtre selon le section affectée
+         $sectionAffectee = $ditSearch->getSectionAffectee();
+    if (!empty($sectionAffectee)) {
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+        $orX = $queryBuilder->expr()->orX();
+
+        foreach ($groupes as $groupe) {
+            $phraseConstruite = $groupe. $sectionAffectee;
+            $orX->add($queryBuilder->expr()->eq('d.sectionAffectee', ':sectionAffectee_' . md5($phraseConstruite)));
+            $queryBuilder->setParameter('sectionAffectee_' . md5($phraseConstruite), $phraseConstruite);
+        }
+
+        $queryBuilder->andWhere($orX);
+    }
+
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
@@ -205,123 +246,20 @@ class DitRepository extends EntityRepository
             ->setMaxResults($limit)
             ;
 
+            $paginator = new DoctrinePaginator($queryBuilder->getQuery());
+
+            $totalItems = count($paginator);
+            $lastPage = ceil($totalItems / $limit);
             // $sql = $queryBuilder->getQuery()->getSQL();
             // echo $sql;
 
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-    public function countFiltered(DitSearch $ditSearch,  array $options)
-    {
-        $queryBuilder = $this->createQueryBuilder('d')
-            ->select('COUNT(d.id)')
-            ->leftJoin('d.typeDocument', 'td')
-            ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's');
-
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
-
-                if (!empty($ditSearch->getStatut())) {
-                    $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-                }
-    
-            if (!empty($ditSearch->getTypeDocument())) {
-                $queryBuilder->andWhere('td.description LIKE :typeDocument')
-                    ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
-            }
-    
-            if (!empty($ditSearch->getNiveauUrgence())) {
-                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                    ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
-            }
-    
-            if (!empty($ditSearch->getIdMateriel())) {
-                $queryBuilder->andWhere('d.idMateriel = :idMateriel')
-                    ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
-            }
-    
-            if (!empty($ditSearch->getInternetExterne())) {
-                $queryBuilder->andWhere('d.internetExterne = :internetExterne')
-                    ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
-            }
-    
-            if (!empty($ditSearch->getDateDebut())) {
-                $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
-                    ->setParameter('dateDebut', $ditSearch->getDateDebut());
-            }
-    
-            if (!empty($ditSearch->getDateFin())) {
-                $queryBuilder->andWhere('d.dateDemande <= :dateFin')
-                    ->setParameter('dateFin', $ditSearch->getDateFin());
-            }
-    
-            if ($options['boolean']) {
-                //filtre selon l'agence emettteur
-                if (!empty($ditSearch->getAgenceEmetteur())) {
-                    $queryBuilder->andWhere('d.agenceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet',  $ditSearch->getAgenceEmetteur()->getId());
-                }
-                //filtre selon le service emetteur
-                if (!empty($ditSearch->getServiceEmetteur())) {
-                    $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
-                }
-            } else {
-                //ceci est figer pour les utilisateur autre que l'administrateur
-                    $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
-                    ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
-            }
-    
-            //filtre selon l'agence debiteur
-            if (!empty($ditSearch->getAgenceDebiteur())) {
-                $queryBuilder->andWhere('d.agenceDebiteurId = :agServDebit')
-                    ->setParameter('agServDebit',  $ditSearch->getAgenceDebiteur()->getId() );
-            }
-    
-            //filtre selon le service debiteur
-            if(!empty($ditSearch->getServiceDebiteur())) {
-                $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
-            }
-
-             //filtrer selon le numero dit
-        if(!empty($ditSearch->getNumDit())) {
-            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $ditSearch->getNumDit());
-        }
-
-        //filtre selon le numero Or
-        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
-            $queryBuilder->andWhere('d.numeroOR = :numOr')
-            ->setParameter('numOr', $ditSearch->getNumOr());
-        }
-
-         //filtre selon le numero Or
-         if(!empty($ditSearch->getStatutOr())) {
-            $queryBuilder->andWhere('d.statutOr = :statutOr')
-            ->setParameter('statutOr',  $ditSearch->getStatutOr());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getCategorie())) {
-            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
-            ->setParameter('categorieDemande', $ditSearch->getCategorie());
-        }
-
-        //filtre selon le categorie de demande
-        if(!empty($ditSearch->getUtilisateur())) {
-            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
-            ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
-        }
-
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
-        }
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        //return $queryBuilder->getQuery()->getResult();
+        return [
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+        ];
     }
 
     public function findAndFilteredExcel( DitSearch $ditSearch, array $options)
@@ -434,6 +372,39 @@ class DitRepository extends EntityRepository
         if($ditSearch->getDitRattacherOr()){
             $queryBuilder->andWhere("d.numeroOR <> ''");
         }
+
+         //filtre selon le section affectée
+         $sectionAffectee = $ditSearch->getSectionAffectee();
+         if (!empty($sectionAffectee)) {
+             $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots disponibles
+             $resultatsSectionAffectee = [];
+     
+             foreach ($groupes as $groupe) {
+                 // Construire la phrase avec le groupe de mots
+                 $phraseConstruite = $groupe . $sectionAffectee;
+     
+                 // Cloner le QueryBuilder initial pour cette requête
+                 $tempQueryBuilder = clone $queryBuilder;
+     
+                 // Ajouter la condition pour cette itération
+                 $tempQueryBuilder->andWhere('d.sectionAffectee = :sectionAffectee')
+                     ->setParameter('sectionAffectee', $phraseConstruite);
+     
+                 // Exécuter la requête pour cette itération et accumuler les résultats
+                 $resultatsSectionAffectee = array_merge(
+                     $resultatsSectionAffectee,
+                     $tempQueryBuilder->getQuery()->getResult()
+                 );
+             }
+     
+             // Si des résultats sont trouvés pour la section affectée, filtrer la liste
+             if (!empty($resultatsSectionAffectee)) {
+                 // Optionnel : enlever les doublons si nécessaire
+                 $resultatsSectionAffectee = array_unique($resultatsSectionAffectee, SORT_REGULAR);
+                 // Retourner les résultats trouvés
+                 return $resultatsSectionAffectee;
+             }
+         }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');

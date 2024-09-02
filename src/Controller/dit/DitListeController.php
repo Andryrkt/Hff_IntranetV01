@@ -40,8 +40,7 @@ class DitListeController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        //recupération du repository demande d'intervention
-        $ditRepository= self::$em->getRepository(DemandeIntervention::class);
+       
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
     
@@ -50,6 +49,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if(!empty($numParc) || !empty($numSerie)){
+                
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
                     $this->ajoutDonnerRecherche($form, $ditSearch);
@@ -58,7 +58,6 @@ class DitListeController extends Controller
                     $empty = true;
                 }
             } else {
-                
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
@@ -88,25 +87,23 @@ class DitListeController extends Controller
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
-        //nombre total de ligne
-        $totalBadms = $ditRepository->countFiltered($ditSearch, $option);
-        //nombre total de page
-        $totalPages = ceil($totalBadms / $limit);
-       
- 
         //recupération des données filtrée
-        $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        //dump($paginationData);
         //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($data);
+        $this->ajoutStatutAchatPiece($paginationData['data']);
 
         //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($data);
+        $this->ajoutStatutAchatLocaux($paginationData['data']);
+
+        $this->ajoutNbrPj($paginationData['data'], self::$em);
+
         
         //recuperation de numero de serie et parc pour l'affichage
         $idMat = [];
         $numSerieParc = [];
-        if (!empty($data)) {
-            $idMateriels = $this->recupIdMaterielEnChaine($data);
+        if (!empty($paginationData['data'])) {
+            $idMateriels = $this->recupIdMaterielEnChaine($paginationData['data']);
             $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
             
             foreach ($numSerieParc as  $value) {
@@ -116,17 +113,16 @@ class DitListeController extends Controller
             $empty = true;
         }
 
-
         self::$twig->display('dit/list.html.twig', [
-            'data' => $data,
+            'data' => $paginationData['data'],
             'numSerieParc' => $numSerieParc,
             'idMat' => $idMat,
             'empty' => $empty,
             'form' => $form->createView(),
-            'currentPage' => $page,
-            'totalPages' =>$totalPages,
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages' =>$paginationData['lastPage'],
             'criteria' => $criteria,
-            'resultat' => $totalBadms,
+            'resultat' => $paginationData['totalItems'],
         ]);
     }
 
@@ -139,30 +135,30 @@ class DitListeController extends Controller
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
           //recupère les critères dans la session 
-          $options = $this->sessionService->get('dit_search_option', []);
+        $options = $this->sessionService->get('dit_search_option', []);
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
         $ditSearch
-        ->setTypeDocument($criteria["typeDocument"])
-        ->setNiveauUrgence($criteria["niveauUrgence"])
-        ->setStatut($criteria["statut"])
-        ->setInternetExterne($criteria["interneExterne"])
-        ->setDateDebut($criteria["dateDebut"])
-        ->setDateFin($criteria["dateFin"])
-        ->setIdMateriel($criteria["idMateriel"])
-        ->setNumParc($criteria["numParc"])
-        ->setNumSerie($criteria["numSerie"])
-        ->setAgenceEmetteur($criteria["agenceEmetteur"])
-        ->setServiceEmetteur($criteria["serviceEmetteur"])
-        ->setAgenceDebiteur($criteria["agenceDebiteur"])
-        ->setServiceDebiteur($criteria["serviceDebiteur"])
-        ->setNumDit($criteria["numDit"])
-        ->setNumOr($criteria["numOr"])
-        ->setStatutOr($criteria["statutOr"])
-        ->setDitRattacherOr($criteria["ditRattacherOr"])
-        ->setCategorie($criteria["categorie"])
-        ->setUtilisateur($criteria["utilisateur"])
+            ->setTypeDocument($criteria["typeDocument"])
+            ->setNiveauUrgence($criteria["niveauUrgence"])
+            ->setStatut($criteria["statut"])
+            ->setInternetExterne($criteria["interneExterne"])
+            ->setDateDebut($criteria["dateDebut"])
+            ->setDateFin($criteria["dateFin"])
+            ->setIdMateriel($criteria["idMateriel"])
+            ->setNumParc($criteria["numParc"])
+            ->setNumSerie($criteria["numSerie"])
+            ->setAgenceEmetteur($criteria["agenceEmetteur"])
+            ->setServiceEmetteur($criteria["serviceEmetteur"])
+            ->setAgenceDebiteur($criteria["agenceDebiteur"])
+            ->setServiceDebiteur($criteria["serviceDebiteur"])
+            ->setNumDit($criteria["numDit"])
+            ->setNumOr($criteria["numOr"])
+            ->setStatutOr($criteria["statutOr"])
+            ->setDitRattacherOr($criteria["ditRattacherOr"])
+            ->setCategorie($criteria["categorie"])
+            ->setUtilisateur($criteria["utilisateur"])
         ;
         
 

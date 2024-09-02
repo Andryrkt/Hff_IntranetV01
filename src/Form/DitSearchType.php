@@ -39,7 +39,7 @@ class DitSearchType extends AbstractType
     
     public function __construct()
    {
-    $this->em = controller::getEntity();
+        $this->em = controller::getEntity();
         $this->agenceRepository = $this->em->getRepository(Agence::class);
    }
 
@@ -48,6 +48,14 @@ class DitSearchType extends AbstractType
         $statutOr = $this->em->getRepository(DemandeIntervention::class)->findStatutOr();
 
         return array_combine($statutOr, $statutOr);
+   }
+
+   private function sectionAffectee()
+   {
+        $sectionAffecte = $this->em->getRepository(DemandeIntervention::class)->findSectionAffectee();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
+        return array_combine($sectionAffectee, $sectionAffectee);
    }
    
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -293,6 +301,14 @@ class DitSearchType extends AbstractType
             [
                 'label' => 'Utilisateur',
                 'required' => false
+            ])
+            ->add('sectionAffectee',
+            ChoiceType::class,
+            [
+                'label' => 'Section affectée',
+                'required' => false,
+                'choices' => $this->sectionAffectee(),
+                'placeholder' => '-- choisir une section --'
             ])
             ;
     }

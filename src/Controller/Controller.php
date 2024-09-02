@@ -9,7 +9,6 @@ use Parsedown;
 
 
 use App\Entity\User;
-use Twig\Environment;
 use App\Entity\Agence;
 use App\Entity\Service;
 use App\Model\LdapModel;
@@ -22,29 +21,27 @@ use App\Service\GenererPdf;
 use App\Model\OdbcCrudModel;
 use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
-use App\Model\badm\CasierModel;
 use App\Model\dom\DomListModel;
-use App\Service\SessionManager;
+
 use App\Model\dom\DomDetailModel;
-use Twig\Loader\FilesystemLoader;
+
 use App\Model\TransferDonnerModel;
-use Twig\Extension\DebugExtension;
-use App\Model\badm\BadmDetailModel;
-use App\Model\badm\CasierListModel;
+
+
+
 use App\Service\FlashManagerService;
 use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
 use App\Service\ExcelExporterService;
-use App\Model\badm\BadmRechercheModel;
+
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
 use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
-use App\Model\badm\CasierListTemporaireModel;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bridge\Twig\Extension\AssetExtension;
-use Symfony\Bridge\Twig\Extension\RoutingExtension;
+
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 
@@ -60,7 +57,6 @@ class Controller
     protected $ldap;
     protected $profilModel;
     protected $casier;
-    protected $badmRech;
     protected $badm;
     protected $Person;
     protected $DomModel;
@@ -68,17 +64,15 @@ class Controller
     protected $duplicata;
     protected $domList;
     protected $ProfilModel;
-    protected $badmDetail;
-    protected $casierList;
-    protected $caiserListTemporaire;
+    
+  
 
     protected $odbcCrud;
 
     protected static $generator;
     protected static $twig;
     protected $loader;
-    private $package;
-    private $strategy;
+   
 
     protected $request;
     protected $response;
@@ -118,7 +112,7 @@ class Controller
         $this->odbcCrud = new OdbcCrudModel();
 
 
-        $this->badmRech = new BadmRechercheModel();
+        
         $this->badm = new BadmModel();
 
         $this->Person = new PersonnelModel();
@@ -126,12 +120,9 @@ class Controller
         $this->DomModel = new DomModel();
         $this->detailModel = new DomDetailModel();
         $this->duplicata = new DomDuplicationModel();
-
         $this->domList = new DomListModel();
+
         $this->ProfilModel = new ProfilModel();
-
-        $this->badmDetail = new BadmDetailModel();
-
 
         $this->request = Request::createFromGlobals();
 
@@ -211,40 +202,45 @@ class Controller
     }
 
     protected function SessionDestroy()
-{
-    // Commence la session si elle n'est pas déjà démarrée
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+    {
+        // Commence la session si elle n'est pas déjà démarrée
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Supprime l'utilisateur de la session
+        unset($_SESSION['user']);
+        
+        // Détruit la session
+        session_destroy();
+        
+        // Réinitialise toutes les variables de session
+        session_unset();
+        
+        // Redirige vers la page d'accueil
+        header("Location: /Hffintranet/");
+        
+        // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
+        session_write_close();
+        
+        // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
+        exit();
     }
 
-    // Supprime l'utilisateur de la session
-    unset($_SESSION['user']);
-    
-    // Détruit la session
-    session_destroy();
-    
-    // Réinitialise toutes les variables de session
-    session_unset();
-    
-    // Redirige vers la page d'accueil
-    header("Location: /Hffintranet/");
-    
-    // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
-    session_write_close();
-    
-    // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
-    exit();
-}
-
-    public function getTime()
+    /**
+     * recupère les l'heures
+     */
+    protected function getTime()
     {
         date_default_timezone_set('Indian/Antananarivo');
         return date("H:i");
     }
+
     /**
+     * recupère la date d'aujourd'hui
      * Date Système
      */
-    public function getDatesystem()
+    protected function getDatesystem()
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
@@ -268,7 +264,7 @@ class Controller
 
 
 
-    private function conversionCaratere(string $chaine): string
+    protected function conversionCaratere(string $chaine): string
     {
         return iconv('Windows-1252', 'UTF-8', $chaine);
     }
@@ -291,7 +287,14 @@ class Controller
         $response->send();
     }
 
-    protected function redirectToRoute($routeName, $params = []) {
+    /**
+     * redirigé l'utilisateur vers la route donnée en paramètre
+     *
+     * @param string $routeName
+     * @param array $params
+     * @return void
+     */
+    protected function redirectToRoute(string $routeName, array $params = []) {
         $url = self::$generator->generate($routeName, $params);
         header("Location: $url");
         exit();
@@ -381,7 +384,13 @@ class Controller
         return $Result_Num;
     }
     
-    protected function autoDecrementDIT(string $nomDemande)
+    /**
+     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
+     *
+     * @param string $nomDemande
+     * @return string
+     */
+    protected function autoDecrementDIT(string $nomDemande): string
     {
         //NumDOM auto
         $YearsOfcours = date('y'); //24
@@ -436,13 +445,17 @@ class Controller
                 $superieurs[] = self::$em->getRepository(user::class)->find($value);
            $user->setSuperieurs($superieurs);
             }
-           
        }
    
        return $user;
     } 
     
 
+    /**
+     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
+     *
+     * @return array
+     */
     protected function agenceServiceIpsObjet(): array
     {
         try {
@@ -482,43 +495,46 @@ class Controller
         }
     }
 
-    protected function agenceServiceIpsString()
+    /**
+     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des chaines de catactère
+     *
+     * @return array
+     */
+    protected function agenceServiceIpsString(): array
     {
         try {
+            $userId = $this->sessionService->get('user_id');
+            if (!$userId) {
+                throw new \Exception("User ID not found in session");
+            }
 
-       
-        $userId = $this->sessionService->get('user_id');
-        if (!$userId) {
-            throw new \Exception("User ID not found in session");
-        }
+            $user = self::$em->getRepository(User::class)->find($userId);
+            if (!$user) {
+                throw new \Exception("User not found with ID $userId");
+            }
 
-        $user = self::$em->getRepository(User::class)->find($userId);
-        if (!$user) {
-            throw new \Exception("User not found with ID $userId");
-        }
+            $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
+            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+            if (!$agenceIps) {
+                throw new \Exception("Agence not found with code $codeAgence");
+            }
 
-        $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
-        $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-        if (!$agenceIps) {
-            throw new \Exception("Agence not found with code $codeAgence");
-        }
+            $codeService = $user->getAgenceServiceIrium()->getServiceips();
+            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            if (!$serviceIps) {
+                throw new \Exception("Service not found with code $codeService");
+            }
 
-        $codeService = $user->getAgenceServiceIrium()->getServiceips();
-        $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-        if (!$serviceIps) {
-            throw new \Exception("Service not found with code $codeService");
-        }
-
-        return [
-            'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
-            'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
-        ];
-    } catch (\Throwable $e) {
-        error_log($e->getMessage());
             return [
-                'agenceIps' => '',
-                'serviceIps' => ''
+                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
+                'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
             ];
-    }
+        } catch (\Throwable $e) {
+            error_log($e->getMessage());
+                return [
+                    'agenceIps' => '',
+                    'serviceIps' => ''
+                ];
+        }
     }
 }

@@ -68,7 +68,7 @@ class CasierListTemporaireController extends Controller
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
          $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
-         $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(53));
+         $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(56));
 
          self::$em->persist($CasierSeul);
             self::$em->flush();

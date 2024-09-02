@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -81,10 +81,10 @@
 						<th>Objet</th>
 						<th>Section affectée</th>
 						<th>N° Or</th>
-						<th class="fw-bold">Statut Or</th>
-
+						<th class="fw-bold">Statut Or DW</th>
 						<th>Statut Livraison Pièces</th>
 						<th>Statut Achats Locaux</th>
+						<th>Nbre PJ</th>
 						<th>Utilisateur</th>
 					</tr>
 				</thead>
@@ -115,11 +115,11 @@
 								<td class="bg-warning bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
 							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
 								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}	
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
 								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
-							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}	
-								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>	
-							{% else %}	
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% else %}
 								<td>{{item.idStatutDemande.description | trim}}</td>
 							{% endif %}
 							{# FIN Statut #}
@@ -162,6 +162,7 @@
 							<td class="fw-bold fst-italic">{{ item.statutOr}}</td>
 							<td>{{ item.statutachatpiece}}</td>
 							<td>{{ item.statutachatlocaux}}</td>
+							<td>{{ item.nbrPj}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
 					{% endfor %}
