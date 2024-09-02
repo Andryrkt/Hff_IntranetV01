@@ -47,9 +47,11 @@ class MagasinListeOrLivrerModel extends Model
     {
         $statement = " SELECT distinct slor_numor from sav_lor
                         inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
-                        where CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                        WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END > slor_qteres and slor_typlig = 'P' 
-                        and slor_constp not in ('LUB') 
+                        where
+                        slor_qteres > 0
+                        and slor_typlig = 'P'  
+                        and slor_constp not in ('LUB')
+                        and slor_typlig = 'P' 
                         and slor_constp not like 'Z%'
                         and seor_serv = 'SAV'
                         and seor_succ = '01'

@@ -2,7 +2,7 @@
 namespace App\Controller\planning;
 
 use App\Controller\Controller;
-use App\Form\PlanningFormulaireType;
+use App\Form\PlanningType;
 use App\Model\planning\PlanningModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,7 +24,10 @@ class PlanningController extends Controller
          */
         public function listePlanning( Request $request){
 
-            $form = self::$validator->createBuilder(PlanningFormulaireType::class,null,[ 'method' =>'GET'
+            
+
+
+            $form = self::$validator->createBuilder(PlanningType::class,null,[ 'method' =>'GET'
             ])->getForm();
 
             $form->handleRequest($request);

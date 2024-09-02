@@ -66,13 +66,20 @@ class PlanningModel extends Model
    }
 
    public function recuperationServiceDebite($agence){
+
+    if ($agence === null) {
+        $codeAgence = "";
+    } else {
+      $codeAgence = " AND asuc_num = '" .$agence."'";
+    }
+    
         $statement = " SELECT DISTINCT
                         trim(atab_code) as atab_code ,
                         trim(atab_lib) as atab_lib  
                         FROM agr_succ , agr_tab a 
                         WHERE a.atab_nom = 'SER' 
                         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%') 
-                        and asuc_num = '" .$agence."'
+                        $codeAgence
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
