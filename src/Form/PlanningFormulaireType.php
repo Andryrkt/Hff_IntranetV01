@@ -1,6 +1,7 @@
 <?php
 namespace App\Form;
 
+use App\Controller\Traits\Transformation;
 use App\Entity\Agence;
 use App\Model\planning\PlanningModel;
 use Symfony\Component\Form\FormEvent;
@@ -13,27 +14,31 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class PlanningFormulaireType extends AbstractType
-{       Const INTERNE_EXTERNE = [
+{   use Transformation;    
+    Const INTERNE_EXTERNE = [
+            'TOUS' => 'TOUS',
             'INTERNE' => 'INTERNE',
              'EXTERNE' => 'EXTERNE'
         ];
         const FACTURE = [
-            'FACTURE' => 'FACTURE',
-            'ENCOURS' => 'ENCOURS',
             'TOUS' => 'TOUS',
+            ' DEJA FACTURE' => 'FACTURE',
+            'ENCOURS' => 'ENCOURS'
         ];
         const PLANIFIER = [
+            'TOUS' => 'TOUS',
             'PLANIFIE' => 'PLANIFIE',
             'NON PLANIFIE' => 'NON PLANIFIE',
-            'TOUS' => 'TOUS'
         ];
         public function buildForm(FormBuilderInterface $builder, array $options)
         {
             $planningModel = new PlanningModel();
-            $agence = $planningModel->recuperationAgenceIrium();
+            $agence = $this->transformEnSeulTableauAvecKey($planningModel->recuperationAgenceIrium());
+            dump($agence);
             $annee = $planningModel->recuperationAnneeplannification();
             $agenceDebite = $planningModel->recuperationAgenceDebite();
-           
+            $yearOfCours = date('Y');
+            
             //$serviceDebite = $planningModel->recuperationServiceDebite();
             
             $builder
@@ -42,9 +47,9 @@ class PlanningFormulaireType extends AbstractType
                 'required' => true,
                 'choices' => $agence,
                 'placeholder' => ' -- choisir une agence --',
-                'choice_label' => function($choice,$key,$values){
+                /*'choice_label' => function($choice,$key,$values){
                   return $values;  
-                },
+                },*/
                 'multiple' => true,
                 'expanded' => true,
             
@@ -53,28 +58,30 @@ class PlanningFormulaireType extends AbstractType
                 'label' =>'Année de planification : ',
                 'required' =>true,
                 'choices' => $annee,
-                'placeholder' => " -- choisir l''année' --",
-                
+                'placeholder' => " -- choisir l'année --",
+                'data' => $yearOfCours
             ])
             ->add('interneExterne', ChoiceType::class,[
-                'label' => 'Interne/ Externe',
+                'label' => 'Interne / Externe',
                 'required' => true,
                 'choices' => self::INTERNE_EXTERNE,
-            
-                'attr' => [ 'class' => 'interneExterne']
-            ])
+                'attr' => [ 'class' => 'interneExterne'],
+                         
+                ])
             ->add('facture', ChoiceType::class,[
                 'label' => 'Facturation',
                 'required' => true,
                 'choices' => self::FACTURE,
-                'attr' => ['class'=> 'facture']
+                'attr' => ['class'=> 'facture'],
+                'data' => 'FACTURE'
             ])
             ->add('plan',ChoiceType::class,[
                 'label' => 'Plannification',
                 'required' => true,
                 'choices' => self::PLANIFIER,
-                'attr' => ['class'=> 'plan']
-            ])
+                'attr' => ['class'=> 'plan'],
+                'data' => 'PLANIFIE'
+                            ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date Début',
@@ -107,6 +114,12 @@ class PlanningFormulaireType extends AbstractType
                 'choices' => $agenceDebite ,
                 'placeholder' => " -- choisir une agence --",
                 
+            ])
+            ->add('serviceDebite', ChoiceType::class,[
+                'label' =>'Service Débiteur : ',
+                'multiple' => true,
+                'placeholder' => " -- choisir service--",
+                'expanded' => true,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($planningModel) {
                 $form = $event->getForm();
