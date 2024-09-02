@@ -3,14 +3,18 @@ namespace App\Controller\planning;
 
 use App\Controller\Controller;
 use App\Form\PlanningFormulaireType;
+use App\Model\planning\PlanningModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 class PlanningController extends Controller
 {       
-         
+        private PlanningModel $planningModel;
+
         public function __construct()
         {
             parent::__construct();
+            $this->planningModel = new PlanningModel();
+
         }
 
         /**
@@ -22,10 +26,30 @@ class PlanningController extends Controller
 
             $form = self::$validator->createBuilder(PlanningFormulaireType::class,null,[ 'method' =>'GET'
             ])->getForm();
+
             $form->handleRequest($request);
+
+            if($form->isSubmitted() && $form->isValid())
+            {
+                dd($form->getData());
+            }
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView()
+
             ]);
         }
+
+
+     /**
+     * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
+     */
+    public function serviceDebiteur($agenceId)
+    {
+        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+       
+        header("Content-type:application/json");
+
+        echo json_encode($serviceDebiteur);
+    }
 
 }
