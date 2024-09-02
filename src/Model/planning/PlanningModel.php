@@ -89,7 +89,8 @@ class PlanningModel extends Model
 
    }
   public function recuperationMaterielplanifier($criteria = []){
-    dd($criteria);
+    $statement = "";
+    
   }
     
  

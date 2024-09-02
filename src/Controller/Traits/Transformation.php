@@ -27,7 +27,16 @@ trait Transformation
                 $tab[$key] = $value;
             }
         }
+        return $tab;
+    }
 
+    public function transformEnSeulTableauAvecKeyService(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as   $values) {
+           
+            $tab[$values['text']] = $values['value'];
+        }
         return $tab;
     }
 }

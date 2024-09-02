@@ -2,10 +2,10 @@
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
 const agenceDebiteurInput = document.querySelector(
-    "#planning_formulaire_agenceDebite"
+    "#planning_search_agenceDebite"
   );
   const serviceDebiteurInput = document.querySelector(
-    "#planning_formulaire_serviceDebite"
+    "#planning_search_serviceDebite"
   );
 agenceDebiteurInput.addEventListener('change',selectAgence);
 
@@ -19,9 +19,6 @@ agenceDebiteurInput.addEventListener('change',selectAgence);
       .then((services) => {
         console.log(services);
 
-
-        
-
         // Effacer les éléments existants dans le conteneur
         serviceDebiteurInput.innerHTML = ""; 
       
@@ -31,6 +28,7 @@ agenceDebiteurInput.addEventListener('change',selectAgence);
       
           var checkbox = document.createElement("input");
           checkbox.type = "checkbox";
+          checkbox.name = 'planning_search[serviceDebite][]';
           checkbox.value = services[i].value;
           checkbox.id = "service_" + i;
           checkbox.className = "form-check-input";
