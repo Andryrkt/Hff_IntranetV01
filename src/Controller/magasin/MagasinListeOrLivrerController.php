@@ -4,7 +4,7 @@
 namespace App\Controller\magasin;
 
 ini_set('max_execution_time', 10000);
-ini_set('memory_limit', '500M');
+ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
@@ -38,7 +38,7 @@ class MagasinListeOrLivrerController extends Controller
     public function listOrLivrer(Request $request)
     {
        
-        $empty = false;
+
 
         $form = self::$validator->createBuilder(MagasinSearchType::class, null, [
             'method' => 'GET'
@@ -50,9 +50,9 @@ class MagasinListeOrLivrerController extends Controller
             $criteria = $form->getData();
         } 
 
-        //$numOrValideString = $this->orEnString($criteria);
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
 
-            $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria);
+            $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
             
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
@@ -65,19 +65,13 @@ class MagasinListeOrLivrerController extends Controller
             //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
             //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
             //     } else {
-            //         $empty = true;
             //         break;
             //     }
             // }
 
-        
-        if(empty($data)  ){
-            $empty = true;
-        }
-       
+
         self::$twig->display('magasin/listOrLivrer.html.twig', [
             'data' => $data,
-            'empty' => $empty,
             'form' => $form->createView()
         ]);
     }
@@ -93,8 +87,8 @@ class MagasinListeOrLivrerController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
-
-        $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria);
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
+        $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
     // Convertir les entités en tableau de données
     $data = [];

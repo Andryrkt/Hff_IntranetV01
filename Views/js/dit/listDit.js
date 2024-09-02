@@ -191,10 +191,20 @@ document.addEventListener("DOMContentLoaded", (event) => {
           } else {
             typeCommand = "Import";
           }
+
+          // Formater la date
+          const date = new Date(command.fcde_date);
+          const formattedDate = `${date
+            .getDate()
+            .toString()
+            .padStart(2, "0")}/${(date.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}/${date.getFullYear()}`;
+
           //affichage
           let row = `<tr>
                       <td>${command.slor_numcf}</td> 
-                      <td>${command.fcde_date}</td>
+                      <td>${formattedDate}</td>
                       <td> ${typeCommand}</td>
                       <td> ${command.fcde_posc}</td>
                       <td> ${command.fcde_posl}</td>
@@ -209,4 +219,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.error("There was a problem with the fetch operation:", error);
       });
   });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
+  });
+
+  function formatDate(date) {
+    const date = new Date(date);
+    return `${date.getDate().toString().padStart(2, "0")}/${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+  }
 });
