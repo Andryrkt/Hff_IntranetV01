@@ -25,9 +25,15 @@ class MagasinSearchType extends AbstractType
     }
 
     const OR_COMPLET_OU_NON = [
-        'TOUT LES OR' => 'TOUT LES OR',
+        'TOUTS LES OR' => 'TOUTS LES OR',
         'ORs COMPLET' => 'ORs COMPLET',
         'ORs PARTIELLEMNT COMPLETS' => 'ORs PARTIELLEMNT COMPLETS'
+    ];
+
+    const PIECE_MAGASIN_ACHATS_LOCAUX = [
+        'TOUTS PIECES' => 'TOUTS PIECES',
+        'PIECES MAGASIN' => 'PIECES MAGASIN',
+        'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -81,6 +87,15 @@ class MagasinSearchType extends AbstractType
             'choices' => self::OR_COMPLET_OU_NON,
             'placeholder' => ' -- choisir une mode affichage --',
             'data' => 'ORs COMPLET'
+        ])
+        ->add('pieces',
+        ChoiceType::class,
+        [
+            'label' => 'Pièces',
+            'required' => false,
+            'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
+            'placeholder' => ' -- choisir une mode affichage --',
+            'data' => 'PIECES MAGASIN'
         ])
         ;
     }

@@ -74,7 +74,12 @@ class MagasinListeOrLivrerModel extends Model
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
                             where slor_soc = 'HF'
-                            AND  (Select SUM ( CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END ) from sav_lor as B where B.slor_numor =A.slor_numor ) 
+                            AND  (Select 
+                                    SUM ( CASE 
+                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                                        END ) 
+                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
                             >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
                             and slor_qteres <> 0
                             and slor_typlig = 'P'
@@ -146,11 +151,30 @@ class MagasinListeOrLivrerModel extends Model
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
             } else if($criteria['orCompletNon'] === 'ORs PARTIELLEMNT COMPLETS') {
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
-            } else if($criteria['orCompletNon'] === 'TOUT LES OR'){
+            } else if($criteria['orCompletNon'] === 'TOUTS LES OR'){
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
             }
         } else {
             $orCompletNom =  " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
+        }
+
+        if (!empty($criteria['pieces'])) {
+            if($criteria['pieces'] === "PIECES MAGASIN"){
+                $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
+            } else if($criteria['pieces'] === "LUB ET ACHATS LOCAUX") {
+                $piece = " AND slor_constp like 'Z%'
+                        and slor_constp in ('LUB')
+                    ";
+            } else if($criteria['pieces'] === "TOUTS PIECES") {
+                $piece = null;
+            }
+            
+        } else {
+            $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
         }
           
 
@@ -190,10 +214,9 @@ class MagasinListeOrLivrerModel extends Model
                                             and seor_numor = slor_numor
                         where slor_soc = 'HF'
                         and slor_typlig = 'P'
-                        --and slor_constp not like 'Z%'
-                        --and slor_constp not in ('LUB')
                         and slor_succ = '01'
                         and seor_serv ='SAV'
+                        $piece
                         $orCompletNom
                         $designation
                         $referencePiece 
