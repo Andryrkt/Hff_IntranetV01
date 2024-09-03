@@ -36,4 +36,16 @@ trait MagasinTrait
             "numOrValideString" => $numOrValideString
         ];
     }
+
+    private function recupNumOrSelonCond(array $criteria): array
+    {
+        $magasinModel = new MagasinModel();
+        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
+        $numOrEncours = $this->orEnString($this->magasinListOrEncoursModel->recupOrEncours());
+
+       return  [
+            "numOrEncours" => $numOrEncours,
+            "numOrValideString" => $numOrValideString
+        ];
+    }
 }
