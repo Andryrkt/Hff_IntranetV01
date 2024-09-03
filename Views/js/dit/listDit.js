@@ -164,9 +164,14 @@ function recherche() {
 
 document.addEventListener("DOMContentLoaded", (event) => {
   const listeCommandeModal = document.getElementById("listeCommande");
+
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
     const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+
+    // Afficher le spinner et masquer le contenu des données
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("dataContent").style.display = "none";
 
     // Fetch request to get the data
     fetch(`/Hffintranet/command-modal/${id}`)
@@ -178,45 +183,59 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
-        console.log(tableBody);
-
         tableBody.innerHTML = ""; // Clear previous data
 
-        data.forEach((command) => {
-          let typeCommand;
-          if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
-            typeCommand = "Local";
-          } else if (command.slor_typcf == "CIS") {
-            typeCommand = "Agence";
-          } else {
-            typeCommand = "Import";
-          }
+        if (data.length > 0) {
+          data.forEach((command) => {
+            let typeCommand;
+            if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
+              typeCommand = "Local";
+            } else if (command.slor_typcf == "CIS") {
+              typeCommand = "Agence";
+            } else {
+              typeCommand = "Import";
+            }
 
-          // Formater la date
-          const date = new Date(command.fcde_date);
-          const formattedDate = `${date
-            .getDate()
-            .toString()
-            .padStart(2, "0")}/${(date.getMonth() + 1)
-            .toString()
-            .padStart(2, "0")}/${date.getFullYear()}`;
+            // Formater la date
+            const date = new Date(command.fcde_date);
+            const formattedDate = `${date
+              .getDate()
+              .toString()
+              .padStart(2, "0")}/${(date.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}/${date.getFullYear()}`;
 
-          //affichage
-          let row = `<tr>
+            // Affichage
+            let row = `<tr>
                       <td>${command.slor_numcf}</td> 
                       <td>${formattedDate}</td>
                       <td> ${typeCommand}</td>
                       <td> ${command.fcde_posc}</td>
                       <td> ${command.fcde_posl}</td>
                   </tr>`;
-          tableBody.innerHTML += row;
-        });
+            tableBody.innerHTML += row;
+          });
+
+          // Masquer le spinner et afficher les données
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("dataContent").style.display = "block";
+        } else {
+          // Si les données sont vides, afficher un message vide
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("dataContent").style.display = "block";
+        }
       })
       .catch((error) => {
-        var tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML =
-          '<tr><td colspan="3">Could not retrieve data.</td></tr>';
+          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
+
+        // Masquer le spinner même en cas d'erreur
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("dataContent").style.display = "block";
       });
   });
 
@@ -225,13 +244,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tableBody = document.getElementById("commandesTableBody");
     tableBody.innerHTML = ""; // Vider le tableau
   });
-
-  function formatDate(date) {
-    const date = new Date(date);
-    return `${date.getDate().toString().padStart(2, "0")}/${(
-      date.getMonth() + 1
-    )
-      .toString()
-      .padStart(2, "0")}/${date.getFullYear()}`;
-  }
 });

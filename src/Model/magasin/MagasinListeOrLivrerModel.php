@@ -216,6 +216,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_typlig = 'P'
                         and slor_succ = '01'
                         and seor_serv ='SAV'
+                        and seor_typeor <> '950'
                         $piece
                         $orCompletNom
                         $designation

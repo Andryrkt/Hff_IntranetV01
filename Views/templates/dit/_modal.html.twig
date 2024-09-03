@@ -1,4 +1,4 @@
-<div class="modal" tabindex="-1" id="listeCommande">
+<div class="modal fade" tabindex="-1" id="listeCommande" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -7,31 +7,40 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			{# body du modal#}
-			<div class="modal-body">
+			<div
+				class="modal-body">
 
-				<table class="table rounded mt-1">
-					<thead class="table">
-						<tr>
-							<th>N°</th>
-							<th>Date</th>
-							<th>type de la commande</th>
-							<th>Statut command</th>
-							<th>Statut livraison</th>
-						</tr>
-					</thead>
-					<tbody id="commandesTableBody">{# {% for command in commandes %} #}
-						{# <tr> #}
-						{# <td>{{ command.slor_numcf}}</td> #}
-						{# <td>{{ command.fcde_date}}</td> #}
-						{# <td>--</td> #}
+				<!-- Spinner de chargement -->
+				<div id="loading" class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Chargement...</span>
+					</div>
+				</div>
 
-						{# </tr> #}
-						{# {% endfor %} #}
-					</tbody>
-				</table>
+				<!-- Contenu des données -->
+				<div id="dataContent" style="display: none;">
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th>N°</th>
+								<th>Date</th>
+								<th>type de la commande</th>
+								<th>Statut command</th>
+								<th>Statut livraison</th>
+							</tr>
+						</thead>
+						<tbody id="commandesTableBody">{# {% for command in commandes %} #}
+							{# <tr> #}
+							{# <td>{{ command.slor_numcf}}</td> #}
+							{# <td>{{ command.fcde_date}}</td> #}
+							{# <td>--</td> #}
+
+							{# </tr> #}
+							{# {% endfor %} #}
+						</tbody>
+					</table>
+				</div>
 			</div>
-			{# Footer du modal#}
-			<div class="modal-footer"></div>
 		</div>
 	</div>
 </div>
