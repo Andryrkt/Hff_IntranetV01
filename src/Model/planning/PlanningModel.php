@@ -5,12 +5,13 @@ namespace App\Model\planning;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Controller\Traits\FormatageTrait;
-use Doctrine\DBAL\Driver\IBMDB2\Statement;
+
 
 class PlanningModel extends Model
 {
    use ConversionModel;
    use FormatageTrait;
+   use PlanningModelTrait;
 
    public function recuperationAgenceIrium(){
         $statement = " SELECT  trim(asuc_num) as asuc_num ,
@@ -95,12 +96,97 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-  public function recuperationMaterielplanifier($criteria = []){
-    $statement = "";
-    
+  public function recuperationMaterielplanifier($criteria)
+  {
+   
+   $vYearsStatutPlan =  $this->planAnnee($criteria);
+   $vMonthStatutPlan = $this->planMonth($criteria);
+   $vStatutFacture = $this->facture($criteria);
+   $annee =  $this->criterAnnee($criteria);
+   $agence = $this->agence($criteria);
+   $vStatutInterneExterne = $this->interneExterne($criteria);
+   $agenceDebite = $this->agenceDebite($criteria);
+   $serviceDebite = $this->serviceDebite($criteria);
+   $vconditionNumParc = $this->numParc($criteria);
+   $vconditionIdMat = $this->idMat($criteria);
+   $vconditionNumOr = $this->numOr($criteria);
+   $vconditionNumSerie = $this->numSerie($criteria);
+   $statement = " SELECT
+                      trim(seor_succ) as codeSuc, 
+                      trim(asuc_lib) as libSuc, 
+                      trim(seor_servcrt) as codeServ, 
+                      trim(ser.atab_lib) as libServ, 
+                      
+                      mmat_nummat as idMat,
+                      trim(mmat_marqmat) as markMat,
+                      trim(mmat_typmat) as typeMat ,
+                      trim(mmat_numserie) as numSerie,
+                      trim(mmat_recalph) as numParc,
+                      trim(mmat_numparc) as casier,
+                      $vYearsStatutPlan as annee,
+                      $vMonthStatutPlan as mois,
+                      seor_numor ||'-'||sitv_interv as orIntv
+                      
+
+                    FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+                    WHERE seor_numor = slor_numor
+                    AND seor_serv <> 'DEV'
+                    AND sitv_numor = slor_numor 
+                    AND sitv_interv = slor_nogrp/100
+                    AND (seor_succ = asuc_num) -- OR mmat_succ = asuc_parc)
+                    AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                    AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+                    AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+                    $vStatutFacture
+                    AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+                    AND (seor_nummat = mmat_nummat)
+                    AND  slor_typlig = 'P'
+                    AND slor_constp NOT like '%ZDI%'
+                    AND $vYearsStatutPlan = $annee
+                    $agence
+                    $vStatutInterneExterne
+                    $agenceDebite
+                    $serviceDebite
+                    $vconditionNumParc
+                    $vconditionIdMat
+                    $vconditionNumOr
+                    $vconditionNumSerie
+                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13
+		                order by 1,5  ";
+                  
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
   }
     
- 
+ /*public function recuperationNumORMateriel($idMat,$mois,$criteria){
+      $agence = $this->agence($criteria);
+      $agenceDebite = $this->agenceDebite($criteria);
+      $serviceDebite = $this->serviceDebite($criteria);
+      $statement = " SELECT  
+                        trim(seor_nummat) as idMat ,
+                        trim(seor_numor ||'-'||sitv_interv) as orIntv,
+                        trim(seor_numor) as or,
+                        trim(sitv_interv) as intv
+                    FROM sav_eor, sav_itv, sav_lor, outer (ska, skw)
+                    WHERE ofh_id = seor_numor 
+                    AND  seor_numor = slor_numor
+                    AND sitv_numor = slor_numor 
+                    AND sitv_interv = slor_nogrp/100
+                    $agence
+                    $agenceDebite
+                    $serviceDebite
+                    group by 1,2,3
+                    order by 1,2
+      ";
+       $result = $this->connect->executeQuery($statement);
+       $data = $this->connect->fetchResults($result);
+
+       return $this->convertirEnUtf8($data);
+
+ }*/
 
    
 
