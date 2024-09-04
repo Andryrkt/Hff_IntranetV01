@@ -7,8 +7,8 @@ use App\Entity\badm\Badm;
 use App\Entity\admin\Agence;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
-use App\Repository\CasierRepository;
 use App\Entity\admin\utilisateur\User;
+use App\Repository\cas\CasierRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 

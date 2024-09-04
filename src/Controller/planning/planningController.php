@@ -3,12 +3,12 @@ namespace App\Controller\planning;
 
 use App\Controller\Controller;
 
-use App\Entity\PlanningMateriel;
 use App\Form\PlanningSearchType;
-use App\Form\PlanningFormulaireType;
+
 use App\Model\planning\PlanningModel;
 use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
+use App\Entity\planning\PlanningMateriel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

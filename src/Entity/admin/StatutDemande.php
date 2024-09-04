@@ -10,9 +10,10 @@ use App\Form\demandeInterventionType;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\StatutDemandeRepository;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\StatutDemandeRepository")
+ * @ORM\Entity(repositoryClass=StatutDemandeRepository::class)
  * @ORM\Table(name="Statut_demande")
  * @ORM\HasLifecycleCallbacks
  */

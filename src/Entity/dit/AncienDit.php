@@ -4,7 +4,6 @@ namespace App\Entity\dit;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\DitRepository;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\Traits\QuantiteDitTrait;
 use App\Entity\Traits\AgenceServiceTrait;

@@ -8,9 +8,10 @@ use App\Entity\admin\Application;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\dit\CategorieAteAppRepository;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\CategorieAteAppRepository")
+ * @ORM\Entity(repositoryClass=CategorieAteAppRepository::class)
  * @ORM\Table(name="categorie_ate_app")
  * @ORM\HasLifecycleCallbacks
  */

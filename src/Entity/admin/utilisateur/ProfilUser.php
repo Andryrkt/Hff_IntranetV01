@@ -5,7 +5,7 @@
 namespace App\Entity\admin\utilisateur;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\ProfilUserRepository;
+use App\Repository\admin\utilisateur\ProfilUserRepository;
 
 /**
  * @ORM\Entity

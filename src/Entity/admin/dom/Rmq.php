@@ -4,8 +4,8 @@ namespace App\Entity\admin\dom;
 
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\RmqRepository;
 use App\Entity\admin\dom\Indemnite;
+use App\Repository\admin\dom\RmqRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 

@@ -7,8 +7,8 @@ use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\IdemniteRepository;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Repository\admin\dom\IdemniteRepository;
 
 
 /**

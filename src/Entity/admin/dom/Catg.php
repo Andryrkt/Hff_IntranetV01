@@ -5,8 +5,8 @@ namespace App\Entity\admin\dom;
 use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\CatgRepository;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\admin\dom\CatgRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**

@@ -4,8 +4,8 @@ namespace App\Entity\admin;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
-use App\Repository\AgenceServiceIriumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\utilisateur\AgenceServiceIriumRepository;
 
 /**
  * @ORM\Table(name="Agence_Service_Irium")

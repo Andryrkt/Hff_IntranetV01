@@ -9,9 +9,9 @@ use App\Entity\admin\Service;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
-use App\Repository\AgenceRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 

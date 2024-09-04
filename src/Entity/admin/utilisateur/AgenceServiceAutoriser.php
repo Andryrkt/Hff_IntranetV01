@@ -4,7 +4,7 @@ namespace App\Entity\admin\utilisateur;
 
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\AgenceServiceAutoriserRepository;
+use App\Repository\admin\utilisateur\AgenceServiceAutoriserRepository;
 
 /**
  * @ORM\Table(name="Agence_service_autorise")

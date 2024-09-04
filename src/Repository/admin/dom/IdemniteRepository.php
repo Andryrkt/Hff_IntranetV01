@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\admin\dom;
 
-use App\DTO\CategorieDTO;
+
 use Doctrine\ORM\EntityRepository;
 
 

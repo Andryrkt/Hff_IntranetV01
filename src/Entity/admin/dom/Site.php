@@ -4,9 +4,9 @@ namespace App\Entity\admin\dom;
 
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\SiteRepository;
 use App\Entity\admin\dom\Indemnite;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\admin\dom\SiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 

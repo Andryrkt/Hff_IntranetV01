@@ -9,6 +9,7 @@ use App\Entity\admin\Service;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
 use App\Entity\admin\StatutDemande;
+use App\Repository\badm\BadmRepository;
 use App\Entity\admin\badm\TypeMouvement;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
@@ -16,7 +17,7 @@ use App\Entity\Traits\AgenceServiceEmetteurTrait;
 
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\BadmRepository")
+ * @ORM\Entity(repositoryClass=BadmRepository::class)
  * @ORM\Table(name="Demande_Mouvement_Materiel")
  * @ORM\HasLifecycleCallbacks
  */

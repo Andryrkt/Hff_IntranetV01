@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\admin;
+
 
 
 use Doctrine\ORM\EntityRepository;
 
 
-class ApplicationRepository extends EntityRepository
+class StatutDemandeRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici

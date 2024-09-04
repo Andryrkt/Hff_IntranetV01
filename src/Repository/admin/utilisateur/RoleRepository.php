@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Repository;
-
+namespace App\Repository\admin\utilisateur;
 
 
 use Doctrine\ORM\EntityRepository;
 
 
-class ProfilUserRepository extends EntityRepository
+class RoleRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici

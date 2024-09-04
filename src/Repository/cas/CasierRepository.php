@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\cas;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
-class casierRepository extends EntityRepository
+class CasierRepository extends EntityRepository
 {
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
     {

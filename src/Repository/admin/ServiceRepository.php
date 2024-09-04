@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\admin;
 
 
 use App\Entity\admin\Agence;

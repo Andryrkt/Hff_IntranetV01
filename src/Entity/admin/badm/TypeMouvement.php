@@ -8,9 +8,10 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\badm\TypeMouvementRepository;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TypeMouvementRepository")
+ * @ORM\Entity(repositoryClass=TypeMouvementRepository::class)
  * @ORM\Table(name="Type_Mouvement")
  * @ORM\HasLifecycleCallbacks
  */

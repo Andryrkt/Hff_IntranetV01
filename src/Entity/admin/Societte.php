@@ -9,10 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SocietteRepository")
+ * @ORM\Entity(repositoryClass=SocietteRepository::class)
  * @ORM\Table(name="societe")
  * @ORM\HasLifecycleCallbacks
  */

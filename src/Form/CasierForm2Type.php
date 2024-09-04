@@ -4,8 +4,8 @@ namespace App\Form;
 
 use App\Entity\cas\Casier;
 use App\Entity\admin\Agence;
-use App\Repository\AgenceRepository;
 use Symfony\Component\Form\AbstractType;
+use App\Repository\admin\AgenceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;

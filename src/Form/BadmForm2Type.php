@@ -11,13 +11,13 @@ use App\Entity\admin\Service;
 use App\Entity\TypeMouvement;
 use App\Controller\Controller;
 use App\Entity\cas\CasierValider;
-use App\Repository\AgenceRepository;
-use App\Repository\casierRepository;
-use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Repository\cas\CasierRepository;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
@@ -316,7 +316,7 @@ class BadmForm2Type extends AbstractType
                     'choice_label' => 'casier',
                     'placeholder' => ' -- Choisir un casier --',
                     'choices' => $casiers,
-                    'query_builder' => function(casierRepository $casierRepository) {
+                    'query_builder' => function(CasierRepository $casierRepository) {
                     return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
                 },
                 'attr' => [ 
@@ -374,7 +374,7 @@ class BadmForm2Type extends AbstractType
                                 'choice_label' => 'casier',
                                 'placeholder' => ' -- Choisir un casier --',
                                 'choices' => $casiers,
-                                'query_builder' => function(casierRepository $casierRepository) {
+                                'query_builder' => function(CasierRepository $casierRepository) {
                                 return $casierRepository->createQueryBuilder('c')->orderBy('c.casier', 'ASC');
                             },
                             'attr' => [ 

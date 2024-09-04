@@ -3,11 +3,11 @@
 namespace App\Entity\admin\utilisateur;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\RoleRepository;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\utilisateur\RoleRepository;
 
 /**
  * @ORM\Entity

@@ -5,8 +5,8 @@ namespace App\Entity\admin;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
-use App\Repository\PersonnelRepository;
 use Doctrine\Common\Collections\Collection;
+use App\Repository\admin\PersonnelRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**

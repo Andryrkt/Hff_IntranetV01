@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Repository;
-
+namespace App\Repository\admin\utilisateur;
 
 
 use Doctrine\ORM\EntityRepository;
 
 
-class StatutDemandeRepository extends EntityRepository
+class AgenceServiceAutoriserRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici
     public function findByExampleField($value)
     {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.Session_Utilisateur = ?')
+            ->setParameter('?', $value)
             ->orderBy('m.id', 'ASC')
             ->getQuery()
             ->getResult()

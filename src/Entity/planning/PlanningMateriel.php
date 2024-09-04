@@ -1,5 +1,6 @@
 <?php
-namespace App\Entity;
+namespace App\Entity\planning;
+
 class PlanningMateriel{
     private $codeSuc;
     private $libsuc;

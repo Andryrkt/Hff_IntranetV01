@@ -2,10 +2,10 @@
 
 namespace App\Controller\admin\user;
 
-use App\Controller\Controller;
-use App\Entity\ProfilUser;
-use App\Entity\ProfilUserEntity;
 use App\Form\ProfilUserType;
+use App\Controller\Controller;
+use App\Entity\ProfilUserEntity;
+use App\Entity\admin\utilisateur\ProfilUser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

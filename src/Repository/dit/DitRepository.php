@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\dit;
 
 use App\Entity\dit\DitSearch;
 use Doctrine\ORM\EntityRepository;

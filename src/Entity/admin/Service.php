@@ -7,9 +7,9 @@ use App\Entity\badm\Badm;
 use App\Entity\admin\Agence;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\ServiceRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Repository\admin\ServiceRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
