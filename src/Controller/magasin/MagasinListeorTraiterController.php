@@ -58,7 +58,7 @@ class MagasinListeOrTraiterController extends Controller
         } 
 
 
-        $numOrValideString = $this->orEnString($criteria);
+        //$numOrValideString = $this->orEnString($criteria);
 
             $data = $this->magasinModel->recupereListeMaterielValider($criteria);
 
