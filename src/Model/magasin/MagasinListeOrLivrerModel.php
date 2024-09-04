@@ -149,7 +149,7 @@ class MagasinListeOrLivrerModel extends Model
         if(!empty($criteria['orCompletNon'])) {
             if($criteria['orCompletNon'] === 'ORs COMPLET'){
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
-            } else if($criteria['orCompletNon'] === 'ORs PARTIELLEMNT COMPLETS') {
+            } else if($criteria['orCompletNon'] === 'ORs INCOMPLETS') {
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
             } else if($criteria['orCompletNon'] === 'TOUTS LES OR'){
                 $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";

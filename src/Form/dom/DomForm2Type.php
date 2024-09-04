@@ -63,7 +63,8 @@ class DomForm2Type extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-    
+        $idSousTypeDocument = $options['data']->getSousTypeDocument()->getId();
+      
         $builder
         ->add('agence', 
         EntityType::class,
@@ -186,12 +187,15 @@ class DomForm2Type extends AbstractType
        TextType::class,
        [
         'label' => 'Catégorie :',
+        'row_attr' => [
+                    'style' => $idSousTypeDocument == 10 ? 'display: none;' : ''
+                ],
         'attr' => [
             'disabled' => true
         ],
         'data' => $options["data"]->getCategorie() !== null ? $options["data"]->getCategorie()->getDescription() : null
        ])
-       ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event){
+       ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
             $data = $event->getData();
            
@@ -224,25 +228,31 @@ class DomForm2Type extends AbstractType
                 'class' => Site::class,
                 'choice_label' => 'nomZone',
                 'choices' => $sites,
+                'row_attr' => [
+                    'style' => $idSousTypeDocument !== 2 || $idSousTypeDocument !== 5 ? 'display: none;' : ''
+                ],
+                'attr' => [
+                    'disabled' => $idSousTypeDocument !== 2 || $idSousTypeDocument !== 5,
+                ]
             ]);
        })
         
-        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
             $data = $event->getData();
-          
-         $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
-
-         $montant = $this->formatNumber($montant);
          
+            $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
+
+            $montant = $this->formatNumber($montant);
+        
             $form ->add('indemniteForfaitaire',
             TextType::class,
             [
                 'label' => 'Indeminté forfaitaire journalière(s)',
                 'attr' => [
-                    'readonly' => true
+                    'readonly' => $idSousTypeDocument !== 10
                 ],
-                'data' => $montant
+                'data' => $idSousTypeDocument !== 10 ? $montant : 0
             ]);
             
         })
