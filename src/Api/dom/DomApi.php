@@ -2,14 +2,14 @@
 
 namespace App\Api\dom;
 
-use App\Entity\Rmq;
-use App\Entity\Site;
-use App\Entity\Agence;
-use App\Entity\Indemnite;
-use App\Entity\Personnel;
+use App\Entity\admin\Agence;
+use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
-use App\Entity\SousTypeDocument;
+use App\Entity\admin\dom\Site;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\dom\Indemnite;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DomApi extends Controller

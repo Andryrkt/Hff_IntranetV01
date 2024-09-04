@@ -23,3 +23,7 @@ Montant total = total d'indemnité forfaitaire - total indemnité de déplacemne
 ## sans indemnité de déplacmenet
 
 Montant Total = total d'indemnité forfaitaire + total montant autre dépense
+
+### type de mission : FRAIS EXCEPRIONNEL
+
+l'indemnité forfaitaire journalière(s) à saisir

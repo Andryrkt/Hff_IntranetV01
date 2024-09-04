@@ -2,13 +2,14 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\Rmq;
-use App\Entity\Site;
-use App\Entity\Agence;
-use App\Entity\AgenceServiceIrium;
-use App\Entity\Service;
-use App\Entity\Indemnite;
-use App\Entity\Personnel;
+use App\Entity\admin\Agence;
+use App\Entity\admin\dom\Rmq;
+use App\Entity\admin\Service;
+use App\Entity\admin\dom\Site;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\AgenceServiceIrium;
+
 
 trait DomsTrait
 {

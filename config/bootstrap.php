@@ -14,9 +14,9 @@ use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 
-use Illuminate\Pagination\Paginator;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
+use Illuminate\Pagination\Paginator;
 use Symfony\Component\Asset\Packages;
 
 use Symfony\Component\Asset\PathPackage;
@@ -34,6 +34,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
@@ -88,12 +89,26 @@ define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
 $request = Request::createFromGlobals();
 $response = new Response();
 
-// Configure the URL matcher
+// Charger les routes du dossier 'Controller'
 $loader = new AnnotationDirectoryLoader(
     new FileLocator(dirname(__DIR__) . '/src/Controller/'),
     new CustomAnnotationClassLoader(new AnnotationReader())
 );
-$collection = $loader->load(dirname(__DIR__) . '/src/Controller/');
+$controllerCollection = $loader->load(dirname(__DIR__) . '/src/Controller/');
+
+// Charger les routes du dossier 'Api'
+$apiLoader = new AnnotationDirectoryLoader(
+    new FileLocator(dirname(__DIR__) . '/src/Api/'),
+    new CustomAnnotationClassLoader(new AnnotationReader())
+);
+$apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
+
+// Fusionner les deux collections
+$collection = new RouteCollection();
+$collection->addCollection($controllerCollection);
+$collection->addCollection($apiCollection);
+
+// Configurer le UrlMatcher
 $matcher = new UrlMatcher($collection, new RequestContext(''));
 
 // Resolver and argument resolver
