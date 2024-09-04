@@ -152,7 +152,7 @@ class MagasinListeOrEncoursModel extends Model
                         and slor_typlig = 'P'
                         and slor_succ = '01'
                         and seor_serv ='SAV'
-                        and seor_typeor <> '950'
+                        and seor_typeor not in('950', '501')
                         $piece
                         $orCompletNom
                         $designation

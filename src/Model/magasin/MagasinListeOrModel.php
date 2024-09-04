@@ -141,6 +141,7 @@ class MagasinListeOrModel extends Model
             and year(slor_datel) >= '2024'
             --and slor_datel >= '08/05/2024'
             and seor_refdem like 'DIT%'
+            and seor_typeor not in('950', '501')
             $designation
             $referencePiece 
             $constructeur 

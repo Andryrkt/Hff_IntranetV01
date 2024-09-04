@@ -85,7 +85,7 @@ class MagasinModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-
+            and seor_typeor not in('950', '501')
             and slor_succ = '01'
            
             $designation
