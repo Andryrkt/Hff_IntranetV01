@@ -64,11 +64,42 @@
 			<table class="table rounded table-plein-ecran">
 				<thead class="table-dark">
 					<tr>
-						
+						<th>Agence - Service</th>
+						<th> id</th>
+						<th>CST</th>
+						<th>Type</th>
+						<th>N° Série</th>
+						<th> N° Parc</th>
+						<th> Casier</th>
+						{% for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] %}
+                        <th>{{ month }}</th>
+                    {% endfor %}
 					</tr>
 				</thead>
 				<tbody>
-					
+					{% for item in data %}
+						<tr>
+						<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
+						<td>{{item.idmat}}</td>
+						<td>{{item.markmat}}</td>
+						<td>{{item.typemat}}</td>
+						<td>{{item.numserie}}</td>
+						<td>{{item.numparc}}</td>
+						<td>{{item.casier}}</td>
+						{% for i in 1..12 %}
+							{% set value = item.mois %}
+							<td class="{% if value == i %}bg-success text-white{% endif %}">
+								{% if value == i %}
+									{{ item.orintv }}
+
+								{% else %}
+									<!-- Vous pouvez mettre ici un autre contenu, par exemple un tiret pour les mois sans valeur -->
+									-
+								{% endif %}
+							</td>
+						{% endfor %}
+						</tr>
+					{% endfor %}
 				</tbody>
 			</table>
 		{% endif %}

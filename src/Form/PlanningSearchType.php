@@ -47,9 +47,9 @@ class PlanningSearchType extends AbstractType
                 'ENCOURS' => 'ENCOURS'
             ];
             const PLANIFIER = [
-                'TOUS' => 'TOUS',
+               // 'TOUS' => 'TOUS',
                 'PLANIFIE' => 'PLANIFIE',
-                'NON PLANIFIE' => 'NON PLANIFIE',
+                'NON PLANIFIE' => 'NON_PLANIFIE',
             ];
 
             public function __construct()
