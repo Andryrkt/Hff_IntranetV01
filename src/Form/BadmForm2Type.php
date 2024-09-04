@@ -3,12 +3,14 @@
 
 namespace App\Form;
 
-use App\Entity\Badm;
-use App\Entity\Agence;
+use DateTime;
 use App\Entity\Casier;
-use App\Entity\Service;
-use App\Entity\CasierValider;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\TypeMouvement;
 use App\Controller\Controller;
+use App\Entity\cas\CasierValider;
 use App\Repository\AgenceRepository;
 use App\Repository\casierRepository;
 use App\Repository\ServiceRepository;
@@ -16,8 +18,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\TypeMouvement;
-use DateTime;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;

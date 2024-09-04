@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\Dom;
-use App\Entity\Agence;
-use App\Entity\Service;
+use App\Entity\dom\Dom;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;

@@ -4,13 +4,13 @@
 namespace App\Form;
 
 
-use App\Entity\DemandeIntervention;
 use App\Model\dit\DitModel;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 

@@ -2,11 +2,12 @@
 
 namespace App\Form;
 
-use App\Entity\Application;
-use App\Entity\CategorieAteApp;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+
+use App\Entity\admin\Application;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\admin\dit\CategorieAteApp;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

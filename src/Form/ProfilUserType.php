@@ -2,20 +2,16 @@
 
 namespace App\Form;
 
-use App\Entity\Application;
-use App\Entity\ProfilUser;
-use App\Entity\ProfilUserEntity;
 use App\Model\LdapModel;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\admin\Application;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\utilisateur\ProfilUser;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfilUserType extends AbstractType
 {

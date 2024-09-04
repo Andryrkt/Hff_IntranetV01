@@ -3,11 +3,11 @@
 namespace App\Controller\dit;
 
 
-use App\Entity\DitSearch;
 use App\Form\DitSearchType;
+use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
 use App\Controller\Traits\DitListTrait;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

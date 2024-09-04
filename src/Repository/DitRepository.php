@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\DitSearch;
+use App\Entity\dit\DitSearch;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 

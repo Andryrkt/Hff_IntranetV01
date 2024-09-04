@@ -5,12 +5,10 @@ namespace App\Service;
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\AncienDit;
+
 use App\Model\dit\DitModel;
-use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
+use App\Entity\dit\AncienDit;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfDit;

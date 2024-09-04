@@ -3,9 +3,9 @@
 
 namespace App\Form;
 
-use App\Entity\Badm;
-use App\Entity\TypeMouvement;
+use App\Entity\badm\Badm;
 use App\Controller\Controller;
+use App\Entity\admin\badm\TypeMouvement;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

@@ -2,11 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\StatutDemande;
-use App\Entity\TypeMouvement;
+
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\badm\TypeMouvement;
 
 trait BadmListTrait
 {

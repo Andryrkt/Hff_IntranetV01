@@ -2,39 +2,30 @@
 
 namespace App\Form;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\Societte;
-use App\Entity\Application;
-use App\Entity\CategorieATEAPP;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
-use Doctrine\ORM\Mapping\Entity;
-use App\Repository\RoleRepository;
-use App\Entity\DemandeIntervention;
+use App\Entity\admin\dit\CategorieAteApp;
 use App\Repository\AgenceRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class demandeInterventionType extends AbstractType
 {

@@ -2,9 +2,9 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Traits\FormatageTrait;
 use TCPDF;
-use App\Entity\DemandeIntervention;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfDit extends GeneratePdf
 {

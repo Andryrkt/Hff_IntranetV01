@@ -3,31 +3,18 @@
 // src/Form/SearchType.php
 namespace App\Form;
 
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\DitSearch;
-use App\Entity\StatutDemande;
-use App\Controller\Controller;
-use App\Entity\CategorieAteApp;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
-use App\Entity\DemandeIntervention;
+
 use App\Model\planning\PlanningModel;
-use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use App\Entity\PlanningSearch;
-use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PlanningSearchType extends AbstractType
 {

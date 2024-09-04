@@ -4,9 +4,9 @@ namespace App\Controller\admin;
 
 
 
-use App\Controller\Controller;
-use App\Entity\Service;
 use App\Form\ServiceType;
+use App\Entity\admin\Service;
+use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

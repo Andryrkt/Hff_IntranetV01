@@ -3,8 +3,8 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\AgenceServiceIrium;
 use App\Form\AgenceServiceIriumType;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

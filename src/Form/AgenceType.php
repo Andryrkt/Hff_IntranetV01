@@ -2,18 +2,18 @@
 
 namespace App\Form;
 
-use App\Entity\Agence;
-use App\Entity\Permission;
 use App\Entity\Role;
-use App\Entity\Service;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Permission;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
-
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
 class AgenceType extends AbstractType

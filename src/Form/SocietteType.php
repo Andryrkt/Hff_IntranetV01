@@ -2,13 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\Permission;
 use App\Entity\Role;
-use App\Entity\Societte;
+use App\Entity\Permission;
+use App\Entity\admin\Societte;
 use App\Entity\TypeReparation;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

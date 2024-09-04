@@ -58,6 +58,6 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, "/var/log/app_errors.log");
+        error_log($message, 3, "C:\wamp64\www\Hffintranet/var/log/app_errors.log");
     }
 }

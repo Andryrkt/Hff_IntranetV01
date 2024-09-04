@@ -3,12 +3,9 @@
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
-use App\Controller\Controller;
-use App\Entity\Agence;
-use App\Entity\Permission;
 use App\Form\AgenceType;
-use App\Form\RoleType;
+use App\Entity\admin\Agence;
+use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,18 +18,13 @@ class AgenceController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+    
 
     $data = self::$em->getRepository(Agence::class)->findBy([], ['id'=>'DESC']);
 
 
     self::$twig->display('admin/agence/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
+        
         'data' => $data
     ]);
     }
@@ -42,12 +34,7 @@ class AgenceController extends Controller
          */
         public function new(Request $request)
         {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
+          
             $form = self::$validator->createBuilder(AgenceType::class)->getForm();
     
             $form->handleRequest($request);
@@ -70,8 +57,6 @@ class AgenceController extends Controller
             }
     
             self::$twig->display('admin/agence/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'form' => $form->createView()
             ]);
         }
@@ -86,11 +71,7 @@ class AgenceController extends Controller
  */
 public function edit(Request $request, $id)
 {
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+  
 
     $agence = self::$em->getRepository(Agence::class)->find($id);
 
@@ -116,8 +97,6 @@ public function edit(Request $request, $id)
 
     self::$twig->display('admin/agence/edit.html.twig', [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
     ]);
 }
 

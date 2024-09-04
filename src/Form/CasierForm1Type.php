@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Agence;
-use App\Entity\Casier;
+use App\Entity\cas\Casier;
 use App\Repository\AgenceRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

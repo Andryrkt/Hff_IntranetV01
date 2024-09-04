@@ -3,15 +3,15 @@
 namespace App\Controller\dit;
 
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Application;
-use App\Controller\Controller;
-use App\Controller\Traits\DitTrait;
-use App\Entity\DemandeIntervention;
-use App\Form\demandeInterventionType;
-use App\Controller\Traits\FormatageTrait;
+
 use App\Model\dit\DitModel;
+use App\Entity\admin\Agence;
+use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Controller\Traits\DitTrait;
+use App\Form\demandeInterventionType;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

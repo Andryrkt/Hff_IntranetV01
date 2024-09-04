@@ -2,12 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\Badm;
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\CasierValider;
-use App\Entity\StatutDemande;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\cas\CasierValider;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
 
 trait BadmsForm2Trait
 {

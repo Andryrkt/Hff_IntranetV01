@@ -4,9 +4,9 @@ namespace App\Controller\admin;
 
 
 
-use App\Controller\Controller;
-use App\Entity\Permission;
 use App\Form\PermissionType;
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

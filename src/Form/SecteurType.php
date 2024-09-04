@@ -3,7 +3,7 @@
 namespace App\Form;
 
 
-use App\Entity\Secteur;
+use App\Entity\admin\Secteur;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 

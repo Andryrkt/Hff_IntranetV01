@@ -2,12 +2,12 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\Badm;
-use App\Entity\BadmSearch;
+use App\Entity\badm\Badm;
 use App\Form\BadmSearchType;
 use App\Controller\Controller;
-use App\Controller\Traits\BadmListTrait;
+use App\Entity\badm\BadmSearch;
 use App\Model\badm\BadmRechercheModel;
+use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

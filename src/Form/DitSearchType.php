@@ -3,19 +3,19 @@
 // src/Form/SearchType.php
 namespace App\Form;
 
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\DitSearch;
-use App\Entity\StatutDemande;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use App\Entity\CategorieAteApp;
-use App\Entity\DemandeIntervention;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\StatutDemande;
 use App\Repository\ServiceRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Repository\StatutDemandeRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

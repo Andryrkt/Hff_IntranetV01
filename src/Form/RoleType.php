@@ -2,11 +2,11 @@
 
 namespace App\Form;
 
-use App\Entity\Permission;
-use App\Entity\Role;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

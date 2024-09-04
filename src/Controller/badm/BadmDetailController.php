@@ -2,8 +2,8 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\badm\Badm;
 use App\Controller\Controller;
-use App\Entity\Badm;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 

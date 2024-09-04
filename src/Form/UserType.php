@@ -2,34 +2,27 @@
 
 namespace App\Form;
 
-use App\Entity\Role;
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\Societte;
 use App\Model\LdapModel;
-use App\Entity\Personnel;
-use App\Entity\Application;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\AgenceServiceIrium;
-use App\Entity\Fonction;
-use App\Entity\Permission;
-use Doctrine\ORM\Mapping\Entity;
+use App\Entity\admin\Societte;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\Application;
 use App\Repository\RoleRepository;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityRepository;
-use App\Repository\AgenceRepository;
-use App\Repository\ServiceRepository;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\utilisateur\Fonction;
+use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 
 class UserType extends AbstractType
 {

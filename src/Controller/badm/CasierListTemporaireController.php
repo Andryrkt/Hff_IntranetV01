@@ -2,12 +2,12 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\cas\Casier;
 use App\Controller\Controller;
-use App\Controller\Traits\Transformation;
-use App\Entity\Casier;
-use App\Entity\CasierValider;
-use App\Entity\StatutDemande;
 use App\Form\CasierSearchType;
+use App\Entity\cas\CasierValider;
+use App\Entity\admin\StatutDemande;
+use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

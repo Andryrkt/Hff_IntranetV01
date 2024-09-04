@@ -4,13 +4,10 @@ namespace App\Controller;
 
 use Exception;
 use SplFileObject;
-use App\Entity\User;
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use Symfony\Component\HttpFoundation\Request;
+
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+
 
 class ProfilControl extends Controller
 {

@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 
-use App\Entity\Agence;
+use App\Entity\admin\Agence;
 use Doctrine\ORM\EntityRepository;
 
 

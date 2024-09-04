@@ -4,7 +4,7 @@
 namespace App\Form;
 
 
-use App\Entity\DemandeIntervention;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;

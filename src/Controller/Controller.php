@@ -8,31 +8,31 @@ namespace App\Controller;
 use Parsedown;
 
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
-use App\Entity\Application;
 use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
 use App\Service\GenererPdf;
+use App\Entity\admin\Agence;
 use App\Model\OdbcCrudModel;
+use App\Entity\admin\Service;
 use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
-
+use App\Entity\admin\Application;
 use App\Model\dom\DomDetailModel;
 
 use App\Model\TransferDonnerModel;
 
-
-
 use App\Service\FlashManagerService;
+
+
+
 use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
 use App\Service\ExcelExporterService;
+use App\Entity\admin\utilisateur\User;
 
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;

@@ -2,10 +2,10 @@
 
 namespace App\Controller\admin;
 
-use App\Entity\Personnel;
-use App\Controller\Controller;
-use App\Form\PersonnelSearchType;
 use App\Form\PersonnelType;
+use App\Controller\Controller;
+use App\Entity\admin\Personnel;
+use App\Form\PersonnelSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

@@ -3,9 +3,9 @@
 namespace App\Form;
 
 
-use App\Entity\Fonction;
 use App\Repository\AgenceRepository;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\utilisateur\Fonction;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

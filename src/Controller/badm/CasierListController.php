@@ -3,9 +3,9 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Controller\Traits\Transformation;
-use App\Entity\CasierValider;
 use App\Form\CasierSearchType;
+use App\Entity\cas\CasierValider;
+use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

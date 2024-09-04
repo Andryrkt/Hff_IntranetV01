@@ -2,9 +2,9 @@
 
 namespace App\Controller\admin;
 
-use App\Controller\Controller;
-use App\Entity\Fonction;
 use App\Form\FonctionType;
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Fonction;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

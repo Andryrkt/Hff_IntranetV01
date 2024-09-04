@@ -283,6 +283,7 @@ class DomModel extends Model
         WHERE  Matricule = '" . $matricule . "'  
         AND Code_Statut IN ('OUV', 'PAY')";
         $execSqlDate = $this->connexion->query($SqlDate);
+       
         $DateM = array();
         while ($tab_list = odbc_fetch_array($execSqlDate)) {
             $DateM[] = $tab_list;
@@ -291,7 +292,7 @@ class DomModel extends Model
         return $DateM;
     }
 
-    //
+
     /**
      * recuperer le nom et prenoms du matricule 
      */

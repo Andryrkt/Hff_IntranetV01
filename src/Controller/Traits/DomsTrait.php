@@ -12,20 +12,20 @@ use App\Entity\Personnel;
 
 trait DomsTrait
 {
-    private function initialisationSecondForm($form1Data, $em) {
+    private function initialisationSecondForm($form1Data, $em, $dom) {
 
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
 
-        $this->dom->setMatricule($form1Data['matricule']);
-        $this->dom->setSalarier($form1Data['salarier']);
-        $this->dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $this->dom->setCategorie($form1Data['categorie']);
-        $this->dom->setDateDemande(new \DateTime());
+        $dom->setMatricule($form1Data['matricule']);
+        $dom->setSalarier($form1Data['salarier']);
+        $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
+        $dom->setCategorie($form1Data['categorie']);
+        $dom->setDateDemande(new \DateTime());
         if ($form1Data['salarier'] === "TEMPORAIRE") {
-            $this->dom->setNom($form1Data['nom']);
-            $this->dom->setPrenom($form1Data['prenom']);
-            $this->dom->setCin($form1Data['cin']);
+            $dom->setNom($form1Data['nom']);
+            $dom->setPrenom($form1Data['prenom']);
+            $dom->setCin($form1Data['cin']);
 
             $agenceEmetteur = $CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
             $serviceEmetteur = $CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
@@ -36,8 +36,8 @@ trait DomsTrait
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
             $agenceServiceIrium = $em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnel->getCodeAgenceServiceSage()]);
          
-            $this->dom->setNom($personnel->getNom());
-            $this->dom->setPrenom($personnel->getPrenoms());
+            $dom->setNom($personnel->getNom());
+            $dom->setPrenom($personnel->getPrenoms());
             $agenceEmetteur = $agenceServiceIrium->getAgenceips() . ' ' . strtoupper($agenceServiceIrium->getNomagencei100());
             $serviceEmetteur = $agenceServiceIrium->getServiceips() . ' ' . $agenceServiceIrium->getLibelleserviceips();
             $codeAgenceEmetteur = $agenceServiceIrium->getAgenceips()  ;
@@ -45,11 +45,11 @@ trait DomsTrait
 
         }
         /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
-        $this->dom->setAgenceEmetteur($agenceEmetteur);
-        $this->dom->setServiceEmetteur($serviceEmetteur);
+        $dom->setAgenceEmetteur($agenceEmetteur);
+        $dom->setServiceEmetteur($serviceEmetteur);
         $idAgence = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgenceEmetteur])->getId();
-        $this->dom->setAgence($em->getRepository(Agence::class)->find($idAgence));
-        $this->dom->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
+        $dom->setAgence($em->getRepository(Agence::class)->find($idAgence));
+        $dom->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
 
         //initialisation site
         $sousTypedocument = $form1Data['sousTypeDocument'];
@@ -72,9 +72,9 @@ trait DomsTrait
                 $sites[] = $value->getSite()->getId();
             }
             if(in_array(8, $sites)){
-                $this->dom->setSite($em->getRepository(Site::class)->find(8));
+                $dom->setSite($em->getRepository(Site::class)->find(8));
             } else {
-                $this->dom->setSite($em->getRepository(Site::class)->find(1));
+                $dom->setSite($em->getRepository(Site::class)->find(1));
             }
 
     }

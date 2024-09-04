@@ -977,9 +977,6 @@ class DomControl extends Controller
                         "serviceDebitteur" => $serviceDebitteur
                     ];
 
-
-
-
                     if ($typMiss !== 'COMPLEMENT') {
                         // var_dump('01');
                         // die();
@@ -988,6 +985,7 @@ class DomControl extends Controller
 
                             $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
                             // nvl date 
+                            dd($DomMaxMinDate);
 
                             if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
                                 // var_dump('02');

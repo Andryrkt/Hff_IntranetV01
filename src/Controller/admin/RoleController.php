@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
-use App\Controller\Controller;
-use App\Entity\Permission;
 use App\Form\RoleType;
+use App\Entity\Permission;
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
