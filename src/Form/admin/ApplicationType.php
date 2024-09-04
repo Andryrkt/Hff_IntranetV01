@@ -15,7 +15,7 @@ class ApplicationType extends AbstractType
     {
         $builder
        
-        ->add('noms', 
+        ->add('nom', 
             TextType::class, 
             [
                 'label' => 'nom',
