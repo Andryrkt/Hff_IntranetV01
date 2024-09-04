@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Form\AgenceServiceAutoriserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\AgenceServiceAutoriser;
+use App\Form\admin\utilisateur\AgenceServiceAutoriserType;
 
 class AgenceServiceAutoriserController extends Controller
 {
@@ -15,9 +15,7 @@ class AgenceServiceAutoriserController extends Controller
          */
     public function index()
     {
-
         $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id'=>'DESC']);
-
 
         self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
             'data' => $data
@@ -57,12 +55,6 @@ class AgenceServiceAutoriserController extends Controller
 public function edit(Request $request, $id)
 {
 
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
-
     $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
     
     $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class, $user)->getForm();
@@ -77,10 +69,9 @@ public function edit(Request $request, $id)
         
     }
 
-    self::$twig->display('admin/AgenceServiceAutoriser/edit.html.twig', [
+    self::$twig->display('admin/AgenceServiceAutoriser/edit.html.twig',
+    [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
     ]);
 
 }

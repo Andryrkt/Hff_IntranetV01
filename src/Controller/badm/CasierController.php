@@ -3,12 +3,12 @@
 namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
-use App\Form\CasierForm1Type;
-use App\Form\CasierForm2Type;
 use App\Controller\Controller;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
+use App\Form\cas\CasierForm1Type;
+use App\Form\cas\CasierForm2Type;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;

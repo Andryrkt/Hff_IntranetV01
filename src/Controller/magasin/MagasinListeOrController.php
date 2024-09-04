@@ -6,14 +6,14 @@ namespace App\Controller\magasin;
 ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
-use App\Controller\Traits\MagasinTrait;
-use App\Controller\Traits\Transformation;
-use App\Form\MagasinListOrSearchType;
-use App\Form\MagasinSearchType;
-use App\Model\magasin\MagasinListeOrModel;
 use App\Model\magasin\MagasinModel;
+use App\Controller\Traits\MagasinTrait;
+use App\Form\magasin\MagasinSearchType;
+use App\Controller\Traits\Transformation;
+use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\magasin\MagasinListOrSearchType;
 
 class MagasinListeOrController extends Controller
 { 

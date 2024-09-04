@@ -4,10 +4,10 @@ namespace App\Controller\admin;
 
 
 use App\Controller\Controller;
-use App\Form\CategorieAteAppType;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Form\admin\dit\CategorieAteAppType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\admin\dit\CategorieAteApp;
 
 class CategorieAteAppController extends Controller
 {
@@ -32,11 +32,6 @@ class CategorieAteAppController extends Controller
          */
         public function new(Request $request)
         {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
     
             $form = self::$validator->createBuilder(CategorieAteAppType::class)->getForm();
     
@@ -51,9 +46,8 @@ class CategorieAteAppController extends Controller
                 $this->redirectToRoute("categorieAte_index");
             }
     
-            self::$twig->display('admin/categorieAte/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
+            self::$twig->display('admin/categorieAte/new.html.twig', 
+            [
                 'form' => $form->createView()
             ]);
         }

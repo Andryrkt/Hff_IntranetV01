@@ -8,9 +8,9 @@ ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Form\MagasinSearchType;
 use App\Entity\DemandeIntervention;
 use App\Controller\Traits\MagasinTrait;
+use App\Form\magasin\MagasinSearchType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

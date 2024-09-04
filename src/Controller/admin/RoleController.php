@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 
-use App\Form\RoleType;
 use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
+use App\Form\admin\utilisateur\RoleType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,18 +19,12 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         $data = self::$em->getRepository(Role::class)->findBy([], ['id'=>'DESC']);
 
 
-        self::$twig->display('admin/role/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/role/list.html.twig', 
+        [
             'data' => $data
         ]);
     }
@@ -40,11 +34,6 @@ class RoleController extends Controller
          */
         public function new(Request $request)
         {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
     
             $form = self::$validator->createBuilder(RoleType::class)->getForm();
     
@@ -67,9 +56,8 @@ class RoleController extends Controller
                 $this->redirectToRoute("role_index");
             }
     
-            self::$twig->display('admin/role/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
+            self::$twig->display('admin/role/new.html.twig', 
+            [
                 'form' => $form->createView()
             ]);
         }
@@ -82,12 +70,6 @@ class RoleController extends Controller
      */
     public function edit(Request $request, $id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         $user = self::$em->getRepository(Role::class)->find($id);
         
@@ -105,8 +87,6 @@ class RoleController extends Controller
 
         self::$twig->display('admin/role/edit.html.twig', [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
 
     }

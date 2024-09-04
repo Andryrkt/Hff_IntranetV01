@@ -10,11 +10,10 @@ ini_set('memory_limit', '1000M');
 use App\Controller\Controller;
 use App\Controller\Traits\MagasinTrait;
 use App\Controller\Traits\Transformation;
-use App\Form\MagasinListOrEncoursSearchType;
 use App\Model\magasin\MagasinListeOrEncoursModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
+use App\Form\magasin\MagasinListOrEncoursSearchType;
 
 class MagasinListeOrEncoursController extends Controller
 { 

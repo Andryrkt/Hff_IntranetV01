@@ -3,9 +3,9 @@
 namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
-use App\Form\BadmSearchType;
 use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
+use App\Form\badm\BadmSearchType;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;

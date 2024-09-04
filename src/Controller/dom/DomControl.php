@@ -7,9 +7,9 @@ use App\Entity\Agence;
 
 use App\Controller\Controller;
 
-use App\Form\AgenceServiceType;
-
 use App\Controller\Traits\DomTrait;
+
+use App\Form\admin\AgenceServiceType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Routing\Annotation\Route;
 

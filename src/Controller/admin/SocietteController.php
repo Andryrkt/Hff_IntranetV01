@@ -6,9 +6,9 @@ namespace App\Controller\admin;
 use App\Entity\Role;
 use App\Form\RoleType;
 use App\Entity\Permission;
-use App\Form\SocietteType;
 use App\Controller\Controller;
 use App\Entity\admin\Societte;
+use App\Form\admin\SocietteType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,18 +21,12 @@ class SocietteController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
 
     $data = self::$em->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
 
 
-    self::$twig->display('admin/societte/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
+    self::$twig->display('admin/societte/list.html.twig', 
+    [
         'data' => $data
     ]);
     }
@@ -42,12 +36,6 @@ class SocietteController extends Controller
          */
         public function new(Request $request)
         {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
             $form = self::$validator->createBuilder(SocietteType::class)->getForm();
     
             $form->handleRequest($request);
@@ -63,9 +51,8 @@ class SocietteController extends Controller
                 $this->redirectToRoute("societte_index");
             }
     
-            self::$twig->display('admin/societte/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
+            self::$twig->display('admin/societte/new.html.twig', 
+            [
                 'form' => $form->createView()
             ]);
         }
@@ -78,13 +65,6 @@ class SocietteController extends Controller
      */
     public function edit(Request $request, $id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $user = self::$em->getRepository(Societte::class)->find($id);
         
         $form = self::$validator->createBuilder(SocietteType::class, $user)->getForm();
@@ -99,10 +79,9 @@ class SocietteController extends Controller
             
         }
 
-        self::$twig->display('admin/societte/edit.html.twig', [
+        self::$twig->display('admin/societte/edit.html.twig', 
+        [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
 
     }

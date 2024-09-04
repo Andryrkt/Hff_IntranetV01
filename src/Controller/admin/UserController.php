@@ -3,10 +3,9 @@
 namespace App\Controller\admin;
 
 
-use App\Entity\Agence;
-use App\Form\UserType;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
+use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

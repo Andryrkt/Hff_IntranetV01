@@ -3,9 +3,9 @@
 namespace App\Controller\dit;
 
 
-use App\Form\DitSearchType;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
+use App\Form\dit\DitSearchType;
 use App\Controller\Traits\DitListTrait;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;

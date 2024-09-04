@@ -4,8 +4,8 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
-use App\Form\CasierSearchType;
 use App\Entity\cas\CasierValider;
+use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;

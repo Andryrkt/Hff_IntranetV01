@@ -3,9 +3,9 @@
 namespace App\Controller\admin;
 
 
-use App\Form\AgenceType;
 use App\Entity\admin\Agence;
 use App\Controller\Controller;
+use App\Form\admin\AgenceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,15 +18,12 @@ class AgenceController extends Controller
      */
     public function index()
     {
-    
+        $data = self::$em->getRepository(Agence::class)->findBy([], ['id'=>'DESC']);
 
-    $data = self::$em->getRepository(Agence::class)->findBy([], ['id'=>'DESC']);
-
-
-    self::$twig->display('admin/agence/list.html.twig', [
-        
-        'data' => $data
-    ]);
+        self::$twig->display('admin/agence/list.html.twig', 
+        [
+            'data' => $data
+        ]);
     }
 
     /**
@@ -71,15 +68,9 @@ class AgenceController extends Controller
  */
 public function edit(Request $request, $id)
 {
-  
-
     $agence = self::$em->getRepository(Agence::class)->find($id);
 
-
-
     $form = self::$validator->createBuilder(AgenceType::class, $agence)->getForm();
-
- 
 
     $form->handleRequest($request);
 

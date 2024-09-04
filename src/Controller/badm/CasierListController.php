@@ -3,8 +3,8 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Form\CasierSearchType;
 use App\Entity\cas\CasierValider;
+use App\Form\cas\CasierSearchType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
