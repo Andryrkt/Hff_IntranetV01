@@ -15,6 +15,8 @@ class PlanningMateriel{
     private $annee;
     private $mois;
     private $orIntv;
+    private $qteCdm;
+    private $qteLiv;
 
     /**
      * Get the value of codeSuc
@@ -275,4 +277,47 @@ class PlanningMateriel{
 
         return $this;
     }
+
+
+
+     /**
+     * Get the value of qteCdm
+     */ 
+    public function getQteCdm()
+    {
+        return $this->qteCdm;
+    }
+
+    /**
+     * Set the value of qteCdm
+     *
+     * @return  self
+     */ 
+    public function setQteCdm($qteCdm)
+    {
+        $this->qteCdm = $qteCdm;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteliv
+     */ 
+    public function getQteLiv()
+    {
+        return $this->qteLiv;
+    }
+
+    /**
+     * Set the value of qteliv
+     *
+     * @return  self
+     */ 
+    public function setQteLiv($qteLiv)
+    {
+        $this->qteLiv = $qteLiv;
+
+        return $this;
+    }
+    
 }
