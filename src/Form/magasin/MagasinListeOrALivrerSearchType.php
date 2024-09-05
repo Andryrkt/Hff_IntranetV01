@@ -4,6 +4,8 @@ namespace App\Form\magasin;
 
 
 use App\Model\magasin\MagasinModel;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -17,11 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class MagasinListeOrALivrerSearchType extends AbstractType
 {
 
-    private function recupConstructeur()
-    {
-        $magasinModel = new MagasinModel();
-       return  $magasinModel->recuperationConstructeur();
-    }
+    
 
     const OR_COMPLET_OU_NON = [
         'TOUTS LES OR' => 'TOUTS LES OR',
@@ -35,8 +33,25 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
     ];
 
+    private $magasinModel;
+
+    public function __construct()
+    {
+        $this->magasinModel = new MagasinModel();
+    }
+
+    private function recupConstructeur()
+    {
+       return  $this->magasinModel->recuperationConstructeur();
+    }
+
+    private function agence(){
+        return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',
@@ -96,6 +111,52 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'placeholder' => ' -- choisir une mode affichage --',
             'data' => 'PIECES MAGASIN'
         ])
+        ->add('agence',
+        ChoiceType::class,
+        [
+            'label' => 'Agence',
+            'required' => false,
+            'choices' => $this->agence() ?? [],
+            'placeholder' => ' -- choisir agence --'
+        ])
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+            $form->add('service',
+            ChoiceType::class,
+            [
+                'label' => 'Service',
+                'required' => false,
+                'choices' => [],
+                'placeholder' => ' -- choisir service --'
+            ]);
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+            
+            $service = [];
+        if($data['agence'] !== ""){
+            $services = $this->magasinModel->service($data['agence']);
+            
+            foreach ($services as $value) {
+                $service[$value['text']] = $value['text'];
+            }
+        } else {
+            $service = [];
+        }
+   
+        
+        $form->add('service',
+        ChoiceType::class,
+        [
+            'label' => 'Service',
+            'required' => false,
+            'choices' => $service,
+            'placeholder' => ' -- choisir service --'
+        ]);
+           
+        })
         ;
     }
 

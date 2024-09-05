@@ -93,39 +93,41 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // /** Autocompletion Designation */
-  // const designationInput = document.querySelector(
-  //   "#magasin_search_designation"
-  // );
+  const designationInput = document.querySelector(
+    "#magasin_liste_or_a_livrer_search_designation"
+  );
 
-  // designationInput.addEventListener("input", autocompleteDesignation);
+  designationInput.addEventListener("input", autocompleteDesignation);
 
-  // function autocompleteDesignation() {
-  //   const designation = designationInput.value;
-  //   const url = `/Hffintranet/designation-fetch/${designation}`;
-  //   fetch(url)
-  //     .then((response) => response.json())
-  //     .then((designations) => {
-  //       console.log(designations);
-  //       const suggestions = document.getElementById("suggestions");
-  //       suggestions.innerHTML = "";
-  //       designations.forEach((item) => {
-  //         const li = document.createElement("li");
-  //         li.className = "list-group-item";
-  //         li.textContent = item.designationi; // Changez 'designation' par le champ pertinent
-  //         li.addEventListener("click", function () {
-  //           designationInput.value = this.textContent;
-  //           suggestions.innerHTML = ""; // Effacez les suggestions après sélection
-  //         });
-  //         suggestions.appendChild(li);
-  //       });
-  //     })
-  //     .catch((error) => console.error("Error:", error));
-  // }
+  function autocompleteDesignation() {
+    const designation = designationInput.value;
+    const url = `/Hffintranet/designation-fetch/${designation}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((designations) => {
+        console.log(designations);
+        const suggestions = document.getElementById("suggestions");
+        suggestions.innerHTML = "";
+        designations.forEach((item) => {
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.textContent = item.designationi; // Changez 'designation' par le champ pertinent
+          li.addEventListener("click", function () {
+            designationInput.value = this.textContent;
+            suggestions.innerHTML = ""; // Effacez les suggestions après sélection
+          });
+          suggestions.appendChild(li);
+        });
+      })
+      .catch((error) => console.error("Error:", error));
+  }
 
   /** MISE EN MAJUSCULE */
-  const numDitInput = document.querySelector("#magasin_search_numDit");
+  const numDitInput = document.querySelector(
+    "#magasin_liste_or_a_livrer_search_numDit"
+  );
   const refPieceInput = document.querySelector(
-    "#magasin_search_referencePiece"
+    "#magasin_liste_or_a_livrer_search_referencePiece"
   );
 
   numDitInput.addEventListener("input", MiseMajusculeNumDit);
@@ -139,10 +141,58 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /** chiffre au lielu de lettre */
-  const numOrInput = document.querySelector("#magasin_search_numOr");
-  console.log(numOrInput);
+  const numOrInput = document.querySelector(
+    "#magasin_liste_or_a_livrer_search_numOr"
+  );
 
   numOrInput.addEventListener("input", () => {
     numOrInput.value = numOrInput.value.replace(/[^0-9]/g, "");
   });
 });
+
+/** AFFICHER LES SERVICES SELON L'AGENCE SELECTIONNER  */
+const agenceInput = document.querySelector(
+  "#magasin_liste_or_a_livrer_search_agence"
+);
+const serviceInput = document.querySelector(
+  "#magasin_liste_or_a_livrer_search_service"
+);
+
+agenceInput.addEventListener("change", selectAgence);
+
+function selectAgence() {
+  serviceInput.disabled = false;
+
+  const agence = agenceInput.value;
+  let url = `/Hffintranet/service-informix-fetch/${agence}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+
+      // Supprimer toutes les options existantes
+      while (serviceInput.options.length > 0) {
+        serviceInput.remove(0);
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une service -- ";
+      serviceInput.add(defaultOption);
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].value;
+        option.text = services[i].text;
+        serviceInput.add(option);
+      }
+
+      //Afficher les nouvelles valeurs et textes des options
+      for (var i = 0; i < serviceInput.options.length; i++) {
+        var option = serviceInput.options[i];
+        console.log("Value: " + option.value + ", Text: " + option.text);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}

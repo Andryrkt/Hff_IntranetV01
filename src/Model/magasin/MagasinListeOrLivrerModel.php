@@ -105,43 +105,43 @@ class MagasinListeOrLivrerModel extends Model
         // }
 
         if(!empty($criteria['designation'])){
-            $designation = " and slor_desi like '%" . $criteria['designation'] . "%'";
+            $designation = " AND slor_desi like '%" . $criteria['designation'] . "%'";
         } else {
             $designation = null;
         }
         
         if(!empty($criteria['referencePiece'])){
-            $referencePiece = " and slor_refp like '%" . $criteria['referencePiece'] . "%'";
+            $referencePiece = " AND slor_refp like '%" . $criteria['referencePiece'] . "%'";
         } else {
             $referencePiece = null;
         }
 
         if(!empty($criteria['constructeur'])){
-            $constructeur = " and slor_constp  ='" . $criteria['constructeur'] . "'";
+            $constructeur = " AND slor_constp  ='" . $criteria['constructeur'] . "'";
         } else {
             $constructeur = null;
         }
 
         if(!empty($criteria['dateDebut'])){
-            $dateDebut = " and slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
+            $dateDebut = " AND slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
         } else {
             $dateDebut = null;
         }
 
         if(!empty($criteria['dateFin'])){
-            $dateFin = " and slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
+            $dateFin = " AND slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
         } else {
             $dateFin = null;
         }
 
         if(!empty($criteria['numOr'])){
-            $numOr = " and seor_numor  = '" . $criteria['numOr'] . "'";
+            $numOr = " AND seor_numor  = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
         }
 
         if(!empty($criteria['numDit'])){
-            $numDit = " and seor_refdem  = '" . $criteria['numDit'] . "'";
+            $numDit = " AND seor_refdem  = '" . $criteria['numDit'] . "'";
         } else {
             $numDit = null;
         }
@@ -177,6 +177,17 @@ class MagasinListeOrLivrerModel extends Model
                     ";
         }
           
+        if(!empty($criteria['agence'])){
+            $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
+        } else {
+            $agence = "";
+        }
+
+        if(!empty($criteria['service'])){
+            $service = " AND slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) = '".$criteria['service']."'";
+        } else {
+            $service = "";
+        }
 
 
         $statement = " SELECT 
@@ -226,8 +237,11 @@ class MagasinListeOrLivrerModel extends Model
                         $dateFin
                         $numOr
                         $numDit
+                        $agence
+                        $service
                         order by slor_datec desc, seor_numor asc, slor_nolign asc
         ";
+
 
 
         $result = $this->connect->executeQuery($statement);
@@ -360,4 +374,7 @@ class MagasinListeOrLivrerModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+
+    
 }
