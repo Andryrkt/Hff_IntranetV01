@@ -173,7 +173,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   );
   const siteInput = document.querySelector("#dom_form2_site");
 
-  siteInput.addEventListener("change", indemnitySite);
+  if (siteInput) {
+    siteInput.addEventListener("change", indemnitySite);
+  }
 
   function indemnitySite() {
     const siteValue = siteInput.value;
@@ -198,7 +200,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   nombreDeJourInput.addEventListener("valueAdded", calculTotalForfaitaire);
 
   function calculTotalForfaitaire() {
-    if (supplementJournalierInput.value === "") {
+    if (
+      supplementJournalierInput.value === "" &&
+      indemniteForfaitaireJournaliereInput
+    ) {
       const nombreDeJour = parseInt(nombreDeJourInput.value);
       const indemniteForfaitaireJournaliere = parseInt(
         indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
@@ -206,7 +211,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * indemniteForfaitaireJournaliere
       );
-    } else {
+    } else if (
+      supplementJournalierInput.value !== "" &&
+      indemniteForfaitaireJournaliereInput
+    ) {
       const supplementJournalier = parseInt(
         supplementJournalierInput.value.replace(/[^\d]/g, "")
       );
@@ -217,6 +225,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * (indemniteForfaitaireJournaliere + supplementJournalier)
+      );
+    } else if (supplementJournalierInput.value !== "") {
+      const supplementJournalier = parseInt(
+        supplementJournalierInput.value.replace(/[^\d]/g, "")
+      );
+      const nombreDeJour = parseInt(nombreDeJourInput.value);
+
+      totalindemniteForfaitaireInput.value = formatNumberInt(
+        nombreDeJour * supplementJournalier
       );
     }
 

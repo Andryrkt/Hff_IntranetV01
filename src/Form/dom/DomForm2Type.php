@@ -61,6 +61,7 @@ class DomForm2Type extends AbstractType
      $this->em = Controller::getEntity();
     }
 
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $idSousTypeDocument = $options['data']->getSousTypeDocument()->getId();
@@ -188,7 +189,7 @@ class DomForm2Type extends AbstractType
        [
         'label' => 'Catégorie :',
         'row_attr' => [
-                    'style' => $idSousTypeDocument == 10 ? 'display: none;' : ''
+                    'style' =>$idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                 ],
         'attr' => [
             'disabled' => true
@@ -229,10 +230,10 @@ class DomForm2Type extends AbstractType
                 'choice_label' => 'nomZone',
                 'choices' => $sites,
                 'row_attr' => [
-                    'style' => $idSousTypeDocument !== 2 || $idSousTypeDocument !== 5 ? 'display: none;' : ''
+                    'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                 ],
                 'attr' => [
-                    'disabled' => $idSousTypeDocument !== 2 || $idSousTypeDocument !== 5,
+                    'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
                 ]
             ]);
        })
@@ -244,15 +245,22 @@ class DomForm2Type extends AbstractType
             $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
 
             $montant = $this->formatNumber($montant);
+
+            if($idSousTypeDocument === 10){
+                $montant = 0;
+            } else if($idSousTypeDocument === 3 || $idSousTypeDocument === 4) {
+                $montant  = '';
+            } 
         
             $form ->add('indemniteForfaitaire',
             TextType::class,
             [
                 'label' => 'Indeminté forfaitaire journalière(s)',
                 'attr' => [
-                    'readonly' => $idSousTypeDocument !== 10
+                    'readonly' => $idSousTypeDocument === 2 || $idSousTypeDocument === 5,
+                    'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4
                 ],
-                'data' => $idSousTypeDocument !== 10 ? $montant : 0
+                'data' =>  $montant 
             ]);
             
         })

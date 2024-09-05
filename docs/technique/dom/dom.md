@@ -10,7 +10,7 @@
 
 - change selon le site (lieu)
 - entrer manuellement si type de mission : FRAIS EXCEPTIONNEL
-- vide si type de mission complement ou formation
+- vide si type de mission: complement ou formation
 
 ## Total indemnité de déplacement
 
