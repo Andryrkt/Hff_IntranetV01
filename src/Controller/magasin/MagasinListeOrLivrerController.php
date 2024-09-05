@@ -8,7 +8,6 @@ ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
 use App\Controller\Traits\MagasinTrait;
 use App\Controller\Traits\Transformation;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
