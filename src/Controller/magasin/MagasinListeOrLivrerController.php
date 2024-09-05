@@ -10,8 +10,8 @@ ini_set('memory_limit', '1000M');
 use App\Controller\Controller;
 use App\Entity\DemandeIntervention;
 use App\Controller\Traits\MagasinTrait;
-use App\Form\magasin\MagasinSearchType;
 use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
@@ -40,7 +40,7 @@ class MagasinListeOrLivrerController extends Controller
        
 
 
-        $form = self::$validator->createBuilder(MagasinSearchType::class, null, [
+        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
         

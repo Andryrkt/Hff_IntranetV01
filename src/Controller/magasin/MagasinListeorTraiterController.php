@@ -8,8 +8,8 @@ ini_set('max_execution_time', 10000);
 use App\Controller\Controller;
 use App\Model\magasin\MagasinModel;
 use App\Controller\Traits\MagasinTrait;
-use App\Form\magasin\MagasinSearchType;
 use App\Controller\Traits\Transformation;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,10 +40,7 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-       
-        $empty = false;
-
-        $form = self::$validator->createBuilder(MagasinSearchType::class, null, [
+        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
         
@@ -73,20 +70,17 @@ class MagasinListeOrTraiterController extends Controller
             //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
             //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
             //     } else {
-            //         $empty = true;
+            //      
             //         break;
             //     }
             // }
        
 
         
-        if(empty($data)  ){
-            $empty = true;
-        }
        
-        self::$twig->display('magasin/list.html.twig', [
+       
+        self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
-            'empty' => $empty,
             'form' => $form->createView()
         ]);
     }
