@@ -153,7 +153,7 @@ class MagasinModel extends Model
     public function recupNumOr($criteria = [])
     {   
         if(!empty($criteria['niveauUrgence'])){
-            $niveauUrgence = " and id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
+            $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }
