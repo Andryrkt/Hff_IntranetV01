@@ -12,6 +12,90 @@ class MagasinModel extends Model
     use FormatageTrait;
 
 
+    public function recupOrLivrerComplet()
+    {
+        $statement = " SELECT 
+                            seor_numor as numeroOr
+                            from sav_lor as A
+                            inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                            where slor_soc = 'HF'
+                            AND  (Select 
+                                    SUM ( CASE 
+                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                                        END ) 
+                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
+                            = (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor )
+                            and slor_qteres <> 0
+                            and slor_typlig = 'P'
+                            and slor_constp not like 'Z%'
+                            and slor_constp not in ('LUB')
+                            and slor_succ = '01'
+                            and seor_serv ='SAV'
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerIncomplet()
+    {
+        $statement = " SELECT distinct slor_numor from sav_lor
+                        inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
+                        where
+                        slor_qteres > 0
+                        and slor_typlig = 'P'  
+                        and slor_constp not in ('LUB')
+                        and slor_typlig = 'P' 
+                        and slor_constp not like 'Z%'
+                        and seor_serv = 'SAV'
+                        and seor_succ = '01'
+                        and seor_typeor not in (501,550)
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerTout()
+    {
+        $statement = " SELECT 
+                            seor_numor as numeroOr
+                            from sav_lor as A
+                            inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                            where slor_soc = 'HF'
+                            AND  (Select 
+                                    SUM ( CASE 
+                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                                        END ) 
+                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
+                            >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
+                            and slor_qteres <> 0
+                            and slor_typlig = 'P'
+                            and slor_constp not like 'Z%'
+                            and slor_constp not in ('LUB')
+                            and slor_succ = '01'
+                            and seor_serv ='SAV'
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupereListeMaterielValider(  $criteria = [])
     {
     
@@ -61,6 +145,25 @@ class MagasinModel extends Model
             $numDit = null;
         }
 
+        if (!empty($criteria['pieces'])) {
+            if($criteria['pieces'] === "PIECES MAGASIN"){
+                $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
+            } else if($criteria['pieces'] === "LUB ET ACHATS LOCAUX") {
+                $piece = " AND slor_constp like 'Z%'
+                        and slor_constp in ('LUB')
+                    ";
+            } else if($criteria['pieces'] === "TOUTS PIECES") {
+                $piece = null;
+            }
+            
+        } else {
+            $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
+        }
+
         if(!empty($criteria['agence'])){
             $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
         } else {
@@ -106,13 +209,12 @@ class MagasinModel extends Model
             $dateFin
             $numOr
             $numDit
+            $piece
             $agence
             $service
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'
-            and slor_constp not like 'Z%'
-            and slor_constp not like 'LUB'
             and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
             order by slor_datec DESC, slor_numor DESC, numeroLigne ASC
         ";

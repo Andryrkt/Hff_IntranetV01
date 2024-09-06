@@ -28,8 +28,8 @@ class MagasinListeOrALivrerSearchType extends AbstractType
     ];
 
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
-        'TOUTS PIECES' => 'TOUTS PIECES',
-        'PIECES MAGASIN' => 'PIECES MAGASIN',
+        'TOUTES LIGNES' => 'TOUTS PIECES',
+        'PIECE MAGASIN' => 'PIECES MAGASIN',
         'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
     ];
 
@@ -114,7 +114,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         ->add('agence',
         ChoiceType::class,
         [
-            'label' => 'Agence',
+            'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
             'placeholder' => ' -- choisir agence --'
@@ -125,7 +125,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             $form->add('service',
             ChoiceType::class,
             [
-                'label' => 'Service',
+                'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
                 'placeholder' => ' -- choisir service --'
@@ -147,7 +147,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         }
    
         
-        $form->add('service',
+        $form->add('service débiteur',
         ChoiceType::class,
         [
             'label' => 'Service',

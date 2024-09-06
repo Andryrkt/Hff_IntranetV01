@@ -55,7 +55,7 @@ class MagasinListeOrTraiterController extends Controller
         } 
 
 
-        //$numOrValideString = $this->orEnString($criteria);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
 
             $data = $this->magasinModel->recupereListeMaterielValider($criteria);
 
@@ -97,7 +97,7 @@ class MagasinListeOrTraiterController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-        //$numOrValideString = $this->orEnString($criteria);
+        //$lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
         $entities = $this->magasinModel->recupereListeMaterielValider($criteria);
     // Convertir les entités en tableau de données
     $data = [];

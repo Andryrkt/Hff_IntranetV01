@@ -37,6 +37,22 @@ trait MagasinTrait
         ];
     }
 
+    private function recupNumOrTraiterSelonCondition(array $criteria): array
+    {
+        $magasinModel = new MagasinModel();
+        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
+        $numOrLivrerComplet = $this->orEnString($this->magasinModel->recupOrLivrerComplet());
+        $numOrLivrerIncomplet = $this->orEnString($this->magasinModel->recupOrLivrerIncomplet());
+        $numOrLivrerTout = $this->orEnString($this->magasinModel->recupOrLivrerTout());
+
+       return  [
+            "numOrLivrerComplet" => $numOrLivrerComplet,
+            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
+            "numOrLivrerTout" => $numOrLivrerTout,
+            "numOrValideString" => $numOrValideString
+        ];
+    }
+
     private function recupNumOrSelonCond(array $criteria): array
     {
         $magasinModel = new MagasinModel();

@@ -19,8 +19,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class MagasinListeOrATraiterSearchType extends AbstractType
 {
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
-        'TOUTS PIECES' => 'TOUTS PIECES',
-        'PIECES MAGASIN' => 'PIECES MAGASIN',
+        'TOUTES LIGNES' => 'TOUTS PIECES',
+        'PIECE MAGASIN' => 'PIECES MAGASIN',
         'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
     ];
 
@@ -97,7 +97,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         ->add('agence',
         ChoiceType::class,
         [
-            'label' => 'Agence',
+            'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
             'placeholder' => ' -- choisir agence --'
@@ -108,7 +108,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             $form->add('service',
             ChoiceType::class,
             [
-                'label' => 'Service',
+                'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
                 'placeholder' => ' -- choisir service --'
@@ -133,7 +133,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         $form->add('service',
         ChoiceType::class,
         [
-            'label' => 'Service',
+            'label' => 'Service débiteur',
             'required' => false,
             'choices' => $service,
             'placeholder' => ' -- choisir service --'
