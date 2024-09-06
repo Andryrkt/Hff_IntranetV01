@@ -98,9 +98,11 @@ class PlanningModel extends Model
    }
   public function recuperationMaterielplanifier($criteria)
   {
-   
+
    $vYearsStatutPlan =  $this->planAnnee($criteria);
    $vMonthStatutPlan = $this->planMonth($criteria);
+   $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+   $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
    $vStatutFacture = $this->facture($criteria);
    $annee =  $this->criterAnnee($criteria);
    $agence = $this->agence($criteria);
@@ -151,46 +153,21 @@ class PlanningModel extends Model
                     $vStatutInterneExterne
                     $agenceDebite
                     $serviceDebite
+                    $vDateDMonthPlan
+                    $vDateFMonthPlan
                     $vconditionNumParc
                     $vconditionIdMat
                     $vconditionNumOr
                     $vconditionNumSerie
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-		                order by 1,5  ";
-                  
+		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
+       
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
   }
     
- /*public function recuperationNumORMateriel($idMat,$mois,$criteria){
-      $agence = $this->agence($criteria);
-      $agenceDebite = $this->agenceDebite($criteria);
-      $serviceDebite = $this->serviceDebite($criteria);
-      $statement = " SELECT  
-                        trim(seor_nummat) as idMat ,
-                        trim(seor_numor ||'-'||sitv_interv) as orIntv,
-                        trim(seor_numor) as or,
-                        trim(sitv_interv) as intv
-                    FROM sav_eor, sav_itv, sav_lor, outer (ska, skw)
-                    WHERE ofh_id = seor_numor 
-                    AND  seor_numor = slor_numor
-                    AND sitv_numor = slor_numor 
-                    AND sitv_interv = slor_nogrp/100
-                    $agence
-                    $agenceDebite
-                    $serviceDebite
-                    group by 1,2,3
-                    order by 1,2
-      ";
-       $result = $this->connect->executeQuery($statement);
-       $data = $this->connect->fetchResults($result);
 
-       return $this->convertirEnUtf8($data);
-
- }*/
-
-   
 
 }

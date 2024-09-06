@@ -72,6 +72,53 @@ trait PlanningModelTrait
             }
      return  $vMonthStatutPlan;
     }
+    private function dateDebutMonthPlan($criteria){
+
+      if(!empty($criteria->getDateDebut())){
+        $monthDatePlanifier = " CASE WHEN 
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+                                THEN
+                                    MONTH(DATE(sitv_datepla)  )
+                                ELSE
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
+                                END  "; 
+        $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) "; 
+        switch ($criteria->getPlan()){
+          case "PLANIFIE":
+          $vDateDMonthStatutPlan = " AND " .$monthDatePlanifier." >= '".$criteria->getDateDebut()->format("m")."'";
+          break;
+          case "NON_PLANIFIE":
+          $vDateDMonthStatutPlan = " AND " .$monthDateNonPlanifier ." >= '".$criteria->getDateDebut()->format("m")."'";
+          }
+      }else{
+        $vDateDMonthStatutPlan = null;
+      }
+      return $vDateDMonthStatutPlan;
+    }
+    private function dateFinMonthPlan($criteria){
+
+      if(!empty($criteria->getDateFin())){
+        $monthDatePlanifier = " CASE WHEN 
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+                                THEN
+                                    MONTH(DATE(sitv_datepla)  )
+                                ELSE
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
+                                END  "; 
+        $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) "; 
+        switch ($criteria->getPlan()){
+          case "PLANIFIE":
+          $vDateFMonthStatutPlan = " AND " .$monthDatePlanifier." <= '".$criteria->getDateFin()->format("m")."'";
+          break;
+          case "NON_PLANIFIE":
+          $vDateFMonthStatutPlan = " AND ".$monthDateNonPlanifier ." <= '".$criteria->getDateFin()->format("m")."'";
+          }
+      }else{
+        $vDateFMonthStatutPlan = null;
+      }
+     
+      return $vDateFMonthStatutPlan;
+    }
     
     private function interneExterne($criteria){
         switch ($criteria->getInterneExterne()){
@@ -90,7 +137,7 @@ trait PlanningModelTrait
     private function agence($criteria)
     {
         if(!empty($criteria->getAgence())) {
-          $agence = " AND SEOR_SUCC like ('".implode("','",$criteria->getAgence())."')";
+          $agence = " AND SEOR_SUCC in ('".implode("','",$criteria->getAgence())."')";
         } else {
           $agence = "";
         }
@@ -106,7 +153,7 @@ trait PlanningModelTrait
     }
     private function serviceDebite($criteria){
         if(!empty($criteria->getServiceDebite())){
-            $serviceDebite = " AND sitv_servdeb like ('".implode("','",$criteria->getServiceDebite())."')";
+            $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
           } else{
             $serviceDebite = "";
           } 

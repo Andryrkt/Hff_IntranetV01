@@ -1,8 +1,8 @@
 <div class="modal fade" tabindex="-1" id="listeCommande" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable">
+	<div class="modal-dialog modal-dialog-scrollable modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Listes des commandes
+				<h5 class="modal-title">Listes des Piéces
 				</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
@@ -22,11 +22,22 @@
 					<table class="table rounded mt-1">
 						<thead class="table">
 							<tr>
-								<th>N°</th>
-								<th>Date</th>
-								<th>type de la commande</th>
-								<th>Statut command</th>
-								<th>Statut livraison</th>
+								<th>N° Or</th>
+								<th>Intv</th>
+								<th>N° Commande</th>
+								<th>Statut ctrmrq</th>
+								<th>CST</th>
+								<th>Ref</th>
+								<th>Désignation</th>
+								<th>Qté Or</th>
+								<th>Qté ALL</th>
+								<th>QTé RLQ</th>
+								<th>Statut</th>
+								<th>Date Statut</th>
+								<th>ESD</th>
+								<th>Eta Ivato</th>
+								<th>Eta Magasin</th>
+								<th>Message</th>
 							</tr>
 						</thead>
 						<tbody id="commandesTableBody">{# {% for command in commandes %} #}
