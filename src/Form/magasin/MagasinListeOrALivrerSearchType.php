@@ -23,8 +23,8 @@ class MagasinListeOrALivrerSearchType extends AbstractType
 
     const OR_COMPLET_OU_NON = [
         'TOUTS LES OR' => 'TOUTS LES OR',
-        'ORs COMPLET' => 'ORs COMPLET',
-        'ORs PARTIELLEMNT COMPLETS' => 'ORs INCOMPLETS'
+        'COMPLET' => 'ORs COMPLET',
+        'INCOMPLET' => 'ORs INCOMPLETS'
     ];
 
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
@@ -96,7 +96,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         ->add('orCompletNon',
         ChoiceType::class,
         [
-            'label' => 'ORs Complet ou incomplet',
+            'label' => 'Etat ORs',
             'required' => false,
             'choices' => self::OR_COMPLET_OU_NON,
             'placeholder' => ' -- choisir une mode affichage --',

@@ -1,6 +1,10 @@
 {{ form_start(form)}}
 <div class="row">
 	<div class="col-12 col-md-2">
+		{{form_row(form.agence)}}
+		{{form_row(form.service)}}
+	</div>
+	<div class="col-12 col-md-2">
 		{{form_row(form.niveauUrgence)}}
 		{{form_row(form.constructeur)}}
 	</div>
@@ -19,10 +23,6 @@
 	<div class="col-12 col-md-2">
 		{{form_row(form.dateDebut)}}
 		{{form_row(form.dateFin)}}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.agence)}}
-		{{form_row(form.service)}}
 	</div>
 </div>
 <class class="row">
