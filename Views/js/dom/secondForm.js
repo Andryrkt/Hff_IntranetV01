@@ -202,18 +202,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
   function calculTotalForfaitaire() {
     if (
       supplementJournalierInput.value === "" &&
-      indemniteForfaitaireJournaliereInput
+      indemniteForfaitaireJournaliereInput.value !== ""
     ) {
       const nombreDeJour = parseInt(nombreDeJourInput.value);
       const indemniteForfaitaireJournaliere = parseInt(
         indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
       );
+
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * indemniteForfaitaireJournaliere
       );
     } else if (
       supplementJournalierInput.value !== "" &&
-      indemniteForfaitaireJournaliereInput
+      indemniteForfaitaireJournaliereInput.value !== ""
     ) {
       const supplementJournalier = parseInt(
         supplementJournalierInput.value.replace(/[^\d]/g, "")
@@ -240,14 +241,29 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const event = new Event("valueAdded");
     totalindemniteForfaitaireInput.dispatchEvent(event);
   }
-  //si l'utilisateur saisie une suplement journalier
+
+  /** si l'utilisateur saisie une suplement journalier */
   supplementJournalierInput.addEventListener(
     "input",
     calculTotalForfaitaireAvecSupplement
   );
+
   function calculTotalForfaitaireAvecSupplement() {
     supplementJournalierInput.value = formatNumberInt(
       supplementJournalierInput.value
+    );
+    calculTotalForfaitaire();
+  }
+
+  /** si l'utilisateur saisie l'indemnite forfatitaire Journaliere */
+  indemniteForfaitaireJournaliereInput.addEventListener(
+    "input",
+    calculTotalForfaitaireIdemniteSaisie
+  );
+
+  function calculTotalForfaitaireIdemniteSaisie() {
+    indemniteForfaitaireJournaliereInput.value = formatNumberInt(
+      indemniteForfaitaireJournaliereInput.value
     );
     calculTotalForfaitaire();
   }
