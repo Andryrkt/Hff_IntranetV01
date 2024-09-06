@@ -19,13 +19,13 @@ trait PlanningModelTrait
     {
         switch ($criteria->getFacture()){
             case "TOUS":  
-              $vStatutFacture = " and sitv_pos  in ('FC','FE','CP','ST','EC')";
+              $vStatutFacture = " AND  sitv_pos  IN ('FC','FE','CP','ST','EC')";
               break;
             case "FACTURE":
-              $vStatutFacture = " and sitv_pos in ('FC','FE','CP','ST')";
+              $vStatutFacture = " AND  sitv_pos IN ('FC','FE','CP','ST')";
               break;
             case "ENCOURS":  
-              $vStatutFacture = " and sitv_pos not in ('FC','FE','CP','ST')" ;
+              $vStatutFacture = " AND sitv_pos NOT IN ('FC','FE','CP','ST')" ;
               break;
              
       }

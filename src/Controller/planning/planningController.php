@@ -80,6 +80,8 @@ class PlanningController extends Controller
                         ->setAnnee($item['annee'])
                         ->setMois($item['mois'])
                         ->setOrIntv($item['orintv'])
+                        ->setQteCdm($item['qtecdm'])
+                        ->setQteLiv($item['qtliv'])
                     ;
                     $table[] = $planningMateriel;
             }

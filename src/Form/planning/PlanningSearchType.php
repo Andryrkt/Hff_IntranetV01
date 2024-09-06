@@ -85,7 +85,7 @@ class PlanningSearchType extends AbstractType
                     'required' => true,
                     'choices' => self::FACTURE,
                     'attr' => ['class'=> 'facture'],
-                    'data' => 'FACTURE'
+                    'data' => 'ENCOURS'
                 ])
                 ->add('plan',ChoiceType::class,[
                     'label' => 'Plannification',

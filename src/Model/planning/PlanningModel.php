@@ -125,10 +125,13 @@ class PlanningModel extends Model
                       trim(mmat_numparc) as casier,
                       $vYearsStatutPlan as annee,
                       $vMonthStatutPlan as mois,
-                      seor_numor ||'-'||sitv_interv as orIntv
+                      seor_numor ||'-'||sitv_interv as orIntv,
+
+                      (  SELECT SUM(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QteCdm,
+                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QtLiv
                       
 
-                    FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+                    FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
                     AND seor_serv <> 'DEV'
                     AND sitv_numor = slor_numor 
@@ -152,7 +155,7 @@ class PlanningModel extends Model
                     $vconditionIdMat
                     $vconditionNumOr
                     $vconditionNumSerie
-                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13
+                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 		                order by 1,5  ";
                   
         $result = $this->connect->executeQuery($statement);
