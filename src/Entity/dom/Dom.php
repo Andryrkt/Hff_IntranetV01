@@ -3,16 +3,18 @@
 namespace App\Entity\dom;
 
 use DateTime;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
+use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\StatutDemande;
 use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\admin\StatutDemande;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\ORM\Mapping as ORM;
 
 
 

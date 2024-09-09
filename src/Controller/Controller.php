@@ -460,17 +460,20 @@ class Controller
     {
         try {
             $userId = $this->sessionService->get('user_id');
+            
             if (!$userId) {
                 throw new \Exception("User ID not found in session");
             }
     
             $user = self::$em->getRepository(User::class)->find($userId);
+      
             if (!$user) {
                 throw new \Exception("User not found with ID $userId");
             }
-    
+   
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+      
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }

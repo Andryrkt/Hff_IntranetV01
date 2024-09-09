@@ -56,17 +56,29 @@ class MagasinListeOrLivrerController extends Controller
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
+            
+
+   
             //ajouter le numero dit dans data
-            // for ($i=0; $i < count($data) ; $i++) { 
-            //     $numeroOr = $data[$i]['numeroor'];
-            //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            //     if( !empty($dit)){
-            //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
-            //     } else {
-            //         break;
-            //     }
-            // }
+            for ($i=0; $i < count($data) ; $i++) { 
+                $numeroOr = $data[$i]['numeroor'];
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+                if(!empty($datePlannig1)){
+                    $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
+                } else if(!empty($datePlannig2)){
+                    $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
+                } else {
+                    $data[$i]['datePlanning'] = '';
+                }
+                // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                // if( !empty($dit)){
+                //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                // } else {
+                //     break;
+                // }
+            }
 
 
         self::$twig->display('magasin/listOrLivrer.html.twig', [

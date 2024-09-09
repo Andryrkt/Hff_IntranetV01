@@ -29,6 +29,7 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
+   
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
@@ -53,7 +54,7 @@ class DitListeController extends Controller
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
                     $this->ajoutDonnerRecherche($form, $ditSearch);
-                    $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
+                    $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
