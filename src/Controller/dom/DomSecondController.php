@@ -4,14 +4,15 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
 use App\Entity\admin\Personnel;
+use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -40,9 +41,9 @@ class DomSecondController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dump($form->getData());
+
             $domForm = $form->getData();
-            dump($form1Data);
+
             $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
             if($domForm->getModePayement() === 'MOBILE MONEY'){
                 $mode = $form->get('mode')->getData();
@@ -88,9 +89,25 @@ class DomSecondController extends Controller
                 ->setAgenceEmetteurId($agenceEmetteur)
                 ->setServiceEmetteurId($serviceEmetteur)
                 ->setAgenceDebiteurId($agenceDebiteur)
-                ->setServiceDebiteurId($agenceDebiteur)
+                ->setServiceDebiteurId($serviceDebiteur)
+                ->setCategoryId($domForm->getCategorie())
+                ->setSiteId($domForm->getSite())
             ;
-            dd($dom);
+        
+        
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dom->getNumeroOrdreMission());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
+
+            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
+            // self::$em->persist($dom->getCategorie());
+            // self::$em->persist($dom->getSousTypeDocument());
+            self::$em->persist($dom);
+      
+            self::$em->flush();
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('some_success_route');

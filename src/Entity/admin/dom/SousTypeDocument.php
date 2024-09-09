@@ -43,7 +43,7 @@ class SousTypeDocument
     private $dateCreation;
 
     /**
-     * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument")
+     * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument", cascade={"persist"})
      */
     private $catg;
 

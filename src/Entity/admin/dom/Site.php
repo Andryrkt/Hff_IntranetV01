@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\dom;
 
+use App\Entity\dom\Dom;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
@@ -44,10 +45,16 @@ class Site
      */
     private $indemnites;
 
+     /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="siteId")
+     */
+    private $domSite;
+
+
     public function __construct()
     {
-        
         $this->catgs = new ArrayCollection();
+        $this->domSite = new ArrayCollection();
     }
   
     public function getId(): int
@@ -121,5 +128,44 @@ class Site
         }
 
         return $this;
+    }
+
+    public function getDomSites()
+    {
+        return $this->domSite;
+    }
+
+    public function addDomSite(Dom $domSite): self
+    {
+        if (!$this->domSite->contains($domSite)) {
+            $this->domSite[] = $domSite;
+            $domSite->setAgenceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomSite(Dom $domSite): self
+    {
+        if ($this->domSite->contains($domSite)) {
+            $this->domSite->removeElement($domSite);
+            if ($domSite->getAgenceDebiteurId() === $this) {
+                $domSite->setAgenceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setDomSites($domSite)
+    {
+        $this->domSite = $domSite;
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->nomZone;
     }
 }

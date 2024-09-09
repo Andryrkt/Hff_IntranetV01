@@ -42,7 +42,7 @@ class Dom
 
 
      /**
-     * @ORM\Column(type="date", name="Date_Demande")
+     * @ORM\Column(type="datetime", name="Date_Demande")
      */
     private  $dateDemande;
 
@@ -52,7 +52,7 @@ class Dom
     private string $typeDocument;
 
   /**
-     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom")
+     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom", cascade={"persist"})
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
@@ -79,22 +79,22 @@ class Dom
     private ?string $codeAgenceServiceDebiteur;
 
     /**
-     * @ORM\Column(type="date", name="Date_Debut")
+     * @ORM\Column(type="datetime", name="Date_Debut")
      */
     private  $dateDebut;
 
     /**
-     * @ORM\Column(type="string", length=5, name="Heure_Debut")
+     * @ORM\Column(type="datetime", length=5, name="Heure_Debut")
      */
     private  $heureDebut;
 
     /**
-     * @ORM\Column(type="date", name="Date_Fin")
+     * @ORM\Column(type="datetime", name="Date_Fin")
      */
     private  $dateFin;
 
     /**
-     * @ORM\Column(type="string", length=5, name="Heure_Fin")
+     * @ORM\Column(type="datetime", length=5, name="Heure_Fin")
      */
     private  $heureFin;
 
@@ -144,7 +144,7 @@ class Dom
     private string $vehiculeSociete;
 
     /**
-     * @ORM\Column(type="string",name= "Idemnite_Forfaitaire")
+     * @ORM\Column(type="string",name= "Indemnite_Forfaitaire")
      */
     private ?string $indemniteForfaitaire;//relation avec la table idemnity
 
@@ -362,7 +362,20 @@ class Dom
     private  $serviceDebiteurId;
 
 
-    //===============================================================================
+    /**
+     * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
+     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     */
+    private  $siteId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
+     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     */
+    private  $categoryId;
+
+
+    //======================================================================================================================================================
     public function getId()
     {
         return $this->id;
@@ -1064,12 +1077,12 @@ class Dom
     }
 
 
-    public function getIdStatutDemande(): string
+    public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
     }
 
-    public function setIdStatutDemande(string $idStatutDemande): self
+    public function setIdStatutDemande($idStatutDemande): self
     { 
         $this->idStatutDemande= $idStatutDemande;
 
@@ -1183,6 +1196,46 @@ class Dom
         return $this;
     }
 
+     /**
+     * Get the value of siteId
+     */ 
+    public function getSiteId()
+    {
+        return $this->siteId;
+    }
+
+    /**
+     * Set the value of siteId
+     *
+     * @return  self
+     */ 
+    public function setSiteId($siteId)
+    {
+        $this->siteId = $siteId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categoryId
+     */ 
+    public function getCategoryId()
+    {
+        return $this->categoryId;
+    }
+
+    /**
+     * Set the value of categoryId
+     *
+     * @return  self
+     */ 
+    public function setCategoryId($categoryId)
+    {
+        $this->categoryId = $categoryId;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -1196,4 +1249,5 @@ class Dom
             'cin' => $this->cin
         ];
     }
+
 }
