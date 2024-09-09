@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin;
 
+use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
 use App\Entity\Traits\DateTrait;
@@ -57,12 +58,18 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="idStatutDemande")
      */
     private $casiers;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="idStatutDemande")
+     */
+    private $doms;
     
     public function __construct()
     {
         $this->badms = new ArrayCollection();
         $this->demandeInterventions = new ArrayCollection();
         $this->casiers = new ArrayCollection();
+        $this->doms = new ArrayCollection();
     }
 
     public function getId()
@@ -208,6 +215,43 @@ class StatutDemande
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDoms()
+    {
+        return $this->doms;
+    }
+
+    public function addDom(Dom $doms): self
+    {
+        if (!$this->doms->contains($doms)) {
+            $this->doms[] = $doms;
+            $doms->setIdStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDom(Dom $doms): self
+    {
+        if ($this->doms->contains($doms)) {
+            $this->doms->removeElement($doms);
+            if ($doms->getIdStatutDemande() === $this) {
+                $doms->setIdStatutDemande($this);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDoms($doms)
+    {
+        $this->doms = $doms;
 
         return $this;
     }

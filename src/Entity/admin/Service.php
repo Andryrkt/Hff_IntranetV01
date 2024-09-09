@@ -3,6 +3,7 @@
 namespace App\Entity\admin;
 
 
+use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\admin\Agence;
 use App\Entity\Traits\DateTrait;
@@ -69,6 +70,15 @@ class Service
      */
     private $badmServiceDebiteur;
 
+     /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="serviceEmetteurId")
+     */
+    private $domServiceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="serviceDebiteurId")
+     */
+    private $domServiceDebiteur;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="serviceAutoriser")
@@ -85,6 +95,8 @@ class Service
         $this->badmServiceEmetteur = new ArrayCollection();
         $this->badmServiceDebiteur = new ArrayCollection();
         $this->userServiceAutoriser = new ArrayCollection();
+        $this->domServiceEmetteur = new ArrayCollection();
+        $this->domServiceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -327,5 +339,80 @@ class Service
         return $this;
     }
 
+
+     /** DOM */
+
+
+    public function getDomServiceEmetteurs()
+    {
+        return $this->domServiceEmetteur;
+    }
+
+    public function addDomServiceEmetteur(Dom $domServiceEmetteur): self
+    {
+        if (!$this->domServiceEmetteur->contains($domServiceEmetteur)) {
+            $this->domServiceEmetteur[] = $domServiceEmetteur;
+            $domServiceEmetteur->setServiceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomServiceEmetteur(Dom $domServiceEmetteur): self
+    {
+        if ($this->domServiceEmetteur->contains($domServiceEmetteur)) {
+            $this->domServiceEmetteur->removeElement($domServiceEmetteur);
+            if ($domServiceEmetteur->getServiceEmetteurId() === $this) {
+                $domServiceEmetteur->setServiceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    public function setDomServiceEmetteurs($domServiceEmetteur)
+    {
+        $this->domServiceEmetteur = $domServiceEmetteur;
+
+        return $this;
+    }
+    
+
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDomServiceDebiteurs()
+    {
+        return $this->domServiceDebiteur;
+    }
+
+    public function addDomServiceDebiteurs(Dom $domServiceDebiteur): self
+    {
+        if (!$this->domServiceDebiteur->contains($domServiceDebiteur)) {
+            $this->domServiceDebiteur[] = $domServiceDebiteur;
+            $domServiceDebiteur->setServiceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomServiceDebiteur(Dom $domServiceDebiteur): self
+    {
+        if ($this->domServiceDebiteur->contains($domServiceDebiteur)) {
+            $this->domServiceDebiteur->removeElement($domServiceDebiteur);
+            if ($domServiceDebiteur->getServiceDebiteurId() === $this) {
+                $domServiceDebiteur->setServiceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setDomServiceDebiteurs($domServiceDebiteur)
+    {
+        $this->domServiceDebiteur = $domServiceDebiteur;
+
+        return $this;
+    }
 
 }

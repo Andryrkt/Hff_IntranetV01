@@ -9,7 +9,10 @@ use App\Entity\admin\dom\Indemnite;
 use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\admin\StatutDemande;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
 
 
 
@@ -46,11 +49,12 @@ class Dom
      */
     private string $typeDocument;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="sousTypeDocument", inversedBy="dom")
+  /**
+     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom")
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
+
 
     /**
      * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
@@ -99,11 +103,21 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Deplacement")
+     * 
+     * @Assert\Length(
+     *      max = 100,
+     *      maxMessage = "Le motif ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
     private string $motifDeplacement;
 
     /**
      * @ORM\Column(type="string", length=100, name="Client")
+     * 
+     * @Assert\Length(
+     *      max = 50,
+     *      maxMessage = "Le nom de client ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
     private string $client;
 
@@ -114,6 +128,11 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Lieu_Intervention")
+     * 
+     * @Assert\Length(
+     *      max = 100,
+     *      maxMessage = "Le lieu d'intervention ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
     private string $lieuIntervention;
 
@@ -298,12 +317,13 @@ class Dom
     private ?string $debiteur = null;
 
 
-/**
-     * @ORM\Column(type="integer", length=50, name="ID_Statut_Demande",nullable=true)
+    /**
+     * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="doms")
+     * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
-    private ?int $idStatutDemande = null;
+    private $idStatutDemande = null;
 
- /**
+    /**
      * @ORM\Column(type="datetime",  name="Date_heure_modif_statut",nullable=true)
      */
     private ?datetime $dateHeureModifStatut = null;
@@ -315,6 +335,32 @@ class Dom
 
     private Indemnite $indemnite;
 
+     /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     */
+    private  $agenceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     */
+    private  $serviceDebiteurId;
+
+
+    //===============================================================================
     public function getId()
     {
         return $this->id;
@@ -363,12 +409,12 @@ class Dom
 
 
     
-    public function getSousTypeDocument(): ?SousTypeDocument
+    public function getSousTypeDocument()
     {
         return $this->sousTypeDocument;
     }
 
-    public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
+    public function setSousTypeDocument($sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
 
@@ -1066,20 +1112,6 @@ class Dom
         return $this;
     }
 
-    public function toArray(): array
-    {
-        return [
-            
-            'sousTypeDocument' => $this->sousTypeDocument,
-            'salarier' => $this->salarier,
-            'categorie' => $this->categorie,
-            'matricule' => $this->matricule,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'cin' => $this->cin
-        ];
-    }
-
 
     public function getIndemnite()
     {
@@ -1092,5 +1124,74 @@ class Dom
         $this->indemnite = $indemnite;
 
         return $this;
+    }
+
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
+   
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            
+            'sousTypeDocument' => $this->sousTypeDocument,
+            'salarier' => $this->salarier,
+            'categorie' => $this->categorie,
+            'matricule' => $this->matricule,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'cin' => $this->cin
+        ];
     }
 }
