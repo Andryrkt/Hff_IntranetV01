@@ -1,37 +1,50 @@
-{{ form_start(form)}}
-<div class="row">
-	<div class="col-12 col-md-2">
-		{{form_row(form.agence)}}
-		{{form_row(form.service)}}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.niveauUrgence)}}
-		{{form_row(form.constructeur)}}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.numDit)}}
-		{{form_row(form.referencePiece)}}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.numOr)}}
-		{{form_row(form.designation)}}
-		<ul id="suggestions" class="list-group position-absolute"></ul>
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.pieces)}}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.dateDebut)}}
-		{{form_row(form.dateFin)}}
-	</div>
-</div>
-<class class="row">
-	<div class="col-12 ">
-		<div class="d-flex justify-content-end mb-2">
-			<button class="btn btn-warning fw-bold" type="submit">
-				<i class="fab fa-searchengin"></i>
-				Recherche</button>
+<div class="accordion" id="accordionExample">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+			<div class="accordion-body">
+				{{ form_start(form)}}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{form_row(form.agence)}}
+						{{form_row(form.service)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.niveauUrgence)}}
+						{{form_row(form.constructeur)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.numDit)}}
+						{{form_row(form.referencePiece)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.numOr)}}
+						{{form_row(form.designation)}}
+						<ul id="suggestions" class="list-group position-absolute"></ul>
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.pieces)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.dateDebut)}}
+						{{form_row(form.dateFin)}}
+					</div>
+				</div>
+				<class class="row">
+					<div class="col-12 ">
+						<div class="d-flex justify-content-end mb-2">
+							<button class="btn btn-warning fw-bold" type="submit">
+								<i class="fab fa-searchengin"></i>
+								Recherche</button>
+						</div>
+					</div>
+				</class>
+				{{ form_end(form)}}
+			</div>
 		</div>
 	</div>
-</class>
-{{ form_end(form)}}
+</div>

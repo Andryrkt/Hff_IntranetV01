@@ -6,7 +6,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-class MagasinModel extends Model
+class MagasinListeOrATraiterModel extends Model
 { 
     use ConversionModel;
     use FormatageTrait;

@@ -10,6 +10,7 @@ use App\Model\magasin\MagasinModel;
 use App\Controller\Traits\MagasinTrait;
 use App\Controller\Traits\Transformation;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +28,7 @@ class MagasinListeOrTraiterController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->magasinModel = new MagasinModel();
+        $this->magasinModel = new MagasinListeOrATraiterModel;
         $this->magasinListOrModel = new MagasinListeOrModel();
     }
 

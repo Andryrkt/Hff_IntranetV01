@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +30,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
 
     public function __construct()
     {
-        $this->magasinModel = new MagasinModel();
+        $this->magasinModel = new MagasinListeOrATraiterModel();
     }
 
     private function recupConstructeur()
