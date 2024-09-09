@@ -21,7 +21,8 @@ class MagasinListeOrATraiterSearchType extends AbstractType
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
         'TOUTES LIGNES' => 'TOUTS PIECES',
         'PIECE MAGASIN' => 'PIECES MAGASIN',
-        'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
+        'LUB' => 'LUB',
+        'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
 
     private $magasinModel;

@@ -150,14 +150,15 @@ class MagasinModel extends Model
                 $piece = " AND slor_constp not like 'Z%'
                         and slor_constp not in ('LUB')
                     ";
-            } else if($criteria['pieces'] === "LUB ET ACHATS LOCAUX") {
-                $piece = " AND slor_constp like 'Z%'
-                        and slor_constp in ('LUB')
-                    ";
-            } else if($criteria['pieces'] === "TOUTS PIECES") {
+            } else if($criteria['pieces'] === "LUB") {
+                $piece = " AND slor_constp in ('LUB') ";
+
+            } else if($criteria['pieces'] === "ACHATS LOCAUX") {
+                $piece = " AND slor_constp like 'Z%' ";
+
+            }else if($criteria['pieces'] === "TOUTS PIECES") {
                 $piece = null;
             }
-            
         } else {
             $piece = " AND slor_constp not like 'Z%'
                         and slor_constp not in ('LUB')
