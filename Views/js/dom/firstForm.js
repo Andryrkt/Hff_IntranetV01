@@ -125,4 +125,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .catch((error) => console.error("Error:", error));
   }
+
+  /** CHANGER LE CHAMP CATEGORIE SELON LES CRITERES */
 });

@@ -240,6 +240,47 @@ class DomForm2Type extends AbstractType
                 ]
             ]);
        })
+       ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument){
+        $form = $event->getForm();
+        $data = $event->getData();
+       
+        $sousTypedocument = $data->getSousTypeDocument();
+        $catg = $data->getCategorie();
+      
+        if(substr($data->getAgenceEmetteur(),0,2) === '50'){
+            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+           
+       } else {
+        $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+       }
+       $criteria = [
+        'sousTypeDoc' => $sousTypedocument,
+        'rmq' => $rmq,
+        'categorie' => $catg
+        ];
+    
+        $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
+  
+        $sites = [];
+        foreach ($indemites as $key => $value) {
+            $sites[] = $value->getSite();
+        }
+  
+        $form->add('site',
+        EntityType::class,
+        [
+            'label' => 'Site:',
+            'class' => Site::class,
+            'choice_label' => 'nomZone',
+            'choices' => $sites,
+            'row_attr' => [
+                'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
+            ],
+            'attr' => [
+                'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
+            ]
+        ]);
+   })
         
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
