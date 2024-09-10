@@ -86,3 +86,15 @@ SET
         WHEN ID_Materiel = 15783 THEN 1
         ELSE ID_Materiel
     END
+    -- CREATION DE TABLE COMMENTAIRE DIT OR
+CREATE TABLE commentaire_dit_or (
+    id INT IDENTITY (1, 1),
+    utilisateur_id INT NOT NULL,
+    num_dit VARCHAR(11),
+    num_or VARCHAR(50),
+    type_commentaire VARCHAR(3) NOT NULL,
+    commentaire TEXT NOT NULL,
+    date_creation DATETIME NOT NULL DEFAULT GETDATE (),
+    CONSTRAINT PK_commentaire_dit_or PRIMARY KEY (id),
+    CONSTRAINT FK_commentaire_dit_or_utilisateur_id FOREIGN KEY (utilisateur_id) REFERENCES Users (id),
+);

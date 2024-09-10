@@ -160,9 +160,8 @@ function recherche() {
     });
 }
 
-/** LIST COMMANDE MODAL */
-
 document.addEventListener("DOMContentLoaded", (event) => {
+  /** LIST COMMANDE MODAL */
   const listeCommandeModal = document.getElementById("listeCommande");
 
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
@@ -241,6 +240,20 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // Gestionnaire pour la fermeture du modal
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
+  });
+
+  /** Docs à intégrer dans DW MODAL */
+
+  const docDansDwModal = document.getElementById("docDansDw");
+
+  docDansDwModal.addEventListener("show.bs.modal", function (event) {
+    console.log("OKey");
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  docDansDwModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
     tableBody.innerHTML = ""; // Vider le tableau
   });

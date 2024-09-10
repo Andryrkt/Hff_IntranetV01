@@ -1,0 +1,32 @@
+<div class="d-flex justify-content-between">
+	<div>
+		{# Bouton EXCEL#}
+		<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+			<i class="fas fa-table"></i>
+			Excel</a>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+			Resultats</p>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+			pages</p>
+	</div>
+	<div class="navigation">
+		{% set queryParams = criteria  %}
+
+		{% if currentPage > 1 %}
+			<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+				<i class="fas fa-angle-left text-warning"></i>
+			</a>
+		{% endif %}
+
+
+		{% if currentPage < totalPages %}
+			<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+				<i class="fas fa-angle-right text-warning"></i>
+			</a>
+		{% endif %}
+	</div>
+</div>
