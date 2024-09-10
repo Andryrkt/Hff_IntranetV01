@@ -10,6 +10,7 @@ use App\Entity\admin\Personnel;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
+use App\Entity\dit\CommentaireDitOr;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\utilisateur\Fonction;
@@ -131,6 +132,10 @@ class User implements UserInterface
     private $permissions;
 
 
+    /**
+     * @ORM\OneToMany(targetEntity=CommentaireDitOr::class, mappedBy="utilisateurId")
+     */
+    private $commentaireDitOr;
 
     //=================================================================================================================================
 
@@ -143,6 +148,7 @@ class User implements UserInterface
         $this->agencesAutorisees = new ArrayCollection();
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
+        $this->commentaireDitOr = new ArrayCollection();
     }
 
     
@@ -151,8 +157,7 @@ class User implements UserInterface
         return $this->id;
     }
 
-   
-    
+
     public function getRoles(): Collection
     {
         return $this->roles;
@@ -465,6 +470,43 @@ public function removeAgenceAutorise(Agence $agence): self
         return $this;
     }
 
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getCommentaireDitOrs()
+    {
+        return $this->commentaireDitOr;
+    }
+
+    public function addCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
+    {
+        if (!$this->commentaireDitOr->contains($commentaireDitOr)) {
+            $this->commentaireDitOr[] = $commentaireDitOr;
+            $commentaireDitOr->setUtilisateurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
+    {
+        if ($this->commentaireDitOr->contains($commentaireDitOr)) {
+            $this->casiers->removeElement($commentaireDitOr);
+            if ($commentaireDitOr->getUtilisateurId() === $this) {
+                $commentaireDitOr->setUtilisateurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    public function setCommentaireDitOrs($commentaireDitOr)
+    {
+        $this->commentaireDitOr = $commentaireDitOr;
+
+        return $this;
+    }
 
     /**
      * RECUPERE LES id de role

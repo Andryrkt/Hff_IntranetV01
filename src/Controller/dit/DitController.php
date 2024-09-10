@@ -80,9 +80,7 @@ class DitController extends Controller
             
         }
 
-        self::$twig->display('dit/new.html.twig', [
-            'form' => $form->createView()
-        ]);
+    
     }
 
    

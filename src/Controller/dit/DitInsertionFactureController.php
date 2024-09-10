@@ -3,6 +3,7 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DitInsertionFactureController extends Controller
 {
