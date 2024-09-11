@@ -80,6 +80,22 @@ class MagasinListeOrLivrerController extends Controller
                 // }
             }
 
+            usort($data, function ($a, $b) {
+                if ($a['datePlanning'] === $b['datePlanning']) {
+                    return 0;
+                }
+                
+                // Place les `null` en bas
+                if ($a['datePlanning'] === null) {
+                    return 1;
+                }
+                if ($b['datePlanning'] === null) {
+                    return -1;
+                }
+            
+                // Comparer les dates pour les autres entrées
+                return strtotime($a['datePlanning']) - strtotime($b['datePlanning']);
+            });
 
         self::$twig->display('magasin/listOrLivrer.html.twig', [
             'data' => $data,
