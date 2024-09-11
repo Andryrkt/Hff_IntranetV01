@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits;
 
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Model\magasin\MagasinModel;
 
 trait MagasinTrait
@@ -23,7 +24,7 @@ trait MagasinTrait
 
     private function recupNumOrSelonCondition(array $criteria): array
     {
-        $magasinModel = new MagasinModel();
+        $magasinModel = new MagasinListeOrATraiterModel();
         $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
         $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet());
         $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet());
@@ -37,9 +38,25 @@ trait MagasinTrait
         ];
     }
 
+    private function recupNumOrTraiterSelonCondition(array $criteria): array
+    {
+        $magasinModel = new MagasinListeOrATraiterModel();
+        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
+        $numOrLivrerComplet = $this->orEnString($this->magasinModel->recupOrLivrerComplet());
+        $numOrLivrerIncomplet = $this->orEnString($this->magasinModel->recupOrLivrerIncomplet());
+        $numOrLivrerTout = $this->orEnString($this->magasinModel->recupOrLivrerTout());
+
+       return  [
+            "numOrLivrerComplet" => $numOrLivrerComplet,
+            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
+            "numOrLivrerTout" => $numOrLivrerTout,
+            "numOrValideString" => $numOrValideString
+        ];
+    }
+
     private function recupNumOrSelonCond(array $criteria): array
     {
-        $magasinModel = new MagasinModel();
+        $magasinModel = new MagasinListeOrATraiterModel();
         $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
         $numOrEncours = $this->orEnString($this->magasinListOrEncoursModel->recupOrEncours());
 

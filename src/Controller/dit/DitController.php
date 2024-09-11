@@ -62,7 +62,7 @@ class DitController extends Controller
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
             
-            //envoie des pièce jointe dans une dossier et le fusionner
+            //envoie des pièce jointe dans une dossier et la fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
@@ -80,9 +80,7 @@ class DitController extends Controller
             
         }
 
-        self::$twig->display('dit/new.html.twig', [
-            'form' => $form->createView()
-        ]);
+    
     }
 
    

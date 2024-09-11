@@ -6,13 +6,16 @@ namespace App\Form\dom;
 use App\Entity\dom\Dom;
 
 
-use App\Entity\admin\dom\Rmq;
+use App\Entity\admin\Agence;
 
+use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
+use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
@@ -28,6 +31,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class DomForm1Type extends AbstractType
 {
     private $em;
+
     const SALARIE = [
         'PERMANENT' => 'PERMANENT',
         'TEMPORAIRE' => 'TEMPORAIRE',
@@ -36,7 +40,7 @@ class DomForm1Type extends AbstractType
     public function __construct()
     {
         $this->em = Controller::getEntity();
-        
+       
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -78,9 +82,9 @@ class DomForm1Type extends AbstractType
             $form = $event->getForm();
             $data = $event->getData();   
             $sousTypedocument = $data->getSousTypeDocument();
+
             if(substr($data->getAgenceEmetteur(),0,2) === '50'){
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-               
            } else {
             $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
            }
@@ -89,7 +93,7 @@ class DomForm1Type extends AbstractType
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq
             ];
-                
+
             $catg = $this->em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
   
             $categories = [];
@@ -113,10 +117,12 @@ class DomForm1Type extends AbstractType
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
-                
-                $sousTypeDocument = $this->em->getRepository(SousTypeDocument::class)->find($data['sousTypeDocument']);
+            $sousTypeDocument = $this->em->getRepository(SousTypeDocument::class)->find($data['sousTypeDocument']);
                 
                 $categories = $sousTypeDocument->getCatg();
+   
+           
+
                 $form->add('categorie',
                 EntityType::class,
                 [
@@ -127,7 +133,7 @@ class DomForm1Type extends AbstractType
                             return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
                         },
                         'choices' => $categories,
-                    ]);
+                ]);
                
             })
             ->add('salarie',

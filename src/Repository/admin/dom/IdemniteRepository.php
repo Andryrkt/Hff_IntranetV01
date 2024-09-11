@@ -21,5 +21,16 @@ class IdemniteRepository extends EntityRepository
         return $queryBuilder->getQuery()->getArrayResult();
     }
 
-    
+    public function findIdemnite(array $criteria)
+    {
+        return  $this->createQueryBuilder('i')
+    ->where('i.sousTypeDoc = :sousTypeDoc')
+    ->andWhere('i.rmq = :rmq')
+    ->andWhere('i.categorie = :categorie')
+    ->setParameter('sousTypeDoc', $criteria['sousTypeDoc'])
+    ->setParameter('rmq', $criteria['rmq'])
+    ->setParameter('categorie', $criteria['categorie'])
+    ->getQuery()
+    ->getResult();
+    }
 }

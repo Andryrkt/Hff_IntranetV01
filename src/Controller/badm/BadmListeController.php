@@ -80,14 +80,20 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_criteria', $criteria);
         $this->sessionService->set('badm_search_option', $option);
 
+    
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
             $badmRechercheModel = new BadmRechercheModel();
             $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
-            $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+            if ($badms[0]['num_parc'] == null) {
+                $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
+            } else {
+                $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+            }
         }
+
 
         if(empty($paginationData['data'])){
             $empty = true;

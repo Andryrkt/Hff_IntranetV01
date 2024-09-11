@@ -23,14 +23,15 @@ class MagasinListeOrALivrerSearchType extends AbstractType
 
     const OR_COMPLET_OU_NON = [
         'TOUTS LES OR' => 'TOUTS LES OR',
-        'ORs COMPLET' => 'ORs COMPLET',
-        'ORs PARTIELLEMNT COMPLETS' => 'ORs INCOMPLETS'
+        'COMPLET' => 'ORs COMPLET',
+        'INCOMPLET' => 'ORs INCOMPLETS'
     ];
 
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
-        'TOUTS PIECES' => 'TOUTS PIECES',
-        'PIECES MAGASIN' => 'PIECES MAGASIN',
-        'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
+        'TOUTES LIGNES' => 'TOUTS PIECES',
+        'PIECE MAGASIN' => 'PIECES MAGASIN',
+        'LUB' => 'LUB',
+        'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
 
     private $magasinModel;
@@ -96,7 +97,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         ->add('orCompletNon',
         ChoiceType::class,
         [
-            'label' => 'ORs Complet ou incomplet',
+            'label' => 'Etat ORs',
             'required' => false,
             'choices' => self::OR_COMPLET_OU_NON,
             'placeholder' => ' -- choisir une mode affichage --',
@@ -114,7 +115,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         ->add('agence',
         ChoiceType::class,
         [
-            'label' => 'Agence',
+            'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
             'placeholder' => ' -- choisir agence --'
@@ -125,7 +126,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             $form->add('service',
             ChoiceType::class,
             [
-                'label' => 'Service',
+                'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
                 'placeholder' => ' -- choisir service --'
@@ -150,7 +151,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         $form->add('service',
         ChoiceType::class,
         [
-            'label' => 'Service',
+            'label' => 'Service débiteur',
             'required' => false,
             'choices' => $service,
             'placeholder' => ' -- choisir service --'

@@ -11,6 +11,39 @@ class MagasinListeOrLivrerModel extends Model
     use ConversionModel;
     use FormatageTrait;
 
+    public function recupDatePlanning1($numOr)
+    {
+        $statement = " SELECT  
+                            min(ska_d_start) as datePlanning1
+                        from skw 
+                        inner join ska on ska.skw_id = skw.skw_id 
+                        where ofh_id ='".$numOr."'
+                        group by ofh_id 
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupDatePlanning2($numOr)
+    {
+        $statement = " SELECT
+                            min(sitv_datepla) as datePlanning2 
+
+                        from sav_itv 
+                        where sitv_numor = '".$numOr."'
+                        group by sitv_numor
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 
     public function recupOrLivrerComplet()
     {
@@ -163,14 +196,15 @@ class MagasinListeOrLivrerModel extends Model
                 $piece = " AND slor_constp not like 'Z%'
                         and slor_constp not in ('LUB')
                     ";
-            } else if($criteria['pieces'] === "LUB ET ACHATS LOCAUX") {
-                $piece = " AND slor_constp like 'Z%'
-                        and slor_constp in ('LUB')
-                    ";
-            } else if($criteria['pieces'] === "TOUTS PIECES") {
+            } else if($criteria['pieces'] === "LUB") {
+                $piece = " AND slor_constp in ('LUB') ";
+
+            } else if($criteria['pieces'] === "ACHATS LOCAUX") {
+                $piece = " AND slor_constp like 'Z%' ";
+
+            }else if($criteria['pieces'] === "TOUTS PIECES") {
                 $piece = null;
             }
-            
         } else {
             $piece = " AND slor_constp not like 'Z%'
                         and slor_constp not in ('LUB')
@@ -223,6 +257,7 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                                             and seor_succ = slor_succ 
                                             and seor_numor = slor_numor
+
                         where slor_soc = 'HF'
                         and slor_typlig = 'P'
                         and slor_succ = '01'
@@ -239,7 +274,10 @@ class MagasinListeOrLivrerModel extends Model
                         $numDit
                         $agence
                         $service
-                        order by slor_datec desc, seor_numor asc, slor_nolign asc
+                       
+                        order by slor_datec desc, 
+                                seor_numor asc, 
+                                slor_nolign asc
         ";
 
 

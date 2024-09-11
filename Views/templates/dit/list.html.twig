@@ -27,38 +27,7 @@
 			</div>
 		{% else %}
 			<div class="container">
-				<div class="d-flex justify-content-between">
-					<div>
-						{# Bouton EXCEL#}
-						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-							Resultats</p>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-							pages</p>
-					</div>
-					<div class="navigation">
-						{% set queryParams = criteria  %}
-
-						{% if currentPage > 1 %}
-							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
-								<i class="fas fa-angle-left text-warning"></i>
-							</a>
-						{% endif %}
-
-
-						{% if currentPage < totalPages %}
-							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
-								<i class="fas fa-angle-right text-warning"></i>
-							</a>
-						{% endif %}
-					</div>
-				</div>
+				{% include "/dit/_pagination.html.twig" %}
 			</div>
 
 			<table class="table rounded table-plein-ecran">
@@ -98,9 +67,11 @@
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-
 										<li>
 											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
+										</li>
+										<li>
+											<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="" id="">Docs à intégrer dans DW</a>
 										</li>
 									</ul>
 								</div>
@@ -174,6 +145,7 @@
 	<!-- FIN tableau -->
 	{# body modal #}
 	{% include "/dit/_modal.html.twig"  %}
+	{% include "/dit/_modalDocDansDW.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>

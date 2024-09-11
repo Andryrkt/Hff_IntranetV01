@@ -57,6 +57,7 @@
 						<th>Casier</th>
 						<th>Date de création</th>
 						<th>Numero Casier</th>
+						{% set role_ids = App.user.roleIds %}
 						{% if 1 in role_ids  %}
 							<th>Action</th>
 						{% endif %}

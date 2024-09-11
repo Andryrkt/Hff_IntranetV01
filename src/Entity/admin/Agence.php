@@ -3,6 +3,7 @@
 namespace App\Entity\admin;
 
 
+use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Service;
@@ -79,6 +80,16 @@ class Agence
      */
     private $badmAgenceDebiteur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="agenceEmetteurId")
+     */
+    private $domAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="agenceDebiteurId")
+     */
+    private $domAgenceDebiteur;
+
    /**
  * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
  * @ORM\JoinTable(name="agence_user", 
@@ -98,7 +109,8 @@ private $usersAutorises;
         $this->badmAgenceEmetteur = new ArrayCollection();
         $this->badmAgenceDebiteur = new ArrayCollection();
         $this->usersAutorises = new ArrayCollection();
-       
+        $this->domAgenceEmetteur = new ArrayCollection();
+        $this->domAgenceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -374,5 +386,81 @@ public function removeUserAutorise(User $user): self
 
     return $this;
 }
-   
+
+
+    /** DOM */
+
+    public function getDomAgenceEmetteurs()
+    {
+        return $this->domAgenceEmetteur;
+    }
+
+    public function addDomAgenceEmetteur(Dom $domAgenceEmetteur): self
+    {
+        if (!$this->domAgenceEmetteur->contains($domAgenceEmetteur)) {
+            $this->domAgenceEmetteur[] = $domAgenceEmetteur;
+            $domAgenceEmetteur->setAgenceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomAgenceEmetteur(Dom $domAgenceEmetteur): self
+    {
+        if ($this->domAgenceEmetteur->contains($domAgenceEmetteur)) {
+            $this->domAgenceEmetteur->removeElement($domAgenceEmetteur);
+            if ($domAgenceEmetteur->getAgenceEmetteurId() === $this) {
+                $domAgenceEmetteur->setAgenceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setDomAgenceEmetteurs($domAgenceEmetteur)
+    {
+        $this->domAgenceEmetteur = $domAgenceEmetteur;
+
+        return $this;
+    }
+    
+
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getDomAgenceDebiteurs()
+    {
+        return $this->domAgenceDebiteur;
+    }
+
+    public function addDomAgenceDebiteurs(Dom $domAgenceDebiteur): self
+    {
+        if (!$this->domAgenceDebiteur->contains($domAgenceDebiteur)) {
+            $this->domAgenceDebiteur[] = $domAgenceDebiteur;
+            $domAgenceDebiteur->setAgenceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomAgenceDebiteur(Dom $domAgenceDebiteur): self
+    {
+        if ($this->domAgenceDebiteur->contains($domAgenceDebiteur)) {
+            $this->domAgenceDebiteur->removeElement($domAgenceDebiteur);
+            if ($domAgenceDebiteur->getAgenceDebiteurId() === $this) {
+                $domAgenceDebiteur->setAgenceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setDomAgenceDebiteurs($domAgenceDebiteur)
+    {
+        $this->domAgenceDebiteur = $domAgenceDebiteur;
+
+        return $this;
+    }
+
 }

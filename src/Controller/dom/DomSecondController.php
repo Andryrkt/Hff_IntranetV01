@@ -4,8 +4,13 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\Application;
+use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,9 +41,85 @@ class DomSecondController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-           //dd($form->getData());
+
+            $domForm = $form->getData();
+
+            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
+            if($domForm->getModePayement() === 'MOBILE MONEY'){
+                $mode = $form->get('mode')->getData();
+                if (substr($form->get('mode')->getData(),0,4) === '+261') {
+                    $numTel = str_replace('+261', '0', $form->get('mode')->getData());
+                    $mode = str_replace('+261', '0',$form->get('mode')->getData());
+                } else {
+                    $numTel = $form->get('mode')->getData();
+                    $mode = $form->get('mode')->getData();
+                }
+                
+            } else if($domForm->getModePayement() === 'VIREMENT BANCAIRE') {
+                $mode = $form->get('mode')->getData();
+                $numTel ='';
+            } else {
+                $mode = '';
+                $numTel = '';
+            }
+            $agenceDebiteur = $domForm->getAgence();
+            $serviceDebiteur= $domForm->getService();
+            $agenceEmetteur= self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($domForm->getAgenceEmetteur(),0,2)]);
+            $serviceEmetteur= self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($domForm->getServiceEmetteur(),0,3)]);
+            $supplementJournaliere = $form->get('supplementJournaliere')->getData();
+        
+            if ($form1Data['salarier'] === "TEMPORAIRE") {
+                $dom->setNom($form1Data['nom']);
+                $dom->setPrenom($form1Data['prenom']);
+                $dom->setCin($form1Data['cin']);
+            } else {
+                $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
+                $dom->setNom($personnel->getNom());
+                $dom->setPrenom($personnel->getPrenoms());
+            }
+
+            $dom
+                ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
+                ->setSousTypeDocument($form1Data['sousTypeDocument'])
+                ->setCategorie($form1Data['categorie'])
+                ->setMatricule($form1Data['matricule'])
+                ->setUtilisateurCreation($_SESSION['user'])
+                ->setNomSessionUtilisateur($_SESSION['user'])
+                ->setNumeroOrdreMission($this->autoINcriment('DOM'))
+                ->setIdStatutDemande($statutDemande)
+                ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence().$serviceDebiteur->getCodeService())
+                ->setModePayement($domForm->getModePayement().':'.$mode)
+                ->setCodeStatut($statutDemande->getCodeStatut())
+                ->setNumeroTel($numTel)
+                ->setLibelleCodeAgenceService($agenceEmetteur->getLibelleAgence().'-'.$serviceEmetteur->getLibelleService())
+                ->setDroitIndemnite($supplementJournaliere)
+                ->setAgenceEmetteurId($agenceEmetteur)
+                ->setServiceEmetteurId($serviceEmetteur)
+                ->setAgenceDebiteurId($agenceDebiteur)
+                ->setServiceDebiteurId($serviceDebiteur)
+                ->setCategoryId($form1Data['categorie'])
+                ->setSiteId($domForm->getSite())
+                ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
+                ->setHeureFin($domForm->getHeureFin()->format('H:i'))
+            ;
+        
+
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM']);
+            $application->setDerniereId($dom->getNumeroOrdreMission());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
+
+            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
+            // self::$em->persist($dom->getCategorie());
+            // self::$em->persist($dom->getSousTypeDocument());
+            self::$em->persist($dom);
+      
+            self::$em->flush();
+
             // Redirection ou affichage de confirmation
-            return $this->redirectToRoute('some_success_route');
+            return $this->redirectToRoute('domList_ShowListDomRecherche');
         }
 
         self::$twig->display('doms/secondForm.html.twig', [

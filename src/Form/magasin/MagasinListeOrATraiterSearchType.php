@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,16 +20,17 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class MagasinListeOrATraiterSearchType extends AbstractType
 {
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
-        'TOUTS PIECES' => 'TOUTS PIECES',
-        'PIECES MAGASIN' => 'PIECES MAGASIN',
-        'LUB ET ACHATS LOCAUX' => 'LUB ET ACHATS LOCAUX'
+        'TOUTES LIGNES' => 'TOUTS PIECES',
+        'PIECE MAGASIN' => 'PIECES MAGASIN',
+        'LUB' => 'LUB',
+        'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
 
     private $magasinModel;
 
     public function __construct()
     {
-        $this->magasinModel = new MagasinModel();
+        $this->magasinModel = new MagasinListeOrATraiterModel();
     }
 
     private function recupConstructeur()
@@ -97,7 +99,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         ->add('agence',
         ChoiceType::class,
         [
-            'label' => 'Agence',
+            'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
             'placeholder' => ' -- choisir agence --'
@@ -108,7 +110,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             $form->add('service',
             ChoiceType::class,
             [
-                'label' => 'Service',
+                'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
                 'placeholder' => ' -- choisir service --'
@@ -133,7 +135,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         $form->add('service',
         ChoiceType::class,
         [
-            'label' => 'Service',
+            'label' => 'Service débiteur',
             'required' => false,
             'choices' => $service,
             'placeholder' => ' -- choisir service --'

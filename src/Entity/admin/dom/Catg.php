@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\dom;
 
+use App\Entity\dom\Dom;
 use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
@@ -47,10 +48,17 @@ class Catg
      */
     private $indemnites;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="CategoryId")
+     */
+    private $domCatg;
+
+
     public function __construct()
     {
         $this->sites = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
+        $this->domCatg = new ArrayCollection();
     }
 
     public function getId(): int
@@ -129,5 +137,46 @@ class Catg
         }
 
         return $this;
+    }
+
+
+   
+    public function getDomCatgs()
+    {
+        return $this->domCatg;
+    }
+
+    public function addDomCatg(Dom $domCatg): self
+    {
+        if (!$this->domCatg->contains($domCatg)) {
+            $this->domCatg[] = $domCatg;
+            $domCatg->setCategoryId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDomCatg(Dom $domCatg): self
+    {
+        if ($this->domCatg->contains($domCatg)) {
+            $this->domCatg->removeElement($domCatg);
+            if ($domCatg->getCategoryId() === $this) {
+                $domCatg->setCategoryId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setDomCatg($domCatg)
+    {
+        $this->domCatg = $domCatg;
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->description;
     }
 }

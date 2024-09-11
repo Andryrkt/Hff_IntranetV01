@@ -1,0 +1,59 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								INSERTION OR
+							</h3>
+						</div>
+
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+					{{ form_errors(form)}}
+
+					{{ form_row(form.numeroDit)}}
+					{{ form_row(form.numeroOR)}}
+					<div id="dropzone" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+						Glissez et déposez votre fichier ici, ou cliquez pour sélectionner un fichier.
+					</div>
+					{{ form_widget(form.file, {'attr': {'style': 'display:none;', 'id': 'file-input'}}) }}
+
+					<button type="button" id="upload-btn">Sélectionner un fichier</button>
+
+					<button type="submit" style="display:none;">Upload</button>
+
+
+					<button type="submit" class="btn bouton">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+		<div id="materielInfos"></div>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dit/ditInsertionOr.js"></script>
+{% endblock %}

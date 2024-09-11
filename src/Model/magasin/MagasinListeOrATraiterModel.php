@@ -6,11 +6,129 @@ use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-class MagasinModel extends Model
+class MagasinListeOrATraiterModel extends Model
 { 
     use ConversionModel;
     use FormatageTrait;
 
+
+    public function recupDatePlanning1($numOr)
+    {
+        $statement = " SELECT  
+                            min(ska_d_start) as datePlanning1
+                        from skw 
+                        inner join ska on ska.skw_id = skw.skw_id 
+                        where ofh_id ='".$numOr."'
+                        group by ofh_id 
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupDatePlanning2($numOr)
+    {
+        $statement = " SELECT
+                            min(sitv_datepla) as datePlanning2 
+
+                        from sav_itv 
+                        where sitv_numor = '".$numOr."'
+                        group by sitv_numor
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerComplet()
+    {
+        $statement = " SELECT 
+                            seor_numor as numeroOr
+                            from sav_lor as A
+                            inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                            where slor_soc = 'HF'
+                            AND  (Select 
+                                    SUM ( CASE 
+                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                                        END ) 
+                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
+                            = (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor )
+                            and slor_qteres <> 0
+                            and slor_typlig = 'P'
+                            and slor_constp not like 'Z%'
+                            and slor_constp not in ('LUB')
+                            and slor_succ = '01'
+                            and seor_serv ='SAV'
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerIncomplet()
+    {
+        $statement = " SELECT distinct slor_numor from sav_lor
+                        inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
+                        where
+                        slor_qteres > 0
+                        and slor_typlig = 'P'  
+                        and slor_constp not in ('LUB')
+                        and slor_typlig = 'P' 
+                        and slor_constp not like 'Z%'
+                        and seor_serv = 'SAV'
+                        and seor_succ = '01'
+                        and seor_typeor not in (501,550)
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerTout()
+    {
+        $statement = " SELECT 
+                            seor_numor as numeroOr
+                            from sav_lor as A
+                            inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                            where slor_soc = 'HF'
+                            AND  (Select 
+                                    SUM ( CASE 
+                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+                                        END ) 
+                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
+                            >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
+                            and slor_qteres <> 0
+                            and slor_typlig = 'P'
+                            and slor_constp not like 'Z%'
+                            and slor_constp not in ('LUB')
+                            and slor_succ = '01'
+                            and seor_serv ='SAV'
+                    ";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 
     public function recupereListeMaterielValider(  $criteria = [])
     {
@@ -61,6 +179,26 @@ class MagasinModel extends Model
             $numDit = null;
         }
 
+        if (!empty($criteria['pieces'])) {
+            if($criteria['pieces'] === "PIECES MAGASIN"){
+                $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
+            } else if($criteria['pieces'] === "LUB") {
+                $piece = " AND slor_constp in ('LUB') ";
+
+            } else if($criteria['pieces'] === "ACHATS LOCAUX") {
+                $piece = " AND slor_constp like 'Z%' ";
+
+            }else if($criteria['pieces'] === "TOUTS PIECES") {
+                $piece = null;
+            }
+        } else {
+            $piece = " AND slor_constp not like 'Z%'
+                        and slor_constp not in ('LUB')
+                    ";
+        }
+
         if(!empty($criteria['agence'])){
             $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
         } else {
@@ -106,13 +244,12 @@ class MagasinModel extends Model
             $dateFin
             $numOr
             $numDit
+            $piece
             $agence
             $service
             and slor_typlig = 'P'
             and slor_pos = 'EC'
             and seor_serv ='SAV'
-            and slor_constp not like 'Z%'
-            and slor_constp not like 'LUB'
             and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
             order by slor_datec DESC, slor_numor DESC, numeroLigne ASC
         ";
@@ -153,7 +290,7 @@ class MagasinModel extends Model
     public function recupNumOr($criteria = [])
     {   
         if(!empty($criteria['niveauUrgence'])){
-            $niveauUrgence = " and id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
+            $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }

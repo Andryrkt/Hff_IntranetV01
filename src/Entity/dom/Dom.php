@@ -3,13 +3,18 @@
 namespace App\Entity\dom;
 
 use DateTime;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
+use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\StatutDemande;
 use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 
@@ -37,7 +42,7 @@ class Dom
 
 
      /**
-     * @ORM\Column(type="date", name="Date_Demande")
+     * @ORM\Column(type="datetime", name="Date_Demande")
      */
     private  $dateDemande;
 
@@ -46,11 +51,12 @@ class Dom
      */
     private string $typeDocument;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="sousTypeDocument", inversedBy="dom")
+  /**
+     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom", cascade={"persist"})
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
+
 
     /**
      * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
@@ -73,7 +79,7 @@ class Dom
     private ?string $codeAgenceServiceDebiteur;
 
     /**
-     * @ORM\Column(type="date", name="Date_Debut")
+     * @ORM\Column(type="datetime", name="Date_Debut")
      */
     private  $dateDebut;
 
@@ -83,7 +89,7 @@ class Dom
     private  $heureDebut;
 
     /**
-     * @ORM\Column(type="date", name="Date_Fin")
+     * @ORM\Column(type="datetime", name="Date_Fin")
      */
     private  $dateFin;
 
@@ -99,13 +105,23 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Deplacement")
+     * 
+     * @Assert\Length(
+     *      max = 100,
+     *      maxMessage = "Le motif ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
     private string $motifDeplacement;
 
     /**
      * @ORM\Column(type="string", length=100, name="Client")
+     * 
+     * @Assert\Length(
+     *      max = 50,
+     *      maxMessage = "Le nom de client ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
-    private string $client;
+    private ?string $client = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Numero_OR",nullable=true)
@@ -114,6 +130,11 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Lieu_Intervention")
+     * 
+     * @Assert\Length(
+     *      max = 100,
+     *      maxMessage = "Le lieu d'intervention ne peut pas dépasser {{ limit }} caractères."
+     * )
      */
     private string $lieuIntervention;
 
@@ -123,7 +144,7 @@ class Dom
     private string $vehiculeSociete;
 
     /**
-     * @ORM\Column(type="string",name= "Idemnite_Forfaitaire")
+     * @ORM\Column(type="string",name= "Indemnite_Forfaitaire")
      */
     private ?string $indemniteForfaitaire;//relation avec la table idemnity
 
@@ -268,7 +289,7 @@ class Dom
 
     
  /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true, name="idemnity_depl")
      */
     private $idemnityDepl;
 
@@ -298,12 +319,13 @@ class Dom
     private ?string $debiteur = null;
 
 
-/**
-     * @ORM\Column(type="integer", length=50, name="ID_Statut_Demande",nullable=true)
+    /**
+     * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="doms")
+     * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
-    private ?int $idStatutDemande = null;
+    private $idStatutDemande = null;
 
- /**
+    /**
      * @ORM\Column(type="datetime",  name="Date_heure_modif_statut",nullable=true)
      */
     private ?datetime $dateHeureModifStatut = null;
@@ -315,6 +337,45 @@ class Dom
 
     private Indemnite $indemnite;
 
+     /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     */
+    private  $agenceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     */
+    private  $serviceDebiteurId;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
+     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     */
+    private  $siteId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
+     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     */
+    private  $categoryId;
+
+
+    //======================================================================================================================================================
     public function getId()
     {
         return $this->id;
@@ -363,12 +424,12 @@ class Dom
 
 
     
-    public function getSousTypeDocument(): ?SousTypeDocument
+    public function getSousTypeDocument()
     {
         return $this->sousTypeDocument;
     }
 
-    public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
+    public function setSousTypeDocument($sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
 
@@ -502,12 +563,12 @@ class Dom
 
 
 
-    public function getMotifDeplacement(): string
+    public function getMotifDeplacement()
     {
         return $this->motifDeplacement;
     }
 
-    public function setMotifDeplacement(string $motifDeplacement): self
+    public function setMotifDeplacement( $motifDeplacement): self
     {
         $this->motifDeplacement = $motifDeplacement;
 
@@ -515,12 +576,12 @@ class Dom
     }
 
 
-    public function getClient(): string
+    public function getClient()
     {
         return $this->client;
     }
 
-    public function setClient(string $client): self
+    public function setClient( $client): self
     {
         $this->client = $client;
 
@@ -528,12 +589,12 @@ class Dom
     }
 
 
-    public function getNumeroOr(): string
+    public function getNumeroOr()
     {
         return $this->numeroOr;
     }
 
-    public function setNumeroOr(string $numeroOr): self
+    public function setNumeroOr($numeroOr): self
     {
         $this->numeroOr = $numeroOr;
 
@@ -541,12 +602,12 @@ class Dom
     }
 
 
-    public function getLieuIntervention(): string
+    public function getLieuIntervention()
     {
         return $this->lieuIntervention;
     }
 
-    public function setLieuIntervention(string $lieuIntervention): self
+    public function setLieuIntervention( $lieuIntervention): self
     {
         $this->lieuIntervention = $lieuIntervention;
 
@@ -554,12 +615,12 @@ class Dom
     }
 
 
-    public function getVehiculeSociete(): string
+    public function getVehiculeSociete()
     {
         return $this->vehiculeSociete;
     }
 
-    public function setVehiculeSociete(string $vehiculeSociete): self
+    public function setVehiculeSociete($vehiculeSociete): self
     {
         $this->vehiculeSociete = $vehiculeSociete;
 
@@ -567,12 +628,12 @@ class Dom
     }
     
 
-    public function getIndemniteForfaitaire(): string
+    public function getIndemniteForfaitaire()
     {
         return $this->indemniteForfaitaire;
     }
 
-    public function setIndemniteForfaitaire(string $indemniteForfaitaire): self
+    public function setIndemniteForfaitaire( $indemniteForfaitaire): self
     {
         $this->indemniteForfaitaire = $indemniteForfaitaire;
 
@@ -580,12 +641,12 @@ class Dom
     }
 
 
-    public function getTotalIndemniteForfaitaire(): string
+    public function getTotalIndemniteForfaitaire()
     {
         return $this->totalIndemniteForfaitaire;
     }
 
-    public function setTotalIndemniteForfaitaire(string $totalIndemniteForfaitaire): self
+    public function setTotalIndemniteForfaitaire($totalIndemniteForfaitaire): self
     {
         $this->totalIndemniteForfaitaire = $totalIndemniteForfaitaire;
 
@@ -806,12 +867,12 @@ class Dom
     }
 
 
-    public function getNumeroTel(): string
+    public function getNumeroTel()
     {
         return $this->numeroTel;
     }
 
-    public function setNumeroTel(string $numeroTel): self
+    public function setNumeroTel($numeroTel): self
     {
         $this->numeroTel = $numeroTel;
 
@@ -1016,12 +1077,12 @@ class Dom
     }
 
 
-    public function getIdStatutDemande(): string
+    public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
     }
 
-    public function setIdStatutDemande(string $idStatutDemande): self
+    public function setIdStatutDemande($idStatutDemande): self
     { 
         $this->idStatutDemande= $idStatutDemande;
 
@@ -1066,6 +1127,115 @@ class Dom
         return $this;
     }
 
+
+    public function getIndemnite()
+    {
+        return $this->indemnite;
+    }
+
+    
+    public function setIndemnite($indemnite): self
+    {
+        $this->indemnite = $indemnite;
+
+        return $this;
+    }
+
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
+   
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
+
+        return $this;
+    }
+
+     /**
+     * Get the value of siteId
+     */ 
+    public function getSiteId()
+    {
+        return $this->siteId;
+    }
+
+    /**
+     * Set the value of siteId
+     *
+     * @return  self
+     */ 
+    public function setSiteId($siteId)
+    {
+        $this->siteId = $siteId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categoryId
+     */ 
+    public function getCategoryId()
+    {
+        return $this->categoryId;
+    }
+
+    /**
+     * Set the value of categoryId
+     *
+     * @return  self
+     */ 
+    public function setCategoryId($categoryId)
+    {
+        $this->categoryId = $categoryId;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -1080,17 +1250,4 @@ class Dom
         ];
     }
 
-
-    public function getIndemnite()
-    {
-        return $this->indemnite;
-    }
-
-    
-    public function setIndemnite($indemnite): self
-    {
-        $this->indemnite = $indemnite;
-
-        return $this;
-    }
 }

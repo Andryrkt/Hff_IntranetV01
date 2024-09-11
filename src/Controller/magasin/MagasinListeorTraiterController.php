@@ -10,6 +10,7 @@ use App\Model\magasin\MagasinModel;
 use App\Controller\Traits\MagasinTrait;
 use App\Controller\Traits\Transformation;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +28,7 @@ class MagasinListeOrTraiterController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->magasinModel = new MagasinModel();
+        $this->magasinModel = new MagasinListeOrATraiterModel;
         $this->magasinListOrModel = new MagasinListeOrModel();
     }
 
@@ -55,7 +56,7 @@ class MagasinListeOrTraiterController extends Controller
         } 
 
 
-        //$numOrValideString = $this->orEnString($criteria);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
 
             $data = $this->magasinModel->recupereListeMaterielValider($criteria);
 
@@ -63,17 +64,26 @@ class MagasinListeOrTraiterController extends Controller
             $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
             
             //ajouter le numero dit dans data
-            // for ($i=0; $i < count($data) ; $i++) { 
-            //     $numeroOr = $data[$i]['numeroor'];
-            //     $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            //     if( !empty($dit)){
-            //         $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //         $data[$i]['niveauUrgence'] = $dit[0]['description'];
-            //     } else {
-            //      
-            //         break;
-            //     }
-            // }
+            for ($i=0; $i < count($data) ; $i++) { 
+                $numeroOr = $data[$i]['numeroor'];
+                $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
+                $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
+                if(!empty($datePlannig1)){
+                    $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
+                } else if(!empty($datePlannig2)){
+                    $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
+                } else {
+                    $data[$i]['datePlanning'] = '';
+                }
+                // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                // if( !empty($dit)){
+                //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                // } else {
+                 
+                //     break;
+                // }
+            }
        
 
         
@@ -97,7 +107,7 @@ class MagasinListeOrTraiterController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-
+        //$lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
         $entities = $this->magasinModel->recupereListeMaterielValider($criteria);
     // Convertir les entités en tableau de données
     $data = [];

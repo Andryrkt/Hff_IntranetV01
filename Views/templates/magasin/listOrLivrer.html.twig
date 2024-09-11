@@ -43,6 +43,7 @@
 					<th>Cst</th>
 					<th>Réf</th>
 					<th>Désignations</th>
+					<th>Date planning</th>
 					<th class="text-center">Qté dem</th>
 					<th class="text-center">Qté à livr</th>
 					{# <th class="text-center">Qté rés</th>#}
@@ -68,6 +69,7 @@
 						<td class="">{{item.constructeur}}</td>
 						<td class="">{{item.referencepiece}}</td>
 						<td class="">{{item.designationi}}</td>
+						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td class="text-center">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}

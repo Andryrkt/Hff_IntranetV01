@@ -19,7 +19,9 @@ use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -65,7 +67,8 @@ class DomForm2Type extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $idSousTypeDocument = $options['data']->getSousTypeDocument()->getId();
-      
+        $salarier = $options['data']->getSalarier();
+
         $builder
         ->add('agence', 
         EntityType::class,
@@ -237,6 +240,47 @@ class DomForm2Type extends AbstractType
                 ]
             ]);
        })
+       ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument, $options){
+        $form = $event->getForm();
+        $data = $event->getData();
+
+        $sousTypedocument = $options['data']->getSousTypeDocument();
+        $catg = $options['data']->getCategorie();
+   
+        if(substr($options['data']->getAgenceEmetteur(),0,2) === '50'){
+            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+           
+       } else {
+        $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+       }
+       $criteria = [
+        'sousTypeDoc' => $sousTypedocument,
+        'rmq' => $rmq,
+        'categorie' => $catg
+        ];
+    
+        $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
+  
+        $sites = [];
+        foreach ($indemites as $key => $value) {
+            $sites[] = $value->getSite();
+        }
+
+        $form->add('site',
+        EntityType::class,
+        [
+            'label' => 'Site:',
+            'class' => Site::class,
+            'choice_label' => 'nomZone',
+            'choices' => $sites,
+            'row_attr' => [
+                'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
+            ],
+            'attr' => [
+                'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
+            ]
+        ]);
+   })
         
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
@@ -351,21 +395,46 @@ class DomForm2Type extends AbstractType
         ->add('motifDeplacement',
         TextType::class,
         [
-                'label' => 'Motif',
-                
+            'label' => 'Motif',
+            'required' => true,
+            'constraints' => [
+                    new NotBlank(['message' => 'Le motif de déplacement ne peut pas être vide.']),
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 100,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ])    
         ->add('client',
         TextType::class,
         [
             'label' => 'Nom du client',
             'required' => false,
+            'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 50,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ])  
         
         ->add('fiche',
          NumberType::class, 
          [
-            'label' => 'fiche de demande',
+            'label' => 'N° fiche',
             'required' => false,
+            'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 50,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ])
        
         ->add('lieuIntervention', 
@@ -373,6 +442,15 @@ class DomForm2Type extends AbstractType
          [
             'label' => 'Lieu d\'intervention',
             'required' => true,
+            'constraints' => [
+                    new NotBlank(['message' => 'Le motif de déplacement ne peut pas être vide.']),
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 100,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ])
         ->add('vehiculeSociete', 
         ChoiceType::class, [
@@ -383,11 +461,21 @@ class DomForm2Type extends AbstractType
         ->add('numVehicule', 
         TextType::class,
         [
-            'label' => 'N°'
+            'label' => 'N°',
+            'required' => false,
+            'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 10,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ]) 
         ->add('idemnityDepl', 
-        NumberType::class, [
+        TextType::class, [
             'label' => 'Indemnité de déplacement',
+            'required' => false
         ])
 
         ->add('totalIndemniteDeplacement',
@@ -408,13 +496,14 @@ class DomForm2Type extends AbstractType
         ])
        
         ->add('supplementJournaliere',
-        NumberType::class,
+        TextType::class,
         [
             'mapped' => false,
-            'label' => 'supplément journalier'
+            'label' => 'supplément journalier',
+            'required' => false
         ])
         ->add('totalIndemniteForfaitaire', 
-            NumberType::class, 
+        TextType::class, 
             [
             'label' => "Total de l'indemnite forfaitaire",
             'attr' => [
@@ -426,9 +515,17 @@ class DomForm2Type extends AbstractType
             [
                 'label' => 'Motif Autre dépense 1',
                 'required' => false,
+                'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 30,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
             ]) 
         ->add('autresDepense1', 
-        NumberType::class,
+        TextType::class,
          [
             'label' => 'Montant',
             'required' => false,
@@ -438,9 +535,17 @@ class DomForm2Type extends AbstractType
         [
                 'label' => 'Motif Autre dépense 2',
                 'required' => false,
+                'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 30,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ]) 
         ->add('autresDepense2', 
-        NumberType::class,
+        TextType::class,
          [
             'label' => 'Montant',
             'required' => false,
@@ -450,9 +555,17 @@ class DomForm2Type extends AbstractType
         [
                 'label' => 'Motif Autre dépense 3',
                 'required' => false,
+                'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 30,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ]) 
         ->add('autresDepense3', 
-        NumberType::class,
+        TextType::class,
          [
             'label' => 'Montant',
             'required' => false,
@@ -475,8 +588,7 @@ class DomForm2Type extends AbstractType
             'attr' => [
                 'readonly' => true
             ]
-        ]) 
-
+        ])
         ->add('modePayement', 
         ChoiceType::class, [
             'label' => 'Mode paiement',
@@ -487,15 +599,22 @@ class DomForm2Type extends AbstractType
         [
             'mapped' => false,
             'label' => 'MOBILE MONEY',
+            'required' => false,
+            'constraints' => [
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'max' => 30,
+                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
         ])
-
         ->add('pieceJoint1',
         FileType::class, 
         [
             'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
-            'required' => true,
+            'required' => $salarier !== 'PERMANENT',
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
@@ -510,14 +629,12 @@ class DomForm2Type extends AbstractType
         FileType::class, 
         [
             'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
-            'required' => true,
+            'required' => false,
             'constraints' => [
-                new NotNull(['message' => 'Please upload a file.']),
                 new File([
                     'maxSize' => '5M',
                     'mimeTypes' => [
                         'application/pdf',
-                        
                     ],
                     'mimeTypesMessage' => 'Please upload a valid PDF file.',
                 ])
@@ -528,12 +645,12 @@ class DomForm2Type extends AbstractType
     }
 
 
-        public function configureOptions(OptionsResolver $resolver)
-        {
-            $resolver->setDefaults([
-                'data_class' => Dom::class,
-            ]);
-        }
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => Dom::class,
+        ]);
+    }
 
 
 }

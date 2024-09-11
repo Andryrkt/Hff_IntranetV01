@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\dom;
 
+use App\Entity\dom\Dom;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
 use Doctrine\Common\Collections\Collection;
@@ -42,7 +43,7 @@ class SousTypeDocument
     private $dateCreation;
 
     /**
-     * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument")
+     * @ORM\OneToMany(targetEntity=Catg::class, mappedBy="sousTypeDocument", cascade={"persist"})
      */
     private $catg;
 
@@ -51,10 +52,17 @@ class SousTypeDocument
      */
     private $indemnites;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="sousTypeDocument")
+     */
+    private $doms;
+
+
     public function __construct()
     {
         $this->catg = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
+        $this->doms = new ArrayCollection();
     }
 
     public function getId(): int
@@ -159,6 +167,41 @@ class SousTypeDocument
                 $indemnite->setSousTypeDoc(null);
             }
         }
+
+        return $this;
+    }
+
+
+    public function getDoms()
+    {
+        return $this->doms;
+    }
+
+    public function addDom(Dom $doms): self
+    {
+        if (!$this->doms->contains($doms)) {
+            $this->doms[] = $doms;
+            $doms->setSousTypeDocument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDom(Dom $doms): self
+    {
+        if ($this->doms->contains($doms)) {
+            $this->doms->removeElement($doms);
+            if ($doms->getSousTypeDocument() === $this) {
+                $doms->setSousTypeDocument(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setDoms($doms)
+    {
+        $this->doms = $doms;
 
         return $this;
     }

@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Controller\Traits\DitListTrait;
 use App\Entity\dit\DemandeIntervention;
+use App\Form\dit\DocDansDwType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,6 +30,7 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
+   
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
@@ -53,7 +55,7 @@ class DitListeController extends Controller
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
                     $this->ajoutDonnerRecherche($form, $ditSearch);
-                    $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
+                    $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
@@ -113,6 +115,27 @@ class DitListeController extends Controller
             $empty = true;
         }
 
+
+        /** Docs à intégrer dans DW  */
+        $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
+
+
+        $formDocDansDW->handleRequest($request);
+       
+        //variable pour tester s'il n'y pas de donner à afficher
+        $empty = false;
+    
+        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+                $this->redirectToRoute("dit_insertion_or");
+            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+                $this->redirectToRoute("dit_insertion_facture");
+            }
+        } 
+
+
         self::$twig->display('dit/list.html.twig', [
             'data' => $paginationData['data'],
             'numSerieParc' => $numSerieParc,
@@ -123,6 +146,7 @@ class DitListeController extends Controller
             'totalPages' =>$paginationData['lastPage'],
             'criteria' => $criteria,
             'resultat' => $paginationData['totalItems'],
+            'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
 
