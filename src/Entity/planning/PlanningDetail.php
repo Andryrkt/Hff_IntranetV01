@@ -227,7 +227,7 @@ class PlanningDetail{
         return $this->typeP;
     }
 
-    /**
+    /**'
      * Set the value of typeP
      *
      * @return  self

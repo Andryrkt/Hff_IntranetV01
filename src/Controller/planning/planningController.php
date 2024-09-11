@@ -82,14 +82,36 @@ class PlanningController extends Controller
                         ->setOrIntv($item['orintv'])
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
+                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'])
                     ;
                     $table[] = $planningMateriel;
             }
 
-    
+
+// Fusionner les objets en fonction de l'idMat
+$fusionResult = [];
+foreach ($table as $materiel) {
+    $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+
+    if (!isset($fusionResult[$key])) {
+        $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+    } else {
+        // Si l'élément existe déjà, on fusionne les détails des mois
+        foreach ($materiel->moisDetails as $moisDetail) {
+            $fusionResult[$key]->addMoisDetail(
+                $moisDetail['mois'],
+                $moisDetail['orIntv'],
+                $moisDetail['qteCdm'],
+                $moisDetail['qteLiv']
+            );
+        }
+    }
+}
+
+
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
-                'data' => $table
+                'data' => $fusionResult
 
             ]);
         }
@@ -122,14 +144,16 @@ class PlanningController extends Controller
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr);
             
             $detailes = [];
-
+            $recupPariel = [];
+            $recupGot = [];
             for ($i=0; $i < count($details); $i++) { 
              
                 if(!empty($details[$i]['numerocmd']) && $details[$i]['numerocmd'] <> "0"){
                     $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
-                    $recupPariel = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                    $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                    $recupGot[] = $this->planningModel->recuperationinfordGcot($details[$i]['numerocmd']);
                 }
-
+              
                 if(!empty($detailes[$i])){
 
                     $details[$i]['Eta_ivato'] = $detailes[$i]['0']['Eta_ivato'];
@@ -139,11 +163,16 @@ class PlanningController extends Controller
                     $details[$i]['Eta_magasin'] = "";               
                 } 
                 if(!empty($recupPariel[$i])){
-                    $details[$i]['qteSlode'] = $recupPariel[$i]['solde'];
-                    $details[$i]['qte'] = $recupPariel[$i]['qte'];
+                    $details[$i]['qteSlode'] = $recupPariel[$i]['0']['solde'];
+                    $details[$i]['qte'] = $recupPariel[$i]['0']['qte'];
                 }else{
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
+                }
+                if(!empty($recupGot[$i])){
+                    $details[$i]['Ord'] = $recupGot[$i]['Ord'];
+                }else{
+                    $details[$i]['Ord'] = "";
                 }
             }
         }
