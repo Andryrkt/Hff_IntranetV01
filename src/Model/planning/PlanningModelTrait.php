@@ -169,7 +169,7 @@ trait PlanningModelTrait
     }
     private function numOr($criteria){
         if(!empty($criteria->getNumOr())){
-            $vconditionNumOr = " AND slor_numor = "+ "'".$criteria->getNumOr()."'";
+            $vconditionNumOr = " AND slor_numor ='".$criteria->getNumOr()."'";
           }else{
             $vconditionNumOr = "";
           }

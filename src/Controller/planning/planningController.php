@@ -86,8 +86,7 @@ class PlanningController extends Controller
                     $table[] = $planningMateriel;
             }
 
-         
-           
+    
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $table
@@ -107,5 +106,51 @@ class PlanningController extends Controller
 
         echo json_encode($serviceDebiteur);
     }
+   
+    /**
+     * @Route("/detail-modal/{numOr}", name="liste_detailModal")
+     *
+     * @return void
+     */
+    public function detailModal($numOr)
+    {
+       
+        //RECUPERATION DE LISTE DETAIL 
+        if ($numOr === '') {
+            $details = [];
+        } else {
+            $details = $this->planningModel->recuperationDetailPieceInformix($numOr);
+            
+            $detailes = [];
 
+            for ($i=0; $i < count($details); $i++) { 
+             
+                if(!empty($details[$i]['numerocmd']) && $details[$i]['numerocmd'] <> "0"){
+                    $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
+                    $recupPariel = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                }
+
+                if(!empty($detailes[$i])){
+
+                    $details[$i]['Eta_ivato'] = $detailes[$i]['0']['Eta_ivato'];
+                    $details[$i]['Eta_magasin'] =  $detailes[$i]['0']['Eta_magasin'];                    
+                } else {
+                    $details[$i]['Eta_ivato'] = "";
+                    $details[$i]['Eta_magasin'] = "";               
+                } 
+                if(!empty($recupPariel[$i])){
+                    $details[$i]['qteSlode'] = $recupPariel[$i]['solde'];
+                    $details[$i]['qte'] = $recupPariel[$i]['qte'];
+                }else{
+                    $details[$i]['qteSlode'] = "";
+                    $details[$i]['qte'] = "";
+                }
+            }
+        }
+
+        // dd($details);
+        header("Content-type:application/json");
+
+        echo json_encode($details);
+    }
 }
