@@ -46,6 +46,7 @@
 					<th>Date planning</th>
 					<th class="text-center">Qté dem</th>
 					<th class="text-center">Qté à livr</th>
+					<th>Nom prenom</th>
 					{# <th class="text-center">Qté rés</th>#}
 				{# <th class="text-center">Qté rel</th> #}
 					{# <th class="text-center">Qté liv</th>  #}
@@ -72,6 +73,7 @@
 						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td class="text-center">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
+						<td>{{ item.nomPrenom }}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 					{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
 						{# <td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>  #}

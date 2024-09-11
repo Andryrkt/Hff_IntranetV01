@@ -68,6 +68,7 @@ class MagasinListeOrTraiterController extends Controller
                 $numeroOr = $data[$i]['numeroor'];
                 $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
                 $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
+                $data[$i]['nomPrenom'] = $this->magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
                 if(!empty($datePlannig1)){
                     $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
                 } else if(!empty($datePlannig2)){

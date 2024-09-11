@@ -56,14 +56,14 @@ class MagasinListeOrLivrerController extends Controller
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
-            
-
    
             //ajouter le numero dit dans data
             for ($i=0; $i < count($data) ; $i++) { 
                 $numeroOr = $data[$i]['numeroor'];
                 $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
                 $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+                $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
+                
                 if(!empty($datePlannig1)){
                     $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
                 } else if(!empty($datePlannig2)){
