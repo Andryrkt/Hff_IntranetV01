@@ -117,31 +117,10 @@ class DomForm1Type extends AbstractType
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
-            $codeSage = $this->em->getRepository(Personnel::class)->findOneBy(['Matricule' => $data['matricule']])->getCodeAgenceServiceSage();
+            $sousTypeDocument = $this->em->getRepository(SousTypeDocument::class)->find($data['sousTypeDocument']);
+                
+                $categories = $sousTypeDocument->getCatg();
    
-            $agenceIps = $this->em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $codeSage])->getAgenceips();
-
-
-                $sousTypeDocument = $this->em->getRepository(SousTypeDocument::class)->find($data['sousTypeDocument']);
-                //$agenceEmetteur = $this->em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($data->getAgenceEmetteur(),0,2)]);
-                if($agenceIps === '50'){
-                    $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-               } else {
-                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-               }
-
-               $criteria = [
-                'sousTypeDoc' => $sousTypeDocument,
-                'rmq' => $rmq
-                ];
-    
-                $catg = $this->em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
-      
-                $categories = [];
-    
-                foreach ($catg as $value) {
-                    $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
-                }
            
 
                 $form->add('categorie',

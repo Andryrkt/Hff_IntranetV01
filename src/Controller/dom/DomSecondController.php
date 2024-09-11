@@ -47,7 +47,14 @@ class DomSecondController extends Controller
             $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
             if($domForm->getModePayement() === 'MOBILE MONEY'){
                 $mode = $form->get('mode')->getData();
-                $numTel = $form->get('mode')->getData();
+                if (substr($form->get('mode')->getData(),0,4) === '+261') {
+                    $numTel = str_replace('+261', '0', $form->get('mode')->getData());
+                    $mode = str_replace('+261', '0',$form->get('mode')->getData());
+                } else {
+                    $numTel = $form->get('mode')->getData();
+                    $mode = $form->get('mode')->getData();
+                }
+                
             } else if($domForm->getModePayement() === 'VIREMENT BANCAIRE') {
                 $mode = $form->get('mode')->getData();
                 $numTel ='';
@@ -72,13 +79,13 @@ class DomSecondController extends Controller
             }
 
             $dom
-            ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
+                ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
                 ->setSousTypeDocument($form1Data['sousTypeDocument'])
                 ->setCategorie($form1Data['categorie'])
                 ->setMatricule($form1Data['matricule'])
                 ->setUtilisateurCreation($_SESSION['user'])
                 ->setNomSessionUtilisateur($_SESSION['user'])
-                ->setNumeroOrdreMission($this->autoINcriment('DIT'))
+                ->setNumeroOrdreMission($this->autoINcriment('DOM'))
                 ->setIdStatutDemande($statutDemande)
                 ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence().$serviceDebiteur->getCodeService())
                 ->setModePayement($domForm->getModePayement().':'.$mode)
@@ -90,13 +97,15 @@ class DomSecondController extends Controller
                 ->setServiceEmetteurId($serviceEmetteur)
                 ->setAgenceDebiteurId($agenceDebiteur)
                 ->setServiceDebiteurId($serviceDebiteur)
-                ->setCategoryId($domForm->getCategorie())
+                ->setCategoryId($form1Data['categorie'])
                 ->setSiteId($domForm->getSite())
+                ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
+                ->setHeureFin($domForm->getHeureFin()->format('H:i'))
             ;
         
-        
+
             //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM']);
             $application->setDerniereId($dom->getNumeroOrdreMission());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
@@ -110,7 +119,7 @@ class DomSecondController extends Controller
             self::$em->flush();
 
             // Redirection ou affichage de confirmation
-            return $this->redirectToRoute('some_success_route');
+            return $this->redirectToRoute('domList_ShowListDomRecherche');
         }
 
         self::$twig->display('doms/secondForm.html.twig', [

@@ -240,14 +240,14 @@ class DomForm2Type extends AbstractType
                 ]
             ]);
        })
-       ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument){
+       ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument, $options){
         $form = $event->getForm();
         $data = $event->getData();
-       
-        $sousTypedocument = $data->getSousTypeDocument();
-        $catg = $data->getCategorie();
-      
-        if(substr($data->getAgenceEmetteur(),0,2) === '50'){
+
+        $sousTypedocument = $options['data']->getSousTypeDocument();
+        $catg = $options['data']->getCategorie();
+   
+        if(substr($options['data']->getAgenceEmetteur(),0,2) === '50'){
             $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
            
        } else {
@@ -265,7 +265,7 @@ class DomForm2Type extends AbstractType
         foreach ($indemites as $key => $value) {
             $sites[] = $value->getSite();
         }
-  
+
         $form->add('site',
         EntityType::class,
         [

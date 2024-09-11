@@ -84,7 +84,7 @@ class Dom
     private  $dateDebut;
 
     /**
-     * @ORM\Column(type="datetime", length=5, name="Heure_Debut")
+     * @ORM\Column(type="string", length=5, name="Heure_Debut")
      */
     private  $heureDebut;
 
@@ -94,7 +94,7 @@ class Dom
     private  $dateFin;
 
     /**
-     * @ORM\Column(type="datetime", length=5, name="Heure_Fin")
+     * @ORM\Column(type="string", length=5, name="Heure_Fin")
      */
     private  $heureFin;
 
@@ -121,7 +121,7 @@ class Dom
      *      maxMessage = "Le nom de client ne peut pas dépasser {{ limit }} caractères."
      * )
      */
-    private string $client;
+    private ?string $client = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Numero_OR",nullable=true)
@@ -289,7 +289,7 @@ class Dom
 
     
  /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true, name="idemnity_depl")
      */
     private $idemnityDepl;
 
@@ -563,12 +563,12 @@ class Dom
 
 
 
-    public function getMotifDeplacement(): string
+    public function getMotifDeplacement()
     {
         return $this->motifDeplacement;
     }
 
-    public function setMotifDeplacement(string $motifDeplacement): self
+    public function setMotifDeplacement( $motifDeplacement): self
     {
         $this->motifDeplacement = $motifDeplacement;
 
@@ -576,12 +576,12 @@ class Dom
     }
 
 
-    public function getClient(): string
+    public function getClient()
     {
         return $this->client;
     }
 
-    public function setClient(string $client): self
+    public function setClient( $client): self
     {
         $this->client = $client;
 
@@ -589,12 +589,12 @@ class Dom
     }
 
 
-    public function getNumeroOr(): string
+    public function getNumeroOr()
     {
         return $this->numeroOr;
     }
 
-    public function setNumeroOr(string $numeroOr): self
+    public function setNumeroOr($numeroOr): self
     {
         $this->numeroOr = $numeroOr;
 
@@ -602,12 +602,12 @@ class Dom
     }
 
 
-    public function getLieuIntervention(): string
+    public function getLieuIntervention()
     {
         return $this->lieuIntervention;
     }
 
-    public function setLieuIntervention(string $lieuIntervention): self
+    public function setLieuIntervention( $lieuIntervention): self
     {
         $this->lieuIntervention = $lieuIntervention;
 
@@ -615,12 +615,12 @@ class Dom
     }
 
 
-    public function getVehiculeSociete(): string
+    public function getVehiculeSociete()
     {
         return $this->vehiculeSociete;
     }
 
-    public function setVehiculeSociete(string $vehiculeSociete): self
+    public function setVehiculeSociete($vehiculeSociete): self
     {
         $this->vehiculeSociete = $vehiculeSociete;
 
@@ -628,12 +628,12 @@ class Dom
     }
     
 
-    public function getIndemniteForfaitaire(): string
+    public function getIndemniteForfaitaire()
     {
         return $this->indemniteForfaitaire;
     }
 
-    public function setIndemniteForfaitaire(string $indemniteForfaitaire): self
+    public function setIndemniteForfaitaire( $indemniteForfaitaire): self
     {
         $this->indemniteForfaitaire = $indemniteForfaitaire;
 
@@ -641,12 +641,12 @@ class Dom
     }
 
 
-    public function getTotalIndemniteForfaitaire(): string
+    public function getTotalIndemniteForfaitaire()
     {
         return $this->totalIndemniteForfaitaire;
     }
 
-    public function setTotalIndemniteForfaitaire(string $totalIndemniteForfaitaire): self
+    public function setTotalIndemniteForfaitaire($totalIndemniteForfaitaire): self
     {
         $this->totalIndemniteForfaitaire = $totalIndemniteForfaitaire;
 
@@ -867,12 +867,12 @@ class Dom
     }
 
 
-    public function getNumeroTel(): string
+    public function getNumeroTel()
     {
         return $this->numeroTel;
     }
 
-    public function setNumeroTel(string $numeroTel): self
+    public function setNumeroTel($numeroTel): self
     {
         $this->numeroTel = $numeroTel;
 
