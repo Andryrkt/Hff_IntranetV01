@@ -82,14 +82,36 @@ class PlanningController extends Controller
                         ->setOrIntv($item['orintv'])
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
+                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'])
                     ;
                     $table[] = $planningMateriel;
             }
 
-    
+
+// Fusionner les objets en fonction de l'idMat
+$fusionResult = [];
+foreach ($table as $materiel) {
+    $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+
+    if (!isset($fusionResult[$key])) {
+        $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+    } else {
+        // Si l'élément existe déjà, on fusionne les détails des mois
+        foreach ($materiel->moisDetails as $moisDetail) {
+            $fusionResult[$key]->addMoisDetail(
+                $moisDetail['mois'],
+                $moisDetail['orIntv'],
+                $moisDetail['qteCdm'],
+                $moisDetail['qteLiv']
+            );
+        }
+    }
+}
+
+
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
-                'data' => $table
+                'data' => $fusionResult
 
             ]);
         }

@@ -27,6 +27,10 @@
 			</div>
 		{% else %}
 			<div class="container">
+				<div class="mb-3">
+					<small class="text-success">Tout livrer | </small>
+					<small class="text-warning">Partiellement livrer</small>
+				</div>
 				<div class="d-flex justify-content-between">
 					<div>
 						{# Bouton EXCEL#}
@@ -76,7 +80,7 @@
                     {% endfor %}
 					</tr>
 				</thead>
-				<tbody>
+				<tbody >
 					{% for item in data %}
 						<tr>
 						<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
@@ -96,18 +100,23 @@
 							{% set classe = '' %}
 						{% endif %}
 
+
+						{% set moisDetails = item.moisDetails %}
+						
+							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
 						{% for i in 1..12 %}
-							{% set value = item.mois %}
-							 
-							<td class="{% if value == i %}{{classe}}{% endif %}">
-								{% if value == i %}
-									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.orIntv}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" >{{ item.orintv }}</a>
-								{% else %}
-									<!-- Vous pouvez mettre ici un autre contenu, par exemple un tiret pour les mois sans valeur -->
-									-
-								{% endif %}
-							</td>
-						{% endfor %}
+                				{% set item = moisDetails | filter(mois => mois.mois == i) | first %}
+            				<td class="{% if item is not empty %}{{ classe }}{% endif %}">
+                				{% if item is not empty %}
+                    			<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                        			{{ item.orIntv }}
+                    			</a>
+                				{% else %}
+                    			<!-- Contenu pour les mois sans valeur -->
+                    			-
+                				{% endif %}
+            </td>
+        {% endfor %}
 						</tr>
 					{% endfor %}
 				</tbody>

@@ -201,5 +201,87 @@ document.addEventListener("DOMContentLoaded", (event) => {
               .padStart(2, "0")}/${date.getFullYear()}`;
   }
   
+
+  /** pour le separateur et fusion des numOR */
+  const tableBody = document.querySelector("#tableBody");
+  const rows = document.querySelectorAll("#tableBody tr");
+
+  let previousOrNumber = null;
+  let rowSpanCount = 0;
+  let firstRowInGroup = null;
+
+  for (var i = 0; i < rows.length; i++) {
+    let currentRow = rows[i];
+    let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
+    let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
+
+    if (previousOrNumber === null) {
+      // Initialisation pour la première ligne
+      firstRowInGroup = currentRow;
+      rowSpanCount = 1;
+    } else if (previousOrNumber && previousOrNumber !== currentOrNumber) {
+      if (firstRowInGroup) {
+        let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
+        let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
+        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
+        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+        let cellToRowspanService =
+          firstRowInGroup.getElementsByTagName("td")[6];
+        cellToRowspanNumDit.rowSpan = rowSpanCount;
+        cellToRowspanNumOr.rowSpan = rowSpanCount;
+        cellToRowspanInter.rowSpan = rowSpanCount;
+        cellToRowspanAgence.rowSpan = rowSpanCount;
+        cellToRowspanService.rowSpan = rowSpanCount;
+        cellToRowspanNumDit.classList.add("rowspan-cell");
+        cellToRowspanNumOr.classList.add("rowspan-cell");
+        cellToRowspanInter.classList.add("rowspan-cell");
+        cellToRowspanAgence.classList.add("rowspan-cell");
+        cellToRowspanService.classList.add("rowspan-cell");
+      }
+
+      // Début pour le séparateur
+      let separatorRow = document.createElement("tr");
+      separatorRow.classList.add("separator-row");
+      let td = document.createElement("td");
+      td.colSpan = currentRow.cells.length;
+      td.classList.add("p-0");
+      separatorRow.appendChild(td);
+      tableBody.insertBefore(separatorRow, currentRow);
+      // Fin pour le séparateur
+
+      rowSpanCount = 1;
+      firstRowInGroup = currentRow;
+    } else {
+      rowSpanCount++;
+      if (firstRowInGroup !== currentRow) {
+        currentRow.getElementsByTagName("td")[2].style.display = "none";
+        currentRow.getElementsByTagName("td")[1].style.display = "none";
+        currentRow.getElementsByTagName("td")[7].style.display = "none";
+        currentRow.getElementsByTagName("td")[5].style.display = "none";
+        currentRow.getElementsByTagName("td")[6].style.display = "none";
+      }
+    }
+
+    previousOrNumber = currentOrNumber;
+  }
+
+  // Appliquer le rowspan à la dernière série de lignes
+  if (firstRowInGroup) {
+    let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
+    let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
+    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
+    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[6];
+    cellToRowspanNumDit.rowSpan = rowSpanCount;
+    cellToRowspanNumOr.rowSpan = rowSpanCount;
+    cellToRowspanInter.rowSpan = rowSpanCount;
+    cellToRowspanAgence.rowSpan = rowSpanCount;
+    cellToRowspanService.rowSpan = rowSpanCount;
+    cellToRowspanNumDit.classList.add("rowspan-cell");
+    cellToRowspanNumOr.classList.add("rowspan-cell");
+    cellToRowspanInter.classList.add("rowspan-cell");
+    cellToRowspanAgence.classList.add("rowspan-cell");
+    cellToRowspanService.classList.add("rowspan-cell");
+  }
 });
   
