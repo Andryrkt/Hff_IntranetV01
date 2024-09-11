@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("dataContent").style.display = "none";
 
     // Fetch request to get the data
-    fetch(`/Hffintranet/command-modal/${id}`)
+    fetch(`/Hffintranet/detail-modal/${id}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -70,36 +70,90 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
+        console.log(data);
+        
         const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML = ""; // Clear previous data
 
         if (data.length > 0) {
-          data.forEach((command) => {
-            let typeCommand;
-            if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
-              typeCommand = "Local";
-            } else if (command.slor_typcf == "CIS") {
-              typeCommand = "Agence";
-            } else {
-              typeCommand = "Import";
-            }
-
+          data.forEach((detail) => {
+          
             // Formater la date
-            const date = new Date(command.fcde_date);
-            const formattedDate = `${date
-              .getDate()
-              .toString()
-              .padStart(2, "0")}/${(date.getMonth() + 1)
-              .toString()
-              .padStart(2, "0")}/${date.getFullYear()}`;
+            let dateEtaIvato   ;
+            let dateMagasin ;
+            let dateStatut; 
+            let numCde;
+            let statrmq;
+            let statut;
+            let message;
+            let cmdColorRmq = '';
+            if(formaterDate(detail.datestatut) == '01/01/1970'){
+              dateStatut = '';
+            }else{
+              dateStatut = formaterDate(detail.datestatut);
+            }
+            if(detail.Eta_ivato == ''){
+              dateEtaIvato = '';
+            }else{
+              dateEtaIvato = formaterDate(detail.Eta_ivato)
+            }
+            if(detail.Eta_magasin == ''){
+              dateMagasin = '';
+            }else{
+              dateMagasin = formaterDate(detail.Eta_magasin)
+            }
+            if(detail.numerocmd == null){
+              numCde = '';
+            }else{
+              numCde = detail.numerocmd;
+            }
+            if(detail.statut_ctrmq == null ){
+              statrmq = '';
+            }else{
+              statrmq = detail.statut_ctrmq;
+            }
+            if(detail.statut == null ){
+              statut = '';
+            }else{
+              statut = detail.statut;
+            }
+            if(detail.message == null ){
+              message = '';
+            }else{
+              message = detail.message;
+            }
+            //reception partiel 
+             let qteSolde = parseInt(detail.qteSlode);
+             let qteQte = parseInt(detail.qte);
+
+            if(qteSolde > 0 && qteSolde != qteQte){
+              cmdColorRmq = 'style="background-color: yellow;"';
+            }
+            let cmdColor;
+            if(statut =='DISPO STOCK'){
+              cmdColor = 'style="background-color: purple; color: white;"';
+            }else if(statut =='Error' || statut =='Back order'){
+              cmdColor = 'style="background-color: red; color: white;"';
+            }
 
             // Affichage
             let row = `<tr>
-                      <td>${command.slor_numcf}</td> 
-                      <td>${formattedDate}</td>
-                      <td> ${typeCommand}</td>
-                      <td> ${command.fcde_posc}</td>
-                      <td> ${command.fcde_posl}</td>
+                      <td>${detail.numor}</td> 
+                      <td>${detail.intv}</td> 
+                      <td ${cmdColor}>${numCde}</td> 
+                      <td ${cmdColorRmq}>${statrmq}</td> 
+                      <td>${detail.cst}</td> 
+                      <td>${detail.ref}</td> 
+                      <td>${detail.desi	}</td> 
+                      <td>${parseInt(detail.qteres_or)  }</td> 
+                      <td>${parseInt(detail.qteall)	}</td> 
+                      <td>${parseInt(detail.qtereliquat)	}</td> 
+                      <td>${parseInt(detail.qteliv)}</td> 
+                      <td >${statut}</td> 
+                      <td>${dateStatut}</td> 
+                      <td>${dateEtaIvato}</td> 
+                      <td>${dateMagasin}</td> 
+                      <td>${message}</td> 
                   </tr>`;
             tableBody.innerHTML += row;
           });
@@ -132,5 +186,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tableBody = document.getElementById("commandesTableBody");
     tableBody.innerHTML = ""; // Vider le tableau
   });
+
+  function formaterDate(daty)
+  {
+    const date = new Date(daty);
+            return  `${date
+              .getDate()
+              .toString()
+              .padStart(2, "0")}/${(date.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}/${date.getFullYear()}`;
+  }
+  
 });
   
