@@ -305,4 +305,18 @@ public function recuperationEtaMag($numOr, $refp){
      $resultat = $this->convertirEnUtf8($data);
    return $resultat;
  }
+ /**
+  * gcot ORD
+  */
+
+  public function recuperationinfordGcot ($numcde){
+      $statement = "SELECT Code_Statut  as Ord
+					FROM  GCOT_Statut_Dossier 
+					WHERE  Numero_Dossier = '$numcde'
+					AND Code_Statut = 'ORD' ";
+        $sql = $this->connexion04Gcot->query($statement);
+        $data = odbc_fetch_array($sql);
+        return $data;
+  }
+
 }

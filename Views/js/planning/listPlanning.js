@@ -130,10 +130,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
               cmdColorRmq = 'style="background-color: yellow;"';
             }
             let cmdColor;
+            let Ord = detail.Ord;
             if(statut =='DISPO STOCK'){
-              cmdColor = 'style="background-color: purple; color: white;"';
-            }else if(statut =='Error' || statut =='Back order'){
+              cmdColor = 'style="background-color: blue; color: white;"';
+            }else if(statut =='Error' || statut =='Back Order'){
               cmdColor = 'style="background-color: red; color: white;"';
+            }else if (Ord != ""){
+              cmdColor = 'style="background-color: cyan; color: black;"';
             }
 
             // Affichage

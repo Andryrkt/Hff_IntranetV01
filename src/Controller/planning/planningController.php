@@ -122,14 +122,16 @@ class PlanningController extends Controller
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr);
             
             $detailes = [];
-
+            $recupPariel = [];
+            $recupGot = [];
             for ($i=0; $i < count($details); $i++) { 
              
                 if(!empty($details[$i]['numerocmd']) && $details[$i]['numerocmd'] <> "0"){
                     $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
-                    $recupPariel = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                    $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                    $recupGot[] = $this->planningModel->recuperationinfordGcot($details[$i]['numerocmd']);
                 }
-
+              
                 if(!empty($detailes[$i])){
 
                     $details[$i]['Eta_ivato'] = $detailes[$i]['0']['Eta_ivato'];
@@ -139,11 +141,16 @@ class PlanningController extends Controller
                     $details[$i]['Eta_magasin'] = "";               
                 } 
                 if(!empty($recupPariel[$i])){
-                    $details[$i]['qteSlode'] = $recupPariel[$i]['solde'];
-                    $details[$i]['qte'] = $recupPariel[$i]['qte'];
+                    $details[$i]['qteSlode'] = $recupPariel[$i]['0']['solde'];
+                    $details[$i]['qte'] = $recupPariel[$i]['0']['qte'];
                 }else{
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
+                }
+                if(!empty($recupGot[$i])){
+                    $details[$i]['Ord'] = $recupGot[$i]['Ord'];
+                }else{
+                    $details[$i]['Ord'] = "";
                 }
             }
         }

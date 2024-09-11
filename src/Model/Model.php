@@ -11,7 +11,7 @@ class Model
     protected $sqlServer;
     protected $informix;
     protected $connexion04;
-
+    protected $connexion04Gcot;
 
 
 
@@ -22,6 +22,7 @@ class Model
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();
+        $this->connexion04Gcot = new connexionDote4Gcot();
     }
 
     public function RecupereNumDom($colonne)
