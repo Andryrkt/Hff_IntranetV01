@@ -37,6 +37,7 @@
 					</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">N° OR</th>
+					<th>Date planning</th>
 					<th>Niv. d'urg</th>
 					<th>Date  OR</th>
 					<th class="text-center">Agences</th>
@@ -46,9 +47,8 @@
 					<th>Cst</th>
 					<th>Réf</th>
 					<th>Désignations</th>
-					<th>Date planning</th>
 					<th class="text-center">Qté dem</th>
-					<th>Nom prenom</th>
+					<th>Utilisateur</th>
 					{# <th class="text-center">Qté rés</th>#}
 				{# <th class="text-center">Qté rel</th> #}
 					{# <th class="text-center">Qté liv</th> #}
@@ -63,6 +63,7 @@
 						</td>
 						<td class="fw-bold ">{{item.referencedit}}</td>
 						<td class="fw-bold ">{{item.numeroor}}</td>
+						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="">{{item.niveauUrgence}}</td>
 						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
 						<td>{{ item.agence}}</td>
@@ -72,7 +73,6 @@
 						<td class="">{{item.constructeur}}</td>
 						<td class="">{{item.referencepiece}}</td>
 						<td class="">{{item.designationi}}</td>
-						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td>{{ item.nomPrenom }}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}

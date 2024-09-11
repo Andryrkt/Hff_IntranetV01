@@ -116,7 +116,7 @@ class MagasinListeOrLivrerController extends Controller
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
         $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-
+       
     // Convertir les entités en tableau de données
     $data = [];
     $data[] = ['N° DIT', 'N° Or', "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
