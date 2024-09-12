@@ -121,14 +121,59 @@ class MagasinListeOrLivrerController extends Controller
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
         $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
        
+        for ($i=0; $i < count($entities) ; $i++) { 
+            $numeroOr = $entities[$i]['numeroor'];
+            $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
+            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+            $entities[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
+            
+            if(!empty($datePlannig1)){
+                $entities[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
+            } else if(!empty($datePlannig2)){
+                $entities[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
+            } else {
+                $entities[$i]['datePlanning'] = '';
+            }
+            // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            // if( !empty($dit)){
+            //     $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+            //     $entities[$i]['niveauUrgence'] = $dit[0]['description'];
+            // } else {
+            //     break;
+            // }
+        }
+
+        usort($entities, function ($a, $b) {
+            $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
+            $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
+            
+            if ($dateA === $dateB) {
+                return 0;
+            }
+        
+            // Place les `null` en bas
+            if ($dateA === null) {
+                return 1;
+            }
+            if ($dateB === null) {
+                return -1;
+            }
+        
+            // Comparer les dates pour les autres entrées
+            return strtotime($dateA) - strtotime($dateB);
+        });
+
+
+
     // Convertir les entités en tableau de données
     $data = [];
-    $data[] = ['N° DIT', 'N° Or', "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
+    $data[] = ['N° DIT', 'N° Or', "Date planning", "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr', 'Utilisateur']; 
     foreach ($entities as $entity) {
         
         $data[] = [
             $entity['referencedit'],
             $entity['numeroor'],
+            $entity['datePlanning'],
             $entity['datecreation'],
             $entity['agence'],
             $entity['service'],
@@ -139,6 +184,7 @@ class MagasinListeOrLivrerController extends Controller
             $entity['designationi'],
             $entity['quantitedemander'],
             $entity['qtealivrer'],
+            $entity['nomPrenom']
         ];
     }
 
