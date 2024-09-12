@@ -101,8 +101,11 @@ class DomSecondController extends Controller
                 ->setSiteId($domForm->getSite())
                 ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
                 ->setHeureFin($domForm->getHeureFin()->format('H:i'))
+                ->setEmetteur($domForm->getAgenceEmetteur().'-'.$domForm->getServiceEmetteur())
+                ->setDebiteur($domForm->getAgence()->getLibelleAgence().'-'.$domForm->getService()->getLibelleService())
             ;
         
+            dd($dom);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM']);
@@ -114,9 +117,60 @@ class DomSecondController extends Controller
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             // self::$em->persist($dom->getCategorie());
             // self::$em->persist($dom->getSousTypeDocument());
+
             self::$em->persist($dom);
       
             self::$em->flush();
+
+            if(explode(':',$dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':',$dom->getModePayement())[0] === 'ESPECE'){
+                $mode = 'TEL'.explode(':',$dom->getModePayement())[1];
+            } else if(explode(':',$dom->getModePayement())[0] === 'VIREMENT BANCAIRE'){
+                $mode = 'CPT'.explode(':',$dom->getModePayement())[1];
+            }
+
+            $tabInternePdf = [
+                "Devis" => $dom->getDevis(),
+                "Prenoms" => $dom->getPrenom(),
+                "AllMontant" => $dom->totalGeneralPayer(),
+                "Code_serv" => $dom->getAgenceEmetteur(),
+                "dateS" => $dom->getDateDemande()->format("d/m/Y"),
+                "NumDom" => $dom->getNumeroOrdreMission(),
+                "serv" => $dom->getServiceEmetteur(),
+                "matr" => $dom->getMatricule(),
+                "typMiss" => $dom->getSousTypeDocument()->getCodeSousType(),
+
+                "Nom" => $dom->getNom(),
+                "NbJ" => $dom->getNombreJour(),
+                "dateD" => $dom->getDateDebut()->format("d/m/Y"),
+                "heureD" => $dom->getHeureDebut(),
+                "dateF" => $dom->getDateFin(),
+                "heureF" => $dom->getHeureFin()->format("d/m/Y"),
+                "motif" => $dom->getMotifDeplacement(),
+                "Client" => $dom->getClient(),
+                "fiche" => $dom->getFiche(),
+                "lieu" => $dom->getLieuIntervention(),
+                "vehicule" => $dom->getVehiculeSociete(),
+                "numvehicul" => $dom->getNumVehicule(),
+                "idemn" => $dom->getIndemniteForfaitaire(),
+                "totalIdemn" => $dom->getTotalIndemniteForfaitaire(),
+                "motifdep01" => $dom->getMotifAutresDepense1(),
+                "montdep01" => $dom->getAutresDepense1(),
+                "motifdep02" => $dom->getMotifAutresDepense2(),
+                "montdep02" => $dom->getAutresDepense2(),
+                "motifdep03" => $dom->getMotifAutresDepense3(),
+                "montdep03" => $dom->getAutresDepense3(),
+                "totaldep" => $dom->getTotalAutresDepenses(),
+                "libmodepaie" => explode(':',$dom->getModePayement())[0],
+                "mode" => $mode,
+                "codeAg_serv" => substr($domForm->getAgenceEmetteur(),0,2).substr($domForm->getServiceEmetteur(),0,3),
+                "CategoriePers" => $dom->getCategorie()->getDescription(),
+                "Site" => $dom->getSite()->getNomZone(),
+                "Idemn_depl" => $dom->getIdemnityDepl(),
+                "MailUser" => $MailUser,
+                "Bonus" => $dom->getDroitIndemnite(),
+                "codeServiceDebitteur" => $dom->getAgence()->getCodeAgence(),
+                "serviceDebitteur" => $dom->getService()->getCodeService()
+            ];
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('domList_ShowListDomRecherche');
