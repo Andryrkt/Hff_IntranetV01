@@ -6,6 +6,7 @@ namespace App\Form\magasin;
 use App\Model\magasin\MagasinModel;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,7 +22,7 @@ class MagasinListOrSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
   
-        $magasinModel = new MagasinModel();
+        $magasinModel = new MagasinListeOrModel();
         $constructeur = $magasinModel->recuperationConstructeur();
         $builder
         ->add('niveauUrgence', EntityType::class, [

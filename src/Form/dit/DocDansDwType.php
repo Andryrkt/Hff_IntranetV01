@@ -7,7 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class  DocDansDwType extends AbstractType
 {
@@ -28,6 +28,8 @@ class  DocDansDwType extends AbstractType
                 'choices' => self::DOC_DANS_DW,
                 'placeholder' => '--'
             ])
+            ->add('numeroDit',
+            HiddenType::class)
         ;
     }
 

@@ -25,7 +25,7 @@ class DitInsertionOr
     /**
      * @ORM\Column(type="string", length=11)
      */
-    private string $numeroDit;
+    private ?string $numeroDit = "";
 
     /**
      * @ORM\Column(type="string", length=8)
@@ -61,6 +61,9 @@ class DitInsertionOr
      * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idOrSoumisAValidation")
      */
     private $ditHistoriqueOperationDoc;
+
+
+    private $file;
     //==========================================================================================
     
 
@@ -252,6 +255,26 @@ class DitInsertionOr
     public function setDitHistoriqueOperationDoc($ditHistoriqueOperationDoc)
     {
         $this->ditHistoriqueOperationDoc = $ditHistoriqueOperationDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of file
+     */ 
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
+     * Set the value of file
+     *
+     * @return  self
+     */ 
+    public function setFile($file)
+    {
+        $this->file = $file;
 
         return $this;
     }

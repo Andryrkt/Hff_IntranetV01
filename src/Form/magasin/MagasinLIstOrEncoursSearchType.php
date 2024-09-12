@@ -6,6 +6,7 @@ namespace App\Form\magasin;
 use App\Model\magasin\MagasinModel;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Model\magasin\MagasinListeOrEncoursModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,7 +20,7 @@ class MagasinListOrEncoursSearchType extends AbstractType
 
     private function recupConstructeur()
     {
-        $magasinModel = new MagasinModel();
+        $magasinModel = new MagasinListeOrEncoursModel();
        return  $magasinModel->recuperationConstructeur();
     }
 

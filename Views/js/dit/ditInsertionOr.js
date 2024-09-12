@@ -1,35 +1,60 @@
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("dit_insertion_or_file");
-const uploadBtn = document.getElementById("upload-btn");
-const form = document.getElementById("upload-form");
-
-// Activer le click pour le sélecteur de fichier sur dropzone
-dropzone.addEventListener("click", () => fileInput.click());
-
-// Activer le click pour le sélecteur de fichier sur le bouton
-uploadBtn.addEventListener("click", () => fileInput.click());
-
-// Gestion du drag and drop
-dropzone.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  dropzone.style.backgroundColor = "#e8e8e8";
+document.getElementById("upload-btn").addEventListener("click", function () {
+  document.querySelector('input[type="file"]').click();
 });
 
-dropzone.addEventListener("dragleave", () => {
-  dropzone.style.backgroundColor = "#fff";
+document
+  .querySelector('input[type="file"]')
+  .addEventListener("change", function () {
+    handleFiles(this.files);
+  });
+
+document.getElementById("dropzone").addEventListener("dragover", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  this.style.backgroundColor = "#e2e6ea";
 });
 
-dropzone.addEventListener("drop", (e) => {
+document.getElementById("dropzone").addEventListener("dragleave", function (e) {
   e.preventDefault();
-  dropzone.style.backgroundColor = "#fff";
+  e.stopPropagation();
+  this.style.backgroundColor = "#f8f9fa";
+});
 
-  if (e.dataTransfer.files.length) {
-    fileInput.files = e.dataTransfer.files;
-    form.submit();
+document.getElementById("dropzone").addEventListener("drop", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const files = e.dataTransfer.files;
+  document.querySelector('input[type="file"]').files = files;
+  handleFiles(files);
+  this.style.backgroundColor = "#f8f9fa";
+});
+
+function handleFiles(files) {
+  const file = files[0];
+  if (file && file.type === "application/pdf") {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const embed = document.getElementById("pdf-embed");
+      embed.src = e.target.result;
+      document.getElementById("pdf-preview").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert("Veuillez déposer un fichier PDF.");
   }
-});
+}
 
-// Soumission du formulaire si un fichier est sélectionné via le bouton
-fileInput.addEventListener("change", () => {
-  form.submit();
+const numOrInput = document.querySelector("#dit_insertion_or_numeroOR");
+
+numOrInput.addEventListener("input", function () {
+  let value = numOrInput.value;
+
+  // Retirer tous les caractères qui ne sont pas des chiffres
+  value = value.replace(/[^0-9]/g, "");
+
+  // Limiter la longueur à 8 caractères maximum
+  value = value.slice(0, 8);
+
+  // Appliquer la valeur filtrée au champ d'entrée
+  numOrInput.value = value;
 });

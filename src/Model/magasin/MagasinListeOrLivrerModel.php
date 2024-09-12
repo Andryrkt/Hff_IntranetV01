@@ -296,9 +296,11 @@ class MagasinListeOrLivrerModel extends Model
                         $agence
                         $service
                        
-                        order by slor_datec desc, 
-                                seor_numor asc, 
-                                slor_nolign asc
+                        order by 
+                            seor_refdem desc,
+                            slor_nogrp/100 desc, 
+                            seor_numor asc, 
+                            slor_nolign asc
         ";
 
 

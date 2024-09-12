@@ -247,9 +247,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   /** Docs à intégrer dans DW MODAL */
 
   const docDansDwModal = document.getElementById("docDansDw");
+  const numeroDitInput = document.querySelector("#numeroDit");
+  const numDitHiddenInput = document.querySelector("#doc_dans_dw_numeroDit");
 
   docDansDwModal.addEventListener("show.bs.modal", function (event) {
-    console.log("OKey");
+    const button = event.relatedTarget;
+    const numDit = button.getAttribute("data-id");
+    numeroDitInput.innerHTML = numDit;
+    numDitHiddenInput.value = numDit;
   });
 
   // Gestionnaire pour la fermeture du modal
