@@ -9,11 +9,12 @@ ini_set('memory_limit', '1000M');
 
 use App\Controller\Controller;
 use App\Controller\Traits\MagasinTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
-use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
 
 class MagasinListeOrLivrerController extends Controller
 { 
@@ -81,20 +82,23 @@ class MagasinListeOrLivrerController extends Controller
             }
 
             usort($data, function ($a, $b) {
-                if ($a['datePlanning'] === $b['datePlanning']) {
+                $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
+                $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
+                
+                if ($dateA === $dateB) {
                     return 0;
                 }
-                
+            
                 // Place les `null` en bas
-                if ($a['datePlanning'] === null) {
+                if ($dateA === null) {
                     return 1;
                 }
-                if ($b['datePlanning'] === null) {
+                if ($dateB === null) {
                     return -1;
                 }
             
                 // Comparer les dates pour les autres entrées
-                return strtotime($a['datePlanning']) - strtotime($b['datePlanning']);
+                return strtotime($dateA) - strtotime($dateB);
             });
 
         self::$twig->display('magasin/listOrLivrer.html.twig', [

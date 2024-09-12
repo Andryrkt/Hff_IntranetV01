@@ -150,7 +150,7 @@ class MagasinListeOrATraiterModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupereListeMaterielValider(  $criteria = [])
+    public function recupereListeMaterielValider($criteria = [], $lesOrSelonCondition)
     {
     
         // if ($numOrValide === "") {
@@ -256,7 +256,7 @@ class MagasinListeOrATraiterModel extends Model
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
             and slor_succ = '01'
-           
+            --and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
             $designation
             $referencePiece 
             $constructeur 

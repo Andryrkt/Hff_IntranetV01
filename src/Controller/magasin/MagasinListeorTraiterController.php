@@ -58,7 +58,7 @@ class MagasinListeOrTraiterController extends Controller
 
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
 
-            $data = $this->magasinModel->recupereListeMaterielValider($criteria);
+            $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
@@ -87,20 +87,23 @@ class MagasinListeOrTraiterController extends Controller
             }
 
             usort($data, function ($a, $b) {
-                if ($a['datePlanning'] === $b['datePlanning']) {
+                $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
+                $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
+                
+                if ($dateA === $dateB) {
                     return 0;
                 }
-                
+            
                 // Place les `null` en bas
-                if ($a['datePlanning'] === null) {
+                if ($dateA === null) {
                     return 1;
                 }
-                if ($b['datePlanning'] === null) {
+                if ($dateB === null) {
                     return -1;
                 }
             
                 // Comparer les dates pour les autres entrées
-                return strtotime($a['datePlanning']) - strtotime($b['datePlanning']);
+                return strtotime($dateA) - strtotime($dateB);
             });
        
        
@@ -122,8 +125,8 @@ class MagasinListeOrTraiterController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-        //$lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
-        $entities = $this->magasinModel->recupereListeMaterielValider($criteria);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
+        $entities = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
     // Convertir les entités en tableau de données
     $data = [];
     $data[] = ['N° DIT', 'N° Or', "Date Or", "Agences", "Services", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'Qté à livr']; 
