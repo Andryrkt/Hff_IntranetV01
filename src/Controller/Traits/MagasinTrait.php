@@ -65,4 +65,7 @@ trait MagasinTrait
             "numOrValideString" => $numOrValideString
         ];
     }
+
+
+   
 }

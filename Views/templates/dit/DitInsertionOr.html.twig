@@ -13,14 +13,10 @@
 
 				<div class="container">
 					<div class="row">
-						<div class="col-12 col-md-11">
+						<div class="col-12 ">
 							<h3 class="perso-titre">
 								INSERTION OR
 							</h3>
-						</div>
-
-						<div class=" col-12 col-md-1">
-							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 						</div>
 					</div>
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
@@ -31,7 +27,7 @@
 					<div id="dropzone" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
 						Glissez et déposez votre fichier ici, ou cliquez pour sélectionner un fichier.
 					</div>
-					{{ form_widget(form.file, {'attr': {'style': 'display:none;', 'id': 'file-input'}}) }}
+					{{ form_widget(form.file, {'attr': {'style': 'display:none;'}}) }}
 
 					<button type="button" id="upload-btn">Sélectionner un fichier</button>
 
@@ -47,8 +43,6 @@
 
 			</div>
 		</div>
-
-		<div id="materielInfos"></div>
 	</div>
 
 

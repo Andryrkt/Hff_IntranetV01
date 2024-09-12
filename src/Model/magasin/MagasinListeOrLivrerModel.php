@@ -11,6 +11,26 @@ class MagasinListeOrLivrerModel extends Model
     use ConversionModel;
     use FormatageTrait;
 
+    public function recupUserCreateNumOr($numOr)
+    {
+        $statement = " SELECT 
+                        seor_usr as idUser, 
+                        trim(ausr_nom) as nomUtilisateur,
+                        trim(atab_lib) as nomPrenom
+                        from sav_eor, agr_usr, agr_tab
+                        where seor_usr = ausr_num
+                        and ausr_ope = atab_code 
+                        and atab_nom = 'OPE'
+                        and seor_numor='".$numOr."'
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupDatePlanning1($numOr)
     {
         $statement = " SELECT  
@@ -263,6 +283,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_succ = '01'
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
+                        --and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
                         $piece
                         $orCompletNom
                         $designation
@@ -413,6 +434,45 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+public function agence()
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                        AND slor_soc = 'HF'
+                    ";
 
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agence');
+    }
+
+    public function service($agence)
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
+                        FROM sav_lor
+                        WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
+                        AND slor_soc = 'HF'
+                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        $dataUtf8 = $this->convertirEnUtf8($data);
+
+        return array_map(function($item) {
+       
+            return [
+                "value" => $item['service'], 
+                "text"  => $item['service']
+            ];
+        }, $dataUtf8);
+    }
     
 }

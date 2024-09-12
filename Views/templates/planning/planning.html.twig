@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -15,7 +15,7 @@
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
 
-		{% include "/planning/formulaire.html.twig" %}
+		{% include "/planning/_formulaire.html.twig" %}
 	</div>
 
 	<div
@@ -28,7 +28,8 @@
 		{% else %}
 			<div class="container">
 				<div class="mb-3">
-					<small class="text-success">Tout livrer | </small>
+					<small class="text-success">Tout livrer |
+					</small>
 					<small class="text-warning">Partiellement livrer</small>
 				</div>
 				<div class="d-flex justify-content-between">
@@ -69,54 +70,57 @@
 				<thead class="table-dark">
 					<tr>
 						<th>Agence - Service</th>
-						<th> id</th>
+						<th>
+							id</th>
 						<th>CST</th>
 						<th>Type</th>
 						<th>N° Série</th>
-						<th> N° Parc</th>
-						<th> Casier</th>
+						<th>
+							N° Parc</th>
+						<th>
+							Casier</th>
 						{% for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] %}
-                        <th>{{ month }}</th>
-                    {% endfor %}
+							<th>{{ month }}</th>
+						{% endfor %}
 					</tr>
 				</thead>
-				<tbody >
+				<tbody>
 					{% for item in data %}
 						<tr>
-						<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
-						<td>{{item.idmat}}</td>
-						<td>{{item.marqueMat}}</td>
-						<td>{{item.typemat}}</td>
-						<td>{{item.numserie}}</td>
-						<td>{{item.numparc}}</td>
-						<td>{{item.casier}}</td>
-						{% set classe = '' %}
-
-						{% if item.qtecdm * 1 == item.qteliv * 1 %}
-							{% set classe = 'bg-success text-white' %}
-						{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 < item.qtecdm * 1 %}
-							{% set classe = 'bg-warning text-white' %}
-						{% else %}
+							<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
+							<td>{{item.idmat}}</td>
+							<td>{{item.marqueMat}}</td>
+							<td>{{item.typemat}}</td>
+							<td>{{item.numserie}}</td>
+							<td>{{item.numparc}}</td>
+							<td>{{item.casier}}</td>
 							{% set classe = '' %}
-						{% endif %}
+
+							{% if item.qtecdm * 1 == item.qteliv * 1 %}
+								{% set classe = 'bg-success text-white' %}
+							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 < item.qtecdm * 1 %}
+								{% set classe = 'bg-warning text-white' %}
+							{% else %}
+								{% set classe = '' %}
+							{% endif %}
 
 
-						{% set moisDetails = item.moisDetails %}
-						
+							{% set moisDetails = item.moisDetails %}
+
 							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
-						{% for i in 1..12 %}
-                				{% set item = moisDetails | filter(mois => mois.mois == i) | first %}
-            				<td class="{% if item is not empty %}{{ classe }}{% endif %}">
-                				{% if item is not empty %}
-                    			<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-                        			{{ item.orIntv }}
-                    			</a>
-                				{% else %}
-                    			<!-- Contenu pour les mois sans valeur -->
-                    			-
-                				{% endif %}
-            </td>
-        {% endfor %}
+							{% for i in 1..12 %}
+								{% set item = moisDetails | filter(mois => mois.mois == i) | first %}
+								<td class="{% if item is not empty %}{{ classe }}{% endif %}">
+									{% if item is not empty %}
+										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+											{{ item.orIntv }}
+										</a>
+									{% else %}
+										<!-- Contenu pour les mois sans valeur -->
+										-
+									{% endif %}
+								</td>
+							{% endfor %}
 						</tr>
 					{% endfor %}
 				</tbody>

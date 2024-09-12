@@ -31,20 +31,24 @@ document.addEventListener("DOMContentLoaded", function () {
       if (firstRowInGroup) {
         let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
         let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[8];
+        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[6];
         let cellToRowspanService =
-          firstRowInGroup.getElementsByTagName("td")[6];
+          firstRowInGroup.getElementsByTagName("td")[7];
+        let cellToRowspanUtilisateur =
+          firstRowInGroup.getElementsByTagName("td")[14];
         cellToRowspanNumDit.rowSpan = rowSpanCount;
         cellToRowspanNumOr.rowSpan = rowSpanCount;
         cellToRowspanInter.rowSpan = rowSpanCount;
         cellToRowspanAgence.rowSpan = rowSpanCount;
         cellToRowspanService.rowSpan = rowSpanCount;
+        cellToRowspanUtilisateur.rowSpan = rowSpanCount;
         cellToRowspanNumDit.classList.add("rowspan-cell");
         cellToRowspanNumOr.classList.add("rowspan-cell");
         cellToRowspanInter.classList.add("rowspan-cell");
         cellToRowspanAgence.classList.add("rowspan-cell");
         cellToRowspanService.classList.add("rowspan-cell");
+        cellToRowspanUtilisateur.classList.add("rowspan-cell");
       }
 
       // Début pour le séparateur
@@ -64,9 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if (firstRowInGroup !== currentRow) {
         currentRow.getElementsByTagName("td")[2].style.display = "none";
         currentRow.getElementsByTagName("td")[1].style.display = "none";
-        currentRow.getElementsByTagName("td")[7].style.display = "none";
-        currentRow.getElementsByTagName("td")[5].style.display = "none";
+        currentRow.getElementsByTagName("td")[8].style.display = "none";
         currentRow.getElementsByTagName("td")[6].style.display = "none";
+        currentRow.getElementsByTagName("td")[7].style.display = "none";
+        currentRow.getElementsByTagName("td")[14].style.display = "none";
       }
     }
 
@@ -77,19 +82,23 @@ document.addEventListener("DOMContentLoaded", function () {
   if (firstRowInGroup) {
     let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
     let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
-    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[6];
+    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[8];
+    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[6];
+    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[7];
+    let cellToRowspanUtilisateur =
+      firstRowInGroup.getElementsByTagName("td")[14];
     cellToRowspanNumDit.rowSpan = rowSpanCount;
     cellToRowspanNumOr.rowSpan = rowSpanCount;
     cellToRowspanInter.rowSpan = rowSpanCount;
     cellToRowspanAgence.rowSpan = rowSpanCount;
     cellToRowspanService.rowSpan = rowSpanCount;
+    cellToRowspanUtilisateur.rowSpan = rowSpanCount;
     cellToRowspanNumDit.classList.add("rowspan-cell");
     cellToRowspanNumOr.classList.add("rowspan-cell");
     cellToRowspanInter.classList.add("rowspan-cell");
     cellToRowspanAgence.classList.add("rowspan-cell");
     cellToRowspanService.classList.add("rowspan-cell");
+    cellToRowspanUtilisateur.classList.add("rowspan-cell");
   }
 
   // /** Autocompletion Designation */

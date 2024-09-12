@@ -1,5 +1,5 @@
 const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("file-input");
+const fileInput = document.getElementById("dit_insertion_or_file");
 const uploadBtn = document.getElementById("upload-btn");
 const form = document.getElementById("upload-form");
 

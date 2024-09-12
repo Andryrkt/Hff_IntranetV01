@@ -12,6 +12,26 @@ class MagasinListeOrATraiterModel extends Model
     use FormatageTrait;
 
 
+    public function recupUserCreateNumOr($numOr)
+    {
+        $statement = " SELECT 
+                        seor_usr as idUser, 
+                        trim(ausr_nom) as nomUtilisateur,
+                        trim(atab_lib) as nomPrenom
+                        from sav_eor, agr_usr, agr_tab
+                        where seor_usr = ausr_num
+                        and ausr_ope = atab_code 
+                        and atab_nom = 'OPE'
+                        and seor_numor='".$numOr."'
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupDatePlanning1($numOr)
     {
         $statement = " SELECT  
@@ -130,7 +150,7 @@ class MagasinListeOrATraiterModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupereListeMaterielValider(  $criteria = [])
+    public function recupereListeMaterielValider($criteria = [], $lesOrSelonCondition)
     {
     
         // if ($numOrValide === "") {
@@ -236,7 +256,7 @@ class MagasinListeOrATraiterModel extends Model
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
             and slor_succ = '01'
-           
+            --and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
             $designation
             $referencePiece 
             $constructeur 
