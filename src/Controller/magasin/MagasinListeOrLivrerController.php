@@ -192,6 +192,4 @@ class MagasinListeOrLivrerController extends Controller
 
     }
 
-
-
 }
