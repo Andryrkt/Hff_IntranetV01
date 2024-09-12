@@ -164,6 +164,7 @@ class PlanningModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+        dd($statement);
         return $resultat;
   }
     
