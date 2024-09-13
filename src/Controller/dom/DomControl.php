@@ -599,7 +599,6 @@ class DomControl extends Controller
                             // die();
                             $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
 
-
                             // nvl date 
                             // $DDForm = $DateDebut;
                             // $DFForm = $DateFin;
@@ -801,18 +800,7 @@ class DomControl extends Controller
                                 // die();
                                 $this->insereDbCreePdfInterne($tabInsertionBdInterne, $tabInterne, $NumDom);
 
-                                $Upload_file = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename01;
-                                move_uploaded_file($filetemp01, $Upload_file);
-                                $Upload_file02 = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Controler/pdf/' . $filename02;
-                                move_uploaded_file($filetemp02, $Upload_file02);
-                                $FichierDom = $NumDom . '_' . $codeAg_servDB . '.pdf';
-                                if (!empty($filename02)) {
-                                    //echo 'fichier02';
-                                    $this->fusionPdf->genererFusion($FichierDom, $filename01, $filename02);
-                                } else {
-                                    $this->fusionPdf->genererFusion1($FichierDom, $filename01);
-                                    //echo 'echo non';
-                                }
+                                $this->changementDossierFichierInterne($filename01, $filetemp01, $filename02, $filetemp02, $NumDom, $codeAg_servDB);
                             } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
                                 // var_dump('132');
                                 // die();
@@ -985,7 +973,7 @@ class DomControl extends Controller
 
                             $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($matr);
                             // nvl date 
-                            dd($DomMaxMinDate);
+                            // dd($DomMaxMinDate);
 
                             if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
                                 // var_dump('02');
