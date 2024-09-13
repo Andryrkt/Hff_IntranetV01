@@ -77,6 +77,55 @@ trait DomsTrait
             } else {
                 $dom->setSite($em->getRepository(Site::class)->find(1));
             }
+    }
 
+
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     *(copier le fichier uploder dans une repertoire et le donner un nom)
+     * @param [type] $form
+     * @param [type] $dits
+     * @param [type] $nomFichier
+     * @return void
+     */
+    private function uplodeFile($form, $dom, $nomFichier, &$pdfFiles)
+    {
+        /** @var UploadedFile $file*/
+        $file = $form->get($nomFichier)->getData();
+        $fileName = $dom->getNumeroOrdreMission(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
+       
+        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/fichier/';
+     
+        $file->move($fileDossier, $fileName);
+
+        if ($file->getClientOriginalExtension() === 'pdf') {
+            $pdfFiles[] = $fileDossier.$fileName;
+        }
+
+        $setPieceJoint = 'set'.ucfirst($nomFichier);
+        $dom->$setPieceJoint($fileName);
+    }
+
+    private function envoiePieceJoint($form, $dom, $fusionPdf)
+    {
+
+        $pdfFiles = [];
+
+        for ($i=1; $i < 3; $i++) { 
+            $nom = "pieceJoint{$i}";
+            if($form->get($nom)->getData() !== null){
+                $this->uplodeFile($form, $dom, $nom, $pdfFiles);
+            }
+        }
+        //ajouter le nom du pdf crée par dit en avant du tableau
+        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+        }
     }
 }

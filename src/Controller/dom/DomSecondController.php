@@ -12,9 +12,14 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\DomsTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\SousTypeDocument;
+use App\Service\genererPdf\GeneratePdfDom;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 class DomSecondController extends Controller
 {
@@ -78,11 +83,25 @@ class DomSecondController extends Controller
                 $dom->setPrenom($personnel->getPrenoms());
             }
 
+            $sousTypeDocument = self::$em->getRepository(SousTypeDocument::class)->find($form1Data['sousTypeDocument']->getId());
+            if (isset($form1Data['categorie'])) {
+                $categoryId = self::$em->getRepository(Catg::class)->find($form1Data['categorie']->getId());
+            } else {
+                $categoryId = null;
+            }
+
+            if($form1Data['salarier'] === 'TEMPORAIRE'){
+                $cin = $form1Data["cin"];
+                 $matricule = "XER00 -" . $cin . " - TEMPORAIRE";
+            } else {
+                    $matricule = $form1Data['matricule'];
+            }
+            
             $dom
                 ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
-                ->setSousTypeDocument($form1Data['sousTypeDocument'])
-                ->setCategorie($form1Data['categorie'])
-                ->setMatricule($form1Data['matricule'])
+                ->setSousTypeDocument($sousTypeDocument)
+                ->setCategorie($categoryId)
+                ->setMatricule($matricule)
                 ->setUtilisateurCreation($_SESSION['user'])
                 ->setNomSessionUtilisateur($_SESSION['user'])
                 ->setNumeroOrdreMission($this->autoINcriment('DOM'))
@@ -97,7 +116,7 @@ class DomSecondController extends Controller
                 ->setServiceEmetteurId($serviceEmetteur)
                 ->setAgenceDebiteurId($agenceDebiteur)
                 ->setServiceDebiteurId($serviceDebiteur)
-                ->setCategoryId($form1Data['categorie'])
+                ->setCategoryId($categoryId)
                 ->setSiteId($domForm->getSite())
                 ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
                 ->setHeureFin($domForm->getHeureFin()->format('H:i'))
@@ -105,7 +124,6 @@ class DomSecondController extends Controller
                 ->setDebiteur($domForm->getAgence()->getLibelleAgence().'-'.$domForm->getService()->getLibelleService())
             ;
         
-            dd($dom);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM']);
@@ -128,10 +146,13 @@ class DomSecondController extends Controller
                 $mode = 'CPT'.explode(':',$dom->getModePayement())[1];
             }
 
+            
+
+            $email = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
             $tabInternePdf = [
                 "Devis" => $dom->getDevis(),
                 "Prenoms" => $dom->getPrenom(),
-                "AllMontant" => $dom->totalGeneralPayer(),
+                "AllMontant" => $dom->getTotalGeneralPayer(),
                 "Code_serv" => $dom->getAgenceEmetteur(),
                 "dateS" => $dom->getDateDemande()->format("d/m/Y"),
                 "NumDom" => $dom->getNumeroOrdreMission(),
@@ -144,7 +165,7 @@ class DomSecondController extends Controller
                 "dateD" => $dom->getDateDebut()->format("d/m/Y"),
                 "heureD" => $dom->getHeureDebut(),
                 "dateF" => $dom->getDateFin(),
-                "heureF" => $dom->getHeureFin()->format("d/m/Y"),
+                "heureF" => $dom->getHeureFin(),
                 "motif" => $dom->getMotifDeplacement(),
                 "Client" => $dom->getClient(),
                 "fiche" => $dom->getFiche(),
@@ -163,14 +184,19 @@ class DomSecondController extends Controller
                 "libmodepaie" => explode(':',$dom->getModePayement())[0],
                 "mode" => $mode,
                 "codeAg_serv" => substr($domForm->getAgenceEmetteur(),0,2).substr($domForm->getServiceEmetteur(),0,3),
-                "CategoriePers" => $dom->getCategorie()->getDescription(),
-                "Site" => $dom->getSite()->getNomZone(),
+                "CategoriePers" => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
+                "Site" => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
                 "Idemn_depl" => $dom->getIdemnityDepl(),
-                "MailUser" => $MailUser,
+                "MailUser" => $email,
                 "Bonus" => $dom->getDroitIndemnite(),
                 "codeServiceDebitteur" => $dom->getAgence()->getCodeAgence(),
                 "serviceDebitteur" => $dom->getService()->getCodeService()
             ];
+
+            $genererPdfDom = new GeneratePdfDom();
+            $genererPdfDom->genererPDF($tabInternePdf);
+
+            $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('domList_ShowListDomRecherche');

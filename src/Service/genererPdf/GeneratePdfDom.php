@@ -4,7 +4,7 @@ namespace App\Service\genererPdf;
 
 use TCPDF;
 
-class GenererPdfDom extends GeneratePdf
+class GeneratePdfDom extends GeneratePdf
 {
     /**
      * Genere le PDF DEMANDE D'ORDRE DE MISSION (DOM)
@@ -43,7 +43,7 @@ class GenererPdfDom extends GeneratePdf
         $pdf->Cell(40, 10, 'Période: ' . $tab['NbJ'] . ' Jour(s)', 0, 0);
         $pdf->Cell(50, 10, 'Soit du ' . $tab['dateD'], 0, 0, 'C');
         $pdf->Cell(30, 10, 'à  ' . $tab['heureD'] . ' Heures ', 0, 0);
-        $pdf->Cell(30, 10, ' au  ' . $tab['dateF'], 0, 0);
+        $pdf->Cell(30, 10, ' au  ' . $tab['dateF']->format("d/m/Y"), 0, 0);
         $pdf->Cell(30, 10, '  à ' . $tab['heureF'] . ' Heures ', 0, 1);
         $pdf->Cell(0, 10, 'Motif : ' . $tab['motif'], 0, 1);
         $pdf->Cell(80, 10, 'Client : ' . $tab['Client'], 0, 0);

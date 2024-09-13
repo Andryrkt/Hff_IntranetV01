@@ -205,4 +205,9 @@ class SousTypeDocument
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->codeSousType;
+    }
 }
