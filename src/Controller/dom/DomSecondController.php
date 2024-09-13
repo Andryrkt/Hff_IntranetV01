@@ -15,6 +15,7 @@ use App\Controller\Traits\DomsTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,6 +98,13 @@ class DomSecondController extends Controller
                     $matricule = $form1Data['matricule'];
             }
             
+            dd($form1Data);
+            if ($form1Data['sousTypeDocument']->getCodeSousType() === 'FRAIS EXCEPTIONNEL') {
+                $site = self::$em->getRepository(Site::class)->find(1);
+            } else {
+                $site = $domForm->getSite();
+            }
+
             $dom
                 ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
                 ->setSousTypeDocument($sousTypeDocument)
@@ -117,7 +125,7 @@ class DomSecondController extends Controller
                 ->setAgenceDebiteurId($agenceDebiteur)
                 ->setServiceDebiteurId($serviceDebiteur)
                 ->setCategoryId($categoryId)
-                ->setSiteId($domForm->getSite())
+                ->setSiteId($site)
                 ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
                 ->setHeureFin($domForm->getHeureFin()->format('H:i'))
                 ->setEmetteur($domForm->getAgenceEmetteur().'-'.$domForm->getServiceEmetteur())

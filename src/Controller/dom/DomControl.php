@@ -481,7 +481,7 @@ class DomControl extends Controller
 
                     if ($libmodepaie === "ESPECES") {
                         $mode =  $valModesp;
-                        $modeDB = "ESPECES " . $valModesp;
+                        $modeDB = "ESPECES :" . $valModesp;
                     }
                     if ($libmodepaie === "MOBILE MONEY") {
                         $mode =  "TEL " . $valModemob;
