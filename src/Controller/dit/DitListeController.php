@@ -42,9 +42,6 @@ class DitListeController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-       
-        //variable pour tester s'il n'y pas de donner à afficher
-        $empty = false;
     
         if($form->isSubmitted() && $form->isValid()) {
             
@@ -98,22 +95,11 @@ class DitListeController extends Controller
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
 
+        //ajout nombre de pièce joint
         $this->ajoutNbrPj($paginationData['data'], self::$em);
 
-        
         //recuperation de numero de serie et parc pour l'affichage
-        $idMat = [];
-        $numSerieParc = [];
-        if (!empty($paginationData['data'])) {
-            $idMateriels = $this->recupIdMaterielEnChaine($paginationData['data']);
-            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-            
-            foreach ($numSerieParc as  $value) {
-                $idMat[] = $value['num_matricule'];
-            }
-        } else {
-            $empty = true;
-        }
+        $this->ajoutNumSerieNumParc($paginationData['data']);
 
 
         /** Docs à intégrer dans DW  */
@@ -138,8 +124,6 @@ class DitListeController extends Controller
 
         self::$twig->display('dit/list.html.twig', [
             'data' => $paginationData['data'],
-            'numSerieParc' => $numSerieParc,
-            'idMat' => $idMat,
             'empty' => $empty,
             'form' => $form->createView(),
             'currentPage' => $paginationData['currentPage'],
@@ -187,34 +171,41 @@ class DitListeController extends Controller
         
 
         $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
-       
+        $this->ajoutStatutAchatPiece($entities);
+
+        //ajout de donner du statut achat locaux dans data
+        $this->ajoutStatutAchatLocaux($entities);
+
+        $this->ajoutNbrPj($entities, self::$em);
+
+          //recuperation de numero de serie et parc pour l'affichage
+          $this->ajoutNumSerieNumParc($entities);
+          
+          
     // Convertir les entités en tableau de données
     $data = [];
-    $data[] = ['N° DIT', 'Type Document', 'type de Réparation', 'Réalisé par', 'Catégorie de Demande', 'I/E', 'Débiteur', 'Emetteur', 'nom Client', 'N° Tel', 'Date de travaux', 'Devis', 'Niveau d\'urgence', 'Avis de recouvrement', 'Client sous contrat', 'Objet', 'Detail', 'Livraison Partiel', 'Id matériel', 'mail demandeur', 'date demande', 'statut Demande']; // En-têtes des colonnes
+    $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
     foreach ($entities as $entity) {
         $data[] = [
+            $entity->getIdStatutDemande()->getDescription(),
             $entity->getNumeroDemandeIntervention(), 
             $entity->getTypeDocument()->getDescription(),
-            $entity->getTypeReparation(),
-            $entity->getReparationRealise(),
-            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
-            $entity->getInternetExterne(),
-            $entity->getAgenceServiceDebiteur(),
-            $entity->getAgenceServiceEmetteur(),
-            $entity->getNomClient(),
-            $entity->getNumeroTel(),
-            $entity->getDatePrevueTravaux(),
-            $entity->getDemandeDevis(),
             $entity->getIdNiveauUrgence()->getDescription(),
-            $entity->getAvisRecouvrement(),
-            $entity->getClientSousContrat(),
-            $entity->getObjetDemande(),
-            $entity->getDetailDemande(),
-            $entity->getLivraisonPartiel(),
-            $entity->getIdMateriel(),
-            $entity->getMailDemandeur(),
+            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
+            $entity->getNumSerie(),
+            $entity->getNumParc(),
             $entity->getDateDemande(),
-            $entity->getIdStatutDemande()->getDescription()
+            $entity->getInternetExterne(),
+            $entity->getAgenceServiceEmetteur(),
+            $entity->getAgenceServiceDebiteur(),
+            $entity->getObjetDemande(),
+            $entity->getSectionAffectee(),
+            $entity->getNumeroOr(),
+            $entity->getStatutOr(),
+            $entity->getStatutAchatPiece(),
+            $entity->getStatutAchatLocaux(),
+            $entity->getNbrPj(),
+            $entity->getUtilisateurDemandeur()
         ];
     }
 

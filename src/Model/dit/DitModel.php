@@ -146,6 +146,26 @@ class DitModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupNumSerieParc($matricule)
+    {
+        $statement = "SELECT
+        mmat_nummat as num_matricule,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc
+
+        from mat_mat
+        where mmat_nummat ='".$matricule."'
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 
     public function recuperationIdMateriel($numParc = '', $numSerie = '')
     {

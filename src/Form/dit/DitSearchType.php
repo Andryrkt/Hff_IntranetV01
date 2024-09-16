@@ -76,7 +76,7 @@ class DitSearchType extends AbstractType
             'label' => 'Statut',
             'class' => StatutDemande::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un statut --',
             'required' => false,
             'attr' => [
                 'class' => 'statut'

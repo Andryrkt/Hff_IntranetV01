@@ -174,6 +174,17 @@ trait DitListTrait
         ];
     }
 
+    private function ajoutNumSerieNumParc($data)
+    {
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                // Associez chaque entité à ses valeurs de num_serie et num_parc
+                $data[$i]->setNumSerie($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_serie']);
+                $data[$i]->setNumParc($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_parc']);
+            }
+    }
+    }
+
     private function ajoutStatutAchatPiece($data){
         for ($i=0 ; $i < count($data) ; $i++ ) { 
             if ($data[$i]->getNumeroOR() !== null) {

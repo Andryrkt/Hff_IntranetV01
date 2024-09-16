@@ -83,9 +83,13 @@
 								<td class="bg-warning bg-gradient fw-bold text-cente">
 									{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
-								<td class="bg-warning bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								<td class="bg-warning bg-gradient fw-bold">
+									<a href="#">{{item.idStatutDemande.description | trim}}</a>
+								</td>
 							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
-								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								<td class="bg-success bg-gradient fw-bold">
+									<a href="#">{{item.idStatutDemande.description | trim}}</a>
+								</td>
 							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
 								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
@@ -101,23 +105,8 @@
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
 							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-
-							{% if item.idMateriel not in idMat %}
-								<td>
-									-
-								</td>
-								<td>
-									-
-								</td>
-							{% else %}
-								{% for num in numSerieParc %}
-									{% if item.idMateriel == num.num_matricule %}
-										<td>{{ num.num_serie}}</td>
-										<td>{{ num.num_parc}}</td>
-									{% endif %}
-								{% endfor %}
-							{% endif %}
-
+							<td>{{ item.numSerie}}</td>
+							<td>{{ item.numParc}}</td>
 							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
 							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>

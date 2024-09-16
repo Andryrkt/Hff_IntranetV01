@@ -142,3 +142,9 @@ CREATE TABLE historique_operation_document (
     CONSTRAINT FK_historique_operation_document_type_operation FOREIGN KEY (idTypeOperation) REFERENCES type_operation (id),
     CONSTRAINT FK_historique_operation_document_type_document FOREIGN KEY (idTypeDocument) REFERENCES type_document (id),
 );
+
+ALTER TABLE demande_intervention ADD section_support_1 VARCHAR(255)
+
+ALTER TABLE demande_intervention ADD section_support_2 VARCHAR(255)
+
+ALTER TABLE demande_intervention ADD section_support_3 VARCHAR(255);
