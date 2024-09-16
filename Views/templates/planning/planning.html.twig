@@ -111,8 +111,9 @@
 							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
 							{% for i in 1..12 %}
 							
-								<td class="{% if item is not empty %}{{ classe }}{% endif %}">
 									{% set items = moisDetails | filter(mois => mois.mois == i) %}
+							
+								<td class="{% if items is not empty %}{{ classe }}{% endif %}">
              					   {% if items is not empty %}
                  					  {% for item in items %}
                      				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
