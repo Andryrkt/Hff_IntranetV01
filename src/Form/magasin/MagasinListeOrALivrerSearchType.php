@@ -23,7 +23,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
     
 
     const OR_COMPLET_OU_NON = [
-        'TOUTS LES OR' => 'TOUTS LES OR',
+        'TOUTS' => 'TOUTS LES OR',
         'COMPLET' => 'ORs COMPLET',
         'INCOMPLET' => 'ORs INCOMPLETS'
     ];
