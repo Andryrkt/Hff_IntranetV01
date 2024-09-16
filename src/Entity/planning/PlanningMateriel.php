@@ -17,6 +17,7 @@ class PlanningMateriel{
     private $orIntv;
     private $qteCdm;
     private $qteLiv;
+    private $qteAll;
     public $moisDetails = [];
 
     /**
@@ -321,12 +322,32 @@ class PlanningMateriel{
         return $this;
     }
 
-    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv) {
+     /**
+     * Get the value of qteAll
+     */ 
+    public function getQteAll()
+    {
+        return $this->qteAll;
+    }
+
+    /**
+     * Set the value of qteAll
+     *
+     * @return  self
+     */ 
+    public function setQteAll($qteAll)
+    {
+        $this->qteAll = $qteAll;
+
+        return $this;
+    }
+    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv, $qteAll) {
         $this->moisDetails[] = [
             'mois' => $mois,
             'orIntv' => $orIntv,
             'qteCdm' => $qteCdm,
-            'qteLiv' => $qteLiv
+            'qteLiv' => $qteLiv,
+            'qteAll' => $qteAll
         ];
     }
     

@@ -192,10 +192,6 @@ trait PlanningModelTrait
           }
           return $vconditionNumParc;
     }
-        
 
-        
-       
-  
     
 }

@@ -97,8 +97,10 @@
 							{% set classe = '' %}
 
 							{% if item.qtecdm * 1 == item.qteliv * 1 %}
+							{# total livré #}
 								{% set classe = 'bg-success text-white' %}
-							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 < item.qtecdm * 1 %}
+							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
+							{# partiellement  #}
 								{% set classe = 'bg-warning text-white' %}
 							{% else %}
 								{% set classe = '' %}

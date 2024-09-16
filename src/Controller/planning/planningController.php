@@ -2,7 +2,7 @@
 namespace App\Controller\planning;
 
 use App\Controller\Controller;
-
+use App\Controller\Traits\PlanningTraits;
 use App\Model\planning\PlanningModel;
 
 use App\Entity\planning\PlanningSearch;
@@ -15,13 +15,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class PlanningController extends Controller
 {        
     use Transformation; 
-
+    use PlanningTraits;
         private PlanningModel $planningModel;
-
-        public function __construct()
+        
+           public function __construct()
         {
             parent::__construct();
             $this->planningModel = new PlanningModel();
+          
 
         }
 
@@ -51,14 +52,14 @@ class PlanningController extends Controller
            $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-                //dd($form->getdata());
+               // dd($form->getdata());
                 $criteria =  $form->getdata();
                 
             }
+            $lesOrvalides = $this->recupNumOrValider($criteria);
            
-
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria);
-            
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+            dd($data);
            
              
             $table = [];
@@ -82,7 +83,8 @@ class PlanningController extends Controller
                         ->setOrIntv($item['orintv'])
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
-                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'])
+                        ->setQteAll($item['qteall'])
+                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'])
                     ;
                     $table[] = $planningMateriel;
             }
@@ -102,7 +104,8 @@ foreach ($table as $materiel) {
                 $moisDetail['mois'],
                 $moisDetail['orIntv'],
                 $moisDetail['qteCdm'],
-                $moisDetail['qteLiv']
+                $moisDetail['qteLiv'],
+                $moisDetail['qteall']
             );
         }
     }
