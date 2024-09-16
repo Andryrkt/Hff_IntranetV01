@@ -113,20 +113,20 @@
 							
 								<td class="{% if item is not empty %}{{ classe }}{% endif %}">
 									{% set items = moisDetails | filter(mois => mois.mois == i) %}
-                {% if items is not empty %}
-                    {% for item in items %}
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-                            {{ item.orIntv }}
-                        </a><br>
-                    {% endfor %}
-                {% else %}
-                    <!-- Contenu pour les mois sans valeur -->
-                    -
-                {% endif %}
+             					   {% if items is not empty %}
+                 					  {% for item in items %}
+                     				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+											{{ item.orIntv }}
+                     				   </a><br>
+                  				  {% endfor %}
+                					{% else %}
+                				    <!-- Contenu pour les mois sans valeur -->
+                    					-
+               					 {% endif %}
 								</td>
 							{% endfor %}
 						</tr>
-					{% endfor %}
+				     {% endfor %}
 				</tbody>
 			</table>
 		{% endif %}
