@@ -78,8 +78,7 @@ trait DitTrait
 
     private function pdfDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
     {
-            
-        
+
         //Objet - Detail
         $demandeIntervention->setObjetDemande($dits->getObjetDemande());
         $demandeIntervention->setDetailDemande($dits->getDetailDemande());

@@ -12,9 +12,15 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\DomsTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\Site;
+use App\Entity\admin\dom\SousTypeDocument;
+use App\Service\genererPdf\GeneratePdfDom;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 class DomSecondController extends Controller
 {
@@ -35,7 +41,8 @@ class DomSecondController extends Controller
         
 
         $is_temporaire = $form1Data['salarier'];
-
+dump($form1Data);
+dd($dom);
     
         $form =self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
@@ -44,133 +51,153 @@ class DomSecondController extends Controller
 
             $domForm = $form->getData();
 
-            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(1);
-            if($domForm->getModePayement() === 'MOBILE MONEY'){
-                $mode = $form->get('mode')->getData();
-                if (substr($form->get('mode')->getData(),0,4) === '+261') {
-                    $numTel = str_replace('+261', '0', $form->get('mode')->getData());
-                    $mode = str_replace('+261', '0',$form->get('mode')->getData());
-                } else {
-                    $numTel = $form->get('mode')->getData();
-                    $mode = $form->get('mode')->getData();
-                }
+            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
+
+            $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($dom->getMatricule());
+$verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
                 
-            } else if($domForm->getModePayement() === 'VIREMENT BANCAIRE') {
-                $mode = $form->get('mode')->getData();
-                $numTel ='';
-            } else {
-                $mode = '';
-                $numTel = '';
-            }
-            $agenceDebiteur = $domForm->getAgence();
-            $serviceDebiteur= $domForm->getService();
-            $agenceEmetteur= self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($domForm->getAgenceEmetteur(),0,2)]);
-            $serviceEmetteur= self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($domForm->getServiceEmetteur(),0,3)]);
-            $supplementJournaliere = $form->get('supplementJournaliere')->getData();
+if ($form1Data['salarier'] === "PERMANANT") {
+                    
+                    if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) {
+                        if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
+
+                                if ($verificationDateExistant) {
+                                    $message = "Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+                                    $this->notification($message);
+                                } else {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                }
+                        } 
+
+                        if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
+                            
+                            if ($verificationDateExistant) {
+                                $message = "Cette Personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                $this->notification($message);
+                            } else {
+                                    if ($dom->getModePayement() !== 'MOBILE MONEY') {
+                                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                    } elseif ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000) {
+                                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                    } 
+                                    else {
+                                        $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                        $this->notification($message);
+                                    }
+                            }
+                        } else {
+                        
+                            
+                                if ($dom->getModePayement() !== 'MOBILE MONEY') {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                } elseif ($dom->getModePayement() === 'MOBILE MONEY' &&  $dom->getTotalGeneralPayer() <= 500000) {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                } else {
+                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                    $this->notification($message);
+                                
+                                }
+                        } 
+                    } else {
+                            if ($dom->getModePayement() !== 'MOBILE MONEY') {
+                            
+                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            } elseif ($dom->getModePayement()=== 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000) {
+                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            } 
+                            else {
+                                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                $this->notification($message);
+                            }
+                    } 
+                } else {
+
+                    if ($form1Data['sousTypeDocument'] !== 'COMPLEMENT') {
+                        
+                        if ($form1Data['sousTypeDocument'] === 'FRAIS EXCEPTIONNEL' && $dom->getDevis() !== 'MGA') {
+
+
+                            if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
+                            
+                                if ($verificationDateExistant) {
+
+                                    $message = "Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                    $this->notification($message);
+                                } else {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                }
+                            } else {
+                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            } 
+                        }
+
+                        if ($DomMaxMinDate !== null  && !empty($DomMaxMinDate)) {
+                            
+                            if ($verificationDateExistant) {
+
+                                $message = "Cette personne a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                                $this->notification($message);
+                            } else {
+
+                                if ($dom->getModePayement() !== 'MOBILE MONEY') {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                } elseif ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000) {
+                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                    
+                                } else {
+
+                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                    $this->notification($message);
+                                }
+                            }
+                        } else {
+
+                            if ($dom->getModePayement() !== 'MOBILE MONEY') {
+                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                                
+                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                                
+                            } else {
+                                $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                                $this->notification($message);
+                            }
+                        } 
+                    } else {
+
+                        if ($libmodepaie !== 'MOBILE MONEY') {
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                        } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                        } 
+                        else {
+                            $message = "Assurer que le Montant Total est supérieur ou égale à 500.000";
+
+                            $this->notification($message);
+                        }
+                        
+                    }
+                
+        }
+    
+
         
-            if ($form1Data['salarier'] === "TEMPORAIRE") {
-                $dom->setNom($form1Data['nom']);
-                $dom->setPrenom($form1Data['prenom']);
-                $dom->setCin($form1Data['cin']);
-            } else {
-                $personnel = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
-                $dom->setNom($personnel->getNom());
-                $dom->setPrenom($personnel->getPrenoms());
-            }
 
-            $dom
-                ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
-                ->setSousTypeDocument($form1Data['sousTypeDocument'])
-                ->setCategorie($form1Data['categorie'])
-                ->setMatricule($form1Data['matricule'])
-                ->setUtilisateurCreation($_SESSION['user'])
-                ->setNomSessionUtilisateur($_SESSION['user'])
-                ->setNumeroOrdreMission($this->autoINcriment('DOM'))
-                ->setIdStatutDemande($statutDemande)
-                ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence().$serviceDebiteur->getCodeService())
-                ->setModePayement($domForm->getModePayement().':'.$mode)
-                ->setCodeStatut($statutDemande->getCodeStatut())
-                ->setNumeroTel($numTel)
-                ->setLibelleCodeAgenceService($agenceEmetteur->getLibelleAgence().'-'.$serviceEmetteur->getLibelleService())
-                ->setDroitIndemnite($supplementJournaliere)
-                ->setAgenceEmetteurId($agenceEmetteur)
-                ->setServiceEmetteurId($serviceEmetteur)
-                ->setAgenceDebiteurId($agenceDebiteur)
-                ->setServiceDebiteurId($serviceDebiteur)
-                ->setCategoryId($form1Data['categorie'])
-                ->setSiteId($domForm->getSite())
-                ->setHeureDebut($domForm->getHeureDebut()->format('H:i'))
-                ->setHeureFin($domForm->getHeureFin()->format('H:i'))
-                ->setEmetteur($domForm->getAgenceEmetteur().'-'.$domForm->getServiceEmetteur())
-                ->setDebiteur($domForm->getAgence()->getLibelleAgence().'-'.$domForm->getService()->getLibelleService())
-            ;
-        
-            dd($dom);
 
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM']);
-            $application->setDerniereId($dom->getNumeroOrdreMission());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
 
-            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            // self::$em->persist($dom->getCategorie());
-            // self::$em->persist($dom->getSousTypeDocument());
 
-            self::$em->persist($dom);
-      
-            self::$em->flush();
 
-            if(explode(':',$dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':',$dom->getModePayement())[0] === 'ESPECE'){
-                $mode = 'TEL'.explode(':',$dom->getModePayement())[1];
-            } else if(explode(':',$dom->getModePayement())[0] === 'VIREMENT BANCAIRE'){
-                $mode = 'CPT'.explode(':',$dom->getModePayement())[1];
-            }
 
-            $tabInternePdf = [
-                "Devis" => $dom->getDevis(),
-                "Prenoms" => $dom->getPrenom(),
-                "AllMontant" => $dom->totalGeneralPayer(),
-                "Code_serv" => $dom->getAgenceEmetteur(),
-                "dateS" => $dom->getDateDemande()->format("d/m/Y"),
-                "NumDom" => $dom->getNumeroOrdreMission(),
-                "serv" => $dom->getServiceEmetteur(),
-                "matr" => $dom->getMatricule(),
-                "typMiss" => $dom->getSousTypeDocument()->getCodeSousType(),
 
-                "Nom" => $dom->getNom(),
-                "NbJ" => $dom->getNombreJour(),
-                "dateD" => $dom->getDateDebut()->format("d/m/Y"),
-                "heureD" => $dom->getHeureDebut(),
-                "dateF" => $dom->getDateFin(),
-                "heureF" => $dom->getHeureFin()->format("d/m/Y"),
-                "motif" => $dom->getMotifDeplacement(),
-                "Client" => $dom->getClient(),
-                "fiche" => $dom->getFiche(),
-                "lieu" => $dom->getLieuIntervention(),
-                "vehicule" => $dom->getVehiculeSociete(),
-                "numvehicul" => $dom->getNumVehicule(),
-                "idemn" => $dom->getIndemniteForfaitaire(),
-                "totalIdemn" => $dom->getTotalIndemniteForfaitaire(),
-                "motifdep01" => $dom->getMotifAutresDepense1(),
-                "montdep01" => $dom->getAutresDepense1(),
-                "motifdep02" => $dom->getMotifAutresDepense2(),
-                "montdep02" => $dom->getAutresDepense2(),
-                "motifdep03" => $dom->getMotifAutresDepense3(),
-                "montdep03" => $dom->getAutresDepense3(),
-                "totaldep" => $dom->getTotalAutresDepenses(),
-                "libmodepaie" => explode(':',$dom->getModePayement())[0],
-                "mode" => $mode,
-                "codeAg_serv" => substr($domForm->getAgenceEmetteur(),0,2).substr($domForm->getServiceEmetteur(),0,3),
-                "CategoriePers" => $dom->getCategorie()->getDescription(),
-                "Site" => $dom->getSite()->getNomZone(),
-                "Idemn_depl" => $dom->getIdemnityDepl(),
-                "MailUser" => $MailUser,
-                "Bonus" => $dom->getDroitIndemnite(),
-                "codeServiceDebitteur" => $dom->getAgence()->getCodeAgence(),
-                "serviceDebitteur" => $dom->getService()->getCodeService()
-            ];
+
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('domList_ShowListDomRecherche');
@@ -182,4 +209,10 @@ class DomSecondController extends Controller
         ]);
     }
 
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("dom_first_form");
+    }
 }

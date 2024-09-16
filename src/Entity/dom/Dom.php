@@ -52,7 +52,7 @@ class Dom
     private string $typeDocument;
 
   /**
-     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom")
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument;//relation avec la table sousTypeDocument
@@ -144,9 +144,9 @@ class Dom
     private string $vehiculeSociete;
 
     /**
-     * @ORM\Column(type="string",name= "Indemnite_Forfaitaire")
+     * @ORM\Column(type="string",name= "Indemnite_Forfaitaire", nullable=true)
      */
-    private ?string $indemniteForfaitaire;//relation avec la table idemnity
+    private ?string $indemniteForfaitaire = null;//relation avec la table idemnity
 
     /**
      * @ORM\Column(type="string", length=50, name="Total_Indemnite_Forfaitaire",nullable=true)
@@ -774,12 +774,12 @@ class Dom
     }
 
 
-    public function getPieceJoint1(): string
+    public function getPieceJoint1()
     {
         return $this->pieceJoint1;
     }
 
-    public function setPieceJoint1(string $pieceJointe1): self
+    public function setPieceJoint1($pieceJointe1): self
     {
         $this->pieceJoint1 = $pieceJointe1;
 
@@ -788,12 +788,12 @@ class Dom
 
 
     
-    public function getPieceJoint2(): string
+    public function getPieceJoint2()
     {
         return $this->pieceJoint2;
     }
 
-    public function setPieceJoint2(string $pieceJointe2): self
+    public function setPieceJoint2($pieceJointe2): self
     {
         $this->pieceJoint2 = $pieceJointe2;
 
@@ -801,12 +801,12 @@ class Dom
     }
 
 
-    public function getPieceJoint3(): string
+    public function getPieceJoint3()
     {
         return $this->pieceJoint3;
     }
 
-    public function setPieceJoint3(string $pieceJointe3): self
+    public function setPieceJoint3($pieceJointe3): self
     {
         $this->pieceJoint3 = $pieceJointe3;
 
@@ -932,12 +932,12 @@ class Dom
     }
 
 
-    public function getFiche(): string
+    public function getFiche()
     {
         return $this->fiche;
     }
 
-    public function setFiche(string $fiche): self
+    public function setFiche($fiche): self
     {
         $this->fiche = $fiche;
 
