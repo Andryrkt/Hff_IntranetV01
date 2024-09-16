@@ -18,7 +18,7 @@ class BadmRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('d')
             ->select('DISTINCT d.idMateriel')
             ->leftJoin('d.statutDemande', 's');
-            $queryBuilder->where($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+        $queryBuilder->where($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
             ->setParameter('excludedStatuses', $excludedStatuses);
 
             $results = $queryBuilder->getQuery()->getArrayResult();
