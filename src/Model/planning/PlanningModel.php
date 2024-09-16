@@ -164,7 +164,6 @@ class PlanningModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
-        dd($statement);
         return $resultat;
   }
     
@@ -182,12 +181,12 @@ class PlanningModel extends Model
                      CASE  WHEN slor_natcm = 'C' THEN 
                      'COMMANDE'
                       WHEN slor_natcm = 'L' THEN 
-                      'RECEPTIONNE'
+                      'RECEPTION'
                       END AS Statut_ctrmq,
                       CASE WHEN slor_natcm = 'C' THEN 
                       slor_numcf
                       WHEN slor_natcm = 'L' THEN 
-                      (SELECT fllf_numcde FROM frn_llf WHERE fllf_numliv = slor_numcf
+                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
                       AND fllf_ligne = slor_noligncm
                       AND fllf_refp = slor_refp)
                       END AS numeroCmd,
@@ -197,7 +196,7 @@ class PlanningModel extends Model
                       WHEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) = slor_qteres AND slor_qterel = 0 AND slor_qterea = 0 THEN
                         trim('DISPO STOCK')
                       WHEN slor_qterea =  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
-                         trim('LIVRER')
+                         trim('LIVRE')
                       WHEN slor_natcm = 'C' THEN
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 

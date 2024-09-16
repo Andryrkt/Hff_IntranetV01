@@ -106,19 +106,23 @@
 
 
 							{% set moisDetails = item.moisDetails %}
+	
 
 							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
 							{% for i in 1..12 %}
-								{% set item = moisDetails | filter(mois => mois.mois == i) | first %}
+							
 								<td class="{% if item is not empty %}{{ classe }}{% endif %}">
-									{% if item is not empty %}
-										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
-											{{ item.orIntv }}
-										</a>
-									{% else %}
-										<!-- Contenu pour les mois sans valeur -->
-										-
-									{% endif %}
+									{% set items = moisDetails | filter(mois => mois.mois == i) %}
+                {% if items is not empty %}
+                    {% for item in items %}
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                            {{ item.orIntv }}
+                        </a><br>
+                    {% endfor %}
+                {% else %}
+                    <!-- Contenu pour les mois sans valeur -->
+                    -
+                {% endif %}
 								</td>
 							{% endfor %}
 						</tr>

@@ -122,7 +122,7 @@ class PlanningSearchType extends AbstractType
                 ])
                 ->add('agenceDebite', ChoiceType::class,[
                     'label' =>'Agence Débiteur : ',
-                    'required' =>true,
+                    'required' =>false,
                     'choices' => $agenceDebite ,
                     'placeholder' => " -- choisir une agence --",
                     
