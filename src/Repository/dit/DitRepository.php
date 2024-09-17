@@ -14,8 +14,7 @@ class DitRepository extends EntityRepository
     {
         $sectionSupport = $this->createQueryBuilder('d')
             ->select('d.sectionSupport1, d.sectionSupport2, d.sectionSupport3')
-            ->where('d.id = :id')
-            ->setParameter('id', $id)
+            ->where('d.id ='. $id)
             ->getQuery()
         ->getScalarResult();
         return array_column($sectionSupport, 'sectionAffectee');

@@ -458,10 +458,19 @@ class DemandeIntervention
 
     private $nbrPj;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_1")
+     */
     private $sectionSupport1;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_2")
+     */
     private $sectionSupport2;
     
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_3")
+     */
     private $sectionSupport3;
 
     //===================================================================================================================
