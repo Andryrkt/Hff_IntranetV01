@@ -9,6 +9,7 @@ use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
+use App\Service\fusionPdf\FusionPdf;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -59,7 +60,7 @@ class PlanningController extends Controller
             $lesOrvalides = $this->recupNumOrValider($criteria);
            
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
-            dd($data);
+            
            
              
             $table = [];
@@ -91,6 +92,7 @@ class PlanningController extends Controller
 
 
 // Fusionner les objets en fonction de l'idMat
+
 $fusionResult = [];
 foreach ($table as $materiel) {
     $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
@@ -105,12 +107,11 @@ foreach ($table as $materiel) {
                 $moisDetail['orIntv'],
                 $moisDetail['qteCdm'],
                 $moisDetail['qteLiv'],
-                $moisDetail['qteall']
+                $moisDetail['qteAll']
             );
         }
     }
 }
-
 
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),

@@ -28,9 +28,11 @@
 		{% else %}
 			<div class="container">
 				<div class="mb-3">
-					<small class="text-success">Tout livrer |
+					<small class="text-success">Tout livré |
 					</small>
-					<small class="text-warning">Partiellement livrer</small>
+					<small class="text-warning">Partiellement livré |</small>
+					<small class="text-info">Partiellement complet |</small>
+					<small class="text-primary">complet non livré</small>
 				</div>
 				<div class="d-flex justify-content-between">
 					<div>
@@ -100,12 +102,21 @@
 							{# total livré #}
 								{% set classe = 'bg-success text-white' %}
 							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
-							{# partiellement  #}
+							{# partiellement livré #}
 								{% set classe = 'bg-warning text-white' %}
+							{% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 %}
+								{% set classe = 'bg-info text-white' %}
+							{# partiellement complet #}
+							{%  elseif item.qtecdm * 1 == item.qteall * 1 and item.qteliv * 1 < item.qtecdm * 1 %}
+								{% set classe = 'bg-primary text-white' %}
+							{# complet non livré #}
 							{% else %}
 								{% set classe = '' %}
 							{% endif %}
-
+							{# {{ dump(item.qteliv) }}
+							{{ dump(item.qtecdm) }}
+							{{ dump(item.qteall) }}
+							{{ dump(classe) }} #}
 
 							{% set moisDetails = item.moisDetails %}
 	
