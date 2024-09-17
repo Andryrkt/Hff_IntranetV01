@@ -19,7 +19,6 @@ class PlanningModel extends Model
                       FROM agr_succ
                       WHERE asuc_codsoc = 'HF'
                       AND  (ASUC_NUM like '01' 
-                      or ASUC_NUM like '10' 
                       or ASUC_NUM like '20' 
                       or ASUC_NUM like '30'
                        or ASUC_NUM like '40')
@@ -96,9 +95,13 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-  public function recuperationMaterielplanifier($criteria)
+  public function recuperationMaterielplanifier($criteria, $lesOrValides)
   {
-
+    if(!empty($lesOrValides)){
+      $vOrvalDw = "AND seor_numor in ('".$lesOrValides."') ";
+    }else{
+      $vOrvalDw = "";
+    }
    $vYearsStatutPlan =  $this->planAnnee($criteria);
    $vMonthStatutPlan = $this->planMonth($criteria);
    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
@@ -130,8 +133,8 @@ class PlanningModel extends Model
                       seor_numor ||'-'||sitv_interv as orIntv,
 
                       (  SELECT SUM(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QteCdm,
-                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QtLiv
-                      
+                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QtLiv,
+                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  ) as QteALL
 
                     FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
@@ -148,6 +151,9 @@ class PlanningModel extends Model
                     AND (seor_nummat = mmat_nummat)
                     AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
+
+                   --  $vOrvalDw
+
                     AND $vYearsStatutPlan = $annee
                     $agence
                     $vStatutInterneExterne
@@ -159,12 +165,12 @@ class PlanningModel extends Model
                     $vconditionIdMat
                     $vconditionNumOr
                     $vconditionNumSerie
-                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
+          // dd($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
-        dd($statement);
         return $resultat;
   }
     
@@ -182,12 +188,12 @@ class PlanningModel extends Model
                      CASE  WHEN slor_natcm = 'C' THEN 
                      'COMMANDE'
                       WHEN slor_natcm = 'L' THEN 
-                      'RECEPTIONNE'
+                      'RECEPTION'
                       END AS Statut_ctrmq,
                       CASE WHEN slor_natcm = 'C' THEN 
                       slor_numcf
                       WHEN slor_natcm = 'L' THEN 
-                      (SELECT fllf_numcde FROM frn_llf WHERE fllf_numliv = slor_numcf
+                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
                       AND fllf_ligne = slor_noligncm
                       AND fllf_refp = slor_refp)
                       END AS numeroCmd,
@@ -197,7 +203,7 @@ class PlanningModel extends Model
                       WHEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) = slor_qteres AND slor_qterel = 0 AND slor_qterea = 0 THEN
                         trim('DISPO STOCK')
                       WHEN slor_qterea =  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
-                         trim('LIVRER')
+                         trim('LIVRE')
                       WHEN slor_natcm = 'C' THEN
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
@@ -320,4 +326,52 @@ public function recuperationEtaMag($numOr, $refp){
         return $data;
   }
 
+  /**
+   * recuperation numOr valide dans DW (demande intervantion)
+   */
+  public function recuperationNumOrValider($criteria){
+  
+    if(!empty($criteria->getNumParc())){
+      $vconditionNumParc = " AND mmat_recalph = '".$criteria->getNumParc()."'";
+    }else{
+      $vconditionNumParc = "";
+    }
+    if(!empty($criteria->getNumSerie())){
+      $vconditionNumSerie = " AND mmat_numserie = '".$criteria->getNumSerie()."' ";
+    }else{
+      $vconditionNumSerie = "";
+    }
+    if(!empty($criteria->getNumOr())){
+      $vconditionNumOr = " AND numero_or ='".$criteria->getNumOr()."'";
+    }else{
+      $vconditionNumOr = "";
+    }
+    // if(!empty($criteria->getServiceDebite())){
+    //   $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
+    // } else{
+    //   $serviceDebite = "";
+    // } 
+    // if(!empty($criteria->getAgenceDebite())){
+    //   $agenceDebite = " AND agence_service_debiteur like  %'".substr($criteria->getAgenceDebite(),-6,2). "' % ";
+    // }else{
+    //   $agenceDebite = "";
+    // }
+
+    $statement = "SELECT 
+                  numero_or 
+                  FROM demande_intervention
+                  WHERE date_validation_or is not null
+                  and date_validation_or <>'' 
+                  $vconditionNumOr
+                   ";
+    
+     $execQueryNumOr = $this->connexion->query($statement);
+     $numOr = array();
+
+     while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+         $numOr[] = $row_num_or;
+     }
+
+     return $numOr;
+  }
 }

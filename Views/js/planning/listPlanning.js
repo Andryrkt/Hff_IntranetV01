@@ -73,11 +73,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.log(data);
         
         const tableBody = document.getElementById("commandesTableBody");
+        const Ornum = document.getElementById("orIntv");
+        
+        
         tableBody.innerHTML = ""; // Clear previous data
 
         if (data.length > 0) {
           data.forEach((detail) => {
-          
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`  ;
             // Formater la date
             let dateEtaIvato   ;
             let dateMagasin ;

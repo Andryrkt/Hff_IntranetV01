@@ -2,26 +2,28 @@
 namespace App\Controller\planning;
 
 use App\Controller\Controller;
-
+use App\Controller\Traits\PlanningTraits;
 use App\Model\planning\PlanningModel;
 
 use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
+use App\Service\fusionPdf\FusionPdf;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PlanningController extends Controller
 {        
     use Transformation; 
-
+    use PlanningTraits;
         private PlanningModel $planningModel;
-
-        public function __construct()
+        
+           public function __construct()
         {
             parent::__construct();
             $this->planningModel = new PlanningModel();
+          
 
         }
 
@@ -51,13 +53,13 @@ class PlanningController extends Controller
            $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-                //dd($form->getdata());
+               // dd($form->getdata());
                 $criteria =  $form->getdata();
                 
             }
+            $lesOrvalides = $this->recupNumOrValider($criteria);
            
-
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria);
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             
            
              
@@ -82,13 +84,15 @@ class PlanningController extends Controller
                         ->setOrIntv($item['orintv'])
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
-                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'])
+                        ->setQteAll($item['qteall'])
+                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'])
                     ;
                     $table[] = $planningMateriel;
             }
 
 
 // Fusionner les objets en fonction de l'idMat
+
 $fusionResult = [];
 foreach ($table as $materiel) {
     $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
@@ -102,12 +106,12 @@ foreach ($table as $materiel) {
                 $moisDetail['mois'],
                 $moisDetail['orIntv'],
                 $moisDetail['qteCdm'],
-                $moisDetail['qteLiv']
+                $moisDetail['qteLiv'],
+                $moisDetail['qteAll']
             );
         }
     }
 }
-
 
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),

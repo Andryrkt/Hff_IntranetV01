@@ -145,7 +145,7 @@ trait PlanningModelTrait
     }
     private function agenceDebite($criteria){
         if(!empty($criteria->getAgenceDebite())){
-            $agenceDebite = "AND sitv_succdeb = '".$criteria->getAgenceDebite(). "'";
+            $agenceDebite = " AND sitv_succdeb = '".$criteria->getAgenceDebite(). "' ";
           }else{
             $agenceDebite = "";
           }
@@ -177,7 +177,7 @@ trait PlanningModelTrait
     }
     private function numSerie($criteria){
         if(!empty($criteria->getNumSerie())){
-            $vconditionNumSerie = " AND mmat_numserie = "+ "'".$criteria->getNumSerie()."'";
+            $vconditionNumSerie = " AND mmat_numserie = '".$criteria->getNumSerie()."' ";
           }else{
             $vconditionNumSerie = "";
           }
@@ -186,16 +186,12 @@ trait PlanningModelTrait
        
     private function numParc($criteria){
         if(!empty($criteria->getNumParc())){
-            $vconditionNumParc = " AND mmat_recalph = "+ "'".$criteria->getNumParc()."'";
+            $vconditionNumParc = " AND mmat_recalph = '".$criteria->getNumParc()."'";
           }else{
             $vconditionNumParc = "";
           }
           return $vconditionNumParc;
     }
-        
 
-        
-       
-  
     
 }
