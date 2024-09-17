@@ -15,7 +15,7 @@
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
 
-		{% include "/dit/_formulaireRecherche.html.twig" %}
+		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
 	</div>
 
 	<div
@@ -27,7 +27,7 @@
 			</div>
 		{% else %}
 			<div class="container">
-				{% include "/dit/_pagination.html.twig" %}
+				{% include "/dit/shared/_pagination.html.twig" %}
 			</div>
 
 			<table class="table rounded table-plein-ecran">
@@ -84,7 +84,7 @@
 									{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
 								<td class="bg-warning bg-gradient fw-bold">
-									<a href="#">{{item.idStatutDemande.description | trim}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.numeroOr}}" id="numOr">{{item.idStatutDemande.description | trim}}</a>
 								</td>
 							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
 								<td class="bg-success bg-gradient fw-bold">
@@ -133,8 +133,9 @@
 
 	<!-- FIN tableau -->
 	{# body modal #}
-	{% include "/dit/_modal.html.twig"  %}
-	{% include "/dit/_modalDocDansDW.html.twig"  %}
+	{% include "/dit/shared/_modal.html.twig"  %}
+	{% include "/dit/shared/_modalDocDansDW.html.twig"  %}
+	{% include "/dit/shared/_modalSectionAffectee.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
