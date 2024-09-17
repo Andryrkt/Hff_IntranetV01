@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormEvents;
 use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
+use setasign\Fpdi\PdfParser\Filter\Flate;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -37,6 +38,12 @@ class PlanningSearchType extends AbstractType
                // 'TOUS' => 'TOUS',
                 'PLANIFIE' => 'PLANIFIE',
                 'NON PLANIFIE' => 'NON_PLANIFIE',
+            ];
+            const TYPELIGNE = [
+                'TOUTES' => 'TOUTES',
+                'PIECES MAGASIN' => 'PIECES MAGASIN',
+                'ACHATS LOCAUX' => 'ACHAT LOCAUX',
+                'LUBRIFIANTS' => 'LUBRIFIANTS'
             ];
 
             public function __construct()
@@ -80,6 +87,15 @@ class PlanningSearchType extends AbstractType
                     'attr' => [ 'class' => 'interneExterne'],
                              
                     ])
+
+                ->add('typeligne', ChoiceType::class,[
+                    'label' => 'Type de ligne',
+                    'required' => False,
+                    'choices' => self::TYPELIGNE,
+                    'attr' => [ 'class' => 'typeligne'],
+                    'data' => 'TOUTES'
+                    ])
+
                 ->add('facture', ChoiceType::class,[
                     'label' => 'Facturation',
                     'required' => true,
@@ -134,6 +150,7 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- choisir service--",
                     'expanded' => true,
                 ])
+              
                 
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
