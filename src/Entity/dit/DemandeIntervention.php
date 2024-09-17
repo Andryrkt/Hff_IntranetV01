@@ -458,6 +458,12 @@ class DemandeIntervention
 
     private $nbrPj;
 
+    private $sectionSupport1;
+
+    private $sectionSupport2;
+    
+    private $sectionSupport3;
+
     //===================================================================================================================
 
     public function getId()
@@ -1320,6 +1326,66 @@ class DemandeIntervention
     public function setNbrPj($nbrPj)
     {
         $this->nbrPj = $nbrPj;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sectionSupport1
+     */ 
+    public function getSectionSupport1()
+    {
+        return $this->sectionSupport1;
+    }
+
+    /**
+     * Set the value of sectionSupport1
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport1($sectionSupport1)
+    {
+        $this->sectionSupport1 = $sectionSupport1;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sectionSupport2
+     */ 
+    public function getSectionSupport2()
+    {
+        return $this->sectionSupport2;
+    }
+
+    /**
+     * Set the value of sectionSupport2
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport2($sectionSupport2)
+    {
+        $this->sectionSupport2 = $sectionSupport2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sectionSupport3
+     */ 
+    public function getSectionSupport3()
+    {
+        return $this->sectionSupport3;
+    }
+
+    /**
+     * Set the value of sectionSupport3
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport3($sectionSupport3)
+    {
+        $this->sectionSupport3 = $sectionSupport3;
 
         return $this;
     }

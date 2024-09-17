@@ -9,6 +9,17 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DitRepository extends EntityRepository
 {
+
+    public function findSectionSupport($id)
+    {
+        $sectionSupport = $this->createQueryBuilder('d')
+            ->select('d.sectionSupport1, d.sectionSupport2, d.sectionSupport3')
+            ->where('d.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+        ->getScalarResult();
+        return array_column($sectionSupport, 'sectionAffectee');
+    }
     public function findNbrPj($numDit)
     {
         $nombrePiecesJointes = $this->createQueryBuilder('d')

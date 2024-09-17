@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("dataContent").style.display = "none";
 
     // Fetch request to get the data
-    fetch(`/Hffintranet/command-modal/${id}`)
+    fetch(`/section-affectee-modal-fetch/${id}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -285,6 +285,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML = ""; // Clear previous data
+
+        console.log(data);
 
         if (data.length > 0) {
           // Masquer le spinner et afficher les données

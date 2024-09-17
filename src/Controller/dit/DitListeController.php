@@ -233,4 +233,21 @@ class DitListeController extends Controller
         echo json_encode($commandes);
     }
 
+    /**
+     * @Route("/section-affectee-modal-fetch/{id}", name="section_affectee_modal")
+     *
+     * @return void
+     */
+    public function sectionAffecteeModal($id)
+    {
+        //RECUPERATION DE LISTE COMMANDE 
+        
+            $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
+        
+
+        header("Content-type:application/json");
+
+        echo json_encode($sectionSupportAffectee);
+    }
+
 }
