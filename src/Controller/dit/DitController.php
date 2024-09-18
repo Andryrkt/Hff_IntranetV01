@@ -32,7 +32,7 @@ class DitController extends Controller
      */
     public function new(Request $request){
         
-
+        
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
        $this->initialisationForm($demandeIntervention, self::$em);

@@ -49,10 +49,6 @@ class MagasinListeOrTraiterController extends Controller
            $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-           
-            // if ($criteria['niveauUrgence'] === null){
-            //     $criteria = [];
-            // }
         } 
 
 
@@ -86,27 +82,7 @@ class MagasinListeOrTraiterController extends Controller
                 // }
             }
 
-            usort($data, function ($a, $b) {
-                $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
-                $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
-                
-                if ($dateA === $dateB) {
-                    return 0;
-                }
             
-                // Place les `null` en bas
-                if ($dateA === null) {
-                    return 1;
-                }
-                if ($dateB === null) {
-                    return -1;
-                }
-            
-                // Comparer les dates pour les autres entrées
-                return strtotime($dateA) - strtotime($dateB);
-            });
-       
-       
         self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
