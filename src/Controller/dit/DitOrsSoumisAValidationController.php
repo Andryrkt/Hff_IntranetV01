@@ -3,12 +3,12 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Entity\dit\DitInsertionOr;
-use App\Form\dit\DitInsertionOrType;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Form\dit\DitOrsSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DitInsertionOrController extends Controller
+class DitOrsSoumisAValidationController extends Controller
 {
     /**
      * @Route("/insertion-or/{numDit}", name="dit_insertion_or")
@@ -17,18 +17,16 @@ class DitInsertionOrController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
-        $ditInsertionOr = new DitInsertionOr();
-        $ditInsertionOr->setNumeroDit($numDit);
-        $form = self::$validator->createBuilder(DitInsertionOrType::class, $ditInsertionOr)->getForm();
+        $ditInsertionOr = new DitOrsSoumisAValidation();
+    
+        $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOr)->getForm();
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $ditInsertionOr->setNumeroDit($numDit);
             dump($ditInsertionOr);    
             dd($form->getData());
-
         }
 
 

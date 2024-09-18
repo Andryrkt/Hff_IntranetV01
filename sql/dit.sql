@@ -112,6 +112,62 @@ CREATE TABLE ors_soumis_a_validation (
     CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
 );
 
+EXEC sp_rename 'ors_soumis_a_validation.nombrePieceItv',
+'nombreLigne_itv',
+'COLUMN';
+
+EXEC sp_rename 'ors_soumis_a_validation.numeroModification',
+'numeroVersion',
+'COLUMN';
+
+ALTER TABLE ors_soumis_a_validation
+ADD montantPiece DECIMAL(18, 2),
+montantMo DECIMAL(18, 2),
+montantAchatLocaux DECIMAL(18, 2),
+montantFraisDivers DECIMAL(18, 2),
+montantLubrifiants DECIMAL(18, 2),
+libellelItv VARCHAR(500);
+
+ALTER TABLE ors_soumis_a_validation DROP COLUMN numeroDit;
+
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroOR VARCHAR(8),
+    dateSoumission DATETIME NOT NULL DEFAULT GETDATE (),
+    numeroItv INT,
+    nombreLigne_itv INT,
+    montantItv DECIMAL(18, 2),
+    numeroVersion INT,
+    montantPiece DECIMAL(18, 2),
+    montantMo DECIMAL(18, 2),
+    montantAchatLocaux DECIMAL(18, 2),
+    montantFraisDivers DECIMAL(18, 2),
+    montantLubrifiants DECIMAL(18, 2),
+    libellelItv VARCHAR(500),
+    CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
+EXEC sp_rename 'ors_soumis_a_validation.nombreLigne_itv',
+'nombreLigneItv',
+'COLUMN';
+
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroOR VARCHAR(8),
+    dateSoumission DATETIME NOT NULL DEFAULT GETDATE (),
+    numeroItv INT,
+    nombreLigneItv INT,
+    montantItv DECIMAL(18, 2),
+    numeroVersion INT,
+    montantPiece DECIMAL(18, 2),
+    montantMo DECIMAL(18, 2),
+    montantAchatLocaux DECIMAL(18, 2),
+    montantFraisDivers DECIMAL(18, 2),
+    montantLubrifiants DECIMAL(18, 2),
+    libellelItv VARCHAR(500),
+    CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
 CREATE TABLE type_document (
     id INT IDENTITY (1, 1),
     typeDocument VARCHAR(50),
