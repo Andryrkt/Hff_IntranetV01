@@ -41,8 +41,8 @@ class PlanningSearchType extends AbstractType
             ];
             const TYPELIGNE = [
                 'TOUTES' => 'TOUTES',
-                'PIECES MAGASIN' => 'PIECES MAGASIN',
-                'ACHATS LOCAUX' => 'ACHAT LOCAUX',
+                'PIECES MAGASIN' => 'PIECES_MAGASIN',
+                'ACHATS LOCAUX' => 'ACHAT_LOCAUX',
                 'LUBRIFIANTS' => 'LUBRIFIANTS'
             ];
 

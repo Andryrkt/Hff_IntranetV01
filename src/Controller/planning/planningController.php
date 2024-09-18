@@ -53,7 +53,7 @@ class PlanningController extends Controller
            $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-               // dd($form->getdata());
+                dd($form->getdata());
                 $criteria =  $form->getdata();
                 
             }
