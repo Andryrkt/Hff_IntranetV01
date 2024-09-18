@@ -53,12 +53,11 @@ class PlanningController extends Controller
            $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-               // dd($form->getdata());
+                //  dd($form->getdata());
                 $criteria =  $form->getdata();
                 
             }
             $lesOrvalides = $this->recupNumOrValider($criteria);
-           
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             
            

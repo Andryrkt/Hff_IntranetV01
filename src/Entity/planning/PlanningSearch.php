@@ -18,6 +18,7 @@ class PlanningSearch
     private $numParc;
     private $agenceDebite;
     private $serviceDebite;
+    private $typeligne;
     
 
     /**
@@ -276,6 +277,27 @@ class PlanningSearch
     public function setServiceDebite($serviceDebite)
     {
         $this->serviceDebite = $serviceDebite;
+
+        return $this;
+    }
+
+    
+    /**
+     * Get the value of typeLigne
+     */ 
+    public function getTypeLigne()
+    {
+        return $this->typeligne;
+    }
+
+    /**
+     * Set the value of typeLigne
+     *
+     * @return  self
+     */ 
+    public function setTypeLigne($typeligne)
+    {
+        $this->typeligne = $typeligne;
 
         return $this;
     }
