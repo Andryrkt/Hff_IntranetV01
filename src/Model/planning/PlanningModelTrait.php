@@ -33,22 +33,23 @@ trait PlanningModelTrait
     }
     private function typeLigne($criteria){
       
-      switch($criteria->getTypeligne()){
+      switch ($criteria->getTypeLigne()) {
         case "TOUTES": 
-          $vtypeligne = " ";
-          break;
+            $vtypeligne = " ";
+            break;
         case "PIECES_MAGASIN":
-          $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'  ";
-         break;
-         case "ACHAT_LOCAUX":
-          $vtypeligne = " AND slor_constp  = 'ZST'" ;
-          break;
-          case "LUBRIFIANTS":
-          $vtypeligne = "AND slor_constp = 'LUB' ";
-          break;
-
-      }
-      return $vtypeligne;
+            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'  ";
+            break;
+        case "ACHAT_LOCAUX":
+            $vtypeligne = " AND slor_constp  = 'ZST'" ;
+            break;
+        case "LUBRIFIANTS":
+            $vtypeligne = " AND slor_constp = 'LUB' ";
+            break;
+        default:
+            $vtypeligne = " ";
+    }
+    return $vtypeligne;
     }
 
     private function planAnnee($criteria){

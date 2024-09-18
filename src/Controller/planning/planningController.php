@@ -58,7 +58,6 @@ class PlanningController extends Controller
                 
             }
             $lesOrvalides = $this->recupNumOrValider($criteria);
-           
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             
            
