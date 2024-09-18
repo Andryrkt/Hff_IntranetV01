@@ -154,7 +154,7 @@ class PlanningModel extends Model
                     AND (seor_nummat = mmat_nummat)
                     AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
-                    $vOrvalDw
+                   $vOrvalDw
 
                     $vligneType
 
