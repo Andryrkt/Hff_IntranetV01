@@ -201,7 +201,11 @@ class PlanningModel extends Model
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
                             slor_qterel AS QteReliquat,
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AS QteRes_Or,
+                            CASE WHEN slor_typlig = 'P' THEN
+                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+		                        ELSE 
+                            slor_qterea 
+	                          	END AS QteRes_Or,
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
                             
