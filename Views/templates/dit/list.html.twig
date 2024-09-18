@@ -88,7 +88,7 @@
 								</td>
 							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
 								<td class="bg-success fw-bold " style="--bs-bg-opacity: .5;">
-									<a href="#">{{item.idStatutDemande.description | trim}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">{{item.idStatutDemande.description | trim}}</a>
 								</td>
 							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
 								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
@@ -140,4 +140,5 @@
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/dit/listDitModal.js" type="module"></script>
 {% endblock %}

@@ -11,14 +11,20 @@ class DitRepository extends EntityRepository
 {
 
     public function findSectionSupport($id)
-    {
-        $sectionSupport = $this->createQueryBuilder('d')
-            ->select('d.sectionSupport1, d.sectionSupport2, d.sectionSupport3')
-            ->where('d.id ='. $id)
-            ->getQuery()
+{
+    $sectionSupport = $this->createQueryBuilder('d')
+        ->select('d.sectionAffectee, d.sectionSupport1, d.sectionSupport2, d.sectionSupport3')
+        ->where('d.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
         ->getScalarResult();
-        return array_column($sectionSupport, 'sectionAffectee');
-    }
+
+    // Retourne toutes les sections sous forme d'un tableau
+    return $sectionSupport;
+}
+
+
+
     public function findNbrPj($numDit)
     {
         $nombrePiecesJointes = $this->createQueryBuilder('d')

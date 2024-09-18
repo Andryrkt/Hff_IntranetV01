@@ -240,9 +240,21 @@ class DitListeController extends Controller
      */
     public function sectionAffecteeModal($id)
     {
-        //RECUPERATION DE LISTE COMMANDE 
+        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section'];
+
+        // Récupération des données
+        $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
         
-            $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
+        // Parcourir chaque élément du tableau et supprimer les mots
+        foreach ($sectionSupportAffectee as &$value) {
+            foreach ($value as &$texte) {
+                // Vérification si c'est bien une chaîne de caractères avant d'effectuer le remplacement
+                if (is_string($texte)) {
+                    $texte = str_replace($motsASupprimer, '', $texte);
+                    $texte = trim($texte); // Supprimer les espaces en trop après remplacement
+                }
+            }
+        }
         
 
         header("Content-type:application/json");
