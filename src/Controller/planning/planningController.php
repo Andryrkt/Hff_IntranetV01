@@ -52,14 +52,22 @@ class PlanningController extends Controller
             ])->getForm();
 
             $form->handleRequest($request);
-           $criteria = $planningSearch;
+            $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-                //  dd($form->getdata());
+                //   dd($form->getdata());
                 $criteria =  $form->getdata();
+              
                 
             }
+            $criteriaTAb = [];
+            //transformer l'objet ditSearch en tableau
+            $criteriaTAb = $criteria->toArray();
+            // dump($criteriaTAb);
+            //recupères les données du criteria dans une session nommé dit_serch_criteria
+            $this->sessionService->set('planning_search_criteria', $criteriaTAb);
 
+           
             if($request->query->get('action') !== 'oui') {
                 $lesOrvalides = $this->recupNumOrValider($criteria);
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
@@ -147,12 +155,13 @@ foreach ($table as $materiel) {
      */
     public function detailModal($numOr)
     {
-       
+        $criteria = $this->sessionService->get('planning_search_criteria', []);
+    // dd($criteria);
         //RECUPERATION DE LISTE DETAIL 
         if ($numOr === '') {
             $details = [];
         } else {
-            $details = $this->planningModel->recuperationDetailPieceInformix($numOr);
+            $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
             
             $detailes = [];
             $recupPariel = [];

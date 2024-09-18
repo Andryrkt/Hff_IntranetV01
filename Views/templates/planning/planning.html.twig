@@ -34,8 +34,8 @@
 					<i class="fa-solid fa-circle text-warning"></i>
 					<small class="text-warning">Partiellement livré |</small>
 					<i class="fa-solid fa-circle text-info"></i>
-					<small class="text-info">Partiellement complet |</small>
-					<i class="fa-solid fa-circle text-primary"></i>
+					{# <small class="text-info">Partiellement complet |</small>
+					<i class="fa-solid fa-circle text-primary"></i> #}
 					<small class="text-primary">Complet non livré</small>
 				</div>
 				<div class="d-flex justify-content-between">
@@ -108,8 +108,8 @@
 							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
 							{# partiellement livré #}
 								{% set classe = 'bg-warning text-white' %}
-							{% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 %}
-								{% set classe = 'bg-info text-white' %}
+							{# {% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 %}
+								{% set classe = 'bg-info text-white' %} #}
 							{# partiellement complet #}
 							{%  elseif item.qtecdm * 1 == item.qteall * 1 and item.qteliv * 1 < item.qtecdm * 1 %}
 								{% set classe = 'bg-primary text-white' %}
@@ -120,6 +120,7 @@
 							{# {{ dump(item.qteliv) }}
 							{{ dump(item.qtecdm) }}
 							{{ dump(item.qteall) }}
+							{{ dump(item.orIntv) }}
 							{{ dump(classe) }} #}
 
 							{% set moisDetails = item.moisDetails %}
