@@ -301,4 +301,24 @@ class PlanningSearch
 
         return $this;
     }
+    public function toArray(): array
+    {
+        return [
+            'agence' => $this->agence,
+            'annee' => $this->annee,
+            'interneExterne' => $this->interneExterne,
+            'facture' => $this->facture,
+            'plan' => $this->plan,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'numOr' => $this->numOr,
+            'numSerie' => $this->numSerie,
+            'idMat' => $this->idMat,
+            'numParc' => $this->numParc,
+            'agenceDebite' => $this->agenceDebite,
+            'serviceDebite' => $this->serviceDebite,
+            'typeligne' => $this->typeligne
+           
+        ];
+    }
 }

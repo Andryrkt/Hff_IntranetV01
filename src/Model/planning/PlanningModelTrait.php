@@ -38,13 +38,13 @@ trait PlanningModelTrait
             $vtypeligne = " ";
             break;
         case "PIECES_MAGASIN":
-            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'  ";
+            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
             break;
         case "ACHAT_LOCAUX":
             $vtypeligne = " AND slor_constp  = 'ZST'" ;
             break;
         case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp = 'LUB' ";
+            $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P'";
             break;
         default:
             $vtypeligne = " ";

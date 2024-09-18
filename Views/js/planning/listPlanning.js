@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let statut;
             let message;
             let cmdColorRmq = '';
+            let numRef;
             if(formaterDate(detail.datestatut) == '01/01/1970'){
               dateStatut = '';
             }else{
@@ -109,6 +110,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
               numCde = '';
             }else{
               numCde = detail.numerocmd;
+            }
+            if(detail.ref == null){
+              numRef = '';
+            }else{
+              numRef = detail.ref;
             }
             if(detail.statut_ctrmq == null ){
               statrmq = '';
@@ -149,7 +155,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td ${cmdColor}>${numCde}</td> 
                       <td ${cmdColorRmq}>${statrmq}</td> 
                       <td>${detail.cst}</td> 
-                      <td>${detail.ref}</td> 
+                      <td>${numRef}</td> 
                       <td>${detail.desi	}</td> 
                       <td>${parseInt(detail.qteres_or)  }</td> 
                       <td>${parseInt(detail.qteall)	}</td> 

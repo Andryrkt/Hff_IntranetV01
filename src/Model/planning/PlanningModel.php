@@ -134,9 +134,9 @@ class PlanningModel extends Model
                       $vMonthStatutPlan as mois,
                       seor_numor ||'-'||sitv_interv as orIntv,
 
-                      (  SELECT SUM(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QteCdm,
-                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv ) as QtLiv,
-                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  ) as QteALL
+                      (  SELECT SUM(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv AND  slor_typlig = 'P') as QteCdm,
+                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv AND  slor_typlig = 'P') as QtLiv,
+                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  AND  slor_typlig = 'P') as QteALL
 
                     FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
@@ -154,7 +154,7 @@ class PlanningModel extends Model
                     AND (seor_nummat = mmat_nummat)
                     AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
-                    $vOrvalDw
+                   $vOrvalDw
 
                     $vligneType
 
@@ -172,20 +172,40 @@ class PlanningModel extends Model
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
-          //  dd($statement);
+          //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
   }
     
-  public function recuperationDetailPieceInformix($numOrIntv){
+  public function recuperationDetailPieceInformix($numOrIntv,$criteria){
+    if(!empty($criteria['typeligne'])){
+        switch($criteria['typeligne']){
+          case "TOUTES": 
+            $vtypeligne = " ";
+            break;
+        case "PIECES_MAGASIN":
+            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
+            break;
+        case "ACHAT_LOCAUX":
+            $vtypeligne = " AND slor_constp  = 'ZST'" ;
+            break;
+        case "LUBRIFIANTS":
+            $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
+            break;
+        }
+    }
       $statement = " SELECT slor_numor as numOr,
                             sitv_interv as Intv,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
                             slor_qterel AS QteReliquat,
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AS QteRes_Or,
+                            CASE WHEN slor_typlig = 'P' THEN
+                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+		                        ELSE 
+                            slor_qterea 
+	                          	END AS QteRes_Or,
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
                             
@@ -274,10 +294,11 @@ class PlanningModel extends Model
 	              JOIN sav_itv ON slor_numor = sitv_numor 
                 AND sitv_interv = slor_nogrp / 100
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
-                AND slor_typlig = 'P'
+                --AND slor_typlig = 'P'
+                $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
-      
+      // dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
