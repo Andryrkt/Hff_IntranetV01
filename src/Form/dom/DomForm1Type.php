@@ -44,6 +44,9 @@ class DomForm1Type extends AbstractType
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        
+
+     
        
         $builder
         ->add('agenceEmetteur', 
@@ -83,10 +86,10 @@ class DomForm1Type extends AbstractType
             $data = $event->getData();   
             $sousTypedocument = $data->getSousTypeDocument();
 
-            if(substr($data->getAgenceEmetteur(),0,2) === '50'){
+            if(substr($data->getAgenceEmetteur(),0,2) === '50' ){
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
            } else {
-            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
            }
 
            $criteria = [

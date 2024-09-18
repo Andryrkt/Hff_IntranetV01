@@ -2,8 +2,10 @@
 
 namespace App\Entity\admin;
 
+use App\Entity\admin\Personnel;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\AgenceServiceIriumRepository;
 
@@ -96,11 +98,17 @@ class AgenceServiceIrium
      */
     private $userAgenceService;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Personnel::class, mappedBy="agenceServiceIriumId")
+     */
+    private $personnelId;
+
     //=============================================================================================
 
     public function __construct()
     {
         $this->userAgenceService = new ArrayCollection();
+        $this->personnelId = new ArrayCollection();
     }
 
 
@@ -268,6 +276,41 @@ class AgenceServiceIrium
     public function setUserAgenceService($userAgenceService)
     {
         $this->userAgenceService = $userAgenceService;
+
+        return $this;
+    }
+
+
+    public function getPersonnelId(): Collection
+    {
+        return $this->personnelId;
+    }
+
+    public function addPersonnelId(Personnel $personnelId): self
+    {
+        if (!$this->personnelId->contains($personnelId)) {
+            $this->personnelId[] = $personnelId;
+            $personnelId->setAgenceServiceIriumId($this);
+        }
+
+        return $this;
+    }
+
+    public function removePersonnelId(Personnel $personnelId): self
+    {
+        if ($this->personnelId->contains($personnelId)) {
+            $this->personnelId->removeElement($personnelId);
+            if ($personnelId->getAgenceServiceIriumId() === $this) {
+                $personnelId->setAgenceServiceIriumId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    public function setPersonnelId($personnelId): self
+    {
+        $this->personnelId = $personnelId;
 
         return $this;
     }

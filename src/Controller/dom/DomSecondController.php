@@ -41,8 +41,7 @@ class DomSecondController extends Controller
         
 
         $is_temporaire = $form1Data['salarier'];
-dump($form1Data);
-dd($dom);
+
     
         $form =self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
@@ -161,7 +160,7 @@ if ($form1Data['salarier'] === "PERMANANT") {
 
                             if ($dom->getModePayement() !== 'MOBILE MONEY') {
                                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
-                            } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                            } elseif ($dom->getModePayement()=== 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000) {
                                 
                                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
                                 
@@ -173,9 +172,9 @@ if ($form1Data['salarier'] === "PERMANANT") {
                         } 
                     } else {
 
-                        if ($libmodepaie !== 'MOBILE MONEY') {
+                        if ($dom->getModePayement() !== 'MOBILE MONEY') {
                             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
-                        } elseif ($libmodepaie === 'MOBILE MONEY' && $AllMont <= 500000) {
+                        } elseif ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000) {
                             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
                         } 
                         else {

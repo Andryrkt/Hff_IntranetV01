@@ -61,7 +61,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
       codeAgence !== "50"
     ) {
       categorie.parentElement.style.display = "none";
-    } else if (sousTypeDocumentValue === "5" && codeAgence === "50") {
+    } else if (
+      sousTypeDocumentValue !== "2" &&
+      sousTypeDocumentValue !== "4" &&
+      codeAgence === "50"
+    ) {
       categorie.parentElement.style.display = "none";
     } else {
       categorie.parentElement.style.display = "block";

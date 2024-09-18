@@ -6,6 +6,7 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
 use App\Form\dom\DomForm1Type;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,6 +48,15 @@ class DomFirstController extends Controller
         self::$twig->display('doms/firstForm.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function autorisationRole($em): bool
+    {
+        /** CREATION D'AUTORISATION */
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = $em->getRepository(User::class)->find($userId);
+        $roleIds = $userConnecter->getRoleIds();
+        return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
 }

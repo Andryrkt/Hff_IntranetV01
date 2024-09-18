@@ -5,6 +5,7 @@ namespace App\Entity\admin;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\AgenceServiceIrium;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\PersonnelRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -93,6 +94,12 @@ class Personnel
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="personnels")
      */
     private $users;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="personnelId")
+     * @ORM\JoinColumn(name="agence_service_irium_id", referencedColumnName="id")
+     */
+    private $agenceServiceIriumId;
 
     public function __construct()
     {
@@ -296,6 +303,20 @@ class Personnel
         return $this;
     }
 
+  
+    public function getAgenceServiceIriumId()
+    {
+        return $this->agenceServiceIriumId;
+    }
+
+  
+    public function setAgenceServiceIriumId($agenceServiceIriumId): self
+    {
+        $this->agenceServiceIriumId = $agenceServiceIriumId;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -303,4 +324,6 @@ class Personnel
             'Matricule' => $this->Matricule
         ];
     }
+
+    
 }
