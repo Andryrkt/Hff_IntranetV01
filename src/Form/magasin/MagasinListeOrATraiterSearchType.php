@@ -21,7 +21,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
 {
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
         'TOUTES LIGNES' => 'TOUTS PIECES',
-        'PIECE MAGASIN' => 'PIECES MAGASIN',
+        'PIÈCES MAGASIN' => 'PIECES MAGASIN',
         'LUB' => 'LUB',
         'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
@@ -51,7 +51,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' => 'Niveau d\'urgence',
             'class' => WorNiveauUrgence::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un niveau --',
             'required' => false,
         ])
         ->add('numDit', TextType::class, [
@@ -75,7 +75,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' =>  'Constructeur',
             'required' => false,
             'choices' => $this->recupConstructeur(),
-            'placeholder' => ' -- choisir une constructeur --'
+            'placeholder' => ' -- choisir un constructeur --'
         ])
         ->add('dateDebut', DateType::class, [
             'widget' => 'single_text',

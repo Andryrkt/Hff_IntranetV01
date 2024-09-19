@@ -28,9 +28,21 @@ sectionAffecteeModal.addEventListener("show.bs.modal", function (event) {
         data.forEach((item) => {
           let row = `<tr>
                         <td class="fw-bold">${item.sectionAffectee}</td>
-                       <td>${item.sectionSupport1}</td>
-                       <td>${item.sectionSupport2}</td>
-                       <td>${item.sectionSupport3}</td>
+                        <td>${
+                          item.sectionSupport1 !== null
+                            ? item.sectionSupport1
+                            : "--"
+                        }</td>
+                        <td>${
+                          item.sectionSupport2 !== null
+                            ? item.sectionSupport2
+                            : "--"
+                        }</td>
+                        <td>${
+                          item.sectionSupport3 !== null
+                            ? item.sectionSupport3
+                            : "--"
+                        }</td>
                      </tr>`;
           tableBody.innerHTML += row;
         });

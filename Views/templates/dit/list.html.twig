@@ -84,11 +84,11 @@
 									{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
 								<td class="bg-warning bg-gradient fw-bold">
-									<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">{{item.idStatutDemande.description | trim}}</a>
+									{{item.idStatutDemande.description | trim}}
 								</td>
 							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
 								<td class="bg-success fw-bold " style="--bs-bg-opacity: .5;">
-									<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">{{item.idStatutDemande.description | trim}}</a>
+									{{item.idStatutDemande.description | trim}}
 								</td>
 							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
 								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
@@ -113,7 +113,11 @@
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
 							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
-							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
+							<td>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
+									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+								</a>
+							</td>
 							<td>
 								{% if item.numeroOr != '' %}
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
