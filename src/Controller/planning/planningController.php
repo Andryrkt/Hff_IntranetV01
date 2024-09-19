@@ -70,6 +70,7 @@ class PlanningController extends Controller
            
             if($request->query->get('action') !== 'oui') {
                 $lesOrvalides = $this->recupNumOrValider($criteria);
+                
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             } else {
                 $data = [];
@@ -162,18 +163,22 @@ foreach ($table as $materiel) {
             $details = [];
         } else {
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
-            
+        
             $detailes = [];
             $recupPariel = [];
             $recupGot = [];
             for ($i=0; $i < count($details); $i++) { 
-             
-                if(!empty($details[$i]['numerocmd']) && $details[$i]['numerocmd'] <> "0"){
+
+               
+                if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
+                   $recupGot = [];
+                } else {
                     $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
                     $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
-                    $recupGot[] = $this->planningModel->recuperationinfordGcot($details[$i]['numerocmd']);
+                    $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
                 }
-              
+                
+   
                 if(!empty($detailes[$i])){
 
                     $details[$i]['Eta_ivato'] = $detailes[$i]['0']['Eta_ivato'];
@@ -189,12 +194,14 @@ foreach ($table as $materiel) {
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
                 }
-                if(!empty($recupGot[$i])){
-                    $details[$i]['Ord'] = $recupGot[$i]['Ord'];
+                if(!empty($recupGot)){
+                   
+                    $details[$i]['Ord']= $recupGot['ord']['Ord'];
                 }else{
-                    $details[$i]['Ord'] = "";
+                     $details[$i]['Ord'] = "";
                 }
             }
+
         }
 
         // dd($details);

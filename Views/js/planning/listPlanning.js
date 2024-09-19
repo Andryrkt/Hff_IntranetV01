@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
               cmdColor = 'style="background-color: blue; color: white;"';
             }else if(statut =='Error' || statut =='Back Order'){
               cmdColor = 'style="background-color: red; color: white;"';
-            }else if (Ord != ""){
+            }else if (Ord == "ORD"){
               cmdColor = 'style="background-color: cyan; color: black;"';
             }
 
