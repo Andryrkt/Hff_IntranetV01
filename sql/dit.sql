@@ -204,3 +204,68 @@ ALTER TABLE demande_intervention ADD section_support_1 VARCHAR(255)
 ALTER TABLE demande_intervention ADD section_support_2 VARCHAR(255)
 
 ALTER TABLE demande_intervention ADD section_support_3 VARCHAR(255);
+
+-- à revoire
+select
+    slor_nogrp / 100 as numItv,
+    (
+        select count(*)
+        from sav_itv
+        where
+            sitv_numor = '16412642'
+    ) as nombreLigneitv,
+    sum(
+        CASE
+            WHEN slor_typlig = 'P' THEN (
+                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+            )
+            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+        END * slor_pxnreel
+    ) as montantItv,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_typlig = 'P'
+            AND slor_numor = '16412642'
+    ) as montantPiece,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_constp = 'ZST'
+            AND slor_numor = '16412642'
+    ) as montantAchatLocaux,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_constp = 'LUB'
+            AND slor_numor = '16412642'
+    ) as montantLubrifiants
+from sav_lor
+WHERE
+    slor_numor = '16412642'
+GROUP BY
+    1

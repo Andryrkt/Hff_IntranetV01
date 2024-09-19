@@ -18,7 +18,8 @@ class DitOrsSoumisAValidationController extends Controller
     public function insertionOr(Request $request, $numDit)
     {
         $ditInsertionOr = new DitOrsSoumisAValidation();
-    
+        $ditInsertionOr->setNumeroDit($numDit);
+   
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOr)->getForm();
 
         $form->handleRequest($request);

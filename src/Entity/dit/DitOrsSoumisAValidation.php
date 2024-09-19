@@ -23,6 +23,11 @@ class DitOrsSoumisAValidation
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=11)
+     */
+    private ?string $numeroDit = null;
+
+    /**
      * @ORM\Column(type="string", length=8)
      */
     private string $numeroOR;
@@ -107,7 +112,25 @@ class DitOrsSoumisAValidation
         return $this->id;
     }
 
-    
+    /**
+     * Get the value of numeroDit
+     */ 
+    public function getNumeroDit()
+    {
+        return $this->numeroDit;
+    }
+
+    /**
+     * Set the value of numeroDit
+     *
+     * @return  self
+     */ 
+    public function setNumeroDit($numeroDit)
+    {
+        $this->numeroDit = $numeroDit;
+
+        return $this;
+    }
 
     /**
      * Get the value of numeroOR
@@ -409,4 +432,6 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
+
+    
 }
