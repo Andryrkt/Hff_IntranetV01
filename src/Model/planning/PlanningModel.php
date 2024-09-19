@@ -220,7 +220,7 @@ class PlanningModel extends Model
                       (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
                       AND fllf_ligne = slor_noligncm
                       AND fllf_refp = slor_refp)
-                      END AS numeroCmd,
+                      END  AS numeroCmd,
 
                       CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
                         trim('A LIVRER')
@@ -341,7 +341,7 @@ public function recuperationEtaMag($numOr, $refp){
   * gcot ORD
   */
 
-  public function recuperationinfordGcot ($numcde){
+  public function recuperationinfodGcot ($numcde){
       $statement = "SELECT Code_Statut  as Ord
 					FROM  GCOT_Statut_Dossier 
 					WHERE  Numero_Dossier = '$numcde'

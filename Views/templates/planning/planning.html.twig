@@ -34,14 +34,14 @@
 					<i class="fa-solid fa-circle text-warning"></i>
 					<small class="text-warning">Partiellement livré |</small>
 					<i class="fa-solid fa-circle text-info"></i>
-					{# <small class="text-info">Partiellement complet |</small>
-					<i class="fa-solid fa-circle text-primary"></i> #}
+					<small class="text-info">Partiellement dispo |</small>
+					<i class="fa-solid fa-circle text-primary"></i>
 					<small class="text-primary">Complet non livré</small>
 				</div>
 				<div class="d-flex justify-content-between">
-					<div>
-						{# Bouton EXCEL#}
-						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+					{# <div>
+						
+						 <a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
 							<i class="fas fa-table"></i>
 							Excel</a>
 					</div>
@@ -52,7 +52,7 @@
 					<div>
 						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
 							pages</p>
-					</div>
+					</div> #}
 					<div class="navigation">
 						{% set queryParams = criteria  %}
 
@@ -108,9 +108,9 @@
 							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
 							{# partiellement livré #}
 								{% set classe = 'bg-warning text-white' %}
-							{# {% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 %}
-								{% set classe = 'bg-info text-white' %} #}
-							{# partiellement complet #}
+							{% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 and item.qteall * 1 > 0 %}
+								{% set classe = 'bg-info text-white' %}
+							{# partiellement dispo #}
 							{%  elseif item.qtecdm * 1 == item.qteall * 1 and item.qteliv * 1 < item.qtecdm * 1 %}
 								{% set classe = 'bg-primary text-white' %}
 							{# complet non livré #}
