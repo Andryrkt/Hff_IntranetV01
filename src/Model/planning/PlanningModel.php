@@ -152,7 +152,7 @@ class PlanningModel extends Model
                    
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
                     AND (seor_nummat = mmat_nummat)
-                    AND  slor_typlig = 'P'
+                    --AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
                    $vOrvalDw
 
@@ -172,7 +172,7 @@ class PlanningModel extends Model
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
-          //  dump($statement);
+          // dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
