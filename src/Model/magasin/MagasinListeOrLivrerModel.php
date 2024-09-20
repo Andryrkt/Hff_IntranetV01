@@ -283,7 +283,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_succ = '01'
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
-                        --and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
+                        and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
                         $piece
                         $orCompletNom
                         $designation
