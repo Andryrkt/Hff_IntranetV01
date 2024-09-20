@@ -44,7 +44,9 @@ function handleFiles(files) {
   }
 }
 
-const numOrInput = document.querySelector("#dit_insertion_or_numeroOR");
+const numOrInput = document.querySelector(
+  "#dit_ors_soumis_a_validation_numeroOR"
+);
 
 numOrInput.addEventListener("input", function () {
   let value = numOrInput.value;

@@ -3,6 +3,9 @@
 namespace App\Entity\dit;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\dit\DitTypeDocument;
+use App\Entity\admin\dit\DitTypeOperation;
+use App\Entity\dit\DitOrsSoumisAValidation;
 
 /**
  * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)
@@ -19,7 +22,7 @@ class DitHistoriqueOperationDocument
     private $id;
 
 /**
-     * @ORM\ManyToOne(targetEntity=DitInsertionOr::class, inversedBy="ditHistoriqueOperationDoc")
+     * @ORM\ManyToOne(targetEntity=DitOrsSoumisAValidation::class, inversedBy="ditHistoriqueOperationDoc")
      * @ORM\JoinColumn(name="idOrSoumisAValidation", referencedColumnName="id")
      */
     private $idOrSoumisAValidation;

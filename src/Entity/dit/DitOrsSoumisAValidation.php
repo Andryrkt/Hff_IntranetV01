@@ -22,9 +22,7 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=11)
-     */
+   
     private ?string $numeroDit = null;
 
     /**
@@ -38,9 +36,14 @@ class DitOrsSoumisAValidation
     private int $numeroItv;
 
      /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
      */
-    private DateTime $dateSoumission;
+    private  $dateSoumission;
+
+    /**
+     * @ORM\Column(type="string", length=5)
+     */
+    private $heureSoumission;
 
     /**
      * @ORM\Column(type="integer")
@@ -56,7 +59,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="integer")
      */
-    private int $numeroVersion;
+    private int $numeroVersion = 0;
 
     /**
      * @ORM\Column(type="float", scale="2")
@@ -94,7 +97,7 @@ class DitOrsSoumisAValidation
     private $ditHistoriqueOperationDoc;
 
 
-    private $file;
+    private $pieceJoint01;
     //==========================================================================================
     
 
@@ -189,6 +192,27 @@ class DitOrsSoumisAValidation
     public function setDateSoumission($dateSoumission)
     {
         $this->dateSoumission = $dateSoumission;
+
+        return $this;
+    }
+
+
+     /**
+     * Get the value of heureSoumission
+     */ 
+    public function getHeureSoumission()
+    {
+        return $this->heureSoumission;
+    }
+
+    /**
+     * Set the value of heureSoumission
+     *
+     * @return  self
+     */ 
+    public function setHeureSoumission($heureSoumission)
+    {
+        $this->heureSoumission = $heureSoumission;
 
         return $this;
     }
@@ -416,9 +440,9 @@ class DitOrsSoumisAValidation
     /**
      * Get the value of file
      */ 
-    public function getFile()
+    public function getPieceJoint01()
     {
-        return $this->file;
+        return $this->pieceJoint01;
     }
 
     /**
@@ -426,12 +450,14 @@ class DitOrsSoumisAValidation
      *
      * @return  self
      */ 
-    public function setFile($file)
+    public function setPieceJoint01($pieceJoint01)
     {
-        $this->file = $file;
+        $this->pieceJoint01 = $pieceJoint01;
 
         return $this;
     }
 
     
+
+   
 }

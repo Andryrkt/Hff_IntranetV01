@@ -4,8 +4,10 @@ namespace App\Form\dit;
 
 
 use App\Entity\dit\DitInsertionOr;
-use App\Entity\dit\DitOrsSoumisAValidation;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -46,7 +48,7 @@ class DitOrsSoumisAValidationType extends AbstractType
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
                 ],
             ])
-            ->add('file', 
+            ->add('pieceJoint01', 
             FileType::class, 
             [
                 'label' => 'Upload File',
