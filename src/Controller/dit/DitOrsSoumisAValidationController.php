@@ -48,7 +48,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoiePieceJoint($form, $ditInsertionOr, $this->fusionPdf);
 
                 self::$em->persist($ditInsertionOr);
-            self::$em->flush();
+                self::$em->flush();
 
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'l\'Or est bien validé']);
                 $this->redirectToRoute("dit_index");
