@@ -2,11 +2,14 @@
 
 namespace App\Service\genererPdf;
 
+use App\Controller\Traits\FormatageTrait;
 use TCPDF;
 
 class GenererPdfOrSoumisAValidation extends GeneratePdf
 {
 
+    use FormatageTrait;
+    
 /**
      * generer pdf changement de Casier
      */

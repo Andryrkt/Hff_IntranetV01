@@ -53,7 +53,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantItv;
+    private float $montantItv = 0.00;
 
 
     /**
@@ -64,27 +64,27 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantPiece;
+    private float $montantPiece = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantMo;
+    private float $montantMo = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantAchatLocaux;
+    private float $montantAchatLocaux = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantFraisDivers;
+    private float $montantFraisDivers = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantLubrifiants;
+    private float $montantLubrifiants = 0.00;
     
     /**
      * @ORM\Column(type="string", length=500)
@@ -251,7 +251,8 @@ class DitOrsSoumisAValidation
      * @return  self
      */ 
     public function setMontantItv($montantItv)
-    {
+    {  
+        $montantItv = $montantItv === null ? 0.00 : $montantItv;
         $this->montantItv = $montantItv;
 
         return $this;
@@ -294,6 +295,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantPiece($montantPiece)
     {
+        $montantPiece = $montantPiece === null ? 0.00 : $montantPiece;
         $this->montantPiece = $montantPiece;
 
         return $this;
@@ -314,6 +316,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantMo($montantMo)
     {
+        $montantMo = $montantMo === null ? 0.00 : $montantMo;
         $this->montantMo = $montantMo;
 
         return $this;
@@ -334,6 +337,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantAchatLocaux($montantAchatLocaux)
     {
+        $montantAchatLocaux = $montantAchatLocaux === null ? 0.00 : $montantAchatLocaux;
         $this->montantAchatLocaux = $montantAchatLocaux;
 
         return $this;
@@ -354,6 +358,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantFraisDivers($montantFraisDivers)
     {
+        $montantFraisDivers = $montantFraisDivers === null ? 0.00 : $montantFraisDivers;
         $this->montantFraisDivers = $montantFraisDivers;
 
         return $this;
@@ -374,6 +379,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantLubrifiants($montantLubrifiants)
     {
+        $montantLubrifiants = $montantLubrifiants === null ? 0.00 : $montantLubrifiants;
         $this->montantLubrifiants = $montantLubrifiants;
 
         return $this;

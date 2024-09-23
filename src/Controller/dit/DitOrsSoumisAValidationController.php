@@ -3,6 +3,7 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
@@ -12,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DitOrsSoumisAValidationController extends Controller
 {
+    use FormatageTrait;
+    
     /**
      * @Route("/insertion-or/{numDit}", name="dit_insertion_or")
      *
@@ -19,35 +22,144 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
-        $ditInsertionOr = new DitOrsSoumisAValidation();
-        $ditInsertionOr->setNumeroDit($numDit);
+        $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
+        $ditInsertionOrSoumis->setNumeroDit($numDit);
 
-        $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOr)->getForm();
+        
+    
+
+        $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
         {   
             $numOrBaseDonner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit])->getNumeroOr();
-            $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax();
-            
-                $ditInsertionOr->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                ->setHeureSoumission($this->getTime())
-            ->setDateSoumission(new \DateTime($this->getDatesystem()));
-            
-           
 
             // if($numOrBaseDonner !== $ditInsertionOr->getNumeroOR()){
             //     $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
             //     $this->notification($message);
             // } else {
-                $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOr);
-                $genererPdfDit->copyToDw($ditInsertionOr->getNumeroVersion());
-                //envoie des pièce jointe dans une dossier et la fusionner
-                $this->envoiePieceJoint($form, $ditInsertionOr, $this->fusionPdf);
+            $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax();
+            $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation();
+            $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant('16403951');
 
-                self::$em->persist($ditInsertionOr);
+            
+                // $ditInsertionOrSoumis->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                //     ->setHeureSoumission($this->getTime())
+                //     ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                // ;
+
+                $totalRecapOr = [
+                    'montant_itv' => 0,
+                    'montant_piece' => 0,
+                    'montant_mo' => 0,
+                    'montant_achats_locaux' => 0,
+                    'montant_frais_divers' => 0,
+                    'montant_lubrifiants' => 0,
+                ];
+                $orSoumisValidataion = []; // Tableau pour stocker les objets
+
+                foreach ($orSoumisValidationModel as $orSoumis) {
+                    // Instancier une nouvelle entité pour chaque entrée du tableau
+                    $ditInsertionOr = new DitOrsSoumisAValidation(); 
+                    
+                    $ditInsertionOr->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                                ->setHeureSoumission($this->getTime())
+                                ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                                ->setNumeroItv($orSoumis['numero_itv'])
+                                ->setNombreLigneItv($orSoumis['nombre_ligne'])
+                                ->setMontantItv($orSoumis['montant_itv'])
+                                ->setMontantPiece($orSoumis['montant_piece'])
+                                ->setMontantMo($orSoumis['montant_mo'])
+                                ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
+                                ->setMontantFraisDivers($orSoumis['montant_divers'])
+                                ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
+                                ->setLibellelItv($orSoumis['libelle_itv']);
+                    
+                    $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
+                
+                    // Faire la somme des montants et les stocker dans le tableau
+                    $totalRecapOr['montant_itv'] += $orSoumis['montant_itv'];
+                    $totalRecapOr['montant_piece'] += $orSoumis['montant_piece'];
+                    $totalRecapOr['montant_mo'] += $orSoumis['montant_mo'];
+                    $totalRecapOr['montant_achats_locaux'] += $orSoumis['montant_achats_locaux'];
+                    $totalRecapOr['montant_frais_divers'] += $orSoumis['montant_divers'];
+                    $totalRecapOr['montant_lubrifiants'] += $orSoumis['montant_lubrifiants'];
+                }
+
+                
+                
+                $totalRecepAvantApres = [
+                    'totalNbLigAv' => 0,
+                    'totalNbLigAp' => 0,
+                    'totalMttTotalAv' => 0,
+                    'totalMttTotalAp' => 0
+                ];
+                dd($orSoumisValidataion);
+                $recapAvantApres = [];
+                
+                dd($OrSoumisAvant);
+                foreach ($orSoumisValidataion as  $orSoumis) {
+                    if(!empty($OrSoumisAvant)){
+                        $recapAvantApres['itv'] = $orSoumis->getNumeroItv();
+                        $recapAvantApres['libelleItv'] = $orSoumis->getLibellelItv();
+                        $recapAvantApres['nbLigAv'] = '';
+                        $recapAvantApres['nbLigAp'] = $orSoumis->getNombreLigneItv();
+                        $recapAvantApres['mttTotalAv'] = '';
+                        $recapAvantApres['mttTotalAp'] = $orSoumis->getMontantItv();
+                        $recapAvantApres['statut'] = '';
+                    } else {
+                        $recapAvantApres['itv'] = $orSoumis->getNumeroItv();
+                        $recapAvantApres['libelleItv'] = $orSoumis->getLibellelItv();
+                        $recapAvantApres['nbLigAv'] = '';
+                        $recapAvantApres['nbLigAp'] = $orSoumis->getNombreLigneItv();
+                        $recapAvantApres['mttTotalAv'] = '';
+                        $recapAvantApres['mttTotalAp'] = $orSoumis->getMontantItv();
+                        $recapAvantApres['statut'] = '';
+                    }
+                    
+
+                    $totalRecepAvantApres['totalNbLigAv'] += 0;
+                    $totalRecepAvantApres['totalNbLigAp'] += 0;
+                    $totalRecepAvantApres['totalMttTotalAv'] += 0;
+                    $totalRecepAvantApres['totalMttTotalAp'] += 0;
+                }
+dd($recapAvantApres);
+                
+                foreach ($recapAvantApres as  $value) {
+                    $totalRecepAvantApres['totalNbLigAv'] = '';
+                    $totalRecepAvantApres['totalNbLigAp'] = '';
+                    $totalRecepAvantApres['totalMttTotalAv'] = '';
+                    $totalRecepAvantApres['totalMttTotalAp'] = '';
+                }
+
+                $recapOr = [];
+                foreach ($orSoumisValidataion as  $orSoumis) {
+                    $recapOr['itv'] = $orSoumis['numero_itv'];
+                    $recapOr['mttTotal'] = $this->formatNumber($orSoumis['montant_itv']);
+                    $recapOr['mttPièces'] = $orSoumis['montant_piece'];
+                    $recapOr['mttMo'] = $orSoumis['montant_mo'];
+                    $recapOr['mttSt'] = $orSoumis['montant_achats_locaux'];
+                    $recapOr['mttLub'] = $orSoumis['montant_lubrifiants'];
+                    $recapOr['mttAutres'] = $orSoumis['montant_divers'];
+                }
+
+               
+                
+
+                $genererPdfDit = new GenererPdfOrSoumisAValidation();
+                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis);
+                $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion());
+                //envoie des pièce jointe dans une dossier et la fusionner
+                $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
+
+            
+                foreach ($orSoumisValidataion as $entity) {
+                    self::$em->persist($entity); // Persister chaque entité individuellement
+                }
+            
+
                 self::$em->flush();
 
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'l\'Or est bien validé']);
