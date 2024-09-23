@@ -96,42 +96,47 @@ class DitOrsSoumisAValidationController extends Controller
                     'totalMttTotalAv' => 0,
                     'totalMttTotalAp' => 0
                 ];
-                dd($orSoumisValidataion);
                 $recapAvantApres = [];
-                
-                dd($OrSoumisAvant);
                 foreach ($orSoumisValidataion as  $orSoumis) {
-                    if(!empty($OrSoumisAvant)){
-                        $recapAvantApres['itv'] = $orSoumis->getNumeroItv();
-                        $recapAvantApres['libelleItv'] = $orSoumis->getLibellelItv();
-                        $recapAvantApres['nbLigAv'] = '';
-                        $recapAvantApres['nbLigAp'] = $orSoumis->getNombreLigneItv();
-                        $recapAvantApres['mttTotalAv'] = '';
-                        $recapAvantApres['mttTotalAp'] = $orSoumis->getMontantItv();
-                        $recapAvantApres['statut'] = '';
-                    } else {
-                        $recapAvantApres['itv'] = $orSoumis->getNumeroItv();
-                        $recapAvantApres['libelleItv'] = $orSoumis->getLibellelItv();
-                        $recapAvantApres['nbLigAv'] = '';
-                        $recapAvantApres['nbLigAp'] = $orSoumis->getNombreLigneItv();
-                        $recapAvantApres['mttTotalAv'] = '';
-                        $recapAvantApres['mttTotalAp'] = $orSoumis->getMontantItv();
-                        $recapAvantApres['statut'] = '';
+                    for ($i=0; $i < count($orSoumisValidataion) ; $i++) { 
+                        if(!empty($OrSoumisAvant)){
+                            $recapAvantApres['itv'] = $orSoumis[$i]->getNumeroItv();
+                            $recapAvantApres['libelleItv'] = $orSoumis[$i]->getLibellelItv();
+                            $recapAvantApres['nbLigAv'] = $OrSoumisAvant[$i]->getNombreLigneItv();
+                            $recapAvantApres['nbLigAp'] = $orSoumis[$i]->getNombreLigneItv();
+                            $recapAvantApres['mttTotalAv'] = $OrSoumisAvant[$i]->getMontantItv();
+                            $recapAvantApres['mttTotalAp'] = $orSoumis[$i]->getMontantItv();
+                        } else {
+                            $recapAvantApres['itv'] = $orSoumis[$i]->getNumeroItv();
+                            $recapAvantApres['libelleItv'] = $orSoumis[$i]->getLibellelItv();
+                            $recapAvantApres['nbLigAv'] = '';
+                            $recapAvantApres['nbLigAp'] = $orSoumis[$i]->getNombreLigneItv();
+                            $recapAvantApres['mttTotalAv'] = '';
+                            $recapAvantApres['mttTotalAp'] = $orSoumis[$i]->getMontantItv();
+                        }
                     }
-                    
+                        if($recapAvantApres['nbLigAv'] === $recapAvantApres['nbLigAp'] && $recapAvantApres['mttTotalAv'] === $recapAvantApres['mttTotalAp']){
+                            $recapAvantApres['statut'] = '';
+                        } elseif (($recapAvantApres['nbLigAv'] !== $recapAvantApres['nbLigAp'] || $recapAvantApres['mttTotalAv'] !== $recapAvantApres['mttTotalAp']) && ($recapAvantApres['nbLigAv'] !== '' || $recapAvantApres['nbLigAp'] !== '')) {
+                            $recapAvantApres['statut'] = 'Modif';
+                        } elseif ($recapAvantApres['nbLigAv'] === '' && $recapAvantApres['mttTotalAv'] === '') {
+                            $recapAvantApres['statut'] = 'Nouv';
+                        } elseif( ($recapAvantApres['nbLigAv'] !== '' && $recapAvantApres['mttTotalAv'] !== '') && ($recapAvantApres['nbLigAp'] === '' &&  $recapAvantApres['mttTotalAp'] === '')) {
+                            $recapAvantApres['statut'] = 'Supp';
+                        }
+                        
+                }
+dd($recapAvantApres);
 
+
+
+                
+                
+                foreach ($recapAvantApres as  $value) {
                     $totalRecepAvantApres['totalNbLigAv'] += 0;
                     $totalRecepAvantApres['totalNbLigAp'] += 0;
                     $totalRecepAvantApres['totalMttTotalAv'] += 0;
                     $totalRecepAvantApres['totalMttTotalAp'] += 0;
-                }
-dd($recapAvantApres);
-                
-                foreach ($recapAvantApres as  $value) {
-                    $totalRecepAvantApres['totalNbLigAv'] = '';
-                    $totalRecepAvantApres['totalNbLigAp'] = '';
-                    $totalRecepAvantApres['totalMttTotalAv'] = '';
-                    $totalRecepAvantApres['totalMttTotalAp'] = '';
                 }
 
                 $recapOr = [];
