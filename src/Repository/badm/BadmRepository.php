@@ -78,8 +78,8 @@ class BadmRepository extends EntityRepository
             }
         } else {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('b.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
+                $queryBuilder->andWhere('b.agenceEmetteurId = :agEmetId')
+                ->setParameter('agEmetId',  $options['idAgence']);
         }
 
         //filtre selon l'agence debiteur
