@@ -302,7 +302,7 @@ class PlanningModel extends Model
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
-      // dd($statement);
+      //  dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
