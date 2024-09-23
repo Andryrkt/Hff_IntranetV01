@@ -229,6 +229,14 @@ trait PlanningModelTrait
           }
           return $vconditionNumParc;
     }
+    private function casier($criteria){
+      if(!empty($criteria->getCasier())){
+          $vconditionCasier = " AND mmat_numparc like  '%".$criteria->getCasier()."%'  ";
+        }else{
+          $vconditionCasier = "";
+        }
+        return $vconditionCasier;
+  }
 
     
 }

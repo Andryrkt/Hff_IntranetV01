@@ -19,6 +19,7 @@ class PlanningSearch
     private $agenceDebite;
     private $serviceDebite;
     private $typeligne;
+    private $casier;
     
 
     /**
@@ -320,5 +321,25 @@ class PlanningSearch
             'typeligne' => $this->typeligne
            
         ];
+    }
+
+    /**
+     * Get the value of casier
+     */ 
+    public function getCasier()
+    {
+        return $this->casier;
+    }
+
+    /**
+     * Set the value of casier
+     *
+     * @return  self
+     */ 
+    public function setCasier($casier)
+    {
+        $this->casier = $casier;
+
+        return $this;
     }
 }
