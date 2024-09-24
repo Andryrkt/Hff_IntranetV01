@@ -128,7 +128,7 @@ foreach ($table as $materiel) {
         }
     }
 }
-
+// dump($fusionResult);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $fusionResult

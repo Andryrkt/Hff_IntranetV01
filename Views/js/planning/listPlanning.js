@@ -91,12 +91,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let message;
             let cmdColorRmq = '';
             let numRef;
-            if(formaterDate(detail.datestatut) == '01/01/1970'){
+            if(formaterDate(detail.datestatut) == '01/01/1970'   || formaterDate(detail.datestatut) == '01/01/1900' ){
               dateStatut = '';
             }else{
               dateStatut = formaterDate(detail.datestatut);
             }
-            if(detail.Eta_ivato == ''){
+            if(detail.Eta_ivato == '' ){
               dateEtaIvato = '';
             }else{
               dateEtaIvato = formaterDate(detail.Eta_ivato)
