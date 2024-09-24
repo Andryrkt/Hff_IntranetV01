@@ -90,7 +90,7 @@ class DitModel extends Model
             sitv_numor as numeroOr, 
             sitv_interv as numeroIntervention, 
             trim(sitv_comment) as commentaire,
-	sitv_pos as pos,
+	          sitv_pos as pos,
             sum(slor_qterea*slor_pmp) as somme
 
 
@@ -114,7 +114,7 @@ class DitModel extends Model
             order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
             ";
 
-$result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
 
         $data = $this->connect->fetchResults($result);
@@ -134,11 +134,8 @@ $result = $this->connect->executeQuery($statement);
 
         from mat_mat
         where mmat_nummat IN ".$matricule."
-         and MMAT_ETSTOCK in ('ST','AT', '--')
-and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
-
-         
-        
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
         $result = $this->connect->executeQuery($statement);
@@ -149,6 +146,26 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupNumSerieParc($matricule)
+    {
+        $statement = "SELECT
+        mmat_nummat as num_matricule,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc
+
+        from mat_mat
+        where mmat_nummat ='".$matricule."'
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 
     public function recuperationIdMateriel($numParc = '', $numSerie = '')
     {
@@ -204,7 +221,13 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
 
     public function RecupereCommandeOr($numero_or)
     {
-       $statement = "SELECT slor_numcf,fcde_date
+       $statement = "SELECT
+        slor_numcf,
+        fcde_date,
+        slor_typcf,
+        fcde_posc,
+        fcde_posl
+
       from sav_lor
       inner join frn_cde on frn_cde.fcde_numcde = slor_numcf
       where
@@ -213,7 +236,7 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
-      group by slor_numcf, fcde_date"
+      group by 1,2,3,4,5"
       ;
 
       $result = $this->connect->executeQuery($statement);
@@ -282,6 +305,118 @@ and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
             and slor_constp like 'ZST'
             and seor_numor  = '" . $numOr . "'
             group by 1,2;
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+
+    public function recupOrSoumisValidation()
+    {
+      $statement = "SELECT
+          slor_numor,
+          sitv_datdeb,
+          trim(seor_refdem) as NUMERo_DIT,
+          sitv_interv as NUMERO_ITV,
+          trim(sitv_comment) as LIBELLE_ITV,
+          count(slor_constp) as NOMBRE_LIGNE,
+          Sum(
+              CASE
+                  WHEN slor_typlig = 'P' THEN (
+                      slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                  )
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) as MONTANT_ITV,
+
+          Sum(
+              CASE
+                  WHEN slor_typlig = 'P'
+                  AND slor_constp NOT like 'Z%'
+                  AND slor_constp <> 'LUB' THEN (
+                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
+                  )
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) AS MONTANT_PIECE,
+
+          Sum(
+              CASE
+                  WHEN slor_typlig = 'M' THEN slor_qterea
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) AS MONTANT_MO,
+
+          Sum(
+              CASE
+                  WHEN slor_constp = 'ZST' THEN (
+                      slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                  )
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) AS MONTANT_ACHATS_LOCAUX,
+
+          Sum(
+              CASE
+                  WHEN slor_constp <> 'ZST'
+                  AND slor_constp like 'Z%' THEN slor_qterea
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) AS MONTANT_DIVERS,
+
+          Sum(
+              CASE
+                  WHEN slor_typlig = 'P'
+                  AND slor_constp NOT like 'Z%'
+                  AND slor_constp = 'LUB' THEN (
+                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
+                  )
+              END * CASE
+                  WHEN slor_typlig = 'P' THEN slor_pxnreel
+                  WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+              END
+          ) AS MONTANT_LUBRIFIANTS
+
+          from sav_eor, sav_lor, sav_itv
+          WHERE
+              seor_numor = slor_numor
+              AND seor_serv <> 'DEV'
+              AND sitv_numor = slor_numor
+              AND sitv_interv = slor_nogrp / 100
+
+          AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+          AND sitv_servcrt IN (
+              'ATE',
+              'FOR',
+              'GAR',
+              'MAN',
+              'CSP',
+              'MAS'
+          )
+          AND seor_numor = '16403951'
+          --AND SEOR_SUCC = '01'
+          group by
+              1,
+              2,
+              3,
+              4,
+              5
+          order by slor_numor, sitv_interv
         ";
 
         $result = $this->connect->executeQuery($statement);

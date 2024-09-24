@@ -31,3 +31,16 @@ where
     and slor_succ = '01'
     and seor_serv = 'SAV'
 order by seor_numor asc, slor_nolign asc
+
+--RECUPERATION INFO USER INFORMIX
+SELECT
+    seor_usr as idUser,
+    trim(ausr_nom) as nomUtilisateur,
+    trim(atab_lib) as nomPrenom,
+    *
+from sav_eor, agr_usr, agr_tab
+where
+    seor_usr = ausr_num
+    and ausr_ope = atab_code
+    and atab_nom = 'OPE'
+    and seor_numor = '".$numOr."'

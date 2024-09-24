@@ -2,10 +2,10 @@
 
 namespace App\Controller\admin;
 
-use App\Entity\Personnel;
 use App\Controller\Controller;
-use App\Form\PersonnelSearchType;
-use App\Form\PersonnelType;
+use App\Entity\admin\Personnel;
+use App\Form\admin\PersonnelType;
+use App\Form\admin\PersonnelSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,11 +18,6 @@ class PersonnelController extends Controller
      */
     public function index(Request $request)
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
 
     $data = self::$em->getRepository(Personnel::class)->findBy([], ['id'=>'DESC']);
 
@@ -51,8 +46,6 @@ class PersonnelController extends Controller
         $totalPages = ceil($totalBadms / $limit);
 
     self::$twig->display('admin/Personnel/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
         'form' => $form->createView(),
         'data' => $data,
         'currentPage' => $page,
@@ -66,13 +59,7 @@ class PersonnelController extends Controller
          * @Route("/admin/personnel/new", name="personnnel_new")
          */
         public function new(Request $request)
-        {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
+        {    
             $form = self::$validator->createBuilder(PersonnelType::class)->getForm();
     
             $form->handleRequest($request);
@@ -86,9 +73,8 @@ class PersonnelController extends Controller
                 $this->redirectToRoute("personnel_index");
             }
     
-            self::$twig->display('admin/Personnel/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
+            self::$twig->display('admin/Personnel/new.html.twig', 
+            [
                 'form' => $form->createView()
             ]);
         }
@@ -101,13 +87,6 @@ class PersonnelController extends Controller
  */
 public function edit(Request $request, $id)
 {
-
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
-
     $user = self::$em->getRepository(Personnel::class)->find($id);
     
     $form = self::$validator->createBuilder(PersonnelType::class, $user)->getForm();
@@ -124,8 +103,6 @@ public function edit(Request $request, $id)
 
     self::$twig->display('admin/Personnel/edit.html.twig', [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
     ]);
 
 }

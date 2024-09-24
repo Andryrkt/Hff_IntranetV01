@@ -2,12 +2,12 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\Badm;
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Form\BadmForm1Type;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Form\badm\BadmForm1Type;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -41,6 +41,7 @@ class BadmsController extends Controller
         
           if($form->isSubmitted() && $form->isValid())
           {
+            
             if ($badm->getTypeMouvement() === null) {
                 throw new \Exception('choisir une type de mouvement');
             }
@@ -88,7 +89,6 @@ class BadmsController extends Controller
                     $conditionAgenceServiceAutoriser = in_array($agenceMaterielId, $user->getAgenceAutoriserIds()) && in_array($serviceMaterilId, $user->getServiceAutoriserIds());
                 }
             }
-            
            
             if ($conditionEntreeParc) {
                 $message = 'Ce matériel est déjà en PARC';

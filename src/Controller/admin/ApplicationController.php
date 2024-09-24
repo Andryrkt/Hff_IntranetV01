@@ -2,9 +2,10 @@
 
 namespace App\Controller\admin;
 
-use App\Entity\Application;
+
 use App\Controller\Controller;
-use App\Form\ApplicationType;
+use App\Entity\admin\Application;
+use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,53 +17,39 @@ class ApplicationController extends Controller
      * @return void
      */
     public function index()
-    {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-    
+    {    
         $data = self::$em->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());
-        self::$twig->display('admin/application/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/application/list.html.twig', 
+        [
             'data' => $data
         ]);
     }
 
     /**
-         * @Route("/admin/application/new", name="application_new")
-         */
-        public function new(Request $request)
+     * @Route("/admin/application/new", name="application_new")
+     */
+    public function new(Request $request)
+    {
+        $form = self::$validator->createBuilder(ApplicationType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
         {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
-            $form = self::$validator->createBuilder(ApplicationType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $application= $form->getData();
-                
-                self::$em->persist($application);
-                self::$em->flush();
-                $this->redirectToRoute("application_index");
-            }
-    
-            self::$twig->display('admin/application/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-                'form' => $form->createView()
-            ]);
+            $application= $form->getData();
+            
+            self::$em->persist($application);
+            self::$em->flush();
+            $this->redirectToRoute("application_index");
         }
+
+        self::$twig->display('admin/application/new.html.twig', 
+        [
+            'form' => $form->createView()
+        ]);
+    }
 
     /**
      * @Route("/admin/application/edit/{id}", name="application_update")
@@ -71,13 +58,6 @@ class ApplicationController extends Controller
      */
     public function edit(Request $request, $id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $user = self::$em->getRepository(Application::class)->find($id);
         
         $form = self::$validator->createBuilder(ApplicationType::class, $user)->getForm();
@@ -92,10 +72,9 @@ class ApplicationController extends Controller
             
         }
 
-        self::$twig->display('admin/application/edit.html.twig', [
+        self::$twig->display('admin/application/edit.html.twig', 
+        [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
 
     }

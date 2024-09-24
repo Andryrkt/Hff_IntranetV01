@@ -1,0 +1,71 @@
+<div class="modal fade" tabindex="-1" id="listeCommande" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">
+				Listes des Piéces
+				<small class="text-success d-block mt-auto" id ="orIntv"></small>
+				</h5>
+				
+				
+			
+				
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			{# body du modal#}
+			<div
+				class="modal-body">
+				 <!-- Champ avec légende -->
+				
+				<div class="mb-3">
+				<small class="text-primary">DISPO STOCK | </small>
+				<small class="text-danger">Back Order / Error | </small>
+				<small class="text-info">Commande envoyé CAT | </small>
+				<small class="text-warning">Réception Partielle</small>
+				</div>
+				<!-- Spinner de chargement -->
+				<div id="loading" class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Chargement...</span>
+					</div>
+				</div>
+
+				<!-- Contenu des données -->
+				<div id="dataContent" style="display: none;">
+				
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th>N° Or</th>
+								<th>Intv</th>
+								<th>N° Commande</th>
+								<th>Statut ctrmrq</th>
+								<th>CST</th>
+								<th>Ref</th>
+								<th>Désignation</th>
+								<th>Qté Or</th>
+								<th>Qté ALL</th>
+								<th>QTé RLQ</th>
+								<th>QTé LIV</th>
+								<th>Statut</th>
+								<th>Date Statut</th>
+								<th>Eta Ivato</th>
+								<th>Eta Magasin</th>
+								<th>Message</th>
+							</tr>
+						</thead>
+						<tbody id="commandesTableBody">{# {% for command in commandes %} #}
+							{# <tr> #}
+							{# <td>{{ command.slor_numcf}}</td> #}
+							{# <td>{{ command.fcde_date}}</td> #}
+							{# <td>--</td> #}
+
+							{# </tr> #}
+							{# {% endfor %} #}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -2,14 +2,15 @@
 
 namespace App\Controller\dit;
 
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\Application;
+use App\Model\dit\DitModel;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\DemandeIntervention;
-use App\Form\demandeInterventionType;
+use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +34,8 @@ class DitDuplicationController extends Controller
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
         $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
-        $data = $this->ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+        $ditModel = new DitModel();
+        $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
         $dit
         ->setNumParc($data[0]['num_parc'])
         ->setNumSerie($data[0]['num_serie'])

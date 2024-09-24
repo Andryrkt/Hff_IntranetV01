@@ -2,14 +2,15 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\CategorieAteApp;
-use App\Entity\Service;
-use App\Entity\StatutDemande;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
-use App\Entity\DemandeIntervention;
+
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\CategorieAteApp;
 
 trait DitListTrait
 {
@@ -91,27 +92,41 @@ trait DitListTrait
      * @param [type] $service
      * @return void
      */
-    private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps)
+    private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
       
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
+        
         if($criteria !== null){
+            if ($autoriser) {
+                $agenceIpsEmetteur = null;
+                $serviceIpsEmetteur = null;
+            } else {
+                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            }
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+            $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $serviceIpsEmetteur : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
             $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
+            $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceIpsEmetteur : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
             $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
         } else {
+            if ($autoriser) {
+                $agenceIpsEmetteur = null;
+                $serviceIpsEmetteur = null;
+            } else {
+                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            }
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;
-            $serviceEmetteur = $agenceServiceIps['serviceIps'];
+            $agenceEmetteur = $agenceIpsEmetteur;
+            $serviceEmetteur = $serviceIpsEmetteur;
             $serviceDebiteur = null;
-            $agenceEmetteur = $agenceServiceIps['agenceIps'];
             $agenceDebiteur = null;
             $categorie = null;
         }
@@ -136,6 +151,7 @@ trait DitListTrait
         ->setDitRattacherOr($criteria['ditRattacherOr'] ?? null)
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
+        ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
         ;
 
     } 
@@ -156,6 +172,17 @@ trait DitListTrait
             'agence' => $agence,
             'service' => $service
         ];
+    }
+
+    private function ajoutNumSerieNumParc($data)
+    {
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                // Associez chaque entité à ses valeurs de num_serie et num_parc
+                $data[$i]->setNumSerie($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_serie']);
+                $data[$i]->setNumParc($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_parc']);
+            }
+    }
     }
 
     private function ajoutStatutAchatPiece($data){
@@ -197,6 +224,12 @@ trait DitListTrait
                     }
                 }
             }
+        }
+    }
+
+    private function ajoutNbrPj($data, $em){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            $data[$i]->setNbrPj($em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention()));
         }
     }
 

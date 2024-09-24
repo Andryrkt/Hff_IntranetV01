@@ -11,7 +11,7 @@ class Model
     protected $sqlServer;
     protected $informix;
     protected $connexion04;
-
+    protected $connexion04Gcot;
 
 
 
@@ -22,6 +22,7 @@ class Model
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();
+        $this->connexion04Gcot = new connexionDote4Gcot();
     }
 
     public function RecupereNumDom($colonne)
@@ -71,6 +72,7 @@ class Model
         $exec_Sql_Agence = $this->connexion->query($sql_Agence);
         return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
     }
+
     /**
      * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter 
      * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter 
@@ -162,4 +164,6 @@ class Model
     {
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
+
+    
 }

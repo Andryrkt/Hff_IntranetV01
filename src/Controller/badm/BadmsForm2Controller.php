@@ -2,13 +2,13 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\Badm;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\Application;
-use App\Form\BadmForm2Type;
-use App\Entity\TypeMouvement;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Form\badm\BadmForm2Type;
+use App\Entity\admin\Application;
+use App\Entity\admin\badm\TypeMouvement;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
 use App\Service\genererPdf\GenererPdfBadm;
@@ -84,7 +84,7 @@ class BadmsForm2Controller extends Controller
                      
                     //envoie des pièce jointe dans une dossier et le fusionner
                     $this->envoiePieceJoint($form, $badm);
-
+                    
                     $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
 
                     $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
@@ -96,6 +96,7 @@ class BadmsForm2Controller extends Controller
                     ->setAgenceDebiteurId($badm->getAgence())
                     ->setServiceDebiteurId($badm->getService())
                     ;
+                    
                     //ENVOIE DANS LE BASE DE DONNEE
                     self::$em->persist($badm);
                     self::$em->flush();

@@ -5,13 +5,13 @@
 namespace App\Twig;
 
 use App\Controller\Controller;
-use App\Entity\User;
+use Twig\Extension\GlobalsInterface;
+use Twig\Extension\AbstractExtension;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Twig\Extension\AbstractExtension;
-use Twig\Extension\GlobalsInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class AppExtension extends AbstractExtension implements GlobalsInterface
 {

@@ -9,10 +9,10 @@
 
 	<div class="container">
 		<h3 class="perso-titre">
-			Liste des OR à livré
+			Liste des OR à livrer
 		</h3>
 		{# <input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher..."> #}
-		{% include "/magasin/_searchListMagasin.html.twig" %}
+		{% include "/magasin/partials/_formulaireRechercheListeOrALivrer.html.twig" %}
 	</div>
 	<div class="container">
 		<div class="d-flex justify-content-between">
@@ -34,6 +34,7 @@
 					</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">N° OR</th>
+					<th>Date planning</th>
 					<th>Niv. d'urg</th>
 					<th>Date  OR</th>
 					<th class="text-center">Agences</th>
@@ -43,8 +44,10 @@
 					<th>Cst</th>
 					<th>Réf</th>
 					<th>Désignations</th>
+
 					<th class="text-center">Qté dem</th>
 					<th class="text-center">Qté à livr</th>
+					<th>Utilisateurs</th>
 					{# <th class="text-center">Qté rés</th>#}
 				{# <th class="text-center">Qté rel</th> #}
 					{# <th class="text-center">Qté liv</th>  #}
@@ -59,6 +62,7 @@
 						</td>
 						<td class="fw-bold ">{{item.referencedit}}</td>
 						<td class="fw-bold ">{{item.numeroor}}</td>
+						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="">{{item.niveauUrgence}}</td>
 						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
 						<td>{{ item.agence}}</td>
@@ -70,6 +74,7 @@
 						<td class="">{{item.designationi}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td class="text-center">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
+						<td>{{ item.nomPrenom }}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 					{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
 						{# <td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td>  #}
@@ -86,5 +91,5 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/magasin/listMagasin.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/magasin/listMagasinOrALivrer.js" type="module"></script>
 {% endblock %}

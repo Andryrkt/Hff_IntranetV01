@@ -3,14 +3,15 @@
 namespace App\Controller\dit;
 
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Application;
+
+use App\Model\dit\DitModel;
+use App\Entity\admin\Agence;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\DemandeIntervention;
-use App\Form\demandeInterventionType;
+use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +32,7 @@ class DitController extends Controller
      */
     public function new(Request $request){
         
-
+        
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
        $this->initialisationForm($demandeIntervention, self::$em);
@@ -61,7 +62,7 @@ class DitController extends Controller
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
             
-            //envoie des pièce jointe dans une dossier et le fusionner
+            //envoie des pièce jointe dans une dossier et la fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
             
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
@@ -121,8 +122,9 @@ class DitController extends Controller
      */
     public function fetchMateriel($idMateriel,  $numParc, $numSerie)
     {
+        $ditModel = new DitModel();
         // Récupérer les données depuis le modèle
-        $data = $this->ditModel->findAll($idMateriel, $numParc, $numSerie);
+        $data = $ditModel->findAll($idMateriel, $numParc, $numSerie);
 
         // Vérifiez si les données existent
         if (!$data) {

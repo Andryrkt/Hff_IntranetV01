@@ -3,11 +3,12 @@
 namespace App\Controller\dit;
 
 
-use App\Entity\DitSearch;
-use App\Form\DitSearchType;
+use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
+use App\Form\dit\DitSearchType;
 use App\Controller\Traits\DitListTrait;
+use App\Entity\dit\DemandeIntervention;
+use App\Form\dit\DocDansDwType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,8 +30,9 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
+   
 
-        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps);
+        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
 
         //création et initialisation du formulaire de la recherche
@@ -40,20 +42,17 @@ class DitListeController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        //recupération du repository demande d'intervention
-        $ditRepository= self::$em->getRepository(DemandeIntervention::class);
-        //variable pour tester s'il n'y pas de donner à afficher
-        $empty = false;
-        
+    
         if($form->isSubmitted() && $form->isValid()) {
             
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if(!empty($numParc) || !empty($numSerie)){
+                
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if(!empty($idMateriel)){
                     $this->ajoutDonnerRecherche($form, $ditSearch);
-                    $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
+                    $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
                 } elseif(empty($idMateriel)) {
                     $empty = true;
                 }
@@ -76,57 +75,64 @@ class DitListeController extends Controller
         $limit = 10;
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-     
+    
         $option = [
             'boolean' => $autoriser,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
-        
+       
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
-        //nombre total de ligne
-        $totalBadms = $ditRepository->countFiltered($ditSearch, $option);
-        //nombre total de page
-        $totalPages = ceil($totalBadms / $limit);
-       
- 
         //recupération des données filtrée
-        $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
+        $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        //dump($paginationData);
         //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($data);
+        $this->ajoutStatutAchatPiece($paginationData['data']);
 
         //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($data);
-        
+        $this->ajoutStatutAchatLocaux($paginationData['data']);
+
+        //ajout nombre de pièce joint
+        $this->ajoutNbrPj($paginationData['data'], self::$em);
+
         //recuperation de numero de serie et parc pour l'affichage
-        $idMat = [];
-        $numSerieParc = [];
-        if (!empty($data)) {
-            $idMateriels = $this->recupIdMaterielEnChaine($data);
-            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-            
-            foreach ($numSerieParc as  $value) {
-                $idMat[] = $value['num_matricule'];
+        $this->ajoutNumSerieNumParc($paginationData['data']);
+
+
+        /** 
+         * Docs à intégrer dans DW 
+         * */
+        $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
+
+
+        $formDocDansDW->handleRequest($request);
+       
+        //variable pour tester s'il n'y pas de donner à afficher
+        $empty = false;
+    
+        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
-        } else {
-            $empty = true;
-        }
+        } 
 
 
         self::$twig->display('dit/list.html.twig', [
-            'data' => $data,
-            'numSerieParc' => $numSerieParc,
-            'idMat' => $idMat,
+            'data' => $paginationData['data'],
             'empty' => $empty,
             'form' => $form->createView(),
-            'currentPage' => $page,
-            'totalPages' =>$totalPages,
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages' =>$paginationData['lastPage'],
             'criteria' => $criteria,
-            'resultat' => $totalBadms,
+            'resultat' => $paginationData['totalItems'],
+            'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
 
@@ -139,62 +145,69 @@ class DitListeController extends Controller
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
           //recupère les critères dans la session 
-          $options = $this->sessionService->get('dit_search_option', []);
+        $options = $this->sessionService->get('dit_search_option', []);
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
         $ditSearch
-        ->setTypeDocument($criteria["typeDocument"])
-        ->setNiveauUrgence($criteria["niveauUrgence"])
-        ->setStatut($criteria["statut"])
-        ->setInternetExterne($criteria["interneExterne"])
-        ->setDateDebut($criteria["dateDebut"])
-        ->setDateFin($criteria["dateFin"])
-        ->setIdMateriel($criteria["idMateriel"])
-        ->setNumParc($criteria["numParc"])
-        ->setNumSerie($criteria["numSerie"])
-        ->setAgenceEmetteur($criteria["agenceEmetteur"])
-        ->setServiceEmetteur($criteria["serviceEmetteur"])
-        ->setAgenceDebiteur($criteria["agenceDebiteur"])
-        ->setServiceDebiteur($criteria["serviceDebiteur"])
-        ->setNumDit($criteria["numDit"])
-        ->setNumOr($criteria["numOr"])
-        ->setStatutOr($criteria["statutOr"])
-        ->setDitRattacherOr($criteria["ditRattacherOr"])
-        ->setCategorie($criteria["categorie"])
-        ->setUtilisateur($criteria["utilisateur"])
+            ->setTypeDocument($criteria["typeDocument"])
+            ->setNiveauUrgence($criteria["niveauUrgence"])
+            ->setStatut($criteria["statut"])
+            ->setInternetExterne($criteria["interneExterne"])
+            ->setDateDebut($criteria["dateDebut"])
+            ->setDateFin($criteria["dateFin"])
+            ->setIdMateriel($criteria["idMateriel"])
+            ->setNumParc($criteria["numParc"])
+            ->setNumSerie($criteria["numSerie"])
+            ->setAgenceEmetteur($criteria["agenceEmetteur"])
+            ->setServiceEmetteur($criteria["serviceEmetteur"])
+            ->setAgenceDebiteur($criteria["agenceDebiteur"])
+            ->setServiceDebiteur($criteria["serviceDebiteur"])
+            ->setNumDit($criteria["numDit"])
+            ->setNumOr($criteria["numOr"])
+            ->setStatutOr($criteria["statutOr"])
+            ->setDitRattacherOr($criteria["ditRattacherOr"])
+            ->setCategorie($criteria["categorie"])
+            ->setUtilisateur($criteria["utilisateur"])
         ;
         
 
         $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
-       
+        $this->ajoutStatutAchatPiece($entities);
+
+        //ajout de donner du statut achat locaux dans data
+        $this->ajoutStatutAchatLocaux($entities);
+
+        $this->ajoutNbrPj($entities, self::$em);
+
+          //recuperation de numero de serie et parc pour l'affichage
+          $this->ajoutNumSerieNumParc($entities);
+          
+          
     // Convertir les entités en tableau de données
     $data = [];
-    $data[] = ['N° DIT', 'Type Document', 'type de Réparation', 'Réalisé par', 'Catégorie de Demande', 'I/E', 'Débiteur', 'Emetteur', 'nom Client', 'N° Tel', 'Date de travaux', 'Devis', 'Niveau d\'urgence', 'Avis de recouvrement', 'Client sous contrat', 'Objet', 'Detail', 'Livraison Partiel', 'Id matériel', 'mail demandeur', 'date demande', 'statut Demande']; // En-têtes des colonnes
+    $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
     foreach ($entities as $entity) {
         $data[] = [
+            $entity->getIdStatutDemande()->getDescription(),
             $entity->getNumeroDemandeIntervention(), 
             $entity->getTypeDocument()->getDescription(),
-            $entity->getTypeReparation(),
-            $entity->getReparationRealise(),
-            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
-            $entity->getInternetExterne(),
-            $entity->getAgenceServiceDebiteur(),
-            $entity->getAgenceServiceEmetteur(),
-            $entity->getNomClient(),
-            $entity->getNumeroTel(),
-            $entity->getDatePrevueTravaux(),
-            $entity->getDemandeDevis(),
             $entity->getIdNiveauUrgence()->getDescription(),
-            $entity->getAvisRecouvrement(),
-            $entity->getClientSousContrat(),
-            $entity->getObjetDemande(),
-            $entity->getDetailDemande(),
-            $entity->getLivraisonPartiel(),
-            $entity->getIdMateriel(),
-            $entity->getMailDemandeur(),
+            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
+            $entity->getNumSerie(),
+            $entity->getNumParc(),
             $entity->getDateDemande(),
-            $entity->getIdStatutDemande()->getDescription()
+            $entity->getInternetExterne(),
+            $entity->getAgenceServiceEmetteur(),
+            $entity->getAgenceServiceDebiteur(),
+            $entity->getObjetDemande(),
+            $entity->getSectionAffectee(),
+            $entity->getNumeroOr(),
+            $entity->getStatutOr(),
+            $entity->getStatutAchatPiece(),
+            $entity->getStatutAchatLocaux(),
+            $entity->getNbrPj(),
+            $entity->getUtilisateurDemandeur()
         ];
     }
 
@@ -220,6 +233,35 @@ class DitListeController extends Controller
         header("Content-type:application/json");
 
         echo json_encode($commandes);
+    }
+
+    /**
+     * @Route("/section-affectee-modal-fetch/{id}", name="section_affectee_modal")
+     *
+     * @return void
+     */
+    public function sectionAffecteeModal($id)
+    {
+        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section'];
+
+        // Récupération des données
+        $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
+        
+        // Parcourir chaque élément du tableau et supprimer les mots
+        foreach ($sectionSupportAffectee as &$value) {
+            foreach ($value as &$texte) {
+                // Vérification si c'est bien une chaîne de caractères avant d'effectuer le remplacement
+                if (is_string($texte)) {
+                    $texte = str_replace($motsASupprimer, '', $texte);
+                    $texte = trim($texte); // Supprimer les espaces en trop après remplacement
+                }
+            }
+        }
+        
+
+        header("Content-type:application/json");
+
+        echo json_encode($sectionSupportAffectee);
     }
 
 }

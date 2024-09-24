@@ -86,3 +86,186 @@ SET
         WHEN ID_Materiel = 15783 THEN 1
         ELSE ID_Materiel
     END
+    -- CREATION DE TABLE COMMENTAIRE DIT OR
+CREATE TABLE commentaire_dit_or (
+    id INT IDENTITY (1, 1),
+    utilisateur_id INT NOT NULL,
+    num_dit VARCHAR(11),
+    num_or VARCHAR(50),
+    type_commentaire VARCHAR(3) NOT NULL,
+    commentaire TEXT NOT NULL,
+    date_creation DATETIME NOT NULL DEFAULT GETDATE (),
+    CONSTRAINT PK_commentaire_dit_or PRIMARY KEY (id),
+    CONSTRAINT FK_commentaire_dit_or_utilisateur_id FOREIGN KEY (utilisateur_id) REFERENCES Users (id),
+);
+
+-- CREATION DE TABLE OR SOUMIS A VALIDATION
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroDit VARCHAR(11),
+    numeroOR VARCHAR(8),
+    numeroItv INT,
+    nombrePieceItv INT,
+    montantItv DECIMAL(18, 2),
+    numeroModification INT,
+    dateSoumission DATETIME NOT NULL DEFAULT GETDATE (),
+    CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
+EXEC sp_rename 'ors_soumis_a_validation.nombrePieceItv',
+'nombreLigne_itv',
+'COLUMN';
+
+EXEC sp_rename 'ors_soumis_a_validation.numeroModification',
+'numeroVersion',
+'COLUMN';
+
+ALTER TABLE ors_soumis_a_validation
+ADD montantPiece DECIMAL(18, 2),
+montantMo DECIMAL(18, 2),
+montantAchatLocaux DECIMAL(18, 2),
+montantFraisDivers DECIMAL(18, 2),
+montantLubrifiants DECIMAL(18, 2),
+libellelItv VARCHAR(500);
+
+ALTER TABLE ors_soumis_a_validation DROP COLUMN numeroDit;
+
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroOR VARCHAR(8),
+    dateSoumission DATETIME NOT NULL DEFAULT GETDATE (),
+    numeroItv INT,
+    nombreLigne_itv INT,
+    montantItv DECIMAL(18, 2),
+    numeroVersion INT,
+    montantPiece DECIMAL(18, 2),
+    montantMo DECIMAL(18, 2),
+    montantAchatLocaux DECIMAL(18, 2),
+    montantFraisDivers DECIMAL(18, 2),
+    montantLubrifiants DECIMAL(18, 2),
+    libellelItv VARCHAR(500),
+    CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
+EXEC sp_rename 'ors_soumis_a_validation.nombreLigne_itv',
+'nombreLigneItv',
+'COLUMN';
+
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroOR VARCHAR(8),
+    numeroItv INT,
+    nombreLigneItv INT,
+    montantItv DECIMAL(18, 2),
+    numeroVersion INT,
+    montantPiece DECIMAL(18, 2),
+    montantMo DECIMAL(18, 2),
+    montantAchatLocaux DECIMAL(18, 2),
+    montantFraisDivers DECIMAL(18, 2),
+    montantLubrifiants DECIMAL(18, 2),
+    libellelItv VARCHAR(500),
+    dateSoumission DATE,
+    heureSoumission VARCHAR(5) CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
+CREATE TABLE type_document (
+    id INT IDENTITY (1, 1),
+    typeDocument VARCHAR(50),
+    date_creation DATETIME,
+    date_modification DATETIME,
+    CONSTRAINT PK_type_document_dit PRIMARY KEY (id)
+);
+
+CREATE TABLE type_operation (
+    id INT IDENTITY (1, 1),
+    typeOperation VARCHAR(50),
+    date_creation DATETIME,
+    date_modification DATETIME,
+    CONSTRAINT PK_type_operation PRIMARY KEY (id)
+);
+
+CREATE TABLE historique_operation_document (
+    id INT IDENTITY (1, 1),
+    idOrSoumisAValidation INT,
+    numeroDocument INT,
+    dateOperation DATETIME DEFAULT GETDATE (),
+    utilisateur VARCHAR(50),
+    idTypeOperation INT,
+    idTypeDocument INT,
+    pathPieceJointe VARCHAR(500),
+    CONSTRAINT PK_historique_operation_document PRIMARY KEY (id),
+    CONSTRAINT FK_historique_operation_document_id_or_soumis_a_validation FOREIGN KEY (idOrSoumisAValidation) REFERENCES ors_soumis_a_validation (id),
+    CONSTRAINT FK_historique_operation_document_type_operation FOREIGN KEY (idTypeOperation) REFERENCES type_operation (id),
+    CONSTRAINT FK_historique_operation_document_type_document FOREIGN KEY (idTypeDocument) REFERENCES type_document (id),
+);
+
+ALTER TABLE demande_intervention ADD section_support_1 VARCHAR(255)
+
+ALTER TABLE demande_intervention ADD section_support_2 VARCHAR(255)
+
+ALTER TABLE demande_intervention ADD section_support_3 VARCHAR(255);
+
+-- à revoire
+select
+    slor_nogrp / 100 as numItv,
+    (
+        select count(*)
+        from sav_itv
+        where
+            sitv_numor = '16412642'
+    ) as nombreLigneitv,
+    sum(
+        CASE
+            WHEN slor_typlig = 'P' THEN (
+                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+            )
+            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+        END * slor_pxnreel
+    ) as montantItv,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_typlig = 'P'
+            AND slor_numor = '16412642'
+    ) as montantPiece,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_constp = 'ZST'
+            AND slor_numor = '16412642'
+    ) as montantAchatLocaux,
+    (
+        select SUM(
+                CASE
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                END * slor_pxnreel
+            )
+        from sav_lor
+        where
+            slor_constp = 'LUB'
+            AND slor_numor = '16412642'
+    ) as montantLubrifiants
+from sav_lor
+WHERE
+    slor_numor = '16412642'
+GROUP BY
+    1

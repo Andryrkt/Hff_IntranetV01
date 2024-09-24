@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\AgenceServiceIrium;
-use App\Form\AgenceServiceIriumType;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\admin\utilisateur\AgenceServiceIriumType;
 
 
 /**
@@ -21,17 +21,10 @@ class AgenceServiceIriumController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id'=>'DESC']);
 
-        self::$twig->display('admin/AgenceServiceIrium/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/AgenceServiceIrium/list.html.twig', 
+        [
             'data' => $data
         ]);
     }
@@ -43,12 +36,6 @@ class AgenceServiceIriumController extends Controller
      */
     public function new(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $form = self::$validator->createBuilder(AgenceServiceIriumType::class)->getForm();
 
         $form->handleRequest($request);
@@ -62,9 +49,8 @@ class AgenceServiceIriumController extends Controller
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        self::$twig->display('admin/AgenceServiceIrium/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/AgenceServiceIrium/new.html.twig', 
+        [
             'form' => $form->createView()
         ]);
     }
@@ -77,12 +63,6 @@ class AgenceServiceIriumController extends Controller
  */
 public function edit(Request $request, $id)
 {
-
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
 
     $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
     
@@ -98,10 +78,9 @@ public function edit(Request $request, $id)
         
     }
 
-    self::$twig->display('admin/AgenceServiceIrium/edit.html.twig', [
+    self::$twig->display('admin/AgenceServiceIrium/edit.html.twig', 
+    [
         'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
     ]);
 
 }

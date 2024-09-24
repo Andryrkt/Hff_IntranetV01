@@ -160,13 +160,17 @@ function recherche() {
     });
 }
 
-/** LIST COMMANDE MODAL */
-
 document.addEventListener("DOMContentLoaded", (event) => {
-  var listeCommandeModal = document.getElementById("listeCommande");
+  /** LIST COMMANDE MODAL */
+  const listeCommandeModal = document.getElementById("listeCommande");
+
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
-    var button = event.relatedTarget; // Button that triggered the modal
-    var id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    const button = event.relatedTarget; // Button that triggered the modal
+    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+
+    // Afficher le spinner et masquer le contenu des données
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("dataContent").style.display = "none";
 
     // Fetch request to get the data
     fetch(`/Hffintranet/command-modal/${id}`)
@@ -177,23 +181,85 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        var tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML = ""; // Clear previous data
 
-        data.forEach((command) => {
-          var row = `<tr>
-                      <td>${command.slor_numcf}</td>
-                      <td>${command.fcde_date}</td>
-                      <td> -- </td>
+        if (data.length > 0) {
+          data.forEach((command) => {
+            let typeCommand;
+            if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
+              typeCommand = "Local";
+            } else if (command.slor_typcf == "CIS") {
+              typeCommand = "Agence";
+            } else {
+              typeCommand = "Import";
+            }
+
+            // Formater la date
+            const date = new Date(command.fcde_date);
+            const formattedDate = `${date
+              .getDate()
+              .toString()
+              .padStart(2, "0")}/${(date.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}/${date.getFullYear()}`;
+
+            // Affichage
+            let row = `<tr>
+                      <td>${command.slor_numcf}</td> 
+                      <td>${formattedDate}</td>
+                      <td> ${typeCommand}</td>
+                      <td> ${command.fcde_posc}</td>
+                      <td> ${command.fcde_posl}</td>
                   </tr>`;
-          tableBody.innerHTML += row;
-        });
+            tableBody.innerHTML += row;
+          });
+
+          // Masquer le spinner et afficher les données
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("dataContent").style.display = "block";
+        } else {
+          // Si les données sont vides, afficher un message vide
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("dataContent").style.display = "block";
+        }
       })
       .catch((error) => {
-        var tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML =
-          '<tr><td colspan="3">Could not retrieve data.</td></tr>';
+          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
+
+        // Masquer le spinner même en cas d'erreur
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("dataContent").style.display = "block";
       });
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
+  });
+
+  /** Docs à intégrer dans DW MODAL */
+
+  const docDansDwModal = document.getElementById("docDansDw");
+  const numeroDitInput = document.querySelector("#numeroDit");
+  const numDitHiddenInput = document.querySelector("#doc_dans_dw_numeroDit");
+
+  docDansDwModal.addEventListener("show.bs.modal", function (event) {
+    const button = event.relatedTarget;
+    const numDit = button.getAttribute("data-id");
+    numeroDitInput.innerHTML = numDit;
+    numDitHiddenInput.value = numDit;
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  docDansDwModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
   });
 });

@@ -40,14 +40,15 @@
 
 	<!-- DEBUT tableau -->
 	<div class="container ">
+		<div class="row">
+			{% include "/badm/casier/_paginationTemporaire.html.twig" %}
+		</div>
 		{% if empty == true %}
 			<div class="container">
 				{% include "/partials/_noResultList.html.twig" %}
 			</div>
 		{% else %}
-			<div class="row">
-				{% include "/badm/casier/_paginationTemporaire.html.twig" %}
-			</div>
+
 			<table class="table   table-shadow shadow  rounded " style="text-align: center;">
 				<thead class="table-dark">
 					<tr>
@@ -56,6 +57,7 @@
 						<th>Casier</th>
 						<th>Date de création</th>
 						<th>Numero Casier</th>
+						{% set role_ids = App.user.roleIds %}
 						{% if 1 in role_ids  %}
 							<th>Action</th>
 						{% endif %}

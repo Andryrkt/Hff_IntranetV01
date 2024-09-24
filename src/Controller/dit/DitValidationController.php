@@ -2,12 +2,12 @@
 
 namespace App\Controller\dit;
 
-use App\Entity\User;
-use App\Entity\StatutDemande;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Form\DitValidationType;
-use App\Entity\DemandeIntervention;
+use App\Entity\admin\StatutDemande;
+use App\Form\dit\DitValidationType;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

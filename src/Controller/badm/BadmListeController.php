@@ -2,10 +2,11 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\Badm;
-use App\Entity\BadmSearch;
-use App\Form\BadmSearchType;
+use App\Entity\badm\Badm;
 use App\Controller\Controller;
+use App\Entity\badm\BadmSearch;
+use App\Form\badm\BadmSearchType;
+use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,14 +21,14 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-         $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole(self::$em);
         
-         $badmSearch = new BadmSearch();
+        $badmSearch = new BadmSearch();
 
-         $agenceServiceIps= $this->agenceServiceIpsObjet();
+        $agenceServiceIps= $this->agenceServiceIpsObjet();
 
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',
@@ -68,7 +69,7 @@ class BadmListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
+            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
        
@@ -79,14 +80,20 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_criteria', $criteria);
         $this->sessionService->set('badm_search_option', $option);
 
+    
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
-
-            $badms = $this->badmRech->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badmRechercheModel = new BadmRechercheModel();
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
-            $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+            if ($badms[0]['num_parc'] == null) {
+                $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
+            } else {
+                $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+            }
         }
+
 
         if(empty($paginationData['data'])){
             $empty = true;
@@ -164,7 +171,7 @@ public function listAnnuler(Request $request){
          $badmSearch = new BadmSearch();
          $agenceServiceIps= $this->agenceServiceIpsObjet();
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps);
+        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
    
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch , [
             'method' => 'GET',
@@ -216,8 +223,8 @@ public function listAnnuler(Request $request){
         $this->sessionService->set('badm_search_option', $option);
 
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
-
-            $badms = $this->badmRech->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            $badmRechercheModel = new BadmRechercheModel();
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
             $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);

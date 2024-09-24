@@ -520,3 +520,78 @@ SET
         WHEN 'NSB - GE5' THEN '207'
         ELSE Casier_Destinataire
     END;
+
+-- recupération de service en informix
+SELECT DISTINCT
+    trim(
+        trim(atab_code) || ' ' || trim(atab_lib)
+    ) as service
+from agr_succ, agr_tab a
+where
+    asuc_numsoc = 'HF'
+    and a.atab_nom = 'SER'
+    and a.atab_code not in(
+        select b.atab_code
+        from agr_tab b
+        where
+            substr(b.atab_nom, 10, 2) = asuc_num
+            and b.atab_nom like 'SERBLOSUC%'
+    )
+    and asuc_num in (
+        '01',
+        '40',
+        '50',
+        '90',
+        '91',
+        '92'
+    )
+    and trim(asuc_num) = '" . $codeAgence . "'
+order by 1
+
+-- recupération d'agence en informix
+SELECT DISTINCT
+    trim(
+        trim(asuc_num) || ' ' || trim(asuc_lib)
+    ) as agence
+from agr_succ, agr_tab a
+where
+    asuc_numsoc = 'HF'
+    and a.atab_nom = 'SER'
+    and a.atab_code not in(
+        select b.atab_code
+        from agr_tab b
+        where
+            substr(b.atab_nom, 10, 2) = asuc_num
+            and b.atab_nom like 'SERBLOSUC%'
+    )
+    and asuc_num in (
+        '01',
+        '40',
+        '50',
+        '90',
+        '91',
+        '92'
+    )
+order by 1
+
+--recupération de l'agence et service en informix
+SELECT DISTINCT
+    trim(
+        trim(asuc_num) || ' ' || trim(asuc_lib)
+    ) as agence,
+    trim(
+        trim(atab_code) || ' ' || trim(atab_lib)
+    ) as service
+from agr_succ, agr_tab a
+where
+    asuc_numsoc = 'HF'
+    and a.atab_nom = 'SER'
+    and a.atab_code not in(
+        select b.atab_code
+        from agr_tab b
+        where
+            substr(b.atab_nom, 10, 2) = asuc_num
+            and b.atab_nom like 'SERBLOSUC%'
+    )
+    and trim(asuc_num) || '' || trim(atab_code) = '" . $agenceService . "'
+order by 1

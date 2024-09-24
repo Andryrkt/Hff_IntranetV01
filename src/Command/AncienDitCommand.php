@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\AncienDit;
+use App\Entity\dit\AncienDit;
 use App\Controller\Controller;
 use App\Service\AncienDitService;
 use Doctrine\ORM\EntityManagerInterface;

@@ -7,3 +7,6 @@
 /node_modules/
 /Views/images/
 .env
+configuration_lanto_hasina.txt
+configuration_prod.txt
+

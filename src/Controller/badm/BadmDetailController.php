@@ -2,8 +2,9 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\badm\Badm;
 use App\Controller\Controller;
-use App\Entity\Badm;
+use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -17,8 +18,8 @@ class BadmDetailController extends Controller
     {
         $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
         
-
-        $data = $this->badmDetail->findAll($badm->getIdMateriel());
+        $badmDetailModel = new BadmDetailModel();
+        $data = $badmDetailModel->findAll($badm->getIdMateriel());
     
       
         self::$twig->display(

@@ -2,11 +2,12 @@
 
 namespace App\Controller\admin\user;
 
+
 use App\Controller\Controller;
-use App\Entity\ProfilUser;
 use App\Entity\ProfilUserEntity;
-use App\Form\ProfilUserType;
+use App\Entity\admin\utilisateur\ProfilUser;
 use Symfony\Component\HttpFoundation\Request;
+use App\Form\admin\utilisateur\ProfilUserType;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -21,13 +22,6 @@ class ProfilUserController extends Controller
      */
     public function index(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-        
 
         $form = self::$validator->createBuilder(ProfilUserType::class)->getForm();
 
@@ -46,10 +40,9 @@ class ProfilUserController extends Controller
             
         }
 
-        self::$twig->display('admin/user/profilUser.html.twig', [
+        self::$twig->display('admin/user/profilUser.html.twig', 
+        [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
     }
 
@@ -60,17 +53,11 @@ class ProfilUserController extends Controller
      */
     public function list()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id'=>'DESC']);
 
-        self::$twig->display('admin/user/listProfilUser.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/user/listProfilUser.html.twig', 
+        [
             'data' => $data
         ]);
     }
@@ -82,12 +69,6 @@ class ProfilUserController extends Controller
  */
     public function edit(Request $request, $id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
         
@@ -112,10 +93,9 @@ class ProfilUserController extends Controller
             
         }
 
-        self::$twig->display('admin/user/editProfilUser.html.twig', [
+        self::$twig->display('admin/user/editProfilUser.html.twig', 
+        [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
 
     }

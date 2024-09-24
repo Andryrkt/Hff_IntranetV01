@@ -92,35 +92,35 @@ document.addEventListener("DOMContentLoaded", function () {
     cellToRowspanService.classList.add("rowspan-cell");
   }
 
-  /** Autocompletion Designation */
-  const designationInput = document.querySelector(
-    "#magasin_search_designation"
-  );
+  // /** Autocompletion Designation */
+  // const designationInput = document.querySelector(
+  //   "#magasin_search_designation"
+  // );
 
-  designationInput.addEventListener("input", autocompleteDesignation);
+  // designationInput.addEventListener("input", autocompleteDesignation);
 
-  function autocompleteDesignation() {
-    const designation = designationInput.value;
-    const url = `/Hffintranet/designation-fetch/${designation}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((designations) => {
-        console.log(designations);
-        const suggestions = document.getElementById("suggestions");
-        suggestions.innerHTML = "";
-        designations.forEach((item) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = item.designationi; // Changez 'designation' par le champ pertinent
-          li.addEventListener("click", function () {
-            designationInput.value = this.textContent;
-            suggestions.innerHTML = ""; // Effacez les suggestions après sélection
-          });
-          suggestions.appendChild(li);
-        });
-      })
-      .catch((error) => console.error("Error:", error));
-  }
+  // function autocompleteDesignation() {
+  //   const designation = designationInput.value;
+  //   const url = `/Hffintranet/designation-fetch/${designation}`;
+  //   fetch(url)
+  //     .then((response) => response.json())
+  //     .then((designations) => {
+  //       console.log(designations);
+  //       const suggestions = document.getElementById("suggestions");
+  //       suggestions.innerHTML = "";
+  //       designations.forEach((item) => {
+  //         const li = document.createElement("li");
+  //         li.className = "list-group-item";
+  //         li.textContent = item.designationi; // Changez 'designation' par le champ pertinent
+  //         li.addEventListener("click", function () {
+  //           designationInput.value = this.textContent;
+  //           suggestions.innerHTML = ""; // Effacez les suggestions après sélection
+  //         });
+  //         suggestions.appendChild(li);
+  //       });
+  //     })
+  //     .catch((error) => console.error("Error:", error));
+  // }
 
   /** MISE EN MAJUSCULE */
   const numDitInput = document.querySelector("#magasin_search_numDit");

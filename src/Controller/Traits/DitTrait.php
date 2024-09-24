@@ -2,12 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\StatutDemande;
-use App\Entity\WorNiveauUrgence;
-use App\Entity\DemandeIntervention;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\dit\WorNiveauUrgence;
 
 
 
@@ -78,8 +78,7 @@ trait DitTrait
 
     private function pdfDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
     {
-            
-        
+
         //Objet - Detail
         $demandeIntervention->setObjetDemande($dits->getObjetDemande());
         $demandeIntervention->setDetailDemande($dits->getDetailDemande());

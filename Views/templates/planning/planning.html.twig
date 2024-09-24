@@ -1,0 +1,161 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock %}
+
+{# {% import "macroForm.html.twig" as form %} #}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Planning
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+
+		{% include "/planning/_formulaire.html.twig" %}
+	</div>
+
+	<div
+		class="container-fluid">
+		<!-- DEBUT tableau -->
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
+		{% else %}
+			<div class="container">
+				<div class="mb-3">
+				
+					<i class="fa-solid fa-circle text-success"></i>
+					<small class="text-success">Tout livré |</small>
+					<i class="fa-solid fa-circle text-warning"></i>
+					<small class="text-warning">Partiellement livré |</small>
+					<i class="fa-solid fa-circle text-info"></i>
+					<small class="text-info">Partiellement dispo |</small>
+					<i class="fa-solid fa-circle text-primary"></i>
+					<small class="text-primary">Complet non livré</small>
+				</div>
+				<div class="d-flex justify-content-between">
+					{# <div>
+						
+						 <a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+							Resultats</p>
+					</div>
+					<div>
+						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+							pages</p>
+					</div> #}
+					<div class="navigation">
+						{% set queryParams = criteria  %}
+
+						{% if currentPage > 1 %}
+							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
+								<i class="fas fa-angle-left text-warning"></i>
+							</a>
+						{% endif %}
+
+
+						{% if currentPage < totalPages %}
+							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
+								<i class="fas fa-angle-right text-warning"></i>
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
+					<tr>
+						<th>Agence - Service</th>
+						<th>
+							id</th>
+						<th>CST</th>
+						<th>Type</th>
+						<th>N° Série</th>
+						<th>
+							N° Parc</th>
+						<th>
+							Casier</th>
+						{% for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] %}
+							<th>{{ month }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in data %}
+						<tr>
+							<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
+							<td>{{item.idmat}}</td>
+							<td>{{item.marqueMat}}</td>
+							<td>{{item.typemat}}</td>
+							<td>{{item.numserie}}</td>
+							<td>{{item.numparc}}</td>
+							<td>{{item.casier}}</td>
+							{% set classe = '' %}
+
+							{% if item.qtecdm * 1 == item.qteliv * 1 %}
+							{# total livré #}
+								{% set classe = 'bg-success text-white' %}
+							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
+							{# partiellement livré #}
+								{% set classe = 'bg-warning text-white' %}
+							{% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 and item.qteall * 1 > 0 %}
+								{% set classe = 'bg-info text-white' %}
+							{# partiellement dispo #}
+							{%  elseif item.qtecdm * 1 == item.qteall * 1 and item.qteliv * 1 < item.qtecdm * 1 %}
+								{% set classe = 'bg-primary text-white' %}
+							{# complet non livré #}
+							{% else %}
+								{% set classe = '' %}
+							{% endif %}
+							{# {{ dump(item.qteliv) }}
+							{{ dump(item.qtecdm) }}
+							{{ dump(item.qteall) }}
+							{{ dump(item.orIntv) }}
+							{{ dump(classe) }} #}
+
+							{% set moisDetails = item.moisDetails %}
+	
+
+							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
+							{% for i in 1..12 %}
+							
+									{% set items = moisDetails | filter(mois => mois.mois == i) %}
+							
+								<td class="{% if items is not empty %}{{ classe }}{% endif %}">
+             					   {% if items is not empty %}
+                 					  {% for item in items %}
+                     				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+											{{ item.orIntv }}
+                     				   </a><br>
+                  				  {% endfor %}
+                					{% else %}
+                				    <!-- Contenu pour les mois sans valeur -->
+                    					-
+               					 {% endif %}
+								</td>
+							{% endfor %}
+						</tr>
+				     {% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	</div>
+
+	<!-- FIN tableau -->
+	{# body modal #}
+	{% include "/planning/_modal.html.twig"  %}
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
+{% endblock %}

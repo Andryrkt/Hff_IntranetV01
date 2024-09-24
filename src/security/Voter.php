@@ -3,7 +3,7 @@
 namespace App\security;
 
 use App\Controller\ProfilControl;
-use App\Entity\User;
+use App\Entity\admin\utilisateur\User;
 
 interface Voter
 {

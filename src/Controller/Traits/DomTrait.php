@@ -34,7 +34,9 @@ trait DomTrait
     
     private function verifierSiDateExistant(string $matricule, string $dateDebutInput, string $dateFinInput): bool
     {
-        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
+        
+            $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
+       
         $trouve = false; // Variable pour indiquer si la date est trouvée
 
         // Parcourir chaque élément du tableau

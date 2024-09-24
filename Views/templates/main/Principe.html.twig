@@ -27,16 +27,18 @@
 					</li>
 				{% endif %}
 				{# FIN Affiche le menu "Documentation" si un administrateur #}
-
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
 				{% set hasBDM = false %}
 				{% set hasDOM = false %}
+				{% set hasMAG = false %}
 
 				{% for item in App.user.Applications %}
 					{% if item.codeApp == 'BDM' %}
 						{% set hasBDM = true %}
 					{% elseif item.codeApp == 'DOM' %}
 						{% set hasDOM = true %}
+					{% elseif item.codeApp == 'MAG' %}
+						{% set hasMAG = true %}
 					{% endif %}
 					<!-- DEBUT Demande d'intervention-->
 					{% if item.codeApp == 'DIT' %}
@@ -122,22 +124,23 @@
 					</ul>
 				</li>
 
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Magasin</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="{{ path("magasinListe_or_Livrer")}}">Liste à livrer</a>
-						</li>
-						{# <li> #}
-					{# <a class="dropdown-item" href="{{ path("liste_or")}}">Consultation or</a> #}
-						{# </li> #}
-					</ul>
-				</li>
-
+				{% if hasMAG %}
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Magasin</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("magasinListe_or_Livrer")}}">Liste des OR à livrer</a>
+							</li>
+							{# <li> #}
+						{# <a class="dropdown-item" href="{{ path("magasinListe_or_encours")}}">Liste des OR encours</a> #}
+							{# </li> #}
+						</ul>
+					</li>
+				{% endif %}
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Support Info</a>
@@ -153,7 +156,15 @@
 					</ul>
 				</li>
 
-
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						Reporting</a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+						<li>
+							<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
+						</li>
+					</ul>
+				</li>
 				<li class="nav-item dropdown">
 
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>

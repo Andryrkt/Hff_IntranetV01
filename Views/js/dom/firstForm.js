@@ -14,14 +14,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
       nom.parentElement.style.display = "block";
       prenom.parentElement.style.display = "block";
       cin.parentElement.style.display = "block";
+      nom.disabled = false;
+      prenom.disabled = false;
+      cin.disabled = false;
       matriculeNomInput.parentElement.style.display = "none";
       matriculeInput.parentElement.style.display = "none";
+      matriculeNomInput.disabled = true;
+      matriculeInput.disabled = true;
     } else {
       nom.parentElement.style.display = "none";
       prenom.parentElement.style.display = "none";
       cin.parentElement.style.display = "none";
+      nom.disabled = true;
+      prenom.disabled = true;
+      cin.disabled = true;
       matriculeNomInput.parentElement.style.display = "block";
       matriculeInput.parentElement.style.display = "block";
+      matriculeNomInput.disabled = false;
+      matriculeInput.disabled = false;
     }
   }
 
@@ -51,7 +61,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       codeAgence !== "50"
     ) {
       categorie.parentElement.style.display = "none";
-    } else if (sousTypeDocumentValue === "5" && codeAgence === "50") {
+    } else if (sousTypeDocumentValue !== "2" && codeAgence === "50") {
       categorie.parentElement.style.display = "none";
     } else {
       categorie.parentElement.style.display = "block";
@@ -115,4 +125,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .catch((error) => console.error("Error:", error));
   }
+
+  /** CHANGER LE CHAMP CATEGORIE SELON LES CRITERES */
 });

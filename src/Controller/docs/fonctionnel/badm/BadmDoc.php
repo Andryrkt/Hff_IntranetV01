@@ -12,12 +12,6 @@ class BadmDoc extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
 
         // Chemin vers votre fichier Markdown
         $markdownFile = dirname(dirname(dirname(dirname(dirname(__DIR__))))). DIRECTORY_SEPARATOR .'docs/fonctionnel/badm/formulaire2.md';
@@ -36,8 +30,6 @@ class BadmDoc extends Controller
         // Rendre le template avec le contenu HTML
         self::$twig->display('doc/fonctionnel/badm/badm.html.twig', 
         [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'content' => $htmlContent
         ]);
     }

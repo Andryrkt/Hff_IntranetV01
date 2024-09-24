@@ -4,9 +4,9 @@ namespace App\Controller\admin;
 
 
 
+use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\Service;
-use App\Form\ServiceType;
+use App\Form\admin\ServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,33 +19,20 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
-
-    $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
 
 
-    self::$twig->display('admin/service/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
-        'data' => $data
-    ]);
+        self::$twig->display('admin/service/list.html.twig', 
+        [
+            'data' => $data
+        ]);
     }
 
     /**
          * @Route("/admin/service/new", name="service_new")
          */
         public function new(Request $request)
-        {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
+        {    
             $form = self::$validator->createBuilder(ServiceType::class)->getForm();
     
             $form->handleRequest($request);
@@ -59,9 +46,8 @@ class ServiceController extends Controller
                 $this->redirectToRoute("service_index");
             }
     
-            self::$twig->display('admin/service/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
+            self::$twig->display('admin/service/new.html.twig', 
+            [
                 'form' => $form->createView()
             ]);
         }
@@ -73,13 +59,6 @@ class ServiceController extends Controller
      */
     public function edit(Request $request, $id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
         $permission = self::$em->getRepository(Service::class)->find($id);
         
         $form = self::$validator->createBuilder(ServiceType::class, $permission)->getForm();
@@ -94,10 +73,9 @@ class ServiceController extends Controller
             
         }
 
-        self::$twig->display('admin/service/edit.html.twig', [
+        self::$twig->display('admin/service/edit.html.twig', 
+        [
             'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
         ]);
 
     }

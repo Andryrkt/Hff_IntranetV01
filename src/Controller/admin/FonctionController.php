@@ -3,8 +3,8 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\Fonction;
-use App\Form\FonctionType;
+use App\Entity\admin\utilisateur\Fonction;
+use App\Form\admin\utilisateur\FonctionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,18 +17,11 @@ class FonctionController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-    
         $data = self::$em->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
     
     
-        self::$twig->display('admin/fonction/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+        self::$twig->display('admin/fonction/list.html.twig', 
+        [
             'data' => $data
         ]);
     }
@@ -39,31 +32,24 @@ class FonctionController extends Controller
      * @return void
      */
     public function new(Request $request)
-    {
-        $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
-            $form = self::$validator->createBuilder(FonctionType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $fonction= $form->getData();
-                    
-                self::$em->persist($fonction);
-                self::$em->flush();
-                $this->redirectToRoute("fonction_index");
-            }
-    
-            self::$twig->display('admin/fonction/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-                'form' => $form->createView()
-            ]);
+    {    
+        $form = self::$validator->createBuilder(FonctionType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $fonction= $form->getData();
+                
+            self::$em->persist($fonction);
+            self::$em->flush();
+            $this->redirectToRoute("fonction_index");
+        }
+
+        self::$twig->display('admin/fonction/new.html.twig', 
+        [
+            'form' => $form->createView()
+        ]);
     }
 
 }

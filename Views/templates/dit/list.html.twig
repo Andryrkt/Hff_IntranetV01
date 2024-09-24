@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-{% endblock%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
 
@@ -15,7 +15,7 @@
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
 
-		{% include "/dit/_formulaireRecherche.html.twig" %}
+		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
 	</div>
 
 	<div
@@ -27,38 +27,7 @@
 			</div>
 		{% else %}
 			<div class="container">
-				<div class="d-flex justify-content-between">
-					<div>
-						{# Bouton EXCEL#}
-						<a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-							Resultats</p>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-							pages</p>
-					</div>
-					<div class="navigation">
-						{% set queryParams = criteria  %}
-
-						{% if currentPage > 1 %}
-							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
-								<i class="fas fa-angle-left text-warning"></i>
-							</a>
-						{% endif %}
-
-
-						{% if currentPage < totalPages %}
-							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
-								<i class="fas fa-angle-right text-warning"></i>
-							</a>
-						{% endif %}
-					</div>
-				</div>
+				{% include "/dit/shared/_pagination.html.twig" %}
 			</div>
 
 			<table class="table rounded table-plein-ecran">
@@ -81,10 +50,10 @@
 						<th>Objet</th>
 						<th>Section affectée</th>
 						<th>N° Or</th>
-						<th class="fw-bold">Statut Or</th>
-
+						<th class="fw-bold">Statut Or DW</th>
 						<th>Statut Livraison Pièces</th>
 						<th>Statut Achats Locaux</th>
+						<th>Nbre PJ</th>
 						<th>Utilisateur</th>
 					</tr>
 				</thead>
@@ -98,9 +67,11 @@
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-
 										<li>
 											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
+										</li>
+										<li>
+											<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Docs à intégrer dans DW</a>
 										</li>
 									</ul>
 								</div>
@@ -112,7 +83,17 @@
 								<td class="bg-warning bg-gradient fw-bold text-cente">
 									{{item.idStatutDemande.description | trim}}</td>
 							{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
-								<td class="bg-success bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+								<td class="bg-warning bg-gradient fw-bold">
+									{{item.idStatutDemande.description | trim}}
+								</td>
+							{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
+								<td class="bg-success fw-bold " style="--bs-bg-opacity: .5;">
+									{{item.idStatutDemande.description | trim}}
+								</td>
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
+								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
+							{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+								<td class="bg-dangers bg-gradient fw-bold">{{item.idStatutDemande.description | trim}}</td>
 							{% else %}
 								<td>{{item.idStatutDemande.description | trim}}</td>
 							{% endif %}
@@ -124,38 +105,28 @@
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
 							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-
-							{% if item.idMateriel not in idMat %}
-								<td>
-									-
-								</td>
-								<td>
-									-
-								</td>
-							{% else %}
-								{% for num in numSerieParc %}
-									{% if item.idMateriel == num.num_matricule %}
-										<td>{{ num.num_serie}}</td>
-										<td>{{ num.num_parc}}</td>
-									{% endif %}
-								{% endfor %}
-							{% endif %}
-
+							<td>{{ item.numSerie}}</td>
+							<td>{{ item.numParc}}</td>
 							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
 							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>{{ item.objetDemande}}</td>
 							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
-							<td>{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}</td>
+							<td>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
+									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+								</a>
+							</td>
 							<td>
 								{% if item.numeroOr != '' %}
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
-							<td class="fw-bold fst-italic">{{ item.statutOr}}</td>
+							<td class="fw-bold ">{{ item.statutOr}}</td>
 							<td>{{ item.statutachatpiece}}</td>
 							<td>{{ item.statutachatlocaux}}</td>
+							<td>{{ item.nbrPj}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
 					{% endfor %}
@@ -166,9 +137,12 @@
 
 	<!-- FIN tableau -->
 	{# body modal #}
-	{% include "/dit/_modal.html.twig"  %}
+	{% include "/dit/shared/_modal.html.twig"  %}
+	{% include "/dit/shared/_modalDocDansDW.html.twig"  %}
+	{% include "/dit/shared/_modalSectionAffectee.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/dit/listDitModal.js" type="module"></script>
 {% endblock %}

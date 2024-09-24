@@ -4,17 +4,16 @@ namespace App\Controller;
 
 use Exception;
 use SplFileObject;
-use App\Entity\User;
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use Symfony\Component\HttpFoundation\Request;
+
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 
 class ProfilControl extends Controller
 {
 
+    
 
     /**
      * @Route("/Authentification", name="profil_authentification")
@@ -35,30 +34,30 @@ class ProfilControl extends Controller
                 </script>';
             } else {
                 
-                //$session->start();
-                $userId = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username])->getId();
-                $this->sessionService->set('user_id', $userId);
+                try {
+                        //$session->start();
+                        $user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
+                        
+                        if ($user) {
+                            $userId = $user->getId();
+                            $this->sessionService->set('user_id', $userId);
+                            // session_start();
+                            $_SESSION['user'] = $Username;
 
-
-                // session_start();
-                $_SESSION['user'] = $Username;
-                $_SESSION['password'] = $Password;
-
+                            $_SESSION['password'] = $Password;
+                        } else {
+                            // Gérer le cas où l'utilisateur n'existe pas
+                            throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
+                        }
+                } catch (\Exception $e) {
                
-                //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-                $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
+                    $this->redirectToRoute('utilisateur_non_touver', ["message" => $e->getMessage()]);
+                }
 
 
-                $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-                $text = file_get_contents($fichier);
-                $boolean = strpos($text, $_SESSION['user']);
 
                 self::$twig->display(
-                    'main/accueil.html.twig',
-                    [
-                        'infoUserCours' => $infoUserCours,
-                        'boolean' => $boolean,
-                    ]
+                    'main/accueil.html.twig'
                 );
             }
         }
@@ -85,23 +84,12 @@ class ProfilControl extends Controller
      * @Route("/Acceuil", name="profil_acceuil")
      */
     public function showPageAcceuil()
-    {
-        $this->SessionStart();
-
-
-        $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+    {       
 
         //$okey = $this->ProfilModel->has_permission($_SESSION['user'], 'CREAT_DOM');
 
         self::$twig->display(
-            'main/accueil.html.twig',
-            [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean
-            ]
+            'main/accueil.html.twig'
         );
     }
 }
