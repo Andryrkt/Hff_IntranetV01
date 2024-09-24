@@ -6,3 +6,4 @@
 /src/Service/FPDI-2.6.0/
 /node_modules/
 /Views/images/
+.env
