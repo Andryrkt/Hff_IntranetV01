@@ -72,6 +72,7 @@ class MagasinListeOrLivrerController extends Controller
                 } else {
                     $data[$i]['datePlanning'] = '';
                 }
+                
                 $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
                 if( !empty($dit)){
                     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];

@@ -98,6 +98,8 @@ class DitOrsSoumisAValidation
 
 
     private $pieceJoint01;
+
+    private $pieceJoint02;
     //==========================================================================================
     
 
@@ -463,7 +465,25 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
-    
 
-   
+
+    /**
+     * Get the value of pieceJoint02
+     */ 
+    public function getPieceJoint02()
+    {
+        return $this->pieceJoint02;
+    }
+
+    /**
+     * Set the value of pieceJoint02
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint02($pieceJoint02)
+    {
+        $this->pieceJoint02 = $pieceJoint02;
+
+        return $this;
+    }
 }

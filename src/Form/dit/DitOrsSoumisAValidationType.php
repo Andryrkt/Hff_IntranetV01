@@ -62,7 +62,22 @@ class DitOrsSoumisAValidationType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid PDF file.',
                     ])
                 ],
-            ]);
+            ])
+            ->add('pieceJoint02', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
        ;
     }
 

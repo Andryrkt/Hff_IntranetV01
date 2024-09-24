@@ -3,17 +3,26 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
-use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 
 class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;
+
+    private $magasinListOrLivrerModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
+    }
     
     /**
      * @Route("/insertion-or/{numDit}", name="dit_insertion_or")
@@ -25,8 +34,6 @@ class DitOrsSoumisAValidationController extends Controller
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
 
-        
-    
 
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
@@ -36,8 +43,23 @@ class DitOrsSoumisAValidationController extends Controller
         {   
             $numOrBaseDonner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit])->getNumeroOr();
 
+            $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($ditInsertionOrSoumis->getNumeroOR());
+            
+                if(!empty($datePlannig1)){
+                    $datePlanning = $datePlannig1[0]['dateplanning1'];
+                } else if(!empty($datePlannig2)){
+                    $datePlanning = $datePlannig2[0]['dateplanning2'];
+                } else {
+                    $datePlanning = '';
+                }
+
             if($numOrBaseDonner !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+                $this->notification($message);
+            } elseif($datePlanning === '')
+            {
+                $message = "Le numéro Or doit avoir une date planning";
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
@@ -51,20 +73,16 @@ class DitOrsSoumisAValidationController extends Controller
                                     ;
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 
-            
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant);
-
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
                 $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
 
-            
                 foreach ($orSoumisValidataion as $entity) {
                     self::$em->persist($entity); // Persister chaque entité individuellement
                 }
-            
 
                 self::$em->flush();
 
@@ -164,15 +182,19 @@ class DitOrsSoumisAValidationController extends Controller
     }
 
     public function recuperationAvantApres($orSoumisValidataion, $OrSoumisAvant)
-    {   
+    {
         $recapAvantApres = [];
         for ($i = 0; $i < count($orSoumisValidataion); $i++) {
+            // Vérification si l'index $i existe dans $OrSoumisAvant
+            $nbLigAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : '';
+            $mttTotalAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : '';
+
             $recapAvantApres[] = [
                 'itv' => $orSoumisValidataion[$i]->getNumeroItv(),
                 'libelleItv' => $orSoumisValidataion[$i]->getLibellelItv(),
-                'nbLigAv' => empty($OrSoumisAvant)? '' : $OrSoumisAvant[$i]->getNombreLigneItv(),
+                'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $orSoumisValidataion[$i]->getNombreLigneItv(),
-                'mttTotalAv' => empty($OrSoumisAvant)? '' : $OrSoumisAvant[$i]->getMontantItv(),
+                'mttTotalAv' => $mttTotalAv,
                 'mttTotalAp' => $orSoumisValidataion[$i]->getMontantItv(),
             ];
         }
@@ -180,16 +202,17 @@ class DitOrsSoumisAValidationController extends Controller
     }
 
 
+
     public function affectationStatut($recapAvantApres)
     {
         foreach ($recapAvantApres as &$value) { // Ajout du '&' pour référencer les éléments
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
-            } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== '' || $value['nbLigAp'] !== '')) {
+            } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAp'] !== 0)) {
                 $value['statut'] = 'Modif';
-            } elseif ($value['nbLigAv'] === '' && $value['mttTotalAv'] === '') {
+            } elseif ($value['nbLigAv'] === 0 && $value['mttTotalAv'] === 0) {
                 $value['statut'] = 'Nouv';
-            } elseif (($value['nbLigAv'] !== '' && $value['mttTotalAv'] !== '') && ($value['nbLigAp'] === '' && $value['mttTotalAp'] === '')) {
+            } elseif (($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0) && ($value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0)) {
                 $value['statut'] = 'Supp';
             }
         }
@@ -209,9 +232,9 @@ class DitOrsSoumisAValidationController extends Controller
             'dernierLigne' => ''
         ];
         foreach ($recapAvantApres as  $value) {
-            $totalRecepAvantApres['totalNbLigAv'] += $value['nbLigAv'];
+            $totalRecepAvantApres['totalNbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
             $totalRecepAvantApres['totalNbLigAp'] += $value['nbLigAp'];
-            $totalRecepAvantApres['totalMttTotalAv'] += $value['mttTotalAv'];
+            $totalRecepAvantApres['totalMttTotalAv'] += $value['mttTotalAv'] === '' ? 0 : $value['mttTotalAv'];
             $totalRecepAvantApres['totalMttTotalAp'] += $value['mttTotalAp'];
         }
 

@@ -50,32 +50,8 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
         // ================================================================================================
         $header1 = ['ITV', 'Libellé ITV', 'Nb Lig av','Nb Lig ap', 'Mtt Total av', 'Mtt total ap', 'Statut'];
-        $historiqueMateriel = [ [
-                'codeagence' => 'Agences', 
-                'codeservice' =>'Services', 
-                'datedebut' => 'Date',
-                'numeroor' => 'numor', 
-                'numerointervention' =>'interv', 
-                'commentaire' => 'commentaire', 
-                'somme' => 'Supp'],
-                [
-                        'codeagence' => 'Agences', 
-                        'codeservice' =>'Services', 
-                        'datedebut' => 'Date',
-                        'numeroor' => 'numor', 
-                        'numerointervention' =>'interv', 
-                        'commentaire' => 'commentaire', 
-                        'somme' => 'Nouv'],
-                        [
-                                'codeagence' => 'Agences', 
-                                'codeservice' =>'Services', 
-                                'datedebut' => 'Date',
-                                'numeroor' => 'numor', 
-                                'numerointervention' =>'interv', 
-                                'commentaire' => 'commentaire', 
-                                'somme' => 'Modif']];
 
-            $html = '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+            $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
             $html .= '<thead>';
             $html .= '<tr style="background-color: #D3D3D3;">';
@@ -109,15 +85,15 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                     if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
                     } elseif ($key === 'libelleItv') {
-                        $html .= '<td style="width: 200px"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 200px text-align: left;"  >' . $cell . '</td>';
                     } elseif ($key === 'nbLigAv') {
-                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 50px; "  >' . $cell . '</td>';
                     } elseif ($key === 'nbLigAp') {
-                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 50px;"  >' . $cell . '</td>';
                     } elseif ($key === 'mttTotalAv') {
-                        $html .= '<td style="width: 80px"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttTotalAp') {
-                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'statut') {
                         if($cell === 'Supp'){
                                 $html .= '<td style="width: 40px; text-align: left; background-color: #FF0000;"  >  ' . $cell . '</td>';
@@ -137,20 +113,20 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             }
             $html .= '</tbody>';
             $html .= '<tfoot>';
-            $html .= '<tr>';
+            $html .= '<tr style="background-color: #D3D3D3;">';
             foreach ($montantPdf['totalAvantApres'] as $key => $value) {
                 if ($key === 'premierLigne') {
                     $html .= '<th style="width: 40px; font-weight: 900;" ></th>';
                 } elseif ($key === 'total') {
                     $html .= '<th style="width: 200px; font-weight: bold;" > TOTAL</th>';
                 } elseif ($key === 'totalNbLigAv') {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 50px; font-weight: bold; " >' . $value . '</th>';
                 } elseif ($key === 'totalNbLigAp') {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 50px; font-weight: bold; " >' . $value . '</th>';
                 } elseif ($key === 'totalMttTotalAv') {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'totalMttTotalAp') {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'dernierLigne') {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" ></th>';
                 } else {
@@ -202,7 +178,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
         
 
-            $html = '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+            $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
             $html .= '<thead>';
             $html .= '<tr style="background-color: #D3D3D3;">';
@@ -237,17 +213,17 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                     if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
                     } elseif ($key === 'mttTotal') {
-                        $html .= '<td style="width: 70px"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 70px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttPieces') {
-                        $html .= '<td style="width: 60px"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttMo') {
-                        $html .= '<td style="width: 60px"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttSt') {
-                        $html .= '<td style="width: 80px"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttLub') {
-                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                     } elseif ($key === 'mttAutres') {
-                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
                      } 
                     // else {
                     //     $html .= '<td  >' . $cell . '</td>';
@@ -257,22 +233,22 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             }
             $html .= '</tbody>';
             $html .= '<tfoot>';
-            $html .= '<tr>';
+            $html .= '<tr style="background-color: #D3D3D3;">';
             foreach ($montantPdf['totalRecapOr']as $key => $value) {
                 if ($key === 'total') {
                     $html .= '<th style="width: 40px; font-weight: 900;" >TOTAL</th>';
                 } elseif ($key === 'montant_itv') {
-                    $html .= '<th style="width: 70px; font-weight: bold;" > ' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 70px; font-weight: bold; text-align: right;" > ' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'montant_piece') {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'montant_mo') {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'montant_achats_locaux') {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'montant_frais_divers') {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value). '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value). '</th>';
                 } elseif ($key === 'montant_lubrifiants') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } else {
                     $html .= '<th >' . $this->formatNumber($value). '</th>';
                 }
