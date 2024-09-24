@@ -14,7 +14,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
      * generer pdf changement de Casier
      */
 
-    function GenererPdfOrSoumisAValidation($ditInsertionOr)
+    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf)
     {
         $pdf = new TCPDF();
 
@@ -83,17 +83,17 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 if ($key === 0) {
                     $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
                 } elseif ($key === 1) {
-                    $html .= '<th style="width: 70px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 200px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 2) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 3) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 4) {
                     $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 5) {
                     $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 6) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+                    $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } else {
                     $html .= '<th >' . $value . '</th>';
                 }
@@ -102,29 +102,31 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $html .= '</thead>';
             $html .= '<tbody>';
             // Ajouter les lignes du tableau
-            foreach ($historiqueMateriel as $row) {
+            foreach ($montantPdf['avantApres'] as $row) {
                 $html .= '<tr>';
                 foreach ($row as $key => $cell) {
               
-                    if ($key === 'codeagence') {
+                    if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'codeservice') {
-                        $html .= '<td style="width: 70px"  >' . $cell . '</td>';
-                    } elseif ($key === 'datedebut') {
-                        $html .= '<td style="width: 60px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numeroor') {
-                        $html .= '<td style="width: 60px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numerointervention') {
-                        $html .= '<td style="width: 80px"  >' . $cell . '</td>';
-                    } elseif ($key === 'commentaire') {
-                        $html .= '<td style="width: 80px;"  >' . $cell . '</td>';
-                    } elseif ($key === 'somme') {
+                    } elseif ($key === 'libelleItv') {
+                        $html .= '<td style="width: 200px"  >' . $cell . '</td>';
+                    } elseif ($key === 'nbLigAv') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'nbLigAp') {
+                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                    } elseif ($key === 'mttTotalAv') {
+                        $html .= '<td style="width: 80px"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttTotalAp') {
+                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'statut') {
                         if($cell === 'Supp'){
-                                $html .= '<td style="width: 80px; text-align: left; background-color: #FF0000;"  >  ' . $cell . '</td>';
+                                $html .= '<td style="width: 40px; text-align: left; background-color: #FF0000;"  >  ' . $cell . '</td>';
                         } elseif($cell === 'Modif') {
-                                $html .= '<td style="width: 80px; text-align: left; background-color: #FFFF00;"  >  ' . $cell . '</td>';
+                                $html .= '<td style="width: 40px; text-align: left; background-color: #FFFF00;"  >  ' . $cell . '</td>';
                         } elseif ($cell === 'Nouv') {
-                                $html .= '<td style="width: 80px; text-align: left; background-color: #00FF00;"  >  ' . $cell . '</td>';
+                                $html .= '<td style="width: 40px; text-align: left; background-color: #00FF00;"  >  ' . $cell . '</td>';
+                        } else {
+                            $html .= '<td style="width: 40px; text-align: left; "  >  ' . $cell . '</td>';
                         }
                     } 
                     // else {
@@ -136,23 +138,23 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $html .= '</tbody>';
             $html .= '<tfoot>';
             $html .= '<tr>';
-            foreach ($header1 as $key => $value) {
-                if ($key === 0) {
+            foreach ($montantPdf['totalAvantApres'] as $key => $value) {
+                if ($key === 'premierLigne') {
                     $html .= '<th style="width: 40px; font-weight: 900;" ></th>';
-                } elseif ($key === 1) {
-                    $html .= '<th style="width: 70px; font-weight: bold;" > TOTAL</th>';
-                } elseif ($key === 2) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 3) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 6) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" ></th>';
+                } elseif ($key === 'total') {
+                    $html .= '<th style="width: 200px; font-weight: bold;" > TOTAL</th>';
+                } elseif ($key === 'totalNbLigAv') {
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 'totalNbLigAp') {
+                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                } elseif ($key === 'totalMttTotalAv') {
+                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'totalMttTotalAp') {
+                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'dernierLigne') {
+                    $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" ></th>';
                 } else {
-                    $html .= '<th >' . $value . '</th>';
+                    $html .= '<th ></th>';
                 }
             }
             $html .= '</tr>';
@@ -194,37 +196,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 //==========================================================================================================
  //Titre: Récapitulation de l'OR
-        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->setFont('helvetica', '', 12);
         $pdf->Cell(0, 6, 'Récapitulation de l\'OR ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);       
         $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
-        $historiqueMateriel = [ [
-                'codeagence' => 'Agences', 
-                'codeservice' =>'Services', 
-                'datedebut' => 'Date',
-                'numeroor' => 'numor', 
-                'numerointervention' =>'interv', 
-                'commentaire' => 'commentaire', 
-                'pos' =>'pos', 
-                'somme' => 'Sommes'],
-                [
-                        'codeagence' => 'Agences', 
-                        'codeservice' =>'Services', 
-                        'datedebut' => 'Date',
-                        'numeroor' => 'numor', 
-                        'numerointervention' =>'interv', 
-                        'commentaire' => 'commentaire', 
-                        'pos' =>'pos', 
-                        'somme' => 'Sommes'],
-                        [
-                                'codeagence' => 'Agences', 
-                                'codeservice' =>'Services', 
-                                'datedebut' => 'Date',
-                                'numeroor' => 'numor', 
-                                'numerointervention' =>'interv', 
-                                'commentaire' => 'commentaire', 
-                                'pos' =>'pos', 
-                                'somme' => 'Sommes']];
+        
 
             $html = '<table border="1" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
@@ -253,24 +229,25 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $html .= '</thead>';
             $html .= '<tbody>';
             // Ajouter les lignes du tableau
-            foreach ($historiqueMateriel as $row) {
+            foreach ($montantPdf['recapOr'] as $row) {
+            
                 $html .= '<tr>';
                 foreach ($row as $key => $cell) {
               
-                    if ($key === 'codeagence') {
+                    if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'codeservice') {
-                        $html .= '<td style="width: 70px"  >' . $cell . '</td>';
-                    } elseif ($key === 'datedebut') {
-                        $html .= '<td style="width: 60px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numeroor') {
-                        $html .= '<td style="width: 60px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numerointervention') {
-                        $html .= '<td style="width: 80px"  >' . $cell . '</td>';
-                    } elseif ($key === 'commentaire') {
-                        $html .= '<td style="width: 80px;"  >' . $cell . '</td>';
-                    } elseif ($key === 'somme') {
-                        $html .= '<td style="width: 80px;"  >' . $cell . '</td>';
+                    } elseif ($key === 'mttTotal') {
+                        $html .= '<td style="width: 70px"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttPieces') {
+                        $html .= '<td style="width: 60px"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttMo') {
+                        $html .= '<td style="width: 60px"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttSt') {
+                        $html .= '<td style="width: 80px"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttLub') {
+                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
+                    } elseif ($key === 'mttAutres') {
+                        $html .= '<td style="width: 80px;"  >' . $this->formatNumber($cell) . '</td>';
                      } 
                     // else {
                     //     $html .= '<td  >' . $cell . '</td>';
@@ -281,23 +258,23 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $html .= '</tbody>';
             $html .= '<tfoot>';
             $html .= '<tr>';
-            foreach ($header1 as $key => $value) {
-                if ($key === 0) {
+            foreach ($montantPdf['totalRecapOr']as $key => $value) {
+                if ($key === 'total') {
                     $html .= '<th style="width: 40px; font-weight: 900;" >TOTAL</th>';
-                } elseif ($key === 1) {
-                    $html .= '<th style="width: 70px; font-weight: bold;" > ' . $value . '</th>';
-                } elseif ($key === 2) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 3) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 6) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+                } elseif ($key === 'montant_itv') {
+                    $html .= '<th style="width: 70px; font-weight: bold;" > ' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'montant_piece') {
+                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'montant_mo') {
+                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'montant_achats_locaux') {
+                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value) . '</th>';
+                } elseif ($key === 'montant_frais_divers') {
+                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $this->formatNumber($value). '</th>';
+                } elseif ($key === 'montant_lubrifiants') {
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $this->formatNumber($value) . '</th>';
                 } else {
-                    $html .= '<th >' . $value . '</th>';
+                    $html .= '<th >' . $this->formatNumber($value). '</th>';
                 }
             }
             $html .= '</tr>';
@@ -310,7 +287,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/';
-        $pdf->Output($Dossier.'oRValidation_' .$ditInsertionOr->getNumeroVersion(). '.pdf', 'F');
+        $pdf->Output($Dossier.'oRValidation_' .$ditInsertionOr->getNumeroOR().'_'.$ditInsertionOr->getNumeroVersion(). '.pdf', 'F');
     }
 
 }

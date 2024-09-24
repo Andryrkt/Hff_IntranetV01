@@ -33,7 +33,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="integer")
      */
-    private int $numeroItv;
+    private ?int $numeroItv = 0;
 
      /**
      * @ORM\Column(type="date")
@@ -48,48 +48,48 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="integer")
      */
-    private int $nombreLigneItv;
+    private ?int $nombreLigneItv = 0;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantItv = 0.00;
+    private ?float $montantItv = 0.00;
 
 
     /**
      * @ORM\Column(type="integer")
      */
-    private int $numeroVersion = 0;
+    private ?int $numeroVersion = 0;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantPiece = 0.00;
+    private ?float $montantPiece = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantMo = 0.00;
+    private ?float $montantMo = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantAchatLocaux = 0.00;
+    private ?float $montantAchatLocaux = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantFraisDivers = 0.00;
+    private ?float $montantFraisDivers = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantLubrifiants = 0.00;
+    private ?float $montantLubrifiants = 0.00;
     
     /**
      * @ORM\Column(type="string", length=500)
      */
-    private string $libellelItv;
+    private ?string $libellelItv = '';
 
     /**
      * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idOrSoumisAValidation")
