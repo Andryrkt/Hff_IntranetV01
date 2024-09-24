@@ -194,12 +194,15 @@ foreach ($table as $materiel) {
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
                 }
+                // dump($recupGot);
                 if(!empty($recupGot)){
                    
-                    $details[$i]['Ord']= $recupGot['ord']['Ord'];
+                    $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
+
                 }else{
                      $details[$i]['Ord'] = "";
                 }
+                
             }
 
         }

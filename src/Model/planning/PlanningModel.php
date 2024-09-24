@@ -105,6 +105,7 @@ class PlanningModel extends Model
 
    $vligneType = $this->typeLigne($criteria);  
    $vYearsStatutPlan =  $this->planAnnee($criteria);
+   $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
    $vMonthStatutPlan = $this->planMonth($criteria);
    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
@@ -118,6 +119,7 @@ class PlanningModel extends Model
    $vconditionIdMat = $this->idMat($criteria);
    $vconditionNumOr = $this->numOr($criteria);
    $vconditionNumSerie = $this->numSerie($criteria);
+   $vconditionCasier = $this->casier($criteria);
    $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
@@ -159,6 +161,7 @@ class PlanningModel extends Model
                     $vligneType
 
                     AND $vYearsStatutPlan = $annee
+                    $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne
                     $agenceDebite
@@ -169,6 +172,7 @@ class PlanningModel extends Model
                     $vconditionIdMat
                     $vconditionNumOr
                     $vconditionNumSerie
+                    $vconditionCasier
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
@@ -298,7 +302,7 @@ class PlanningModel extends Model
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
-      // dd($statement);
+      //  dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
