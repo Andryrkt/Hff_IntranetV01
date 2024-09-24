@@ -91,7 +91,9 @@
 					</tr>
 				</thead>
 				<tbody>
+				
 					{% for item in data %}
+					
 						<tr>
 							<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
 							<td>{{item.idmat}}</td>
@@ -102,39 +104,35 @@
 							<td>{{item.casier}}</td>
 							{% set classe = '' %}
 
-							{% if item.qtecdm * 1 == item.qteliv * 1 %}
-							{# total livré #}
-								{% set classe = 'bg-success text-white' %}
-							{% elseif item.qteliv * 1 > 0 and item.qteliv * 1 != item.qtecdm * 1 %}
-							{# partiellement livré #}
-								{% set classe = 'bg-warning text-white' %}
-							{% elseif item.qtecdm * 1 != item.qteall * 1 and item.qteliv * 1 == 0 and item.qteall * 1 > 0 %}
-								{% set classe = 'bg-info text-white' %}
-							{# partiellement dispo #}
-							{%  elseif item.qtecdm * 1 == item.qteall * 1 and item.qteliv * 1 < item.qtecdm * 1 %}
-								{% set classe = 'bg-primary text-white' %}
-							{# complet non livré #}
-							{% else %}
-								{% set classe = '' %}
-							{% endif %}
-							{# {{ dump(item.qteliv) }}
-							{{ dump(item.qtecdm) }}
-							{{ dump(item.qteall) }}
-							{{ dump(item.orIntv) }}
-							{{ dump(classe) }} #}
-
 							{% set moisDetails = item.moisDetails %}
 	
 
 							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
 							{% for i in 1..12 %}
+
+							{% set items = moisDetails | filter(mois => mois.mois == i) %}
+												
 							
-									{% set items = moisDetails | filter(mois => mois.mois == i) %}
-							
-								<td class="{% if items is not empty %}{{ classe }}{% endif %}">
+								<td class="">
              					   {% if items is not empty %}
                  					  {% for item in items %}
-                     				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+
+									  		{% if item.qteCdm * 1 == item.qteLiv * 1 and item.qteCdm != '' and item.qteLiv != ''%}
+											{# total livré #}
+												{% set classe = 'bg-success text-white' %}
+											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1 != item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+											{# partiellement livré #}
+												{% set classe = 'bg-warning text-white' %}
+											{% elseif item.qteCdm * 1 != item.qteAll * 1 and item.qteLiv * 1 == 0 and item.qteAll * 1 > 0 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+												{% set classe = 'bg-info text-white' %}
+											{# partiellement dispo #}
+											{%  elseif item.qteCdm * 1 == item.qteAll * 1 and item.qteLiv * 1 < item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+												{% set classe = 'bg-primary text-white' %}
+											{# complet non livré #}
+											{% else %}
+												{% set classe = '' %}
+											{% endif %}
+                     				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
 											{{ item.orIntv }}
                      				   </a><br>
                   				  {% endfor %}
