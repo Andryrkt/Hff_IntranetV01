@@ -12,7 +12,7 @@ use App\Repository\admin\dit\DitTypeOperationRepository;
  * @ORM\Table(name="type_operation")
  * @ORM\HasLifecycleCallbacks
  */
-class DitOperation
+class DitTypeOperation
 {
     /**
      * @ORM\Id

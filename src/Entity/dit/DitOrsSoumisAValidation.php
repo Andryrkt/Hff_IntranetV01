@@ -22,9 +22,7 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=11)
-     */
+   
     private ?string $numeroDit = null;
 
     /**
@@ -38,9 +36,14 @@ class DitOrsSoumisAValidation
     private int $numeroItv;
 
      /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
      */
-    private DateTime $dateSoumission;
+    private  $dateSoumission;
+
+    /**
+     * @ORM\Column(type="string", length=5)
+     */
+    private $heureSoumission;
 
     /**
      * @ORM\Column(type="integer")
@@ -50,38 +53,38 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantItv;
+    private float $montantItv = 0.00;
 
 
     /**
      * @ORM\Column(type="integer")
      */
-    private int $numeroVersion;
+    private int $numeroVersion = 0;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantPiece;
+    private float $montantPiece = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantMo;
+    private float $montantMo = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantAchatLocaux;
+    private float $montantAchatLocaux = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantFraisDivers;
+    private float $montantFraisDivers = 0.00;
 
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private float $montantLubrifiants;
+    private float $montantLubrifiants = 0.00;
     
     /**
      * @ORM\Column(type="string", length=500)
@@ -94,7 +97,7 @@ class DitOrsSoumisAValidation
     private $ditHistoriqueOperationDoc;
 
 
-    private $file;
+    private $pieceJoint01;
     //==========================================================================================
     
 
@@ -193,6 +196,27 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
+
+     /**
+     * Get the value of heureSoumission
+     */ 
+    public function getHeureSoumission()
+    {
+        return $this->heureSoumission;
+    }
+
+    /**
+     * Set the value of heureSoumission
+     *
+     * @return  self
+     */ 
+    public function setHeureSoumission($heureSoumission)
+    {
+        $this->heureSoumission = $heureSoumission;
+
+        return $this;
+    }
+
     /**
      * Get the value of nombrePieceItv
      */ 
@@ -227,7 +251,8 @@ class DitOrsSoumisAValidation
      * @return  self
      */ 
     public function setMontantItv($montantItv)
-    {
+    {  
+        $montantItv = $montantItv === null ? 0.00 : $montantItv;
         $this->montantItv = $montantItv;
 
         return $this;
@@ -270,6 +295,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantPiece($montantPiece)
     {
+        $montantPiece = $montantPiece === null ? 0.00 : $montantPiece;
         $this->montantPiece = $montantPiece;
 
         return $this;
@@ -290,6 +316,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantMo($montantMo)
     {
+        $montantMo = $montantMo === null ? 0.00 : $montantMo;
         $this->montantMo = $montantMo;
 
         return $this;
@@ -310,6 +337,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantAchatLocaux($montantAchatLocaux)
     {
+        $montantAchatLocaux = $montantAchatLocaux === null ? 0.00 : $montantAchatLocaux;
         $this->montantAchatLocaux = $montantAchatLocaux;
 
         return $this;
@@ -330,6 +358,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantFraisDivers($montantFraisDivers)
     {
+        $montantFraisDivers = $montantFraisDivers === null ? 0.00 : $montantFraisDivers;
         $this->montantFraisDivers = $montantFraisDivers;
 
         return $this;
@@ -350,6 +379,7 @@ class DitOrsSoumisAValidation
      */ 
     public function setMontantLubrifiants($montantLubrifiants)
     {
+        $montantLubrifiants = $montantLubrifiants === null ? 0.00 : $montantLubrifiants;
         $this->montantLubrifiants = $montantLubrifiants;
 
         return $this;
@@ -416,9 +446,9 @@ class DitOrsSoumisAValidation
     /**
      * Get the value of file
      */ 
-    public function getFile()
+    public function getPieceJoint01()
     {
-        return $this->file;
+        return $this->pieceJoint01;
     }
 
     /**
@@ -426,12 +456,14 @@ class DitOrsSoumisAValidation
      *
      * @return  self
      */ 
-    public function setFile($file)
+    public function setPieceJoint01($pieceJoint01)
     {
-        $this->file = $file;
+        $this->pieceJoint01 = $pieceJoint01;
 
         return $this;
     }
 
     
+
+   
 }

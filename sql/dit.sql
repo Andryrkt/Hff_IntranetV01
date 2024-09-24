@@ -154,7 +154,6 @@ EXEC sp_rename 'ors_soumis_a_validation.nombreLigne_itv',
 CREATE TABLE ors_soumis_a_validation (
     id INT IDENTITY (1, 1),
     numeroOR VARCHAR(8),
-    dateSoumission DATETIME NOT NULL DEFAULT GETDATE (),
     numeroItv INT,
     nombreLigneItv INT,
     montantItv DECIMAL(18, 2),
@@ -165,7 +164,8 @@ CREATE TABLE ors_soumis_a_validation (
     montantFraisDivers DECIMAL(18, 2),
     montantLubrifiants DECIMAL(18, 2),
     libellelItv VARCHAR(500),
-    CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+    dateSoumission DATE,
+    heureSoumission VARCHAR(5) CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
 );
 
 CREATE TABLE type_document (

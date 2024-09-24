@@ -102,7 +102,9 @@ class DitListeController extends Controller
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
 
-        /** Docs à intégrer dans DW  */
+        /** 
+         * Docs à intégrer dans DW 
+         * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
