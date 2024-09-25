@@ -100,6 +100,10 @@ class DitOrsSoumisAValidation
     private $pieceJoint01;
 
     private $pieceJoint02;
+    
+    private $pieceJoint03;
+    
+    private $pieceJoint04;
     //==========================================================================================
     
 
@@ -483,6 +487,46 @@ class DitOrsSoumisAValidation
     public function setPieceJoint02($pieceJoint02)
     {
         $this->pieceJoint02 = $pieceJoint02;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint03
+     */ 
+    public function getPieceJoint03()
+    {
+        return $this->pieceJoint03;
+    }
+
+    /**
+     * Set the value of pieceJoint03
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint03($pieceJoint03)
+    {
+        $this->pieceJoint03 = $pieceJoint03;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint04
+     */ 
+    public function getPieceJoint04()
+    {
+        return $this->pieceJoint04;
+    }
+
+    /**
+     * Set the value of pieceJoint04
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint04($pieceJoint04)
+    {
+        $this->pieceJoint04 = $pieceJoint04;
 
         return $this;
     }

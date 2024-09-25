@@ -82,7 +82,7 @@ class DitListeController extends Controller
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
-       
+        
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
@@ -101,6 +101,10 @@ class DitListeController extends Controller
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
+        $this->ajoutQuatreStatutOr($paginationData['data']);
+
+
+        
 
         /** 
          * Docs à intégrer dans DW 
@@ -166,7 +170,7 @@ class DitListeController extends Controller
             ->setNumDit($criteria["numDit"])
             ->setNumOr($criteria["numOr"])
             ->setStatutOr($criteria["statutOr"])
-            ->setDitRattacherOr($criteria["ditRattacherOr"])
+            ->setDitSansOr($criteria["ditSansOr"])
             ->setCategorie($criteria["categorie"])
             ->setUtilisateur($criteria["utilisateur"])
         ;

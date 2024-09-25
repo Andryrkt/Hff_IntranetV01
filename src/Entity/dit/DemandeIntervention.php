@@ -456,7 +456,7 @@ class DemandeIntervention
      */
     private  $serviceDebiteurId;
 
-    private $nbrPj;
+    
 
     /**
      * @ORM\Column(type="string", length=255, name="section_support_1")
@@ -473,6 +473,9 @@ class DemandeIntervention
      */
     private $sectionSupport3;
 
+    private $nbrPj;
+
+    private $quatreStatutOr;
     //===================================================================================================================
 
     public function getId()
@@ -1319,25 +1322,7 @@ class DemandeIntervention
         return $this;
     }
 
-    /**
-     * Get the value of nbrPj
-     */ 
-    public function getNbrPj()
-    {
-        return $this->nbrPj;
-    }
 
-    /**
-     * Set the value of nbrPj
-     *
-     * @return  self
-     */ 
-    public function setNbrPj($nbrPj)
-    {
-        $this->nbrPj = $nbrPj;
-
-        return $this;
-    }
 
     /**
      * Get the value of sectionSupport1
@@ -1395,6 +1380,47 @@ class DemandeIntervention
     public function setSectionSupport3($sectionSupport3)
     {
         $this->sectionSupport3 = $sectionSupport3;
+
+        return $this;
+    }
+
+
+        /**
+     * Get the value of nbrPj
+     */ 
+    public function getNbrPj()
+    {
+        return $this->nbrPj;
+    }
+
+    /**
+     * Set the value of nbrPj
+     *
+     * @return  self
+     */ 
+    public function setNbrPj($nbrPj)
+    {
+        $this->nbrPj = $nbrPj;
+
+        return $this;
+    }
+    
+    /**
+     * Get the value of quatreStatutOr
+     */ 
+    public function getQuatreStatutOr()
+    {
+        return $this->quatreStatutOr;
+    }
+
+    /**
+     * Set the value of quatreStatutOr
+     *
+     * @return  self
+     */ 
+    public function setQuatreStatutOr($quatreStatutOr)
+    {
+        $this->quatreStatutOr = $quatreStatutOr;
 
         return $this;
     }
