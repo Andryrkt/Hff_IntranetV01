@@ -66,6 +66,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+                //$OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
 
                 $ditInsertionOrSoumis
                                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -73,6 +74,14 @@ class DitOrsSoumisAValidationController extends Controller
                                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
                                     ;
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
+                
+                foreach ($orSoumisValidataion as $entity) {
+                    self::$em->persist($entity); // Persister chaque entité individuellement
+                }
+
+                self::$em->flush();
+
+                
                 
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant);
                 
@@ -82,13 +91,9 @@ class DitOrsSoumisAValidationController extends Controller
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
 
-                foreach ($orSoumisValidataion as $entity) {
-                    self::$em->persist($entity); // Persister chaque entité individuellement
-                }
+                
 
-                self::$em->flush();
-
-                $this->sessionService->set('notification',['type' => 'success', 'message' => 'l\'Or est bien validé']);
+                $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }
         }
@@ -186,10 +191,12 @@ class DitOrsSoumisAValidationController extends Controller
     public function recuperationAvantApres($orSoumisValidataion, $OrSoumisAvant)
     {
         $recapAvantApres = [];
+
+        
         for ($i = 0; $i < count($orSoumisValidataion); $i++) {
             // Vérification si l'index $i existe dans $OrSoumisAvant
-            $nbLigAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : '';
-            $mttTotalAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : '';
+            $nbLigAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+            $mttTotalAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
 
             $recapAvantApres[] = [
                 'itv' => $orSoumisValidataion[$i]->getNumeroItv(),
@@ -215,14 +222,15 @@ class DitOrsSoumisAValidationController extends Controller
         foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
-            } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAp'] !== 0)) {
-                $value['statut'] = 'Modif';
-            } elseif ($value['nbLigAv'] === 0 && $value['mttTotalAv'] === 0) {
-                $value['statut'] = 'Nouv';
-                $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0) {
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0) {
+                $value['statut'] = 'Nouv';
+                $nombreStatutNouvEtSupp['nbrNouv']++;
+            } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
+                $value['statut'] = 'Modif';
+            
             }
         }
 

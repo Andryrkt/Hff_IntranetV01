@@ -67,7 +67,7 @@ class DitOrsSoumisAValidationType extends AbstractType
             FileType::class, 
             [
                 'label' => 'Upload File',
-                'required' => true,
+                'required' => false,
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',

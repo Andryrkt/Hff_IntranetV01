@@ -75,7 +75,7 @@ class DitController extends Controller
                 $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
+            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("dit_index");
             
         }

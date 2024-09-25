@@ -60,7 +60,7 @@ class DitHistoriqueOperationDocument
     private $pathPieceJointe;
 
     /**
-     * @ORM\Column(type="string", length=10)
+     * @ORM\Column(type="string", length=10, name="heure_operation")
      */
     private $heureOperation;
 
