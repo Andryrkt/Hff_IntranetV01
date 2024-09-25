@@ -34,6 +34,7 @@ class DitOrsSoumisAValidationController extends Controller
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
 
+        
 
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
@@ -74,6 +75,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant);
+                
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
                 $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
@@ -205,20 +207,32 @@ class DitOrsSoumisAValidationController extends Controller
 
     public function affectationStatut($recapAvantApres)
     {
-        foreach ($recapAvantApres as &$value) { // Ajout du '&' pour référencer les éléments
+        $nombreStatutNouvEtSupp = [
+            'nbrNouv' => 0,
+            'nbrSupp' => 0
+        ];
+
+        foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAp'] !== 0)) {
                 $value['statut'] = 'Modif';
             } elseif ($value['nbLigAv'] === 0 && $value['mttTotalAv'] === 0) {
                 $value['statut'] = 'Nouv';
-            } elseif (($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0) && ($value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0)) {
+                $nombreStatutNouvEtSupp['nbrNouv']++;
+            } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0) {
                 $value['statut'] = 'Supp';
+                $nombreStatutNouvEtSupp['nbrSupp']++;
             }
         }
 
-        return $recapAvantApres;
+        // Retourner le tableau modifié et les statistiques de nouveaux et supprimés
+        return [
+            'recapAvantApres' => $recapAvantApres,
+            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp
+        ];
     }
+
 
     public function calculeSommeAvantApres($recapAvantApres)
     {
@@ -263,10 +277,11 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $recapAvantApres =$this->recuperationAvantApres($orSoumisValidataion, $OrSoumisAvant);
                 return [
-                    'avantApres' => $this->affectationStatut($recapAvantApres),
+                    'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
                     'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
                     'recapOr' => $this->recapitulationOr($orSoumisValidataion),
-                    'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion)
+                    'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion),
+                    'nombreStatutNouvEtSupp' => $this->affectationStatut($recapAvantApres)['nombreStatutNouvEtSupp']
                 ];
     }
 

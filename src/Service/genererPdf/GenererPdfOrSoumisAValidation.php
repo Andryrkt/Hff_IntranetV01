@@ -85,7 +85,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                     if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
                     } elseif ($key === 'libelleItv') {
-                        $html .= '<td style="width: 200px text-align: left;"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 200px; text-align: left;"  >' . $cell . '</td>';
                     } elseif ($key === 'nbLigAv') {
                         $html .= '<td style="width: 50px; "  >' . $cell . '</td>';
                     } elseif ($key === 'nbLigAp') {
@@ -105,9 +105,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                             $html .= '<td style="width: 40px; text-align: left; "  >  ' . $cell . '</td>';
                         }
                     } 
-                    // else {
-                    //     $html .= '<td  >' . $cell . '</td>';
-                    // }
+                    
                 }
                 $html .= '</tr>';
             }
@@ -129,8 +127,6 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                     $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
                 } elseif ($key === 'dernierLigne') {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" ></th>';
-                } else {
-                    $html .= '<th ></th>';
                 }
             }
             $html .= '</tr>';
@@ -149,13 +145,13 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 10);
         //Nouvelle intervention
         $pdf->Cell(45, 6, ' - Nouvelle intervention : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //intervention supprimer
 
         $pdf->Cell(45, 6, ' - Intervention supprimée : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //nombre ligne modifiée
