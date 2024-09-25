@@ -13,7 +13,7 @@ function resetTimeout() {
   // Déconnecter l'utilisateur après 5 minutes (300000 millisecondes) d'inactivité
   timeout = setTimeout(function () {
     window.location.href = "/Hffintranet/logout"; // Définir votre URL de déconnexion
-  }, 300000);
+  }, 900000);
 }
 
 // Réinitialiser le compteur à chaque interaction utilisateur

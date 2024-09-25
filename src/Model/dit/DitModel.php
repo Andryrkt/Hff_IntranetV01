@@ -315,7 +315,7 @@ class DitModel extends Model
     }
 
 
-    public function recupOrSoumisValidation()
+    public function recupOrSoumisValidation($numOr)
     {
       $statement = "SELECT
           slor_numor,
@@ -408,7 +408,7 @@ class DitModel extends Model
               'CSP',
               'MAS'
           )
-          AND seor_numor = '16403951'
+          AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'
           group by
               1,

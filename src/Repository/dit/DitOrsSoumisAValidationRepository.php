@@ -6,10 +6,12 @@ use Doctrine\ORM\EntityRepository;
 
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
-    public function findNumeroVersionMax()
+    public function findNumeroVersionMax($numOr)
     {
-        $numeroVersionMax = $this->createQueryBuilder('d')
-            ->select('MAX(d.numeroVersion)')
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult(); 
     

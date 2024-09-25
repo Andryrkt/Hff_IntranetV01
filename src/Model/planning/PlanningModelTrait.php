@@ -74,6 +74,23 @@ trait PlanningModelTrait
              return  $vYearsStatutPlan;     
 
     }
+    private function nonplannfierSansDatePla($criteria){
+      $conditionSansDatePla = " AND CASE WHEN 
+                    YEAR ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+                THEN
+                    YEAR(DATE(sitv_datepla)  )
+                ELSE
+                    YEAR ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
+                END is null";
+      switch ($criteria->getPlan()){
+        case "PLANIFIE":
+        $vNoplanniferStatutPlan = "";
+        break;
+        case "NON_PLANIFIE":
+        $vNoplanniferStatutPlan = $conditionSansDatePla;
+        }
+  return  $vNoplanniferStatutPlan ;  
+    }
     private function planMonth($criteria){
         $monthDatePlanifier = " CASE WHEN 
                                     MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
@@ -212,6 +229,14 @@ trait PlanningModelTrait
           }
           return $vconditionNumParc;
     }
+    private function casier($criteria){
+      if(!empty($criteria->getCasier())){
+          $vconditionCasier = " AND mmat_numparc like  '%".$criteria->getCasier()."%'  ";
+        }else{
+          $vconditionCasier = "";
+        }
+        return $vconditionCasier;
+  }
 
     
 }

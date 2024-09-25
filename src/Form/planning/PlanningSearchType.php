@@ -136,6 +136,10 @@ class PlanningSearchType extends AbstractType
                     'label' => "N° Parc",
                     'required' => false
                 ])
+                ->add('casier', TextType::class, [
+                    'label' => "Casier",
+                    'required' => false
+                ])
                 ->add('agenceDebite', ChoiceType::class,[
                     'label' =>'Agence Débiteur : ',
                     'required' =>false,

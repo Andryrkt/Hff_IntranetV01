@@ -18,12 +18,11 @@ class GeneratePdf
         }
     }
 
-    public function copyToDw($numeroVersion)
+    public function copyToDw($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/oRValidation_' . $numeroVersion. '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' .$numeroVersion . '.pdf';
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/oRValidation_' .$numeroOR.'_'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
        copy($cheminDestinationLocal, $cheminFichierDistant);
-            
     }  
         
 }
