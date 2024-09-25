@@ -243,4 +243,35 @@ trait DitListTrait
         return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
+
+    private function ajoutQuatreStatutOr($data){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            if ($data[$i]->getNumeroOR() !== null) {
+                if(!empty($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()))) {
+                    //dd($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()));
+                    foreach ($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()) as $value) {
+                        $data[$i]->setQuantiteDemander($value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($value['qteliv']);
+                    }
+                    
+                    $conditionToutLivre = $data[$i]->getQuantiteDemander() === $data[$i]->getQuantiteLivree() && $data[$i]->getQuantiteDemander() !== 0 && $data[$i]->getQuantiteLivree() !== 0;
+                    $conditionPartiellementLivre = $data[$i]->getQuantiteLivree() > 0 &&  $data[$i]->getQuantiteLivree() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteDemander() !== 0 ;
+                    $conditionPartiellementDispo = $data[$i]->getQuantiteReserver() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteLivree() === 0 && $data[$i]->getQuantiteReserver() > 0;
+                    $conditionCompletNonLivre = $data[$i]->getQuantiteDemander() == $data[$i]->getQuantiteReserver() && $data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander();
+                    if($conditionToutLivre){
+                        $data[$i]->setQuatreStatutOr('Tout livré');
+                    } elseif ($conditionPartiellementLivre) {
+                        $data[$i]->setQuatreStatutOr('Partiellement livré');
+                    } elseif ($conditionPartiellementDispo) {
+                        $data[$i]->setQuatreStatutOr('Partiellement dispo');
+                    } elseif ($conditionCompletNonLivre) {
+                        $data[$i]->setQuatreStatutOr('Complet non livré');
+                    } else {
+                        $data[$i]->setQuatreStatutOr('');
+                    }
+                }
+            }
+        }
+    }
 }

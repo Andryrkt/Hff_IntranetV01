@@ -145,6 +145,7 @@ class Controller
         $this->accessControl = new AccessControlService();
 
         $this->excelService = new ExcelService();
+
     }
 
 
@@ -529,4 +530,16 @@ class Controller
                 ];
         }
     }
+
+
+    protected function controlSession()
+    {
+        $user = $this->sessionService->get('user_id', []);
+        
+        if (!$user) {
+            $this->redirectToRoute("security_signin");
+        } 
+    }
+
+    
 }
