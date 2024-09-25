@@ -51,6 +51,27 @@ trait PlanningModelTrait
     }
     return $vtypeligne;
     }
+    private function sumPieces($criteria){
+
+      switch ($criteria->getTypeLigne()) {
+        case "TOUTES": 
+            $vPieces = " ";
+            break;
+        case "PIECES_MAGASIN":
+            $vPieces = "AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%' AND slor_typlig = 'P'";
+            break;
+        case "ACHAT_LOCAUX":
+            $vPieces = " AND slor_constp  = 'ZST' " ;
+            break;
+        case "LUBRIFIANTS":
+            $vPieces = "AND slor_constp = 'LUB'  AND slor_typlig = 'P'";
+            break;
+        default:
+            $vPieces = " ";
+    }
+    return $vPieces;
+
+    }
 
     private function planAnnee($criteria){
                     $yearsDatePlanifier = " CASE WHEN 
