@@ -556,7 +556,7 @@ class DitSearch
         return $this;
     }
 
-    
+
     public function toArray(): array
     {
         return [
@@ -579,7 +579,10 @@ class DitSearch
             'ditSansOr' => $this->ditSansOr,
             'categorie' => $this->categorie,
             'utilisateur' => $this->utilisateur,
-            'sectionAffectee' => $this->sectionAffectee
+            'sectionAffectee' => $this->sectionAffectee,
+            'sectionSupport1' => $this->sectionSupport1,
+            'sectionSupport2' => $this->sectionSupport2,
+            'sectionSupport3' => $this->sectionSupport3
         ];
     }
 

@@ -152,6 +152,9 @@ trait DitListTrait
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
         ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
+        ->setSectionSupport1($criteria['sectionSupport1'] ?? null)
+        ->setSectionSupport2($criteria['sectionSupport2'] ?? null)
+        ->setSectionSupport3($criteria['sectionSupport3'] ?? null)
         ;
 
     } 
