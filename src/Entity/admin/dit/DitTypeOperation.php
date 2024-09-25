@@ -28,10 +28,14 @@ class DitTypeOperation
      */
     private string $typeOperation;
 
+    
+
     /**
      * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idTypeOperation")
      */
     private $ditHistoriqueOperationDoc;
+
+    
     //==========================================================================================
     
     public function __construct()
