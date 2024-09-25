@@ -279,10 +279,10 @@ class DitSearchType extends AbstractType
                 'choices' => $this->statutOr(),
                 'placeholder' => '-- choisir une statut --'
             ])
-            ->add('ditRattacherOr', 
+            ->add('ditSansOr', 
             CheckboxType::class,
             [
-                'label' => 'Dit rattaché Or',
+                'label' => 'Dit sans Or',
                 'required' => false
             ])
            

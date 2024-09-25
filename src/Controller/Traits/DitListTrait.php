@@ -72,7 +72,7 @@ trait DitListTrait
           ->setNumDit($form->get('numDit')->getData())
           ->setNumOr($form->get('numOr')->getData())
           ->setStatutOr($form->get('statutOr')->getData())
-          ->setDitRattacherOr($form->get('ditRattacherOr')->getData())
+          ->setDitSansOr($form->get('ditSansOr')->getData())
           ->setCategorie($form->get('categorie')->getData())
           ->setUtilisateur($form->get('utilisateur')->getData())
           ;
@@ -148,7 +148,7 @@ trait DitListTrait
         ->setNumDit($criteria['numDit'] ?? null)
         ->setNumOr($criteria['numOr'] ?? null)
         ->setStatutOr($criteria['statutOr'] ?? null)
-        ->setDitRattacherOr($criteria['ditRattacherOr'] ?? null)
+        ->setDitSansOr($criteria['ditSansOr'] ?? null)
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
         ->setSectionAffectee($criteria['sectionAffectee'] ?? null)

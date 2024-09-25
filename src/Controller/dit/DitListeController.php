@@ -170,7 +170,7 @@ class DitListeController extends Controller
             ->setNumDit($criteria["numDit"])
             ->setNumOr($criteria["numOr"])
             ->setStatutOr($criteria["statutOr"])
-            ->setDitRattacherOr($criteria["ditRattacherOr"])
+            ->setDitSansOr($criteria["ditSansOr"])
             ->setCategorie($criteria["categorie"])
             ->setUtilisateur($criteria["utilisateur"])
         ;

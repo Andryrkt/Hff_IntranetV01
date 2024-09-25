@@ -236,8 +236,8 @@ class DitRepository extends EntityRepository
             ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
+        if($ditSearch->getDitSansOr()){
+            $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
          //filtre selon le section affectée
@@ -386,8 +386,8 @@ class DitRepository extends EntityRepository
             ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
+        if($ditSearch->getDitSansOr()){
+            $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
          //filtre selon le section affectée

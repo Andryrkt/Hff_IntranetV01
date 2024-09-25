@@ -54,7 +54,7 @@ class DitSearch
 
     private ?string $statutOr = '';
     
-    private ?bool $ditRattacherOr = false;
+    private ?bool $ditSansOr = false;
 
     private  $categorie;
 
@@ -416,22 +416,22 @@ class DitSearch
         return $this;
     }
 
-    /**
-     * Get the value of ditRattacherOr
+     /**
+     * Get the value of ditSansOr
      */ 
-    public function getDitRattacherOr()
+    public function getDitSansOr()
     {
-        return $this->ditRattacherOr;
+        return $this->ditSansOr;
     }
 
     /**
-     * Set the value of ditRattacherOr
+     * Set the value of ditSansOr
      *
      * @return  self
      */ 
-    public function setDitRattacherOr($ditRattacherOr)
+    public function setDitSansOr($ditSansOr)
     {
-        $this->ditRattacherOr = $ditRattacherOr;
+        $this->ditSansOr = $ditSansOr;
 
         return $this;
     }
@@ -507,7 +507,7 @@ class DitSearch
             'numDit' => $this->numDit,
             'numOr' => $this->numOr,
             'statutOr' => $this->statutOr,
-            'ditRattacherOr' => $this->ditRattacherOr,
+            'ditSansOr' => $this->ditSansOr,
             'categorie' => $this->categorie,
             'utilisateur' => $this->utilisateur,
             'sectionAffectee' => $this->sectionAffectee
@@ -516,5 +516,7 @@ class DitSearch
 
  
 
+
+   
 }
 
