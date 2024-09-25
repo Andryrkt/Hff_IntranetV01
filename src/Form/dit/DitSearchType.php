@@ -34,17 +34,20 @@ class DitSearchType extends AbstractType
 
     private $agenceRepository;
 
+    private $ditSearchRepository;
+
     private $em;
     
     public function __construct()
    {
         $this->em = controller::getEntity();
         $this->agenceRepository = $this->em->getRepository(Agence::class);
+        $this->ditSearchRepository = $this->em->getRepository(DemandeIntervention::class);
    }
 
    private function statutOr()
    {
-        $statutOr = $this->em->getRepository(DemandeIntervention::class)->findStatutOr();
+        $statutOr = $this->ditSearchRepository->findStatutOr();
 
         return array_combine($statutOr, $statutOr);
    }
@@ -55,6 +58,11 @@ class DitSearchType extends AbstractType
         $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
         return array_combine($sectionAffectee, $sectionAffectee);
+   }
+
+   private function sectionSupport1()
+   {
+
    }
    
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -285,7 +293,7 @@ class DitSearchType extends AbstractType
                 'label' => 'Dit sans Or',
                 'required' => false
             ])
-           
+                
             ->add('categorie', 
             EntityType::class, 
             [
@@ -308,6 +316,33 @@ class DitSearchType extends AbstractType
                 'required' => false,
                 'choices' => $this->sectionAffectee(),
                 'placeholder' => '-- choisir une section --'
+            ])
+            ->add('sectionSupport1',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 1',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionAffectee(),
+                
+            ])
+            ->add('sectionSupport2',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 2',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionAffectee(),
+                
+            ])
+            ->add('sectionSupport3',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 3',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionAffectee(),
+                
             ])
             ;
     }
