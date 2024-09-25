@@ -125,7 +125,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $pdfFiles = [];
 
-        for ($i=1; $i < 2; $i++) { 
+        for ($i=1; $i < 5; $i++) { 
         $nom = "pieceJoint0{$i}";
         if($form->get($nom)->getData() !== null){
                 $this->uplodeFile($form, $ditInsertionOr, $nom, $pdfFiles);

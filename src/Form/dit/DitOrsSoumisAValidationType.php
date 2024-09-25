@@ -78,6 +78,36 @@ class DitOrsSoumisAValidationType extends AbstractType
                     ])
                 ],
             ])
+            ->add('pieceJoint03', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+            ->add('pieceJoint04', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
        ;
     }
 
