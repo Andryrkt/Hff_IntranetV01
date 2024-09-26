@@ -83,63 +83,61 @@ class DomApi extends Controller
     }
 
     /**
- * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
- * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
- * @return void
- */
-public function agence($id) {
-    $agence = self::$em->getRepository(Agence::class)->find($id);
-  
-   $service = $agence->getServices();
-
-//   $services = $service->getValues();
-    $services = [];
-  foreach ($service as $key => $value) {
-    $services[] = [
-        'value' => $value->getId(),
-        'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-    ];
-  }
-
- header("Content-type:application/json");
-
- echo json_encode($services);
-
-  //echo new JsonResponse($services);
-}
-
-/**
- * @Route("/site-idemnite-fetch/{id}", name="fetch_siteIdemnite", methods={"GET"})
- *
- * @return void
- */
-public function siteIndemniteFetch(int $id)
-{
-    $site = self::$em->getRepository(Site::class)->find($id);
-    $montant = self::$em->getRepository(Indemnite::class)->findOneBy(['site' => $site])->getMontant();
-
-    $montant = $this->formatNumber($montant);
-
-    header("Content-type:application/json");
-
-    echo json_encode(['montant' => $montant]);
-}
-
-/**
- * @Route("/personnel-fetch/{matricule}", name="fetch_personnel", methods={"GET"})
- *
- * @param [type] $matricule
- * @return void
- */
-public function personnelFetch($matricule){
-    $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
+     * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
+     * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
+     * @return void
+     */
+    public function agence($id) {
+        $agence = self::$em->getRepository(Agence::class)->find($id);
     
-    $tab = [
-        'compteBancaire' => $personne->getNumeroCompteBancaire(),
-    ];
+    $service = $agence->getServices();
+
+    //   $services = $service->getValues();
+        $services = [];
+    foreach ($service as $key => $value) {
+        $services[] = [
+            'value' => $value->getId(),
+            'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+        ];
+    }
 
     header("Content-type:application/json");
 
-    echo json_encode($tab);
-}
+    echo json_encode($services);
+    }
+
+    /**
+     * @Route("/site-idemnite-fetch/{id}", name="fetch_siteIdemnite", methods={"GET"})
+     *
+     * @return void
+     */
+    public function siteIndemniteFetch(int $id)
+    {
+        $site = self::$em->getRepository(Site::class)->find($id);
+        $montant = self::$em->getRepository(Indemnite::class)->findOneBy(['site' => $site])->getMontant();
+
+        $montant = $this->formatNumber($montant);
+
+        header("Content-type:application/json");
+
+        echo json_encode(['montant' => $montant]);
+    }
+
+    /**
+     * @Route("/personnel-fetch/{matricule}", name="fetch_personnel", methods={"GET"})
+     *
+     * @param [type] $matricule
+     * @return void
+     */
+    public function personnelFetch($matricule){
+        $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
+        
+        $tab = [
+            'compteBancaire' => $personne->getNumeroCompteBancaire(),
+        ];
+
+        header("Content-type:application/json");
+
+        echo json_encode($tab);
+    }
 }
