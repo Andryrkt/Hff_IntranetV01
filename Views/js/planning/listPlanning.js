@@ -96,12 +96,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }else{
               dateStatut = formaterDate(detail.datestatut);
             }
-            if(detail.Eta_ivato == '' ){
+            if(detail.Eta_ivato == '' || formaterDate(detail.Eta_ivato) === '01/01/1900' ){
               dateEtaIvato = '';
             }else{
               dateEtaIvato = formaterDate(detail.Eta_ivato)
             }
-            if(detail.Eta_magasin == ''){
+            if(detail.Eta_magasin == '' || formaterDate(detail.Eta_magasin) === '01/01/1900' ){
               dateMagasin = '';
             }else{
               dateMagasin = formaterDate(detail.Eta_magasin)
