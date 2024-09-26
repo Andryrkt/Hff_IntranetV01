@@ -20,8 +20,8 @@ class Model
         $this->sqlServer = new SqlServerConnect();
 
         $this->connexion = new Connexion();
-        // $this->connect = new DatabaseInformix();
-        $this->connect = new DatabaseInformixTest();
+        $this->connect = new DatabaseInformix();
+        //$this->connect = new DatabaseInformixTest();
         $this->connexion04 = new ConnexionDote4();
         $this->connexion04Gcot = new connexionDote4Gcot();
     }
