@@ -1,3 +1,51 @@
+CREATE TABLE ors_soumis_a_validation (
+    id INT IDENTITY (1, 1),
+    numeroOR VARCHAR(8),
+    numeroItv INT,
+    nombreLigneItv INT,
+    montantItv DECIMAL(18, 2),
+    numeroVersion INT,
+    montantPiece DECIMAL(18, 2),
+    montantMo DECIMAL(18, 2),
+    montantAchatLocaux DECIMAL(18, 2),
+    montantFraisDivers DECIMAL(18, 2),
+    montantLubrifiants DECIMAL(18, 2),
+    libellelItv VARCHAR(500),
+    dateSoumission DATE,
+    heureSoumission VARCHAR(5) CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
+);
+
+CREATE TABLE type_document (
+    id INT IDENTITY (1, 1),
+    typeDocument VARCHAR(50),
+    date_creation DATE,
+    date_modification DATE,
+    CONSTRAINT PK_type_document_dit PRIMARY KEY (id)
+);
+
+CREATE TABLE type_operation (
+    id INT IDENTITY (1, 1),
+    typeOperation VARCHAR(50),
+    date_creation DATE,
+    date_modification DATE,
+    CONSTRAINT PK_type_operation PRIMARY KEY (id)
+);
+
+CREATE TABLE historique_operation_document (
+    id INT IDENTITY (1, 1),
+    idOrSoumisAValidation INT,
+    numeroDocument INT,
+    dateOperation DATETIME DEFAULT GETDATE (),
+    utilisateur VARCHAR(50),
+    idTypeOperation INT,
+    idTypeDocument INT,
+    pathPieceJointe VARCHAR(500),
+    CONSTRAINT PK_historique_operation_document PRIMARY KEY (id),
+    CONSTRAINT FK_historique_operation_document_id_or_soumis_a_validation FOREIGN KEY (idOrSoumisAValidation) REFERENCES ors_soumis_a_validation (id),
+    CONSTRAINT FK_historique_operation_document_type_operation FOREIGN KEY (idTypeOperation) REFERENCES type_operation (id),
+    CONSTRAINT FK_historique_operation_document_type_document FOREIGN KEY (idTypeDocument) REFERENCES type_document (id),
+);
+
 select
     slor_numor,
     sitv_datdeb,
@@ -98,3 +146,56 @@ group by
     4,
     5
 order by slor_numor, sitv_interv
+
+ALTER TABLE type_operation ALTER COLUMN date_creation DATE;
+
+ALTER TABLE type_operation ALTER COLUMN date_modification DATE;
+
+ALTER TABLE type_operation
+ADD heure_creation TIME,
+heure_modification TIME;
+
+INSERT INTO
+    type_operation (
+        typeOperation,
+        date_creation,
+        heure_creation,
+        date_modification,
+        heure_modification
+    )
+VALUES (
+        'SOUMISSION',
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ()),
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'VALIDATION',
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ()),
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'MODIFICATION',
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ()),
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'SUPPRESSION',
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ()),
+        '2024-09-25',
+        CONVERT(TIME, GETDATE ())
+    );
+
+ALTER TABLE historique_operation_document
+ALTER COLUMN dateOperation DATE;
+
+ALTER TABLE historique_operation_document
+DROP CONSTRAINT DF__historiqu__dateO__345EC57D;
+
+ALTER TABLE historique_operation_document ADD heure_operation TIME

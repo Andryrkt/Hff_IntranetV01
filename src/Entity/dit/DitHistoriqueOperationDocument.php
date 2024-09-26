@@ -59,6 +59,11 @@ class DitHistoriqueOperationDocument
      */
     private $pathPieceJointe;
 
+    /**
+     * @ORM\Column(type="string", length=10, name="heure_operation")
+     */
+    private $heureOperation;
+
     //========================================================================================================================================================
     /**
      * Get the value of id
@@ -204,6 +209,26 @@ class DitHistoriqueOperationDocument
     public function setPathPieceJointe($pathPieceJointe)
     {
         $this->pathPieceJointe = $pathPieceJointe;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of heureOperation
+     */ 
+    public function getHeureOperation()
+    {
+        return $this->heureOperation;
+    }
+
+    /**
+     * Set the value of heureOperation
+     *
+     * @return  self
+     */ 
+    public function setHeureOperation($heureOperation)
+    {
+        $this->heureOperation = $heureOperation;
 
         return $this;
     }

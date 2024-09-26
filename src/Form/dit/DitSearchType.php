@@ -54,7 +54,7 @@ class DitSearchType extends AbstractType
 
    private function sectionAffectee()
    {
-        $sectionAffecte = $this->em->getRepository(DemandeIntervention::class)->findSectionAffectee();
+        $sectionAffecte = $this->ditSearchRepository->findSectionAffectee();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
         return array_combine($sectionAffectee, $sectionAffectee);
@@ -62,7 +62,26 @@ class DitSearchType extends AbstractType
 
    private function sectionSupport1()
    {
+        $sectionSupport1 = $this->ditSearchRepository->findSectionSupport1();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport1 = str_replace($groupes, "", $sectionSupport1);
+        return array_combine($sectionSupport1, $sectionSupport1);
+   }
 
+   private function sectionSupport2()
+   {
+        $sectionSupport2 = $this->ditSearchRepository->findSectionSupport2();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport2 = str_replace($groupes, "", $sectionSupport2);
+        return array_combine($sectionSupport2, $sectionSupport2);
+   }
+
+   private function sectionSupport3()
+   {
+        $sectionSupport3 = $this->ditSearchRepository->findSectionSupport3();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport3 = str_replace($groupes, "", $sectionSupport3);
+        return array_combine($sectionSupport3, $sectionSupport3);
    }
    
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -91,8 +110,8 @@ class DitSearchType extends AbstractType
             ],
             'query_builder' => function (StatutDemandeRepository $er) {
                 return $er->createQueryBuilder('s')
-                          ->where('s.codeApp = :codeApp')
-                          ->setParameter('codeApp', 'DIT');
+                            ->where('s.codeApp = :codeApp')
+                            ->setParameter('codeApp', 'DIT');
             },
         ])
             ->add('idMateriel', NumberType::class, [
@@ -112,8 +131,8 @@ class DitSearchType extends AbstractType
                 'label' => "Interne et Externe",
                 'choices' => self::INTERNE_EXTERNE,
                 'placeholder' => '-- Choisir --',
-               'required' => false,
-               'attr' => [ 'class' => 'interneExterne']
+                'required' => false,
+                'attr' => [ 'class' => 'interneExterne']
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
@@ -323,7 +342,7 @@ class DitSearchType extends AbstractType
                 'label' => 'Section support 1',
                 'placeholder' => '-- choisir une section --',
                 'required' => false,
-                'choices' => $this->sectionAffectee(),
+                'choices' => $this->sectionSupport1(),
                 
             ])
             ->add('sectionSupport2',
@@ -332,7 +351,7 @@ class DitSearchType extends AbstractType
                 'label' => 'Section support 2',
                 'placeholder' => '-- choisir une section --',
                 'required' => false,
-                'choices' => $this->sectionAffectee(),
+                'choices' => $this->sectionSupport2(),
                 
             ])
             ->add('sectionSupport3',
@@ -341,7 +360,7 @@ class DitSearchType extends AbstractType
                 'label' => 'Section support 3',
                 'placeholder' => '-- choisir une section --',
                 'required' => false,
-                'choices' => $this->sectionAffectee(),
+                'choices' => $this->sectionSupport3(),
                 
             ])
             ;

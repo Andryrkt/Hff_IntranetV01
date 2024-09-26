@@ -457,5 +457,4 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-    
 }

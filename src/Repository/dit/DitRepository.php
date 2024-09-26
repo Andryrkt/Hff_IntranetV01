@@ -286,6 +286,52 @@ class DitRepository extends EntityRepository
         $queryBuilder->andWhere($orX);
     }
 
+        //filtre selon le section support 1
+        $sectionSupport1 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport1)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport1;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport1', ':sectionSupport1_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport1_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+
+         //filtre selon le section support 2
+        $sectionSupport2 = $ditSearch->getSectionSupport2();
+        if (!empty($sectionSupport2)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+            
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport2;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
+            }
+            
+            $queryBuilder->andWhere($orX);
+        }
+
+          //filtre selon le section support 3
+        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport3)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport3;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport3', ':sectionSupport3_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport3_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+        
+
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');

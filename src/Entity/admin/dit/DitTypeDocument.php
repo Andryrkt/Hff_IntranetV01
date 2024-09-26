@@ -28,6 +28,16 @@ class DitTypeDocument
      */
     private string $typeDocument;
 
+    /**
+     * @ORM\Column(type="string", length=10, name="heure_creation")
+     */
+    private $heureCreation;
+
+     /**
+     * @ORM\Column(type="string", length=10, name="heure_modification")
+     */
+    private $heureModification;
+
      /**
      * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idTypeDocument")
      */
@@ -69,6 +79,45 @@ class DitTypeDocument
         return $this;
     }
 
+     /**
+     * Get the value of heureCreation
+     */ 
+    public function getHeureCreation()
+    {
+        return $this->heureCreation;
+    }
+
+    /**
+     * Set the value of heureCreation
+     *
+     * @return  self
+     */ 
+    public function setHeureCreation($heureCreation)
+    {
+        $this->heureCreation = $heureCreation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of heureModification
+     */ 
+    public function getHeureModification()
+    {
+        return $this->heureModification;
+    }
+
+    /**
+     * Set the value of heureModification
+     *
+     * @return  self
+     */ 
+    public function setHeureModification($heureModification)
+    {
+        $this->heureModification = $heureModification;
+
+        return $this;
+    }
 
      /**
      * Get the value of demandeIntervention
