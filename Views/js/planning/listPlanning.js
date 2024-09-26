@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }
             if(detail.Eta_magasin == '' || formaterDate(detail.Eta_magasin) === '01/01/1900' ){
               dateMagasin = '';
-            }else{
+            }else{ 
               dateMagasin = formaterDate(detail.Eta_magasin)
             }
             if(detail.numerocmd == null){
