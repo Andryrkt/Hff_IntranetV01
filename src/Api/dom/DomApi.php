@@ -9,6 +9,7 @@ use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -107,17 +108,28 @@ class DomApi extends Controller
     }
 
     /**
-     * @Route("/site-idemnite-fetch/{id}", name="fetch_siteIdemnite", methods={"GET"})
+     * @Route("/site-idemnite-fetch/{siteId}/{docId}/{catgId}/{rmqId}", name="fetch_siteIdemnite", methods={"GET"})
      *
      * @return void
      */
-    public function siteIndemniteFetch(int $id)
+    public function siteIndemniteFetch(int $siteId, int $docId, int $catgId, int $rmqId)
     {
-        $site = self::$em->getRepository(Site::class)->find($id);
-        $montant = self::$em->getRepository(Indemnite::class)->findOneBy(['site' => $site])->getMontant();
+        $site = self::$em->getRepository(Site::class)->find($siteId);
+        $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($docId);
+        $catg = self::$em->getRepository(Catg::class)->find($catgId);
+        $rmq = self::$em->getRepository(Rmq::class)->find($rmqId);
+
+        $criteria = [
+            'sousTypeDoc' => $sousTypedocument,
+            'rmq' => $rmq,
+            'categorie' => $catg,
+            'site' => $site
+        ];
+
+        $montant = self::$em->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
 
         $montant = $this->formatNumber($montant);
-
+ 
         header("Content-type:application/json");
 
         echo json_encode(['montant' => $montant]);

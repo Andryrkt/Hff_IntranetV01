@@ -172,6 +172,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_indemniteForfaitaire"
   );
   const siteInput = document.querySelector("#dom_form2_site");
+  const sousTypeDocInput = document.querySelector("#sousTypeDoc");
+  const categorieInput = document.querySelector("#categorie");
+  const rmqInput = document.querySelector("#rmq");
 
   if (siteInput) {
     siteInput.addEventListener("change", indemnitySite);
@@ -179,12 +182,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function indemnitySite() {
     const siteValue = siteInput.value;
-    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}`;
+    const docValue = sousTypeDocInput.value;
+    const catgValue = categorieInput.value;
+    const rmqValue = rmqInput.value;
+    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
     fetch(url)
       .then((response) => response.json())
       .then((indemnite) => {
         console.log(indemnite);
         indemniteForfaitaireJournaliereInput.value = indemnite.montant;
+        calculTotalForfaitaire();
       })
       .catch((error) => console.error("Error:", error));
   }

@@ -38,11 +38,10 @@ class DomSecondController extends Controller
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->sessionService->get('form1Data', []);
         $this->initialisationSecondForm($form1Data, self::$em, $dom);
-        
+        $criteria = $this->criteria($form1Data, self::$em);
 
         $is_temporaire = $form1Data['salarier'];
 
-    
         $form =self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
@@ -53,9 +52,10 @@ class DomSecondController extends Controller
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
 
             $DomMaxMinDate = $this->DomModel->getInfoDOMMatrSelet($dom->getMatricule());
-$verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
+        
+            $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
                 
-if ($form1Data['salarier'] === "PERMANANT") {
+            if ($form1Data['salarier'] === "PERMANANT") {
                     
                     if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) {
                         if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
@@ -204,7 +204,8 @@ if ($form1Data['salarier'] === "PERMANANT") {
 
         self::$twig->display('doms/secondForm.html.twig', [
             'form' => $form->createView(),
-            'is_temporaire' => $is_temporaire
+            'is_temporaire' => $is_temporaire,
+            'criteria' => $criteria
         ]);
     }
 

@@ -8,12 +8,14 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\SousTypeDocument;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -95,8 +97,8 @@ class DomForm2Type extends AbstractType
             if ($data instanceof Dom && $data->getAgence()) {
                 $services = $data->getAgence()->getServices();
             }
-         
-      
+            
+            
             $form->add('service',
             EntityType::class,
             [
@@ -202,10 +204,10 @@ class DomForm2Type extends AbstractType
        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
             $data = $event->getData();
-           
+     
             $sousTypedocument = $data->getSousTypeDocument();
             $catg = $data->getCategorie();
-          
+      
             if(substr($data->getAgenceEmetteur(),0,2) === '50'){
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
                
@@ -217,14 +219,16 @@ class DomForm2Type extends AbstractType
             'rmq' => $rmq,
             'categorie' => $catg
             ];
-        
+     
             $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
       
+       
             $sites = [];
-            foreach ($indemites as $key => $value) {
+            foreach ($indemites as $value) {
+           
                 $sites[] = $value->getSite();
             }
-      
+   
             $form->add('site',
             EntityType::class,
             [
@@ -286,7 +290,24 @@ class DomForm2Type extends AbstractType
             $form = $event->getForm();
             $data = $event->getData();
          
-            $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
+            $siteId = $data->getSite()->getId();
+            $docId = $data->getSousTypeDocument()->getId();
+            $catgId = $data->getCategorie()->getId();
+            $rmqId = $data->getRmq()->getId();
+
+            $site = $this->em->getRepository(Site::class)->find($siteId);
+            $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
+            $catg = $this->em->getRepository(Catg::class)->find($catgId);
+            $rmq = $this->em->getRepository(Rmq::class)->find($rmqId);
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq,
+                'categorie' => $catg,
+                'site' => $site
+            ];
+
+            $montant = $this->em->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
 
             $montant = $this->formatNumber($montant);
 
