@@ -215,7 +215,9 @@ class DitOrsSoumisAValidationController extends Controller
             {
                     $itv = $OrSoumisAvantMax[$i]->getNumeroItv();
                     $libelleItv = $OrSoumisAvantMax[$i]->getLibellelItv();
-                if($OrSoumisAvantMax[$i]->getNumeroItv()  === $OrSoumisAvant[$i]->getNumeroItv()) 
+                    $numeroItvAvantMax = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNumeroItv() : 0;
+                    $numeroItvAvant = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNumeroItv() : -1;
+                if($numeroItvAvantMax === $numeroItvAvant) 
                 {
                     $nbLigAp =  $OrSoumisAvant[$i]->getNombreLigneItv();
                     $mttTotalAp =  $OrSoumisAvant[$i]->getMontantItv();

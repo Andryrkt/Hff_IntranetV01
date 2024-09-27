@@ -178,7 +178,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(0, 6, 'Récapitulation de l\'OR ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true); 
         
-        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->setFont('helvetica', '', 12);
         $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
         
 
