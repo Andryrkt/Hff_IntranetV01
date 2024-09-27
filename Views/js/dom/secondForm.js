@@ -383,65 +383,47 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const motifDeplacementInput = document.querySelector(
     "#dom_form2_motifDeplacement"
   );
-  motifDeplacementInput.addEventListener(
-    "input",
-    MiseMajusculeMotifdeplacement
-  );
-  function MiseMajusculeMotifdeplacement() {
+  motifDeplacementInput.addEventListener("input", () => {
     motifDeplacementInput.value = motifDeplacementInput.value.toUpperCase();
-  }
+  });
 
   //NOM CLIENT
   const nomClientInput = document.querySelector("#dom_form2_client");
-  nomClientInput.addEventListener("input", MiseMajusculeNomClient);
-  function MiseMajusculeNomClient() {
+  nomClientInput.addEventListener("input", () => {
     nomClientInput.value = nomClientInput.value.toUpperCase();
-  }
+  });
 
   //LIEU D'INTERVENTION
   const lieuInterventionInput = document.querySelector(
     "#dom_form2_lieuIntervention"
   );
-  lieuInterventionInput.addEventListener(
-    "input",
-    MiseMajusculeLieuIntervention
-  );
-  function MiseMajusculeLieuIntervention() {
+
+  lieuInterventionInput.addEventListener("input", () => {
     lieuInterventionInput.value = lieuInterventionInput.value.toUpperCase();
-  }
+  });
 
   //MOTIF AUTRE DEPENSE
   //1
   const motifAutreDepense1Input = document.querySelector(
     "#dom_form2_motifAutresDepense1"
   );
-  motifAutreDepense1Input.addEventListener(
-    "input",
-    MiseMajusculeLieuIntervention
-  );
-  function MiseMajusculeLieuIntervention() {
+  motifAutreDepense1Input.addEventListener("input", () => {
     motifAutreDepense1Input.value = motifAutreDepense1Input.value.toUpperCase();
-  }
+  });
+
   //2
   const motifAutreDepense2Input = document.querySelector(
     "#dom_form2_motifAutresDepense2"
   );
-  motifAutreDepense2Input.addEventListener(
-    "input",
-    MiseMajusculeLieuIntervention
-  );
-  function MiseMajusculeLieuIntervention() {
+  motifAutreDepense2Input.addEventListener("input", () => {
     motifAutreDepense2Input.value = motifAutreDepense2Input.value.toUpperCase();
-  }
+  });
+
   //3
   const motifAutreDepense3Input = document.querySelector(
     "#dom_form2_motifAutresDepense3"
   );
-  motifAutreDepense3Input.addEventListener(
-    "input",
-    MiseMajusculeLieuIntervention
-  );
-  function MiseMajusculeLieuIntervention() {
+  motifAutreDepense3Input.addEventListener("input", () => {
     motifAutreDepense3Input.value = motifAutreDepense3Input.value.toUpperCase();
-  }
+  });
 });
