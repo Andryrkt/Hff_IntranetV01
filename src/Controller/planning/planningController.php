@@ -55,10 +55,9 @@ class PlanningController extends Controller
             $criteria = $planningSearch;
             if($form->isSubmitted() && $form->isValid())
             {
-                //   dd($form->getdata());
+                  // dd($form->getdata());
                 $criteria =  $form->getdata();
-              
-                
+
             }
             $criteriaTAb = [];
             //transformer l'objet ditSearch en tableau
@@ -178,15 +177,17 @@ foreach ($table as $materiel) {
                     $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
                 }
                 
-   
-                if(!empty($detailes[$i])){
-
-                    $details[$i]['Eta_ivato'] = $detailes[$i]['0']['Eta_ivato'];
-                    $details[$i]['Eta_magasin'] =  $detailes[$i]['0']['Eta_magasin'];                    
-                } else {
-                    $details[$i]['Eta_ivato'] = "";
-                    $details[$i]['Eta_magasin'] = "";               
+                if(!empty($detailes[0])){
+                        $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
+                        $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin']; 
+                        $detailes = [];                 
                 } 
+                else {
+                    $details[$i]['Eta_ivato'] = "";
+                    $details[$i]['Eta_magasin'] = "";  
+                    $detailes = [];              
+                } 
+                
                 if(!empty($recupPariel[$i])){
                     $details[$i]['qteSlode'] = $recupPariel[$i]['0']['solde'];
                     $details[$i]['qte'] = $recupPariel[$i]['0']['qte'];

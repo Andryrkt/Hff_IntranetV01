@@ -1,6 +1,8 @@
 <?php
 namespace App\Entity\planning;
 
+use App\Entity\admin\dit\WorNiveauUrgence;
+
 class PlanningMateriel{
     private $codeSuc;
     private $libsuc;
@@ -19,6 +21,7 @@ class PlanningMateriel{
     private $qteLiv;
     private $qteAll;
     public $moisDetails = [];
+   
 
     /**
      * Get the value of codeSuc

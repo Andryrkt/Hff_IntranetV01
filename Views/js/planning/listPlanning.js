@@ -96,14 +96,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }else{
               dateStatut = formaterDate(detail.datestatut);
             }
-            if(detail.Eta_ivato == '' ){
+            if(detail.Eta_ivato == '' || formaterDate(detail.Eta_ivato) === '01/01/1900' ){
               dateEtaIvato = '';
             }else{
               dateEtaIvato = formaterDate(detail.Eta_ivato)
             }
-            if(detail.Eta_magasin == ''){
+            if(detail.Eta_magasin == '' || formaterDate(detail.Eta_magasin) === '01/01/1900' ){
               dateMagasin = '';
-            }else{
+            }else{ 
               dateMagasin = formaterDate(detail.Eta_magasin)
             }
             if(detail.numerocmd == null){
@@ -141,11 +141,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let cmdColor;
             let Ord = detail.Ord;
             if(statut =='DISPO STOCK'){
-              cmdColor = 'style="background-color: blue; color: white;"';
+              cmdColor = 'style="background-color: #c8ad7f; color: white;"';
             }else if(statut =='Error' || statut =='Back Order'){
               cmdColor = 'style="background-color: red; color: white;"';
             }else if (Ord == "ORD"){
-              cmdColor = 'style="background-color: cyan; color: black;"';
+              cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
 
             // Affichage

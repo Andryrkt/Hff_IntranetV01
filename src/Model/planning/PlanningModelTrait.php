@@ -195,7 +195,7 @@ trait PlanningModelTrait
     private function agence($criteria)
     {
         if(!empty($criteria->getAgence())) {
-          $agence = " AND SEOR_SUCC in ('".implode("','",$criteria->getAgence())."')";
+          $agence = " AND SEOR_SUCC in ('".$criteria->getAgence()."')";
         } else {
           $agence = "";
         }
