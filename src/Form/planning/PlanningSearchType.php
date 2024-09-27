@@ -11,7 +11,9 @@ use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use setasign\Fpdi\PdfParser\Filter\Flate;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -63,16 +65,26 @@ class PlanningSearchType extends AbstractType
                 $builder
                 ->add('agence', ChoiceType::class, [
                     'label' =>  'Liste Agence',
-                    'required' => true,
+                    'required' => false,
                     'choices' => $agence,
                     'placeholder' => ' -- choisir une agence --',
                     /*'choice_label' => function($choice,$key,$values){
                       return $values;  
                     },*/
-                    'multiple' => true,
-                    'expanded' => true,
+                    
                 
                 ])
+                ->add('niveauUrgence', EntityType::class, [
+                    'label' => 'Niveau d\'urgence',
+                    'class' => WorNiveauUrgence::class,
+                    'choice_label' => 'description',
+                    'placeholder' => '-- Choisir une niveau--',
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'niveauUrgence'
+                    ]
+                ])
+               
                 ->add('annee', ChoiceType::class,[
                     'label' =>'Année de planification : ',
                     'required' =>true,
