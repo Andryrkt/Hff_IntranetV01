@@ -34,27 +34,54 @@ class DitSearchType extends AbstractType
 
     private $agenceRepository;
 
+    private $ditSearchRepository;
+
     private $em;
     
     public function __construct()
    {
         $this->em = controller::getEntity();
         $this->agenceRepository = $this->em->getRepository(Agence::class);
+        $this->ditSearchRepository = $this->em->getRepository(DemandeIntervention::class);
    }
 
    private function statutOr()
    {
-        $statutOr = $this->em->getRepository(DemandeIntervention::class)->findStatutOr();
+        $statutOr = $this->ditSearchRepository->findStatutOr();
 
         return array_combine($statutOr, $statutOr);
    }
 
    private function sectionAffectee()
    {
-        $sectionAffecte = $this->em->getRepository(DemandeIntervention::class)->findSectionAffectee();
+        $sectionAffecte = $this->ditSearchRepository->findSectionAffectee();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
         return array_combine($sectionAffectee, $sectionAffectee);
+   }
+
+   private function sectionSupport1()
+   {
+        $sectionSupport1 = $this->ditSearchRepository->findSectionSupport1();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport1 = str_replace($groupes, "", $sectionSupport1);
+        return array_combine($sectionSupport1, $sectionSupport1);
+   }
+
+   private function sectionSupport2()
+   {
+        $sectionSupport2 = $this->ditSearchRepository->findSectionSupport2();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport2 = str_replace($groupes, "", $sectionSupport2);
+        return array_combine($sectionSupport2, $sectionSupport2);
+   }
+
+   private function sectionSupport3()
+   {
+        $sectionSupport3 = $this->ditSearchRepository->findSectionSupport3();
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $sectionSupport3 = str_replace($groupes, "", $sectionSupport3);
+        return array_combine($sectionSupport3, $sectionSupport3);
    }
    
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -76,15 +103,15 @@ class DitSearchType extends AbstractType
             'label' => 'Statut',
             'class' => StatutDemande::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un statut --',
             'required' => false,
             'attr' => [
                 'class' => 'statut'
             ],
             'query_builder' => function (StatutDemandeRepository $er) {
                 return $er->createQueryBuilder('s')
-                          ->where('s.codeApp = :codeApp')
-                          ->setParameter('codeApp', 'DIT');
+                            ->where('s.codeApp = :codeApp')
+                            ->setParameter('codeApp', 'DIT');
             },
         ])
             ->add('idMateriel', NumberType::class, [
@@ -104,8 +131,8 @@ class DitSearchType extends AbstractType
                 'label' => "Interne et Externe",
                 'choices' => self::INTERNE_EXTERNE,
                 'placeholder' => '-- Choisir --',
-               'required' => false,
-               'attr' => [ 'class' => 'interneExterne']
+                'required' => false,
+                'attr' => [ 'class' => 'interneExterne']
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
@@ -279,13 +306,13 @@ class DitSearchType extends AbstractType
                 'choices' => $this->statutOr(),
                 'placeholder' => '-- choisir une statut --'
             ])
-            ->add('ditRattacherOr', 
+            ->add('ditSansOr', 
             CheckboxType::class,
             [
-                'label' => 'Dit rattaché Or',
+                'label' => 'Dit sans Or',
                 'required' => false
             ])
-           
+                
             ->add('categorie', 
             EntityType::class, 
             [
@@ -308,6 +335,33 @@ class DitSearchType extends AbstractType
                 'required' => false,
                 'choices' => $this->sectionAffectee(),
                 'placeholder' => '-- choisir une section --'
+            ])
+            ->add('sectionSupport1',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 1',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionSupport1(),
+                
+            ])
+            ->add('sectionSupport2',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 2',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionSupport2(),
+                
+            ])
+            ->add('sectionSupport3',
+            ChoiceType::class,
+            [
+                'label' => 'Section support 3',
+                'placeholder' => '-- choisir une section --',
+                'required' => false,
+                'choices' => $this->sectionSupport3(),
+                
             ])
             ;
     }

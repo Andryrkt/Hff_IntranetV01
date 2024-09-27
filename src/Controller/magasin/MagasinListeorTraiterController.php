@@ -8,12 +8,13 @@ ini_set('max_execution_time', 10000);
 use App\Controller\Controller;
 use App\Model\magasin\MagasinModel;
 use App\Controller\Traits\MagasinTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Model\magasin\MagasinListeOrModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
 
 class MagasinListeOrTraiterController extends Controller
 { 
@@ -49,10 +50,6 @@ class MagasinListeOrTraiterController extends Controller
            $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-           
-            // if ($criteria['niveauUrgence'] === null){
-            //     $criteria = [];
-            // }
         } 
 
 
@@ -76,37 +73,14 @@ class MagasinListeOrTraiterController extends Controller
                 } else {
                     $data[$i]['datePlanning'] = '';
                 }
-                // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-                // if( !empty($dit)){
-                //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
-                // } else {
-                 
-                //     break;
-                // }
+                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                if( !empty($dit)){
+                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                } 
             }
 
-            usort($data, function ($a, $b) {
-                $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
-                $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
-                
-                if ($dateA === $dateB) {
-                    return 0;
-                }
             
-                // Place les `null` en bas
-                if ($dateA === null) {
-                    return 1;
-                }
-                if ($dateB === null) {
-                    return -1;
-                }
-            
-                // Comparer les dates pour les autres entrées
-                return strtotime($dateA) - strtotime($dateB);
-            });
-       
-       
         self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()

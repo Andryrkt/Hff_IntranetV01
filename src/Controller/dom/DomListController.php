@@ -130,32 +130,6 @@ class DomListController extends Controller
 
 
 
-    /**
-     * 
-     * cette fonction transforme le tableau en json 
-     * pour listeDomRecherche
-     * @Route("/recherche", name="domList_recherche")
-     */
-    // public function rechercheController()
-    // {
-    //     $this->SessionStart();
-
-    //     $UserConnect = $_SESSION['user'];
-
-    //     $FichierAccès = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Hffintranet/src/Controller/UserAccessAll.txt';
-
-
-    //     if (strpos(file_get_contents($FichierAccès), $UserConnect) !== false) {
-    //         //$array_decoded = $this->domList->RechercheModelAll();
-    //     } else {
-    //         $array_decoded = $this->domList->RechercheModel($UserConnect);
-    //     }
-
-
-    //     header("Content-type:application/json");
-
-    //     echo json_encode($array_decoded);
-    // }
 
     /**
      * @Route("/annuler/{numDom}", name="domList_annulationStatut")

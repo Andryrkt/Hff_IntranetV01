@@ -3,6 +3,9 @@
 namespace App\Entity\dit;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\dit\DitTypeDocument;
+use App\Entity\admin\dit\DitTypeOperation;
+use App\Entity\dit\DitOrsSoumisAValidation;
 
 /**
  * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)
@@ -19,7 +22,7 @@ class DitHistoriqueOperationDocument
     private $id;
 
 /**
-     * @ORM\ManyToOne(targetEntity=DitInsertionOr::class, inversedBy="ditHistoriqueOperationDoc")
+     * @ORM\ManyToOne(targetEntity=DitOrsSoumisAValidation::class, inversedBy="ditHistoriqueOperationDoc")
      * @ORM\JoinColumn(name="idOrSoumisAValidation", referencedColumnName="id")
      */
     private $idOrSoumisAValidation;
@@ -55,6 +58,11 @@ class DitHistoriqueOperationDocument
      * @ORM\Column(type="string", length=500)
      */
     private $pathPieceJointe;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="heure_operation")
+     */
+    private $heureOperation;
 
     //========================================================================================================================================================
     /**
@@ -201,6 +209,26 @@ class DitHistoriqueOperationDocument
     public function setPathPieceJointe($pathPieceJointe)
     {
         $this->pathPieceJointe = $pathPieceJointe;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of heureOperation
+     */ 
+    public function getHeureOperation()
+    {
+        return $this->heureOperation;
+    }
+
+    /**
+     * Set the value of heureOperation
+     *
+     * @return  self
+     */ 
+    public function setHeureOperation($heureOperation)
+    {
+        $this->heureOperation = $heureOperation;
 
         return $this;
     }

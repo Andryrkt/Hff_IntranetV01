@@ -4,7 +4,7 @@ namespace App\Model;
 
 use App\Controller\Controller;
 
-class DatabaseInformix
+class DatabaseInformixTest
 {
     private $dsn;
     private $user;
@@ -16,12 +16,12 @@ class DatabaseInformix
     {
         try {
             // Récupération des variables d'environnement
-            $this->dsn = $_ENV['DB_DNS_INFORMIX'] ;
-            $this->user = $_ENV['DB_USERNAME_INFORMIX'];
-            $this->password = $_ENV['DB_PASSWORD_INFORMIX'];
+            $this->dsn = $_ENV['DB_DNS_INFORMIX_TEST'] ;
+            $this->user = $_ENV['DB_USERNAME_INFORMIX_TEST'];
+            $this->password = $_ENV['DB_PASSWORD_INFORMIX_TEST'];
             
             if (!$this->dsn || !$this->user || !$this->password) {
-                throw new \Exception("Les variables d'environnement DB_DNS_INFORMIX, DB_USERNAME_INFORMIX ou DB_PASSWORD_INFORMIX ne sont pas définies. \n");
+                throw new \Exception("Les variables d'environnement DB_DNS_INFORMIX_TEST, DB_USERNAME_INFORMIX_TEST ou DB_PASSWORD_INFORMIX_TEST ne sont pas définies. \n");
             }
 
             // Établissement de la connexion

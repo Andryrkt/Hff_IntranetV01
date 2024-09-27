@@ -1,0 +1,45 @@
+<div class="modal fade" tabindex="-1" id="sectionAffectee" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Sections
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			{# body du modal#}
+			<div
+				class="modal-body">
+
+				<!-- Spinner de chargement -->
+				<div id="loadingAffectee" class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Chargement...</span>
+					</div>
+				</div>
+
+				<!-- Contenu des données -->
+				<div id="dataContentAffectee" style="display: none;">
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th class="fw-bold text-center">Section responsable</th>
+								<th class="text-center">Section support 1</th>
+								<th class="text-center">Section support 2</th>
+								<th class="text-center">Section support 3</th>
+							</tr>
+						</thead>
+						<tbody id="AffecteeTableBody">{# {% for command in commandes %} #}
+							{# <tr> #}
+							{# <td>{{ command.slor_numcf}}</td> #}
+							{# <td>{{ command.fcde_date}}</td> #}
+							{# <td>--</td> #}
+
+							{# </tr> #}
+							{# {% endfor %} #}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

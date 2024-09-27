@@ -20,7 +20,7 @@ use App\Service\genererPdf\GeneratePdfDom;
 
 trait DomsTrait
 {
-    private function initialisationSecondForm($form1Data, $em, $dom) {
+    public function initialisationSecondForm($form1Data, $em, $dom) {
 
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
@@ -60,20 +60,8 @@ trait DomsTrait
         $dom->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $codeServiceEmetteur]));
 
         //initialisation site
-        $sousTypedocument = $form1Data['sousTypeDocument'];
-            $catg = $form1Data['categorie'];
-            
-            if($CodeServiceofCours[0]['agence_ips'] === '50'){
-                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-           } else {
-                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
-           $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq,
-            'categorie' => $catg
-            ];
-
+        
+            $criteria = $this->criteria($form1Data, $em);
             $indemites = $em->getRepository(Indemnite::class)->findBy($criteria);
             $sites = [];
             foreach ($indemites as $key => $value) {
@@ -84,6 +72,27 @@ trait DomsTrait
             } else {
                 $dom->setSite($em->getRepository(Site::class)->find(1));
             }
+
+            $dom->setRmq($criteria['rmq']);
+    }
+
+    private function criteria($form1Data, $em)
+    {
+        $sousTypedocument = $form1Data['sousTypeDocument'];
+            $catg = $form1Data['categorie'];
+            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+            
+            if($CodeServiceofCours[0]['agence_ips'] === '50'){
+                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+           } else {
+                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+           }
+          return  [
+            'sousTypeDoc' => $sousTypedocument,
+            'rmq' => $rmq,
+            'categorie' => $catg
+            ];
     }
 
 
@@ -300,7 +309,7 @@ trait DomsTrait
             $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
     }
 
-    private function verifierSiDateExistant(string $matricule, string $dateDebutInput, string $dateFinInput): bool
+    private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
     {
         
             $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
@@ -312,8 +321,8 @@ trait DomsTrait
             // Convertir les dates en objets DateTime pour faciliter la comparaison
             $dateDebut = new DateTime($periode['Date_Debut']);
             $dateFin = new DateTime($periode['Date_Fin']);
-            $dateDebutInputObj = new DateTime($dateDebutInput); // Correction de la variable
-            $dateFinInputObj = new DateTime($dateFinInput); // Correction de la variable
+            $dateDebutInputObj = $dateDebutInput; // Correction de la variable
+            $dateFinInputObj = $dateFinInput; // Correction de la variable
 
             // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
             if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin)) { // Correction des noms de variables

@@ -32,7 +32,7 @@ class DitController extends Controller
      */
     public function new(Request $request){
         
-
+        
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
        $this->initialisationForm($demandeIntervention, self::$em);
@@ -44,11 +44,11 @@ class DitController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         {
-               $dits = $this->infoEntrerManuel($form, self::$em);
-               
-               //RECUPERATION de la dernière NumeroDemandeIntervention 
-               $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-               $application->setDerniereId($dits->getNumeroDemandeIntervention());
+            $dits = $this->infoEntrerManuel($form, self::$em);
+            
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dits->getNumeroDemandeIntervention());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
@@ -75,7 +75,7 @@ class DitController extends Controller
                 $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
+            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("dit_index");
             
         }

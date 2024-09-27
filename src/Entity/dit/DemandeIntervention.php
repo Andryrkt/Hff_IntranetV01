@@ -456,8 +456,26 @@ class DemandeIntervention
      */
     private  $serviceDebiteurId;
 
+    
+
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_1")
+     */
+    private $sectionSupport1;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_2")
+     */
+    private $sectionSupport2;
+    
+    /**
+     * @ORM\Column(type="string", length=255, name="section_support_3")
+     */
+    private $sectionSupport3;
+
     private $nbrPj;
 
+    private $quatreStatutOr;
     //===================================================================================================================
 
     public function getId()
@@ -1304,7 +1322,70 @@ class DemandeIntervention
         return $this;
     }
 
+
+
     /**
+     * Get the value of sectionSupport1
+     */ 
+    public function getSectionSupport1()
+    {
+        return $this->sectionSupport1;
+    }
+
+    /**
+     * Set the value of sectionSupport1
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport1($sectionSupport1)
+    {
+        $this->sectionSupport1 = $sectionSupport1;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sectionSupport2
+     */ 
+    public function getSectionSupport2()
+    {
+        return $this->sectionSupport2;
+    }
+
+    /**
+     * Set the value of sectionSupport2
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport2($sectionSupport2)
+    {
+        $this->sectionSupport2 = $sectionSupport2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sectionSupport3
+     */ 
+    public function getSectionSupport3()
+    {
+        return $this->sectionSupport3;
+    }
+
+    /**
+     * Set the value of sectionSupport3
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport3($sectionSupport3)
+    {
+        $this->sectionSupport3 = $sectionSupport3;
+
+        return $this;
+    }
+
+
+        /**
      * Get the value of nbrPj
      */ 
     public function getNbrPj()
@@ -1320,6 +1401,26 @@ class DemandeIntervention
     public function setNbrPj($nbrPj)
     {
         $this->nbrPj = $nbrPj;
+
+        return $this;
+    }
+    
+    /**
+     * Get the value of quatreStatutOr
+     */ 
+    public function getQuatreStatutOr()
+    {
+        return $this->quatreStatutOr;
+    }
+
+    /**
+     * Set the value of quatreStatutOr
+     *
+     * @return  self
+     */ 
+    public function setQuatreStatutOr($quatreStatutOr)
+    {
+        $this->quatreStatutOr = $quatreStatutOr;
 
         return $this;
     }

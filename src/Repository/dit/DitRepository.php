@@ -9,22 +9,33 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DitRepository extends EntityRepository
 {
-    public function findNbrPj($numDit)
+    /** DIT SEARCH DEBUT  */
+    public function findSectionSupport1()
     {
-        $nombrePiecesJointes = $this->createQueryBuilder('d')
-            ->select(
-                "(CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END) AS nombrePiecesJointes"
-            )
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return (int) $nombrePiecesJointes;
+        $result = $this->createQueryBuilder('d')
+        ->select('DISTINCT d.sectionSupport1')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'sectionSupport1');
+    }
+    
+    public function findSectionSupport2()
+    {
+        $result = $this->createQueryBuilder('d')
+        ->select('DISTINCT d.sectionSupport2')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'sectionSupport2');
     }
 
+    public function findSectionSupport3()
+    {
+        $result = $this->createQueryBuilder('d')
+        ->select('DISTINCT d.sectionSupport3')
+        ->getQuery()
+        ->getScalarResult();
+        return array_column($result, 'sectionSupport3');
+    }
 
     public function findSectionAffectee()
     {
@@ -44,6 +55,42 @@ class DitRepository extends EntityRepository
         ->getScalarResult();
         return array_column($result, 'statutOr');
     }
+
+    /** DIT SEARCH FIN */
+
+    public function findSectionSupport($id)
+    {
+        $sectionSupport = $this->createQueryBuilder('d')
+            ->select('d.sectionAffectee, d.sectionSupport1, d.sectionSupport2, d.sectionSupport3')
+            ->where('d.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getScalarResult();
+
+        // Retourne toutes les sections sous forme d'un tableau
+        return $sectionSupport;
+    }
+
+
+
+    public function findNbrPj($numDit)
+    {
+        $nombrePiecesJointes = $this->createQueryBuilder('d')
+            ->select(
+                "(CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END + 
+                CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END + 
+                CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END) AS nombrePiecesJointes"
+            )
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $nombrePiecesJointes;
+    }
+
+
+   
 
     public function findAllNumeroDit()
 {
@@ -220,8 +267,8 @@ class DitRepository extends EntityRepository
             ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
+        if($ditSearch->getDitSansOr()){
+            $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
          //filtre selon le section affectée
@@ -238,6 +285,52 @@ class DitRepository extends EntityRepository
 
         $queryBuilder->andWhere($orX);
     }
+
+        //filtre selon le section support 1
+        $sectionSupport1 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport1)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport1;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport1', ':sectionSupport1_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport1_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+
+         //filtre selon le section support 2
+        $sectionSupport2 = $ditSearch->getSectionSupport2();
+        if (!empty($sectionSupport2)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+            
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport2;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
+            }
+            
+            $queryBuilder->andWhere($orX);
+        }
+
+          //filtre selon le section support 3
+        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport3)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport3;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport3', ':sectionSupport3_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport3_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+        
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -370,8 +463,8 @@ class DitRepository extends EntityRepository
             ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
 
-        if($ditSearch->getDitRattacherOr()){
-            $queryBuilder->andWhere("d.numeroOR <> ''");
+        if($ditSearch->getDitSansOr()){
+            $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
          //filtre selon le section affectée

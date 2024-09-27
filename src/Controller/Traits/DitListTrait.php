@@ -72,7 +72,7 @@ trait DitListTrait
           ->setNumDit($form->get('numDit')->getData())
           ->setNumOr($form->get('numOr')->getData())
           ->setStatutOr($form->get('statutOr')->getData())
-          ->setDitRattacherOr($form->get('ditRattacherOr')->getData())
+          ->setDitSansOr($form->get('ditSansOr')->getData())
           ->setCategorie($form->get('categorie')->getData())
           ->setUtilisateur($form->get('utilisateur')->getData())
           ;
@@ -148,10 +148,13 @@ trait DitListTrait
         ->setNumDit($criteria['numDit'] ?? null)
         ->setNumOr($criteria['numOr'] ?? null)
         ->setStatutOr($criteria['statutOr'] ?? null)
-        ->setDitRattacherOr($criteria['ditRattacherOr'] ?? null)
+        ->setDitSansOr($criteria['ditSansOr'] ?? null)
         ->setCategorie($categorie)
         ->setUtilisateur($criteria['utilisateur'] ?? null)
         ->setSectionAffectee($criteria['sectionAffectee'] ?? null)
+        ->setSectionSupport1($criteria['sectionSupport1'] ?? null)
+        ->setSectionSupport2($criteria['sectionSupport2'] ?? null)
+        ->setSectionSupport3($criteria['sectionSupport3'] ?? null)
         ;
 
     } 
@@ -172,6 +175,17 @@ trait DitListTrait
             'agence' => $agence,
             'service' => $service
         ];
+    }
+
+    private function ajoutNumSerieNumParc($data)
+    {
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                // Associez chaque entité à ses valeurs de num_serie et num_parc
+                $data[$i]->setNumSerie($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_serie']);
+                $data[$i]->setNumParc($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_parc']);
+            }
+    }
     }
 
     private function ajoutStatutAchatPiece($data){
@@ -232,4 +246,35 @@ trait DitListTrait
         return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
+
+    private function ajoutQuatreStatutOr($data){
+        for ($i=0 ; $i < count($data) ; $i++ ) { 
+            if ($data[$i]->getNumeroOR() !== null) {
+                if(!empty($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()))) {
+                    //dd($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()));
+                    foreach ($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()) as $value) {
+                        $data[$i]->setQuantiteDemander($value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($value['qteliv']);
+                    }
+                    
+                    $conditionToutLivre = $data[$i]->getQuantiteDemander() === $data[$i]->getQuantiteLivree() && $data[$i]->getQuantiteDemander() !== 0 && $data[$i]->getQuantiteLivree() !== 0;
+                    $conditionPartiellementLivre = $data[$i]->getQuantiteLivree() > 0 &&  $data[$i]->getQuantiteLivree() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteDemander() !== 0 ;
+                    $conditionPartiellementDispo = $data[$i]->getQuantiteReserver() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteLivree() === 0 && $data[$i]->getQuantiteReserver() > 0;
+                    $conditionCompletNonLivre = $data[$i]->getQuantiteDemander() == $data[$i]->getQuantiteReserver() && $data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander();
+                    if($conditionToutLivre){
+                        $data[$i]->setQuatreStatutOr('Tout livré');
+                    } elseif ($conditionPartiellementLivre) {
+                        $data[$i]->setQuatreStatutOr('Partiellement livré');
+                    } elseif ($conditionPartiellementDispo) {
+                        $data[$i]->setQuatreStatutOr('Partiellement dispo');
+                    } elseif ($conditionCompletNonLivre) {
+                        $data[$i]->setQuatreStatutOr('Complet non livré');
+                    } else {
+                        $data[$i]->setQuatreStatutOr('');
+                    }
+                }
+            }
+        }
+    }
 }

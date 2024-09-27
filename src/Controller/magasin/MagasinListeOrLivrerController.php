@@ -72,34 +72,16 @@ class MagasinListeOrLivrerController extends Controller
                 } else {
                     $data[$i]['datePlanning'] = '';
                 }
-                // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-                // if( !empty($dit)){
-                //     $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                //     $data[$i]['niveauUrgence'] = $dit[0]['description'];
-                // } else {
-                //     break;
-                // }
+                
+                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+                if( !empty($dit)){
+                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
+                } else {
+                    break;
+                }
             }
 
-            usort($data, function ($a, $b) {
-                $dateA = isset($a['datePlanning']) ? $a['datePlanning'] : null;
-                $dateB = isset($b['datePlanning']) ? $b['datePlanning'] : null;
-                
-                if ($dateA === $dateB) {
-                    return 0;
-                }
-            
-                // Place les `null` en bas
-                if ($dateA === null) {
-                    return 1;
-                }
-                if ($dateB === null) {
-                    return -1;
-                }
-            
-                // Comparer les dates pour les autres entrées
-                return strtotime($dateA) - strtotime($dateB);
-            });
 
         self::$twig->display('magasin/listOrLivrer.html.twig', [
             'data' => $data,

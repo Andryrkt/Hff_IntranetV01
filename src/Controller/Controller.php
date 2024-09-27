@@ -145,6 +145,7 @@ class Controller
         $this->accessControl = new AccessControlService();
 
         $this->excelService = new ExcelService();
+
     }
 
 
@@ -346,20 +347,9 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-        if ($nomDemande === 'BDM') {
-            //$Max_Num = $this->badm->RecupereNumBDM();
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM'])->getDerniereId();
-        } elseif ($nomDemande === 'CAS') {
-            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS'])->getDerniereId();
-        } elseif ($nomDemande === 'DIT') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
-        } elseif ($nomDemande === 'DOM') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DOM'])->getDerniereId();
-        } 
-        else {
-            $Max_Num = $nomDemande . $AnneMoisOfcours . '0000';
-        }
+       
+        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+       
 
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
@@ -540,4 +530,16 @@ class Controller
                 ];
         }
     }
+
+
+    protected function controlSession()
+    {
+        $user = $this->sessionService->get('user_id', []);
+        
+        if (!$user) {
+            $this->redirectToRoute("security_signin");
+        } 
+    }
+
+    
 }

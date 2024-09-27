@@ -54,13 +54,20 @@ class DitSearch
 
     private ?string $statutOr = '';
     
-    private ?bool $ditRattacherOr = false;
+    private ?bool $ditSansOr = false;
 
     private  $categorie;
 
     private ?string $utilisateur = '';
 
     private ?string $sectionAffectee = null;
+
+   
+    private ?string $sectionSupport1;
+
+    private ?string $sectionSupport2;
+
+    private ?string $sectionSupport3;
 
     //-===============================================================================================================================
     public function getNiveauUrgence()
@@ -416,22 +423,22 @@ class DitSearch
         return $this;
     }
 
-    /**
-     * Get the value of ditRattacherOr
+     /**
+     * Get the value of ditSansOr
      */ 
-    public function getDitRattacherOr()
+    public function getDitSansOr()
     {
-        return $this->ditRattacherOr;
+        return $this->ditSansOr;
     }
 
     /**
-     * Set the value of ditRattacherOr
+     * Set the value of ditSansOr
      *
      * @return  self
      */ 
-    public function setDitRattacherOr($ditRattacherOr)
+    public function setDitSansOr($ditSansOr)
     {
-        $this->ditRattacherOr = $ditRattacherOr;
+        $this->ditSansOr = $ditSansOr;
 
         return $this;
     }
@@ -487,7 +494,69 @@ class DitSearch
 
         return $this;
     }
+
+     /**
+     * Get the value of sectionSupport1
+     */ 
+    public function getSectionSupport1()
+    {
+        return $this->sectionSupport1;
+    }
+
+    /**
+     * Set the value of sectionSupport1
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport1($sectionSupport1)
+    {
+        $this->sectionSupport1 = $sectionSupport1;
+
+        return $this;
+    }
     
+        /**
+     * Get the value of sectionSupport2
+     */ 
+    public function getSectionSupport2()
+    {
+        return $this->sectionSupport2;
+    }
+
+    /**
+     * Set the value of sectionSupport2
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport2($sectionSupport2)
+    {
+        $this->sectionSupport2 = $sectionSupport2;
+
+        return $this;
+    }
+    
+
+    /**
+     * Get the value of sectionSupport3
+     */ 
+    public function getSectionSupport3()
+    {
+        return $this->sectionSupport3;
+    }
+
+    /**
+     * Set the value of sectionSupport3
+     *
+     * @return  self
+     */ 
+    public function setSectionSupport3($sectionSupport3)
+    {
+        $this->sectionSupport3 = $sectionSupport3;
+
+        return $this;
+    }
+
+
     public function toArray(): array
     {
         return [
@@ -507,14 +576,16 @@ class DitSearch
             'numDit' => $this->numDit,
             'numOr' => $this->numOr,
             'statutOr' => $this->statutOr,
-            'ditRattacherOr' => $this->ditRattacherOr,
+            'ditSansOr' => $this->ditSansOr,
             'categorie' => $this->categorie,
             'utilisateur' => $this->utilisateur,
-            'sectionAffectee' => $this->sectionAffectee
+            'sectionAffectee' => $this->sectionAffectee,
+            'sectionSupport1' => $this->sectionSupport1,
+            'sectionSupport2' => $this->sectionSupport2,
+            'sectionSupport3' => $this->sectionSupport3
         ];
     }
 
- 
 
 }
 

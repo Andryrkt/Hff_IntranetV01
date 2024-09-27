@@ -21,11 +21,11 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
-         $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole(self::$em);
         
-         $badmSearch = new BadmSearch();
+        $badmSearch = new BadmSearch();
 
-         $agenceServiceIps= $this->agenceServiceIpsObjet();
+        $agenceServiceIps= $this->agenceServiceIpsObjet();
 
          /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
         $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
@@ -69,7 +69,7 @@ class BadmListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
+            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
        

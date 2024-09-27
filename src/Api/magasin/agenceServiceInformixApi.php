@@ -3,7 +3,7 @@
 namespace App\Api\magasin;
 
 use App\Controller\Controller;
-use App\Model\magasin\MagasinModel;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class agenceServiceInformixApi extends Controller
@@ -14,7 +14,7 @@ class agenceServiceInformixApi extends Controller
      * */
     public function agenceInformix($agence)
     {
-        $magasinModel = new MagasinModel();
+        $magasinModel = new MagasinListeOrATraiterModel();
         $service = $magasinModel->service($agence);
 
         header("Content-type:application/json");

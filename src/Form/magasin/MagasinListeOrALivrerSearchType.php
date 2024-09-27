@@ -23,14 +23,14 @@ class MagasinListeOrALivrerSearchType extends AbstractType
     
 
     const OR_COMPLET_OU_NON = [
-        'TOUTS' => 'TOUTS LES OR',
-        'COMPLET' => 'ORs COMPLET',
-        'INCOMPLET' => 'ORs INCOMPLETS'
+        'TOUS' => 'TOUTS LES OR',
+        'COMPLETS' => 'ORs COMPLET',
+        'INCOMPLETS' => 'ORs INCOMPLETS'
     ];
 
     const PIECE_MAGASIN_ACHATS_LOCAUX = [
         'TOUTES LIGNES' => 'TOUTS PIECES',
-        'PIECE MAGASIN' => 'PIECES MAGASIN',
+        'PIÈCES MAGASIN' => 'PIECES MAGASIN',
         'LUB' => 'LUB',
         'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
@@ -59,7 +59,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Niveau d\'urgence',
             'class' => WorNiveauUrgence::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau --',
+            'placeholder' => '-- Choisir un niveau --',
             'required' => false,
         ])
         ->add('numDit', TextType::class, [
@@ -83,7 +83,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' =>  'Constructeur',
             'required' => false,
             'choices' => $this->recupConstructeur(),
-            'placeholder' => ' -- choisir une constructeur --'
+            'placeholder' => ' -- choisir un constructeur --'
         ])
         ->add('dateDebut', DateType::class, [
             'widget' => 'single_text',
@@ -98,7 +98,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
         ->add('orCompletNon',
         ChoiceType::class,
         [
-            'label' => 'Etat ORs',
+            'label' => 'Etat OR',
             'required' => false,
             'choices' => self::OR_COMPLET_OU_NON,
             'placeholder' => ' -- choisir une mode affichage --',

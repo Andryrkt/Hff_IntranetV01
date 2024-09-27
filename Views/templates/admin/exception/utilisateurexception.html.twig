@@ -1,0 +1,26 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/404.css" rel="stylesheet">
+{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+	<div class="container text-center">
+		<div class="brand">
+			<span class="glyphicon glyphicon-king" aria-hidden="true"></span>
+			<h3 class="text-uppercase"><img src="Views/assets/logoHFF.jpg" alt="logo hff"></h3>
+		</div>
+		<h1 class="head">
+			<span>Veillez contacter l'administrateur</span>
+		</h1>
+		<p>{{message}}</p>
+		<a href="{{ path("auth_deconnexion") }}" class="btn-outline">
+			se connecter</a>
+	</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/404.js"></script>
+{% endblock %}

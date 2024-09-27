@@ -4,7 +4,10 @@ namespace App\Form\dit;
 
 
 use App\Entity\dit\DitInsertionOr;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -14,7 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 
-class DitInsertionOrType extends AbstractType
+class DitOrsSoumisAValidationType extends AbstractType
 {
    
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -45,7 +48,7 @@ class DitInsertionOrType extends AbstractType
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
                 ],
             ])
-            ->add('file', 
+            ->add('pieceJoint01', 
             FileType::class, 
             [
                 'label' => 'Upload File',
@@ -59,14 +62,59 @@ class DitInsertionOrType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid PDF file.',
                     ])
                 ],
-            ]);
+            ])
+            ->add('pieceJoint02', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+            ->add('pieceJoint03', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+            ->add('pieceJoint04', 
+            FileType::class, 
+            [
+                'label' => 'Upload File',
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DitInsertionOr::class,
+            'data_class' => DitOrsSoumisAValidation::class,
         ]);
     }
 
