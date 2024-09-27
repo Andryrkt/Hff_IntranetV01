@@ -286,7 +286,7 @@ class Dom
 /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
      */
-    private ?Site $site = null;
+    private  $site = null;
 
     
  /**
@@ -371,7 +371,7 @@ class Dom
 
     /**
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
-     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
     private  $categoryId;
 

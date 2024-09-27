@@ -205,13 +205,14 @@ class DomForm2Type extends AbstractType
             $form = $event->getForm();
             $data = $event->getData();
 
-            $docId = $data->getSousTypeDocument()->getId();
+            
             if($data->getCategorie() !== null){
                 $catgId = $data->getCategorie()->getId();
                 $catg = $this->em->getRepository(Catg::class)->find($catgId);
             } else {
                 $catg = null;
             }
+            $docId = $data->getSousTypeDocument()->getId();
             $rmqId = $data->getRmq()->getId();
 
             $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
@@ -250,13 +251,17 @@ class DomForm2Type extends AbstractType
        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument, $options){
             $form = $event->getForm();
             $data = $event->getData();
-
-            $docId = $data->getSousTypeDocument()->getId();
-            $catgId = $data->getCategorie()->getId();
-            $rmqId = $data->getRmq()->getId();
+           
+            if($options['data']->getCategorie() !== null){
+                $catgId = $options['data']->getCategorie()->getId();
+                $catg = $this->em->getRepository(Catg::class)->find($catgId);
+            } else {
+                $catg = null;
+            }
+            $docId = $options['data']->getSousTypeDocument()->getId();
+            $rmqId = $options['data']->getRmq()->getId();
 
             $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
-            $catg = $this->em->getRepository(Catg::class)->find($catgId);
             $rmq = $this->em->getRepository(Rmq::class)->find($rmqId);
 
             $criteria = [

@@ -18,7 +18,7 @@ use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
 
 
-trait DomsTrait
+trait DomsDupliTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom) {
 
@@ -76,7 +76,7 @@ trait DomsTrait
             $dom->setRmq($criteria['rmq']);
     }
 
-    private function criteria($form1Data, $em)
+    private function criteria($dom, $em)
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];

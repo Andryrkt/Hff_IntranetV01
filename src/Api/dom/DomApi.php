@@ -51,23 +51,6 @@ class DomApi extends Controller
         echo json_encode($catg);
     }
 
-     /**
-     * @Route("/matricule-fetch/{id}", name="fetch_matricule", methods={"GET"})
-     * 
-     * Cette fonction permet d'envoier les donner de categorie selon la sousType de document
-     *
-     * @param int $id
-     * @return void
-     */
-    public function matriculeFetch(int $id)
-    {
-        $personnel = self::$em->getRepository(Personnel::class)->find($id)->toArray();
-     
-
-        header("Content-type:application/json");
-
-        echo json_encode($personnel);
-    }
 
 
     /**

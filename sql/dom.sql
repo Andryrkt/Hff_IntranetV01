@@ -94,4 +94,31 @@ SET
         WHEN Code_AgenceService_Sage = 'TD32' THEN '71'
         WHEN Code_AgenceService_Sage = 'TD33' THEN '72'
         ELSE '0'
-    END
+    END;
+
+UPDATE Demande_ordre_mission
+SET
+    category_id = CASE
+        WHEN Categorie = 'AGENTS DE MAITRISE, EMPLOYES SPECIALISES' THEN '1'
+        WHEN Categorie = 'CADRE HC' THEN '2'
+        WHEN Categorie = 'CHEF DE SERVICE' THEN '3'
+        WHEN Categorie = 'OUVRIERS ET CHAUFFEURS' THEN '4'
+        WHEN Categorie = 'TOUTE CATEGORIE' THEN '5'
+        WHEN Categorie = 'CHAUFFEURS PORTE CHAR' THEN '6'
+        WHEN Categorie = 'AIDE CHAUFFEUR' THEN '7'
+        ELSE category_id
+    END;
+
+UPDATE Demande_ordre_mission
+SET
+    site_id = CASE
+        WHEN Site = 'AUTRES VILLES' THEN '1'
+        WHEN Site = 'HORS TANA MOINS DE 24H' THEN '2'
+        WHEN Site = 'ZONES ENCLAVEES' THEN '3'
+        WHEN Site = 'ZONES TOURISTIQUES' THEN '4'
+        WHEN Site = 'FORT-DAUPHIN' THEN '5'
+        WHEN Site = 'AUTRES SITE ENCLAVES' THEN '6'
+        WHEN Site = 'HORS TANA' THEN '7'
+        WHEN Site = 'TANA' THEN '8'
+        ELSE NULL
+    END;

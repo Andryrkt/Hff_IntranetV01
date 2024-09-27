@@ -84,9 +84,6 @@ class DitOrsSoumisAValidationController extends Controller
                 $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
                 $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
 
-                // dump($OrSoumisAvant);
-                // dd($OrSoumisAvantMax);
-                
                 
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
                 
@@ -195,23 +192,31 @@ class DitOrsSoumisAValidationController extends Controller
 
     public function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
-
-
-        if(count($OrSoumisAvantMax) > count($OrSoumisAvant)){
+        if($OrSoumisAvantMax === null){
+            $fin = count($OrSoumisAvant);
+        } else if(count($OrSoumisAvantMax) > count($OrSoumisAvant)){
             $fin = count($OrSoumisAvantMax);
         } elseif (count($OrSoumisAvantMax) < count($OrSoumisAvant)) {
             $fin = count($OrSoumisAvant);
         } else {
             $fin = count($OrSoumisAvant);
         }
+        
+
+
 
         $recapAvantApres = [];
 
         
         for ($i = 0; $i < $fin; $i++) {
-            
-
-            if(count($OrSoumisAvantMax) > count($OrSoumisAvant))
+            if($OrSoumisAvantMax === null){
+                $itv = $OrSoumisAvant[$i]->getNumeroItv();
+                $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
+                $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+                $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+                $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+                $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+            } elseif (count($OrSoumisAvantMax) > count($OrSoumisAvant))
             {
                     $itv = $OrSoumisAvantMax[$i]->getNumeroItv();
                     $libelleItv = $OrSoumisAvantMax[$i]->getLibellelItv();
