@@ -65,8 +65,8 @@ class DitOrsSoumisAValidationController extends Controller
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-                $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
-                //$OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+                
+                
 
                 $ditInsertionOrSoumis
                                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -80,7 +80,12 @@ class DitOrsSoumisAValidationController extends Controller
                 }
 
                 self::$em->flush();
+                
+                $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+                $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
 
+                dump($OrSoumisAvant);
+                dd($OrSoumisAvantMax);
                 
                 
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant);
