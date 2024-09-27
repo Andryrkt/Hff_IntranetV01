@@ -39,26 +39,32 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
     public function findOrSoumiAvantMax($numOr)
     {
-        $qb = $this->createQueryBuilder('osv');
-
-        // Sous-requête pour obtenir la version maximale
-        $subqueryMax = $this->createQueryBuilder('osv2')
+        // Étape 1: Récupérer la version maximale pour le numeroOR donné
+        $qbMax = $this->createQueryBuilder('osv2')
             ->select('MAX(osv2.numeroVersion)')
             ->where('osv2.numeroOR = :numOr')
-            ->getDQL();
-
-        // Requête principale pour obtenir la version juste avant le MAX
-        $orSoumisAvant = $qb
+            ->setParameter('numOr', $numOr);
+    
+        $maxVersion = $qbMax->getQuery()->getSingleScalarResult();
+    
+        if ($maxVersion === null || $maxVersion == 1) {
+            // Si la version max est 1 ou nulle, il n'y a pas de version avant la version maximale
+            return null;
+        }
+    
+        // Étape 2: Récupérer la ligne qui a la version juste avant la version max
+        $qb = $this->createQueryBuilder('osv')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroVersion = :previousVersion')
             ->setParameter('numOr', $numOr)
-            ->andWhere($qb->expr()->lt('osv.numeroVersion', '(' . $subqueryMax . ')'))  // Moins que la version MAX
-            ->orderBy('osv.numeroVersion', 'DESC')  // Trier par version décroissante
-            ->setMaxResults(1)  // Obtenir seulement la version immédiatement avant
+            ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()
-            ->getOneOrNullResult();  // Récupérer un seul résultat ou null
-
-        return $orSoumisAvant;
+            ->getResult();
+    
+        return $qb;
     }
+    
+
 
 
 }
