@@ -100,7 +100,7 @@ class PlanningModel extends Model
     if(!empty($lesOrValides)){
       $vOrvalDw = "AND seor_numor in ('".$lesOrValides."') ";
     }else{
-      $vOrvalDw = "";
+      $vOrvalDw = " AND seor_numor in ('')";
     }
 
    $vligneType = $this->typeLigne($criteria);  
@@ -379,6 +379,17 @@ public function recuperationEtaMag($numOr, $refp){
     }else{
       $vconditionNumOr = "";
     }
+  
+    $niveauUrgence = $criteria->getNiveauUrgence();
+    if(!empty($niveauUrgence)){
+      $idUrgence = $niveauUrgence->getId();
+    }
+    
+    if(!empty($idUrgence)){
+        $nivUrg  = "AND id_niveau_urgence = '".$idUrgence."'";
+    }else{
+      $nivUrg = "";
+    }
     // if(!empty($criteria->getServiceDebite())){
     //   $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
     // } else{
@@ -396,8 +407,9 @@ public function recuperationEtaMag($numOr, $refp){
                   WHERE date_validation_or is not null
                   and date_validation_or <>'' 
                   $vconditionNumOr
+                  $nivUrg
                    ";
-    
+    //  dump($statement);
      $execQueryNumOr = $this->connexion->query($statement);
      $numOr = array();
 

@@ -2,6 +2,8 @@
 
 namespace App\Entity\planning;
 
+use App\Entity\admin\dit\WorNiveauUrgence;
+
 class PlanningSearch
 
 {
@@ -20,7 +22,21 @@ class PlanningSearch
     private $serviceDebite;
     private $typeligne;
     private $casier;
+    private ?WorNiveauUrgence $niveauUrgence = null;
+
+
+    public function getNiveauUrgence()
+    {
+        return $this->niveauUrgence;
+    }
+
     
+    public function setNiveauUrgence($niveauUrgence): self
+    {
+        $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
 
     /**
      * Get the value of agence

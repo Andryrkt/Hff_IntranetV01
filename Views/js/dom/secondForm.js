@@ -367,9 +367,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
         if (modePayementInput.value === "VIREMENT BANCAIRE") {
           modeInput.readOnly = true;
           modeInput.value = personne.compteBancaire;
+          modeInput.removeAttribute("maxlength");
         } else {
           modeInput.readOnly = false;
           modeInput.value = "";
+          modeInput.maxLength = 10;
         }
         labelMode.innerHTML = modePayementInput.value;
       })

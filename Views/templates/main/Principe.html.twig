@@ -31,6 +31,7 @@
 				{% set hasBDM = false %}
 				{% set hasDOM = false %}
 				{% set hasMAG = false %}
+				{% set hasREP = false %}
 
 				{% for item in App.user.Applications %}
 					{% if item.codeApp == 'BDM' %}
@@ -39,6 +40,8 @@
 						{% set hasDOM = true %}
 					{% elseif item.codeApp == 'MAG' %}
 						{% set hasMAG = true %}
+					{% elseif item.codeApp == 'REP' %}
+						{% set hasREP = true %}
 					{% endif %}
 					<!-- DEBUT Demande d'intervention-->
 					{% if item.codeApp == 'DIT' %}
@@ -155,7 +158,7 @@
 
 					</ul>
 				</li>
-
+			{% if hasREP %}
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Reporting</a>
@@ -165,6 +168,7 @@
 						</li>
 					</ul>
 				</li>
+			{% endif %}
 				<li class="nav-item dropdown">
 
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>

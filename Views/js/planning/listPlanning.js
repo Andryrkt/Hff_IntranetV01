@@ -141,11 +141,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let cmdColor;
             let Ord = detail.Ord;
             if(statut =='DISPO STOCK'){
-              cmdColor = 'style="background-color: blue; color: white;"';
+              cmdColor = 'style="background-color: #c8ad7f; color: white;"';
             }else if(statut =='Error' || statut =='Back Order'){
               cmdColor = 'style="background-color: red; color: white;"';
             }else if (Ord == "ORD"){
-              cmdColor = 'style="background-color: cyan; color: black;"';
+              cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
 
             // Affichage
