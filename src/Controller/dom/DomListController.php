@@ -32,9 +32,7 @@ class DomListController extends Controller
      */
     public function ShowListDomRecherche(Request $request)
     {
-        //dd($Description,  $Sous_type_document, $Matricule, $Numero_Ordre_Mission, $dateDemandeDebut, $dateDemandeFin, $dateMissionDebut, $dateMissionFin, $page);
-         //dd(!empty($request->query->get('page')) && $request->query->get('page') > 1 ? (int)$request->query->get('page') : 1);
-        //dd($page);
+        
 
         
         $this->SessionStart();

@@ -22,7 +22,7 @@ class BadmListeController extends Controller
     public function AffichageListeBadm(Request $request)
     {
         $autoriser = $this->autorisationRole(self::$em);
-        
+              
         $badmSearch = new BadmSearch();
 
         $agenceServiceIps= $this->agenceServiceIpsObjet();
