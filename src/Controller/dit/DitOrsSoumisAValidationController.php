@@ -192,75 +192,29 @@ class DitOrsSoumisAValidationController extends Controller
 
     public function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
-        if($OrSoumisAvantMax === null){
-            $fin = count($OrSoumisAvant);
-        } else if(count($OrSoumisAvantMax) > count($OrSoumisAvant)){
-            $fin = count($OrSoumisAvantMax);
-        } elseif (count($OrSoumisAvantMax) < count($OrSoumisAvant)) {
-            $fin = count($OrSoumisAvant);
-        } else {
-            $fin = count($OrSoumisAvant);
-        }
-        
 
+        // Trouver les objets manquants par numero d'intervention dans chaque tableau
+        $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
+        $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
 
+        // Ajouter les objets manquants dans chaque tableau
+        $OrSoumisAvantMax = array_merge($OrSoumisAvantMax, $manquantDansOrSoumisAvantMax);
+        $OrSoumisAvant = array_merge($OrSoumisAvant, $manquantDansOrSoumisAvant);
+
+        // Trier les tableaux par numero d'intervention
+        $this->trierTableauParNumero($OrSoumisAvantMax);
+        $this->trierTableauParNumero($OrSoumisAvant);
 
         $recapAvantApres = [];
 
-        
-        for ($i = 0; $i < $fin; $i++) {
-            if($OrSoumisAvantMax === null){
+        for ($i = 0; $i < count($OrSoumisAvantMax); $i++) {
+            
                 $itv = $OrSoumisAvant[$i]->getNumeroItv();
                 $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
                 $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
                 $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
                 $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
                 $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
-            } elseif (count($OrSoumisAvantMax) > count($OrSoumisAvant))
-            {
-                    $itv = $OrSoumisAvantMax[$i]->getNumeroItv();
-                    $libelleItv = $OrSoumisAvantMax[$i]->getLibellelItv();
-                    $numeroItvAvantMax = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNumeroItv() : 0;
-                    $numeroItvAvant = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNumeroItv() : -1;
-                if($numeroItvAvantMax === $numeroItvAvant) 
-                {
-                    $nbLigAp =  $OrSoumisAvant[$i]->getNombreLigneItv();
-                    $mttTotalAp =  $OrSoumisAvant[$i]->getMontantItv();
-                    $nbLigAv =  $OrSoumisAvantMax[$i]->getNombreLigneItv();
-                    $mttTotalAv = $OrSoumisAvantMax[$i]->getMontantItv();
-                } else {
-                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
-                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
-                }
-                
-            } elseif (count($OrSoumisAvantMax) < count($OrSoumisAvant)) {
-                    $itv = $OrSoumisAvant[$i]->getNumeroItv();
-                    $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
-                    $numeroItvAvantMax = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNumeroItv() : 0;
-                    $numeroItvAvant = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNumeroItv() : -1;
-                if( $numeroItvAvantMax === $numeroItvAvant) 
-                {
-                    $nbLigAp =  $OrSoumisAvant[$i]->getNombreLigneItv();
-                    $mttTotalAp =  $OrSoumisAvant[$i]->getMontantItv();
-                    $nbLigAv =  $OrSoumisAvantMax[$i]->getNombreLigneItv();
-                    $mttTotalAv = $OrSoumisAvantMax[$i]->getMontantItv();
-                } else {
-                    
-                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
-                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
-                }
-            } else {
-                    $itv = $OrSoumisAvant[$i]->getNumeroItv();
-                    $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
-                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
-                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
-                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
-            }
 
             $recapAvantApres[] = [
                 'itv' => $itv,
@@ -271,6 +225,7 @@ class DitOrsSoumisAValidationController extends Controller
                 'mttTotalAp' => $mttTotalAp,
             ];
         }
+
         return $recapAvantApres;
     }
 
@@ -385,4 +340,33 @@ class DitOrsSoumisAValidationController extends Controller
                 }
                 return $orSoumisValidataion;
     }
+
+    // Fonction pour trouver les numéros d'intervention manquants
+function objetsManquantsParNumero($tableauA, $tableauB) {
+    $manquants = [];
+    foreach ($tableauB as $objetB) {
+        $trouve = false;
+        foreach ($tableauA as $objetA) {
+            if ($objetA->estEgalParNumero($objetB)) {
+                $trouve = true;
+                break;
+            }
+        }
+        if (!$trouve) {
+            $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+            // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
+             $nouvelObjet = new DitOrsSoumisAValidation();
+             $nouvelObjet->setNumeroItv($numeroItvExist);
+             $manquants[] = $nouvelObjet;
+        }
+    }
+    return $manquants;
+}
+
+// Fonction pour trier les tableaux par numero d'intervention
+function trierTableauParNumero(&$tableau) {
+    usort($tableau, function($a, $b) {
+        return strcmp($a->getNumeroItv(), $b->getNumeroItv());
+    });
+}
 }

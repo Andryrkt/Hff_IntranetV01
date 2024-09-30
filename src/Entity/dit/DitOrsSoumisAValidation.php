@@ -33,7 +33,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="integer")
      */
-    private ?int $numeroItv = 0;
+    private int $numeroItv = 0;
 
      /**
      * @ORM\Column(type="date")
@@ -529,5 +529,12 @@ class DitOrsSoumisAValidation
         $this->pieceJoint04 = $pieceJoint04;
 
         return $this;
+    }
+
+
+
+    // Comparaison des objets par leur numero d'intervention
+    public function estEgalParNumero(DitOrsSoumisAValidation $autre) {
+        return $this->numeroItv === $autre->numeroItv;
     }
 }
