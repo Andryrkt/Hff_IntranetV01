@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dit\DitTypeDocument;
 use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)
@@ -21,11 +23,7 @@ class DitHistoriqueOperationDocument
      */
     private $id;
 
-/**
-     * @ORM\ManyToOne(targetEntity=DitOrsSoumisAValidation::class, inversedBy="ditHistoriqueOperationDoc")
-     * @ORM\JoinColumn(name="idOrSoumisAValidation", referencedColumnName="id")
-     */
-    private $idOrSoumisAValidation;
+
 
     /**
      * @ORM\Column(type="integer")
@@ -65,6 +63,14 @@ class DitHistoriqueOperationDocument
     private $heureOperation;
 
     //========================================================================================================================================================
+    
+    public function __construct()
+    {
+        $this->dateOperation = new \DateTime(); // Date courante
+        $this->heureOperation = (new \DateTime())->format('H:i:s'); // Heure courante
+    }
+
+    
     /**
      * Get the value of id
      */ 
@@ -73,26 +79,8 @@ class DitHistoriqueOperationDocument
         return $this->id;
     }
 
-    /**
-     * Get the value of idOrSoumisAValidation
-     */ 
-    public function getIdOrSoumisAValidation()
-    {
-        return $this->idOrSoumisAValidation;
-    }
-
-    /**
-     * Set the value of idOrSoumisAValidation
-     *
-     * @return  self
-     */ 
-    public function setIdOrSoumisAValidation($idOrSoumisAValidation)
-    {
-        $this->idOrSoumisAValidation = $idOrSoumisAValidation;
-
-        return $this;
-    }
-
+ 
+    
     /**
      * Get the value of numeroDocument
      */ 

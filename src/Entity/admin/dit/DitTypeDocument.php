@@ -29,6 +29,13 @@ class DitTypeDocument
     private string $typeDocument;
 
     /**
+     * @ORM\Column(type="string", length=255, name="libelle_document")
+     *
+     * @var string
+     */
+    private string $libelleDocument;
+
+    /**
      * @ORM\Column(type="string", length=10, name="heure_creation")
      */
     private $heureCreation;
@@ -75,6 +82,30 @@ class DitTypeDocument
     public function setTypeDocument(string $typeDocument)
     {
         $this->typeDocument = $typeDocument;
+
+        return $this;
+    }
+
+     /**
+     * Get the value of libelleDocument
+     *
+     * @return  string
+     */ 
+    public function getLibelleDocument()
+    {
+        return $this->libelleDocument;
+    }
+
+    /**
+     * Set the value of libelleDocument
+     *
+     * @param  string  $libelleDocument
+     *
+     * @return  self
+     */ 
+    public function setLibelleDocument(string $libelleDocument)
+    {
+        $this->libelleDocument = $libelleDocument;
 
         return $this;
     }
@@ -155,4 +186,6 @@ class DitTypeDocument
 
         return $this;
     }
+
+   
 }

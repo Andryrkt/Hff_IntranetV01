@@ -151,21 +151,23 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 10);
         //Nouvelle intervention
         $pdf->Cell(45, 6, ' - Nouvelle intervention : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //intervention supprimer
 
         $pdf->Cell(45, 6, ' - Intervention supprimée : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //nombre ligne modifiée
-        $pdf->Cell(50, 6, ' - Nombre ligne modifiée ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(45, 6, ' - Nombre ligne modifiée :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrModif'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //montant total modifié
-        $pdf->Cell(0, 6, ' - Montant total modifié ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(45, 6, ' - Montant total modifié :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['mttModif'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //montant total modifié
