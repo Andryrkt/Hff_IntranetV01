@@ -7,37 +7,40 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\Site;
 use App\Form\dom\DomForm2Type;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Controller\Traits\DomsTrait;
 use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\DomsDupliTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-class DomSecondController extends Controller
+class DomsDupliController extends Controller
 {
     use FormatageTrait;
-    use DomsTrait;
+    use DomsDupliTrait;
     
    
-      /**
-     * @Route("/dom-second-form", name="dom_second_form")
+    /**
+     * @Route("/dom-dupli-form/{id}", name="dom_dupli_form")
      */
-    public function secondForm(Request $request)
+    public function secondForm(Request $request, $id)
     {
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
-        $form1Data = $this->sessionService->get('form1Data', []);
-        $this->initialisationSecondForm($form1Data, self::$em, $dom);
+        // $form1Data = $this->sessionService->get('form1Data', []);
+        // $this->initialisationSecondForm($form1Data, self::$em, $dom);
+
+        $dom = self::$em->getRepository(Dom::class)->find($id);
+        dd($dom);
         $criteria = $this->criteria($form1Data, self::$em);
 
         $is_temporaire = $form1Data['salarier'];
@@ -51,12 +54,11 @@ class DomSecondController extends Controller
 
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
 
-
+        
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
                 
             if ($form1Data['salarier'] === "PERMANANT") 
             {
-                   
                     if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 
                     {
                         if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
@@ -146,7 +148,7 @@ class DomSecondController extends Controller
             return $this->redirectToRoute('domList_ShowListDomRecherche');
         }
 
-        self::$twig->display('doms/secondForm.html.twig', [
+        self::$twig->display('doms/dupli.html.twig', [
             'form' => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria' => $criteria

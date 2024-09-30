@@ -31,19 +31,25 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $startX = $pdf->GetX();
         $startY = $pdf->GetY();
 
+        $pdf->setFont('helvetica', 'B', 10);
         // Date de soumission
         $pdf->Cell(45, 6, 'Date soumission : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, $ditInsertionOr->getDateSoumission()->format('d/m/Y'), 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $ditInsertionOr->getDateSoumission()->format('d/m/Y'), 0, 1, '', false, '', 0, false, 'T', 'M');
 
         // Numéro OR
         $pdf->SetXY($startX, $pdf->GetY()+ 2);
+        $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(45, 6, 'Numéro OR : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, $ditInsertionOr->getNumeroOR(), 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $ditInsertionOr->getNumeroOR(), 0, 1, '', false, '', 0, false, 'T', 'M');
 
         // Version à valider
         $pdf->SetXY($startX, $pdf->GetY() + 2);
+        $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(45, 6, 'Version à valider : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, $ditInsertionOr->getNumeroVersion(), 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $ditInsertionOr->getNumeroVersion(), 0, 1, '', false, '', 0, false, 'T', 'M');
 
         // Fin du bloc
         $pdf->Ln(10, true);
@@ -145,13 +151,13 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 10);
         //Nouvelle intervention
         $pdf->Cell(45, 6, ' - Nouvelle intervention : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //intervention supprimer
 
         $pdf->Cell(45, 6, ' - Intervention supprimée : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 4, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //nombre ligne modifiée
@@ -168,9 +174,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
 //==========================================================================================================
  //Titre: Récapitulation de l'OR
-        $pdf->setFont('helvetica', '', 12);
+        $pdf->setFont('helvetica', 'B', 12);
         $pdf->Cell(0, 6, 'Récapitulation de l\'OR ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(10, true);       
+        $pdf->Ln(10, true); 
+        
+        $pdf->setFont('helvetica', '', 12);
         $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
         
 

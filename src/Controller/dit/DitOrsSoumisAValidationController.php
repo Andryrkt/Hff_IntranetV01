@@ -65,8 +65,8 @@ class DitOrsSoumisAValidationController extends Controller
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-                $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
-                //$OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+                
+                
 
                 $ditInsertionOrSoumis
                                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -81,9 +81,11 @@ class DitOrsSoumisAValidationController extends Controller
 
                 self::$em->flush();
 
+                $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+                $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+
                 
-                
-                $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant);
+                $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
                 
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
                 $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf);
@@ -188,23 +190,85 @@ class DitOrsSoumisAValidationController extends Controller
         return $totalRecapOr;
     }
 
-    public function recuperationAvantApres($orSoumisValidataion, $OrSoumisAvant)
+    public function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
+        if($OrSoumisAvantMax === null){
+            $fin = count($OrSoumisAvant);
+        } else if(count($OrSoumisAvantMax) > count($OrSoumisAvant)){
+            $fin = count($OrSoumisAvantMax);
+        } elseif (count($OrSoumisAvantMax) < count($OrSoumisAvant)) {
+            $fin = count($OrSoumisAvant);
+        } else {
+            $fin = count($OrSoumisAvant);
+        }
+        
+
+
+
         $recapAvantApres = [];
 
         
-        for ($i = 0; $i < count($orSoumisValidataion); $i++) {
-            // Vérification si l'index $i existe dans $OrSoumisAvant
-            $nbLigAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
-            $mttTotalAv = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+        for ($i = 0; $i < $fin; $i++) {
+            if($OrSoumisAvantMax === null){
+                $itv = $OrSoumisAvant[$i]->getNumeroItv();
+                $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
+                $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+                $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+                $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+                $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+            } elseif (count($OrSoumisAvantMax) > count($OrSoumisAvant))
+            {
+                    $itv = $OrSoumisAvantMax[$i]->getNumeroItv();
+                    $libelleItv = $OrSoumisAvantMax[$i]->getLibellelItv();
+                    $numeroItvAvantMax = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNumeroItv() : 0;
+                    $numeroItvAvant = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNumeroItv() : -1;
+                if($numeroItvAvantMax === $numeroItvAvant) 
+                {
+                    $nbLigAp =  $OrSoumisAvant[$i]->getNombreLigneItv();
+                    $mttTotalAp =  $OrSoumisAvant[$i]->getMontantItv();
+                    $nbLigAv =  $OrSoumisAvantMax[$i]->getNombreLigneItv();
+                    $mttTotalAv = $OrSoumisAvantMax[$i]->getMontantItv();
+                } else {
+                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+                }
+                
+            } elseif (count($OrSoumisAvantMax) < count($OrSoumisAvant)) {
+                    $itv = $OrSoumisAvant[$i]->getNumeroItv();
+                    $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
+                    $numeroItvAvantMax = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNumeroItv() : 0;
+                    $numeroItvAvant = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNumeroItv() : -1;
+                if( $numeroItvAvantMax === $numeroItvAvant) 
+                {
+                    $nbLigAp =  $OrSoumisAvant[$i]->getNombreLigneItv();
+                    $mttTotalAp =  $OrSoumisAvant[$i]->getMontantItv();
+                    $nbLigAv =  $OrSoumisAvantMax[$i]->getNombreLigneItv();
+                    $mttTotalAv = $OrSoumisAvantMax[$i]->getMontantItv();
+                } else {
+                    
+                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+                }
+            } else {
+                    $itv = $OrSoumisAvant[$i]->getNumeroItv();
+                    $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
+                    $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+                    $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+                    $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+            }
 
             $recapAvantApres[] = [
-                'itv' => $orSoumisValidataion[$i]->getNumeroItv(),
-                'libelleItv' => $orSoumisValidataion[$i]->getLibellelItv(),
+                'itv' => $itv,
+                'libelleItv' => $libelleItv,
                 'nbLigAv' => $nbLigAv,
-                'nbLigAp' => $orSoumisValidataion[$i]->getNombreLigneItv(),
+                'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
-                'mttTotalAp' => $orSoumisValidataion[$i]->getMontantItv(),
+                'mttTotalAp' => $mttTotalAp,
             ];
         }
         return $recapAvantApres;
@@ -281,9 +345,9 @@ class DitOrsSoumisAValidationController extends Controller
     }
     
 
-    public function montantpdf($orSoumisValidataion, $OrSoumisAvant)
+    public function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax)
     {
-        $recapAvantApres =$this->recuperationAvantApres($orSoumisValidataion, $OrSoumisAvant);
+        $recapAvantApres =$this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
                 return [
                     'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
                     'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),

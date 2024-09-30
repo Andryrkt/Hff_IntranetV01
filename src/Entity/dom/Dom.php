@@ -9,6 +9,7 @@ use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\StatutDemande;
 use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
@@ -285,7 +286,7 @@ class Dom
 /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
      */
-    private ?Site $site = null;
+    private  $site = null;
 
     
  /**
@@ -370,10 +371,16 @@ class Dom
 
     /**
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
-     * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
     private  $categoryId;
 
+
+    private $codeAgenceAutoriser;
+
+    private $codeServiceAutoriser;
+
+    private $rmq;
 
     //======================================================================================================================================================
     public function getId()
@@ -945,12 +952,12 @@ class Dom
     }
 
 
-    public function getNumVehicule(): string
+    public function getNumVehicule()
     {
         return $this->numVehicule;
     }
 
-    public function setNumVehicule(string $numVehicule): self
+    public function setNumVehicule( $numVehicule): self
     {
         $this->numVehicule = $numVehicule;
 
@@ -959,12 +966,12 @@ class Dom
 
 
     
-    public function getDroitIndemnite(): string
+    public function getDroitIndemnite()
     {
         return $this->droitIndemnite;
     }
 
-    public function setDroitIndemnite(string $droitIndemnite): self
+    public function setDroitIndemnite( $droitIndemnite): self
     {
         $this->droitIndemnite = $droitIndemnite;
 
@@ -1233,6 +1240,40 @@ class Dom
     {
         $this->categoryId = $categoryId;
 
+        return $this;
+    }
+
+
+    public function getCodeAgenceAutoriser()
+    {
+        return $this->codeAgenceAutoriser;
+    }
+
+    public function setCodeAgenceAutoriser ($codeAgenceAutoriser): self
+    {
+        $this->codeAgenceAutoriser = $codeAgenceAutoriser;
+        return $this;
+    }
+
+    public function getCodeSreviceAutoriser()
+    {
+        return $this->codeServiceAutoriser;
+    }
+
+    public function setCodeServiceAutoriser ($codeServiceAutoriser): self
+    {
+        $this->codeServiceAutoriser = $codeServiceAutoriser;
+        return $this;
+    }
+
+    public function getRmq()
+    {
+        return $this->rmq;
+    }
+
+    public function setRmq($rmq): self
+    {
+        $this->rmq = $rmq;
         return $this;
     }
 

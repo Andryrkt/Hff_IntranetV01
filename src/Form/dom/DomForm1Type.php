@@ -10,13 +10,14 @@ use App\Entity\admin\Agence;
 
 use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
-use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
+use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Repository\admin\dom\CatgRepository;
@@ -44,10 +45,7 @@ class DomForm1Type extends AbstractType
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        
 
-     
-       
         $builder
         ->add('agenceEmetteur', 
         TextType::class,
@@ -88,17 +86,17 @@ class DomForm1Type extends AbstractType
 
             if(substr($data->getAgenceEmetteur(),0,2) === '50' ){
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-           } else {
+            } else {
                 $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
+            }
 
-           $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq
             ];
 
             $catg = $this->em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
-  
+
             $categories = [];
 
             foreach ($catg as $value) {
@@ -114,17 +112,35 @@ class DomForm1Type extends AbstractType
                 'query_builder' => function(CatgRepository $catg) {
                         return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
                     },
-                    'choices' => $categories,
-                ]);
+                'choices' => $categories,
+            ]);
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event)  {
             $form = $event->getForm();
             $data = $event->getData();
-            $sousTypeDocument = $this->em->getRepository(SousTypeDocument::class)->find($data['sousTypeDocument']);
-                
-                $categories = $sousTypeDocument->getCatg();
-   
-           
+       
+            $sousTypedocumentId = $data['sousTypeDocument'];
+            $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($sousTypedocumentId);
+          
+            if(substr($data['agenceEmetteur'],0,2) === '50' ){
+                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+            } else {
+                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+            }
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq
+            ];
+
+            $catg = $this->em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
+
+            $categories = [];
+
+            foreach ($catg as $value) {
+                $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
+            }
+
 
                 $form->add('categorie',
                 EntityType::class,
@@ -135,9 +151,9 @@ class DomForm1Type extends AbstractType
                     'query_builder' => function(CatgRepository $catg) {
                             return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
                         },
-                        'choices' => $categories,
+                    'choices' => $categories,
                 ]);
-               
+                
             })
             ->add('salarie',
         ChoiceType::class,
@@ -147,18 +163,37 @@ class DomForm1Type extends AbstractType
             'choices' => self::SALARIE,
             'data' => 'PERMANENT'
         ])
-        ->add('matriculeNom',
-        EntityType::class,
-        [
-            'mapped' => false,
-            'label' => 'Matricule et nom',
-            'class' => Personnel::class,
-            'placeholder' => '-- choisir une personnel',
-            'choice_label' => function(Personnel $personnel): string {
-                return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
-            },
-            'required' => true
-        ])
+        
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            $form = $event->getForm();
+            $data = $event->getData();   
+        
+            // Récupération de l'ID du service agence irium
+            $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)
+                                                ->findId($data->getCodeAgenceAutoriser(), $data->getCodeSreviceAutoriser());
+            
+            // Ajout du champ 'matriculeNom'
+            $form->add('matriculeNom',
+                EntityType::class,
+                [
+                    'mapped' => false,
+                    'label' => 'Matricule et nom',
+                    'class' => Personnel::class,
+                    'placeholder' => '-- choisir un personnel --',
+                    'choice_label' => function(Personnel $personnel): string {
+                        return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
+                    },
+                    'required' => true,
+                    'query_builder' => function(EntityRepository $repository) use ($agenceServiceIriumId) {
+                        return $repository->createQueryBuilder('p')
+                            ->where('p.agenceServiceIriumId IN (:agenceIps)')
+                            ->setParameter('agenceIps', $agenceServiceIriumId)
+                            ->orderBy('p.Matricule', 'ASC');
+                    },
+                ]
+            );
+        })
+        
         ->add('matricule',
         TextType::class,
         [

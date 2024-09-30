@@ -8,12 +8,14 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\dom\SousTypeDocument;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -95,8 +97,8 @@ class DomForm2Type extends AbstractType
             if ($data instanceof Dom && $data->getAgence()) {
                 $services = $data->getAgence()->getServices();
             }
-         
-      
+            
+            
             $form->add('service',
             EntityType::class,
             [
@@ -202,29 +204,35 @@ class DomForm2Type extends AbstractType
        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
             $data = $event->getData();
-           
-            $sousTypedocument = $data->getSousTypeDocument();
-            $catg = $data->getCategorie();
-          
-            if(substr($data->getAgenceEmetteur(),0,2) === '50'){
-                $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-               
-           } else {
-            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
-           $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq,
-            'categorie' => $catg
+
+            
+            if($data->getCategorie() !== null){
+                $catgId = $data->getCategorie()->getId();
+                $catg = $this->em->getRepository(Catg::class)->find($catgId);
+            } else {
+                $catg = null;
+            }
+            $docId = $data->getSousTypeDocument()->getId();
+            $rmqId = $data->getRmq()->getId();
+
+            $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
+            
+            $rmq = $this->em->getRepository(Rmq::class)->find($rmqId);
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq,
+                'categorie' => $catg
             ];
-        
+            
             $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
-      
+
             $sites = [];
-            foreach ($indemites as $key => $value) {
+            foreach ($indemites as $value) {
+                
                 $sites[] = $value->getSite();
             }
-      
+            
             $form->add('site',
             EntityType::class,
             [
@@ -241,54 +249,83 @@ class DomForm2Type extends AbstractType
             ]);
        })
        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($idSousTypeDocument, $options){
-        $form = $event->getForm();
-        $data = $event->getData();
-
-        $sousTypedocument = $options['data']->getSousTypeDocument();
-        $catg = $options['data']->getCategorie();
-   
-        if(substr($options['data']->getAgenceEmetteur(),0,2) === '50'){
-            $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+            $form = $event->getForm();
+            $data = $event->getData();
            
-       } else {
-        $rmq = $this->em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-       }
-       $criteria = [
-        'sousTypeDoc' => $sousTypedocument,
-        'rmq' => $rmq,
-        'categorie' => $catg
-        ];
-    
-        $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
-  
-        $sites = [];
-        foreach ($indemites as $key => $value) {
-            $sites[] = $value->getSite();
-        }
+            if($options['data']->getCategorie() !== null){
+                $catgId = $options['data']->getCategorie()->getId();
+                $catg = $this->em->getRepository(Catg::class)->find($catgId);
+            } else {
+                $catg = null;
+            }
+            $docId = $options['data']->getSousTypeDocument()->getId();
+            $rmqId = $options['data']->getRmq()->getId();
 
-        $form->add('site',
-        EntityType::class,
-        [
-            'label' => 'Site:',
-            'class' => Site::class,
-            'choice_label' => 'nomZone',
-            'choices' => $sites,
-            'row_attr' => [
-                'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
-            ],
-            'attr' => [
-                'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
-            ]
-        ]);
-   })
+            $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
+            $rmq = $this->em->getRepository(Rmq::class)->find($rmqId);
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq,
+                'categorie' => $catg
+            ];
+        
+            $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
+    
+            $sites = [];
+            foreach ($indemites as $key => $value) {
+                $sites[] = $value->getSite();
+            }
+
+            $form->add('site',
+            EntityType::class,
+            [
+                'label' => 'Site:',
+                'class' => Site::class,
+                'choice_label' => 'nomZone',
+                'choices' => $sites,
+                'row_attr' => [
+                    'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
+                ],
+                'attr' => [
+                    'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
+                ]
+            ]);
+        })
         
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($idSousTypeDocument){
             $form = $event->getForm();
             $data = $event->getData();
-         
-            $montant = $this->em->getRepository(Indemnite::class)->findOneBy(['site' => $data->getSite()])->getMontant();
+            
+            $siteId = $data->getSite()->getId();
+            $docId = $data->getSousTypeDocument()->getId();
+            if ($data->getCategorie() !== null) {
+                $catgId = $data->getCategorie()->getId();
+                $catg = $this->em->getRepository(Catg::class)->find($catgId);
+            } else {
+                $catg = null;
+            }
+            
+            $rmqId = $data->getRmq()->getId();
+            $site = $this->em->getRepository(Site::class)->find($siteId);
+            $sousTypedocument = $this->em->getRepository(SousTypeDocument::class)->find($docId);
+            $rmq = $this->em->getRepository(Rmq::class)->find($rmqId);
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq,
+                'categorie' => $catg,
+                'site' => $site
+            ];
+
+            if($this->em->getRepository(Indemnite::class)->findOneBy($criteria) !== null) {
+                $montant = $this->em->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
 
             $montant = $this->formatNumber($montant);
+            } else {
+                $montant = 0;
+            }
+            
 
             if($idSousTypeDocument === 10){
                 $montant = 0;
