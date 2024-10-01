@@ -92,22 +92,24 @@ trait DitOrSoumisAValidationTrait
 
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
+        if(!empty($OrSoumisAvantMax)){
+            // Trouver les objets manquants par numero d'intervention dans chaque tableau
+            $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
+            $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
 
-        // Trouver les objets manquants par numero d'intervention dans chaque tableau
-        $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
-        $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
+            // Ajouter les objets manquants dans chaque tableau
+            $OrSoumisAvantMax = array_merge($OrSoumisAvantMax, $manquantDansOrSoumisAvantMax);
+            $OrSoumisAvant = array_merge($OrSoumisAvant, $manquantDansOrSoumisAvant);
 
-        // Ajouter les objets manquants dans chaque tableau
-        $OrSoumisAvantMax = array_merge($OrSoumisAvantMax, $manquantDansOrSoumisAvantMax);
-        $OrSoumisAvant = array_merge($OrSoumisAvant, $manquantDansOrSoumisAvant);
-
-        // Trier les tableaux par numero d'intervention
-        $this->trierTableauParNumero($OrSoumisAvantMax);
-        $this->trierTableauParNumero($OrSoumisAvant);
+            // Trier les tableaux par numero d'intervention
+            $this->trierTableauParNumero($OrSoumisAvantMax);
+            $this->trierTableauParNumero($OrSoumisAvant);
+        }
+        
 
         $recapAvantApres = [];
 
-        for ($i = 0; $i < count($OrSoumisAvantMax); $i++) {
+        for ($i = 0; $i < count($OrSoumisAvant); $i++) {
             
                 $itv = $OrSoumisAvant[$i]->getNumeroItv();
                 $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
@@ -139,23 +141,26 @@ trait DitOrSoumisAValidationTrait
             'nbrModif' => 0,
             'mttModif' => 0
         ];
-
+//dump($recapAvantApres);
         foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
-            } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0) {
+            } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0.0 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0.0) {
+               //dump($value);
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
-            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0) {
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0) {
                 $value['statut'] = 'Nouv';
                 $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
+                
+                //dump($value);
                 $value['statut'] = 'Modif';
                 $nombreStatutNouvEtSupp['nbrModif']++;
                 $nombreStatutNouvEtSupp['mttModif'] = $nombreStatutNouvEtSupp['mttModif'] + ($value['mttTotalAp'] - $value['mttTotalAv']);
             }
         }
-
+//dd($recapAvantApres);
         // Retourner le tableau modifié et les statistiques de nouveaux et supprimés
         return [
             'recapAvantApres' => $recapAvantApres,

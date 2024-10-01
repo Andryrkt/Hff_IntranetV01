@@ -84,13 +84,14 @@ class BadmListeController extends Controller
         for ($i=0 ; $i < count($paginationData['data'])  ; $i++ ) { 
             $badmRechercheModel = new BadmRechercheModel();
             $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
-
-            $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
-            $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
-            if ($badms[0]['num_parc'] == null) {
-                $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
-            } else {
-                $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+            if(!empty($badms)) {
+                $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
+                $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
+                if ($badms[0]['num_parc'] == null) {
+                    $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
+                } else {
+                    $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+                }
             }
         }
 

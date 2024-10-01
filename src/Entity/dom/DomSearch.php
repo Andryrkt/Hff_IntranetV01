@@ -13,6 +13,11 @@ class DomSearch
     private $dateMissionDebut;
     private $dateMissionFin;
 
+    private $agenceEmetteur;
+    private $serviceEmetteur;
+    private $agenceDebiteur;
+    private $serviceDebiteur;
+
     
 
     /**
@@ -173,5 +178,103 @@ class DomSearch
         $this->dateMissionFin = $dateMissionFin;
 
         return $this;
+    }
+
+    /**
+     * Get the value of agenceEmetteur
+     */ 
+    public function getAgenceEmetteur()
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     *
+     * @return  self
+     */ 
+    public function setAgenceEmetteur($agenceEmetteur)
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceEmetteur
+     */ 
+    public function getServiceEmetteur()
+    {
+        return $this->serviceEmetteur;
+    }
+
+    /**
+     * Set the value of serviceEmetteur
+     *
+     * @return  self
+     */ 
+    public function setServiceEmetteur($serviceEmetteur)
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceDebiteur
+     */ 
+    public function getAgenceDebiteur()
+    {
+        return $this->agenceDebiteur;
+    }
+
+    /**
+     * Set the value of agenceDebiteur
+     *
+     * @return  self
+     */ 
+    public function setAgenceDebiteur($agenceDebiteur)
+    {
+        $this->agenceDebiteur = $agenceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceDebiteur
+     */ 
+    public function getServiceDebiteur()
+    {
+        return $this->serviceDebiteur;
+    }
+
+    /**
+     * Set the value of serviceDebiteur
+     *
+     * @return  self
+     */ 
+    public function setServiceDebiteur($serviceDebiteur)
+    {
+        $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'sousTypeDocument' => $this->sousTypeDocument,
+            'statut' => $this->statut,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'matricule' => $this->matricule,
+            'dateMissionDebut' => $this->dateMissionDebut,
+            'dateMissionFin' => $this->dateMissionFin,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'serviceDebiteur' => $this->serviceDebiteur,
+            'numDom' => $this->numDom,
+        ];
     }
 }
