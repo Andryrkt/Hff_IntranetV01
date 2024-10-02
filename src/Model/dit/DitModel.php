@@ -457,4 +457,18 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupererNumdevis($numOr)
+    {
+        $statement = "SELECT  seor_numdev  
+                from sav_eor
+                where seor_numor = '".$numOr."'"
+                ;
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

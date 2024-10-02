@@ -59,7 +59,8 @@ class DitOrsSoumisAValidationController extends Controller
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-
+                
+            
                 $ditInsertionOrSoumis
                                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                                     ->setHeureSoumission($this->getTime())
@@ -74,7 +75,6 @@ class DitOrsSoumisAValidationController extends Controller
                 foreach ($orSoumisValidataion as $entity) {
                     // Persist l'entité et l'historique
                     self::$em->persist($entity); // Persister chaque entité individuellement
-                    
                 }
                 $historique = new DitHistoriqueOperationDocument();
                 $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
@@ -86,21 +86,18 @@ class DitOrsSoumisAValidationController extends Controller
                 // Flushe toutes les entités et l'historique
                 self::$em->flush();
 
-                
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
                 $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+                $numDevis = $this->ditModel->recupererNumdevis($ditInsertionOrSoumis->getNumeroOR());
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf);
+                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $numDevis);
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
 
-
-                
-                
 
 
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
