@@ -33,16 +33,24 @@ private function autorisationRole($em): bool
     //FIN AUTORISATION
 }
 
-private function agenceServiceEmetteur(bool $autoriser): array
+private function agenceIdAutoriser($em): array
 {
-    $agenceServiceIps= $this->agenceServiceIpsObjet();
+    /** CREATION D'AUTORISATION */
+    $userId = $this->sessionService->get('user_id');
+    $userConnecter = $em->getRepository(User::class)->find($userId); 
+    return $userConnecter->getAgenceAutoriserIds();
+    //FIN AUTORISATION
+}
+
+private function agenceServiceEmetteur(bool $autoriser, $em): array
+{
         //initialisation agence et service
         if($autoriser){
             $agence = null;
             $service = null;
         } else {
-            $agence = $agenceServiceIps['agenceIps'];
-            $service = $agenceServiceIps['serviceIps'];
+            $agence = $this->agenceIdAutoriser($em);
+            $service = null;
         }
 
         return [
@@ -51,37 +59,39 @@ private function agenceServiceEmetteur(bool $autoriser): array
         ];
 }
 
+private function agenceServiceIpsEmetteur($autoriser, $agenceServiceIps)
+{
+    if($autoriser){
+        $agenceIpsEmetteur = null;
+        $ServiceIpsEmetteur = null;
+    } else {
+        $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+        $ServiceIpsEmetteur = $agenceServiceIps['serviceIps'];
+    }
+
+    return [
+        'agenceIpsEmetteur' => $agenceIpsEmetteur,
+        'serviceIpsEmetteur' => $ServiceIpsEmetteur
+    ];
+}
+
 private function initialisation($badmSearch, $em, $agenceServiceIps, $autoriser)
 {
     $criteria = $this->sessionService->get('badm_search_criteria', []);
-
+    $agenceServiceIpsEmetteur = $this->agenceServiceIpsEmetteur($autoriser, $agenceServiceIps);
     if($criteria !== null){
-        if($autoriser){
-            $agenceIpsEmetteur = null;
-            $ServiceIpsEmetteur = null;
-        } else {
-            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            $ServiceIpsEmetteur = $agenceServiceIps['serviceIps'];
-        }
         $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
         $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $ServiceIpsEmetteur : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIpsEmetteur['serviceIpsEmetteur'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
         $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
-        $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceIpsEmetteur : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
+        $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceServiceIpsEmetteur['agenceIpsEmetteur'] : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
         $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
     } else {
-        if($autoriser){
-            $agenceIpsEmetteur = null;
-            $ServiceIpsEmetteur = null;
-        } else {
-            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            $ServiceIpsEmetteur = $agenceServiceIps['serviceIps'];
-        }
         $typeMouvement = null;
         $statut = null;
-        $serviceEmetteur = $ServiceIpsEmetteur;
+        $serviceEmetteur = $agenceServiceIpsEmetteur['serviceIpsEmetteur'];
         $serviceDebiteur = null;
-        $agenceEmetteur = $agenceIpsEmetteur;
+        $agenceEmetteur = $agenceServiceIpsEmetteur['agenceIpsEmetteur'];
         $agenceDebiteur = null;
     }
    

@@ -65,14 +65,16 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
+            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence'],
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
        
+      
+        
         $repository= self::$em->getRepository(Badm::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $option);
 
@@ -184,11 +186,9 @@ public function listAnnuler(Request $request){
         if($form->isSubmitted() && $form->isValid()) {
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-          
+            
             if(!empty($numParc) || !empty($numSerie)){
-                
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-                
                 if(!empty($idMateriel)){
                     $this->recuperationCriterie($badmSearch, $form);
                     $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
@@ -208,13 +208,13 @@ public function listAnnuler(Request $request){
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
 
         $option = [
             'boolean' => $autoriser,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
-            'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']
         ];
+        
        
         $repository= self::$em->getRepository(Badm::class);
         $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);
