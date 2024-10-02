@@ -1,0 +1,221 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
+{% endblock%}
+
+{% block nav %}{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+
+{% block content %}
+
+
+<div class="container my-5">
+
+	<div class="row">
+		<div class="col-12 col-md-11">
+			<h2 class="fw-bold " style="color:#0e4194;">Détail Demande d'ordre de mission</h2>
+		</div>
+
+		<div class=" col-12 col-md-1">
+			<a href="{{path("doms_liste")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-12 col-md-3">
+			{{  macroForm.affichage('Date', dom.dateDemande | date('d/m/Y'))}}
+		</div>
+		<div class="col-12 col-md-3">{{  macroForm.affichage('N° Dom', dom.numeroOrdreMission)}}</div>
+		<div class="codeMouvement">
+			<h3 id="codeMouvement">{{ macroForm.affichage('Salarier', is_temporaire)}}</h3>
+		</div>
+	</div>
+
+
+	<div class="row">
+
+		<div
+			class="col-12 col-md-6">
+
+			<!-- DEBUT Debiteur selecte -->
+			<label for="" class="col-4  fw-bold">Agence service débiteur</label>
+
+			<div class="row">
+				<div class="col-6">
+					{{ macroForm.affichage('Agence débiteur', dom.agenceDebiteurId.codeAgence ~ ' ' ~ dom.agenceDebiteurId.libelleAgence)}}
+				</div>
+				<div class="col-6 ">
+					{{ macroForm.affichage('Service débiteur', dom.serviceDebiteurId.codeService ~ ' ' ~ dom.serviceDebiteurId.libelleService)}}
+				</div>
+			</div>
+		</div>
+		<!-- FIN Debiteur selecte -->
+
+		<!--DEBUT emetteur select -->
+		<div class="col-12 col-md-6">
+			<label for="" class="col-4  fw-bold">Agence service émetteur</label>
+			<!-- extern (temporaire) -->
+			<div class="row">
+				<div class="col-4 ">
+					{{ macroForm.affichage('Agence emetteur', dom.agenceEmetteurId.codeAgence ~ ' ' ~ dom.agenceEmetteurId.libelleAgence)}}
+				</div>
+				<div class="col-4 ">
+					{{ macroForm.affichage('Agence emetteur', dom.serviceEmetteurId.codeService ~ ' ' ~ dom.serviceEmetteurId.libelleService)}}
+				</div>
+			</div>
+		</div>
+		<!-- FIN émetteur select -->
+	</div>
+
+
+	<div class="row">
+		<div class="col-12 col-md-6">
+			{{ macroForm.affichage('Sous type document', dom.sousTypeDocument.codeSousType)}}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12 col-md-6" id="categ">
+			{{ macroForm.affichage('Catégorie', dom.categoryId.description)}}
+		</div>
+		<!---->
+		{# <div class="col-12 col-md-6" id="MUTARENTAL"></div> #}
+		<div class="col-12 col-md-6" id="SITE">
+			{{ macroForm.affichage('Site', dom.siteId.nomZone)}}
+		</div>
+		<!---->
+	</div>
+
+
+	<div id="form-container">
+		<div class="row" id="Interne">
+			{% if is_temporaire == "PERMANENT" %}
+				<div class="col-12 col-md-6">
+					{{ macroForm.affichage('Matricule', dom.matricule)}}
+
+					{{ macroForm.affichage('Prénoms', dom.prenom)}}
+				</div>
+				<div class="col-12 col-md-6">
+
+					{{ macroForm.affichage('Nom', dom.nom)}}
+				</div>
+			{% endif %}
+		</div>
+
+		{% if is_temporaire == "TEMPORAIRE" %}
+			<div class="row">
+				<div class="col-12 col-md-4">
+
+					{{ macroForm.affichage('Nom', dom.nom)}}
+				</div>
+				<div class="col-12 col-md-4">
+
+					{{ macroForm.affichage('Prénoms', dom.prenom)}}
+				</div>
+				<div class="col-12 col-md-4">
+					{{ macroForm.affichage('Cin', dom.cin)}}
+				</div>
+			</div>
+		{% endif %}
+	</div>
+
+
+	<div class="row">
+		<div class="col-12 col-md-6">
+			{{ macroForm.affichage('Date début', dom.dateDebut | date('d/m/Y'))}}
+			{{ macroForm.affichage('Date fin', dom.dateFin | date('d/m/Y'))}}
+			{{ macroForm.affichage('Nombre du Jour', dom.nombreJour)}}
+			{{ macroForm.affichage('Client', dom.client)}}
+		</div>
+		<div class="col-12 col-md-6">
+			{{ macroForm.affichage('Heure début', dom.heureDebut)}}
+			{{ macroForm.affichage('Heure fin', dom.heureFin)}}
+			{{ macroForm.affichage('Motif de déplacement', dom.motifDeplacement)}}
+			{{ macroForm.affichage('Fiche', dom.fiche)}}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			{{ macroForm.affichage('Lieu d\'intervention', dom.lieuIntervention)}}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Vehicule société', dom.vehiculeSociete)}}
+				{{ macroForm.affichage('Indemnité de déplacement', dom.idemnityDepl | number_format(0, ',', '.') )}}
+			</div>
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('N° vehicule', dom.numVehicule)}}
+				{{ macroForm.affichage('Total indemnité de déplacement', (dom.idemnityDepl  * dom.nombreJour) | number_format(0, ',', '.')  )}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-2">
+				{{ macroForm.affichage('Devis', dom.devis)}}
+			</div>
+			<div class="col-12 col-md">
+				{{ macroForm.affichage('Indemnité forfaitaire', dom.indemniteForfaitaire)}}
+			</div>
+			<div class="col-12 col-md">
+				{{ macroForm.affichage('Suplément journalier', dom.droitIndemnite)}}
+			</div>
+
+			<div class="col-12 col-md">
+				{{ macroForm.affichage('Total indemnité forfaitaire', dom.totalIndemniteForfaitaire)}}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Motif Autre dépense 1', dom.motifAutresDepense1)}}
+				{{ macroForm.affichage('Motif Autre dépense 2', dom.motifAutresDepense2)}}
+				{{ macroForm.affichage('Motif Autre dépense 3', dom.motifAutresDepense3)}}
+				{{ macroForm.affichage('Total Autre dépense', dom.totalAutresDepenses)}}
+			</div>
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Montant Autre dépense 1', dom.autresDepense1)}}
+				{{ macroForm.affichage('Montant Autre dépense 2', dom.autresDepense2)}}
+				{{ macroForm.affichage('Montant Autre dépense 3', dom.autresDepense3)}}
+				{{ macroForm.affichage('Total générale à payer', dom.totalGeneralPayer)}}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<h4 style="text-align: center;">Mode de paiement</h4>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Mode payement', dom.modePayement)}}
+			</div>
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Mode', dom.modePayement)}}
+			</div>
+		</div>
+
+		<div class="row" id="label_PJ">
+			<div class="col">
+				<h4 style="text-align: center;">Pièce Jointe</h4>
+			</div>
+		</div>
+		<div class="row" id="PJ">
+			<div class="col-12 col-md-6">
+
+				{{ macroForm.affichageFile('Pièce jointe 01', dom.pieceJoint1, "/Upload/dom/fichier")}}
+			</div>
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichageFile('Pièce jointe 02', dom.pieceJoint2, "/Upload/dom/fichier")}}
+			</div>
+
+		</div>
+	{% endblock content %}
+
+
+	{% block javascript %}
+		<script type="module" src="/Hffintranet/Views/js/badm/secondForm.js"></script>
+	{% endblock %}
