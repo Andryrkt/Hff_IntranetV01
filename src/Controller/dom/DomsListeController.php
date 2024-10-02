@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Form\dom\DomSearchType;
@@ -18,6 +19,7 @@ class DomsListeController extends Controller
 
     use ConversionTrait;
     use DomListeTrait;
+    use FormatageTrait;
 
     /**
      * affichage de l'architecture de la liste du DOM
@@ -50,12 +52,12 @@ class DomsListeController extends Controller
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+       
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+            'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
+
         $repository= self::$em->getRepository(Dom::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit,$domSearch, $option);
 
@@ -78,7 +80,7 @@ class DomsListeController extends Controller
     }
 
 
-        /**
+    /**
      * @Route("/export-dom-excel", name="export_dom_excel")
      */
     public function exportExcel()
@@ -111,7 +113,7 @@ class DomsListeController extends Controller
     ];
 
     foreach ($entities as $entity) {
-dd($entity);
+
         $data[] = [
             $entity->getIdStatutDemande() ? $entity->getIdStatutDemande()->getDescription() : '',
             $entity->getSousTypeDocument() ? $entity->getSousTypeDocument()->getCodeSousType() : '',
@@ -124,7 +126,7 @@ dd($entity);
             $entity->getDateFin(),
             $entity->getClient(),
             $entity->getLieuIntervention(),
-            $entity->getTotalGeneralPayer(),
+            str_replace('.', '',$entity->getTotalGeneralPayer()),
             $entity->getDevis()
         ];
     }
@@ -168,16 +170,15 @@ public function listAnnuler(Request $request)
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+        
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+            'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
         $repository= self::$em->getRepository(Dom::class);
         $paginationData = $repository->findPaginatedAndFilteredAnnuler($page, $limit,$domSearch, $option);
 
-       
+        
         //enregistre le critère dans la session
         $this->sessionService->set('dom_search_criteria', $criteria);
         $this->sessionService->set('dom_search_option', $option);

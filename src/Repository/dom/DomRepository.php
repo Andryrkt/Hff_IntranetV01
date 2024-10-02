@@ -67,34 +67,12 @@ class DomRepository extends EntityRepository
         }
 
 
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($domSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $domSearch->getAgenceEmetteur()->getId());
-            }
-            //filtre selon le service emetteur
-            if (!empty($domSearch->getServiceEmetteur())) {
-                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $domSearch->getServiceEmetteur()->getId());
-            }
-        } else {
+        if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmetId')
-                ->setParameter('agEmetId',  $options['idAgence']);
-        }
-
-        //filtre selon l'agence debiteur
-        if (!empty($domSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $domSearch->getAgenceDebiteur()->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($domSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $domSearch->getServiceDebiteur()->getId());
-        }
+           $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+           $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
+                           ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+       } 
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
@@ -172,35 +150,13 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
-
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($domSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $domSearch->getAgenceEmetteur()->getId());
-            }
-            //filtre selon le service emetteur
-            if (!empty($domSearch->getServiceEmetteur())) {
-                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $domSearch->getServiceEmetteur()->getId());
-            }
-        } else {
+        
+        if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmetId')
-                ->setParameter('agEmetId',  $options['idAgence']);
-        }
-
-        //filtre selon l'agence debiteur
-        if (!empty($domSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $domSearch->getAgenceDebiteur()->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($domSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $domSearch->getServiceDebiteur()->getId());
-        }
+           $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+           $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
+                           ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+       } 
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
@@ -268,34 +224,14 @@ class DomRepository extends EntityRepository
         }
 
 
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($domSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $domSearch->getAgenceEmetteur()->getId());
-            }
-            //filtre selon le service emetteur
-            if (!empty($domSearch->getServiceEmetteur())) {
-                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $domSearch->getServiceEmetteur()->getId());
-            }
-        } else {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmetId')
-                ->setParameter('agEmetId',  $options['idAgence']);
-        }
+        if (!$options['boolean']) {
+             //ceci est figer pour les utilisateur autre que l'administrateur
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
+                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        } 
 
-        //filtre selon l'agence debiteur
-        if (!empty($domSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $domSearch->getAgenceDebiteur()->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($domSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $domSearch->getServiceDebiteur()->getId());
-        }
+        
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
@@ -313,5 +249,21 @@ class DomRepository extends EntityRepository
             'currentPage' => $page,
             'lastPage' => $lastPage,
         ];
+    }
+
+
+    public function findLastNumtel($matricule)
+    {
+        $numTel = $this->createQueryBuilder('d')
+            ->select('d.numeroTel')
+            ->where('d.matricule = :matricule')
+            ->setParameter('matricule', $matricule)
+            ->orderBy('d.dateDemande', 'DESC') // Tri décroissant par date ou un autre critère pertinent
+            ->setMaxResults(1) // Récupérer seulement le dernier numéro
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        return $numTel;
     }
 }

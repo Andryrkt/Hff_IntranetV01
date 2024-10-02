@@ -42,6 +42,7 @@ class DomSecondController extends Controller
 
         $is_temporaire = $form1Data['salarier'];
 
+
         $form =self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
@@ -57,6 +58,7 @@ class DomSecondController extends Controller
                 
             if ($form1Data['salarier'] === "PERMANENT") 
             {
+                // dump($form1Data['sousTypeDocument']->getCodeSousType());
                 if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 
                 {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
@@ -139,7 +141,7 @@ class DomSecondController extends Controller
             }
 
             // Redirection ou affichage de confirmation
-            return $this->redirectToRoute('domList_ShowListDomRecherche');
+            return $this->redirectToRoute('doms_liste');
         }
 
         self::$twig->display('doms/secondForm.html.twig', [

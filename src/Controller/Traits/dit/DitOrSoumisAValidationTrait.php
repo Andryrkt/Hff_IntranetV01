@@ -74,8 +74,8 @@ trait DitOrSoumisAValidationTrait
             'montant_piece' => 0,
             'montant_mo' => 0,
             'montant_achats_locaux' => 0,
-            'montant_frais_divers' => 0,
             'montant_lubrifiants' => 0,
+            'montant_frais_divers' => 0,
         ];
         foreach ($orSoumisValidataion as $orSoumis) {
             // Faire la somme des montants et les stocker dans le tableau
@@ -83,8 +83,8 @@ trait DitOrSoumisAValidationTrait
             $totalRecapOr['montant_piece'] += $orSoumis->getMontantPiece();
             $totalRecapOr['montant_mo'] += $orSoumis->getMontantMo();
             $totalRecapOr['montant_achats_locaux'] += $orSoumis->getMontantAchatLocaux();
-            $totalRecapOr['montant_frais_divers'] += $orSoumis->getMontantFraisDivers();
             $totalRecapOr['montant_lubrifiants'] += $orSoumis->getMontantLubrifiants();
+            $totalRecapOr['montant_frais_divers'] += $orSoumis->getMontantFraisDivers();
         }
 
         return $totalRecapOr;

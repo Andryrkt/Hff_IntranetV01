@@ -410,7 +410,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_motifAutresDepense1"
   );
   motifAutreDepense1Input.addEventListener("input", () => {
-    motifAutreDepense1Input.value = motifAutreDepense1Input.value.toUpperCase();
+    motifAutreDepense1Input.value = motifAutreDepense1Input.value
+      .toUpperCase()
+      .slice(0, 30);
   });
 
   //2
@@ -418,7 +420,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_motifAutresDepense2"
   );
   motifAutreDepense2Input.addEventListener("input", () => {
-    motifAutreDepense2Input.value = motifAutreDepense2Input.value.toUpperCase();
+    motifAutreDepense2Input.value = motifAutreDepense2Input.value
+      .toUpperCase()
+      .slice(0, 30);
   });
 
   //3
@@ -426,6 +430,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_motifAutresDepense3"
   );
   motifAutreDepense3Input.addEventListener("input", () => {
-    motifAutreDepense3Input.value = motifAutreDepense3Input.value.toUpperCase();
+    motifAutreDepense3Input.value = motifAutreDepense3Input.value
+      .toUpperCase()
+      .slice(0, 30);
   });
 });
