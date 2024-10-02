@@ -58,6 +58,7 @@ class DomSecondController extends Controller
                 
             if ($form1Data['salarier'] === "PERMANENT") 
             {
+                // dump($form1Data['sousTypeDocument']->getCodeSousType());
                 if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 
                 {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
