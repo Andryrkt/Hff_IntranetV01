@@ -33,6 +33,15 @@ trait FormatageTrait
     // Limite la partie décimale à deux chiffres
     $decPart = substr($decPart, 0, 2);
 
+     // Si la partie décimale a un seul chiffre, on ajoute un 0
+    if (strlen($decPart) === 1) {
+        $decPart .= '0';
+    }
+    // Si la partie décimale est vide, on ajoute '00'
+    if ($decPart === '') {
+        $decPart = '00';
+    }
+
     // Réassemble le nombre
     if ($decPart !== '') {
         return $intPartWithDots . ',' . $decPart;

@@ -50,7 +50,7 @@ class DomsListeController extends Controller
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
         $option = [
             'boolean' => $autoriser,
             'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
@@ -168,7 +168,7 @@ public function listAnnuler(Request $request)
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser);
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
         $option = [
             'boolean' => $autoriser,
             'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),

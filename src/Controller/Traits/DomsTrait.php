@@ -3,6 +3,7 @@
 namespace App\Controller\Traits;
 
 use DateTime;
+use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\Service;
@@ -12,6 +13,7 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\dom\Indemnite;
 use App\Entity\admin\StatutDemande;
+use App\Repository\dom\DomRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
@@ -74,6 +76,9 @@ trait DomsTrait
             }
 
             $dom->setRmq($criteria['rmq']);
+
+            $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
+            $dom->setNumeroTel($numTel);
     }
 
     private function criteria($form1Data, $em)

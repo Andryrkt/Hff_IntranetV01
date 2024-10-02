@@ -96,7 +96,7 @@
 						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
 						<td>{{ item.motifDeplacement}}</td>
 						<td class="text-center">{{ item.matricule }}</td>
-						<td>{{ item.libelleCodeAgenceService}}</td>
+						<td>{{ item.LibelleCodeAgence_Service}}</td>
 						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.dateFin | date('d/m/Y') }}</td>
 						<td>{{ item.client}}</td>
@@ -115,6 +115,6 @@
 
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	{#<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>#}
+	<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
 
 {% endblock %}

@@ -151,21 +151,24 @@ class BadmRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
 
+        
         if ($options['boolean']) {
             //filtre selon l'agence emettteur
             if (!empty($criteria['agenceEmetteur'])) {
                 $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
             }
-            //filtre selon le service emetteur
-            if (!empty($criteria['serviceEmetteur'])) {
-                $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-            }
         } else {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('b.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
+                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        }
+
+         //filtre selon le service emetteur
+         if (!empty($criteria['serviceEmetteur'])) {
+            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
+            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
         //filtre selon l'agence debiteur
@@ -222,23 +225,26 @@ class BadmRepository extends EntityRepository
             $queryBuilder->andWhere('b.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $criteria['dateFin']);
         }
+        
         if ($options['boolean']) {
             //filtre selon l'agence emettteur
             if (!empty($criteria['agenceEmetteur'])) {
                 $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
             }
-            //filtre selon le service emetteur
-            if (!empty($criteria['serviceEmetteur'])) {
-                $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-            }
         } else {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('b.agenceServiceEmetteur = :agServEmet')
-                ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
+                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
         }
 
+         //filtre selon le service emetteur
+         if (!empty($criteria['serviceEmetteur'])) {
+            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
+            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+        }
+        
         //filtre selon l'agence debiteur
         if (!empty($criteria['agenceDebiteur'])) {
             $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')

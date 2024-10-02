@@ -42,6 +42,7 @@ class DomSecondController extends Controller
 
         $is_temporaire = $form1Data['salarier'];
 
+
         $form =self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
