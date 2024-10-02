@@ -140,7 +140,7 @@ class DomSecondController extends Controller
             }
 
             // Redirection ou affichage de confirmation
-            return $this->redirectToRoute('domList_ShowListDomRecherche');
+            return $this->redirectToRoute('doms_liste');
         }
 
         self::$twig->display('doms/secondForm.html.twig', [
