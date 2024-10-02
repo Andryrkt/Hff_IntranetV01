@@ -4,6 +4,7 @@ namespace App\Entity\dit;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
@@ -33,7 +34,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="integer")
      */
-    private ?int $numeroItv = 0;
+    private int $numeroItv = 0;
 
      /**
      * @ORM\Column(type="date")
@@ -91,10 +92,6 @@ class DitOrsSoumisAValidation
      */
     private ?string $libellelItv = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idOrSoumisAValidation")
-     */
-    private $ditHistoriqueOperationDoc;
 
 
     private $pieceJoint01;
@@ -106,11 +103,6 @@ class DitOrsSoumisAValidation
     private $pieceJoint04;
     //==========================================================================================
     
-
-    public function __construct()
-    {
-        $this->ditHistoriqueOperationDoc = new ArrayCollection();
-    }
 
     
     /**
@@ -412,43 +404,6 @@ class DitOrsSoumisAValidation
     }
 
 
-        /**
-     * Get the value of demandeIntervention
-     */ 
-    public function getDitHistoriqueOperationDoc()
-    {
-        return $this->ditHistoriqueOperationDoc;
-    }
-
-    public function addDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
-    {
-        if (!$this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc[] = $ditHistoriqueOperationDoc;
-            $ditHistoriqueOperationDoc->setIdOrSoumisAValidation($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
-    {
-        if ($this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc->removeElement($ditHistoriqueOperationDoc);
-            if ($ditHistoriqueOperationDoc->getIdOrSoumisAValidation() === $this) {
-                $ditHistoriqueOperationDoc->setIdOrSoumisAValidation(null);
-            }
-        }
-        
-        return $this;
-    }
-
-    public function setDitHistoriqueOperationDoc($ditHistoriqueOperationDoc)
-    {
-        $this->ditHistoriqueOperationDoc = $ditHistoriqueOperationDoc;
-
-        return $this;
-    }
-
     /**
      * Get the value of file
      */ 
@@ -529,5 +484,12 @@ class DitOrsSoumisAValidation
         $this->pieceJoint04 = $pieceJoint04;
 
         return $this;
+    }
+
+
+
+    // Comparaison des objets par leur numero d'intervention
+    public function estEgalParNumero(DitOrsSoumisAValidation $autre) {
+        return $this->numeroItv === $autre->numeroItv;
     }
 }

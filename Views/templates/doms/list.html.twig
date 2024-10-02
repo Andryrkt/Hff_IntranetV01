@@ -11,38 +11,73 @@
 
 	<div class="container">
 		<h3 class="perso-titre">
-			Liste de Demande d'intervention
+			Liste de Demande d'ordre de mission
 		</h3>
+		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
+		{% include "/doms/shared/_pagination.html.twig" %}
+	</div>
 
-		<table class="table rounded">
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
 					<th>Statut</th>
-					<th>N° BADM</th>
-					<th>Code_Mouvement</th>
-					<th>Id Materiel</th>
-					<th>Ag\Serv Emetteur</th>
-					<th>Ag\Serv Destinataire</th>
+					<th>Sous type</th>
+					<th>N° DOM</th>
+					<th>Date de demande</th>
+					<th>Motif de déplacemnt</th>
+					<th class="text-center">Matricule</th>
+					<th>Agence\Service</th>
+					<th>Date de début</th>
+					<th>Date de fin</th>
+					<th>Client</th>
+					<th>Lieu d'intervention</th>
+					<th>Total général payer</th>
+					<th>Devis</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in data %}
+
+					{% set classeStatutDom = '' %}
+					{% set styleStatutDom = '' %}
+					{% set styleStatutDom = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
+					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
+						{% set classeStatutDom ='bg-success bg-gradient' %}
+					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
+						{% set classeStatutDom ='bg-success' %}
+						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
+					{% elseif item.idStatutDemande.description | trim == 'CONTROLE SERVICE' %}
+						{% set classeStatutDom ='bg-info' %}
+					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
+						{% set classeStatutDom ='bg-primary' %}
+						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
+					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG'%}
+						{% set classeStatutDom ='bg-success' %}
+					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
+						{% set classeStatutDom ='bg-danger' %}
+					{% else %}
+						{% set classeStatutDom = '' %}
+					{% endif %}
+
+
 					<tr>
 						{# Début Action #}
-						<td>
+						<td style="padding: 0px;" class="align-middle">
 							<div class="dropdown">
 								<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									<li>
-										<a class="dropdown-item fw-bold" style="color: #000;" href="{{ path("badm_formBadm")}}">Ajouter</a>
-									</li>
-									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("BadmDupli_dupliBadm", {numBadm: item.numBadm, id: item.id})}}">Dupliquer</a>
+										<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
 									</li>
 								</ul>
 							</div>
@@ -50,16 +85,24 @@
 						{# Fin Actions #}
 
 						{# DEBUT Statut #}
+						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.idStatutDemande.description}}</td>
 
 						{# FIN Statut #}
-
-							<td>
-								<a href="{{ path('BadmDetail_detailBadm', {numBadm: item.numBadm, id: item.id}) }}"> {{ item.numBadm }}</a>
+						<td>{{ item.sousTypeDocument.codeSousType}}</td>
+						<td>
+							<a href="#">
+								{{ item.numeroOrdreMission }}</a>
 						</td>
-						<td>{{ item.typeMouvement}}</td>
-						<td>{{ item.idMateriel}}</td>
-						<td>{{ item.agenceServiceEmetteur }}</td>
-						<td>{{ item.agenceServiceDestinataire}}</td>
+						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
+						<td>{{ item.motifDeplacement}}</td>
+						<td class="text-center">{{ item.matricule }}</td>
+						<td>{{ item.libelleCodeAgenceService}}</td>
+						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.dateFin | date('d/m/Y') }}</td>
+						<td>{{ item.client}}</td>
+						<td>{{ item.lieuIntervention}}</td>
+						<td class="text-end">{{ item.totalGeneralPayer}}</td>
+						<td>{{ item.devis}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
@@ -72,6 +115,6 @@
 
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
+	{#<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>#}
 
 {% endblock %}

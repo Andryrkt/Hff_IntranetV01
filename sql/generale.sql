@@ -22,3 +22,7 @@ SELECT \* INTO NouvelleTable FROM AncienneTable WHERE 1 = 0;
 
 -- Étape 2 : Copier les données
 INSERT INTO NouvelleTable SELECT \* FROM AncienneTable;
+
+--change le nom dans la base de donée
+-- Renommez la colonne dans la table
+EXEC sp_rename 'historique_operation_ditors.votreAncienneColonne', 'ditorssoumisavalidation_id', 'COLUMN';

@@ -356,8 +356,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const labelMode = modeInput.previousElementSibling;
   const matriculeInput_2 = document.querySelector("#dom_form2_matricule");
   modePayementInput.addEventListener("change", infoPersonnel);
-
-  function infoPersonnel($data) {
+  modeInput.addEventListener("input", () => {
+    modeInput.setAttribute("maxlength", 10);
+  });
+  function infoPersonnel() {
     const matricule = matriculeInput_2.value;
     let url = `/Hffintranet/personnel-fetch/${matricule}`;
     fetch(url)
@@ -367,11 +369,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
         if (modePayementInput.value === "VIREMENT BANCAIRE") {
           modeInput.readOnly = true;
           modeInput.value = personne.compteBancaire;
-          modeInput.removeAttribute("maxlength");
         } else {
           modeInput.readOnly = false;
           modeInput.value = "";
-          modeInput.maxLength = 10;
         }
         labelMode.innerHTML = modePayementInput.value;
       })

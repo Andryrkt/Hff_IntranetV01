@@ -71,15 +71,17 @@ class BadmRepository extends EntityRepository
                 $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
             }
-            //filtre selon le service emetteur
-            if (!empty($criteria['serviceEmetteur'])) {
-                $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-                ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-            }
         } else {
             //ceci est figer pour les utilisateur autre que l'administrateur
-                $queryBuilder->andWhere('b.agenceEmetteurId = :agEmetId')
-                ->setParameter('agEmetId',  $options['idAgence']);
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
+                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        }
+
+         //filtre selon le service emetteur
+         if (!empty($criteria['serviceEmetteur'])) {
+            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
+            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
         //filtre selon l'agence debiteur
@@ -104,12 +106,12 @@ class BadmRepository extends EntityRepository
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
         
-    return [
-        'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
-        'totalItems' => $totalItems,
-        'currentPage' => $page,
-        'lastPage' => $lastPage,
-    ];
+        return [
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+        ];
     }
 
     

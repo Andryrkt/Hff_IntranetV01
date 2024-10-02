@@ -23,6 +23,8 @@ CREATE TABLE type_document (
     CONSTRAINT PK_type_document_dit PRIMARY KEY (id)
 );
 
+ALTER TABLE type_document ADD libelle_document VARCHAR(255)
+
 CREATE TABLE type_operation (
     id INT IDENTITY (1, 1),
     typeOperation VARCHAR(50),
@@ -199,3 +201,14 @@ ALTER TABLE historique_operation_document
 DROP CONSTRAINT DF__historiqu__dateO__345EC57D;
 
 ALTER TABLE historique_operation_document ADD heure_operation TIME
+
+CREATE TABLE or_soumis_validation_historique (
+    orsSoumisAValidation_id INT,
+    historique_Operation_Doc_id INT,
+    CONSTRAINT PK_or_soumis_validation_historique PRIMARY KEY (
+        orsSoumisAValidation_id,
+        historique_Operation_Doc_id
+    ),
+    CONSTRAINT FK_or_soumis_validation_historique_orsSoumisAValidation_id FOREIGN KEY (orsSoumisAValidation_id) REFERENCES ors_soumis_a_validation (id),
+    CONSTRAINT FK_or_soumis_validation_historique_historique_Operation_Doc_id FOREIGN KEY (historique_Operation_Doc_id) REFERENCES historique_operation_document (id)
+);

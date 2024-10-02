@@ -401,9 +401,9 @@ class User implements UserInterface
     }
 
     public function getAgencesAutorisees(): Collection
-{
-    return $this->agencesAutorisees;
-}
+    {
+        return $this->agencesAutorisees;
+    }
 
 public function addAgenceAutorise(Agence $agence): self
 {
