@@ -39,22 +39,26 @@ class DitOrsSoumisAValidationController extends Controller
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
 
-        
-
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
         {   
-            $numOrBaseDonner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit])->getNumeroOr();
+            $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+            $numOrBaseDonner = $demandeIntervention->getNumeroOr();
+            $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis);
-
+            $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
+            
             if($numOrBaseDonner !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
             } elseif($datePlanning === '') {
                 $message = "Le numéro Or doit avoir une date planning";
+                $this->notification($message);
+            } elseif(!in_array($agServDebiteurBDSql, $agServInformix)) {
+                $message = "L'agence et le service débiteur de l'OR ne correspond pas à l'agence et service du DIT";
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
@@ -70,8 +74,6 @@ class DitOrsSoumisAValidationController extends Controller
                 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
-
-                
                 foreach ($orSoumisValidataion as $entity) {
                     // Persist l'entité et l'historique
                     self::$em->persist($entity); // Persister chaque entité individuellement
