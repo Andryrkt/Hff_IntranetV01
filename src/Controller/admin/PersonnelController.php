@@ -3,6 +3,7 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
+use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\Personnel;
 use App\Form\admin\PersonnelType;
 use App\Form\admin\PersonnelSearchType;
@@ -60,16 +61,32 @@ class PersonnelController extends Controller
          */
         public function new(Request $request)
         {    
+            $personnel = new Personnel();
+            
             $form = self::$validator->createBuilder(PersonnelType::class)->getForm();
     
             $form->handleRequest($request);
     
             if($form->isSubmitted() && $form->isValid())
-            {
-                $personnel= $form->getData();
+            {   
+
+                $personnelData= $form->getData();
+                $agServIrium = self::$em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
+                $personnel->setNom($personnelData->getNom())
+                            ->setMatricule($personnelData->getMatricule())
+                            ->setCodeAgenceServiceSage($personnelData->getCodeAgenceServiceSage())
+                            ->setNumeroFournisseurIRIUM($personnelData->getNumeroFournisseurIRIUM())
+                            ->setCodeAgenceServiceIRIUM($personnelData->getCodeAgenceServiceIRIUM())
+                            ->setNumeroTelephone($personnelData->getNumeroTelephone())
+                            ->setDatecreation($personnelData->getDatecreation())
+                            ->setPrenoms($personnelData->getPrenoms())
+                            ->setAgenceServiceIriumId($agServIrium)
+                ;
+
                 self::$em->persist($personnel);
-    
                 self::$em->flush();
+
+
                 $this->redirectToRoute("personnel_index");
             }
     
