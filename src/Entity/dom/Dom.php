@@ -444,7 +444,7 @@ class Dom
     }
 
 
-     
+    
     public function getAutreTypeDocument(): string
     {
         return $this->autreTypeDocument;

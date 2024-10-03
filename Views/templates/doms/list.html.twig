@@ -90,8 +90,9 @@
 						{# FIN Statut #}
 						<td>{{ item.sousTypeDocument.codeSousType}}</td>
 						<td>
-							<a href="#">
-								{{ item.numeroOrdreMission }}</a>
+							<a href="{{ path("Dom_detail", {id:item.id})}}" target="_blank">
+								{{ item.numeroOrdreMission }}
+							</a>
 						</td>
 						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
 						<td>{{ item.motifDeplacement}}</td>
@@ -115,6 +116,6 @@
 
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	{#<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>#}
+	<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
 
 {% endblock %}

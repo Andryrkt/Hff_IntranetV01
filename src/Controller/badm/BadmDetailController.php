@@ -21,7 +21,7 @@ class BadmDetailController extends Controller
         $badmDetailModel = new BadmDetailModel();
         $data = $badmDetailModel->findAll($badm->getIdMateriel());
     
-      
+    
         self::$twig->display(
             'badm/detail.html.twig',
             [

@@ -10,11 +10,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
     use FormatageTrait;
     
-/**
+    /**
      * generer pdf changement de Casier
      */
 
-    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf)
+    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $numDevis)
     {
         $pdf = new TCPDF();
 
@@ -36,6 +36,11 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(45, 6, 'Date soumission : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(50, 6, $ditInsertionOr->getDateSoumission()->format('d/m/Y'), 0, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->cell(20, 6, 'N° Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(0, 6,$numDevis[0]['seor_numdev'] === '' ? 0 : $numDevis[0]['seor_numdev'] , 0, 0, '', false, '', 0, false, 'T', 'M');
 
         // Numéro OR
         $pdf->SetXY($startX, $pdf->GetY()+ 2);
@@ -71,9 +76,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 } elseif ($key === 3) {
                     $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 6) {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } else {
@@ -97,9 +102,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                     } elseif ($key === 'nbLigAp') {
                         $html .= '<td style="width: 50px;"  >' . $cell . '</td>';
                     } elseif ($key === 'mttTotalAv') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttTotalAp') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'statut') {
                         if($cell === 'Supp'){
                                 $html .= '<td style="width: 40px; text-align: left; background-color: #FF0000;"  >  ' . $cell . '</td>';
@@ -128,9 +133,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 } elseif ($key === 'totalNbLigAp') {
                     $html .= '<th style="width: 50px; font-weight: bold; " >' . $value . '</th>';
                 } elseif ($key === 'totalMttTotalAv') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'totalMttTotalAp') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'dernierLigne') {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" ></th>';
                 }
@@ -167,7 +172,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
         //montant total modifié
         $pdf->Cell(45, 6, ' - Montant total modifié :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['mttModif'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 5, $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         //montant total modifié
@@ -192,19 +197,17 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 if ($key === 0) {
                     $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
                 } elseif ($key === 1) {
-                    $html .= '<th style="width: 70px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 70px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 2) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 3) {
-                    $html .= '<th style="width: 60px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 6) {
                     $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } else {
-                    $html .= '<th >' . $value . '</th>';
                 }
             }
             $html .= '</tr>';
@@ -215,25 +218,21 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             
                 $html .= '<tr>';
                 foreach ($row as $key => $cell) {
-              
                     if ($key === 'itv') {
                         $html .= '<td style="width: 40px"  >' . $cell . '</td>';
                     } elseif ($key === 'mttTotal') {
-                        $html .= '<td style="width: 70px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 70px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttPieces') {
-                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttMo') {
-                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttSt') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttLub') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttAutres') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumber($cell) . '</td>';
-                     } 
-                    // else {
-                    //     $html .= '<td  >' . $cell . '</td>';
-                    // }
+                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
+                    } 
                 }
                 $html .= '</tr>';
             }
@@ -241,23 +240,22 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $html .= '<tfoot>';
             $html .= '<tr style="background-color: #D3D3D3;">';
             foreach ($montantPdf['totalRecapOr']as $key => $value) {
+            
                 if ($key === 'total') {
                     $html .= '<th style="width: 40px; font-weight: 900;" >TOTAL</th>';
                 } elseif ($key === 'montant_itv') {
-                    $html .= '<th style="width: 70px; font-weight: bold; text-align: right;" > ' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 70px; font-weight: bold; text-align: right;" > ' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'montant_piece') {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'montant_mo') {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
+                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'montant_achats_locaux') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
-                } elseif ($key === 'montant_frais_divers') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value). '</th>';
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                 } elseif ($key === 'montant_lubrifiants') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumber($value) . '</th>';
-                } else {
-                    $html .= '<th >' . $this->formatNumber($value). '</th>';
-                }
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
+                } elseif ($key === 'montant_frais_divers') {
+                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value). '</th>';
+                } 
             }
             $html .= '</tr>';
             $html .= '</tfoot>';
