@@ -43,9 +43,10 @@ trait DomsTrait
             $codeServiceEmetteur = $CodeServiceofCours[0]['service_ips'] ;
         
         } else {
+            
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
             $agenceServiceIrium = $em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnel->getCodeAgenceServiceSage()]);
-         
+            
             $dom->setNom($personnel->getNom());
             $dom->setPrenom($personnel->getPrenoms());
             $agenceEmetteur = $agenceServiceIrium->getAgenceips() . ' ' . strtoupper($agenceServiceIrium->getNomagencei100());
@@ -79,6 +80,7 @@ trait DomsTrait
 
             $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
             $dom->setNumeroTel($numTel);
+            
     }
 
     private function criteria($form1Data, $em)

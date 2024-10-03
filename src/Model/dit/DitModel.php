@@ -471,4 +471,19 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupAgenceServiceDebiteur($numOr)
+    {
+       $statement = " SELECT 
+          slor_succdeb || '-' || slor_servdeb AS agServDebiteur
+          FROM sav_lor
+          WHERE slor_numor = '".$numOr."'"
+        ;
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agservdebiteur');
+    }
 }
