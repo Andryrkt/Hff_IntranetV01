@@ -6,6 +6,47 @@ use Doctrine\ORM\EntityRepository;
 
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
+
+    public function findNbrItv($numOr)
+    {
+        $nbrItv = $this->createQueryBuilder('osv')
+            ->select('COUNT(osv.numeroItv)')
+            ->where('osv.numeroOR = :numOr')  // Suppression des parenthèses inutiles
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $nbrItv;
+    }
+
+    public function findStatutByNumeroVersionMax($numOr, $numItv)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        $statut = $this->createQueryBuilder('osv')
+            ->select('osv.statut')
+            ->where('osv.numeroVersion = :numeroVersionMax')
+            ->andWhere('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroItv = :numItv')
+            ->setParameters([
+                'numeroVersionMax' => $numeroVersionMax,
+                'numOr' => $numOr,
+                'numItv' => $numItv,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $statut;
+    }
+
+
     public function findNumeroVersionMax($numOr)
     {
         $numeroVersionMax = $this->createQueryBuilder('osv')

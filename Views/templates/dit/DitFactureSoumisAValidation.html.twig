@@ -27,34 +27,35 @@
 					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
 					{{ form_errors(form)}}
 					<div class="row">
-						<div class="col-12 col-md-6">
-							<div class="row">
-								<div class="col-12 col-md-6">{{ form_row(form.numeroDit)}}</div>
-								<div class="col-12 col-md-6">{{ form_row(form.numeroOR)}}</div>
-							</div>
+
+						<div class="row">
+							<div class="col-12 col-md-2">{{ form_row(form.numeroDit)}}</div>
+							<div class="col-12 col-md-2">{{ form_row(form.numeroOR)}}</div>
+							<div class="col-12 col-md-2">{{ form_row(form.numeroFact)}}</div>
 						</div>
+
 						<div class="row">
 							<div class="col-12 col-md-3">
 								<p>Veuillez insérer
-									<strong>l'OR à valider</strong>
+									<strong>la facture à valider</strong>
 								</p>
 							</div>
 							<div class="col-12 col-md-3">
 								<p>Veuillez insérer
-									<strong>le devis à fusionner
-									</strong>avec l'OR
-								</p>
-							</div>
-							<div class="col-12 col-md-3">
-								<p>Veuillez insérer
-									<strong>le BC ou autre document à fusionner</strong>
-									avec l'OR (si existant)
+									<strong>le RI à fusionner
+									</strong>avec la facture
 								</p>
 							</div>
 							<div class="col-12 col-md-3">
 								<p>Veuillez insérer
 									<strong>le document à fusionner</strong>
-									avec l'OR (si existant)
+									avec la facture (si existant)
+								</p>
+							</div>
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>le document à fusionner</strong>
+									avec la facture (si existant)
 								</p>
 							</div>
 						</div>
@@ -155,5 +156,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dit/ditInsertionOr.js"></script>
+	<script src="/Hffintranet/Views/js/dit/ditFactureSoumisAValidation.js"></script>
 {% endblock %}

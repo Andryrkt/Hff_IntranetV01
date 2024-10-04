@@ -24,5 +24,12 @@ class GeneratePdf
         $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
        copy($cheminDestinationLocal, $cheminFichierDistant);
     }  
+
+    public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/factureValidation_' .$numeroOR.'_'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vfac/factureValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
+       copy($cheminDestinationLocal, $cheminFichierDistant);
+    } 
         
 }

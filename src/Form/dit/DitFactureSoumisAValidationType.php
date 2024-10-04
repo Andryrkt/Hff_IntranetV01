@@ -20,6 +20,22 @@ class DitFactureSoumisAValidationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+        ->add('numeroFact',
+            IntegerType::class,
+            [
+                'label' => 'Numéro Fact',
+                'required' => true,
+                'constraints' => [
+                    new Assert\Length([
+                        'max' => 8,
+                        'maxMessage' => 'Le numéro OR ne doit pas dépasser {{ limit }} caractères.',
+                    ]),
+                ],
+                'attr' => [
+                    'min' => 0,
+                    'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
+                ],
+            ])
             ->add('numeroDit',
             TextType::class,
             [

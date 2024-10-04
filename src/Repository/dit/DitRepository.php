@@ -9,6 +9,17 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DitRepository extends EntityRepository
 {
+    public function findAgSevDebiteur($numdit)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('d.agenceServiceDebiteur')
+            ->where('d.numeroDemandeIntervention = :numdit')
+            ->setParameter('numdit', $numdit)
+            ->getQuery()
+            ->getSingleScalarResult(); 
+    
+        return $numeroVersionMax;
+    }
 
     /** DIT SEARCH DEBUT  */
     public function findSectionSupport1()
@@ -73,7 +84,7 @@ class DitRepository extends EntityRepository
     }
 
 
-
+    /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
     {
         $nombrePiecesJointes = $this->createQueryBuilder('d')

@@ -314,7 +314,7 @@ trait DomsTrait
             $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
-
+            $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence().''.$dom->getServiceEmetteurId()->getCodeService());
             $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
     }
 

@@ -55,7 +55,7 @@ class DitFactureSoumisAValidation
     private int $numeroItv = 0;
 
     /**
-     * @ORM\Column(type="float", scale="2", name="montant_facture_itv")
+     * @ORM\Column(type="float", scale="2", name="montant_factureItv")
      *
      * @var float
      */
@@ -80,8 +80,16 @@ class DitFactureSoumisAValidation
      *
      * @var string
      */
-    private string $statut;
+    private ?string $statut = "";
 
+
+    private $statutItv;
+    
+    private $mttItv = 0.00;
+
+    private $libelleItv = "";
+
+    private $agServDebDit = "";
     
     private $pieceJoint01;
 
@@ -318,8 +326,6 @@ class DitFactureSoumisAValidation
 
     /**
      * Get the value of statut
-     *
-     * @return  string
      */ 
     public function getStatut()
     {
@@ -328,14 +334,92 @@ class DitFactureSoumisAValidation
 
     /**
      * Set the value of statut
-     *
-     * @param  string  $statut
+     */ 
+    public function setStatut($statut): self
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    
+    /**
+     * Get the value of statutItv
+     */ 
+    public function getStatutItv()
+    {
+        return $this->statutItv;
+    }
+
+    /**
+     * Set the value of statutItv
      *
      * @return  self
      */ 
-    public function setStatut(string $statut)
+    public function setStatutItv($statutItv)
     {
-        $this->statut = $statut;
+        $this->statutItv = $statutItv;
+
+        return $this;
+    }
+
+    
+    /**
+     * Get the value of mttItv
+     */ 
+    public function getMttItv()
+    {
+        return $this->mttItv;
+    }
+
+    /**
+     * Set the value of mttItv
+     *
+     * @return  self
+     */ 
+    public function setMttItv($mttItv)
+    {
+        $this->mttItv = $mttItv;
+
+        return $this;
+    }
+
+     /**
+     * Get the value of libelleItv
+     */ 
+    public function getLibelleItv()
+    {
+        return $this->libelleItv;
+    }
+
+    /**
+     * Set the value of libelleItv
+     *
+     * @return  self
+     */ 
+    public function setLibelleItv($libelleItv)
+    {
+        $this->libelleItv = $libelleItv;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of agServDebDit
+     */ 
+    public function getAgServDebDit()
+    {
+        return $this->agServDebDit;
+    }
+
+    /**
+     * Set the value of agServDebDit
+     *
+     * @return  self
+     */ 
+    public function setAgServDebDit($agServDebDit)
+    {
+        $this->agServDebDit = $agServDebDit;
 
         return $this;
     }
@@ -421,4 +505,10 @@ class DitFactureSoumisAValidation
 
         return $this;
     }
+
+
+   
+
+
+
 }

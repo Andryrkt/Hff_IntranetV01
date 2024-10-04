@@ -2,13 +2,87 @@
 
 namespace App\Model\dit;
 
-
+use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
-use App\Model\Traits\ConversionModel;
 
-class DitModel extends Model
+class DitFactureSoumisAValidationModel extends Model
 {
-    use ConversionModel;
+    use ConversionTrait;
+
+    public function recupNumeroSoumission($numOr) {
+        $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
+                FROM facture_soumis_a_validation
+                WHERE numero_or = '".$numOr."'";
+        
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+        
+        return $result['numSoumissionEncours'];
+    }
+    
+   /*
+    public function recupStatut($numOr, $numItv)
+    {
+        $sql = "SELECT statut 
+        FROM ors_soumis_a_validation 
+        WHERE numeroVersion IN (SELECT MAX(numeroVersion) FROM ors_soumis_a_validation WHERE numeroOR = '".$numOr."') 
+        AND numeroOR = '".$numOr."'
+        AND numeroItv = '".$numItv."'";
+            
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+
+        return $result['statut'];
+    }
+*/
+    public function recupInfoFact($numOR, $numFact)
+    {
+        $statement = " SELECT
+                    slor_numfac as numeroFac, 
+                    slor_numor as numeroOr, 
+                    slor_nogrp / 100 as numeroItv,
+                    sum(slor_pxnreel*slor_qterea) AS  montantFactureItv,
+                    slor_succdeb as agenceDebiteur,
+                    slor_servdeb as serviceDebiteur,
+                    trim(sitv_comment) as libelleItv,
+                    Sum(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (
+                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                            )
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                        END * CASE
+                            WHEN slor_typlig = 'P' THEN slor_pxnreel
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+                        END
+                    ) as montantItv
+                    
+                FROM sav_lor, sav_itv
+                WHERE
+                sitv_numor = slor_numor
+                AND sitv_interv = slor_nogrp / 100
+                AND sitv_servcrt IN (
+                    'ATE',
+                    'FOR',
+                    'GAR',
+                    'MAN',
+                    'CSP',
+                    'MAS'
+                )
+               AND slor_numor = '".$numOR."'
+                AND slor_numfac = '".$numFact."'
+                 
+                GROUP BY 1,2,3,5,6,7
+            ";
+
+            $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+    
+
     public function recupOrSoumisValidation($numOr)
     {
       $statement = "SELECT
@@ -112,21 +186,6 @@ class DitModel extends Model
             5
         order by slor_numor, sitv_interv
     ";
-
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        return $this->convertirEnUtf8($data);
-    }
-
-
-    public function recupererNumdevis($numOr)
-    {
-        $statement = "SELECT  seor_numdev  
-                from sav_eor
-                where seor_numor = '".$numOr."'"
-                ;
 
         $result = $this->connect->executeQuery($statement);
 
