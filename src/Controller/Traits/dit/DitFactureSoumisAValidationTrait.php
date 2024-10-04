@@ -260,5 +260,9 @@ trait DitFactureSoumisAValidationtrait
         }
     }
     
-    
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("dit_index");
+    }
 }

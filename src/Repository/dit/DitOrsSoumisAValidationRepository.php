@@ -16,7 +16,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $nbrItv;
+        return $nbrItv ? $nbrItv : 0;
     }
 
     public function findStatutByNumeroVersionMax($numOr, $numItv)

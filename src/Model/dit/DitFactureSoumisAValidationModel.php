@@ -193,4 +193,20 @@ class DitFactureSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupNombreFacture($numOr, $numFact)
+    {
+        $statement = "SELECT count(slor_numfac) as nbFact 
+                    FROM sav_lor where slor_numor = '".$numOr."'
+                    AND slor_numfac = '".$numFact."'
+                    ";
+        
+                    $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        $nbFact = array_column($this->convertirEnUtf8($data), 'nbFact');
+
+        return !empty($nbFact) ? $nbFact[0] : 0;
+    }
 }

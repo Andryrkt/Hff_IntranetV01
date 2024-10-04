@@ -38,6 +38,21 @@ class DitFactureSoumisAValidationController extends Controller
         if($form->isSubmitted() && $form->isValid())
         { 
             $ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
+            $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+            $numOrBaseDonner = $demandeIntervention->getNumeroOr();
+            $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
+            $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
+            if($numOrBaseDonner !== $ditFactureSoumiAValidation->getNumeroOR()){
+                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+                $this->notification($message);
+            }elseif ($nbFactInformix === 0) {
+                $message = "La facture ne correspond pas à l’OR";
+                $this->notification($message);
+            } elseif ($nbFactSqlServer > 0) {
+                $message = "La facture {$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
+                $this->notification($message);
+            }
+            else {
             $dataForm = $form->getData();
             $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
             
@@ -49,8 +64,7 @@ class DitFactureSoumisAValidationController extends Controller
                         ->setDateSoumission(new \DateTime($this->getDatesystem()))
                         ->setNumeroSoumission($numeroSoumission)
                     ;
-                   
-       
+
             $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em);
             
             
@@ -84,6 +98,7 @@ class DitFactureSoumisAValidationController extends Controller
         
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
             $this->redirectToRoute("dit_index");
+        }
         }
 
 
