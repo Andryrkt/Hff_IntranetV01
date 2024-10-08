@@ -464,14 +464,6 @@ class DomForm2Type extends AbstractType
          [
             'label' => 'N° fiche',
             'required' => false,
-            'constraints' => [
-                    new Length([
-                        'min' => 3,
-                        'minMessage' => 'Le n° fiche doit comporter au moins {{ limit }} caractères',
-                        'max' => 50,
-                        'maxMessage' => 'Le n° fiche ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
         ])
        
         ->add('lieuIntervention', 

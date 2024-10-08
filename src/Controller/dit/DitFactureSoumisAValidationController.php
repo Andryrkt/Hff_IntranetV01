@@ -95,7 +95,7 @@ class DitFactureSoumisAValidationController extends Controller
             $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
             $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation);
             $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
-
+            
             $genererPdfFacture = new GenererPdfFactureAValidation();
             $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
             //envoie des pièce jointe dans une dossier et la fusionner

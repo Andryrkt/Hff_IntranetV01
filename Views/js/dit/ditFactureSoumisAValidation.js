@@ -250,6 +250,12 @@ fileInput1.addEventListener("change", function () {
 });
 
 function handleFiles1(files) {
+  // Vérifiez si des fichiers ont été sélectionnés
+  if (files.length === 0) {
+    alert("Veuillez sélectionner un fichier.");
+    return; // Sort de la fonction si aucun fichier n'est sélectionné
+  }
+
   const file = files[0];
   if (file && file.type === "application/pdf") {
     const reader = new FileReader();

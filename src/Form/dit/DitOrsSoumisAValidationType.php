@@ -35,7 +35,7 @@ class DitOrsSoumisAValidationType extends AbstractType
             ->add('numeroOR',
             IntegerType::class,
             [
-                'label' => 'Numéro OR',
+                'label' => 'Numéro OR *',
                 'required' => true,
                 'constraints' => [
                     new Assert\Length([

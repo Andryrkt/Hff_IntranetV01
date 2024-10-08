@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitFactureSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -23,7 +24,7 @@ class DitFactureSoumisAValidationType extends AbstractType
         ->add('numeroFact',
             IntegerType::class,
             [
-                'label' => 'Numéro Fact',
+                'label' => 'Numéro Fact *',
                 'required' => true,
                 'constraints' => [
                     new Assert\Length([
@@ -48,7 +49,7 @@ class DitFactureSoumisAValidationType extends AbstractType
             ->add('numeroOR',
             IntegerType::class,
             [
-                'label' => 'Numéro OR',
+                'label' => 'Numéro OR *',
                 'required' => true,
                 'constraints' => [
                     new Assert\Length([
@@ -67,6 +68,9 @@ class DitFactureSoumisAValidationType extends AbstractType
                 'label' => 'Upload File',
                 'required' => true,
                 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuiller sélectionner la facture à soumettre .', // Message d'erreur si le champ est vide
+                    ]),
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [

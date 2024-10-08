@@ -72,7 +72,7 @@ trait DitFactureSoumisAValidationtrait
                         ->setServiceDebiteur($value['servicedebiteur'])
                         ->setMttItv($value['montantitv'])
                         ->setLibelleItv($value['libelleitv'] === null ? '' : $value['libelleitv'])
-                        ->setStatut($statutFacControle['statutFac'])
+                        ->setStatut('')
                         ->setStatutItv($statutOrsSoumisValidation)
                         ->setAgServDebDit($agServDebDit)
                 ;
@@ -91,11 +91,11 @@ trait DitFactureSoumisAValidationtrait
         if(empty($statutOrsSoumisValidation) || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé') || $statutOrsSoumisValidation === 'Refusée') {
             $statutFac = 'Itv non validée';
             $nombreStatutControle['nbrNonValideFacture']++;
-        } elseif($agServDebDit <> ($value['agencedebiteur'].'-'.$value['servicedebiteur'])){
-            $statutFac = 'Serv deb DIT != Serv deb FAC';
+        } elseif(($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré') && $agServDebDit <> ($value['agencedebiteur'].'-'.$value['servicedebiteur'])){
+            $statutFac = 'Serv deb DIT # Serv deb FAC';
             $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
-        } elseif($statutOrsSoumisValidation === 'Validé' && $value['montantitv'] <> $value['montantfactureitv']) {
-            $statutFac = 'Mtt validé != Mtt facturé';
+        } elseif(($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré') && $value['montantitv'] <> $value['montantfactureitv']) {
+            $statutFac = 'Mtt validé # Mtt facturé';
             $nombreStatutControle['nbrMttValideDiffMttFac']++;
         } else {
             $statutFac ='OK';

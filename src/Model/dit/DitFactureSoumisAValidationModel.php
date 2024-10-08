@@ -38,41 +38,34 @@ class DitFactureSoumisAValidationModel extends Model
     public function recupInfoFact($numOR, $numFact)
     {
         $statement = " SELECT
-                    slor_numfac as numeroFac, 
-                    slor_numor as numeroOr, 
-                    slor_nogrp / 100 as numeroItv,
-                    sum(slor_pxnreel*slor_qterea) AS  montantFactureItv,
-                    slor_succdeb as agenceDebiteur,
-                    slor_servdeb as serviceDebiteur,
-                    trim(sitv_comment) as libelleItv,
-                    Sum(
+                    slor_numfac AS numeroFac, 
+                    slor_numor AS numeroOr, 
+                    slor_nogrp / 100 AS numeroItv,
+                    SUM(slor_pxnreel * slor_qterea) AS montantFactureItv,
+                    slor_succdeb AS agenceDebiteur,
+                    slor_servdeb AS serviceDebiteur,
+                    TRIM(sitv_comment) AS libelleItv,
+                    SUM(
                         CASE
                             WHEN slor_typlig = 'P' THEN (
                                 slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
                             )
                             WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
-                        END * CASE
-                            WHEN slor_typlig = 'P' THEN slor_pxnreel
-                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                        END
-                    ) as montantItv
-                    
-                FROM sav_lor, sav_itv
+                        END * slor_pxnreel
+                    ) AS montantItv
+                FROM
+                    sav_lor
+                JOIN
+                    sav_itv ON sitv_numor = slor_numor
+                        AND sitv_interv = slor_nogrp / 100
                 WHERE
-                sitv_numor = slor_numor
-                AND sitv_interv = slor_nogrp / 100
-                AND sitv_servcrt IN (
-                    'ATE',
-                    'FOR',
-                    'GAR',
-                    'MAN',
-                    'CSP',
-                    'MAS'
-                )
-               AND slor_numor = '".$numOR."'
-                AND slor_numfac = '".$numFact."'
-                 
-                GROUP BY 1,2,3,5,6,7
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    AND slor_numor = '".$numOR."'
+                    AND slor_numfac = '".$numFact."'
+                GROUP BY
+                    slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv
+                ORDER BY
+                    numeroItv;
             ";
 
             $result = $this->connect->executeQuery($statement);
