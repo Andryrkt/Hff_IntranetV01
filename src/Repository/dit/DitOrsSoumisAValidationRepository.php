@@ -11,7 +11,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         $nbrItv = $this->createQueryBuilder('osv')
             ->select('COUNT(osv.numeroItv)')
-            ->where('osv.numeroOR = :numOr')  // Suppression des parenthèses inutiles
+            ->where('osv.numeroOR = :numOr') 
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();

@@ -16,12 +16,35 @@ trait DitFactureSoumisAValidationtrait
         return $user->getNomUtilisateur();
     }
 
+    private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string
+    {
+        $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $dataForm->getNumeroFact());
+
+        $estNumfac = false;
+        foreach ($infoFacture as $value) {
+            if(empty($value['numerofac'])){
+                $estNumfac = true;
+                break;
+            }
+        }
+
+        if($estNumfac){
+            $etatOr = 'partiellement facturé';
+        } else {
+            $etatOr = 'Complètement facturé';
+        }
+    
+        return $etatOr;
+    }
+
+  
+
+
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em): array
     { 
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $dataForm->getNumeroFact());
-        
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
-   
+
         $nombreStatutControle = [
             'nbrNonValideFacture' => 0,
             'nbrServDebDitDiffServDebFac' => 0,
@@ -30,16 +53,12 @@ trait DitFactureSoumisAValidationtrait
         $factureSoumisAValidation = [];
             foreach ($infoFacture as $value) {
                 $factureSoumis = new DitFactureSoumisAValidation();
-                
                 $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
-                if($nombreItv === 0) {
-                    $statutOrsSoumisValidation ='';
-                } else {
-                    $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-                }
                 
-            $statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
-
+                $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
+            
+                $statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
+            
                 $factureSoumis
                         ->setNumeroDit($numDit)
                         ->setNumeroOR($dataForm->getNumeroOR())
@@ -56,17 +75,37 @@ trait DitFactureSoumisAValidationtrait
                         ->setStatut($statutFacControle['statutFac'])
                         ->setStatutItv($statutOrsSoumisValidation)
                         ->setAgServDebDit($agServDebDit)
-                        ;
+                ;
                 $factureSoumisAValidation[] = $factureSoumis;
             }
             
         return [
             'factureSoumisAValidation' => $factureSoumisAValidation,
-            'nombreStatutControle' => $statutFacControle['nombreStatutControle']
+            'nombreStatutControle' => $nombreStatutControle
         ];
     }
 
 
+    private function affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle)
+    {   
+        if(empty($statutOrsSoumisValidation) || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé') || $statutOrsSoumisValidation === 'Refusée') {
+            $statutFac = 'Itv non validée';
+            $nombreStatutControle['nbrNonValideFacture']++;
+        } elseif($agServDebDit <> ($value['agencedebiteur'].'-'.$value['servicedebiteur'])){
+            $statutFac = 'Serv deb DIT != Serv deb FAC';
+            $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
+        } elseif($statutOrsSoumisValidation === 'Validé' && $value['montantitv'] <> $value['montantfactureitv']) {
+            $statutFac = 'Mtt validé != Mtt facturé';
+            $nombreStatutControle['nbrMttValideDiffMttFac']++;
+        } else {
+            $statutFac ='OK';
+        }
+    
+        return [
+            'statutFac' => $statutFac,
+            'nombreStatutControle' => $nombreStatutControle
+        ];
+    }
     private function infoItvFac($factureSoumisAValidation)
     {
         $infoItvFac = [];
@@ -88,31 +127,7 @@ trait DitFactureSoumisAValidationtrait
     }
 
 
-    private function affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle)
-    {   
-
-        if($statutOrsSoumisValidation === '' && $nombreItv <> 0) {
-            $statutFac = 'En cours de validation';
-        } elseif($statutOrsSoumisValidation === 'Refusée') {
-            $statutFac = 'Refusée';
-        } elseif($nombreItv === 0) {
-            $statutFac = 'Itv non validée';
-            $nombreStatutControle['nbrNonValideFacture']++;
-        } elseif($agServDebDit <> ($value['agencedebiteur'].'-'.$value['servicedebiteur'])){
-            $statutFac = 'Serv deb DIT <> Serv deb FAC';
-            $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
-        } elseif($statutOrsSoumisValidation === 'Validé' && $value['mttItv'] <> $value['mttFac']) {
-            $statutFac = 'Mtt validé <> Mtt facturé';
-            $nombreStatutControle['nbrMttValideDiffMttFac']++;
-        } else {
-            $statutFac ='OK';
-        }
     
-        return [
-            'statutFac' => $statutFac,
-            'nombreStatutControle' => $nombreStatutControle
-        ];
-    }
     private function calculeSommeItvFacture($factureSoumisAValidation)
     {
         $totalItvFacture = [

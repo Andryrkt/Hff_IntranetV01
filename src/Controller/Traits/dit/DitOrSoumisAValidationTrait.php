@@ -92,6 +92,7 @@ trait DitOrSoumisAValidationTrait
 
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
+    
         if(!empty($OrSoumisAvantMax)){
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
@@ -149,11 +150,10 @@ trait DitOrSoumisAValidationTrait
                //dump($value);
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
-            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0) {
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0 || $value['mttTotalAv'] === 0) {
                 $value['statut'] = 'Nouv';
                 $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
-                
                 //dump($value);
                 $value['statut'] = 'Modif';
                 $nombreStatutNouvEtSupp['nbrModif']++;

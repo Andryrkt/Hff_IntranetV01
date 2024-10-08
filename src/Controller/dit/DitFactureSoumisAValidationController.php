@@ -41,15 +41,20 @@ class DitFactureSoumisAValidationController extends Controller
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
             $numOrBaseDonner = $demandeIntervention->getNumeroOr();
             $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
+            if(empty($nbFactInformix)){
+                $nbFact = 0;
+            } else {
+                $nbFact = $nbFactInformix[0]['nbfact'];
+            }
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if($numOrBaseDonner !== $ditFactureSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
-            }elseif ($nbFactInformix === 0) {
+            }elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->notification($message);
             } elseif ($nbFactSqlServer > 0) {
-                $message = "La facture {$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
+            $message = "La facture n° :{$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
                 $this->notification($message);
             }
             else {
@@ -89,9 +94,10 @@ class DitFactureSoumisAValidationController extends Controller
             $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
             $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
             $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation);
+            $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
 
             $genererPdfFacture = new GenererPdfFactureAValidation();
-            $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf);
+            $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
             //envoie des pièce jointe dans une dossier et la fusionner
             $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
             $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());

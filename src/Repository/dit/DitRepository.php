@@ -172,7 +172,7 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
@@ -376,7 +376,7 @@ class DitRepository extends EntityRepository
         ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 

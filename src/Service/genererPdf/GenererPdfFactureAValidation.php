@@ -13,7 +13,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
     /**
      * generer pdf facture à validation
      */
-    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf)
+    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr)
     {
         $pdf = new TCPDF();
 
@@ -45,7 +45,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
         $pdf->cell(50, 6, $ditfacture->getNumeroFact(), 0, 1, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->cell(20, 6, 'N° Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, 'Numéro Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(0, 6,$numDevis[0]['seor_numdev'] === '' ? 0 : $numDevis[0]['seor_numdev'] , 0, 0, '', false, '', 0, false, 'T', 'M');
 
@@ -59,7 +59,9 @@ class GenererPdfFactureAValidation extends GeneratePdf
         //partiellement facturé / Complètement facturé
         $pdf->SetXY($startX, $pdf->GetY() + 2);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(45, 6, 'partiellement facturé / Complètement facturé', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(45, 6, 'Etat OR :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $etatOr, 0, 1, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
 
         // Numéro soumission
@@ -95,7 +97,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
                 } elseif ($key === 6) {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 7) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+                    $html .= '<th style="width: 110px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } else {
                     $html .= '<th >' . $value . '</th>';
                 }
@@ -124,9 +126,9 @@ class GenererPdfFactureAValidation extends GeneratePdf
                         $html .= '<td style="width: 40px;"  >' . $cell . '</td>';
                     } elseif ($key === 'controleAFaire') {
                         if($cell === 'OK'){
-                            $html .= '<td style="width: 80px; text-align: left; background-color: #008000;"  >' . $cell . '</td>';
+                            $html .= '<td style="width: 110px; text-align: left; background-color: #008000;"  >' . $cell . '</td>';
                         }  else {
-                            $html .= '<td style="width: 80px; text-align: left; background-color: #FF0000;"  >' . $cell . '</td>';
+                            $html .= '<td style="width: 110px; text-align: left; background-color: #FF0000;"  >' . $cell . '</td>';
                         }
                     }
                 }
@@ -151,7 +153,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
                     } elseif ($key === 'AgServDebFac') {
                         $html .= '<th style="width: 40px; font-weight: bold;" ></th>';
                     } elseif ($key === 'controleAFaire')  {
-                        $html .= '<th style="width: 80px; font-weight: bold;" ></th>';
+                        $html .= '<th style="width: 110px; font-weight: bold;" ></th>';
                     }
                 }
             $html .= '</tr>';

@@ -203,10 +203,8 @@ class DitFactureSoumisAValidationModel extends Model
         
                     $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);    
 
-        $nbFact = array_column($this->convertirEnUtf8($data), 'nbFact');
-
-        return !empty($nbFact) ? $nbFact[0] : 0;
+        return $this->convertirEnUtf8($data);
     }
 }
