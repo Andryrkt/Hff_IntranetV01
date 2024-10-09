@@ -36,7 +36,7 @@ class DitOrsSoumisAValidationType extends AbstractType
             IntegerType::class,
             [
                 'label' => 'Numéro OR *',
-                'required' => true,
+                'required' => false,
                 'constraints' => [
                     new Assert\Length([
                         'max' => 8,
@@ -46,7 +46,9 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'attr' => [
                     'min' => 0,
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
+                    'disabled' => true
                 ],
+                'data' => $options['data']->getNumeroOR()
             ])
             ->add('pieceJoint01', 
             FileType::class, 

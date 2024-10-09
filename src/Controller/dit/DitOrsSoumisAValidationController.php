@@ -38,21 +38,34 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
+        $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+        $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
+        $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
 
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
-        {   
-            $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+        {  
+            $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            
+            if(strpos($originalName, 'Ordre de réparation') !== 0){
+            
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+                $this->notification($message);
+            }
+
+            $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
+        
+            
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
+            
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
-           
+            
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
@@ -113,6 +126,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }
+        
         }
 
 
