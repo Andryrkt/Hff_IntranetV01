@@ -6,7 +6,7 @@ namespace App\Model\dit;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-class DitModel extends Model
+class DitOrSoumisAValidationModel extends Model
 {
     use ConversionModel;
     public function recupOrSoumisValidation($numOr)
@@ -128,6 +128,21 @@ class DitModel extends Model
                 where seor_numor = '".$numOr."'"
                 ;
 
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumeroOr($numDit)
+    {
+        $statement = " SELECT 
+            seor_numor as numOr
+            from sav_eor
+where seor_refdem = '".$numDit."'
+
+        ";
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

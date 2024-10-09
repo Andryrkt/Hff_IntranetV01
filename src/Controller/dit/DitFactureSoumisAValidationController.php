@@ -16,6 +16,7 @@ use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
+use App\Entity\dit\DitRiSoumisAValidation;
 
 class DitFactureSoumisAValidationController extends Controller
 {
@@ -46,6 +47,9 @@ class DitFactureSoumisAValidationController extends Controller
             } else {
                 $nbFact = $nbFactInformix[0]['nbfact'];
             }
+
+            
+
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if($numOrBaseDonner !== $ditFactureSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
@@ -54,57 +58,80 @@ class DitFactureSoumisAValidationController extends Controller
                 $message = "La facture ne correspond pas à l’OR";
                 $this->notification($message);
             } elseif ($nbFactSqlServer > 0) {
-            $message = "La facture n° :{$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
+                $message = "La facture n° :{$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
                 $this->notification($message);
             }
             else {
-            $dataForm = $form->getData();
-            $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
-            
-            $ditFactureSoumiAValidation
-                        ->setNumeroDit($numDit)
-                        ->setNumeroOR($dataForm->getNumeroOR())
-                        ->setNumeroFact($dataForm->getNumeroFact())
-                        ->setHeureSoumission($this->getTime())
-                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                        ->setNumeroSoumission($numeroSoumission)
-                    ;
-
-            $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em);
-            
-            
-            /** ENVOIE des DONNEE dans BASE DE DONNEE */
-               // Persist les entités liées
-            foreach ($factureSoumisAValidation['factureSoumisAValidation'] as $entity) {
-                self::$em->persist($entity); // Persister chaque entité individuellement
-            }
-            $historique = new DitHistoriqueOperationDocument();
-                $historique->setNumeroDocument($dataForm->getNumeroFact())
-                    ->setUtilisateur($this->nomUtilisateur(self::$em))
-                    ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
-                    ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                    ;
-                self::$em->persist($historique); // Persist l'historique avec les entités liées
-                // Flushe toutes les entités et l'historique
+                $dataForm = $form->getData();
+                $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
                 
-                self::$em->flush();
+                $ditFactureSoumiAValidation
+                            ->setNumeroDit($numDit)
+                            ->setNumeroOR($dataForm->getNumeroOR())
+                            ->setNumeroFact($dataForm->getNumeroFact())
+                            ->setHeureSoumission($this->getTime())
+                            ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                            ->setNumeroSoumission($numeroSoumission)
+                        ;
+
+                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em);
+                
+                $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $dataForm->getNumeroFact());
+                
+
+                $estRi = false;
+                $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+                if(empty($riSoumis)){
+                    $estRi = true;                
+                } else {
+                    for ($i=0; $i < count($infoFacture); $i++) { 
+                        if( !in_array($infoFacture[$i]['numeroitv'], $riSoumis)){
+                            $estRi = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if($estRi){
+                    $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+                    $this->notification($message);
+                } else {
+                
+                    /** ENVOIE des DONNEE dans BASE DE DONNEE */
+                    // Persist les entités liées
+                    foreach ($factureSoumisAValidation as $entity) {
+                        self::$em->persist($entity); // Persister chaque entité individuellement
+                    }
+                    $historique = new DitHistoriqueOperationDocument();
+                        $historique->setNumeroDocument($dataForm->getNumeroFact())
+                            ->setUtilisateur($this->nomUtilisateur(self::$em))
+                            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
+                            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
+                            ;
+                        self::$em->persist($historique); // Persist l'historique avec les entités liées
+                        // Flushe toutes les entités et l'historique
+                        
+                        self::$em->flush();
+                    
+                        /** CREATION PDF */
+                    $orSoumisValidationModel = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR());
+                    $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
+                    $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
+                    $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel);
+                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut);
             
-                /** CREATION PDF */
-            $orSoumisValidationModel = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR());
-            $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
-            $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
-            $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation);
-            $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
-            
-            $genererPdfFacture = new GenererPdfFactureAValidation();
-            $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
-            //envoie des pièce jointe dans une dossier et la fusionner
-            $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
-            $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
-        
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
-            $this->redirectToRoute("dit_index");
-        }
+                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
+                    
+                    $genererPdfFacture = new GenererPdfFactureAValidation();
+                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
+                    //envoie des pièce jointe dans une dossier et la fusionner
+                    $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
+                    $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
+                
+                    $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
+                    $this->redirectToRoute("dit_index");
+                }
+            }
         }
 
 

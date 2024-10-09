@@ -200,4 +200,29 @@ class DitFactureSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupNumeroItv($numOr, $numFact)
+    {
+        $statement = "SELECT
+                    slor_nogrp / 100 AS numeroItv
+                FROM
+                    sav_lor
+                JOIN
+                    sav_itv ON sitv_numor = slor_numor
+                            AND sitv_interv = slor_nogrp / 100
+                WHERE
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    AND slor_numor = '".$numOr."'
+                    AND slor_numfac = '".$numFact."'
+                GROUP BY
+                numeroOr, numeroItv
+                ORDER BY
+                    numeroItv
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'numeroItv');
+    }
 }

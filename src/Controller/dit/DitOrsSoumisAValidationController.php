@@ -3,18 +3,19 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dit\DitTypeDocument;
 use App\Entity\admin\dit\DitTypeOperation;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
+use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 
 class DitOrsSoumisAValidationController extends Controller
 {
@@ -45,13 +46,14 @@ class DitOrsSoumisAValidationController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         {   
+            $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            $numOrBaseDonner = $demandeIntervention->getNumeroOr();
+            $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis);
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
             
-            if($numOrBaseDonner !== $ditInsertionOrSoumis->getNumeroOR()){
+            if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
             } elseif($datePlanning === '') {

@@ -124,7 +124,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
                         $html .= '<td style="width: 40px; "  >' . $cell . '</td>';
                     } elseif ($key === 'AgServDebFac') {
                         $html .= '<td style="width: 40px;"  >' . $cell . '</td>';
-                    } elseif ($key === 'controleAFaire') {
+                    } elseif ($key === 'statut') {
                         if($cell === 'OK'){
                             $html .= '<td style="width: 110px; text-align: left; background-color: #008000;"  >' . $cell . '</td>';
                         }  else {
