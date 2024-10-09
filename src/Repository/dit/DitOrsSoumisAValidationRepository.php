@@ -106,6 +106,33 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     }
     
 
+    public function findMontantValide($numOr, $numItv)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        $montantValide = $this->createQueryBuilder('osv')
+            ->select('osv.montantItv')
+            ->where('osv.numeroVersion = :numeroVersionMax')
+            ->andWhere('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroItv = :numItv')
+            ->setParameters([
+                'numeroVersionMax' => $numeroVersionMax,
+                'numOr' => $numOr,
+                'numItv' => $numItv,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $montantValide;
+    }
+
 
 
 }

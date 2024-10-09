@@ -21,22 +21,23 @@ class DitFactureSoumisAValidationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-        ->add('numeroFact',
-            IntegerType::class,
-            [
-                'label' => 'Numéro Fact *',
-                'required' => true,
-                'constraints' => [
-                    new Assert\Length([
-                        'max' => 8,
-                        'maxMessage' => 'Le numéro OR ne doit pas dépasser {{ limit }} caractères.',
-                    ]),
-                ],
-                'attr' => [
-                    'min' => 0,
-                    'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
-                ],
-            ])
+        // ->add('numeroFact',
+        //     IntegerType::class,
+        //     [
+        //         'label' => 'Numéro Fact *',
+        //         'required' => true,
+        //         'constraints' => [
+        //             new Assert\Length([
+        //                 'max' => 8,
+        //                 'maxMessage' => 'Le numéro OR ne doit pas dépasser {{ limit }} caractères.',
+        //             ]),
+        //         ],
+        //         'attr' => [
+        //             'min' => 0,
+        //             'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
+        //             'readonly' => true
+        //         ],
+        //     ])
             ->add('numeroDit',
             TextType::class,
             [
@@ -60,7 +61,9 @@ class DitFactureSoumisAValidationType extends AbstractType
                 'attr' => [
                     'min' => 0,
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
+                    'readonly' => true
                 ],
+                'data' => $options['data']->getNumeroOR()
             ])
             ->add('pieceJoint01', 
             FileType::class, 
@@ -71,51 +74,6 @@ class DitFactureSoumisAValidationType extends AbstractType
                     new NotBlank([
                         'message' => 'Veuiller sélectionner la facture à soumettre .', // Message d'erreur si le champ est vide
                     ]),
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-            ->add('pieceJoint02', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-            ->add('pieceJoint03', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-            ->add('pieceJoint04', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [

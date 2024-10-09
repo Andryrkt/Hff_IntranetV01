@@ -225,4 +225,19 @@ class DitFactureSoumisAValidationModel extends Model
 
         return array_column($data, 'numeroItv');
     }
+
+    public function recupNumeroOr($numDit)
+    {
+        $statement = " SELECT 
+            seor_numor as numOr
+            from sav_eor
+            where seor_refdem = '".$numDit."'
+
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

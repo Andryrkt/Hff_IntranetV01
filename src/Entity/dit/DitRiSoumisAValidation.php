@@ -61,6 +61,8 @@ class DitRiSoumisAValidation
     
     private $pieceJoint01;
 
+    private $action;
+
 
 /** ===========================================================================
  * getteur and setteur
@@ -236,6 +238,23 @@ class DitRiSoumisAValidation
     }
 
 
+    /**
+     * Get the value of action
+     */ 
+    public function getAction()
+    {
+        return $this->action;
+    }
 
-    
+    /**
+     * Set the value of action
+     *
+     * @return  self
+     */ 
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
 }

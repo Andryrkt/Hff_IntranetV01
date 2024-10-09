@@ -6,6 +6,7 @@ namespace App\Form\dit;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -13,17 +14,30 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 
 class DitRiSoumisAValidationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+         $itvAfficher = $options['itvAfficher'];
+         $tab = [];
+         foreach ($itvAfficher as  $value) {
+            $tab[] = (int)$value['numeroitv'];
+         }
+
+    
+       
         $builder
         
             ->add('numeroDit',
             TextType::class,
             [
+                'mapped' => false,
+                'required' => false,
                 'label' => 'Numéro DIT',
                 'data' => $options['data']->getNumeroDit(),
                 'attr' => [
@@ -64,7 +78,13 @@ class DitRiSoumisAValidationType extends AbstractType
                     ])
                 ],
             ])
-           
+            ->add('action', 
+            TextType::class, 
+            [
+                'label' => 'numero Itv (Possibilité de saisir plusieurs interventions, merci de les séparer par des points virgules ";")',
+                'data' => implode(';',$tab),
+                'required' => true
+            ])
        ;
     }
 
@@ -72,6 +92,7 @@ class DitRiSoumisAValidationType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DitRiSoumisAValidation::class,
+            'itvAfficher' => null,
         ]);
     }
 

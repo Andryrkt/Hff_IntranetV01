@@ -32,7 +32,7 @@ class DitFactureSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8, name="numero_or")
      */
-    private string $numeroOR;
+    private ?string $numeroOR;
 
     /**
      * @ORM\Column(type="date", name="date_soumission")

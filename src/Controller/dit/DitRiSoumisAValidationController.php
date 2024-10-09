@@ -26,26 +26,52 @@ class DitRiSoumisAValidationController extends Controller
      */
     public function riSoumisAValidation(Request $request, $numDit)
     {
+        $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
+        $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
+
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
         $ditRiSoumiAValidation->setNumeroDit($numDit);
+        $ditRiSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
+        
+        $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numDit);
+        $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($ditRiSoumiAValidation->getNumeroOR(), $itvDejaSoumis);
 
-        $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation)->getForm();
+        $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
+            'itvAfficher' => $itvAfficher
+        ])->getForm();
 
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
+        if($form->isSubmitted())
         { 
-            $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
-            $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            $numOrBaseDonner = $demandeIntervention->getNumeroOr();
+            $dataForm = $form->getData();
+            $numeroItvs = explode(';',$dataForm->getAction());
+            $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor']);
+            
+            $existe= false;
+            $estSoumis = false;
+            foreach ($numeroItvs as $value) {
+                if(in_array($value, $itvDejaSoumis)){
+                    $estSoumis =true;
+                    break;
+                }
+                if(!in_array($value, $toutNumeroItv)){
+                    $existe = true;
+                }
+            }
 
-            if($numOrBaseDonner !== $ditRiSoumiAValidation->getNumeroOR()){
+            if($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
+            } elseif($estSoumis) {
+                $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
+                $this->notification($message);
+            } elseif ($existe) {
+                $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
+                $this->notification($message);
             } else {
-
-                $dataForm = $form->getData();
+                
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
                 $ditRiSoumiAValidation
                 ->setNumeroDit($numDit)
@@ -55,10 +81,9 @@ class DitRiSoumisAValidationController extends Controller
                 ->setNumeroSoumission($numeroSoumission)
                 ;
 
-                $numeroItvs = $ditRiSoumisAValidationModel->recupNumeroItv($dataForm->getNumeroOR());
-                
 
                 $riSoumis = [];
+
                 foreach ($numeroItvs as $value) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
                     $riSoumisAValidation
@@ -67,12 +92,12 @@ class DitRiSoumisAValidationController extends Controller
                         ->setHeureSoumission($this->getTime())
                         ->setDateSoumission(new \DateTime($this->getDatesystem()))
                         ->setNumeroSoumission($numeroSoumission)
-                        ->setNumeroItv((int)$value['numeroitv'])
+                        ->setNumeroItv((int)$value)
                     ;
                     $riSoumis[] = $riSoumisAValidation;
                 }
 
-          
+                
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
                 foreach ($riSoumis as $value) {
@@ -101,7 +126,7 @@ class DitRiSoumisAValidationController extends Controller
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
                 $genererPdfRi->copyToDwRiSoumis($ditRiSoumiAValidation->getNumeroSoumission(), $ditRiSoumiAValidation->getNumeroOR());
             
-                $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
+                $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
                 $this->redirectToRoute("dit_index");
             }
 
@@ -110,6 +135,7 @@ class DitRiSoumisAValidationController extends Controller
 
         self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
+            'itvAfficher' => $itvAfficher
         ]);
     }
 }

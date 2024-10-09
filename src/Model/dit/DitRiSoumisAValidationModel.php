@@ -22,21 +22,69 @@ class DitRiSoumisAValidationModel extends Model
 
     public function recupNumeroItv($numOr)
     {
-        $statement = "SELECT
-                    slor_numor AS numeroOr, 
-                    slor_nogrp / 100 AS numeroItv
-                FROM
-                    sav_lor
-                JOIN
-                    sav_itv ON sitv_numor = slor_numor
-                            AND sitv_interv = slor_nogrp / 100
-                WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
-                    AND slor_numor = '".$numOr."'
-                GROUP BY
-                numeroOr, numeroItv
-                ORDER BY
-                    numeroItv
+        $sql = "SELECT 
+        numeroItv 
+        from ors_soumis_a_validation
+        where numeroOR = '".$numOr."'
+        and numeroVersion in (select max(numeroVersion) from ors_soumis_a_validation where numeroOR = '".$numOr."')
+        ";
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return array_column($tab, 'numeroItv');
+    }
+
+    public function findItvDejaSoumis($numDit)
+    {
+        $sql ="SELECT
+            distinct numeroitv as numeroItv
+            from ri_soumis_a_validation
+            where numero_dit = '".$numDit."'";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return array_column($tab, 'numeroItv');
+    }
+
+    public function recupInterventionOr($numOr, $itvDejaSoumis)
+    {
+
+        if(!empty($itvDejaSoumis)){
+            $chaine = implode(",", $itvDejaSoumis);
+            $condition = "  and slor_nogrp / 100 not in (".$chaine.")";
+        } else {
+            $condition ="";
+        }
+
+        $statement = "SELECT 
+         slor_nogrp / 100 as numeroItv, 
+         trim(sitv_comment) as commentaire
+         from sav_lor
+        inner join sav_itv on sitv_numor = slor_numor and sitv_interv = slor_nogrp / 100 and slor_soc = 'HF'
+        where slor_numor = '".$numOr."'
+            $condition
+            group by 1,2
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function recupNumeroOr($numDit)
+    {
+        $statement = " SELECT 
+            seor_numor as numOr
+            from sav_eor
+            where seor_refdem = '".$numDit."'
+
         ";
         $result = $this->connect->executeQuery($statement);
 

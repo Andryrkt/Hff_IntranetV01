@@ -69,7 +69,7 @@ class DitOrsSoumisAValidationController extends Controller
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
-                $message = "Echec de la soumission car le numéro Or que vous avez saisie ne correspond pas à la DIT";
+                $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
                 $this->notification($message);
             } elseif($datePlanning) {
                 $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
