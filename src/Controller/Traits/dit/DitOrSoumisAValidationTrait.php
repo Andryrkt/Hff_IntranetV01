@@ -278,20 +278,19 @@ private function trierTableauParNumero(&$tableau) {
     });
 }
 
-private function verificationDatePlanning($ditInsertionOrSoumis)
+private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel)
 {
     $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($ditInsertionOrSoumis->getNumeroOR());
-            
-            if(!empty($datePlannig1)){
-                $datePlanning = $datePlannig1[0]['dateplanning1'];
-            } else if(!empty($datePlannig2)){
-                $datePlanning = $datePlannig2[0]['dateplanning2'];
-            } else {
-                $datePlanning = '';
-            }
+    $datePlannig2 =$ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
 
-    return $datePlanning;
+            $aBlocker = false;
+            if(empty($datePlannig1)){
+                if((int)$datePlannig2[0]['nbplanning'] > 0){
+                    $aBlocker = true;
+                }
+            }
+        
+    return $aBlocker;
 }
 
 private function nomUtilisateur($em){

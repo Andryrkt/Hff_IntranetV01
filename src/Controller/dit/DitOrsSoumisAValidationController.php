@@ -16,6 +16,7 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Model\dit\DitModel;
 
 class DitOrsSoumisAValidationController extends Controller
 {
@@ -50,17 +51,18 @@ class DitOrsSoumisAValidationController extends Controller
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
             $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
-            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis);
+            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
+           
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
-                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+                $message = "Echec de la soumission car le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
-            } elseif($datePlanning === '') {
-                $message = "Le numéro Or doit avoir une date planning";
+            } elseif($datePlanning) {
+                $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
                 $this->notification($message);
             } elseif(!in_array($agServDebiteurBDSql, $agServInformix)) {
-                $message = "L'agence et le service débiteur de l'OR ne correspond pas à l'agence et service du DIT";
+                $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
@@ -102,8 +104,12 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
 
+                //modifier la colonne numero_or dans la table demande_intervention
+                $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+                $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+                self::$em->flush();
 
-
+                //redirection
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }

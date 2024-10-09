@@ -6,6 +6,44 @@
 
 {% block nav %}
 	{% include "/dit/shared/_entete.html.twig" %}
+
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
+					<tr>
+						<th>Date DIT</th>
+						<th>N° DIT</th>
+						<th>ID mat</th>
+						<th>N° Parc</th>
+						<th>N/S</th>
+						<th>Désignation</th>
+						<th>OR</th>
+						<th>Nb de docs</th>
+						<th>type interv (interne/externe)</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+			<p>DOSSIER: DIT2408995</p>
+			<table class="table rounded table-plein-ecran">
+				<thead class="table-dark">
+					<tr>
+						<th>Type</th>
+						<th>N° de document</th>
+						<th>Date de création</th>
+						<th>Date de MAJ</th>
+						<th>Nb de pages</th>
+						<th>Taille</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+		<div class="col-12 col-md-6"></div>
+	</div>
+
+{% endblock %}

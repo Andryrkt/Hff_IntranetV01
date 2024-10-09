@@ -140,9 +140,23 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT 
             seor_numor as numOr
             from sav_eor
-where seor_refdem = '".$numDit."'
+            where seor_refdem = '".$numDit."'
 
         ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNbDatePlanningVide($numOr)
+    {
+        $statement = "SELECT count(*) as nbPlanning
+        from sav_itv 
+        where sitv_numor = '".$numOr."' 
+        and sitv_datepla is null";
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
