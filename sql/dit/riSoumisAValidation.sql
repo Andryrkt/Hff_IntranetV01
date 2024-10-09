@@ -6,5 +6,6 @@ CREATE TABLE ri_soumis_a_validation (
     numero_soumission INT,
     statut VARCHAR(50),
     heureSoumission VARCHAR(5),
+    numeroItv INT,
     CONSTRAINT PK_ri_soumis_a_validation PRIMARY KEY (id)
 );

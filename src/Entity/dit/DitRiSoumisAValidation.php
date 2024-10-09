@@ -54,14 +54,13 @@ class DitRiSoumisAValidation
      */
     private ?string $statut = "";
 
+    /**
+     * @ORM\Column(type="integer", name="numeroItv")
+     */
+    private $numeroItv;
     
     private $pieceJoint01;
 
-    private $pieceJoint02;
-    
-    private $pieceJoint03;
-    
-    private $pieceJoint04;
 
 /** ===========================================================================
  * getteur and setteur
@@ -177,7 +176,6 @@ class DitRiSoumisAValidation
         return $this;
     }
 
-  
 
     /**
      * Get the value of statut
@@ -197,8 +195,27 @@ class DitRiSoumisAValidation
         return $this;
     }
 
+    /**
+     * Get the value of numeroItv
+     */ 
+    public function getNumeroItv()
+    {
+        return $this->numeroItv;
+    }
 
-        /**
+    /**
+     * Set the value of numeroItv
+     *
+     * @return  self
+     */ 
+    public function setNumeroItv($numeroItv)
+    {
+        $this->numeroItv = $numeroItv;
+
+        return $this;
+    }
+
+    /**
      * Get the value of file
      */ 
     public function getPieceJoint01()
@@ -220,64 +237,5 @@ class DitRiSoumisAValidation
 
 
 
-    /**
-     * Get the value of pieceJoint02
-     */ 
-    public function getPieceJoint02()
-    {
-        return $this->pieceJoint02;
-    }
-
-    /**
-     * Set the value of pieceJoint02
-     *
-     * @return  self
-     */ 
-    public function setPieceJoint02($pieceJoint02)
-    {
-        $this->pieceJoint02 = $pieceJoint02;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of pieceJoint03
-     */ 
-    public function getPieceJoint03()
-    {
-        return $this->pieceJoint03;
-    }
-
-    /**
-     * Set the value of pieceJoint03
-     *
-     * @return  self
-     */ 
-    public function setPieceJoint03($pieceJoint03)
-    {
-        $this->pieceJoint03 = $pieceJoint03;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of pieceJoint04
-     */ 
-    public function getPieceJoint04()
-    {
-        return $this->pieceJoint04;
-    }
-
-    /**
-     * Set the value of pieceJoint04
-     *
-     * @return  self
-     */ 
-    public function setPieceJoint04($pieceJoint04)
-    {
-        $this->pieceJoint04 = $pieceJoint04;
-
-        return $this;
-    }
-
+    
 }

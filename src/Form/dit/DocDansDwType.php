@@ -12,9 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 class  DocDansDwType extends AbstractType
 {
     const DOC_DANS_DW = [
-        'OR' => 'OR',
+        'RI' => 'RI',
         'FACTURE' => 'FACTURE',
-        'RI' => 'RI'
+        'OR' => 'OR',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)

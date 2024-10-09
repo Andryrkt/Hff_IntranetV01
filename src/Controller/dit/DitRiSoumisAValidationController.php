@@ -55,11 +55,30 @@ class DitRiSoumisAValidationController extends Controller
                 ->setNumeroSoumission($numeroSoumission)
                 ;
 
+                $numeroItvs = $ditRiSoumisAValidationModel->recupNumeroItv($dataForm->getNumeroOR());
+                
+
+                $riSoumis = [];
+                foreach ($numeroItvs as $value) {
+                    $riSoumisAValidation = new DitRiSoumisAValidation();
+                    $riSoumisAValidation
+                        ->setNumeroDit($numDit)
+                        ->setNumeroOR($dataForm->getNumeroOR())
+                        ->setHeureSoumission($this->getTime())
+                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                        ->setNumeroSoumission($numeroSoumission)
+                        ->setNumeroItv((int)$value['numeroitv'])
+                    ;
+                    $riSoumis[] = $riSoumisAValidation;
+                }
+
+          
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
-                
-                self::$em->persist($ditRiSoumiAValidation); // Persister chaque entité individuellement
-            
+                foreach ($riSoumis as $value) {
+                    self::$em->persist($value); // Persister chaque entité individuellement
+                }
+
                 $historique = new DitHistoriqueOperationDocument();
                 $historique
                     ->setNumeroDocument('RI_'.$dataForm->getNumeroOR().'-'.$ditRiSoumiAValidation->getNumeroSoumission())
