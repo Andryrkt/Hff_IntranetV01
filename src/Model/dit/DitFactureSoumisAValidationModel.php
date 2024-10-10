@@ -76,7 +76,7 @@ class DitFactureSoumisAValidationModel extends Model
     }
     
 
-    public function recupOrSoumisValidation($numOr)
+    public function recupOrSoumisValidation($numOr, $numFact)
     {
       $statement = "SELECT
         slor_numor,
@@ -170,6 +170,7 @@ class DitFactureSoumisAValidationModel extends Model
             'MAS'
         )
         AND seor_numor = '".$numOr."'
+        AND slor_numfac = '".$numFact."'
         --AND SEOR_SUCC = '01'
         group by
             1,

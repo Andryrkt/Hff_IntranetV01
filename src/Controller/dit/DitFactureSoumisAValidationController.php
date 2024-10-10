@@ -43,7 +43,9 @@ class DitFactureSoumisAValidationController extends Controller
         $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $ditFactureSoumiAValidation)->getForm();
 
         $form->handleRequest($request);
-
+        // dump($form->isSubmitted());
+// dd($form->isValid());
+// dd($form->getErrors(true));
         if($form->isSubmitted() && $form->isValid())
         { 
             
@@ -64,8 +66,6 @@ class DitFactureSoumisAValidationController extends Controller
             } else {
                 $nbFact = $nbFactInformix[0]['nbfact'];
             }
-
-            
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
@@ -133,10 +133,11 @@ class DitFactureSoumisAValidationController extends Controller
                         /** CREATION PDF */
                     $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
                     
+                    $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
                     $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
                     $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
                     $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut);
+                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
                     $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
                     

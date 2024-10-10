@@ -486,4 +486,6 @@ class DitModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'agservdebiteur');
     }
+
+   
 }
