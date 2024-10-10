@@ -3,29 +3,41 @@
 namespace App\Form\dit;
 
 
-use App\Entity\dit\DitInsertionOr;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
-use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 
-class DitOrsSoumisAValidationType extends AbstractType
+class DitRiSoumisAValidationType extends AbstractType
 {
-   
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+         $itvAfficher = $options['itvAfficher'];
+         $tab = [];
+         foreach ($itvAfficher as  $value) {
+            $tab[] = (int)$value['numeroitv'];
+         }
+
+    
+       
         $builder
+        
             ->add('numeroDit',
             TextType::class,
             [
+                'mapped' => false,
+                'required' => false,
                 'label' => 'Numéro DIT',
                 'data' => $options['data']->getNumeroDit(),
                 'attr' => [
@@ -36,7 +48,7 @@ class DitOrsSoumisAValidationType extends AbstractType
             IntegerType::class,
             [
                 'label' => 'Numéro OR *',
-                'required' => false,
+                'required' => true,
                 'constraints' => [
                     new Assert\Length([
                         'max' => 8,
@@ -46,9 +58,7 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'attr' => [
                     'min' => 0,
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
-                    'disabled' => true
                 ],
-                'data' => $options['data']->getNumeroOR()
             ])
             ->add('pieceJoint01', 
             FileType::class, 
@@ -56,6 +66,9 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'label' => 'Upload File',
                 'required' => true,
                 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuiller sélectionner la facture à soumettre .', // Message d'erreur si le champ est vide
+                    ]),
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [
@@ -65,50 +78,12 @@ class DitOrsSoumisAValidationType extends AbstractType
                     ])
                 ],
             ])
-            ->add('pieceJoint02', 
-            FileType::class, 
+            ->add('action', 
+            TextType::class, 
             [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-            ->add('pieceJoint03', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
-            ->add('pieceJoint04', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
+                'label' => 'numero Itv (Possibilité de saisir plusieurs interventions, merci de les séparer par des points virgules ";")',
+                'data' => implode(';',$tab),
+                'required' => true
             ])
        ;
     }
@@ -116,9 +91,9 @@ class DitOrsSoumisAValidationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => DitOrsSoumisAValidation::class,
+            'data_class' => DitRiSoumisAValidation::class,
+            'itvAfficher' => null,
         ]);
     }
-
 
 }

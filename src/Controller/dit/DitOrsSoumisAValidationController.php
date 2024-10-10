@@ -3,18 +3,20 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dit\DitTypeDocument;
 use App\Entity\admin\dit\DitTypeOperation;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
+use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Model\dit\DitModel;
 
 class DitOrsSoumisAValidationController extends Controller
 {
@@ -36,29 +38,44 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
+        $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+        $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
+        $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
 
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
-        {   
+        {  
+            $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            
+            if(strpos($originalName, 'Ordre de réparation') !== 0){
+            
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+                $this->notification($message);
+            }
+
+            $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
+        
+            
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            $numOrBaseDonner = $demandeIntervention->getNumeroOr();
+            
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
-            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis);
+            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
+            
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
             
-            if($numOrBaseDonner !== $ditInsertionOrSoumis->getNumeroOR()){
-                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+            if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
+                $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
                 $this->notification($message);
-            } elseif($datePlanning === '') {
-                $message = "Le numéro Or doit avoir une date planning";
+            } elseif($datePlanning) {
+                $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
                 $this->notification($message);
             } elseif(!in_array($agServDebiteurBDSql, $agServInformix)) {
-                $message = "L'agence et le service débiteur de l'OR ne correspond pas à l'agence et service du DIT";
+                $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
@@ -100,11 +117,16 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
 
+                //modifier la colonne numero_or dans la table demande_intervention
+                $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+                $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+                self::$em->flush();
 
-
+                //redirection
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }
+        
         }
 
 

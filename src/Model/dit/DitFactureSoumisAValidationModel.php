@@ -2,13 +2,80 @@
 
 namespace App\Model\dit;
 
-
+use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
-use App\Model\Traits\ConversionModel;
 
-class DitOrSoumisAValidationModel extends Model
+class DitFactureSoumisAValidationModel extends Model
 {
-    use ConversionModel;
+    use ConversionTrait;
+
+    public function recupNumeroSoumission($numOr) {
+        $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
+                FROM facture_soumis_a_validation
+                WHERE numero_or = '".$numOr."'";
+        
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+        
+        return $result['numSoumissionEncours'];
+    }
+    
+   /*
+    public function recupStatut($numOr, $numItv)
+    {
+        $sql = "SELECT statut 
+        FROM ors_soumis_a_validation 
+        WHERE numeroVersion IN (SELECT MAX(numeroVersion) FROM ors_soumis_a_validation WHERE numeroOR = '".$numOr."') 
+        AND numeroOR = '".$numOr."'
+        AND numeroItv = '".$numItv."'";
+            
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+
+        return $result['statut'];
+    }
+*/
+    public function recupInfoFact($numOR, $numFact)
+    {
+        $statement = " SELECT
+                    slor_numfac AS numeroFac, 
+                    slor_numor AS numeroOr, 
+                    slor_nogrp / 100 AS numeroItv,
+                    SUM(slor_pxnreel * slor_qterea) AS montantFactureItv,
+                    slor_succdeb AS agenceDebiteur,
+                    slor_servdeb AS serviceDebiteur,
+                    TRIM(sitv_comment) AS libelleItv,
+                    SUM(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (
+                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                            )
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                        END * slor_pxnreel
+                    ) AS montantItv
+                FROM
+                    sav_lor
+                JOIN
+                    sav_itv ON sitv_numor = slor_numor
+                        AND sitv_interv = slor_nogrp / 100
+                WHERE
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    AND slor_numor = '".$numOR."'
+                    AND slor_numfac = '".$numFact."'
+                GROUP BY
+                    slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv
+                ORDER BY
+                    numeroItv;
+            ";
+
+            $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+    
+
     public function recupOrSoumisValidation($numOr)
     {
       $statement = "SELECT
@@ -120,19 +187,43 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
-    public function recupererNumdevis($numOr)
+    public function recupNombreFacture($numOr, $numFact)
     {
-        $statement = "SELECT  seor_numdev  
-                from sav_eor
-                where seor_numor = '".$numOr."'"
-                ;
+        $statement = "SELECT count(slor_numfac) as nbFact 
+                    FROM sav_lor where slor_numor = '".$numOr."'
+                    AND slor_numfac = '".$numFact."'
+                    ";
+        
+                    $result = $this->connect->executeQuery($statement);
 
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);    
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumeroItv($numOr, $numFact)
+    {
+        $statement = "SELECT
+                    slor_nogrp / 100 AS numeroItv
+                FROM
+                    sav_lor
+                JOIN
+                    sav_itv ON sitv_numor = slor_numor
+                            AND sitv_interv = slor_nogrp / 100
+                WHERE
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    AND slor_numor = '".$numOr."'
+                    AND slor_numfac = '".$numFact."'
+                GROUP BY
+                numeroOr, numeroItv
+                ORDER BY
+                    numeroItv
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'numeroItv');
     }
 
     public function recupNumeroOr($numDit)
@@ -143,20 +234,6 @@ class DitOrSoumisAValidationModel extends Model
             where seor_refdem = '".$numDit."'
 
         ";
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        return $this->convertirEnUtf8($data);
-    }
-
-    public function recupNbDatePlanningVide($numOr)
-    {
-        $statement = "SELECT count(*) as nbPlanning
-        from sav_itv 
-        where sitv_numor = '".$numOr."' 
-        and sitv_datepla is null";
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

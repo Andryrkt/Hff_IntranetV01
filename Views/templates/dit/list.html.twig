@@ -118,7 +118,7 @@
 											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
 										</li>
 										<li>
-											{% if item.numeroOr != '' and (item.idStatutDemande.description | trim == 'AFFECTEE SECTION' or item.idStatutDemande.description | trim == 'A AFFECTER') %}
+											{% if item.idStatutDemande.description | trim != 'CLOTUREE ANNULEE' and  item.idStatutDemande.description | trim != 'A AFFECTER' %}
 												<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Soumission document à valider</a>
 											{% endif %}
 										</li>
@@ -155,7 +155,7 @@
 							<td>
 								{% if item.numeroOr != '' %}
 
-									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}}">{{ item.numeroOr}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
 

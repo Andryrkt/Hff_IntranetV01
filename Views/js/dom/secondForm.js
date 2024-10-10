@@ -386,13 +386,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_motifDeplacement"
   );
   motifDeplacementInput.addEventListener("input", () => {
-    motifDeplacementInput.value = motifDeplacementInput.value.toUpperCase().slice(0, 60);;
+    motifDeplacementInput.value = motifDeplacementInput.value
+      .toUpperCase()
+      .slice(0, 60);
   });
 
   //NOM CLIENT
   const nomClientInput = document.querySelector("#dom_form2_client");
   nomClientInput.addEventListener("input", () => {
-    nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 33);;
+    nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 33);
   });
 
   //LIEU D'INTERVENTION
@@ -401,7 +403,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   );
 
   lieuInterventionInput.addEventListener("input", () => {
-    lieuInterventionInput.value = lieuInterventionInput.value.toUpperCase().slice(0, 60);
+    lieuInterventionInput.value = lieuInterventionInput.value
+      .toUpperCase()
+      .slice(0, 60);
   });
 
   //MOTIF AUTRE DEPENSE

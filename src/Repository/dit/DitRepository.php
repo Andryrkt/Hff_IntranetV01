@@ -9,6 +9,17 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DitRepository extends EntityRepository
 {
+    public function findAgSevDebiteur($numdit)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('d.agenceServiceDebiteur')
+            ->where('d.numeroDemandeIntervention = :numdit')
+            ->setParameter('numdit', $numdit)
+            ->getQuery()
+            ->getSingleScalarResult(); 
+    
+        return $numeroVersionMax;
+    }
 
     /** DIT SEARCH DEBUT  */
     public function findSectionSupport1()
@@ -73,7 +84,7 @@ class DitRepository extends EntityRepository
     }
 
 
-
+    /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
     {
         $nombrePiecesJointes = $this->createQueryBuilder('d')
@@ -161,7 +172,7 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
@@ -365,7 +376,7 @@ class DitRepository extends EntityRepository
         ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
