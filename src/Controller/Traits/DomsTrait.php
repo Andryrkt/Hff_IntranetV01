@@ -239,11 +239,11 @@ trait DomsTrait
     private function donnerPourPdf($dom, $domForm, $em)
     {
         if(explode(':',$dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':',$dom->getModePayement())[0] === 'ESPECE'){
-            $mode = 'TEL'.explode(':',$dom->getModePayement())[1];
+            $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
         } else if(explode(':',$dom->getModePayement())[0] === 'VIREMENT BANCAIRE'){
-            $mode = 'CPT'.explode(':',$dom->getModePayement())[1];
+            $mode = 'CPT '.explode(':',$dom->getModePayement())[1];
         } else {
-            $mode = 'TEL'.explode(':',$dom->getModePayement())[1];
+            $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
         }
 
         $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
@@ -314,7 +314,7 @@ trait DomsTrait
             $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
-
+            $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence().''.$dom->getServiceEmetteurId()->getCodeService());
             $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
     }
 

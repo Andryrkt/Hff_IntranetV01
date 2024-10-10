@@ -460,18 +460,10 @@ class DomForm2Type extends AbstractType
         ])  
         
         ->add('fiche',
-         NumberType::class, 
+        TextType::class, 
          [
             'label' => 'N° fiche',
-            'required' => false,
-            'constraints' => [
-                    new Length([
-                        'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
-                        'max' => 50,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
+            'required' => false
         ])
        
         ->add('lieuIntervention', 
