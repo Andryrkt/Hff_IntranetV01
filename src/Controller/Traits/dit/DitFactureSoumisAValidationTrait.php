@@ -52,7 +52,7 @@ trait DitFactureSoumisAValidationtrait
                 //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
                 
                 $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-            
+                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
             
                 $factureSoumis
@@ -66,7 +66,7 @@ trait DitFactureSoumisAValidationtrait
                         ->setMontantFactureitv($value['montantfactureitv'])
                         ->setAgenceDebiteur($value['agencedebiteur'])
                         ->setServiceDebiteur($value['servicedebiteur'])
-                        ->setMttItv($value['montantitv'])
+                        ->setMttItv($montantValide)
                         ->setLibelleItv($value['libelleitv'] === null ? '' : $value['libelleitv'])
                         ->setStatut('')
                         ->setStatutItv($statutOrsSoumisValidation)
@@ -184,15 +184,15 @@ trait DitFactureSoumisAValidationtrait
                                 ->setHeureSoumission($this->getTime())
                                 ->setDateSoumission(new \DateTime($this->getDatesystem()))
                                 ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
-                                ->setNumeroItv($orSoumis['numero_itv'])
-                                ->setNombreLigneItv($orSoumis['nombre_ligne'])
-                                ->setMontantItv($orSoumis['montant_itv'])
-                                ->setMontantPiece($orSoumis['montant_piece'])
-                                ->setMontantMo($orSoumis['montant_mo'])
-                                ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
-                                ->setMontantFraisDivers($orSoumis['montant_divers'])
-                                ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
-                                ->setLibellelItv($orSoumis['libelle_itv']);
+                                ->setNumeroItv($orSoumis->getNumeroItv())
+                                ->setNombreLigneItv($orSoumis->getNombreLigneItv())
+                                ->setMontantItv($orSoumis->getMontantItv())
+                                ->setMontantPiece($orSoumis->getMontantPiece())
+                                ->setMontantMo($orSoumis->getMontantMo())
+                                ->setMontantAchatLocaux($orSoumis->getMontantAchatLocaux())
+                                ->setMontantFraisDivers($orSoumis->getMontantFraisDivers())
+                                ->setMontantLubrifiants($orSoumis->getMontantLubrifiants())
+                                ->setLibellelItv($orSoumis->getLibellelItv());
                     
                     $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
                 

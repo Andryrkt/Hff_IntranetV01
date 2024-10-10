@@ -113,28 +113,40 @@ trait DomsTrait
      */
     private function uplodeFile($form, $dom, $nomFichier, &$pdfFiles)
     {
-        /** @var UploadedFile $file*/
+        
+        /** @var UploadedFile $file */
         $file = $form->get($nomFichier)->getData();
-        $fileName = $dom->getNumeroOrdreMission(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
-       
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/fichier/';
-     
-        $file->move($fileDossier, $fileName);
+        
+        if ($file) {
+            $errorCode = $file->getError();
+            if ($errorCode !== UPLOAD_ERR_OK) {
+                throw new \Exception('Erreur lors du téléchargement du fichier : ' . $errorCode);
+            }
 
-        if ($file->getClientOriginalExtension() === 'pdf') {
-            $pdfFiles[] = $fileDossier.$fileName;
+            
+            $fileName = $dom->getNumeroOrdreMission() . '_0' . substr($nomFichier, -1, 1) . '.' . $file->getClientOriginalExtension();
+            $fileDossier = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
+            
+            $file->move($fileDossier, $fileName);
+            
+            // Ajouter à la liste des fichiers PDF si c'est un PDF
+            if ($file->getClientOriginalExtension() === 'pdf') {
+                $pdfFiles[] = $fileDossier . $fileName;
+            }
+            
+            $setPieceJoint = 'set' . ucfirst($nomFichier);
+            $dom->$setPieceJoint($fileName);
         }
-
-        $setPieceJoint = 'set'.ucfirst($nomFichier);
-        $dom->$setPieceJoint($fileName);
+        
     }
+
 
     private function envoiePieceJoint($form, $dom, $fusionPdf)
     {
 
         $pdfFiles = [];
 
-        for ($i=1; $i < 3; $i++) { 
+        for ($i=1; $i < 2; $i++) { 
             $nom = "pieceJoint{$i}";
             if($form->get($nom)->getData() !== null){
                 $this->uplodeFile($form, $dom, $nom, $pdfFiles);
@@ -301,9 +313,9 @@ trait DomsTrait
         $em->flush();
     }
 
-    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em)
+    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf)
     {
-        
+       
             //RECUPERATION de la dernière NumeroDordre de mission 
             $this->enregistreDernierNumDansApplication($dom, $em);
 
@@ -314,8 +326,9 @@ trait DomsTrait
             $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
+            $this->envoiePieceJoint($form, $dom, $fusionPdf);
             $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence().''.$dom->getServiceEmetteurId()->getCodeService());
-            $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
+            
     }
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool

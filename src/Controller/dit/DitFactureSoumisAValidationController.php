@@ -28,8 +28,14 @@ class DitFactureSoumisAValidationController extends Controller
      */
     public function factureSoumisAValidation(Request $request, $numDit)
     {
+        
+
         $ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $numOrBaseDonner = $ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
+        if(empty($numOrBaseDonner)){
+            $message = "Le DIT n'a pas encore du numéro OR";
+            $this->notification($message);
+        }
         $ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
         $ditFactureSoumiAValidation->setNumeroDit($numDit);
         $ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
@@ -40,6 +46,7 @@ class DitFactureSoumisAValidationController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         { 
+            
             //$demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
             
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
@@ -124,7 +131,8 @@ class DitFactureSoumisAValidationController extends Controller
                         self::$em->flush();
                     
                         /** CREATION PDF */
-                    $orSoumisValidationModel = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR());
+                    $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
+                    
                     $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
                     $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
                     $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);

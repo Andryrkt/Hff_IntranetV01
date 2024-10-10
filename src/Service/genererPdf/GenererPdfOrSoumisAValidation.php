@@ -173,10 +173,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         //montant total modifié
         $pdf->Cell(45, 6, ' - Montant total modifié :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->cell(50, 5, $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']), 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(5, true);
 
-        //montant total modifié
-        $pdf->Cell(0, 6, ' - Heure saisie inférieur dernière compteur relevé ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 //==========================================================================================================

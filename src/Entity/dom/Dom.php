@@ -106,21 +106,11 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Deplacement")
-     * 
-     * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le motif ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private string $motifDeplacement;
 
     /**
      * @ORM\Column(type="string", length=100, name="Client")
-     * 
-     * @Assert\Length(
-     *      max = 50,
-     *      maxMessage = "Le nom de client ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private ?string $client = null;
 
@@ -131,11 +121,6 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Lieu_Intervention")
-     * 
-     * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le lieu d'intervention ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private string $lieuIntervention;
 
