@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dw;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;

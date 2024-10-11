@@ -52,32 +52,20 @@ class DomSecondController extends Controller
 
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
 
-
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
-
-                
-            if ($form1Data['salarier'] === "PERMANENT") 
-            {
-                // dump($form1Data['sousTypeDocument']->getCodeSousType());
+            
                 if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 
                 {
-                    if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
+                    if ($verificationDateExistant) 
                     {
-                        if ($verificationDateExistant) 
-                        {
-                            $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() ." a déja une mission enregistrée sur ces dates, vérifier SVP!";
-                            $this->notification($message);
-                        } else {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-                        }
-                    } 
-
-                    if ($verificationDateExistant) {
-                        $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
-
+                        $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() ." a déja une mission enregistrée sur ces dates, vérifier SVP!";
                         $this->notification($message);
                     } else {
-                
+                        if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
+                        {
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+                        } 
+
                         if (explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= "500.000")) 
                         {
                             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
@@ -97,48 +85,41 @@ class DomSecondController extends Controller
                         $this->notification($message);
                     }
                 } 
-            } else {
+            // } else {
 
-                    if ($form1Data['sousTypeDocument'] !== 'COMPLEMENT') 
-                    {
-                        
-                        if ($form1Data['sousTypeDocument'] === 'FRAIS EXCEPTIONNEL' && $dom->getDevis() !== 'MGA') 
-                        {
-                            if ($verificationDateExistant) 
-                            {
-                                $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
-                                $this->notification($message);
-                            } else {
-                                $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-                            }
-                            
-                        }
+            //         if ($form1Data['sousTypeDocument'] !== 'COMPLEMENT') 
+            //         {
+            //             if ($verificationDateExistant) 
+            //             {
+            //                 $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
+            //                 $this->notification($message);
+            //             } else {
+                    
+            //                 if ($form1Data['sousTypeDocument'] === 'FRAIS EXCEPTIONNEL' && $dom->getDevis() !== 'MGA') 
+            //                 {
+            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+            //                 }
 
-                            if ($verificationDateExistant) 
-                            {
-                                $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() ."  a déja une mission enregistrée sur ces dates, vérifier SVP!";
-                                $this->notification($message);
-                            } else {
-                                if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) 
-                                {
-                                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-                                } else {
-                                    $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-                                    $this->notification($message);
-                                }
-                            }
+            //                 if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) 
+            //                 {
+            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+            //                 } else {
+            //                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+            //                     $this->notification($message);
+            //                 }
+            //             }
                         
-                    } else {
-                        if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-                        } 
-                        else {
-                            $message = "Assurer que le Montant Total est supérieur ou égale à 500.000";
-                            $this->notification($message);
-                        }
-                    }
+            //         } else {
+            //             if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
+            //                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+            //             } 
+            //             else {
+            //                 $message = "Assurer que le Montant Total est inférieur ou égale à 500.000";
+            //                 $this->notification($message);
+            //             }
+            //         }
                 
-            }
+            // }
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('doms_liste');

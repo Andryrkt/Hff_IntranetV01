@@ -187,12 +187,12 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_1",nullable=true)
      */
-    private ?string $pieceJoint1 = null;
+    private ?string $pieceJoint01 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_2",nullable=true)
      */
-    private ?string $pieceJoint2 = null;
+    private ?string $pieceJoint02 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_3",nullable=true)
@@ -766,28 +766,28 @@ class Dom
     }
 
 
-    public function getPieceJoint1()
+    public function getPieceJoint01()
     {
-        return $this->pieceJoint1;
+        return $this->pieceJoint01;
     }
 
-    public function setPieceJoint1($pieceJointe1): self
+    public function setPieceJoint01($pieceJointe1): self
     {
-        $this->pieceJoint1 = $pieceJointe1;
+        $this->pieceJoint01 = $pieceJointe1;
 
         return $this;
     }
 
 
     
-    public function getPieceJoint2()
+    public function getPieceJoint02()
     {
-        return $this->pieceJoint2;
+        return $this->pieceJoint02;
     }
 
-    public function setPieceJoint2($pieceJointe2): self
+    public function setPieceJoint02($pieceJointe2): self
     {
-        $this->pieceJoint2 = $pieceJointe2;
+        $this->pieceJoint02 = $pieceJointe2;
 
         return $this;
     }
