@@ -80,7 +80,7 @@ class MagasinListeOrTraiterController extends Controller
                 } 
             }
 
-        
+
         self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
