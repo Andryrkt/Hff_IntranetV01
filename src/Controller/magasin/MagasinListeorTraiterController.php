@@ -54,9 +54,9 @@ class MagasinListeOrTraiterController extends Controller
 
 
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
-dump($lesOrSelonCondition);
+
             $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-dd($data);
+
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
             
