@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -56,6 +57,9 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'label' => 'Upload File',
                 'required' => true,
                 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuiller sélectionner l\'OR .', // Message d'erreur si le champ est vide
+                    ]),
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [

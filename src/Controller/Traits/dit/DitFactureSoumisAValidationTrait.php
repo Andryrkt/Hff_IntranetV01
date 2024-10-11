@@ -2,8 +2,10 @@
 
 namespace App\Controller\Traits\dit;
 
+use FileException;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dit\DitFactureSoumisAValidation;
 
@@ -52,7 +54,7 @@ trait DitFactureSoumisAValidationtrait
                 //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
                 
                 $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-            
+                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
             
                 $factureSoumis
@@ -66,7 +68,7 @@ trait DitFactureSoumisAValidationtrait
                         ->setMontantFactureitv($value['montantfactureitv'])
                         ->setAgenceDebiteur($value['agencedebiteur'])
                         ->setServiceDebiteur($value['servicedebiteur'])
-                        ->setMttItv($value['montantitv'])
+                        ->setMttItv($montantValide)
                         ->setLibelleItv($value['libelleitv'] === null ? '' : $value['libelleitv'])
                         ->setStatut('')
                         ->setStatutItv($statutOrsSoumisValidation)
@@ -113,6 +115,7 @@ trait DitFactureSoumisAValidationtrait
             'nombreStatutControle' => $nombreStatutControle
         ];
     }
+
     private function infoItvFac($factureSoumisAValidation, $statut)
     {
         $infoItvFac = [];
@@ -159,14 +162,14 @@ trait DitFactureSoumisAValidationtrait
         return $totalItvFacture;
     }
 
-    private function montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut)
+    private function montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact)
     {
         
         return [
             'infoItvFac' => $this->infoItvFac($factureSoumisAValidation, $statut['statutFac']),
             'totalItvFac' => $this->calculeSommeItvFacture($factureSoumisAValidation),
-            'recapOr' => $this->recapitulationOr($orSoumisValidataion),
-            'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion),
+            'recapOr' => $this->recapitulationOr($orSoumisFact),
+            'totalRecapOr' => $this->calculeSommeMontant($orSoumisFact),
             'controleAFaire' => $statut['nombreStatutControle']
         ];
     }
@@ -184,15 +187,15 @@ trait DitFactureSoumisAValidationtrait
                                 ->setHeureSoumission($this->getTime())
                                 ->setDateSoumission(new \DateTime($this->getDatesystem()))
                                 ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
-                                ->setNumeroItv($orSoumis['numero_itv'])
-                                ->setNombreLigneItv($orSoumis['nombre_ligne'])
-                                ->setMontantItv($orSoumis['montant_itv'])
-                                ->setMontantPiece($orSoumis['montant_piece'])
-                                ->setMontantMo($orSoumis['montant_mo'])
-                                ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
-                                ->setMontantFraisDivers($orSoumis['montant_divers'])
-                                ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
-                                ->setLibellelItv($orSoumis['libelle_itv']);
+                                ->setNumeroItv($orSoumis->getNumeroItv())
+                                ->setNombreLigneItv($orSoumis->getNombreLigneItv())
+                                ->setMontantItv($orSoumis->getMontantItv())
+                                ->setMontantPiece($orSoumis->getMontantPiece())
+                                ->setMontantMo($orSoumis->getMontantMo())
+                                ->setMontantAchatLocaux($orSoumis->getMontantAchatLocaux())
+                                ->setMontantFraisDivers($orSoumis->getMontantFraisDivers())
+                                ->setMontantLubrifiants($orSoumis->getMontantLubrifiants())
+                                ->setLibellelItv($orSoumis->getLibellelItv());
                     
                     $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
                 
@@ -201,24 +204,24 @@ trait DitFactureSoumisAValidationtrait
     }
 
 
-    private function recapitulationOr($orSoumisValidataion)
+    private function recapitulationOr($orSoumisFact)
     {
         $recapOr = [];
-        foreach ($orSoumisValidataion as $orSoumis) {
+        foreach ($orSoumisFact as $orSoumis) {
             $recapOr[] = [
-                'itv' => $orSoumis->getNumeroItv(),
-                'mttTotal' => $orSoumis->getMontantItv(),
-                'mttPieces' => $orSoumis->getMontantPiece(),
-                'mttMo' => $orSoumis->getMontantMo(),
-                'mttSt' => $orSoumis->getMontantAchatLocaux(),
-                'mttLub' => $orSoumis->getMontantLubrifiants(),
-                'mttAutres' => $orSoumis->getMontantFraisDivers(),
+                'itv' => $orSoumis['numero_itv'],
+                'mttTotal' => $orSoumis['montant_itv'],
+                'mttPieces' => $orSoumis['montant_piece'],
+                'mttMo' => $orSoumis['montant_mo'],
+                'mttSt' => $orSoumis['montant_achats_locaux'],
+                'mttLub' => $orSoumis['montant_lubrifiants'],
+                'mttAutres' => $orSoumis['montant_divers'],
             ];
         }
         return $recapOr;
     }
 
-    private function calculeSommeMontant($orSoumisValidataion)
+    private function calculeSommeMontant($orSoumisFact)
     {
         $totalRecapOr = [
             'total' => 'TOTAL',
@@ -229,63 +232,132 @@ trait DitFactureSoumisAValidationtrait
             'montant_lubrifiants' => 0,
             'montant_frais_divers' => 0,
         ];
-        foreach ($orSoumisValidataion as $orSoumis) {
+        foreach ($orSoumisFact as $orSoumis) {
             // Faire la somme des montants et les stocker dans le tableau
-            $totalRecapOr['montant_itv'] += $orSoumis->getMontantItv();
-            $totalRecapOr['montant_piece'] += $orSoumis->getMontantPiece();
-            $totalRecapOr['montant_mo'] += $orSoumis->getMontantMo();
-            $totalRecapOr['montant_achats_locaux'] += $orSoumis->getMontantAchatLocaux();
-            $totalRecapOr['montant_lubrifiants'] += $orSoumis->getMontantLubrifiants();
-            $totalRecapOr['montant_frais_divers'] += $orSoumis->getMontantFraisDivers();
+            $totalRecapOr['montant_itv'] += $orSoumis['montant_itv'];
+            $totalRecapOr['montant_piece'] += $orSoumis['montant_piece'];
+            $totalRecapOr['montant_mo'] += $orSoumis['montant_mo'];
+            $totalRecapOr['montant_achats_locaux'] += $orSoumis['montant_achats_locaux'];
+            $totalRecapOr['montant_lubrifiants'] += $orSoumis['montant_lubrifiants'];
+            $totalRecapOr['montant_frais_divers'] += $orSoumis['montant_divers'];
         }
 
         return $totalRecapOr;
     }
 
 
-        /**
-     * TRAITEMENT DES FICHIER UPLOAD
-     *(copier le fichier uploder dans une repertoire et le donner un nom)
+/**
+     * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
+     *
+     * @param UploadedFile $file
+     * @param DitFacture $ditfacture
+     * @param string $fieldName
+     * @param int $index
+     *
+     * @return string|null
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
-    private function uplodeFile($form, $ditfacture, $nomFichier, &$pdfFiles)
+    public function uploadFile( $file,  $ditfacture, string $fieldName, int $index): ?string
     {
-        
-        /** @var UploadedFile $file*/
-        $file = $form->get($nomFichier)->getData();
-        $fileName = 'factureValidation_' .$ditfacture->getNumeroFact().'_'.$ditfacture->getNumeroSoumission(). '_01.' . $file->getClientOriginalExtension();
-       
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/fichier/';
-      
-        $file->move($fileDossier, $fileName);
+        // Validation des extensions et types MIME
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+        $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
-        if ($file->getClientOriginalExtension() === 'pdf') {
-            $pdfFiles[] = $fileDossier.$fileName;
+        if (
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
+            !in_array($file->getMimeType(), $allowedMimeTypes, true)
+        ) {
+            throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName.");
         }
 
+        // Générer un nom de fichier sécurisé et unique
+
+        $fileName = sprintf(
+            'factureValidation_%s_%s_%02d.%s',
+            $ditfacture->getNumeroFact(),
+            $ditfacture->getNumeroSoumission(),
+            $index,
+            $file->guessExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = $_SERVER['DOCUMENT_ROOT']. 'Upload/vfac/fichier/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        // Retourner le chemin complet du fichier si c'est un PDF, sinon null
+        if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+            return $destination . $fileName;
+        }
+
+        return null;
     }
-
-    private function envoiePieceJoint($form, $ditfacture, $fusionPdf)
-    {
-
+    /**
+     * Envoie des pièces jointes et fusionne les PDF
+     */
+    private function envoiePieceJoint(
+        FormInterface $form,
+        DitFactureSoumisAValidation $ditfacture,
+        $fusionPdf
+    ): void {
         $pdfFiles = [];
 
-        for ($i=1; $i < 2; $i++) { 
-        $nom = "pieceJoint0{$i}";
-        if($form->get($nom)->getData() !== null){
-                $this->uplodeFile($form, $ditfacture, $nom, $pdfFiles);
+        // Ajouter le fichier PDF principal en tête du tableau
+        $mainPdf = sprintf(
+            '%s/Upload/vfac/factureValidation_%s_%s.pdf',
+            $_SERVER['DOCUMENT_ROOT'],
+            $ditfacture->getNumeroFact(),
+            $ditfacture->getNumeroSoumission()
+        );
+
+        // Vérifier que le fichier principal existe avant de l'ajouter
+        if (!file_exists($mainPdf)) {
+            throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+        }
+
+        array_unshift($pdfFiles, $mainPdf);
+
+       // Récupérer tous les champs de fichiers du formulaire
+        $fileFields = $form->all();
+
+        foreach ($fileFields as $fieldName => $field) {
+            if (preg_match('/^pieceJoint\d{2}$/', $fieldName)) {
+               /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                   // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
+                    if (preg_match('/^pieceJoint(\d{2})$/', $fieldName, $matches)) {
+                        $index = (int)$matches[1];
+                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index);
+                        if ($pdfPath !== null) {
+                            $pdfFiles[] = $pdfPath;
+                        }
+                    }
+                }
             }
         }
-        //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/factureValidation_' .$ditfacture->getNumeroFact().'_'.$ditfacture->getNumeroSoumission(). '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/factureValidation_' .$ditfacture->getNumeroFact().'_'.$ditfacture->getNumeroSoumission(). '.pdf';
+        $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
+
     
     private function notification($message)
     {

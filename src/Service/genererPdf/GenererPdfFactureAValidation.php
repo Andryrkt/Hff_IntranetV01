@@ -190,7 +190,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
 //==========================================================================================================
  //Titre: Récapitulation de l'OR
         $pdf->setFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 6, 'Récapitulation de la facture', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(0, 6, 'Récapitulatif de la facture', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true); 
         
         $pdf->setFont('helvetica', '', 12);
