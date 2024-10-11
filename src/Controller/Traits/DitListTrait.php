@@ -251,16 +251,17 @@ trait DitListTrait
         for ($i=0 ; $i < count($data) ; $i++ ) { 
             if ($data[$i]->getNumeroOR() !== null) {
                 if(!empty($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()))) {
-                    //dd($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()));
+                    // dump($this->ditModel->recupQuantiteQuatreStatutOr('16410989'));
                     foreach ($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()) as $value) {
-                        $data[$i]->setQuantiteDemander($value['quantitedemander']);
-                        $data[$i]->setQuantiteReserver($value['quantitereserver']);
-                        $data[$i]->setQuantiteLivree($value['qteliv']);
+                        $data[$i]->setQuantiteDemander($value['quantitedemander'] === null ? 0 : (int)$value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver($value['quantitereserver'] === null ? 0 : (int)$value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree($value['qteliv'] === null ? 0 : (int)$value['qteliv']);
                     }
+                 
                     
                     $conditionToutLivre = $data[$i]->getQuantiteDemander() === $data[$i]->getQuantiteLivree() && $data[$i]->getQuantiteDemander() !== 0 && $data[$i]->getQuantiteLivree() !== 0;
                     $conditionPartiellementLivre = $data[$i]->getQuantiteLivree() > 0 &&  $data[$i]->getQuantiteLivree() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteDemander() !== 0 ;
-                    $conditionPartiellementDispo = $data[$i]->getQuantiteReserver() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteLivree() === 0 && $data[$i]->getQuantiteReserver() > 0;
+                    $conditionPartiellementDispo = $data[$i]->getQuantiteReserver() !== $data[$i]->getQuantiteDemander() && ($data[$i]->getQuantiteLivree() === 0  || $data[$i]->getQuantiteLivree() === null) && $data[$i]->getQuantiteReserver() > 0;
                     $conditionCompletNonLivre = $data[$i]->getQuantiteDemander() == $data[$i]->getQuantiteReserver() && $data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander();
                     if($conditionToutLivre){
                         $data[$i]->setQuatreStatutOr('Tout livré');

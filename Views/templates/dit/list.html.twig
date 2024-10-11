@@ -145,7 +145,8 @@
 							<td>{{ item.internetExterne}}</td>
 							<td>{{ item.agenceServiceEmetteur }}</td>
 							<td>{{ item.agenceServiceDebiteur}}</td>
-							<td>{{ item.objetDemande}}</td>
+							<td>
+								{{ item.objetDemande}}</td>
 							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
 							<td>
 								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
