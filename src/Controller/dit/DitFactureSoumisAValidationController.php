@@ -30,6 +30,10 @@ class DitFactureSoumisAValidationController extends Controller
     {
         $ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $numOrBaseDonner = $ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
+        if(empty($numOrBaseDonner)){
+            $message = "Le DIT n'a pas encore du numéro OR";
+            $this->notification($message);
+        }
         $ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
         $ditFactureSoumiAValidation->setNumeroDit($numDit);
         $ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);

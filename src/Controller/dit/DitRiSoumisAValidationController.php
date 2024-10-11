@@ -28,7 +28,10 @@ class DitRiSoumisAValidationController extends Controller
     {
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
-
+        if(empty($numOrBaseDonner)){
+            $message = "Le DIT n'a pas encore du numéro OR";
+            $this->notification($message);
+        }
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
         $ditRiSoumiAValidation->setNumeroDit($numDit);
         $ditRiSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
@@ -118,7 +121,7 @@ class DitRiSoumisAValidationController extends Controller
 
                 /** @var UploadedFile $file*/
                 $file = $form->get("pieceJoint01")->getData();
-                $fileName = 'RI_'.$ditRiSoumiAValidation->getNumeroOR().'_'.$ditRiSoumiAValidation->getNumeroSoumission(). '.' . $file->getClientOriginalExtension();
+                $fileName = 'RI_'.$ditRiSoumiAValidation->getNumeroOR().'-'.$ditRiSoumiAValidation->getNumeroSoumission(). '.' . $file->getClientOriginalExtension();
                 $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/';
             
                 $file->move($fileDossier, $fileName);

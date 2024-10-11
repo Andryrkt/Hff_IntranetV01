@@ -40,6 +40,10 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
+        if(empty($numOrBaseDonner)){
+            $message = "Le DIT n'a pas encore du numéro OR";
+            $this->notification($message);
+        }
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis->setNumeroDit($numDit);
         $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
