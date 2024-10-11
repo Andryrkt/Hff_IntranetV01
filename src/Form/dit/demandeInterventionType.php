@@ -17,14 +17,15 @@ use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
@@ -60,8 +61,6 @@ class demandeInterventionType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-       
-        
         
         $builder
         
@@ -273,8 +272,11 @@ class demandeInterventionType extends AbstractType
                 'label' => "Demande de devis *",
                 'choices' => self::OUI_NON,
                 'placeholder' => '-- Choisir --',
-            'required' => false,
-            'data' => 'OUI'
+                'required' => false,
+                'data' => 'NON',
+                'attr' => [
+                    'disabled' => true,
+                ]
             ])
             ->add('idNiveauUrgence', 
             EntityType::class, [
@@ -305,17 +307,27 @@ class demandeInterventionType extends AbstractType
             TextType::class,
             [
                 'label' => 'Objet de la demande *',
-                'required' => false,
-                'attr' => [ 'class' => 'noEntrer']
+                'required' => true,
+                'attr' => [ 'class' => 'noEntrer'],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'l\'objet de la demande ne peut pas être vide .', // Message d'erreur si le champ est vide
+                    ]),
+                ],
             ])
             ->add('detailDemande',
             TextareaType::class,
             [
                 'label' => 'Détail de la demande *',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'rows' => 5,
                     'class' => 'detailDemande'  
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'le detail de la demande ne peut pas être vide .', // Message d'erreur si le champ est vide
+                    ]),
                 ],
             ])
             ->add('livraisonPartiel', 

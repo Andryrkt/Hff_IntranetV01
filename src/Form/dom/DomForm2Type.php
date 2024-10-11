@@ -646,7 +646,7 @@ class DomForm2Type extends AbstractType
                 'required' => $salarier !== 'PERMANENT',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Veuiller sélectionner la facture à soumettre .', // Message d'erreur si le champ est vide
+                        'message' => 'Veuiller sélectionner le fichier à soumettre .', // Message d'erreur si le champ est vide
                     ]),
                     new File([
                         'maxSize' => '5M',
