@@ -21,6 +21,8 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class DitRiSoumisAValidationType extends AbstractType
 {
+    
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
          $itvAfficher = $options['itvAfficher'];
@@ -29,8 +31,6 @@ class DitRiSoumisAValidationType extends AbstractType
             $tab[] = (int)$value['numeroitv'];
          }
 
-    
-       
         $builder
         
             ->add('numeroDit',
@@ -78,14 +78,15 @@ class DitRiSoumisAValidationType extends AbstractType
                     ])
                 ],
             ])
-            ->add('action', 
-            TextType::class, 
-            [
-                'label' => 'numero Itv (Possibilité de saisir plusieurs interventions, merci de les séparer par des points virgules ";")',
-                'data' => implode(';',$tab),
-                'required' => true
-            ])
-       ;
+            ;
+            for ($i = 0; $i < count($itvAfficher) ; $i++) {
+                $builder->add('checkbox_' . $i, CheckboxType::class, [
+                    'label' => false,
+                    'required' => false,
+                    'mapped' => false, // Pas nécessairement lié à une propriété d'entité
+                ]);
+            }
+    
     }
 
     public function configureOptions(OptionsResolver $resolver)

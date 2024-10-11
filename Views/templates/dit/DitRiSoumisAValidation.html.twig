@@ -56,14 +56,33 @@
 								<div class="file-size" id="file-size-1"></div>
 							</div>
 
-							<div class="col-12 col-md-3">
 
+							<div class="col-12 col-md-4">
 
-								{{ form_row(form.action)}}
+								<table class="table rounded table-plein-ecran">
+									<thead class="table-dark">
+										<tr>
+											<th>Actions</th>
+											<th>N° ITV</th>
+											<th>Commentaire</th>
+										</tr>
+									</thead>
+									<tbody>
 
-
+										{% set index = 0 %}
+										{% for key, checkbox in form %}
+											{% if key starts with 'checkbox_' %}
+												<tr>
+													<td>{{ form_widget(checkbox) }}</td>
+													<td>{{ itvAfficher[index].numeroitv |number_format(0, '.', '')}}</td>
+													<td>{{ itvAfficher[index].commentaire }}</td>
+												</tr>
+												{% set index = index + 1 %}
+											{% endif %}
+										{% endfor %}
+									</tbody>
+								</table>
 							</div>
-
 							<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
 								<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
 							</div>
