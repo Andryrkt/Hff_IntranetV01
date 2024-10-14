@@ -35,7 +35,7 @@ class DitController extends Controller
         
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
-       $this->initialisationForm($demandeIntervention, self::$em);
+        $this->initialisationForm($demandeIntervention, self::$em);
 
         //AFFICHE LE FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
@@ -44,8 +44,8 @@ class DitController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         {
+        
             $dits = $this->infoEntrerManuel($form, self::$em);
-            
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($dits->getNumeroDemandeIntervention());

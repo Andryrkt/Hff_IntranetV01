@@ -639,38 +639,39 @@ class DomForm2Type extends AbstractType
                 ],
             'data' => $options['data']->getNumerotel()
         ])
-        ->add('pieceJoint1',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
-            'required' => $salarier !== 'PERMANENT',
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf'
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
-        ->add('pieceJoint2',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
-            'required' => false,
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf',
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
+        ->add('pieceJoint01', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
+                'required' => $salarier !== 'PERMANENT',
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuiller sélectionner le fichier à soumettre .', // Message d'erreur si le champ est vide
+                    ]),
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+        ->add('pieceJoint02', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
     ;
     }
 

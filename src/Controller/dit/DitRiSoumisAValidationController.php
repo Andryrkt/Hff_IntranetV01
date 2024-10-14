@@ -49,12 +49,20 @@ class DitRiSoumisAValidationController extends Controller
         if($form->isSubmitted())
         { 
             $dataForm = $form->getData();
-            $numeroItvs = explode(';',$dataForm->getAction());
+            $itvCoches = [];
+
+            // Récupérer les valeurs des cases cochées
+            for ($i = 0; $i < count($itvAfficher); $i++) {
+                $checkboxFieldName = 'checkbox_' . $i;
+                if ($form->has($checkboxFieldName) && $form->get($checkboxFieldName)->getData()) {
+                    $itvCoches[] = (int)$itvAfficher[$i]['numeroitv'];
+                }
+            }
             $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor']);
             
             $existe= false;
             $estSoumis = false;
-            foreach ($numeroItvs as $value) {
+            foreach ($itvCoches as $value) {
                 if(in_array($value, $itvDejaSoumis)){
                     $estSoumis =true;
                     break;
@@ -87,7 +95,7 @@ class DitRiSoumisAValidationController extends Controller
 
                 $riSoumis = [];
 
-                foreach ($numeroItvs as $value) {
+                foreach ($itvCoches as $value) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
                     $riSoumisAValidation
                         ->setNumeroDit($numDit)
@@ -135,6 +143,7 @@ class DitRiSoumisAValidationController extends Controller
 
 
         } 
+
 
         self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),

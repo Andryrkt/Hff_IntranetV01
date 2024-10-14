@@ -54,9 +54,9 @@ class MagasinListeOrTraiterController extends Controller
 
 
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
-dump($lesOrSelonCondition);
+
             $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-dd($data);
+
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
             
@@ -80,7 +80,7 @@ dd($data);
                 } 
             }
 
-            
+
         self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
@@ -115,14 +115,14 @@ dd($data);
             } else {
                 $entities[$i]['datePlanning'] = '';
             }
-            // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            // if( !empty($dit)){
-            //     $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //     $entities[$i]['niveauUrgence'] = $dit[0]['description'];
-            // } else {
+            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            if( !empty($dit)){
+                $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                $entities[$i]['niveauUrgence'] = $dit[0]['description'];
+            } else {
              
-            //     break;
-            // }
+                break;
+            }
         }
 
         usort($entities, function ($a, $b) {
