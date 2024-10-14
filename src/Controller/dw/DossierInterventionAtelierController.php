@@ -3,6 +3,7 @@
 namespace App\Controller\dw;
 
 use App\Controller\Controller;
+use App\Form\dw\DossierInterventionAtelierSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DossierInterventionAtelierController extends Controller
@@ -14,6 +15,10 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dossierInterventionAtelier()
     {
-        self::$twig->display('dit/dossierInterventionAtelier.html.twig');
+
+        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class)->getForm();
+        self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 }

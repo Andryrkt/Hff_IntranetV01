@@ -12,27 +12,17 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ form_row(form.statut) }}
-						{{ form_row(form.typeDocument) }}
 						{{ form_row(form.numDit) }}
-						{{ form_row(form.sectionAffectee) }}
+						{{form_row(form.numOr)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.niveauUrgence) }}
-						{{form_row(form.internetExterne)}}
-						{{form_row(form.numOr)}}
-						{{form_row(form.sectionSupport1)}}
+						{{form_row(form.typeIntervention)}}
+						{{form_row(form.designation)}}
+
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}
 						{{ form_row(form.dateFin) }}
-					</div>
-					
-					<div class="col-12 col-md-2">
-						{{form_row(form.agenceDebiteur)}}
-						{{form_row(form.serviceDebiteur)}}
-						{{form_row(form.utilisateur)}}
-						{{form_row(form.ditSansOr)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.idMateriel)}}

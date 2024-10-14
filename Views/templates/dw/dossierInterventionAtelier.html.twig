@@ -5,13 +5,14 @@
 {% endblock %}
 
 {% block nav %}
-	{% include "/dit/shared/_entete.html.twig" %}
+	{% include "/dw/shared/_entete.html.twig" %}
 
 {% endblock %}
 
 {% block content %}
 	<div class="row">
-		<div class="col-12 col-md-6">
+		<div class="col-12 col-md-8">
+			{% include "/dw/shared/_formulaireRecherche.html.twig" %}
 			<table class="table rounded table-plein-ecran">
 				<thead class="table-dark">
 					<tr>
