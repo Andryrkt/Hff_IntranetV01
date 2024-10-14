@@ -645,9 +645,6 @@ class DomForm2Type extends AbstractType
                 'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
                 'required' => $salarier !== 'PERMANENT',
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuiller sélectionner le fichier à soumettre .', // Message d'erreur si le champ est vide
-                    ]),
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [
