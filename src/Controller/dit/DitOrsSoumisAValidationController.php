@@ -114,7 +114,7 @@ class DitOrsSoumisAValidationController extends Controller
                        self::$em->persist($entity); // Persister chaque entité individuellement
                     }
                 } elseif(count($orSoumisValidataion) === 1) {
-                    self::$em->persist($orSoumisValidataion);
+                    self::$em->persist($orSoumisValidataion[0]);
                 } 
                 $historique = new DitHistoriqueOperationDocument();
                 $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
