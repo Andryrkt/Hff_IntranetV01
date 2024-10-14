@@ -374,12 +374,12 @@ class DomForm2Type extends AbstractType
             'data' => $options["data"]->getPrenom() ?? null
         ])
         ->add('cin',
-        NumberType::class,
+        TextType::class,
         [
             'mapped' => false,
             'label' => 'CIN',
             'attr' => [
-                'disabled' => true
+                'disabled' => true,
             ],
             'data' => $options["data"]->getCin() ?? null
         ])
@@ -645,9 +645,6 @@ class DomForm2Type extends AbstractType
                 'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
                 'required' => $salarier !== 'PERMANENT',
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuiller sélectionner le fichier à soumettre .', // Message d'erreur si le champ est vide
-                    ]),
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [
@@ -661,7 +658,7 @@ class DomForm2Type extends AbstractType
             FileType::class, 
             [
                 'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
-                'required' => false,
+                'required' => $salarier !== 'PERMANENT',
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',

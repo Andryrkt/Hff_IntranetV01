@@ -11,9 +11,9 @@
 
 {% block content %}
 	<div class="row">
-		<div class="col-12 col-md-8">
+		<div class="col-12 col-md-6">
 			{% include "/dw/shared/_formulaireRecherche.html.twig" %}
-			<table class="table rounded table-plein-ecran">
+			<table class="table rounded table-plein-ecran table-moitier">
 				<thead class="table-dark">
 					<tr>
 						<th>Date DIT</th>
@@ -27,10 +27,24 @@
 						<th>type interv (interne/externe)</th>
 					</tr>
 				</thead>
-				<tbody></tbody>
+				<tbody>
+					{% for dwDit in dwDits %}
+						<tr>
+							<td>{{dwDit.dateCreation | date('d/m/Y')}}</td>
+							<td>{{dwDit.numeroDit}}</td>
+							<td>{{dwDit.idMateriel}}</td>
+							<td>{{dwDit.numeroParc}}</td>
+							<td>{{dwDit.numeroSerie}}</td>
+							<td>{{dwDit.designationMateriel}}</td>
+							<td>numero or</td>
+							<td>nombre doc</td>
+							<td>{{dwDit.typeReparation}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
 			</table>
-			<p>DOSSIER: DIT2408995</p>
-			<table class="table rounded table-plein-ecran">
+			<h3>DOSSIER: DIT2408995</h3>
+			<table class="table rounded table-plein-ecran table-moitier">
 				<thead class="table-dark">
 					<tr>
 						<th>Type</th>

@@ -23,7 +23,7 @@ class DwDemandeIntervention
 
 
     /**
-     * @ORM\Column(type="string", length=11, name='numero_dit')
+     * @ORM\Column(type="string", length=11, name="numero_dit")
      */
     private $numeroDit;
 
@@ -32,10 +32,6 @@ class DwDemandeIntervention
      */
     private $idTiroir;
 
-    /**
-     * @ORM\Column(type="string", length=8, name="numero_or")
-     */
-    private $numeroOR;
 
     /**
      * @ORM\Column(type="date", name="date_creation")
@@ -155,25 +151,6 @@ class DwDemandeIntervention
         return $this;
     }
 
-    /**
-     * Get the value of numeroOR
-     */ 
-    public function getNumeroOR()
-    {
-        return $this->numeroOR;
-    }
-
-    /**
-     * Set the value of numeroOR
-     *
-     * @return  self
-     */ 
-    public function setNumeroOR($numeroOR)
-    {
-        $this->numeroOR = $numeroOR;
-
-        return $this;
-    }
 
     /**
      * Get the value of dateCreation

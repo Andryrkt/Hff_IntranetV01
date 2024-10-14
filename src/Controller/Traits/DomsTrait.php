@@ -315,6 +315,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         $supplementJournaliere = $form->get('supplementJournaliere')->getData();
     
         if ($form1Data['salarier'] === "TEMPORAIRE") {
+        
             $dom->setNom($form1Data['nom']);
             $dom->setPrenom($form1Data['prenom']);
             $dom->setCin($form1Data['cin']);
