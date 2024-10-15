@@ -9,12 +9,16 @@ trait Transformation
      */
     public function transformEnSeulTableau(array $tabs): array
     {
- 
         $tab = [];
         foreach ($tabs as  $values) {
-            foreach ($values as $value) {
-                $tab[] = $value;
+            if(is_array($values)){
+                foreach ($values as $value) {
+                    $tab[] = $value;
+                }
+            } else {
+                $tab[] = $values;
             }
+            
         }
 
         return $tab;

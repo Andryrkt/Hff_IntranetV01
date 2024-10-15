@@ -21,6 +21,7 @@ class DossierInterventionAtelierController extends Controller
 
         $dwDits = self::$em->getRepository(DwDemandeIntervention::class)->findAll();
 
+
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
             'form' => $form->createView(),
             'dwDits' => $dwDits
