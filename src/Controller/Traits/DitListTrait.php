@@ -248,22 +248,33 @@ trait DitListTrait
 
 
     private function ajoutQuatreStatutOr($data){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
+        for ($i = 0; $i < count($data); $i++) { 
             if ($data[$i]->getNumeroOR() !== null) {
-                if(!empty($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()))) {
-                    // dump($this->ditModel->recupQuantiteQuatreStatutOr('16410989'));
-                    foreach ($this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR()) as $value) {
-                        $data[$i]->setQuantiteDemander($value['quantitedemander'] === null ? 0 : (int)$value['quantitedemander']);
-                        $data[$i]->setQuantiteReserver($value['quantitereserver'] === null ? 0 : (int)$value['quantitereserver']);
-                        $data[$i]->setQuantiteLivree($value['qteliv'] === null ? 0 : (int)$value['qteliv']);
+                // Initialisation des valeurs avant de les utiliser
+                $data[$i]->setQuantiteDemander(0);
+                $data[$i]->setQuantiteReserver(0);
+                $data[$i]->setQuantiteLivree(0);
+                
+                $quantites = $this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
+                if (!empty($quantites)) {
+                    foreach ($quantites as $value) {
+                        $data[$i]->setQuantiteDemander((int)$value['quantitedemander']);
+                        $data[$i]->setQuantiteReserver((int)$value['quantitereserver']);
+                        $data[$i]->setQuantiteLivree((int)$value['qteliv']);
                     }
-                 
                     
-                    $conditionToutLivre = $data[$i]->getQuantiteDemander() === $data[$i]->getQuantiteLivree() && $data[$i]->getQuantiteDemander() !== 0 && $data[$i]->getQuantiteLivree() !== 0;
-                    $conditionPartiellementLivre = $data[$i]->getQuantiteLivree() > 0 &&  $data[$i]->getQuantiteLivree() !== $data[$i]->getQuantiteDemander() && $data[$i]->getQuantiteDemander() !== 0 ;
-                    $conditionPartiellementDispo = $data[$i]->getQuantiteReserver() !== $data[$i]->getQuantiteDemander() && ($data[$i]->getQuantiteLivree() === 0  || $data[$i]->getQuantiteLivree() === null) && $data[$i]->getQuantiteReserver() > 0;
-                    $conditionCompletNonLivre = $data[$i]->getQuantiteDemander() == $data[$i]->getQuantiteReserver() && $data[$i]->getQuantiteLivree() < $data[$i]->getQuantiteDemander();
-                    if($conditionToutLivre){
+                    // Définition des conditions
+                    $quantiteDemander = (int)$data[$i]->getQuantiteDemander();
+                    $quantiteReserver = (int)$data[$i]->getQuantiteReserver();
+                    $quantiteLivree = (int)$data[$i]->getQuantiteLivree();
+                    
+                    $conditionToutLivre = $quantiteDemander === $quantiteLivree && $quantiteDemander !== 0 && $quantiteLivree !== 0;
+                    $conditionPartiellementLivre = $quantiteLivree > 0 && $quantiteLivree !== $quantiteDemander && $quantiteDemander !== 0;
+                    $conditionPartiellementDispo = $quantiteReserver !== $quantiteDemander && ($quantiteLivree === 0 || $quantiteLivree === null) && $quantiteReserver > 0;
+                    $conditionCompletNonLivre = $quantiteDemander == $quantiteReserver && $quantiteLivree < $quantiteDemander;
+                    
+                    // Définition du statut basé sur les conditions
+                    if ($conditionToutLivre) {
                         $data[$i]->setQuatreStatutOr('Tout livré');
                     } elseif ($conditionPartiellementLivre) {
                         $data[$i]->setQuatreStatutOr('Partiellement livré');
@@ -274,6 +285,7 @@ trait DitListTrait
                     } else {
                         $data[$i]->setQuatreStatutOr('');
                     }
+                    
                 }
             }
         }

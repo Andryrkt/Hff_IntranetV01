@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\dit;
+namespace App\Form\dw;
 
 
 use Symfony\Component\Form\AbstractType;
@@ -12,7 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
-class DitSearchType extends AbstractType
+class DossierInterventionAtelierSearchType extends AbstractType
 {
     const INTERNE_EXTERNE = [
         'INTERNE' => 'INTERNE',
@@ -29,7 +29,7 @@ class DitSearchType extends AbstractType
                 'label' => 'Id Materiel',
                 'required' => false,
             ])
-            ->add('internetExterne', 
+            ->add('typeIntervention', 
             ChoiceType::class, 
             [
                 'label' => "Type intervention",

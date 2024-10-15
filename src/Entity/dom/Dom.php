@@ -317,7 +317,7 @@ class Dom
     private ?datetime $dateHeureModifStatut = null;
 
 
-    private ?int $cin = null;
+    private $cin = null;
 
     private string $salarier;
 
@@ -1096,12 +1096,12 @@ class Dom
     }
 
 
-    public function getCin(): ?int
+    public function getCin()
     {
         return $this->cin;
     }
 
-    public function setCin(?int $cin): self
+    public function setCin($cin): self
     {
         $this->cin = $cin;
         return $this;

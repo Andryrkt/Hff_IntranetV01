@@ -116,13 +116,13 @@ class MagasinListeOrLivrerController extends Controller
             } else {
                 $entities[$i]['datePlanning'] = '';
             }
-            // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            // if( !empty($dit)){
-            //     $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //     $entities[$i]['niveauUrgence'] = $dit[0]['description'];
-            // } else {
-            //     break;
-            // }
+            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            if( !empty($dit)){
+                $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                $entities[$i]['niveauUrgence'] = $dit[0]['description'];
+            } else {
+                break;
+            }
         }
 
         usort($entities, function ($a, $b) {
