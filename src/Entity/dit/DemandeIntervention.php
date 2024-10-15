@@ -456,8 +456,6 @@ class DemandeIntervention
      */
     private  $serviceDebiteurId;
 
-    
-
     /**
      * @ORM\Column(type="string", length=255, name="section_support_1")
      */

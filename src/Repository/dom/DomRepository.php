@@ -254,16 +254,21 @@ class DomRepository extends EntityRepository
 
     public function findLastNumtel($matricule)
     {
-        $numTel = $this->createQueryBuilder('d')
-            ->select('d.numeroTel')
-            ->where('d.matricule = :matricule')
-            ->setParameter('matricule', $matricule)
-            ->orderBy('d.dateDemande', 'DESC') // Tri décroissant par date ou un autre critère pertinent
-            ->setMaxResults(1) // Récupérer seulement le dernier numéro
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        try {
+            $numTel = $this->createQueryBuilder('d')
+                ->select('d.numeroTel')
+                ->where('d.matricule = :matricule')
+                ->setParameter('matricule', $matricule)
+                ->orderBy('d.dateDemande', 'DESC') // Tri décroissant par date ou un autre critère pertinent
+                ->setMaxResults(1) // Récupérer seulement le dernier numéro
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            // Si aucun résultat n'est trouvé, retourner null ou une valeur par défaut
+            return null;
+        }
 
         return $numTel;
     }
+
 }

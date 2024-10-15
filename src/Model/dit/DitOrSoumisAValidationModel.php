@@ -6,7 +6,7 @@ namespace App\Model\dit;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-class DitModel extends Model
+class DitOrSoumisAValidationModel extends Model
 {
     use ConversionModel;
     public function recupOrSoumisValidation($numOr)
@@ -93,7 +93,7 @@ class DitModel extends Model
             AND sitv_numor = slor_numor
             AND sitv_interv = slor_nogrp / 100
 
-        AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+        --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
         AND sitv_servcrt IN (
             'ATE',
             'FOR',
@@ -133,5 +133,63 @@ class DitModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumeroOr($numDit)
+    {
+        $statement = " SELECT 
+            seor_numor as numOr
+            from sav_eor
+            where seor_refdem = '".$numDit."'
+            AND seor_serv = 'SAV'
+
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumeroMatricule($numDit, $numOr)
+    {
+        $statement = " SELECT 
+            seor_nummat as numMatricule
+            from sav_eor
+            where seor_refdem = '".$numDit."'
+            AND seor_numor = '".$numOr."'
+            AND seor_serv = 'SAV'
+
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNbDatePlanningVide($numOr)
+    {
+        $statement = "SELECT count(*) as nbPlanning
+        from sav_itv 
+        where sitv_numor = '".$numOr."' 
+        and sitv_datepla is null";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupPositonOr($numor)
+    {
+        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '".$numor."'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return  array_column($this->convertirEnUtf8($data), 'position');
     }
 }

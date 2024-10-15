@@ -124,6 +124,8 @@ class DitListeController extends Controller
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
+                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
         } 
 

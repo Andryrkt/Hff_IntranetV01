@@ -55,9 +55,10 @@
 								<li>
 									<a class="dropdown-item" href="{{ path("dit_index")}}">Consultation</a>
 								</li>
-								{# <li> #}
-							{# <a class="dropdown-item" href="#">Controle doublon saisie pièce</a> #}
-								{# </li> #}
+								<li>
+									<a class="dropdown-item" href="/Upload/excel_dit/DOSSIER%20DIT-%20Achats.xlsx" download>Télécharger Excel DIT</a>
+								</li>
+
 							</ul>
 						</li>
 					{% endif %}
@@ -77,10 +78,10 @@
 								<li class="dropdown-header">
 									Ordre de Mission</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("dom_newDom")}}">Nouvelle Demande</a>
+									<a class="dropdown-item" href="{{ path("dom_first_form")}}">Nouvelle Demande</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("domList_ShowListDomRecherche")}}">Consultation</a>
+									<a class="dropdown-item" href="{{ path("doms_liste")}}">Consultation</a>
 								</li>
 								<li>
 									<hr class="dropdown-divider">
@@ -158,17 +159,17 @@
 
 					</ul>
 				</li>
-			{% if hasREP %}
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Reporting</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
-						</li>
-					</ul>
-				</li>
-			{% endif %}
+				{% if hasREP %}
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Reporting</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
+							</li>
+						</ul>
+					</li>
+				{% endif %}
 				<li class="nav-item dropdown">
 
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>

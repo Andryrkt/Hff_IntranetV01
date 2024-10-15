@@ -24,5 +24,18 @@ class GeneratePdf
         $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
        copy($cheminDestinationLocal, $cheminFichierDistant);
     }  
+
+    public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/factureValidation_' .$numeroOR.'_'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vfac/factureValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
+       copy($cheminDestinationLocal, $cheminFichierDistant);
+    } 
         
+    public function copyToDwRiSoumis($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/RI_' .$numeroOR.'-'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vri/RI_' .$numeroOR.'-'.$numeroVersion . '.pdf'; // avec tiret 6
+        copy($cheminDestinationLocal, $cheminFichierDistant);
+    } 
 }

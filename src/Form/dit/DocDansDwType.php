@@ -13,11 +13,10 @@ class  DocDansDwType extends AbstractType
 {
     const DOC_DANS_DW = [
         'OR' => 'OR',
-        'FACTURE' => 'FACTURE'
+        'RI' => 'RI',
+        'FACTURE' => 'FACTURE',
     ];
 
-    
-   
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder

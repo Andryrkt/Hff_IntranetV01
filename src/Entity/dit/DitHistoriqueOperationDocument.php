@@ -26,9 +26,9 @@ class DitHistoriqueOperationDocument
 
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string",  length=50)
      */
-    private int $numeroDocument;
+    private string $numeroDocument;
 
     /**
      * @ORM\Column(type="datetime")
@@ -79,22 +79,14 @@ class DitHistoriqueOperationDocument
         return $this->id;
     }
 
- 
-    
-    /**
-     * Get the value of numeroDocument
-     */ 
+
     public function getNumeroDocument()
     {
         return $this->numeroDocument;
     }
 
-    /**
-     * Set the value of numeroDocument
-     *
-     * @return  self
-     */ 
-    public function setNumeroDocument($numeroDocument)
+    
+    public function setNumeroDocument($numeroDocument): self
     {
         $this->numeroDocument = $numeroDocument;
 

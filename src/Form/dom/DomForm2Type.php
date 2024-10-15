@@ -374,12 +374,12 @@ class DomForm2Type extends AbstractType
             'data' => $options["data"]->getPrenom() ?? null
         ])
         ->add('cin',
-        NumberType::class,
+        TextType::class,
         [
             'mapped' => false,
             'label' => 'CIN',
             'attr' => [
-                'disabled' => true
+                'disabled' => true,
             ],
             'data' => $options["data"]->getCin() ?? null
         ])
@@ -452,26 +452,18 @@ class DomForm2Type extends AbstractType
             'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le Client doit comporter au moins {{ limit }} caractères',
                         'max' => 50,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le Client ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
         ])  
         
         ->add('fiche',
-         NumberType::class, 
+         TextType::class, 
          [
             'label' => 'N° fiche',
             'required' => false,
-            'constraints' => [
-                    new Length([
-                        'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
-                        'max' => 50,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
         ])
        
         ->add('lieuIntervention', 
@@ -480,12 +472,12 @@ class DomForm2Type extends AbstractType
             'label' => 'Lieu d\'intervention',
             'required' => true,
             'constraints' => [
-                    new NotBlank(['message' => 'Le motif de déplacement ne peut pas être vide.']),
+                    new NotBlank(['message' => 'Le lieu d\'intervention ne peut pas être vide.']),
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le lieu doit comporter au moins {{ limit }} caractères',
                         'max' => 100,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le lieu ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
         ])
@@ -503,9 +495,9 @@ class DomForm2Type extends AbstractType
             'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le n° vehicule doit comporter au moins {{ limit }} caractères',
                         'max' => 10,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le n° vehicule ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
         ]) 
@@ -555,15 +547,15 @@ class DomForm2Type extends AbstractType
                 'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le motif autre dépense 1 doit comporter au moins {{ limit }} caractères',
                         'max' => 30,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le motif autre dépense 1 ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
             ]) 
         ->add('autresDepense1', 
         TextType::class,
-         [
+        [
             'label' => 'Montant',
             'required' => false,
         ]) 
@@ -575,9 +567,9 @@ class DomForm2Type extends AbstractType
                 'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le motif autre dépense 2 doit comporter au moins {{ limit }} caractères',
                         'max' => 30,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le motif autre dépense 2 ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
         ]) 
@@ -595,9 +587,9 @@ class DomForm2Type extends AbstractType
                 'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le motif autre dépense 3 doit comporter au moins {{ limit }} caractères',
                         'max' => 30,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le motif autre dépense 3 ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
         ]) 
@@ -640,45 +632,43 @@ class DomForm2Type extends AbstractType
             'constraints' => [
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le motif de déplacement doit comporter au moins {{ limit }} caractères',
+                        'minMessage' => 'Le Mode doit comporter au moins {{ limit }} caractères',
                         'max' => 30,
-                        'maxMessage' => 'Le motif de déplacement ne peut pas dépasser {{ limit }} caractères',
+                        'maxMessage' => 'Le mode ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
             'data' => $options['data']->getNumerotel()
         ])
-        ->add('pieceJoint1',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
-            'required' => $salarier !== 'PERMANENT',
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf'
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
-        ->add('pieceJoint2',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
-            'required' => false,
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf',
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
+        ->add('pieceJoint01', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
+                'required' => $salarier !== 'PERMANENT',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+        ->add('pieceJoint02', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
+                'required' => $salarier !== 'PERMANENT',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
     ;
     }
 

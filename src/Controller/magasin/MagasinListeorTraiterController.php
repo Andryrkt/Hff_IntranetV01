@@ -80,7 +80,7 @@ class MagasinListeOrTraiterController extends Controller
                 } 
             }
 
-            
+
         self::$twig->display('magasin/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
@@ -115,14 +115,14 @@ class MagasinListeOrTraiterController extends Controller
             } else {
                 $entities[$i]['datePlanning'] = '';
             }
-            // $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            // if( !empty($dit)){
-            //     $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-            //     $entities[$i]['niveauUrgence'] = $dit[0]['description'];
-            // } else {
+            $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            if( !empty($dit)){
+                $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
+                $entities[$i]['niveauUrgence'] = $dit[0]['description'];
+            } else {
              
-            //     break;
-            // }
+                break;
+            }
         }
 
         usort($entities, function ($a, $b) {

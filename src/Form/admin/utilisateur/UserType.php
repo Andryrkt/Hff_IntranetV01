@@ -143,7 +143,6 @@ class UserType extends AbstractType
                 'choice_label' => 'service_sage_paie',
                 'placeholder' => "-- choisir une code sage --",
                 'required' => true,
-          
             ])
             ->add('agencesAutorisees',
             EntityType::class,
@@ -156,7 +155,7 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'required' => true,
-             
+            
             ])
             ->add('serviceAutoriser',
             EntityType::class,

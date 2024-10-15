@@ -197,5 +197,12 @@ public function listAnnuler(Request $request)
         );
 }
 
- 
+    /**
+     * @Route("/annuler/{numDom}", name="domList_annulationStatut")
+     */
+    public function annulationStatutController($numDom)
+    {
+        $this->domList->annulationCodestatut($numDom);
+        $this->redirectToRoute("doms_liste");
+    }
 }

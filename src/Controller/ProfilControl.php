@@ -37,8 +37,9 @@ class ProfilControl extends Controller
                 try {
                         //$session->start();
                         $user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
+                        //$user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => 'lala']);
                         
-                        if ($user) {
+                        if (isset($user)) {
                             $userId = $user->getId();
                             $this->sessionService->set('user_id', $userId);
                             // session_start();

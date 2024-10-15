@@ -243,6 +243,9 @@ function MiseMajuscule() {
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
+const demandeDevisInput = document.querySelector(
+  "#demande_intervention_demandeDevis"
+);
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
@@ -258,11 +261,13 @@ function interneExterne() {
     nomClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");
+    demandeDevisInput.removeAttribute("disabled");
     agenceDebiteurInput.setAttribute("disabled", true);
     serviceDebiteurInput.setAttribute("disabled", true);
   } else {
     nomClientInput.setAttribute("disabled", true);
     numTelInput.setAttribute("disabled", true);
+    demandeDevisInput.setAttribute("disabled", true);
     clientSousContratInput.setAttribute("disabled", true);
     agenceDebiteurInput.removeAttribute("disabled");
     serviceDebiteurInput.removeAttribute("disabled");
@@ -321,10 +326,10 @@ textarea.addEventListener("input", function () {
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
-const boutonInput = document.querySelector("#formDit");
+// const boutonInput = document.querySelector("#formDit");
 
-boutonInput.addEventListener("click", griserBoutton);
+// boutonInput.addEventListener("click", griserBoutton);
 
-function griserBoutton() {
-  boutonInput.style.display = "none";
-}
+// function griserBoutton() {
+//   boutonInput.style.display = "none";
+// }

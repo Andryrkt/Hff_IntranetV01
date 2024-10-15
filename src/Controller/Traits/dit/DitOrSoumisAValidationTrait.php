@@ -3,48 +3,117 @@
 namespace App\Controller\Traits\dit;
 
 use App\Entity\admin\utilisateur\User;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait DitOrSoumisAValidationTrait
 {
-       /**
-     * TRAITEMENT DES FICHIER UPLOAD
-     *(copier le fichier uploder dans une repertoire et le donner un nom)
+    
+/**
+     * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
+     *
+     * @param UploadedFile $file
+     * @param DitFacture $ditfacture
+     * @param string $fieldName
+     * @param int $index
+     *
+     * @return string|null
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
-    private function uplodeFile($form, $ditInsertionOr, $nomFichier, &$pdfFiles)
+    public function uploadFile( $file,  $ditfacture, string $fieldName, int $index): ?string
     {
-        
-        /** @var UploadedFile $file*/
-        $file = $form->get($nomFichier)->getData();
-        $fileName = 'oRValidation_' .$ditInsertionOr->getNumeroOR().'_'.$ditInsertionOr->getNumeroVersion(). '_01.' . $file->getClientOriginalExtension();
-       
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/fichier/';
-      
-        $file->move($fileDossier, $fileName);
+        // Validation des extensions et types MIME
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+        $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
-        if ($file->getClientOriginalExtension() === 'pdf') {
-            $pdfFiles[] = $fileDossier.$fileName;
+        if (
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
+            !in_array($file->getMimeType(), $allowedMimeTypes, true)
+        ) {
+            throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName.");
         }
 
+        // Générer un nom de fichier sécurisé et unique
 
+        $fileName = sprintf(
+            'orValidation_%s_%s_%02d.%s',
+            $ditfacture->getNumeroOR(),
+            $ditfacture->getNumeroVersion(),
+            $index,
+            $file->guessExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = $_SERVER['DOCUMENT_ROOT']. 'Upload/vor/fichier/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        // Retourner le chemin complet du fichier si c'est un PDF, sinon null
+        if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+            return $destination . $fileName;
+        }
+
+        return null;
     }
-
-    private function envoiePieceJoint($form, $ditInsertionOr, $fusionPdf)
-    {
-
+    /**
+     * Envoie des pièces jointes et fusionne les PDF
+     */
+    private function envoiePieceJoint(
+        FormInterface $form,
+        $ditfacture,
+        $fusionPdf
+    ): void {
         $pdfFiles = [];
 
-        for ($i=1; $i < 5; $i++) { 
-        $nom = "pieceJoint0{$i}";
-        if($form->get($nom)->getData() !== null){
-                $this->uplodeFile($form, $ditInsertionOr, $nom, $pdfFiles);
+        // Ajouter le fichier PDF principal en tête du tableau
+        $mainPdf = sprintf(
+            '%s/Upload/vor/orValidation_%s_%s.pdf',
+            $_SERVER['DOCUMENT_ROOT'],
+            $ditfacture->getNumeroOR(),
+            $ditfacture->getNumeroVersion()
+        );
+
+        // Vérifier que le fichier principal existe avant de l'ajouter
+        if (!file_exists($mainPdf)) {
+            throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+        }
+
+        array_unshift($pdfFiles, $mainPdf);
+
+       // Récupérer tous les champs de fichiers du formulaire
+        $fileFields = $form->all();
+
+        foreach ($fileFields as $fieldName => $field) {
+            if (preg_match('/^pieceJoint\d{2}$/', $fieldName)) {
+               /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                   // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
+                    if (preg_match('/^pieceJoint(\d{2})$/', $fieldName, $matches)) {
+                        $index = (int)$matches[1];
+                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index);
+                        if ($pdfPath !== null) {
+                            $pdfFiles[] = $pdfPath;
+                        }
+                    }
+                }
             }
         }
-        //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/oRValidation_' .$ditInsertionOr->getNumeroOR().'_'. $ditInsertionOr->getNumeroVersion(). '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/oRValidation_' .$ditInsertionOr->getNumeroOR().'_'. $ditInsertionOr->getNumeroVersion(). '.pdf';
+        $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
@@ -92,6 +161,7 @@ trait DitOrSoumisAValidationTrait
 
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
+    
         if(!empty($OrSoumisAvantMax)){
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
@@ -149,11 +219,10 @@ trait DitOrSoumisAValidationTrait
                //dump($value);
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
-            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0) {
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0 || $value['mttTotalAv'] === 0) {
                 $value['statut'] = 'Nouv';
                 $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
-                
                 //dump($value);
                 $value['statut'] = 'Modif';
                 $nombreStatutNouvEtSupp['nbrModif']++;
@@ -222,6 +291,7 @@ trait DitOrSoumisAValidationTrait
 
     private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
     {
+
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
                 foreach ($orSoumisValidationModel as $orSoumis) {
@@ -278,20 +348,19 @@ private function trierTableauParNumero(&$tableau) {
     });
 }
 
-private function verificationDatePlanning($ditInsertionOrSoumis)
+private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel)
 {
     $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($ditInsertionOrSoumis->getNumeroOR());
-            
-            if(!empty($datePlannig1)){
-                $datePlanning = $datePlannig1[0]['dateplanning1'];
-            } else if(!empty($datePlannig2)){
-                $datePlanning = $datePlannig2[0]['dateplanning2'];
-            } else {
-                $datePlanning = '';
-            }
+    $datePlannig2 =$ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
 
-    return $datePlanning;
+            $aBlocker = false;
+            if(empty($datePlannig1)){
+                if((int)$datePlannig2[0]['nbplanning'] > 0){
+                    $aBlocker = true;
+                }
+            }
+        
+    return $aBlocker;
 }
 
 private function nomUtilisateur($em){

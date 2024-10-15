@@ -46,7 +46,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(30, 10, ' au  ' . $tab['dateF']->format("d/m/Y"), 0, 0);
         $pdf->Cell(30, 10, '  à ' . $tab['heureF'] . ' Heures ', 0, 1);
         $pdf->Cell(0, 10, 'Motif : ' . $tab['motif'], 0, 1);
-        $pdf->Cell(80, 10, 'Client : ' . $tab['Client'], 0, 0);
+        $pdf->Cell(100, 10, 'Client : ' . $tab['Client'], 0, 0);
         $pdf->Cell(30, 10, 'N° fiche : ' . $tab['fiche'], 0, 1);
         $pdf->Cell(0, 10, 'Lieu d intervention : ' . $tab['lieu'], 0, 1);
         $pdf->Cell(80, 10, 'Véhicule société : ' . $tab['vehicule'], 0, 0);

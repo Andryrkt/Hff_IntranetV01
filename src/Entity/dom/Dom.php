@@ -106,21 +106,11 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Motif_Deplacement")
-     * 
-     * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le motif ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private string $motifDeplacement;
 
     /**
      * @ORM\Column(type="string", length=100, name="Client")
-     * 
-     * @Assert\Length(
-     *      max = 50,
-     *      maxMessage = "Le nom de client ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private ?string $client = null;
 
@@ -131,11 +121,6 @@ class Dom
 
     /**
      * @ORM\Column(type="string", length=100, name="Lieu_Intervention")
-     * 
-     * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le lieu d'intervention ne peut pas dépasser {{ limit }} caractères."
-     * )
      */
     private string $lieuIntervention;
 
@@ -202,12 +187,12 @@ class Dom
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_1",nullable=true)
      */
-    private ?string $pieceJoint1 = null;
+    private ?string $pieceJoint01 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_2",nullable=true)
      */
-    private ?string $pieceJoint2 = null;
+    private ?string $pieceJoint02 = null;
 
    /**
      * @ORM\Column(type="string", length=50, name="Piece_Jointe_3",nullable=true)
@@ -332,7 +317,7 @@ class Dom
     private ?datetime $dateHeureModifStatut = null;
 
 
-    private ?int $cin = null;
+    private $cin = null;
 
     private string $salarier;
 
@@ -781,28 +766,28 @@ class Dom
     }
 
 
-    public function getPieceJoint1()
+    public function getPieceJoint01()
     {
-        return $this->pieceJoint1;
+        return $this->pieceJoint01;
     }
 
-    public function setPieceJoint1($pieceJointe1): self
+    public function setPieceJoint01($pieceJointe1): self
     {
-        $this->pieceJoint1 = $pieceJointe1;
+        $this->pieceJoint01 = $pieceJointe1;
 
         return $this;
     }
 
 
     
-    public function getPieceJoint2()
+    public function getPieceJoint02()
     {
-        return $this->pieceJoint2;
+        return $this->pieceJoint02;
     }
 
-    public function setPieceJoint2($pieceJointe2): self
+    public function setPieceJoint02($pieceJointe2): self
     {
-        $this->pieceJoint2 = $pieceJointe2;
+        $this->pieceJoint02 = $pieceJointe2;
 
         return $this;
     }
@@ -1111,12 +1096,12 @@ class Dom
     }
 
 
-    public function getCin(): ?int
+    public function getCin()
     {
         return $this->cin;
     }
 
-    public function setCin(?int $cin): self
+    public function setCin($cin): self
     {
         $this->cin = $cin;
         return $this;

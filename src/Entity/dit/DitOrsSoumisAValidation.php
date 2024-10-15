@@ -29,7 +29,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private string $numeroOR;
+    private ?string $numeroOR;
 
     /**
      * @ORM\Column(type="integer")
@@ -101,6 +101,11 @@ class DitOrsSoumisAValidation
     private $pieceJoint03;
     
     private $pieceJoint04;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $statut;
     //==========================================================================================
     
 
@@ -491,5 +496,25 @@ class DitOrsSoumisAValidation
     // Comparaison des objets par leur numero d'intervention
     public function estEgalParNumero(DitOrsSoumisAValidation $autre) {
         return $this->numeroItv === $autre->numeroItv;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
     }
 }
