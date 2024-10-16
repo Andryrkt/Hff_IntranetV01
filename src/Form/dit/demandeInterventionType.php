@@ -20,11 +20,12 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -121,7 +122,7 @@ class demandeInterventionType extends AbstractType
                     ]);
                     
                 })
-            ->add('typeDocument', 
+                ->add('typeDocument', 
                 EntityType::class, [
                     'label' => 'Type de document *',
                     'placeholder' => '-- Choisir--',
@@ -130,10 +131,13 @@ class demandeInterventionType extends AbstractType
                     'required' => true,
                     'constraints' => [
                         new Assert\NotBlank(['message'=>'le type de document doit être sélectionné'])
-                    ]
-                    // 'query_builder' => function(RoleRepository $roleRepository) {
-                    //     return $roleRepository->createQueryBuilder('r')->orderBy('r.codeDocument', 'ASC');
-                    // }
+                    ],
+                    'query_builder' => function (WorTypeDocumentRepository $repository) {
+                        return $repository->createQueryBuilder('w')
+                            ->where('w.id >= :id')
+                            ->setParameter('id', 5)
+                            ->orderBy('w.description', 'ASC');
+                    }
                 ])
             
             ->add('typeReparation', 
