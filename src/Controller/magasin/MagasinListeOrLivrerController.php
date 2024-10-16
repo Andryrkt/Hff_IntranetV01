@@ -50,7 +50,7 @@ class MagasinListeOrLivrerController extends Controller
             $criteria = $form->getData();
         } 
 
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
 
             $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
         
@@ -100,7 +100,7 @@ class MagasinListeOrLivrerController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria);
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
         $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
        
         for ($i=0; $i < count($entities) ; $i++) { 
