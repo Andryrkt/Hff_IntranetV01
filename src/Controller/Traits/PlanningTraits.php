@@ -2,6 +2,7 @@
 namespace App\Controller\Traits;
 
 use App\Model\planning\PlanningModel;
+use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait PlanningTraits
 {
@@ -11,10 +12,13 @@ trait PlanningTraits
 
          return implode("','", $numOrValide);
     }
+
 private function recupNumOrValider($criteria){
     $PlanningModel  = new PlanningModel();
     $resNumor = $this->orEnString($PlanningModel->recuperationNumOrValider($criteria));
     return $resNumor;
 }
+
+
     
 }
