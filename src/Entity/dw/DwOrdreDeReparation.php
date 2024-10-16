@@ -3,6 +3,7 @@
 namespace App\Entity\dw;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\dw\DwDemandeIntervention;
 use App\Repository\dw\DwOrdreDeReparationRepository;
 
 
@@ -17,7 +18,7 @@ class DwOrdreDeReparation
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_or")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
@@ -31,10 +32,13 @@ class DwOrdreDeReparation
      */
     private $idTiroir;
 
+
     /**
-     * @ORM\Column(type="string", length=11, name='numero_dit')
-     */
-    private $numeroDit;
+      * @ORM\Column(type="string", length=11, name="numero_dit", unique=true)
+      *
+      * @var string
+      */
+    private string $numeroDit;
 
     /**
      * @ORM\Column(type="integer", name="numero_version")
@@ -89,11 +93,16 @@ class DwOrdreDeReparation
      */
     private $path;
 
-     /** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+    /**
+     * ORM\OneToOne(mappedBy="dwOrdreDeReparation", targetEntity=DwDemandeIntervention::class)
+     */
+    private $dwDemandeIntervention = null;
+
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
 
 
     /**
@@ -360,6 +369,26 @@ class DwOrdreDeReparation
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get oRM\OneToOne(mappedBy="dwOrdreDeReparation", targetEntity=DwDemandeIntervention::class)
+     */ 
+    public function getDwDemandeIntervention()
+    {
+        return $this->dwDemandeIntervention;
+    }
+
+    /**
+     * Set oRM\OneToOne(mappedBy="dwOrdreDeReparation", targetEntity=DwDemandeIntervention::class)
+     *
+     * @return  self
+     */ 
+    public function setDwDemandeIntervention($dwDemandeIntervention)
+    {
+        $this->dwDemandeIntervention = $dwDemandeIntervention;
 
         return $this;
     }

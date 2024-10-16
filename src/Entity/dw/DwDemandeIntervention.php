@@ -3,6 +3,7 @@
 namespace App\Entity\dw;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\dw\DwOrdreDeReparation;
 use App\Repository\dw\DwDemandeInterventionRepository;
 
 
@@ -17,15 +18,15 @@ class DwDemandeIntervention
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_dit")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_dit")
+     * @ORM\Column(type="string", length=11, name="numero_dit", unique= true)
      */
-    private $numeroDit;
+    private string $numeroDit;
 
       /**
      * @ORM\Column(type="string", length=100, name="id_tiroir")
@@ -97,6 +98,12 @@ class DwDemandeIntervention
      */
     private $path;
 
+    /**
+     * @ORM\OneToOne(targetEntity=DwOrdreDeReparation::class)
+    * @ORM\JoinColumn(name="numero_dit", referencedColumnName="numeroDit", nullable=true)
+    */
+    private  $dwOrdreDeReparation = null;
+    
     /** ===========================================================================
  * getteur and setteur
  *
@@ -408,6 +415,27 @@ class DwDemandeIntervention
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of dwOrdreDeReparation
+     */ 
+    public function getDwOrdreDeReparation()
+    {
+        return $this->dwOrdreDeReparation;
+    }
+
+    /**
+     * Set the value of dwOrdreDeReparation
+     *
+     * @return  self
+     */ 
+    public function setDwOrdreDeReparation($dwOrdreDeReparation)
+    {
+        $this->dwOrdreDeReparation = $dwOrdreDeReparation;
 
         return $this;
     }

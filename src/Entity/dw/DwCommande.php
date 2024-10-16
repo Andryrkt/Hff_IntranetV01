@@ -17,7 +17,7 @@ class DwCommande
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_cde")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 

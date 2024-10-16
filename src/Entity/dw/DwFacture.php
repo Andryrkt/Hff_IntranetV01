@@ -17,7 +17,7 @@ class DwFacture
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_fac")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
