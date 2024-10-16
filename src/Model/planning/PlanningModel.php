@@ -121,7 +121,8 @@ class PlanningModel extends Model
    $vconditionNumOr = $this->numOr($criteria);
    $vconditionNumSerie = $this->numSerie($criteria);
    $vconditionCasier = $this->casier($criteria);
-   $statement = " SELECT
+
+                  $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 

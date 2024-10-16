@@ -23,10 +23,14 @@ trait MagasinTrait
         return $today->modify("-$daysToMonday days");
     }
 
-    private function recupNumOrSelonCondition(array $criteria): array
+    private function recupNumOrSelonCondition(array $criteria, $em): array
     {
         $magasinModel = new MagasinListeOrATraiterModel();
-        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
+        $numeroOrs = $magasinModel->recupNumOr($criteria);
+
+        $numOrValide = $this->numeroOrValide($numeroOrs, $magasinModel, $em);
+
+        $numOrValideString = $this->orEnString($numOrValide);
         $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet());
         $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet());
         $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout());
@@ -43,16 +47,8 @@ trait MagasinTrait
     {
         $magasinModel = new MagasinListeOrATraiterModel();
         $numeroOrs = $magasinModel->recupNumOr($criteria);
-        $numOrValide = [];
-        foreach ($numeroOrs as $numeroOr) {
-            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-            if(!empty($numItv)){
-                $numItvs = $magasinModel->recupNumeroItv($numeroOr['numero_or'],$this->orEnString($numItv));
-                if($numItvs[0]['nbitv'] === "0"){
-                    $numOrValide[] = $numeroOr;
-                }
-            }
-        }
+        
+        $numOrValide = $this->numeroOrValide($numeroOrs, $magasinModel, $em);
         
         $numOrValideString = $this->orEnString($numOrValide);
         $numOrLivrerComplet = $this->orEnString($this->magasinModel->recupOrLivrerComplet());
@@ -65,6 +61,22 @@ trait MagasinTrait
             "numOrLivrerTout" => $numOrLivrerTout,
             "numOrValideString" => $numOrValideString
         ];
+    }
+
+    private function numeroOrValide($numeroOrs, $magasinModel, $em)
+    {
+        $numOrValide = [];
+        foreach ($numeroOrs as $numeroOr) {
+            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+            if(!empty($numItv)){
+                $numItvs = $magasinModel->recupNumeroItv($numeroOr['numero_or'],$this->orEnString($numItv));
+                if($numItvs[0]['nbitv'] === "0"){
+                    $numOrValide[] = $numeroOr;
+                }
+            }
+        }
+
+        return $numOrValide;
     }
 
     private function recupNumOrSelonCond(array $criteria): array

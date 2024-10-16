@@ -17,7 +17,7 @@ class DwRapportIntervention
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_ri")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 

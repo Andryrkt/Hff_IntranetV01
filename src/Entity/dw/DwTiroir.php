@@ -16,7 +16,7 @@ class DwTiroir
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_tiroir")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
