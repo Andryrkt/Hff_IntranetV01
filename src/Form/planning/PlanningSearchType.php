@@ -105,7 +105,8 @@ class PlanningSearchType extends AbstractType
                     'required' => False,
                     'choices' => self::TYPELIGNE,
                     'attr' => [ 'class' => 'typeligne'],
-                    'data' => 'TOUTES'
+                    'data' => 'TOUTES',
+                    'placeholder' => False
                     ])
 
                 ->add('facture', ChoiceType::class,[
