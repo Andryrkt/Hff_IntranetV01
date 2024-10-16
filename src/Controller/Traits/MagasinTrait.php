@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits;
 
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Model\magasin\MagasinModel;
 
@@ -11,7 +12,7 @@ trait MagasinTrait
     {
         $numOrValide = $this->transformEnSeulTableau($tab);
 
-         return implode("','", $numOrValide);
+        return implode("','", $numOrValide);
     }
 
     private function firstDateOfWeek()
@@ -30,7 +31,7 @@ trait MagasinTrait
         $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet());
         $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout());
 
-       return  [
+        return  [
             "numOrLivrerComplet" => $numOrLivrerComplet,
             "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
             "numOrLivrerTout" => $numOrLivrerTout,
@@ -38,15 +39,27 @@ trait MagasinTrait
         ];
     }
 
-    private function recupNumOrTraiterSelonCondition(array $criteria): array
+    private function recupNumOrTraiterSelonCondition(array $criteria, $em): array
     {
         $magasinModel = new MagasinListeOrATraiterModel();
-        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
+        $numeroOrs = $magasinModel->recupNumOr($criteria);
+        $numOrValide = [];
+        foreach ($numeroOrs as $numeroOr) {
+            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+            if(!empty($numItv)){
+                $numItvs = $magasinModel->recupNumeroItv($numeroOr['numero_or'],$this->orEnString($numItv));
+                if($numItvs[0]['nbitv'] === "0"){
+                    $numOrValide[] = $numeroOr;
+                }
+            }
+        }
+        
+        $numOrValideString = $this->orEnString($numOrValide);
         $numOrLivrerComplet = $this->orEnString($this->magasinModel->recupOrLivrerComplet());
         $numOrLivrerIncomplet = $this->orEnString($this->magasinModel->recupOrLivrerIncomplet());
         $numOrLivrerTout = $this->orEnString($this->magasinModel->recupOrLivrerTout());
 
-       return  [
+        return  [
             "numOrLivrerComplet" => $numOrLivrerComplet,
             "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
             "numOrLivrerTout" => $numOrLivrerTout,
@@ -60,12 +73,10 @@ trait MagasinTrait
         $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
         $numOrEncours = $this->orEnString($this->magasinListOrEncoursModel->recupOrEncours());
 
-       return  [
+        return  [
             "numOrEncours" => $numOrEncours,
             "numOrValideString" => $numOrValideString
         ];
     }
 
-
-   
 }

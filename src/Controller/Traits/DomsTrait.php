@@ -465,10 +465,10 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         // Parcourir chaque élément du tableau
         foreach ($Dates as $periode) {
             // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']);
-            $dateFin = new DateTime($periode['Date_Fin']);
-            $dateDebutInputObj = $dateDebutInput; // Correction de la variable
-            $dateFinInputObj = $dateFinInput; // Correction de la variable
+            $dateDebut = new DateTime($periode['Date_Debut']);//date dans la base de donner
+            $dateFin = new DateTime($periode['Date_Fin']);//date dans la base de donner
+            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
+            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
 
             // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
             if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables

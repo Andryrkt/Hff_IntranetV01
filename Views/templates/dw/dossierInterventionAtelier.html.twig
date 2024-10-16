@@ -12,53 +12,85 @@
 {% block content %}
 	<div class="row">
 		<div class="col-12 col-md-6">
-			{% include "/dw/shared/_formulaireRecherche.html.twig" %}
-			<table class="table rounded table-plein-ecran table-moitier">
-				<thead class="table-dark">
-					<tr>
-						<th>Date DIT</th>
-						<th>N° DIT</th>
-						<th>ID mat</th>
-						<th>N° Parc</th>
-						<th>N/S</th>
-						<th>Désignation</th>
-						<th>OR</th>
-						<th>Nb de docs</th>
-						<th>type interv (interne/externe)</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for dwDit in dwDits %}
+			<div class="container">
+				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
 						<tr>
-							<td>{{dwDit.dateCreation | date('d/m/Y')}}</td>
-							<td>{{dwDit.numeroDit}}</td>
-							<td>{{dwDit.idMateriel}}</td>
-							<td>{{dwDit.numeroParc}}</td>
-							<td>{{dwDit.numeroSerie}}</td>
-							<td>{{dwDit.designationMateriel}}</td>
-							<td>numero or</td>
-							<td>nombre doc</td>
-							<td>{{dwDit.typeReparation}}</td>
+							<th>Date DIT</th>
+							<th>N° DIT</th>
+							<th>ID mat</th>
+							<th>N° Parc</th>
+							<th>N/S</th>
+							<th>Désignation</th>
+							<th>OR</th>
+							<th>Nb de docs</th>
+							<th>type interv (interne/externe)</th>
 						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			<h3>DOSSIER: DIT2408995</h3>
-			<table class="table rounded table-plein-ecran table-moitier">
-				<thead class="table-dark">
-					<tr>
-						<th>Type</th>
-						<th>N° de document</th>
-						<th>Date de création</th>
-						<th>Date de MAJ</th>
-						<th>Nb de pages</th>
-						<th>Taille</th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
+					</thead>
+					<tbody>
+						{% for dwDit in dwDits %}
+							<tr>
+								<td>{{dwDit.dateCreation | date('d/m/Y')}}</td>
+								<td>{{dwDit.numeroDit}}</td>
+								<td>{{dwDit.idMateriel}}</td>
+								<td>{{dwDit.numeroParc}}</td>
+								<td>{{dwDit.numeroSerie}}</td>
+								<td>{{dwDit.designationMateriel}}</td>
+								<td>numero or</td>
+								<td>nombre doc</td>
+								<td>{{dwDit.typeReparation}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				<h3>DOSSIER: DIT2408995</h3>
+
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
+						<tr>
+							<th>Type</th>
+							<th>N° de document</th>
+							<th>Date de création</th>
+							<th>Date de MAJ</th>
+							<th>Nb de pages</th>
+							<th>Taille</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for dwDit in dwDits %}
+							<tr class="align-middle" style="cursor: pointer;" onclick="loadFile('{{ dwDit.extensionFichier }}', '{{ path_to_files_folder }}/{{ dwDit.numeroDit }}{{ dwDit.extensionFichier }}')">
+								<td class="fs-3 p-0">
+									{% if dwDit.extensionFichier == '.pdf' %}
+										<i class="fa-regular fa-file-pdf"></i>
+									{% elseif dwDit.extensionFichier == '.doc' or dwDit.extensionFichier == '.docx' %}
+										<i class="fa-regular fa-file-word"></i>
+									{% elseif dwDit.extensionFichier == '.xls' or dwDit.extensionFichier == '.xlsx' %}
+										<i class="fa-regular fa-file-excel"></i>
+									{% else %}
+										<i class="fa-regular fa-file"></i>
+									{% endif %}
+								</td>
+								<td>{{dwDit.numeroDit}}</td>
+								<td>{{dwDit.dateCreation | date('d/m/Y')}}</td>
+								<td>{{dwDit.dateDerniereModification | date('d/m/Y')}}</td>
+								<td class="text-center">{{dwDit.totalPage}}</td>
+								<td>{{dwDit.tailleFichier}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 		</div>
-		<div class="col-12 col-md-6"></div>
+		<div class="col-12 col-md-6">
+			<div id="fileViewer" style="border: 1px solid #ddd; height: 600px; width: 100%;">
+				<p class="text-center">Cliquez sur un document pour l'afficher ici ou le télécharger</p>
+			</div>
+		</div>
 	</div>
 
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dw/dossierInterventionAtelier.js" type="module"></script>
 {% endblock %}
