@@ -12,6 +12,23 @@ class MagasinListeOrATraiterModel extends Model
     use FormatageTrait;
 
 
+    public function recupNumeroItv($numOr, $stringItv)
+    {
+        $statement = " SELECT  
+                        COUNT(sitv_interv) as nbItv
+                        FROM sav_itv 
+                        where sitv_numor='".$numOr."'
+                        AND sitv_interv NOT IN ('".$stringItv."')";
+        
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+
+    }
+
+    
     public function recupUserCreateNumOr($numOr)
     {
         $statement = " SELECT 

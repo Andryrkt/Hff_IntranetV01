@@ -59,18 +59,22 @@
 					</thead>
 					<tbody>
 						{% for dwDit in dwDits %}
-							<tr class="align-middle">
+							<tr class="align-middle" style="cursor: pointer;" onclick="loadFile('{{ dwDit.extensionFichier }}', '{{ path_to_files_folder }}/{{ dwDit.numeroDit }}{{ dwDit.extensionFichier }}')">
 								<td class="fs-3 p-0">
 									{% if dwDit.extensionFichier == '.pdf' %}
 										<i class="fa-regular fa-file-pdf"></i>
+									{% elseif dwDit.extensionFichier == '.doc' or dwDit.extensionFichier == '.docx' %}
+										<i class="fa-regular fa-file-word"></i>
+									{% elseif dwDit.extensionFichier == '.xls' or dwDit.extensionFichier == '.xlsx' %}
+										<i class="fa-regular fa-file-excel"></i>
 									{% else %}
 										<i class="fa-regular fa-file"></i>
 									{% endif %}
 								</td>
-								<td>numero document numero document numero document</td>
-								<td>date de creation</td>
-								<td>date de mise à jour</td>
-								<td>{{dwDit.totalPage}}</td>
+								<td>{{dwDit.numeroDit}}</td>
+								<td>{{dwDit.dateCreation | date('d/m/Y')}}</td>
+								<td>{{dwDit.dateDerniereModification | date('d/m/Y')}}</td>
+								<td class="text-center">{{dwDit.totalPage}}</td>
 								<td>{{dwDit.tailleFichier}}</td>
 							</tr>
 						{% endfor %}
@@ -78,7 +82,15 @@
 				</table>
 			</div>
 		</div>
-		<div class="col-12 col-md-6"></div>
+		<div class="col-12 col-md-6">
+			<div id="fileViewer" style="border: 1px solid #ddd; height: 600px; width: 100%;">
+				<p class="text-center">Cliquez sur un document pour l'afficher ici ou le télécharger</p>
+			</div>
+		</div>
 	</div>
 
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dw/dossierInterventionAtelier.js" type="module"></script>
 {% endblock %}

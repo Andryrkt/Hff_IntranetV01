@@ -19,6 +19,36 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $nbrItv ? $nbrItv : 0;
     }
 
+    public function findNumItvValide($numOr)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $statut = ['Validé', 'Livré'];
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
+        $nbrItv = $this->createQueryBuilder('osv')
+            ->select('osv.numeroItv')  
+            ->where('osv.numeroOR = :numOr') 
+            ->andWhere('osv.statut IN (:statut)')  
+            ->andwhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numeroVersionMax' => $numeroVersionMax,
+                'numOr' => $numOr,
+                'statut' => $statut,
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $nbrItv;
+    }
+
+
     public function findStatutByNumeroVersionMax($numOr, $numItv)
     {
         // Étape 1 : Récupérer le numeroVersion maximum

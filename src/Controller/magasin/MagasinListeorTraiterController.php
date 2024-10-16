@@ -47,13 +47,13 @@ class MagasinListeOrTraiterController extends Controller
         ])->getForm();
         
         $form->handleRequest($request);
-           $criteria = [];
+            $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
 
 
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, self::$em);
 
             $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
@@ -99,7 +99,7 @@ class MagasinListeOrTraiterController extends Controller
     {
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, self::$em);
         $entities = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
          //ajouter le numero dit dans data
