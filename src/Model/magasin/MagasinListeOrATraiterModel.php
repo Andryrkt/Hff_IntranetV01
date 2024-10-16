@@ -258,6 +258,7 @@ class MagasinListeOrATraiterModel extends Model
             and seor_typeor not in('950', '501')
             and slor_succ = '01'
             and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
+            and seor_numor <> '16406497'
             $designation
             $referencePiece 
             $constructeur 
