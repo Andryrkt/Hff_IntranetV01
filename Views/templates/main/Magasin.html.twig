@@ -1,0 +1,38 @@
+{% extends "baseTemplate.html.twig"%}
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/signin.css" rel="stylesheet"/>
+{% endblock %}
+	{% block nav %}
+				{% include "/main/navPrincipe.html.twig" %}	
+	{% endblock %}
+{% block content %}
+  <div class="row bg-image " style="background-image: url('/Hffintranet/Views/assets/back.png'); background-size: cover; background-position: center; min-height: 89vh; height: 100%; 
+        margin: 0;
+        padding: 0;
+        height: 100%;">
+        <div class="container">
+            <div class="row content-center " style="">
+                <div class="offset-2 col-8">
+                    <div class=" row bg-white rounded shadow-5-strong p-5" style="opacity: 85% ; min-height: 50vh; margin-top : 150px; margin-bottom: 10px; padding: 20px; ">
+                        <div class="col-2"> 
+                                <a href="{{path("menu_accueil")}}" class="btn btn-warning">Menu</a>
+                        </div>
+                        <div class="row">
+                            <div class="col-2">
+                            <img src="{{ asset("build/images/box01.png")}}" alt="" width="300px"> 
+                            </div>
+                            
+                            <div class="col">
+                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+{% endblock %}
+{% block footer %}
+		
+		{% endblock %}

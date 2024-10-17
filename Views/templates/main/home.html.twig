@@ -6,7 +6,7 @@
 				{% include "/main/navPrincipe.html.twig" %}	
 	{% endblock %}
 {% block content %}
-  <div class="row bg-image shadow-2-strong" style="background-image: url('/Hffintranet/Views/assets/back.png'); background-size: cover; background-position: center; min-height: 89vh; height: 100%; 
+  <div class="row bg-image " style="background-image: url('/Hffintranet/Views/assets/back.png'); background-size: cover; background-position: center; min-height: 89vh; height: 100%; 
     margin: 0;
     padding: 0;
     height: 100%;">
@@ -14,53 +14,34 @@
           <div class="row content-center " style="">
             <div class="offset-2 col-8">
               <div class=" row bg-white rounded shadow-5-strong p-5" style="opacity: 85% ; min-height: 50vh; margin-top : 150px; margin-bottom: 10px; padding: 20px; ">
+                  
                   <div class ="col text-left"> 
                     <a href="#">
-                        <img src="{{ asset("build/images/chart_line.png")}}" alt="" width="300px"> 
-                        
+                        <img src="{{ asset("build/images/chart_line01.png")}}" alt="" width="300px"> 
                     </a>
                  </div>
+
+                 <div class ="col">
+                    <a href="#">
+                        <img src="{{ asset("build/images/repair01.png")}}" alt="" width="300px"> 
+                    </a>
+                  </div>
+
+                    <div class ="col">
+                    <a href="{{path("magasin_menu")}}">
+                        <img src="{{ asset("build/images/box01.png")}}" alt="" width="300px"> 
+                    </a>
+                  </div>
+
                   <div class ="col">
-                    <a href="#">
-                        <img src="{{ asset("build/images/repair.png")}}" alt="" width="300px"> 
-                
+                    <a href="{{path("magasin_menu")}}">
+                        <img src="{{ asset("build/images/cloud.png")}}" alt="" width="300px"> 
                     </a>
                   </div>
-                   <div class ="col">
-                    <a href="#">
-                        <img src="{{ asset("build/images/file.png")}}" alt="" width="300px"> 
-                        
-                    </a>
-                  </div>
-                   <div class ="col">
-                    <a href="#">
-                        <img src="{{ asset("build/images/Map-Location.png")}}" alt="" width="300px"> 
-                        
-                    </a>
-                  </div>
-                   <div class ="col">
-                    <a href="#">
-                        <img src="{{ asset("build/images/casier.png")}}" alt="" width="300px"> 
-                        
-                    </a>
-                  </div>
-                   <div class ="col">
-                    <a href="#">
-                        <img src="{{ asset("build/images/box.png")}}" alt="" width="300px"> 
-                        
-                    </a>
-                  </div>
+                  
               </div>
             </div>
          </div>
-        {# <div class ="col text-center"> 
-            <a href="#">
-                <img src="{{ asset("build/images/box.png")}}" alt="" width="300px"> 
-                 <div class="text-under-image  text-dark">MAGASIN</div>
-            </a>
-        </div> 
-        <div class ="col"> </div>
-        <div class ="col"> </div>#}
       </div>
   </div>
 {% endblock %}
