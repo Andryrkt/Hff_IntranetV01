@@ -2,8 +2,12 @@
 
 namespace App\Entity\dw;
 
+use App\Entity\dw\DwTiroir;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\dw\DwOrdreDeReparation;
 use App\Repository\dw\DwCommandeRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 /**
@@ -17,9 +21,14 @@ class DwCommande
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_cde")
+     * @ORM\Column(type="integer")
      */
     private int $id;
+
+    /**
+     * @ORM\Column(type="integer", name="id_cde")
+     */
+    private $idCde;
 
     /**
      * @ORM\Column(type="string", length=8, name="id_tiroir")
@@ -76,11 +85,28 @@ class DwCommande
      */
     private $path;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="commande")
+     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
+     */
+    private $tiroir;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=DwOrdreDeReparation::class, inversedBy="commandes")
+     * @ORM\JoinTable(name="dw_commande_ordre_reparation")
+     */
+    private $ordresDeReparation;
+
     /** ===========================================================================
  * getteur and setteur
  *
  * ================================================================================
  */
+
+    public function __construct()
+    {
+        $this->ordresDeReparation = new ArrayCollection();
+    }
 
 
     /**
@@ -91,6 +117,27 @@ class DwCommande
         return $this->id;
     }
 
+
+    /**
+     * Get the value of idCde
+     */ 
+    public function getIdCde()
+    {
+        return $this->idCde;
+    }
+
+    /**
+     * Set the value of idCde
+     *
+     * @return  self
+     */ 
+    public function setIdCde($idCde)
+    {
+        $this->idCde = $idCde;
+
+        return $this;
+    }
+    
     /**
      * Get the value of numeroCde
      */ 
@@ -310,4 +357,42 @@ class DwCommande
 
         return $this;
     }
+
+    public function getTiroir(): ?DwTiroir
+    {
+        return $this->tiroir;
+    }
+
+    public function setTiroir(?DwTiroir $tiroir): self
+    {
+        $this->tiroir = $tiroir;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DwOrdreDeReparation[]
+     */
+    public function getOrdresDeReparation(): Collection
+    {
+        return $this->ordresDeReparation;
+    }
+
+    public function addOrdreDeReparation(DwOrdreDeReparation $ordreDeReparation): self
+    {
+        if (!$this->ordresDeReparation->contains($ordreDeReparation)) {
+            $this->ordresDeReparation[] = $ordreDeReparation;
+        }
+
+        return $this;
+    }
+
+    public function removeOrdreDeReparation(DwOrdreDeReparation $ordreDeReparation): self
+    {
+        $this->ordresDeReparation->removeElement($ordreDeReparation);
+
+        return $this;
+    }
+
+    
 }

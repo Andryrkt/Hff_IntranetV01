@@ -3,6 +3,7 @@
 namespace App\Entity\dw;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\dw\DwOrdreDeReparation;
 use App\Repository\dw\DwDemandeInterventionRepository;
 
 
@@ -17,15 +18,19 @@ class DwDemandeIntervention
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_dit")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
+    /**
+     * @ORM\Column(type="integer", name="id_dit")
+     */
+    private $idDit;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_dit")
+     * @ORM\Column(type="string", length=11, name="numero_dit", unique= true)
      */
-    private $numeroDit;
+    private string $numeroDit;
 
       /**
      * @ORM\Column(type="string", length=100, name="id_tiroir")
@@ -97,6 +102,17 @@ class DwDemandeIntervention
      */
     private $path;
 
+    /**
+     * @ORM\OneToOne(targetEntity=DwOrdreDeReparation::class, mappedBy="demandeIntervention")
+     */
+    private $ordreDeReparation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="idTiroir")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="idTiroir", nullable=true)
+     */
+    private $tiroir;
+    
     /** ===========================================================================
  * getteur and setteur
  *
@@ -109,6 +125,26 @@ class DwDemandeIntervention
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the value of idDit
+     */ 
+    public function getIdDit()
+    {
+        return $this->idDit;
+    }
+
+    /**
+     * Set the value of idDit
+     *
+     * @return  self
+     */ 
+    public function setIdDit($idDit)
+    {
+        $this->idDit = $idDit;
+
+        return $this;
     }
 
     /**
@@ -411,4 +447,39 @@ class DwDemandeIntervention
 
         return $this;
     }
+
+    // Getter et setter pour ordreDeReparation
+    public function getOrdreDeReparation(): ?DwOrdreDeReparation
+    {
+        return $this->ordreDeReparation;
+    }
+
+    public function setOrdreDeReparation(?DwOrdreDeReparation $ordreDeReparation): self
+    {
+        // Assurez-vous de maintenir la cohérence bidirectionnelle
+        if ($ordreDeReparation === null && $this->ordreDeReparation !== null) {
+            $this->ordreDeReparation->setDemandeIntervention(null);
+        }
+
+        if ($ordreDeReparation !== null && $ordreDeReparation->getDemandeIntervention() !== $this) {
+            $ordreDeReparation->setDemandeIntervention($this);
+        }
+
+        $this->ordreDeReparation = $ordreDeReparation;
+        return $this;
+    }
+    
+    public function getTiroir(): ?DwTiroir
+    {
+        return $this->tiroir;
+    }
+
+    public function setTiroir(?DwTiroir $tiroir): self
+    {
+        $this->tiroir = $tiroir;
+
+        return $this;
+    }
+
+    
 }

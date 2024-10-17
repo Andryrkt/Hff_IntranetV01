@@ -121,7 +121,8 @@ class PlanningModel extends Model
    $vconditionNumOr = $this->numOr($criteria);
    $vconditionNumSerie = $this->numSerie($criteria);
    $vconditionCasier = $this->casier($criteria);
-   $statement = " SELECT
+
+                  $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -180,7 +181,7 @@ class PlanningModel extends Model
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
-              //  dump($statement);
+                // dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -253,18 +254,19 @@ class PlanningModel extends Model
 	                    END as Statut,
 
                     CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
-                          TO_CHAR((
-                                          SELECT spic_datepic
-                                          FROM (
-                                              SELECT spic_datepic,
-                                              ROW_NUMBER() OVER (ORDER BY spic_datepic ASC) AS rn
-                                              FROM sav_pic
-                                              WHERE spic_numor = slor_numor
-                                              AND spic_refp = slor_refp
-                                              AND spic_nolign = slor_nolign
-                                                ) AS ranked_dates
-                                            WHERE rn = 1
-                                ), '%Y-%m-%d')
+                    TO_CHAR((
+		                                 SELECT spic_datepic
+                                     FROM (
+                                        SELECT spic_datepic,
+                                         ROW_NUMBER() OVER (ORDER BY spic_datepic ASC) AS rn
+                                         FROM sav_pic
+                                         WHERE spic_numor = slor_numor
+                                        AND spic_refp = slor_refp
+                                        AND spic_nolign = slor_nolign
+                                           ) AS ranked_dates
+                                       WHERE rn = 1
+                             ), '%Y-%m-%d')
+
 	                  WHEN slor_qterea = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
                   	TO_CHAR((
 		                        (SELECT sliv_date 
@@ -312,7 +314,7 @@ class PlanningModel extends Model
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
-      //  dump($statement);
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -424,5 +426,21 @@ public function recuperationEtaMag($numOr, $refp){
      }
 
      return $numOr;
+  }
+
+  public function recupNumeroItv($numOr, $stringItv)
+  {
+      $statement = " SELECT  
+                      COUNT(sitv_interv) as nbItv
+                      FROM sav_itv 
+                      where sitv_numor='".$numOr."'
+                      AND sitv_interv NOT IN ('".$stringItv."')";
+      
+      $result = $this->connect->executeQuery($statement);
+
+      $data = $this->connect->fetchResults($result);
+
+      return $this->convertirEnUtf8($data);
+
   }
 }

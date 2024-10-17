@@ -6,10 +6,11 @@ use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
 
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=WorTypeDocumentRepository::class)
  * @ORM\Table(name="wor_type_document")
  * @ORM\HasLifecycleCallbacks
  */

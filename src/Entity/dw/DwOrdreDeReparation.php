@@ -2,7 +2,11 @@
 
 namespace App\Entity\dw;
 
+use App\Entity\dw\DwCommande;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\dw\DwDemandeIntervention;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\dw\DwOrdreDeReparationRepository;
 
 
@@ -17,9 +21,14 @@ class DwOrdreDeReparation
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_or")
+     * @ORM\Column(type="integer")
      */
     private int $id;
+
+    /**
+     * @ORM\Column(type="integer", name="id_or")
+     */
+    private $idOr;
 
     /**
      * @ORM\Column(type="string", length=8, name="numero_or")
@@ -31,10 +40,13 @@ class DwOrdreDeReparation
      */
     private $idTiroir;
 
+
     /**
-     * @ORM\Column(type="string", length=11, name='numero_dit')
-     */
-    private $numeroDit;
+      * @ORM\Column(type="string", length=11, name="numero_dit", unique=true)
+      *
+      * @var string
+      */
+    private string $numeroDit;
 
     /**
      * @ORM\Column(type="integer", name="numero_version")
@@ -89,12 +101,45 @@ class DwOrdreDeReparation
      */
     private $path;
 
-     /** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+    /**
+     * @ORM\OneToOne(targetEntity=DwDemandeIntervention::class, inversedBy="ordreDeReparation")
+     * @ORM\JoinColumn(name="numero_dit", referencedColumnName="numero_dit", unique=true)
+     */
+    private $demandeIntervention;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=DwCommande::class, mappedBy="ordresDeReparation")
+     */
+    private $commandes;
+
+      /**
+     * @ORM\OneToMany(targetEntity=DwFacture::class, mappedBy="ordreDeReparation")
+     */
+    private $factures;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\dw\DwTiroir", inversedBy="ordresDeReparation")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id", nullable=false)
+     */
+    private $tiroir;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\dw\DwRapportIntervention", mappedBy="ordreDeReparation")
+     */
+    private $rapportsIntervention;
+
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
+
+     public function __construct()
+    {
+        $this->commandes = new ArrayCollection();
+        $this->factures = new ArrayCollection();
+        $this->rapportsIntervention = new ArrayCollection();
+    }
 
     /**
      * Get the value of id
@@ -104,6 +149,26 @@ class DwOrdreDeReparation
         return $this->id;
     }
 
+    /**
+     * Get the value of idOr
+     */ 
+    public function getIdOr()
+    {
+        return $this->idOr;
+    }
+
+    /**
+     * Set the value of idOr
+     *
+     * @return  self
+     */ 
+    public function setIdOr($idOr)
+    {
+        $this->idOr = $idOr;
+
+        return $this;
+    }
+    
     /**
      * Get the value of numeroOR
      */ 
@@ -363,4 +428,119 @@ class DwOrdreDeReparation
 
         return $this;
     }
+
+     
+
+    // Getter et setter pour demandeIntervention
+    public function getDemandeIntervention(): ?DwDemandeIntervention
+    {
+        return $this->demandeIntervention;
+    }
+
+    public function setDemandeIntervention(?DwDemandeIntervention $demandeIntervention): self
+    {
+        $this->demandeIntervention = $demandeIntervention;
+        return $this;
+    }
+
+     /**
+     * @return Collection|DwCommande[]
+     */
+    public function getCommandes(): Collection
+    {
+        return $this->commandes;
+    }
+
+    public function addCommande(DwCommande $commande): self
+    {
+        if (!$this->commandes->contains($commande)) {
+            $this->commandes[] = $commande;
+            $commande->addOrdreDeReparation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommande(DwCommande $commande): self
+    {
+        if ($this->commandes->removeElement($commande)) {
+            $commande->removeOrdreDeReparation($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DwFacture[]
+     */
+    public function getFactures(): Collection
+    {
+        return $this->factures;
+    }
+
+    public function addFacture(DwFacture $facture): self
+    {
+        if (!$this->factures->contains($facture)) {
+            $this->factures[] = $facture;
+            $facture->setOrdreDeReparation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFacture(DwFacture $facture): self
+    {
+        if ($this->factures->removeElement($facture)) {
+            // set the owning side to null (unless already changed)
+            if ($facture->getOrdreDeReparation() === $this) {
+                $facture->setOrdreDeReparation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Getter et setter pour tiroir
+    public function getTiroir(): ?DwTiroir
+    {
+        return $this->tiroir;
+    }
+
+    public function setTiroir(?DwTiroir $tiroir): self
+    {
+        $this->tiroir = $tiroir;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|DwRapportIntervention[]
+     */
+    public function getRapportsIntervention(): Collection
+    {
+        return $this->rapportsIntervention;
+    }
+
+    public function addRapportIntervention(DwRapportIntervention $rapportIntervention): self
+    {
+        if (!$this->rapportsIntervention->contains($rapportIntervention)) {
+            $this->rapportsIntervention[] = $rapportIntervention;
+            $rapportIntervention->setOrdreDeReparation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRapportIntervention(DwRapportIntervention $rapportIntervention): self
+    {
+        if ($this->rapportsIntervention->removeElement($rapportIntervention)) {
+            // set the owning side to null (unless already changed)
+            if ($rapportIntervention->getOrdreDeReparation() === $this) {
+                $rapportIntervention->setOrdreDeReparation(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

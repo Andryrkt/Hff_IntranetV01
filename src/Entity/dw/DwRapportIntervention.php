@@ -17,9 +17,15 @@ class DwRapportIntervention
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="id_ri")
+     * @ORM\Column(type="integer")
      */
     private int $id;
+
+
+    /**
+     * @ORM\Column(type="integer", name="id_ri")
+     */
+    private $idRi;
 
     /**
      * @ORM\Column(type="string", length=50, name="numero_ri")
@@ -76,7 +82,17 @@ class DwRapportIntervention
      */
     private $path;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\dw\DwOrdreDeReparation", inversedBy="rapportsIntervention")
+     * @ORM\JoinColumn(name="ordre_de_reparation_id", referencedColumnName="id", nullable=false)
+     */
+    private $ordreDeReparation;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\dw\DwTiroir", inversedBy="rapportsIntervention")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id", nullable=false)
+     */
+    private $tiroir;
     
 /** ===========================================================================
  * getteur and setteur
@@ -92,6 +108,26 @@ class DwRapportIntervention
         return $this->id;
     }
 
+    /**
+     * Get the value of idRi
+     */ 
+    public function getIdRi()
+    {
+        return $this->idRi;
+    }
+
+    /**
+     * Set the value of idRi
+     *
+     * @return  self
+     */ 
+    public function setIdRi($idRi)
+    {
+        $this->idRi = $idRi;
+
+        return $this;
+    }
+    
     /**
      * Get the value of numeroRi
      */ 
@@ -311,4 +347,34 @@ class DwRapportIntervention
 
         return $this;
     }
+
+    // Getter et setter pour ordreDeReparation
+
+    public function getOrdreDeReparation(): ?DwOrdreDeReparation
+    {
+        return $this->ordreDeReparation;
+    }
+
+    public function setOrdreDeReparation(?DwOrdreDeReparation $ordreDeReparation): self
+    {
+        $this->ordreDeReparation = $ordreDeReparation;
+
+        return $this;
+    }
+
+    // Getter et setter pour tiroir
+
+    public function getTiroir(): ?DwTiroir
+    {
+        return $this->tiroir;
+    }
+
+    public function setTiroir(?DwTiroir $tiroir): self
+    {
+        $this->tiroir = $tiroir;
+
+        return $this;
+    }
+
+    
 }
