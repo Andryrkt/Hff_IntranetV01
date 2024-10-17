@@ -22,6 +22,11 @@ class DwFacture
     private int $id;
 
     /**
+     * @ORM\Column(type="integer", name="id_fac")
+     */
+    private $idFac;
+
+    /**
      * @ORM\Column(type="string", length=8, name="numero_fac")
      */
     private $numeroFac;
@@ -76,6 +81,12 @@ class DwFacture
      */
     private $path;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=DwOrdreDeReparation::class, inversedBy="factures")
+     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
+     */
+    private $ordreDeReparation;
+
     /** ===========================================================================
  * getteur and setteur
  *
@@ -90,6 +101,26 @@ class DwFacture
         return $this->id;
     }
 
+    /**
+     * Get the value of idFac
+     */ 
+    public function getIdFac()
+    {
+        return $this->idFac;
+    }
+
+    /**
+     * Set the value of idFac
+     *
+     * @return  self
+     */ 
+    public function setIdFac($idFac)
+    {
+        $this->idFac = $idFac;
+
+        return $this;
+    }
+    
     /**
      * Get the value of numeroFac
      *
@@ -313,4 +344,18 @@ class DwFacture
 
         return $this;
     }
+
+    // Getter et setter pour ordreDeReparation
+    public function getOrdreDeReparation(): ?DwOrdreDeReparation
+    {
+        return $this->ordreDeReparation;
+    }
+
+    public function setOrdreDeReparation(?DwOrdreDeReparation $ordreDeReparation): self
+    {
+        $this->ordreDeReparation = $ordreDeReparation;
+
+        return $this;
+    }
+
 }
