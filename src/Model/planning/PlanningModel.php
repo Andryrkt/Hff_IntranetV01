@@ -253,12 +253,18 @@ class PlanningModel extends Model
 	                    END as Statut,
 
                     CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
-                    TO_CHAR((
-		                        (SELECT spic_datepic 
-                            FROM sav_pic
-                            WHERE spic_numor = slor_numor
-                            AND spic_refp = slor_refp
-                            AND spic_nolign = slor_nolign )), '%Y-%m-%d')
+                          TO_CHAR((
+                                          SELECT spic_datepic
+                                          FROM (
+                                              SELECT spic_datepic,
+                                              ROW_NUMBER() OVER (ORDER BY spic_datepic ASC) AS rn
+                                              FROM sav_pic
+                                              WHERE spic_numor = slor_numor
+                                              AND spic_refp = slor_refp
+                                              AND spic_nolign = slor_nolign
+                                                ) AS ranked_dates
+                                            WHERE rn = 1
+                                ), '%Y-%m-%d')
 	                  WHEN slor_qterea = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
                   	TO_CHAR((
 		                        (SELECT sliv_date 
