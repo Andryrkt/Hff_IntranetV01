@@ -20,28 +20,19 @@ class DwTiroir
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
-    // /**
-    //  * @ORM\Column(type="string", length=100, name="id_tiroir", unique=true)
-    //  */
-
-    /**
-     * @ORM\OneToMany(targetEntity=DwDemandeIntervention::class, mappedBy="tiroir")
+     * @ORM\Column(type="string", length=100, name="id_tiroir")
      */
     private $idTiroir;
-
 
     /**
      * @ORM\Column(type="string", length=255, name="designation_tiroir")
      */
     private $designationTiroir;
 
-   
-    //private $demandesIntervention;
+    /**
+     * @ORM\OneToMany(targetEntity=DwDemandeIntervention::class, mappedBy="tiroir")
+     */
+    private $demandesIntervention;
 
     /**
      * @ORM\OneToMany(targetEntity=DwCommande::class, mappedBy="tiroir")
@@ -66,19 +57,12 @@ class DwTiroir
 
     public function __construct()
     {
-        //$this->demandesIntervention = new ArrayCollection();
+        $this->demandesIntervention = new ArrayCollection();
         $this->ordresDeReparation = new ArrayCollection();
         $this->rapportsIntervention = new ArrayCollection();
-        $this->idTiroir = new ArrayCollection();
+        
     }
 
-    /**
-     * Get the value of id
-     */ 
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Get the value of idTiroir
@@ -120,60 +104,30 @@ class DwTiroir
         return $this;
     }
 
-    //  /**
-    //  * @return Collection|DwDemandeIntervention[]
-    //  */
-    // public function getDemandesIntervention(): Collection
-    // {
-    //     return $this->demandesIntervention;
-    // }
-
-    // public function addDemandeIntervention(DwDemandeIntervention $demandeIntervention): self
-    // {
-    //     if (!$this->demandesIntervention->contains($demandeIntervention)) {
-    //         $this->demandesIntervention[] = $demandeIntervention;
-    //         $demandeIntervention->setTiroir($this);
-    //     }
-
-    //     return $this;
-    // }
-
-    // public function removeDemandeIntervention(DwDemandeIntervention $demandeIntervention): self
-    // {
-    //     if ($this->demandesIntervention->removeElement($demandeIntervention)) {
-    //         // set the owning side to null (unless already changed)
-    //         if ($demandeIntervention->getTiroir() === $this) {
-    //             $demandeIntervention->setTiroir(null);
-    //         }
-    //     }
-
-    //     return $this;
-    // }
-
-     /**
+  /**
      * @return Collection|DwDemandeIntervention[]
      */
     public function getDemandesIntervention(): Collection
     {
-        return $this->idTiroir;
+        return $this->demandesIntervention;
     }
 
-    public function addDemandeIntervention(DwDemandeIntervention $idTiroir): self
+    public function addDemandeIntervention(DwDemandeIntervention $demandeIntervention): self
     {
-        if (!$this->idTiroir->contains($idTiroir)) {
-            $this->idTiroir[] = $idTiroir;
-            $idTiroir->setTiroir($this);
+        if (!$this->demandesIntervention->contains($demandeIntervention)) {
+            $this->demandesIntervention[] = $demandeIntervention;
+            $demandeIntervention->setTiroir($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeIntervention(DwDemandeIntervention $idTiroir): self
+    public function removeDemandeIntervention(DwDemandeIntervention $demandeIntervention): self
     {
-        if ($this->idTiroir->removeElement($idTiroir)) {
-            // set the owning side to null (unless already changed)
-            if ($idTiroir->getTiroir() === $this) {
-                $idTiroir->setTiroir(null);
+        if ($this->demandesIntervention->removeElement($demandeIntervention)) {
+            // Set the owning side to null (unless already changed)
+            if ($demandeIntervention->getTiroir() === $this) {
+                $demandeIntervention->setTiroir(null);
             }
         }
 

@@ -83,7 +83,7 @@ class DwFacture
 
     /**
      * @ORM\ManyToOne(targetEntity=DwOrdreDeReparation::class, inversedBy="factures")
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="numero_or", referencedColumnName="numero_or", nullable=true)
      */
     private $ordreDeReparation;
 

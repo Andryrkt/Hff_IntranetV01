@@ -118,13 +118,13 @@ class DwOrdreDeReparation
     private $factures;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\dw\DwTiroir", inversedBy="ordresDeReparation")
-     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id", nullable=false)
+     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="ordresDeReparation")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=false)
      */
     private $tiroir;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\dw\DwRapportIntervention", mappedBy="ordreDeReparation")
+     * @ORM\OneToMany(targetEntity=DwRapportIntervention::class, mappedBy="ordreDeReparation")
      */
     private $rapportsIntervention;
 

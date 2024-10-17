@@ -32,11 +32,6 @@ class DwDemandeIntervention
      */
     private string $numeroDit;
 
-      /**
-     * @ORM\Column(type="string", length=100, name="id_tiroir")
-     */
-    private $idTiroir;
-
 
     /**
      * @ORM\Column(type="date", name="date_creation")
@@ -108,8 +103,8 @@ class DwDemandeIntervention
     private $ordreDeReparation;
 
     /**
-     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="idTiroir")
-     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="idTiroir", nullable=true)
+     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="demandesIntervention")
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=true)
      */
     private $tiroir;
     
@@ -167,25 +162,6 @@ class DwDemandeIntervention
         return $this;
     }
 
-    /**
-     * Get the value of idTiroir
-     */ 
-    public function getIdTiroir()
-    {
-        return $this->idTiroir;
-    }
-
-    /**
-     * Set the value of idTiroir
-     *
-     * @return  self
-     */ 
-    public function setIdTiroir($idTiroir)
-    {
-        $this->idTiroir = $idTiroir;
-
-        return $this;
-    }
 
 
     /**
@@ -477,9 +453,6 @@ class DwDemandeIntervention
     public function setTiroir(?DwTiroir $tiroir): self
     {
         $this->tiroir = $tiroir;
-
         return $this;
     }
-
-    
 }
