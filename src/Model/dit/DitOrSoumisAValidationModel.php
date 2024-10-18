@@ -192,4 +192,38 @@ class DitOrSoumisAValidationModel extends Model
 
         return  array_column($this->convertirEnUtf8($data), 'position');
     }
+
+    public function recupNbPieceMagasin($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_sortie_magasin 
+            from sav_lor 
+            where slor_constp not like ('Z%') 
+            and slor_constp not in ('LUB') 
+            and slor_typlig = 'P' 
+            and slor_numor = '".$numOr."'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNbAchatLocaux($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_achat_locaux 
+            from sav_lor 
+            where slor_constp like 'Z%'  
+            and slor_numor = '".$numOr."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

@@ -44,7 +44,7 @@ class AncienDitCommand extends Command
         // Traitement des données
         //$output->writeln('Traitement des données...');
         for ($i = 0; $i < $total; $i++) {
-          
+        
             $ancienDit->recupDesAncienDonnee($numDit[$i]);
             // Avancer la barre de progression d'une étape
             $progressBar->advance();

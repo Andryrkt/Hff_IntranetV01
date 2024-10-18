@@ -37,15 +37,12 @@ class MagasinListeOrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-       
-
-
         $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
-           $criteria = [];
+        $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
@@ -83,6 +80,7 @@ class MagasinListeOrLivrerController extends Controller
             }
 
 
+
         self::$twig->display('magasin/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
@@ -102,7 +100,7 @@ class MagasinListeOrLivrerController extends Controller
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
         $entities = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-       
+        
         for ($i=0; $i < count($entities) ; $i++) { 
             $numeroOr = $entities[$i]['numeroor'];
             $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);

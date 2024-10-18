@@ -11,48 +11,87 @@ document.addEventListener("DOMContentLoaded", function () {
   // });
 
   /** pour le separateur et fusion des numOR */
+  /** pour le separateur et fusion des numOR */
   const tableBody = document.querySelector("#tableBody");
   const rows = document.querySelectorAll("#tableBody tr");
 
-  let previousOrNumber = null;
+  let previousValues = {
+    orNumber: null,
+    ditNumber: null,
+    planningDate: null,
+    urgencyLevel: null,
+    agency: null,
+    service: null,
+    interventionNumber: null,
+    user: null,
+  };
+
   let rowSpanCount = 0;
   let firstRowInGroup = null;
 
-  for (var i = 0; i < rows.length; i++) {
-    let currentRow = rows[i];
-    let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
-    let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
+  function applyRowspanAndClass(row, rowSpanCount) {
+    const cellIndices = {
+      ditNumber: 1, // N° DIT
+      orNumber: 2, // N° OR
+      planningDate: 3, // Date planning
+      urgencyLevel: 4, // Niv. d'urg
+      agency: 6, // Agences
+      service: 7, // Services
+      interventionNumber: 8, // N° Intv
+      user: 15, // Utilisateur
+    };
 
-    if (previousOrNumber === null) {
+    Object.keys(cellIndices).forEach((key) => {
+      let cell = row.getElementsByTagName("td")[cellIndices[key]];
+      if (cell) {
+        cell.rowSpan = rowSpanCount;
+        cell.classList.add("rowspan-cell");
+      }
+    });
+  }
+
+  function hideCells(row) {
+    const cellIndices = [1, 2, 3, 4, 6, 7, 8, 15]; // Indices des colonnes à masquer
+    cellIndices.forEach((index) => {
+      let cell = row.getElementsByTagName("td")[index];
+      if (cell) {
+        cell.style.display = "none";
+      }
+    });
+  }
+
+  for (let i = 0; i < rows.length; i++) {
+    let currentRow = rows[i];
+
+    let currentValues = {
+      ditNumber: currentRow.getElementsByTagName("td")[1].textContent.trim(),
+      orNumber: currentRow.getElementsByTagName("td")[2].textContent.trim(),
+      planningDate: currentRow.getElementsByTagName("td")[3].textContent.trim(),
+      urgencyLevel: currentRow.getElementsByTagName("td")[4].textContent.trim(),
+      agency: currentRow.getElementsByTagName("td")[6].textContent.trim(),
+      service: currentRow.getElementsByTagName("td")[7].textContent.trim(),
+      interventionNumber: currentRow
+        .getElementsByTagName("td")[8]
+        .textContent.trim(),
+      user: currentRow.getElementsByTagName("td")[15].textContent.trim(),
+    };
+
+    // Check if any of the key values differ from the previous row's values
+    const hasGroupChanged = Object.keys(currentValues).some(
+      (key) => previousValues[key] !== currentValues[key]
+    );
+
+    if (!previousValues.orNumber) {
       // Initialisation pour la première ligne
       firstRowInGroup = currentRow;
       rowSpanCount = 1;
-    } else if (previousOrNumber && previousOrNumber !== currentOrNumber) {
+    } else if (hasGroupChanged) {
+      // Applique rowspan aux cellules précédentes avant de commencer un nouveau groupe
       if (firstRowInGroup) {
-        let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-        let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[8];
-        let cellToRowspanAgence =
-          firstRowInGroup.getElementsByTagName("td")[15];
-        let cellToRowspanUtilisateur =
-          firstRowInGroup.getElementsByTagName("td")[6];
-        let cellToRowspanService =
-          firstRowInGroup.getElementsByTagName("td")[7];
-        cellToRowspanNumDit.rowSpan = rowSpanCount;
-        cellToRowspanNumOr.rowSpan = rowSpanCount;
-        cellToRowspanInter.rowSpan = rowSpanCount;
-        cellToRowspanAgence.rowSpan = rowSpanCount;
-        cellToRowspanService.rowSpan = rowSpanCount;
-        cellToRowspanUtilisateur.rowSpan = rowSpanCount;
-        cellToRowspanNumDit.classList.add("rowspan-cell");
-        cellToRowspanNumOr.classList.add("rowspan-cell");
-        cellToRowspanInter.classList.add("rowspan-cell");
-        cellToRowspanAgence.classList.add("rowspan-cell");
-        cellToRowspanService.classList.add("rowspan-cell");
-        cellToRowspanUtilisateur.classList.add("rowspan-cell");
+        applyRowspanAndClass(firstRowInGroup, rowSpanCount);
       }
 
-      // Début pour le séparateur
+      // Ajoute un séparateur
       let separatorRow = document.createElement("tr");
       separatorRow.classList.add("separator-row");
       let td = document.createElement("td");
@@ -60,49 +99,29 @@ document.addEventListener("DOMContentLoaded", function () {
       td.classList.add("p-0");
       separatorRow.appendChild(td);
       tableBody.insertBefore(separatorRow, currentRow);
-      // Fin pour le séparateur
 
+      // Réinitialisation pour le nouveau groupe
       rowSpanCount = 1;
       firstRowInGroup = currentRow;
     } else {
+      // Masquer les cellules en doublon et augmenter le rowSpan
       rowSpanCount++;
-      if (firstRowInGroup !== currentRow) {
-        currentRow.getElementsByTagName("td")[2].style.display = "none";
-        currentRow.getElementsByTagName("td")[1].style.display = "none";
-        currentRow.getElementsByTagName("td")[8].style.display = "none";
-        currentRow.getElementsByTagName("td")[6].style.display = "none";
-        currentRow.getElementsByTagName("td")[7].style.display = "none";
-        currentRow.getElementsByTagName("td")[15].style.display = "none";
-      }
+      hideCells(currentRow);
     }
 
-    previousOrNumber = currentOrNumber;
+    // Mise à jour des valeurs précédentes
+    previousValues = currentValues;
   }
 
-  // Appliquer le rowspan à la dernière série de lignes
+  // Applique rowspan aux dernières lignes du groupe
   if (firstRowInGroup) {
-    let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-    let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[8];
-    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[6];
-    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[7];
-    let cellToRowspanUtilisateur =
-      firstRowInGroup.getElementsByTagName("td")[15];
-    cellToRowspanNumDit.rowSpan = rowSpanCount;
-    cellToRowspanNumOr.rowSpan = rowSpanCount;
-    cellToRowspanInter.rowSpan = rowSpanCount;
-    cellToRowspanAgence.rowSpan = rowSpanCount;
-    cellToRowspanService.rowSpan = rowSpanCount;
-    cellToRowspanUtilisateur.rowSpan = rowSpanCount;
-    cellToRowspanNumDit.classList.add("rowspan-cell");
-    cellToRowspanNumOr.classList.add("rowspan-cell");
-    cellToRowspanInter.classList.add("rowspan-cell");
-    cellToRowspanAgence.classList.add("rowspan-cell");
-    cellToRowspanService.classList.add("rowspan-cell");
-    cellToRowspanUtilisateur.classList.add("rowspan-cell");
+    applyRowspanAndClass(firstRowInGroup, rowSpanCount);
   }
 
-  // /** Autocompletion Designation */
+  /**===============================
+   * Autocompletion Designation
+   * ================================
+   * */
   const designationInput = document.querySelector(
     "#magasin_liste_or_a_livrer_search_designation"
   );

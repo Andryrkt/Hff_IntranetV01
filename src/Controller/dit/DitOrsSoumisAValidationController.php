@@ -130,10 +130,10 @@ class DitOrsSoumisAValidationController extends Controller
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
                 $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
-                $numDevis = $this->ditModel->recupererNumdevis($ditInsertionOrSoumis->getNumeroOR());
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
+                $quelqueaffichage = $this->quelqueAffichage($ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $numDevis);
+                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage);
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
@@ -155,6 +155,29 @@ class DitOrsSoumisAValidationController extends Controller
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function quelqueAffichage($ditOrsoumisAValidationModel, $numOr)
+    {
+        $numDevis = $this->ditModel->recupererNumdevis($numOr);
+        $nbSotrieMagasin = $ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
+        $nbAchatLocaux = $ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
+        if(!empty($nbSotrieMagasin)){
+            $sortieMagasin = 'OUI';
+        } else {
+            $sortieMagasin = 'NON';
+        }
+        if(!empty($nbAchatLocaux)){
+            $achatLocaux = 'OUI';
+        } else {
+            $achatLocaux = 'NON';
+        }
+
+        return [
+            "numDevis" => $numDevis,
+            "sortieMagasin" => $sortieMagasin,
+            "achatLocaux" => $achatLocaux
+        ];
     }
 
 }

@@ -283,20 +283,23 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
-         //filtre selon le section affectée
-         $sectionAffectee = $ditSearch->getSectionAffectee();
-    if (!empty($sectionAffectee)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
-        $orX = $queryBuilder->expr()->orX();
+     // Filtrer selon la section affectée
+        $sectionAffectee = $ditSearch->getSectionAffectee();
+        if (!empty($sectionAffectee)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
 
-        foreach ($groupes as $groupe) {
-            $phraseConstruite = $groupe. $sectionAffectee;
-            $orX->add($queryBuilder->expr()->eq('d.sectionAffectee', ':sectionAffectee_' . md5($phraseConstruite)));
-            $queryBuilder->setParameter('sectionAffectee_' . md5($phraseConstruite), $phraseConstruite);
+            foreach ($groupes as $index => $groupe) {
+                $phraseConstruite = $groupe . $sectionAffectee;
+                // Utiliser une clé paramétrique plus simple
+                $paramKey = 'sectionAffectee_' . $index;
+                $orX->add($queryBuilder->expr()->like('d.sectionAffectee', ":$paramKey"));
+                $queryBuilder->setParameter($paramKey, '%'.$phraseConstruite.'%');
+            }
+
+            // Ajouter la clause WHERE avec OR
+            $queryBuilder->andWhere($orX);
         }
-
-        $queryBuilder->andWhere($orX);
-    }
 
         //filtre selon le section support 1
         $sectionSupport1 = $ditSearch->getSectionSupport1();
