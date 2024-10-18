@@ -162,12 +162,12 @@ class DitOrsSoumisAValidationController extends Controller
         $numDevis = $this->ditModel->recupererNumdevis($numOr);
         $nbSotrieMagasin = $ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
         $nbAchatLocaux = $ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
-        if(!empty($nbSotrieMagasin)){
+        if(!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0"){
             $sortieMagasin = 'OUI';
         } else {
             $sortieMagasin = 'NON';
         }
-        if(!empty($nbAchatLocaux)){
+        if(!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0"){
             $achatLocaux = 'OUI';
         } else {
             $achatLocaux = 'NON';
