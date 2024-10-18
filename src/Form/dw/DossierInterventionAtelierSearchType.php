@@ -36,7 +36,7 @@ class DossierInterventionAtelierSearchType extends AbstractType
                 'choices' => self::INTERNE_EXTERNE,
                 'placeholder' => '-- Choisir --',
                 'required' => false,
-                'attr' => [ 'class' => 'interneExterne']
+                'data' => 'INTERNE'
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',

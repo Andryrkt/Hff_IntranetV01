@@ -10,8 +10,52 @@ class DossierInterventionAtelierModel extends Model
 
     use ConversionTrait;
 
-    public function findAllDwDit()
+
+    private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
     {
+        if(!empty($criteria[$indexCriteria])) {
+            $condition = " AND {$colonneBase} LIKE '%".$criteria[$indexCriteria]."%'";
+        } else {
+            $condition = "";
+        }
+
+        return $condition;
+    }
+
+    private function conditionDateSigne(string $colonneBase, string $indexCriteria, array $criteria, string $signe)
+    {
+        if (!empty($criteria[$indexCriteria])) {
+            // Vérifie si $criteria['dateDebut'] est un objet DateTime
+            if ($criteria[$indexCriteria] instanceof \DateTime) {
+                // Formate la date au format SQL (par exemple, 'Y-m-d')
+                $formattedDate = $criteria[$indexCriteria]->format('Y-m-d');
+            } else {
+                // Si ce n'est pas un objet DateTime, le considérer comme une chaîne
+                $formattedDate = $criteria[$indexCriteria];
+            }
+        
+            $condition = " AND {$colonneBase} {$signe} '" . $formattedDate . "'";
+        } else {
+            $condition = "";
+        }
+        return $condition;
+    }
+
+    public function findAllDwDit($criteria = [])
+    {
+    
+        $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
+        $numeroOr = $this->conditionLike('ord.numero_or', 'numOr', $criteria);
+        $designation = $this->conditionLike('dit.designation_materiel', 'designation', $criteria);
+        $idMateriel = $this->conditionLike('dit.id_materiel', 'idMateriel', $criteria);
+        $numParc = $this->conditionLike('dit.numero_parc', 'numParc', $criteria);
+        $numSerie = $this->conditionLike('dit.numero_serie', 'numSerie', $criteria);
+
+        $dateDebut = $this->conditionDateSigne( 'dit.date_creation', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne( 'dit.date_creation', 'dateFin', $criteria, '<=');
+
+
+        
         $sql =" SELECT 
             dit.date_creation AS date_creation_intervention,
             dit.numero_dit AS numero_dit_intervention,
@@ -24,6 +68,15 @@ class DossierInterventionAtelierModel extends Model
             FROM DW_Demande_Intervention dit
             LEFT JOIN DW_Ordre_De_Reparation ord 
             ON dit.numero_dit = ord.numero_dit 
+            WHERE dit.type_reparation =  '".$criteria['typeIntervention']."'
+            $numeroDit
+            $numeroOr
+            $designation
+            $dateDebut
+            $dateFin
+            $idMateriel
+            $numParc
+            $numSerie
             ORDER BY dit.date_creation DESC
         ";
 

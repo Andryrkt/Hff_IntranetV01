@@ -3,6 +3,8 @@
 	<div class=" container d-flex justify-content-around ">
 		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset("build/images/logoHFF.jpg")}}" id="LogoHFF" alt="" width="150px"></a>
 		<h3 class="text-white mt-3 fs-5 fw-bold">DEMANDE D'INTERVENTION ATELIER</h3>
-		<p class="text-white mt-3 fs-6 fw-bold">{{date | date('d/m/Y')}}</p>
+		<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:#fff">Retour</a>
+
+		{# <p class="text-white mt-3 fs-6 fw-bold">{{date | date('d/m/Y')}}</p> #}
 	</div>
 </nav>

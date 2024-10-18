@@ -2,12 +2,13 @@
 
 namespace App\Controller\dw;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Entity\dw\DwDemandeIntervention;
-use App\Form\dw\DossierInterventionAtelierSearchType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
-use DateTime;
+use App\Form\dw\DossierInterventionAtelierSearchType;
 
 class DossierInterventionAtelierController extends Controller
 {
@@ -16,15 +17,55 @@ class DossierInterventionAtelierController extends Controller
      *
      * @return void
      */
-    public function dossierInterventionAtelier()
+    public function dossierInterventionAtelier(Request $request)
     {
         
-        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class)->getForm();
+        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, [ 'method' => 'GET'])->getForm();
 
         $dwModel = new DossierInterventionAtelierModel();
 
-        $dwDits = $dwModel->findAllDwDit();
-        
+        $criteria = [
+                "idMateriel" => null,
+                "typeIntervention" => "INTERNE",
+                "dateDebut" => null,
+                "dateFin" => null,
+                "numParc" => null,
+                "numSerie" => null,
+                "numDit" => null,
+                "numOr" => null,
+                "designation" => null,
+        ];
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        }
+
+        $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
+
+        //dd($dwDits[0]->getOrdreDeReparation()->get);
+
+        //Facture
+        // $facture = $dwDits[0]->getOrdreDeReparation()->getFactures();
+
+        // foreach ($facture as $value) {
+        //     dump($value);
+        // }
+
+        $date = new DateTime();
+
+        self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
+            'form' => $form->createView(),
+            'dwDits' => $dwDits,
+            'date' => $date
+        ]);
+    }
+
+    public function ajoutNbDoc($dwModel, $criteria)
+    {
+        $dwDits = $dwModel->findAllDwDit($criteria);
+
         $dwfac = [];
         $dwRi = [];
         $dwCde = [];
@@ -47,23 +88,7 @@ class DossierInterventionAtelierController extends Controller
             // Ajouter le nombre de documents à l'élément actuel de $dwDits
             $dwDits[$i]['nbDoc'] = count($data) ;
         }
-        
 
-        //dd($dwDits[0]->getOrdreDeReparation()->get);
-
-        //Facture
-        // $facture = $dwDits[0]->getOrdreDeReparation()->getFactures();
-
-        // foreach ($facture as $value) {
-        //     dump($value);
-        // }
-
-        $date = new DateTime();
-
-        self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
-            'form' => $form->createView(),
-            'dwDits' => $dwDits,
-            'date' => $date
-        ]);
+        return $dwDits;
     }
 }

@@ -9,6 +9,7 @@
 
 .selected {
     background-color:#FBBB01; /* Couleur de fond une fois cliqué */
+    font-weight: bold;
 }
 
 .notice {

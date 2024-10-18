@@ -38,7 +38,7 @@
 								<td>{{dwDit.numero_parc_intervention}}</td>
 								<td>{{dwDit.numero_serie_intervention}}</td>
 								<td>{{dwDit.designation_materiel_intervention}}</td>
-								<td>{{dwDit.numero_or_reparation}}</td>
+								<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
 								<td class="text-center">{{dwDit.nbDoc}}</td>
 								<td>{{dwDit.type_reparation_intervention}}</td>
 							</tr>
@@ -65,7 +65,13 @@
 						</tr>
 					</thead>
 					<tbody
-						id="documents-tbody"><!-- Le contenu sera inséré ici via JS -->
+						id="documents-tbody">
+						<!-- Le contenu sera inséré ici via JS -->
+						<div id="spinner" style="display: none;">
+							<i class="fas fa-spinner fa-spin"></i>
+							Chargement...
+						</div>
+
 					</tbody>
 				</table>
 				<div class="notice">

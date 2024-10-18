@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // Récupère le numéro DIT de la ligne cliquée
       const numeroDit = this.dataset.dit;
 
+      // Affiche le spinner
+      spinner.style.display = "block";
+
       // Met à jour le titre avec le numéro DIT
       document.getElementById("numero-dit").textContent = numeroDit;
       console.log(numeroDit);
@@ -35,6 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           console.log(data);
+          // Masque le spinner une fois les données chargées
+          spinner.style.display = "none";
 
           // Remplace le tbody du tableau à chaque clic
           const newTbody = document.createElement("tbody");
@@ -51,11 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
             let icon = iconSelonTypeFile(doc.extension_fichier);
 
             //affichage statut et version or
-            let statut = "";
-            let numVersion = "";
+            let statut = "-";
+            let numVersion = "-";
             if (doc.nomDoc === "Ordre de réparation") {
-              statut = doc.statut_or ? doc.statut_or : "";
-              numVersion = doc.numero_version ? doc.numero_version : "";
+              statut = doc.statut_or ? doc.statut_or : "-";
+              numVersion = doc.numero_version ? doc.numero_version : "-";
             }
 
             const row = document.createElement("tr");
@@ -70,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       <td>${new Date(
                         doc.date_modification
                       ).toLocaleDateString()}</td>
-                      <td>${numVersion}</td>
+                      <td class="text-center">${numVersion}</td>
                       <td>${statut}</td>
                       <td class="text-center">${doc.total_page}</td>
                       <td>${tailleFichierKo} ko</td>
@@ -90,6 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch((error) => {
           console.error("Erreur lors de la récupération des données:", error);
+          // Masque le spinner en cas d'erreur
+          spinner.style.display = "none";
         });
     });
   });
