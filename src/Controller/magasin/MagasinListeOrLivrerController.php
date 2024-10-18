@@ -81,8 +81,7 @@ class MagasinListeOrLivrerController extends Controller
                     break;
                 }
             }
-
-
+            
         self::$twig->display('magasin/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()

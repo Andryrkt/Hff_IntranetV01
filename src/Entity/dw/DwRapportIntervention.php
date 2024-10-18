@@ -90,7 +90,7 @@ class DwRapportIntervention
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\dw\DwTiroir", inversedBy="rapportsIntervention")
-     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=false)
      */
     private $tiroir;
     

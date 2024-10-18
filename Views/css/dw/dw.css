@@ -1,0 +1,54 @@
+.clickable {
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Ajoute une transition fluide */
+}
+
+.clickable:hover {
+    background-color: #fbbc0185; /* Change la couleur de fond au survol */
+}
+
+.selected {
+    background-color:#FBBB01; /* Couleur de fond une fois cliqué */
+    font-weight: bold;
+}
+
+.notice {
+    background-color: #f9f9f9; /* Couleur de fond douce */
+    border-left: 4px solid #007bff; /* Bordure colorée sur le côté gauche */
+    padding: 10px 15px; /* Espacement à l'intérieur de la boîte */
+    margin: 20px 0; /* Marges autour de la boîte */
+    font-family: Arial, sans-serif; /* Police d'écriture */
+    color: #333; /* Couleur du texte */
+    border-radius: 4px; /* Coins arrondis */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    display: flex; /* Permet d'ajouter une icône avec flexbox */
+    align-items: center; /* Centre l'icône verticalement */
+  }
+  
+  .notice-icon {
+    margin-right: 10px; /* Espace entre l'icône et le texte */
+    color: #007bff; /* Couleur de l'icône */
+    font-size: 24px; /* Taille de l'icône */
+  }
+  
+  .notice-content {
+    flex: 1; /* Le texte prend tout l'espace disponible */
+  }
+  
+
+  .dossier {
+    font-size: 24px; /* Taille du texte plus grande pour ressembler à un titre */
+    font-weight: bold; /* Met en gras pour donner un effet de titre */
+    color: #333; /* Couleur du texte */
+    margin: 20px 0; /* Espace au-dessus et en dessous du titre */
+    border-bottom: 2px solid #FBBB01; /* Ligne en bas pour donner un effet de section */
+    padding-bottom: 5px; /* Espacement pour la ligne de bordure */
+    text-transform: uppercase; /* Transforme le texte en majuscules */
+  }
+  
+  .dossier span {
+    font-size: inherit !important; /* Inhère la taille du texte de l'élément parent */
+    font-weight: normal; /* Le numéro DIT a un poids normal */
+    color: #555; /* Couleur plus douce pour le numéro DIT */
+  }
+  

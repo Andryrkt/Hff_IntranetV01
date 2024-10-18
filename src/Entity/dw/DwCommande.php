@@ -35,10 +35,6 @@ class DwCommande
      */
     private $numeroCde;
 
-    /**
-     * @ORM\Column(type="string", length=100, name="id_tiroir")
-     */
-    private $idTiroir;
 
     /**
      * @ORM\Column(type="string", length=8, name="numero_or")
@@ -86,10 +82,10 @@ class DwCommande
     private $path;
 
     /**
-     * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="commande")
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
-     */
-    private $tiroir;
+ * @ORM\ManyToOne(targetEntity=DwTiroir::class, inversedBy="commande")
+ * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=true)
+ */
+private $tiroir;
 
     /**
      * @ORM\ManyToMany(targetEntity=DwOrdreDeReparation::class, inversedBy="commandes")
@@ -158,25 +154,6 @@ class DwCommande
         return $this;
     }
 
-    /**
-     * Get the value of idTiroir
-     */ 
-    public function getIdTiroir()
-    {
-        return $this->idTiroir;
-    }
-
-    /**
-     * Set the value of idTiroir
-     *
-     * @return  self
-     */ 
-    public function setIdTiroir($idTiroir)
-    {
-        $this->idTiroir = $idTiroir;
-
-        return $this;
-    }
 
     /**
      * Get the value of numeroOR
