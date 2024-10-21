@@ -30,7 +30,6 @@ class DitListeController extends Controller
 
         $ditSearch = new DitSearch();
         $agenceServiceIps= $this->agenceServiceIpsObjet();
-   
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
@@ -103,8 +102,8 @@ class DitListeController extends Controller
 
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
+        $this->ajoutConditionOrEqDit($paginationData['data']);
 
-        
 
         /** 
          * Docs à intégrer dans DW 
@@ -115,7 +114,7 @@ class DitListeController extends Controller
 
 
         $formDocDansDW->handleRequest($request);
-       
+            
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
     
@@ -142,6 +141,8 @@ class DitListeController extends Controller
         ]);
     }
 
+
+    
     
     /**
      * @Route("/export-excel", name="export_excel")

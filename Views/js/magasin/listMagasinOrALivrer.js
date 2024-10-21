@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // });
 
   /** pour le separateur et fusion des numOR */
-   /** pour le separateur et fusion des numOR */
+  /** pour le separateur et fusion des numOR */
   const tableBody = document.querySelector("#tableBody");
   const rows = document.querySelectorAll("#tableBody tr");
 
@@ -118,7 +118,10 @@ document.addEventListener("DOMContentLoaded", function () {
     applyRowspanAndClass(firstRowInGroup, rowSpanCount);
   }
 
-  // /** Autocompletion Designation */
+  /**===============================
+   * Autocompletion Designation
+   * ================================
+   * */
   const designationInput = document.querySelector(
     "#magasin_liste_or_a_livrer_search_designation"
   );

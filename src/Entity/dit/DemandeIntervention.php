@@ -474,6 +474,8 @@ class DemandeIntervention
     private $nbrPj;
 
     private $quatreStatutOr;
+
+    private $estOrEqDit;
     //===================================================================================================================
 
     public function getId()
@@ -1420,6 +1422,17 @@ class DemandeIntervention
     {
         $this->quatreStatutOr = $quatreStatutOr;
 
+        return $this;
+    }
+
+    public function getEstOrEqDit()
+    {
+        return $this->estOrEqDit;
+    }
+
+    public function setEstOrEqDit($estOrEqDit)
+    {
+        $this->estOrEqDit = $estOrEqDit;
         return $this;
     }
 }

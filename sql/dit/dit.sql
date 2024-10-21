@@ -99,9 +99,6 @@ CREATE TABLE commentaire_dit_or (
     CONSTRAINT FK_commentaire_dit_or_utilisateur_id FOREIGN KEY (utilisateur_id) REFERENCES Users (id),
 );
 
-
-
-
 ALTER TABLE demande_intervention ADD section_support_1 VARCHAR(255)
 
 ALTER TABLE demande_intervention ADD section_support_2 VARCHAR(255)
@@ -172,3 +169,15 @@ WHERE
     slor_numor = '16412642'
 GROUP BY
     1
+
+UPDATE demande_intervention
+SET
+    section_affectee = CASE
+        WHEN section_affectee = 'ELECTRICITE' THEN 'Chef section Électricité'
+        WHEN section_affectee = 'MOTEURS ET MACHINES OUTILS' THEN 'Chef section moteurs et machines outils'
+        WHEN section_affectee = 'TOLERIE & PEINTURE & MECANIQUE' THEN 'Chef section tolerie & peinture & mecanique'
+        WHEN section_affectee = 'FER ET BATIMENTS' THEN 'Chef section Fer et Bâtiment'
+        WHEN section_affectee = 'CUSTOMER SUPPORT' THEN 'Chef de section Customer support'
+        WHEN section_affectee = 'FROID' THEN 'Chef section froid'
+        ELSE section_affectee
+    END;

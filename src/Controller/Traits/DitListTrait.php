@@ -290,4 +290,26 @@ trait DitListTrait
             }
         }
     }
+
+    private function estNumorEqNumDit($numDit)
+    {
+        $nbNumor = $this->ditModel->recupNbNumor($numDit);
+        $estRelier = false;
+        if(!empty($nbNumor) && $nbNumor[0]['nbor'] !== "0")
+        {
+            $estRelier = true;
+        }
+
+        return $estRelier;
+    }
+
+    private function ajoutConditionOrEqDit($data)
+    {
+        
+        for ($i=0; $i < count($data); $i++) {
+            $estOrEqDit = $this->estNumorEqNumDit($data[$i]->getNumeroDemandeIntervention());
+           $data[$i]->setEstOrEqDit($estOrEqDit);
+        }
+       
+    }
 }
