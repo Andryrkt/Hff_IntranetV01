@@ -260,8 +260,12 @@ class MagasinListeOrLivrerModel extends Model
                         slor_datec as dateCreation,
                         slor_nogrp/100 as numInterv,
                         slor_nolign as numeroLigne,
-                        slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-                        slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
+                        --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        slor_succdeb as agenceDebiteur,
+                        slor_servdeb as serviceDebiteur,
+                        slor_succ as agenceCrediteur,
+                        slor_servcrt as serviceCrediteur,
                         (SELECT SUM(CASE 
                                         WHEN B.slor_typlig = 'P' THEN (B.slor_qterel + B.slor_qterea + B.slor_qteres + B.slor_qtewait - B.slor_qrec) 
                                         WHEN B.slor_typlig IN ('F','M','U','C') THEN B.slor_qterea 

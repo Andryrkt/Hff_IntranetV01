@@ -2,6 +2,7 @@
 
 {% block stylesheets%}
 <link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+<link rel="stylesheet" href="/Hffintranet/Views/css/magasin/ors/listOrLivrer.css">
 {% endblock%}
 
 
@@ -37,8 +38,10 @@
 					<th>Date planning</th>
 					<th>Niv. d'urg</th>
 					<th>Date  OR</th>
-					<th class="text-center">Agences</th>
-					<th class="text-center">Services</th>
+					<th class="text-center">Agences Emetteur</th>
+					<th class="text-center">Services Emetteur</th>
+					<th class="text-center">Agences débiteur</th>
+					<th class="text-center">Services débiteur</th>
 					<th class="text-center">N° Intv</th>
 					<th class="text-center">N° lig</th>
 					<th>Cst</th>
@@ -56,13 +59,13 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
-					{% set bgColor = "" %}
+					{% set textColor = "" %}
 					{% if item.quantitedemander != item.qtealivrer %}
-						{% set bgColor = "bg-danger" %}
+						{% set textColor = "textColor" %}
 					{% endif %}
 
 
-					<tr class="{{bgColor}}">
+					<tr>
 						<td class="">
 							<i class="fas fa-ellipsis-vertical"></i>
 						</td>
@@ -71,15 +74,17 @@
 						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="">{{item.niveauUrgence}}</td>
 						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
-						<td>{{ item.agence}}</td>
-						<td>{{ item.service}}</td>
+						<td class="text-center">{{ item.agencecrediteur}}</td>
+						<td class="text-center">{{ item.servicecrediteur}}</td>
+						<td class="text-center">{{ item.agencedebiteur}}</td>
+						<td class="text-center">{{ item.servicedebiteur}}</td>
 						<td class="text-center">{{item.numinterv | number_format(0)}}</td>
-						<td class="text-center">{{ item.numeroligne}}</td>
-						<td class="">{{item.constructeur}}</td>
-						<td class="">{{item.referencepiece}}</td>
-						<td class="">{{item.designationi}}</td>
-						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
-						<td class="text-center">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
+						<td class="text-center {{textColor}}">{{ item.numeroligne}}</td>
+						<td class="{{textColor}}">{{item.constructeur}}</td>
+						<td class="{{textColor}}">{{item.referencepiece}}</td>
+						<td class="{{textColor}}">{{item.designationi}}</td>
+						<td class="text-center {{textColor}}">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
+						<td class="text-center {{textColor}}">{{item.qtealivrer == 0 ? '-' : item.qtealivrer | number_format(0)}}</td>
 						<td>{{ item.nomPrenom }}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 					{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}

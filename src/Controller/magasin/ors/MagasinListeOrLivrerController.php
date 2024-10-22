@@ -80,7 +80,6 @@ class MagasinListeOrLivrerController extends Controller
             }
 
 
-
         self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
