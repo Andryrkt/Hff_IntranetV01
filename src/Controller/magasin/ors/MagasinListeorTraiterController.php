@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\magasin;
+namespace App\Controller\magasin\ors;
 
 ini_set('max_execution_time', 10000);
 
@@ -42,19 +42,27 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function index(Request $request)
     {
-        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, null, [
+        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        //dd($agenceServiceUser['agenceIps']->getCodeAgence());
+
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+        //FIN AUTORISATION
+
+        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => '01-ANTANANARIVO'], [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
-            $criteria = [];
+            $criteria = [
+                "agenceUser" => '01-ANTANANARIVO'
+            ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
 
-
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, self::$em);
-
+        
             $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
             //enregistrer les critère de recherche dans la session
@@ -81,7 +89,7 @@ class MagasinListeOrTraiterController extends Controller
             }
 
 
-        self::$twig->display('magasin/listOrATraiter.html.twig', [
+        self::$twig->display('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\magasin;
+namespace App\Controller\magasin\ors;
 
 ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
@@ -54,7 +54,7 @@ class MagasinListeOrLivrerController extends Controller
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
-   
+
             //ajouter le numero dit dans data
             for ($i=0; $i < count($data) ; $i++) { 
                 $numeroOr = $data[$i]['numeroor'];
@@ -81,7 +81,7 @@ class MagasinListeOrLivrerController extends Controller
 
 
 
-        self::$twig->display('magasin/listOrLivrer.html.twig', [
+        self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

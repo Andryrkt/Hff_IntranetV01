@@ -98,29 +98,29 @@ class PlanningModel extends Model
   public function recuperationMaterielplanifier($criteria, $lesOrValides)
   {
     if(!empty($lesOrValides)){
-      $vOrvalDw = "AND seor_numor in ('".$lesOrValides."') ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
     }else{
-      $vOrvalDw = " AND seor_numor in ('')";
+      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
 
-   $vligneType = $this->typeLigne($criteria);  
-   $vPiecesSum = $this->sumPieces($criteria);
-   $vYearsStatutPlan =  $this->planAnnee($criteria);
-   $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-   $vMonthStatutPlan = $this->planMonth($criteria);
-   $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-   $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-   $vStatutFacture = $this->facture($criteria);
-   $annee =  $this->criterAnnee($criteria);
-   $agence = $this->agence($criteria);
-   $vStatutInterneExterne = $this->interneExterne($criteria);
-   $agenceDebite = $this->agenceDebite($criteria);
-   $serviceDebite = $this->serviceDebite($criteria);
-   $vconditionNumParc = $this->numParc($criteria);
-   $vconditionIdMat = $this->idMat($criteria);
-   $vconditionNumOr = $this->numOr($criteria);
-   $vconditionNumSerie = $this->numSerie($criteria);
-   $vconditionCasier = $this->casier($criteria);
+  $vligneType = $this->typeLigne($criteria);  
+  $vPiecesSum = $this->sumPieces($criteria);
+  $vYearsStatutPlan =  $this->planAnnee($criteria);
+  $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+  $vMonthStatutPlan = $this->planMonth($criteria);
+  $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+  $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+  $vStatutFacture = $this->facture($criteria);
+  $annee =  $this->criterAnnee($criteria);
+  $agence = $this->agence($criteria);
+  $vStatutInterneExterne = $this->interneExterne($criteria);
+  $agenceDebite = $this->agenceDebite($criteria);
+  $serviceDebite = $this->serviceDebite($criteria);
+  $vconditionNumParc = $this->numParc($criteria);
+  $vconditionIdMat = $this->idMat($criteria);
+  $vconditionNumOr = $this->numOr($criteria);
+  $vconditionNumSerie = $this->numSerie($criteria);
+  $vconditionCasier = $this->casier($criteria);
 
                   $statement = " SELECT
                       trim(seor_succ) as codeSuc, 

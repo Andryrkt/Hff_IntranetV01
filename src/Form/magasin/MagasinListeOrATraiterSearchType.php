@@ -42,6 +42,10 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
     }
 
+    private function agenceUser(){
+        return array_combine($this->magasinModel->agenceUser(), $this->magasinModel->agenceUser());
+    }
+
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -121,27 +125,36 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             $data = $event->getData();
             
             $service = [];
-        if($data['agence'] !== ""){
-            $services = $this->magasinModel->service($data['agence']);
-            
-            foreach ($services as $value) {
-                $service[$value['text']] = $value['text'];
+            if($data['agence'] !== ""){
+                $services = $this->magasinModel->service($data['agence']);
+                
+                foreach ($services as $value) {
+                    $service[$value['text']] = $value['text'];
+                }
+            } else {
+                $service = [];
             }
-        } else {
-            $service = [];
-        }
-   
-        
-        $form->add('service',
+    
+            
+            $form->add('service',
+            ChoiceType::class,
+            [
+                'label' => 'Service débiteur',
+                'required' => false,
+                'choices' => $service,
+                'placeholder' => ' -- choisir service --'
+            ]);
+        })
+
+        ->add('agenceUser',
         ChoiceType::class,
         [
-            'label' => 'Service débiteur',
+            'label' => 'Agence',
             'required' => false,
-            'choices' => $service,
-            'placeholder' => ' -- choisir service --'
-        ]);
-           
-        })
+            'choices' => $this->agenceUser() ?? [],
+            'placeholder' => ' -- choisir agence --',
+            'data' => $options['data']['agenceUser']
+        ])
         ;
     }
 
