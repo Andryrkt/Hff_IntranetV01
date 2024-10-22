@@ -37,12 +37,27 @@ class MagasinListeOrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
-        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, null, [
+        $agenceServiceUser = $this->agenceServiceIpsObjet();
+
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+        //FIN AUTORISATION
+
+        if($autoriser)
+        {
+            $agenceUser = null;
+        } else {
+            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+        }
+
+        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
-        $criteria = [];
+        $criteria = [
+            "agenceUser" => $agenceUser
+        ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 

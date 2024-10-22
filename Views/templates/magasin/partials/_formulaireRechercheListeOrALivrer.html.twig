@@ -10,16 +10,17 @@
 				{{ form_start(form)}}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{form_row(form.agence)}}
-						{{form_row(form.service)}}
+						{{form_row(form.agenceUser)}}
 					</div>
 					<div class="col-12 col-md-2">
+						{{form_row(form.agence)}}
+						{{form_row(form.service)}}
 						{{form_row(form.niveauUrgence)}}
-						{{form_row(form.constructeur)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numDit)}}
 						{{form_row(form.referencePiece)}}
+						{{form_row(form.constructeur)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numOr)}}

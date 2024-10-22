@@ -50,12 +50,12 @@ class MagasinListeOrTraiterController extends Controller
 
         if($autoriser)
         {
-            $agenceUser ="";
+            $agenceUser = null;
         } else {
             $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
         }
 
-        $agenceUser ="01-ANTANANARIVO";
+        
         $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();

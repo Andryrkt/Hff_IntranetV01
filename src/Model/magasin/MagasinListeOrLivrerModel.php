@@ -243,6 +243,11 @@ class MagasinListeOrLivrerModel extends Model
             $service = "";
         }
 
+        if(!empty($criteria['agenceUser'])){
+            $agenceUser = " AND seor_succ = '".explode('-',$criteria['agenceUser'])[0]."'";
+        } else {
+            $agenceUser = "";
+        }
 
         $statement = " SELECT 
                         trim(seor_refdem) as referenceDIT,
@@ -288,6 +293,7 @@ class MagasinListeOrLivrerModel extends Model
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
                         and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
+                        $agenceUser
                         $piece
                         $orCompletNom
                         $designation
@@ -481,4 +487,21 @@ public function agence()
         }, $dataUtf8);
     }
     
+
+    public function agenceUser()
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                        AND slor_soc = 'HF'
+                        AND slor_succdeb IN ('01','50')
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agence');
+    }
 }
