@@ -49,6 +49,8 @@
 					<th>Désignations</th>
 					<th class="text-center">Qté dem</th>
 					<th>Utilisateur</th>
+					<th>Agence</th>
+					<th>Service</th>
 					{# <th class="text-center">Qté rés</th>#}
 				{# <th class="text-center">Qté rel</th> #}
 					{# <th class="text-center">Qté liv</th> #}
@@ -75,6 +77,8 @@
 						<td class="">{{item.designationi}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td>{{ item.nomPrenom }}</td>
+						<td>{{item.agencecrediteur}}</td>
+						<td>{{item.servicecrediteur}}</td>
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 					{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
 						{# <td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td> #}

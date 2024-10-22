@@ -270,7 +270,9 @@ class MagasinListeOrATraiterModel extends Model
             slor_nolign as numeroLigne,
             slor_datec, 
             slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
+            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+            slor_succ as agenceCrediteur,
+            slor_servcrt as serviceCrediteur
 
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc 
@@ -311,7 +313,7 @@ class MagasinListeOrATraiterModel extends Model
     {
         $statement = " SELECT DISTINCT
             trim(slor_constp) as constructeur
-           
+            
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc 
             and seor_succ = slor_succ 

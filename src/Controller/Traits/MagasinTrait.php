@@ -9,7 +9,6 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinTrait
 {
-
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */

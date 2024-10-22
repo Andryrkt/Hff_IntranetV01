@@ -8,13 +8,14 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class MagasinListeOrATraiterSearchType extends AbstractType
@@ -146,15 +147,26 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             ]);
         })
 
-        ->add('agenceUser',
-        ChoiceType::class,
-        [
+        ->add('agenceUser', ChoiceType::class, [
             'label' => 'Agence',
             'required' => false,
             'choices' => $this->agenceUser() ?? [],
             'placeholder' => ' -- choisir agence --',
-            'data' => $options['data']['agenceUser']
+            'data' => $options['data']['agenceUser'] ?? null,
+            'attr' => [
+                'disabled' => true,
+            ],
         ])
+        
+        ->add('agenceUserHidden', HiddenType::class, [
+            'data' => $options['data']['agenceUser'] ?? null,
+        ])
+        
+        ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+            $data = $event->getData();
+            $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
+            $event->setData($data);
+        });
         ;
     }
 

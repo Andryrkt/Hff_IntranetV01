@@ -43,19 +43,26 @@ class MagasinListeOrTraiterController extends Controller
     public function index(Request $request)
     {
         $agenceServiceUser = $this->agenceServiceIpsObjet();
-        //dd($agenceServiceUser['agenceIps']->getCodeAgence());
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
-        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => '01-ANTANANARIVO'], [
+        if($autoriser)
+        {
+            $agenceUser ="";
+        } else {
+            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+        }
+
+        $agenceUser ="01-ANTANANARIVO";
+        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
             $criteria = [
-                "agenceUser" => '01-ANTANANARIVO'
+                "agenceUser" => $agenceUser
             ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
@@ -71,9 +78,9 @@ class MagasinListeOrTraiterController extends Controller
             //ajouter le numero dit dans data
             for ($i=0; $i < count($data) ; $i++) { 
                 $numeroOr = $data[$i]['numeroor'];
+                $data[$i]['nomPrenom'] = $this->magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
                 $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
                 $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
-                $data[$i]['nomPrenom'] = $this->magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
                 if(!empty($datePlannig1)){
                     $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
                 } else if(!empty($datePlannig2)){
@@ -87,7 +94,6 @@ class MagasinListeOrTraiterController extends Controller
                     $data[$i]['niveauUrgence'] = $dit[0]['description'];
                 } 
             }
-
 
         self::$twig->display('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
