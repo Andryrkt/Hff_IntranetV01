@@ -20,8 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
     ditNumber: null,
     planningDate: null,
     urgencyLevel: null,
-    agency: null,
-    service: null,
+    agencyEmet: null,
+    serviceEmet: null,
+    agencyDebit: null,
+    serviceDebit: null,
     interventionNumber: null,
     user: null,
   };
@@ -35,10 +37,12 @@ document.addEventListener("DOMContentLoaded", function () {
       orNumber: 2, // N° OR
       planningDate: 3, // Date planning
       urgencyLevel: 4, // Niv. d'urg
-      agency: 6, // Agences
-      service: 7, // Services
-      interventionNumber: 8, // N° Intv
-      user: 14, // Utilisateur
+      agencyEmet: 6, // Agences emetteur
+      serviceEmet: 7, // Services Emetteur
+      agencyDebit: 8, // Agences Débiteur
+      serviceDebit: 9, // Services Débiteur
+      interventionNumber: 10, // N° Intv
+      user: 16, // Utilisateur
     };
 
     Object.keys(cellIndices).forEach((key) => {
@@ -51,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hideCells(row) {
-    const cellIndices = [1, 2, 3, 4, 6, 7, 8, 14]; // Indices des colonnes à masquer
+    const cellIndices = [1, 2, 3, 4, 6, 7, 8, 9, 10, 16]; // Indices des colonnes à masquer
     cellIndices.forEach((index) => {
       let cell = row.getElementsByTagName("td")[index];
       if (cell) {
@@ -68,12 +72,14 @@ document.addEventListener("DOMContentLoaded", function () {
       orNumber: currentRow.getElementsByTagName("td")[2].textContent.trim(),
       planningDate: currentRow.getElementsByTagName("td")[3].textContent.trim(),
       urgencyLevel: currentRow.getElementsByTagName("td")[4].textContent.trim(),
-      agency: currentRow.getElementsByTagName("td")[6].textContent.trim(),
-      service: currentRow.getElementsByTagName("td")[7].textContent.trim(),
+      agencyEmet: currentRow.getElementsByTagName("td")[6].textContent.trim(),
+      serviceEmet: currentRow.getElementsByTagName("td")[7].textContent.trim(),
+      agencyDebit: currentRow.getElementsByTagName("td")[8].textContent.trim(),
+      serviceDebit: currentRow.getElementsByTagName("td")[9].textContent.trim(),
       interventionNumber: currentRow
-        .getElementsByTagName("td")[8]
+        .getElementsByTagName("td")[10]
         .textContent.trim(),
-      user: currentRow.getElementsByTagName("td")[14].textContent.trim(),
+      user: currentRow.getElementsByTagName("td")[16].textContent.trim(),
     };
 
     // Check if any of the key values differ from the previous row's values

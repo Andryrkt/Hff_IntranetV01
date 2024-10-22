@@ -40,8 +40,10 @@
 					<th>Date planning</th>
 					<th>Niv. d'urg</th>
 					<th>Date  OR</th>
-					<th class="text-center">Agences</th>
-					<th class="text-center">Services</th>
+					<th class="text-center">Agence Emetteur</th>
+					<th class="text-center">Service Emetteur</th>
+					<th class="text-center">Agences Débiteur</th>
+					<th class="text-center">Services Débiteur</th>
 					<th class="text-center">N° Intv</th>
 					<th class="text-center">N° lig</th>
 					<th>Cst</th>
@@ -49,8 +51,7 @@
 					<th>Désignations</th>
 					<th class="text-center">Qté dem</th>
 					<th>Utilisateur</th>
-					<th>Agence</th>
-					<th>Service</th>
+
 					{# <th class="text-center">Qté rés</th>#}
 				{# <th class="text-center">Qté rel</th> #}
 					{# <th class="text-center">Qté liv</th> #}
@@ -68,8 +69,10 @@
 						<td>{{ item.datePlanning == null ? '--' : item.datePlanning| date("d/m/Y")}}</td>
 						<td class="">{{item.niveauUrgence}}</td>
 						<td class="">{{ item.datecreation | date("d/m/Y")}}</td>
-						<td>{{ item.agence}}</td>
-						<td>{{ item.service}}</td>
+						<td class="text-center">{{item.agencecrediteur}}</td>
+						<td class="text-center">{{item.servicecrediteur}}</td>
+						<td class="text-center">{{ item.agence}}</td>
+						<td class="text-center">{{ item.service}}</td>
 						<td class="text-center">{{item.numinterv | number_format(0)}}</td>
 						<td class="text-center">{{ item.numeroligne}}</td>
 						<td class="">{{item.constructeur}}</td>
@@ -77,8 +80,7 @@
 						<td class="">{{item.designationi}}</td>
 						<td class="text-center">{{item.quantitedemander == 0 ? '-': item.quantitedemander | number_format(0)}}</td>
 						<td>{{ item.nomPrenom }}</td>
-						<td>{{item.agencecrediteur}}</td>
-						<td>{{item.servicecrediteur}}</td>
+
 						{# <td class="text-center">{{item.quantitereserver == 0 ? '-' : item.quantitereserver | number_format(0)}}</td>#}
 					{# <td class="text-center">{{item.quantitereliquat == 0 ? '-' : item.quantitereliquat | number_format(0)}}</td> #}
 						{# <td class="text-center">{{item.quantitelivree == 0 ? '-' : item.quantitelivree | number_format(0)}}</td> #}
