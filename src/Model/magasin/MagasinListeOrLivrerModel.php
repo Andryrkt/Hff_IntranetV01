@@ -230,7 +230,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_constp not in ('LUB')
                     ";
         }
-          
+        
         if(!empty($criteria['agence'])){
             $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
         } else {
@@ -305,7 +305,7 @@ class MagasinListeOrLivrerModel extends Model
                         $numDit
                         $agence
                         $service
-                       
+
                         order by 
                             seor_refdem desc,
                             slor_nogrp/100 desc, 

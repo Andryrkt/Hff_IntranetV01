@@ -8,13 +8,19 @@
 }
 
 .separator-row {
-    height: 5px;
+    height: 3px;
+    background-color: #ccc;
 }
 
 .separator-row td{
-    height: 5px;
+    height: 3px;
     background-color: #212529;
 }
+
+.soft-separator {
+    background-color: #eee; /* Couleur plus douce */
+    height: 1px;
+  }
 
 .rowspan-cell {
     vertical-align: middle; /* Centrer verticalement */

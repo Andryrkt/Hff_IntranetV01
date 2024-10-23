@@ -3,7 +3,7 @@
 
 namespace App\Controller\magasin\ors;
 
-ini_set('max_execution_time', 10000);
+// ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
 use App\Model\magasin\MagasinModel;
@@ -21,16 +21,12 @@ class MagasinListeOrTraiterController extends Controller
     use Transformation;
     use MagasinTrait;
 
-    
-
     private $magasinModel;
-    private $magasinListOrModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->magasinModel = new MagasinListeOrATraiterModel;
-        $this->magasinListOrModel = new MagasinListeOrModel();
     }
 
 
@@ -117,7 +113,7 @@ class MagasinListeOrTraiterController extends Controller
         $entities = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
          //ajouter le numero dit dans data
-         for ($i=0; $i < count($entities) ; $i++) { 
+        for ($i=0; $i < count($entities) ; $i++) { 
             $numeroOr = $entities[$i]['numeroor'];
             $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
             $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
@@ -134,7 +130,6 @@ class MagasinListeOrTraiterController extends Controller
                 $entities[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
                 $entities[$i]['niveauUrgence'] = $dit[0]['description'];
             } else {
-             
                 break;
             }
         }
