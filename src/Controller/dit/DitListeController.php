@@ -6,9 +6,9 @@ namespace App\Controller\dit;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
-use App\Controller\Traits\DitListTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Form\dit\DocDansDwType;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,7 +23,6 @@ class DitListeController extends Controller
      */
     public function index( Request $request)
     {
-        
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION

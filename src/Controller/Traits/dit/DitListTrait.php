@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Traits;
+namespace App\Controller\Traits\dit;
 
 
 use App\Entity\admin\Agence;

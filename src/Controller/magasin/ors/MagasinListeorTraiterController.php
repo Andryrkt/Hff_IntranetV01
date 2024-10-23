@@ -6,6 +6,8 @@ namespace App\Controller\magasin\ors;
 // ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
+use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Model\magasin\MagasinModel;
 use App\Controller\Traits\MagasinTrait;
 use App\Entity\dit\DemandeIntervention;
@@ -19,17 +21,8 @@ use App\Form\magasin\MagasinListeOrATraiterSearchType;
 class MagasinListeOrTraiterController extends Controller
 { 
     use Transformation;
-    use MagasinTrait;
-
-    private $magasinModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->magasinModel = new MagasinListeOrATraiterModel;
-    }
-
-
+    use OrsMagasinTrait;
+    use MagasinOrATraiterTrait;
 
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
@@ -38,6 +31,7 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function index(Request $request)
     {
+        $magasinModel = new MagasinListeOrATraiterModel;
         $agenceServiceUser = $this->agenceServiceIpsObjet();
 
         /** CREATION D'AUTORISATION */
@@ -64,9 +58,9 @@ class MagasinListeOrTraiterController extends Controller
             $criteria = $form->getData();
         } 
 
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, self::$em);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, self::$em);
         
-            $data = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
+            $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
@@ -74,9 +68,9 @@ class MagasinListeOrTraiterController extends Controller
             //ajouter le numero dit dans data
             for ($i=0; $i < count($data) ; $i++) { 
                 $numeroOr = $data[$i]['numeroor'];
-                $data[$i]['nomPrenom'] = $this->magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-                $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
-                $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
+                $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
+                $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
+                $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
                 if(!empty($datePlannig1)){
                     $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
                 } else if(!empty($datePlannig2)){
@@ -107,17 +101,18 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function exportExcel()
     {
+        $magasinModel = new MagasinListeOrATraiterModel;
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, self::$em);
-        $entities = $this->magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, self::$em);
+        $entities = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
          //ajouter le numero dit dans data
         for ($i=0; $i < count($entities) ; $i++) { 
             $numeroOr = $entities[$i]['numeroor'];
-            $datePlannig1 = $this->magasinModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinModel->recupDatePlanning2($numeroOr);
-            $entities[$i]['nomPrenom'] = $this->magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
+            $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
+            $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
+            $entities[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
             if(!empty($datePlannig1)){
                 $entities[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
             } else if(!empty($datePlannig2)){
@@ -187,8 +182,10 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function autocompletionDesignation($designation)
     {
+
         if(!empty($designation)){
-            $designations = $this->magasinModel->recupereAutocompletionDesignation($designation);
+            $magasinModel = new MagasinListeOrATraiterModel;
+            $designations = $magasinModel->recupereAutocompletionDesignation($designation);
         } else {
             $designations = [];
         }
@@ -207,7 +204,8 @@ class MagasinListeOrTraiterController extends Controller
     public function autocompletionRefPiece($refPiece)
     {
         if(!empty($refPiece)){
-            $refPieces = $this->magasinModel->recuperAutocompletionRefPiece($refPiece);
+            $magasinModel = new MagasinListeOrATraiterModel;
+            $refPieces = $magasinModel->recuperAutocompletionRefPiece($refPiece);
         } else {
             $refPieces = [];
         }

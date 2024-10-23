@@ -8,7 +8,8 @@ ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\MagasinTrait;
+use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,8 +20,8 @@ use App\Form\magasin\MagasinListeOrALivrerSearchType;
 class MagasinListeOrLivrerController extends Controller
 { 
     use Transformation;
-    use MagasinTrait;
-
+    use OrsMagasinTrait;
+    use MagasinOrALIvrerTrait;
     
     private $magasinListOrLivrerModel;
 
@@ -30,7 +31,7 @@ class MagasinListeOrLivrerController extends Controller
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
 
-     /**
+    /**
      * @Route("/liste-or-livrer", name="magasinListe_or_Livrer")
      *
      * @return void
@@ -182,7 +183,7 @@ class MagasinListeOrLivrerController extends Controller
         ];
     }
 
-         $this->excelService->createSpreadsheet($data);
+        $this->excelService->createSpreadsheet($data);
 
     }
 
