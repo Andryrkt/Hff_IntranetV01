@@ -45,7 +45,7 @@ trait ConditionModelTrait
         return $condition;
     }
 
-    private function conditionPiece(string $indexCriteria, array $criteria): string
+    private function conditionPiece(string $indexCriteria, array $criteria): ?string
     {
         if (!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === "PIECES MAGASIN"){
