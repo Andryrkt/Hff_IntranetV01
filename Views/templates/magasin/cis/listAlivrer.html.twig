@@ -11,7 +11,8 @@
 			Liste des CIS à Livrer
 		</h3>
 
-		{% include "/magasin/partials/cis/_formRechListOrATraiterCis.html.twig" %}
+		{% include "/magasin/partials/cis/_formRechALivrer.html.twig" %}
+		{% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "export_excel_cis_a_livrer"} %}
 	</div>
 
 	<div class="container-fluid">
@@ -56,12 +57,15 @@
 						<td class="text-center">{{item.cst}}</td>
 						<td class="text-center">{{item.ref}}</td>
 						<td>{{item.designations}}</td>
-						<td class="text-center">{{item.quantitercommander}}</td>
-						<td class="text-center">{{item.quantiteralivrer}}</td>
-						<td class="text-center">{{item.quantiterlivrer}}</td>
+						<td class="text-center">{{item.quantitercommander == 0 ? '-' : item.quantitercommander}}</td>
+						<td class="text-center">{{item.quantiteralivrer == 0 ? '-' : item.quantiteralivrer}}</td>
+						<td class="text-center">{{item.quantiterlivrer == 0 ? '-' : item.quantiterlivrer}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/magasin/cis/ALivrer.js" type="module"></script>
 {% endblock %}

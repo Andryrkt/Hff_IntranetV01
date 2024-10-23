@@ -58,3 +58,8 @@
     z-index: 1;
 }
 
+.enteteAccordion{
+    background-color: #FBBB01 !important;
+    color:#212529 ! important;
+    font-size: 0.75rem !important;
+}

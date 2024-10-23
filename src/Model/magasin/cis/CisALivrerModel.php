@@ -3,14 +3,45 @@
 namespace App\Model\magasin\cis;
 
 use App\Model\Model;
+use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
 
 class CisALivrerModel extends Model
 {
     use ConversionModel;
+    use ConditionModelTrait;
     
-    public function listOrALivrer()
+    public function listOrALivrer(array $criteria = []): array
     {
+        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
+        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $numCis = $this->conditionSigne('slor_numcf', 'numCis', '=', $criteria);
+        $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
+        
+        $dateDebut = $this->conditionDateSigne( 'nlig_datecde', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne( 'nlig_datecde', 'dateFin', $criteria, '<=');
+
+        $piece = $this->conditionPiece('pieces', $criteria);
+        $orCompletOuNon = $this->conditionOrCompletOuNonCis('orCompletNon',$criteria);
+
+        $agence = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_succdeb)
+                        WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
+                    END)", 'agence',$criteria);
+
+        $service = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_servdeb)
+                        WHEN 'VTE' THEN 
+                            (SELECT cbse_nomcli 
+                            FROM cli_bse, cli_soc 
+                            WHERE csoc_soc = slor_soc 
+                            AND cbse_numcli = slor_numcli 
+                            AND cbse_numcli = csoc_numcli)
+                    END)", 'service',$criteria);
+        $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
+
         $statement = "SELECT
                     seor_refdem AS Num_DIT,
                     slor_numcf AS Num_CIS, 
@@ -56,6 +87,18 @@ class CisALivrerModel extends Model
                 WHERE 
                     slor_numcf > 0 
                     AND slor_constp NOT IN ('LUB') -- Exclure certains types
+                    $agenceUser
+                    $piece
+                    $designation
+                    $referencePiece 
+                    $constructeur 
+                    $dateDebut
+                    $dateFin
+                    $numOr
+                    $numDit
+                    $numCis
+                    $agence
+                    $service
                     -- Ajouter des conditions supplémentaires ici si nécessaire
                     AND slor_numcf IN (
                         SELECT 
@@ -68,9 +111,7 @@ class CisALivrerModel extends Model
                             -- Ajouter des conditions supplémentaires ici si nécessaire
                         GROUP BY 
                             nlig_numcde 
-                        HAVING 
-                            SUM(nlig_qtecde) > (SUM(nlig_qtealiv) + SUM(nlig_qteliv))
-                            AND SUM(nlig_qtealiv) > 0
+                        $orCompletOuNon
                     )
                 -- Ajouter des conditions supplémentaires ici pour la validation DocuWare
                 -- AND slor_numor IN (<liste_or_validé_docuware>) 
@@ -85,4 +126,6 @@ class CisALivrerModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+  
 }
