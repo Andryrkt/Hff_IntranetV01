@@ -29,15 +29,54 @@ class CisATraiterController extends Controller
         $criteria = [
             "agenceUser" => $agenceUser
         ];
-    if($form->isSubmitted() && $form->isValid()) {
-        $criteria = $form->getData();
-    } 
+        if($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        } 
         
         $data = $cisATraiterModel->listOrATraiter($criteria);
+
+        //enregistrer les critère de recherche dans la session
+        $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
 
         self::$twig->display('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
             'form' =>$form->createView()
         ]);
+    }
+    
+    /**
+     * @Route("/export-excel-a-traiter-cis", name="export_excel_a_traiter_cis")
+     */
+    public function exportExcel()
+    {
+        $cisATraiterModel = new CisATraiterModel();
+
+        //recupères les critère dans la session 
+        $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
+
+        $entities = $cisATraiterModel->listOrATraiter($criteria);
+
+        // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem']; 
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity['numdit'],
+                $entity['numcis'],
+                $entity['datecis'],
+                $entity['agenceservicetravaux'],
+                $entity['numor'],
+                $entity['dateor'],
+                $entity['agenceservicedebiteur'],
+                $entity['nitv'],
+                $entity['numligne'],
+                $entity['cst'],
+                $entity['ref'],
+                $entity['designations'],
+                $entity['qte_dem']
+            ];
+    }
+
+         $this->excelService->createSpreadsheet($data);
     }
 }
