@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CisATraiterController extends Controller
 {
     /**
-     * @Route("/cis-liste-a-livrer", name="cis_liste_a_livrer")
+     * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
     public function listCisATraiter()
     {
