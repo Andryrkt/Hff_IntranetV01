@@ -11,7 +11,7 @@ class DitOrSoumisAValidationModel extends Model
     use ConversionModel;
     public function recupOrSoumisValidation($numOr)
     {
-      $statement = "SELECT
+        $statement = "SELECT
         slor_numor,
         sitv_datdeb,
         trim(seor_refdem) as NUMERo_DIT,
@@ -220,6 +220,19 @@ class DitOrSoumisAValidationModel extends Model
             and slor_numor = '".$numOr."'
         ";
 
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupRefClient($numOr)
+    {
+        $statement =" SELECT seor_lib  
+                    from sav_eor 
+                    where seor_numor='".$numOr."'
+                    ";
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
