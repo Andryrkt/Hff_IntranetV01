@@ -21,6 +21,8 @@ class CisATraiterController extends Controller
 
         $agenceUser = $this->agenceUser(self::$em);
 
+
+
         $form = self::$validator->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
@@ -52,7 +54,7 @@ class CisATraiterController extends Controller
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
+        $criteria = $this->sessionService->get('cis_a_traiter_search_criteria', []);
 
         $entities = $cisATraiterModel->listOrATraiter($criteria);
 
@@ -75,7 +77,7 @@ class CisATraiterController extends Controller
                 $entity['designations'],
                 $entity['qte_dem']
             ];
-    }
+        }
 
          $this->excelService->createSpreadsheet($data);
     }

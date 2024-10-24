@@ -39,6 +39,9 @@ class CisALivrerController extends Controller
 
         $data = $cisATraiterModel->listOrALivrer($criteria);
 
+        //enregistrer les critère de recherche dans la session
+        $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
+
         self::$twig->display('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
@@ -49,7 +52,39 @@ class CisALivrerController extends Controller
      * @Route("/export-excel-cis-a-livrer", name="export_excel_cis_a_livrer")
      */
     public function exportExcel()
-    {}
+    {
+        $cisATraiterModel = new CisALivrerModel();
+
+         //recupères les critère dans la session 
+        $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
+
+        $entities = $cisATraiterModel->listOrALivrer($criteria);
+
+         // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv']; 
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity['num_dit'],
+                $entity['num_cis'],
+                $entity['date_cis'],
+                $entity['agence_service_travaux'],
+                $entity['num_or'],
+                $entity['date_or'],
+                $entity['agence_service_debiteur_ou_client'],
+                $entity['nitv'],
+                $entity['numligne'],
+                $entity['cst'],
+                $entity['ref'],
+                $entity['designations'],
+                $entity['quantitercommander'],
+                $entity['quantiteralivrer'],
+                $entity['quantiterlivrer'],
+            ];
+        }
+
+        $this->excelService->createSpreadsheet($data);
+    }
 
     
 }
