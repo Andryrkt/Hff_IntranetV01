@@ -8,6 +8,8 @@ import {
 document.addEventListener("DOMContentLoaded", function () {
   // Sélectionne toutes les lignes du premier tableau
   const rows = document.querySelectorAll(".clickable-row");
+  const spinners = document.getElementById("spinners");
+  const spinner = document.getElementById("spinner");
 
   rows.forEach(function (row) {
     row.addEventListener("click", function () {
@@ -76,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         doc.date_modification
                       ).toLocaleDateString()}</td>
                       <td class="text-center">${numVersion}</td>
-                      <td>${statut}</td>
                       <td class="text-center">${doc.total_page}</td>
                       <td>${tailleFichierKo} ko</td>
                   `;
@@ -87,7 +88,14 @@ document.addEventListener("DOMContentLoaded", function () {
             // Ajoute un événement de clic pour afficher le fichier dans la page
             row.addEventListener("click", function () {
               couleurDefondClick(row);
+
+              // Affiche le spinner avant d'afficher le fichier
+              spinners.style.display = "block";
+
               afficherFichier(doc.chemin); // Appelle la fonction pour afficher le fichier
+
+              // Masque le spinner après l'affichage du fichier
+              spinners.style.display = "none";
             });
 
             newTbody.appendChild(row);
