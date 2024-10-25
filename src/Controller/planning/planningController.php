@@ -68,6 +68,7 @@ class PlanningController extends Controller
 
            
             if($request->query->get('action') !== 'oui') {
+               
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
                 
             $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);

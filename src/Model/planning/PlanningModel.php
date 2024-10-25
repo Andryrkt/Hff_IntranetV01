@@ -67,6 +67,24 @@ class PlanningModel extends Model
        }, $dataUtf8)
      );              
    }
+   public function recuperationSection(){
+
+    $statement = "SELECT  DISTINCT TRIM(sitv_typitv) as sec_num,
+                                   TRIM(atab_lib2) as sec_Lib
+                  FROM sav_itv
+                  INNER JOIN agr_tab ON atab_nom = 'TYI'
+                  AND atab_code = sitv_typitv ";
+     $result = $this->connect->executeQuery($statement);
+     $data = $this->connect->fetchResults($result);
+     $dataUtf8 = $this->convertirEnUtf8($data);
+     return array_combine(
+      array_column($dataUtf8, 'sec_lib'),
+      array_map(function($item) {
+          return $item['sec_num'];}, $dataUtf8)
+    ); 
+ 
+   }
+
 
    public function recuperationServiceDebite($agence){
 
@@ -102,25 +120,26 @@ class PlanningModel extends Model
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
-
-  $vligneType = $this->typeLigne($criteria);  
-  $vPiecesSum = $this->sumPieces($criteria);
-  $vYearsStatutPlan =  $this->planAnnee($criteria);
-  $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-  $vMonthStatutPlan = $this->planMonth($criteria);
-  $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-  $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-  $vStatutFacture = $this->facture($criteria);
-  $annee =  $this->criterAnnee($criteria);
-  $agence = $this->agence($criteria);
-  $vStatutInterneExterne = $this->interneExterne($criteria);
-  $agenceDebite = $this->agenceDebite($criteria);
-  $serviceDebite = $this->serviceDebite($criteria);
-  $vconditionNumParc = $this->numParc($criteria);
-  $vconditionIdMat = $this->idMat($criteria);
-  $vconditionNumOr = $this->numOr($criteria);
-  $vconditionNumSerie = $this->numSerie($criteria);
-  $vconditionCasier = $this->casier($criteria);
+ 
+   $vligneType = $this->typeLigne($criteria);  
+   $vPiecesSum = $this->sumPieces($criteria);
+   $vYearsStatutPlan =  $this->planAnnee($criteria);
+   $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+   $vMonthStatutPlan = $this->planMonth($criteria);
+   $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+   $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+   $vStatutFacture = $this->facture($criteria);
+   $annee =  $this->criterAnnee($criteria);
+   $agence = $this->agence($criteria);
+   $vStatutInterneExterne = $this->interneExterne($criteria);
+   $agenceDebite = $this->agenceDebite($criteria);
+   $serviceDebite = $this->serviceDebite($criteria);
+   $vconditionNumParc = $this->numParc($criteria);
+   $vconditionIdMat = $this->idMat($criteria);
+   $vconditionNumOr = $this->numOr($criteria);
+   $vconditionNumSerie = $this->numSerie($criteria);
+   $vconditionCasier = $this->casier($criteria);
+   $vsection = $this->section($criteria);
 
                   $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
@@ -159,10 +178,8 @@ class PlanningModel extends Model
                    
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
                     AND (seor_nummat = mmat_nummat)
-                    --AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
-                   $vOrvalDw
-
+                    $vOrvalDw
                     $vligneType
 
                     AND $vYearsStatutPlan = $annee
@@ -178,10 +195,11 @@ class PlanningModel extends Model
                     $vconditionNumOr
                     $vconditionNumSerie
                     $vconditionCasier
+                    $vsection 
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
-                // dump($statement);
+                //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -443,4 +461,5 @@ public function recuperationEtaMag($numOr, $refp){
       return $this->convertirEnUtf8($data);
 
   }
+  
 }
