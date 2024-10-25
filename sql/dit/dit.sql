@@ -181,3 +181,10 @@ SET
         WHEN section_affectee = 'FROID' THEN 'Chef section froid'
         ELSE section_affectee
     END;
+
+--Ajout de colone eta_facturation
+ALTER TABLE demande_intervention
+ADD etat_facturation VARCHAR(255)
+--Ajout de colone ri
+ALTER TABLE demande_intervention
+ADD ri VARCHAR(255)

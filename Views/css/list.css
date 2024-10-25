@@ -63,3 +63,9 @@
     color:#212529 ! important;
     font-size: 0.75rem !important;
 }
+
+.textColor
+{
+    font-weight: bold;
+    color: red !important;
+}
