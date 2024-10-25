@@ -29,7 +29,16 @@ trait PlanningModelTrait
               break;
              
       }
+
       return $vStatutFacture; 
+    }
+    private function section($criteria){
+      if(!empty($criteria->getSection())){
+        $section = " AND sitv_typitv = '".$criteria->getSection()."' ";
+      }else{
+        $section = null;
+      }
+      return $section;
     }
     private function typeLigne($criteria){
       

@@ -23,6 +23,7 @@ class PlanningSearch
     private $typeligne;
     private $casier;
     private ?WorNiveauUrgence $niveauUrgence = null;
+    private $section;
 
 
     public function getNiveauUrgence()
@@ -355,6 +356,26 @@ class PlanningSearch
     public function setCasier($casier)
     {
         $this->casier = $casier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of section
+     */ 
+    public function getSection()
+    {
+        return $this->section;
+    }
+
+    /**
+     * Set the value of section
+     *
+     * @return  self
+     */ 
+    public function setSection($section)
+    {
+        $this->section = $section;
 
         return $this;
     }
