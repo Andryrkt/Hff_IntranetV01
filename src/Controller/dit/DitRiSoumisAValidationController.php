@@ -108,7 +108,6 @@ class DitRiSoumisAValidationController extends Controller
                     $riSoumis[] = $riSoumisAValidation;
                 }
 
-                
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
                 foreach ($riSoumis as $value) {
