@@ -40,7 +40,7 @@ export function iconSelonTypeFile(extension) {
 // Fonction pour afficher le fichier dans le conteneur
 export function afficherFichier(cheminFichier) {
   // const fileUrl = `http://localhost/Upload/${cheminFichier}`;
-  const fileUrl = `http://172.20.11.32/Hffintranet/${cheminFichier}`;
+  const fileUrl = `http://192.168.0.28/Hffintranet/${cheminFichier}`;
   const fileViewer = document.getElementById("file-viewer");
   fileViewer.innerHTML = `<iframe src="${fileUrl}" width="100%" height="800px" frameborder="0"></iframe>`;
 }

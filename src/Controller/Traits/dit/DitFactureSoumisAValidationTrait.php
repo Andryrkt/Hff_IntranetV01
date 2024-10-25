@@ -31,7 +31,7 @@ trait DitFactureSoumisAValidationtrait
         }
 
         if($estNumfac){
-            $etatOr = 'partiellement facturé';
+            $etatOr = 'Partiellement facturé';
         } else {
             $etatOr = 'Complètement facturé';
         }

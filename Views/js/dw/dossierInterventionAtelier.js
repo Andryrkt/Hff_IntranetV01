@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         doc.date_modification
                       ).toLocaleDateString()}</td>
                       <td class="text-center">${numVersion}</td>
-                      <td>${statut}</td>
                       <td class="text-center">${doc.total_page}</td>
                       <td>${tailleFichierKo} ko</td>
                   `;

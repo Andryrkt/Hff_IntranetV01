@@ -98,9 +98,9 @@ class PlanningModel extends Model
   public function recuperationMaterielplanifier($criteria, $lesOrValides)
   {
     if(!empty($lesOrValides)){
-      $vOrvalDw = "AND seor_numor in ('".$lesOrValides."') ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
     }else{
-      $vOrvalDw = " AND seor_numor in ('')";
+      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
 
    $vligneType = $this->typeLigne($criteria);  
