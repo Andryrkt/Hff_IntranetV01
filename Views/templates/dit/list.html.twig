@@ -169,7 +169,7 @@
 								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">facture</a>
 							</td>
 							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr">ri</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr">{{ item.ri}}</a>
 							</td>
 							{# <td>{{ item.etatFacturation}}</td> #}
 							{# <td>{{ item.ri}}</td> #}
@@ -188,6 +188,7 @@
 	{% include "/dit/shared/_modalDocDansDW.html.twig"  %}
 	{% include "/dit/shared/_modalSectionAffectee.html.twig"  %}
 	{% include "/dit/shared/_modalFacturation.html.twig"  %}
+	{% include "/dit/shared/_modalRi.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>

@@ -107,13 +107,13 @@ facturationModalInput.addEventListener("show.bs.modal", function (event) {
         data.forEach((item) => {
           // Vérifier si le statut est vide ou null
           let statut = item.statut ? item.statut : "-";
-          let rowClass = item.statut ? "" : "text-danger fw-bold";
+          let rowClass = item.statut ? "" : "textColor";
 
           // Créer la ligne du tableau
-          let row = `<tr class="${rowClass}">
-                      <td class="fw-bold">${item.numeroItv}</td>
-                      <td>${item.numeroFact}</td>
-                      <td>${statut}</td>
+          let row = `<tr>
+                      <td class="${rowClass}">${item.numeroItv}</td>
+                      <td class="${rowClass}">${item.numeroFact}</td>
+                      <td class="${rowClass}">${statut}</td>
                     </tr>`;
 
           tableBody.innerHTML += row;
@@ -142,6 +142,82 @@ facturationModalInput.addEventListener("show.bs.modal", function (event) {
 
 // Gestionnaire pour la fermeture du modal
 facturationModalInput.addEventListener("hidden.bs.modal", function () {
-  const tableBody = document.getElementById("AffecteeTableBody");
+  const tableBody = document.getElementById("facturationBody");
+  tableBody.innerHTML = ""; // Vider le tableau
+});
+
+/** ============================================== 
+ *  ri MODAL
+ * 
+=================================================*/
+const riModalInput = document.getElementById("ri");
+
+riModalInput.addEventListener("show.bs.modal", function (event) {
+  const button = event.relatedTarget; // Button that triggered the modal
+  const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+  const loadingri = document.getElementById("loadingri");
+  const dataContentri = document.getElementById("dataContentri");
+  // Afficher le spinner et masquer le contenu des données
+  loadingri.style.display = "block";
+  dataContentri.style.display = "none";
+
+  // Fetch request to get the data
+  fetch(`/Hffintranet/ri-fetch/${id}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const tableBody = document.getElementById("riBody");
+      tableBody.innerHTML = ""; // Clear previous data
+      console.log(data);
+
+      if (data.length > 0) {
+        // Générer les lignes du tableau en fonction des données
+        data.forEach((item) => {
+          // Vérifier si le statut est vide ou null
+          let risoumis = item.riSoumis
+            ? `<i class="fa-solid fa-check"></i>`
+            : "";
+          let rowClass = item.riSoumis ? "" : "textColor";
+
+          // Créer la ligne du tableau
+          let row = `<tr>
+                      <td>${risoumis}</td>
+                      <td class="${rowClass}">${item.numeroitv}</td>
+                      <td class="${rowClass}">${
+            item.commentaire ? item.commentaire : "-"
+          }</td>
+                    </tr>`;
+
+          tableBody.innerHTML += row;
+        });
+      } else {
+        // Si aucune donnée n'est disponible
+        tableBody.innerHTML =
+          '<tr><td colspan="3">Aucune donnée disponible.</td></tr>';
+      }
+
+      // Masquer le spinner et afficher les données
+      loadingri.style.display = "none";
+      dataContentri.style.display = "block";
+    })
+    .catch((error) => {
+      const tableBody = document.getElementById("AffecteeTableBody");
+      tableBody.innerHTML =
+        '<tr><td colspan="3">On ne peut pas récupérer les données</td></tr>';
+      console.error("There was a problem with the fetch operation:", error);
+
+      // Masquer le spinner même en cas d'erreur
+      loadingri.style.display = "none";
+      dataContentri.style.display = "block";
+    });
+});
+
+// Gestionnaire pour la fermeture du modal
+riModalInput.addEventListener("hidden.bs.modal", function () {
+  const tableBody = document.getElementById("riBody");
   tableBody.innerHTML = ""; // Vider le tableau
 });

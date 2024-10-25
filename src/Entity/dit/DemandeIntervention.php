@@ -1399,6 +1399,28 @@ class DemandeIntervention
         return $this;
     }
 
+    public function getEtatFacturation()
+    {
+        return $this->etatFacturation;
+    }
+
+    public function setEtatFacturation($etatFacturation)
+    {
+        $this->etatFacturation = $etatFacturation;
+        return $this;
+    }
+
+    public function getRi()
+    {
+        return $this->ri;
+    }
+
+    public function setRi($ri)
+    {
+        $this->ri=$ri;
+        return $this;
+    }
+
 
         /**
      * Get the value of nbrPj
