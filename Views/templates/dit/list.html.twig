@@ -64,6 +64,8 @@
 						<th class="fw-bold">Statut Or</th>
 						<th>Statut Livraison Pièces</th>
 						<th>Statut Achats Locaux</th>
+						<th>Facturation</th>
+						<th>RI</th>
 						<th>Nbre PJ</th>
 						<th>Utilisateur</th>
 					</tr>
@@ -155,7 +157,6 @@
 							</td>
 							<td>
 								{% if item.numeroOr != '' %}
-
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
@@ -164,6 +165,14 @@
 							<td class="fw-bold ">{{ item.statutor}}</td>
 							<td>{{ item.statutachatpiece}}</td>
 							<td>{{ item.statutachatlocaux}}</td>
+							<td>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">facture</a>
+							</td>
+							<td>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr">{{ item.ri}}</a>
+							</td>
+							{# <td>{{ item.etatFacturation}}</td> #}
+							{# <td>{{ item.ri}}</td> #}
 							<td>{{ item.nbrPj}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>
@@ -178,6 +187,8 @@
 	{% include "/dit/shared/_modal.html.twig"  %}
 	{% include "/dit/shared/_modalDocDansDW.html.twig"  %}
 	{% include "/dit/shared/_modalSectionAffectee.html.twig"  %}
+	{% include "/dit/shared/_modalFacturation.html.twig"  %}
+	{% include "/dit/shared/_modalRi.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>

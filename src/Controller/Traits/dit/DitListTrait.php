@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Traits;
+namespace App\Controller\Traits\dit;
 
 
 use App\Entity\admin\Agence;
@@ -8,9 +8,10 @@ use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\dit\DitRiSoumisAValidation;
 
 trait DitListTrait
 {
@@ -305,11 +306,25 @@ trait DitListTrait
 
     private function ajoutConditionOrEqDit($data)
     {
-        
         for ($i=0; $i < count($data); $i++) {
             $estOrEqDit = $this->estNumorEqNumDit($data[$i]->getNumeroDemandeIntervention());
-           $data[$i]->setEstOrEqDit($estOrEqDit);
+            $data[$i]->setEstOrEqDit($estOrEqDit);
         }
-       
     }
+
+    private function ajoutri($data, $ditListeModel, $em)
+    {
+        foreach ($data as $value) {
+            $itvSoumisRi = $em->getRepository(DitRiSoumisAValidation::class)->findNbreNumItv($value->getNumeroOR())[0];
+            $itvTotal = $ditListeModel->recupNbItv($value->getNumeroOR());
+
+            // Mise à jour de la propriété 'ri'
+            $value->setRi($itvSoumisRi . "/" . $itvTotal);
+
+            // Persist l'entité après modification
+            $em->persist($value);
+        }
+        // Sauvegarde des changements dans la base de données
+        $em->flush();
+    } 
 }

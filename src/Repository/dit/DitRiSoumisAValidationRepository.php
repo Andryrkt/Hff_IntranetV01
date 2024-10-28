@@ -24,4 +24,56 @@ class DitRiSoumisAValidationRepository extends EntityRepository
         return array_column($riSoumis, 'numeroItv');
     }
 
+    public function findNumItv($numOr)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('rsv')
+            ->select('MAX(rsv.numeroSoumission)')
+            ->where('rsv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+
+            // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
+            $nbrItv = $this->createQueryBuilder('rsv')
+                ->select('rsv.numeroItv')  
+                ->where('rsv.numeroOR = :numOr') 
+                ->andwhere('rsv.numeroSoumission = :numeroVersionMax')
+                ->setParameters([
+                    'numeroVersionMax' => $numeroVersionMax,
+                    'numOr' => $numOr,
+                ])
+                ->getQuery()
+                ->getSingleColumnResult();
+    
+            return $nbrItv;
+    }
+
+    public function findNbreNumItv($numOr)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('rsv')
+            ->select('MAX(rsv.numeroSoumission)')
+            ->where('rsv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+
+            // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
+            $nbrItv = $this->createQueryBuilder('rsv')
+                ->select('COUNT(rsv.numeroItv)')  
+                ->where('rsv.numeroOR = :numOr') 
+                ->andwhere('rsv.numeroSoumission = :numeroVersionMax')
+                ->setParameters([
+                    'numeroVersionMax' => $numeroVersionMax,
+                    'numOr' => $numOr,
+                ])
+                ->getQuery()
+                ->getSingleColumnResult();
+    
+            return $nbrItv;
+    }
+
 }

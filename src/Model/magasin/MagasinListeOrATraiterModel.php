@@ -176,42 +176,42 @@ class MagasinListeOrATraiterModel extends Model
         // }
 
         if(!empty($criteria['designation'])){
-            $designation = " and slor_desi like '%" . $criteria['designation'] . "%'";
+            $designation = " AND slor_desi like '%" . $criteria['designation'] . "%'";
         } else {
             $designation = null;
         }
         if(!empty($criteria['referencePiece'])){
-            $referencePiece = " and slor_refp like '%" . $criteria['referencePiece'] . "%'";
+            $referencePiece = " AND slor_refp like '%" . $criteria['referencePiece'] . "%'";
         } else {
             $referencePiece = null;
         }
 
         if(!empty($criteria['constructeur'])){
-            $constructeur = " and slor_constp  ='" . $criteria['constructeur'] . "'";
+            $constructeur = " AND slor_constp  ='" . $criteria['constructeur'] . "'";
         } else {
             $constructeur = null;
         }
 
         if(!empty($criteria['dateDebut'])){
-            $dateDebut = " and slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
+            $dateDebut = " AND slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
         } else {
             $dateDebut = null;
         }
 
         if(!empty($criteria['dateFin'])){
-            $dateFin = " and slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
+            $dateFin = " AND slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
         } else {
             $dateFin = null;
         }
 
         if(!empty($criteria['numOr'])){
-            $numOr = " and seor_numor  = '" . $criteria['numOr'] . "'";
+            $numOr = " AND seor_numor  = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
         }
 
         if(!empty($criteria['numDit'])){
-            $numDit = " and seor_refdem  = '" . $criteria['numDit'] . "'";
+            $numDit = " AND seor_refdem  = '" . $criteria['numDit'] . "'";
         } else {
             $numDit = null;
         }
@@ -247,6 +247,12 @@ class MagasinListeOrATraiterModel extends Model
         } else {
             $service = "";
         }
+
+        if(!empty($criteria['agenceUser'])){
+            $agenceUser = " AND seor_succ = '".explode('-',$criteria['agenceUser'])[0]."'";
+        } else {
+            $agenceUser = "";
+        }
       
 
         $statement = "SELECT 
@@ -263,8 +269,12 @@ class MagasinListeOrATraiterModel extends Model
             slor_nogrp/100 as numInterv,
             slor_nolign as numeroLigne,
             slor_datec, 
-            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
+            --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
+            --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+            slor_succdeb as agence,
+            slor_servdeb as service,
+            slor_succ as agenceCrediteur,
+            slor_servcrt as serviceCrediteur
 
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc 
@@ -275,7 +285,7 @@ class MagasinListeOrATraiterModel extends Model
             and seor_typeor not in('950', '501')
             and slor_succ = '01'
             and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
-            and seor_numor <> '16406497'
+            $agenceUser
             $designation
             $referencePiece 
             $constructeur 
@@ -305,7 +315,7 @@ class MagasinListeOrATraiterModel extends Model
     {
         $statement = " SELECT DISTINCT
             trim(slor_constp) as constructeur
-           
+            
             from sav_lor 
             inner join sav_eor on seor_soc = slor_soc 
             and seor_succ = slor_succ 
@@ -439,6 +449,8 @@ class MagasinListeOrATraiterModel extends Model
         return array_column($this->convertirEnUtf8($data), 'agence');
     }
 
+
+
     public function service($agence)
     {
         $statement = "  SELECT DISTINCT
@@ -462,6 +474,23 @@ class MagasinListeOrATraiterModel extends Model
                 "text"  => $item['service']
             ];
         }, $dataUtf8);
+    }
+
+    public function agenceUser()
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                        AND slor_soc = 'HF'
+                        AND slor_succdeb IN ('01', '20', '50')
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agence');
     }
 
 }

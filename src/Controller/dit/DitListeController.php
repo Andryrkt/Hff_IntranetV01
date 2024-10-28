@@ -6,9 +6,11 @@ namespace App\Controller\dit;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
-use App\Controller\Traits\DitListTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Form\dit\DocDansDwType;
+use App\Model\dit\DitListModel;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitListTrait;
+use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,7 +25,7 @@ class DitListeController extends Controller
      */
     public function index( Request $request)
     {
-        
+        $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
@@ -103,6 +105,9 @@ class DitListeController extends Controller
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
+    
+        $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
+
 
 
         /** 

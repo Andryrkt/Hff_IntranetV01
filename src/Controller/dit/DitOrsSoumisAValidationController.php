@@ -77,7 +77,7 @@ class DitOrsSoumisAValidationController extends Controller
 
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
-
+            $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
@@ -93,6 +93,9 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->notification($message);
             } elseif ($demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule']) {
                 $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+                $this->notification($message);
+            } elseif (empty($refClient)) {
+                $message = "Echec de la soumission car la référence client est vide.";
                 $this->notification($message);
             }
             else {

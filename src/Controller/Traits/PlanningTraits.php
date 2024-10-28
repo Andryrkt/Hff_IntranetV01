@@ -28,7 +28,6 @@ trait PlanningTraits
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
             if(!empty($numItv)){
                 foreach ($numItv as  $value) {
-                
                     $numOrValide[] = $numeroOr['numero_or'].'-'.$value;
                 }
             }

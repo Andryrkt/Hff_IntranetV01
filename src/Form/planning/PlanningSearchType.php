@@ -47,6 +47,23 @@ class PlanningSearchType extends AbstractType
                 'ACHATS LOCAUX' => 'ACHAT_LOCAUX',
                 'LUBRIFIANTS' => 'LUBRIFIANTS'
             ];
+            // const SECTION = [
+            //     'ASS' 	ASSURANCE
+            //     'AUT'	AUTRES
+            //     'AVI'	AVION
+            //     'BAT'	FER ET BATIMENTS
+            //     'CSP'	CUSTOMER SUPPORT
+            //     'DGO'	ATELIER DIEGO
+            //     'ELE'	ELECTRICITE
+            //     'FLE'	FLEXIBLE
+            //     'FRO'	FROID
+            //     'MAC'	MACHINE ET MATERIELS
+            //     'MAG'	MAGASIN
+            //     'MOT'	MOTEURS ET MACHINES OUTILS
+            //     'PEI'	TOLERIE & PEINTURE & MECANIQUE
+            //     'PNE'	PNEUMATIQUE
+            //     'REB'	REBOBINAGE
+            // ]
 
             public function __construct()
             {
@@ -61,7 +78,7 @@ class PlanningSearchType extends AbstractType
                 $agence = $this->transformEnSeulTableauAvecKey($this->planningModel->recuperationAgenceIrium());
             $annee = $this->planningModel->recuperationAnneeplannification();
             $agenceDebite = $this->planningModel->recuperationAgenceDebite();
-
+            $section = $this->planningModel->recuperationSection();
                 $builder
                 ->add('agence', ChoiceType::class, [
                     'label' =>  'Liste Agence',
@@ -160,6 +177,14 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- choisir une agence --",
                     
                 ])
+                ->add('section',ChoiceType::class,[
+                    'label' => 'Section :',
+                    'required' => false,
+                    'choices' =>$section,
+                    'placeholder' => "-- choisir un section --"
+                ]
+
+                )
                 ->add('serviceDebite', ChoiceType::class,[
                     'label' =>'Service Débiteur : ',
                     'multiple' => true,

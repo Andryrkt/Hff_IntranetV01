@@ -1,14 +1,15 @@
 <?php
 
 
-namespace App\Controller\magasin;
+namespace App\Controller\magasin\ors;
 
 ini_set('max_execution_time', 10000);
 ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\MagasinTrait;
+use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,8 +20,8 @@ use App\Form\magasin\MagasinListeOrALivrerSearchType;
 class MagasinListeOrLivrerController extends Controller
 { 
     use Transformation;
-    use MagasinTrait;
-
+    use OrsMagasinTrait;
+    use MagasinOrALIvrerTrait;
     
     private $magasinListOrLivrerModel;
 
@@ -30,19 +31,34 @@ class MagasinListeOrLivrerController extends Controller
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
 
-     /**
+    /**
      * @Route("/liste-or-livrer", name="magasinListe_or_Livrer")
      *
      * @return void
      */
     public function listOrLivrer(Request $request)
     {
-        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, null, [
+        $agenceServiceUser = $this->agenceServiceIpsObjet();
+
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+        //FIN AUTORISATION
+
+        if($autoriser)
+        {
+            $agenceUser = null;
+        } else {
+            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+        }
+
+        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
             'method' => 'GET'
         ])->getForm();
         
         $form->handleRequest($request);
-        $criteria = [];
+        $criteria = [
+            "agenceUser" => $agenceUser
+        ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
@@ -50,11 +66,11 @@ class MagasinListeOrLivrerController extends Controller
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
 
             $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
-        
+    
             //enregistrer les critère de recherche dans la session
             $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
-   
+
             //ajouter le numero dit dans data
             for ($i=0; $i < count($data) ; $i++) { 
                 $numeroOr = $data[$i]['numeroor'];
@@ -80,8 +96,7 @@ class MagasinListeOrLivrerController extends Controller
             }
 
 
-
-        self::$twig->display('magasin/listOrLivrer.html.twig', [
+        self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -168,7 +183,7 @@ class MagasinListeOrLivrerController extends Controller
         ];
     }
 
-         $this->excelService->createSpreadsheet($data);
+        $this->excelService->createSpreadsheet($data);
 
     }
 

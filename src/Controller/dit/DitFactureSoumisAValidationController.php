@@ -140,7 +140,12 @@ class DitFactureSoumisAValidationController extends Controller
                     $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
                     $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    
+                    $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
+                    $demandeIntervention->setEtatFacturation($etatOr);
+                    self::$em->persist($demandeIntervention);
+                    self::$em->flush();
+
+
                     $genererPdfFacture = new GenererPdfFactureAValidation();
                     $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
                     //envoie des pièce jointe dans une dossier et la fusionner

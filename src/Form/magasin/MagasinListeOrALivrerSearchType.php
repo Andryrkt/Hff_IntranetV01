@@ -15,6 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class MagasinListeOrALivrerSearchType extends AbstractType
@@ -49,6 +50,10 @@ class MagasinListeOrALivrerSearchType extends AbstractType
 
     private function agence(){
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
+    }
+
+    private function agenceUser(){
+        return array_combine($this->magasinModel->agenceUser(), $this->magasinModel->agenceUser());
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -157,8 +162,29 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'choices' => $service,
             'placeholder' => ' -- choisir service --'
         ]);
-           
+        
         })
+
+        ->add('agenceUser', ChoiceType::class, [
+            'label' => 'Agence Emetteur',
+            'required' => false,
+            'choices' => $this->agenceUser() ?? [],
+            'placeholder' => ' -- choisir agence --',
+            'data' => $options['data']['agenceUser'] ?? null,
+            'attr' => [
+                'disabled' => true,
+            ],
+        ])
+        
+        ->add('agenceUserHidden', HiddenType::class, [
+            'data' => $options['data']['agenceUser'] ?? null,
+        ])
+        
+        ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+            $data = $event->getData();
+            $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
+            $event->setData($data);
+        });
         ;
     }
 

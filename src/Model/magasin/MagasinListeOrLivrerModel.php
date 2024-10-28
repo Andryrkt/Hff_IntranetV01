@@ -230,7 +230,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_constp not in ('LUB')
                     ";
         }
-          
+        
         if(!empty($criteria['agence'])){
             $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
         } else {
@@ -243,6 +243,11 @@ class MagasinListeOrLivrerModel extends Model
             $service = "";
         }
 
+        if(!empty($criteria['agenceUser'])){
+            $agenceUser = " AND seor_succ = '".explode('-',$criteria['agenceUser'])[0]."'";
+        } else {
+            $agenceUser = "";
+        }
 
         $statement = " SELECT 
                         trim(seor_refdem) as referenceDIT,
@@ -260,8 +265,12 @@ class MagasinListeOrLivrerModel extends Model
                         slor_datec as dateCreation,
                         slor_nogrp/100 as numInterv,
                         slor_nolign as numeroLigne,
-                        slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-                        slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
+                        --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        slor_succdeb as agenceDebiteur,
+                        slor_servdeb as serviceDebiteur,
+                        slor_succ as agenceCrediteur,
+                        slor_servcrt as serviceCrediteur,
                         (SELECT SUM(CASE 
                                         WHEN B.slor_typlig = 'P' THEN (B.slor_qterel + B.slor_qterea + B.slor_qteres + B.slor_qtewait - B.slor_qrec) 
                                         WHEN B.slor_typlig IN ('F','M','U','C') THEN B.slor_qterea 
@@ -283,7 +292,8 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_succ = '01'
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
-                        and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
+                        $agenceUser
                         $piece
                         $orCompletNom
                         $designation
@@ -295,7 +305,7 @@ class MagasinListeOrLivrerModel extends Model
                         $numDit
                         $agence
                         $service
-                       
+
                         order by 
                             seor_refdem desc,
                             slor_nogrp/100 desc, 
@@ -477,4 +487,21 @@ public function agence()
         }, $dataUtf8);
     }
     
+
+    public function agenceUser()
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                        AND slor_soc = 'HF'
+                        AND slor_succdeb IN ('01','50')
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agence');
+    }
 }

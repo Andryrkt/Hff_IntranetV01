@@ -1,7 +1,7 @@
 <div class="accordion" id="accordionExample">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
-			<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
 				Formulaire de recherche
 			</button>
 		</h2>
@@ -9,6 +9,9 @@
 			<div class="accordion-body">
 				{{ form_start(form)}}
 				<div class="row">
+					<div class="col-12 col-md-2">
+						{{form_row(form.agenceUser)}}
+					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.agence)}}
 						{{form_row(form.service)}}
@@ -28,8 +31,6 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.pieces)}}
-					</div>
-					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebut)}}
 						{{form_row(form.dateFin)}}
 					</div>

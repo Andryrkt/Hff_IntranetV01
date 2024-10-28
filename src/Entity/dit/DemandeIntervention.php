@@ -471,12 +471,27 @@ class DemandeIntervention
      */
     private $sectionSupport3;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="etat_facturation")
+     */
+    private $etatFacturation;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="ri")
+     */
+    private $ri;
+
     private $nbrPj;
 
     private $quatreStatutOr;
 
     private $estOrEqDit;
-    //===================================================================================================================
+    
+    /** ===================================================================================================================
+     * 
+     * GETTER and SETTER
+     * 
+    *===============================================================================================================*/
 
     public function getId()
     {
@@ -1381,6 +1396,28 @@ class DemandeIntervention
     {
         $this->sectionSupport3 = $sectionSupport3;
 
+        return $this;
+    }
+
+    public function getEtatFacturation()
+    {
+        return $this->etatFacturation;
+    }
+
+    public function setEtatFacturation($etatFacturation)
+    {
+        $this->etatFacturation = $etatFacturation;
+        return $this;
+    }
+
+    public function getRi()
+    {
+        return $this->ri;
+    }
+
+    public function setRi($ri)
+    {
+        $this->ri=$ri;
         return $this;
     }
 
