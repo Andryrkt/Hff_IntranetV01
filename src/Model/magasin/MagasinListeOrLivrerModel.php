@@ -314,7 +314,6 @@ class MagasinListeOrLivrerModel extends Model
         ";
 
 
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
