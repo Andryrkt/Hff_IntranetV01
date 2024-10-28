@@ -13,6 +13,7 @@ class CisATraiterModel extends Model
     
     public function listOrATraiter(array $criteria = []): array
     {
+        //condition de recherche
         $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
         $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
         $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
@@ -41,6 +42,7 @@ class CisATraiterModel extends Model
                     END)", 'service',$criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
 
+        //requete
         $statement = "SELECT
                     seor_refdem AS NumDit,
                     slor_numcf AS NumCis, 

@@ -13,20 +13,15 @@ trait MagasinOrATraiterTrait
     {
         $numeroOrs = $magasinModel->recupNumOr($criteria);
         
-        $numOrValide = $this->numeroOrValide($numeroOrs, $magasinModel, $em);
+        $numOrValideItv = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv'];
         
-        $numOrValideString = $this->orEnString($numOrValide);
-        $numOrLivrerComplet = $this->orEnString($magasinModel->recupOrLivrerComplet());
-        $numOrLivrerIncomplet = $this->orEnString($magasinModel->recupOrLivrerIncomplet());
-        $numOrLivrerTout = $this->orEnString($magasinModel->recupOrLivrerTout());
+        $numOrValideString = $this->orEnString($numOrValideItv);
+        
         return  [
-            "numOrLivrerComplet" => $numOrLivrerComplet,
-            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
-            "numOrLivrerTout" => $numOrLivrerTout,
             "numOrValideString" => $numOrValideString
         ];
     }
-
+/*
     private function numeroOrValide($numeroOrs, $magasinModel, $em)
     {
         $numOrValide = [];
@@ -41,5 +36,25 @@ trait MagasinOrATraiterTrait
         }
 
         return $numOrValide;
+    }
+        */
+
+    private function recupNumORItvValide($numeroOrs, $em)
+    {
+        $numOrValideItv = [];
+        $numOrValide = [];
+        foreach ($numeroOrs as $numeroOr) {
+            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+            if(!empty($numItv)){
+                foreach ($numItv as  $value) {
+                    $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValide[] = $numeroOr['numero_or'];
+                }
+            }
+        }
+        return [
+            'numeroOr_itv' => $numOrValideItv,
+            'numeroOr' => $numOrValide
+        ];
     }
 }

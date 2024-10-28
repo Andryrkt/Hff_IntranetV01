@@ -4,12 +4,15 @@ namespace App\Model\magasin;
 
 use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
+use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
+
 
 class MagasinListeOrLivrerModel extends Model
 { 
     use ConversionModel;
     use FormatageTrait;
+    use ConditionModelTrait;
 
     public function recupUserCreateNumOr($numOr)
     {
@@ -165,104 +168,21 @@ class MagasinListeOrLivrerModel extends Model
 
     public function recupereListeMaterielValider( array $criteria = [], array $lesOrSelonCondition)
     {
-    
-        // if ($numOrValide === "") {
-        //     $numOrValide = '0';
-        //and slor_numor in (". $numOrValide .")
-        // }
+        //les condeition de filtre
+        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
+        $dateDebut = $this->conditionDateSigne( 'slor_datec', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne( 'slor_datec', 'dateFin', $criteria, '<=');
+        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
+        $piece = $this->conditionPiece('pieces', $criteria);
+        $agence = $this->conditionAgenceService("slor_succdeb", 'agence',$criteria);
+        $service = $this->conditionAgenceService("slor_servdeb", 'service',$criteria);
+        $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
+        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon',$lesOrSelonCondition, $criteria);
 
-        if(!empty($criteria['designation'])){
-            $designation = " AND slor_desi like '%" . $criteria['designation'] . "%'";
-        } else {
-            $designation = null;
-        }
-        
-        if(!empty($criteria['referencePiece'])){
-            $referencePiece = " AND slor_refp like '%" . $criteria['referencePiece'] . "%'";
-        } else {
-            $referencePiece = null;
-        }
-
-        if(!empty($criteria['constructeur'])){
-            $constructeur = " AND slor_constp  ='" . $criteria['constructeur'] . "'";
-        } else {
-            $constructeur = null;
-        }
-
-        if(!empty($criteria['dateDebut'])){
-            $dateDebut = " AND slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
-        } else {
-            $dateDebut = null;
-        }
-
-        if(!empty($criteria['dateFin'])){
-            $dateFin = " AND slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
-        } else {
-            $dateFin = null;
-        }
-
-        if(!empty($criteria['numOr'])){
-            $numOr = " AND seor_numor  = '" . $criteria['numOr'] . "'";
-        } else {
-            $numOr = null;
-        }
-
-        if(!empty($criteria['numDit'])){
-            $numDit = " AND seor_refdem  = '" . $criteria['numDit'] . "'";
-        } else {
-            $numDit = null;
-        }
-
-        if(!empty($criteria['orCompletNon'])) {
-            if($criteria['orCompletNon'] === 'ORs COMPLET'){
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
-            } else if($criteria['orCompletNon'] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
-            } else if($criteria['orCompletNon'] === 'TOUTS LES OR'){
-                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
-            }
-        } else {
-            $orCompletNom =  " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
-        }
-
-        if (!empty($criteria['pieces'])) {
-            if($criteria['pieces'] === "PIECES MAGASIN"){
-                $piece = " AND slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB')
-                    ";
-            } else if($criteria['pieces'] === "LUB") {
-                $piece = " AND slor_constp in ('LUB') ";
-
-            } else if($criteria['pieces'] === "ACHATS LOCAUX") {
-                $piece = " AND slor_constp like 'Z%' ";
-
-            }else if($criteria['pieces'] === "TOUTS PIECES") {
-                $piece = null;
-            }
-        } else {
-            $piece = " AND slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB')
-                    ";
-        }
-        
-        if(!empty($criteria['agence'])){
-            $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
-        } else {
-            $agence = "";
-        }
-
-        if(!empty($criteria['service'])){
-            $service = " AND slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) = '".$criteria['service']."'";
-        } else {
-            $service = "";
-        }
-
-        if(!empty($criteria['agenceUser'])){
-            $agenceUser = " AND seor_succ = '".explode('-',$criteria['agenceUser'])[0]."'";
-        } else {
-            $agenceUser = "";
-        }
-
+        //requête
         $statement = " SELECT 
                         trim(seor_refdem) as referenceDIT,
                         seor_numor as numeroOr,
