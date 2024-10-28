@@ -606,3 +606,10 @@ SET
         ) = 'LGR' THEN '46'
         ELSE service_emetteur_id
     END;
+
+UPDATE Demande_ordre_mission
+SET
+    Code_Statut = 'ANN',
+    ID_Statut_Demande = 9
+where
+    Numero_Ordre_Mission = 'DOM24100448'

@@ -149,7 +149,6 @@ class MagasinListeOrATraiterModel extends Model
             order by numInterv ASC, seor_dateor DESC, slor_numor DESC, numeroLigne ASC
         ";
 
-        dump($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
