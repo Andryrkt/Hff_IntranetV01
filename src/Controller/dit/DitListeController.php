@@ -226,7 +226,6 @@ class DitListeController extends Controller
          $this->excelService->createSpreadsheet($data);
     }
 
-   
 
     /**
      * @Route("/command-modal/{numOr}", name="liste_commandModal")

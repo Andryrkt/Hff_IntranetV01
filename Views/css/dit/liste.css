@@ -1,0 +1,35 @@
+.aAffecter
+{
+    background-color: red ! important;
+    font-weight: bold;
+}
+
+.affecterSection
+{
+    background-color: orangered ! important;
+    font-weight: bold;
+}
+
+.cloturerValider
+{
+    background-color: green !important;
+    font-weight: bold;
+}
+
+.cloturerHorsDelai
+{
+    background-color: orange ! important;
+    font-weight: bold;
+}
+
+.cloturerAnnuler
+{
+    background-color: grey ! important;
+    font-weight: bold;
+}
+
+.terminer
+{
+    background-color: blue ! important;
+    font-weight: bold;
+}

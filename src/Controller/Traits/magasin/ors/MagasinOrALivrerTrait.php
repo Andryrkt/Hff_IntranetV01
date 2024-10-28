@@ -13,18 +13,21 @@ trait MagasinOrALIvrerTrait
         $magasinModel = new MagasinListeOrATraiterModel();
         $numeroOrs = $magasinModel->recupNumOr($criteria);
 
-        $numOrValide = $this->recupNumORItvValide($numeroOrs, $em);
+        $numOrValideItv = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv'];
+        $numOrValide = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr'];
 
+        $numOrValideItvString = $this->orEnString($numOrValideItv);
         $numOrValideString = $this->orEnString($numOrValide);
-        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet());
-        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet());
-        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout());
+
+        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString));
+        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString));
+        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString));
 
         return  [
             "numOrLivrerComplet" => $numOrLivrerComplet,
             "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
             "numOrLivrerTout" => $numOrLivrerTout,
-            "numOrValideString" => $numOrValideString
+            "numOrValideString" => $numOrValideItvString
         ];
     }
 
@@ -46,15 +49,20 @@ trait MagasinOrALIvrerTrait
 
     private function recupNumORItvValide($numeroOrs, $em)
     {
+        $numOrValideItv = [];
         $numOrValide = [];
         foreach ($numeroOrs as $numeroOr) {
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
             if(!empty($numItv)){
                 foreach ($numItv as  $value) {
-                    $numOrValide[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValide[] = $numeroOr['numero_or'];
                 }
             }
         }
-        return $numOrValide;
+        return [
+            'numeroOr_itv' => $numOrValideItv,
+            'numeroOr' => $numOrValide
+        ];
     }
 }

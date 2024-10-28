@@ -65,28 +65,62 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerComplet()
+    public function recupOrLivrerComplet($numOrValideItv, $numOrValide)
     {
-        $statement = " SELECT 
-                            seor_numor as numeroOr
-                            from sav_lor as A
-                            inner join sav_eor on seor_soc = slor_soc 
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                            where slor_soc = 'HF'
-                            AND  (Select 
-                                    SUM ( CASE 
-                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-                                        END ) 
-                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
-                            = (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor )
-                            and slor_qteres <> 0
-                            and slor_typlig = 'P'
-                            and slor_constp not like 'Z%'
-                            and slor_constp not in ('LUB')
-                            and slor_succ = '01'
-                            and seor_serv ='SAV'
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) = sum(slor_qteres) + sum(slor_qterea)
+                            --and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
+                    ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerIncomplet($numOrValideItv, $numOrValide)
+    {
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) > sum(slor_qteres) + sum(slor_qterea)
+                            --and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         
         $result = $this->connect->executeQuery($statement);
@@ -96,52 +130,32 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerIncomplet()
+    public function recupOrLivrerTout($numOrValideItv, $numOrValide)
     {
-        $statement = " SELECT distinct slor_numor from sav_lor
-                        inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
-                        where
-                        slor_qteres > 0
-                        and slor_typlig = 'P'  
-                        and slor_constp not in ('LUB')
-                        and slor_typlig = 'P' 
-                        and slor_constp not like 'Z%'
-                        and seor_serv = 'SAV'
-                        and seor_succ = '01'
-                        and seor_typeor not in (501,550)
-                    ";
-        
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        return $this->convertirEnUtf8($data);
-    }
-
-    public function recupOrLivrerTout()
-    {
-        $statement = " SELECT 
-                            seor_numor as numeroOr
-                            from sav_lor as A
-                            inner join sav_eor on seor_soc = slor_soc 
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                            where slor_soc = 'HF'
-                            AND  (Select 
-                                    SUM ( CASE 
-                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-                                        END ) 
-                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
-                            >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
-                            and slor_qteres <> 0
-                            and slor_typlig = 'P'
-                            and slor_constp not like 'Z%'
-                            and slor_constp not in ('LUB')
-                            and slor_succ = '01'
-                            and seor_serv ='SAV'
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) >= sum(slor_qteres) + sum(slor_qterea)
+                            --and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -201,14 +215,14 @@ class MagasinListeOrLivrerModel extends Model
 
         if(!empty($criteria['orCompletNon'])) {
             if($criteria['orCompletNon'] === 'ORs COMPLET'){
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
             } else if($criteria['orCompletNon'] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
             } else if($criteria['orCompletNon'] === 'TOUTS LES OR'){
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
             }
         } else {
-            $orCompletNom =  " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
+            $orCompletNom =  " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
         }
 
         if (!empty($criteria['pieces'])) {
