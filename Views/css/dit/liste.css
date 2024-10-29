@@ -6,7 +6,7 @@
 
 .affecterSection
 {
-    background-color: orangered ! important;
+    background-color: #ff8d00 ! important;
     font-weight: bold;
 }
 
@@ -26,12 +26,14 @@
 {
     background-color: grey ! important;
     font-weight: bold;
+    color: #fff ! important;
 }
 
 .terminer
 {
     background-color: blue ! important;
     font-weight: bold;
+    color: #fff ! important;
 }
 
 

@@ -172,15 +172,18 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [50,51,53];
-            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $statusesDefault = [50, 51, 53];
 
-        //filtre pour le statut        
-        if (!empty($ditSearch->getStatut())) {
-            $queryBuilder->andWhere('s.description LIKE :statut')
-                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        }
+            // Appliquer le filtre par statut ou exclure les statuts par défaut
+            if (!empty($ditSearch->getStatut())) {
+                // Si un statut spécifique est recherché, l'utiliser dans la requête
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+            } else {
+                // Appliquer les statuts par défaut si aucun filtre de statut n'est fourni
+                $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+                    ->setParameter('excludedStatuses', $statusesDefault);
+            }
 
         //filtre pour le type de document
         if (!empty($ditSearch->getTypeDocument())) {
@@ -379,15 +382,18 @@ class DitRepository extends EntityRepository
         ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [50,51,53];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $statusesDefault = [50, 51, 53];
 
-         
-                if (!empty($ditSearch->getStatut())) {
-                    $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-                }
+            // Appliquer le filtre par statut ou exclure les statuts par défaut
+            if (!empty($ditSearch->getStatut())) {
+                // Si un statut spécifique est recherché, l'utiliser dans la requête
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+            } else {
+                // Appliquer les statuts par défaut si aucun filtre de statut n'est fourni
+                $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+                    ->setParameter('excludedStatuses', $statusesDefault);
+            }
     
             if (!empty($ditSearch->getTypeDocument())) {
                 $queryBuilder->andWhere('td.description LIKE :typeDocument')
