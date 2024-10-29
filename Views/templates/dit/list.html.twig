@@ -2,6 +2,7 @@
 
 {% block stylesheets%}
 	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -16,17 +17,24 @@
 		{% include "/partials/_notification.html.twig" %}
 
 		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
-		<div class="mb-3">
+		<div class="row">
 
-			<i class="fa-solid fa-circle text-success"></i>
-			<small class="text-success">Tout livré |</small>
-			<i class="fa-solid fa-circle text-warning"></i>
-			<small class="text-warning">Partiellement livré |</small>
-			<i class="fa-solid fa-circle text-info"></i>
-			<small class="text-info">Partiellement dispo |</small>
-			<i class="fa-solid fa-circle text-primary"></i>
-			<small class="text-primary">Complet non livré</small>
+			<div class="my-3">
+				<i class="fa-solid fa-circle text-info"></i>
+				<small class="text-info">Partiellement dispo |</small>
+				<i class="fa-solid fa-circle text-primary"></i>
+				<small class="text-primary">Complet non livré</small>
+				<i class="fa-solid fa-circle text-warning"></i>
+				<small class="text-warning">Partiellement livré |</small>
+				<i class="fa-solid fa-circle text-success"></i>
+				<small class="text-success">Tout livré |</small>
+			</div>
+
+
+			{# {% include "/dit/shared/_carteStatut.html.twig" %} #}
+
 		</div>
+
 	</div>
 
 	<div
@@ -62,8 +70,8 @@
 						<th>Section affectée</th>
 						<th>N° Or</th>
 						<th class="fw-bold">Statut Or</th>
-						<th>Statut Livraison Pièces</th>
-						<th>Statut Achats Locaux</th>
+						{# <th>Statut Livraison Pièces</th> #}
+						{# <th>Statut Achats Locaux</th> #}
 						<th>Facturation</th>
 						<th>RI</th>
 						<th>Nbre PJ</th>
@@ -77,16 +85,17 @@
 						{% set styleStatutDit = '' %}
 
 						{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
-							{% set classeStatutDit ='bg-warning bg-gradient fw-bold text-cente' %}
+							{% set classeStatutDit ='aAffecter' %}
 						{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
-							{% set classeStatutDit ='bg-warning bg-gradient fw-bold' %}
+							{% set classeStatutDit ='affecterSection' %}
 						{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
-							{% set classeStatutDit ='bg-success fw-bold' %}
-							{% set styleStatutDit = '--bs-bg-opacity: .5;' %}
+							{% set classeStatutDit ='cloturerValider' %}
 						{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
-							{% set classeStatutDit ='bg-dangers bg-gradient fw-bold' %}
+							{% set classeStatutDit ='cloturerAnnuler' %}
 						{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
-							{% set classeStatutDit ='bg-dangers bg-gradient fw-bold' %}
+							{% set classeStatutDit ='cloturerHorsDelai' %}
+						{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
+							{% set classeStatutDit ='terminer' %}
 						{% else %}
 							{% set classeStatutDit = '' %}
 						{% endif %}
@@ -136,7 +145,7 @@
 							{# FIN Statut #}
 
 							<td>
-								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank">{{ item.numeroDemandeIntervention }}</a>
+								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
@@ -157,22 +166,20 @@
 							</td>
 							<td>
 								{% if item.numeroOr != '' %}
-									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black">{{ item.numeroOr}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
 
 							{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
 							<td class="fw-bold ">{{ item.statutor}}</td>
-							<td>{{ item.statutachatpiece}}</td>
-							<td>{{ item.statutachatlocaux}}</td>
+							{# <td>{{ item.statutachatpiece}}</td> #}
+							{# <td>{{ item.statutachatlocaux}}</td> #}
 							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">facture</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">{{item.etatFacturation}}</a>
 							</td>
 							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr">{{ item.ri}}</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr" data-bs-toggle="tooltip" title="lister les intervention soumis RI">{{ item.ri}}</a>
 							</td>
-							{# <td>{{ item.etatFacturation}}</td> #}
-							{# <td>{{ item.ri}}</td> #}
 							<td>{{ item.nbrPj}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>
 						</tr>

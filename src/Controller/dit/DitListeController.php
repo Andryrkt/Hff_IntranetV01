@@ -109,7 +109,6 @@ class DitListeController extends Controller
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
 
 
-
         /** 
          * Docs à intégrer dans DW 
          * */
@@ -226,7 +225,6 @@ class DitListeController extends Controller
          $this->excelService->createSpreadsheet($data);
     }
 
-   
 
     /**
      * @Route("/command-modal/{numOr}", name="liste_commandModal")

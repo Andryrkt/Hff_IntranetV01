@@ -29,6 +29,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
+use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -611,12 +612,21 @@ class DomForm2Type extends AbstractType
         ]) 
         ->add('totalGeneralPayer', 
         TextType::class,
-         [
+        [
             'label' => 'Montant Total',
             'required' => true,
             'attr' => [
                 'readonly' => true
-            ]
+            ],
+            'constraints' => [
+                new NotBlank([
+                    'message' => 'Le montant total ne peut pas être vide.',
+                ]),
+                new GreaterThan([
+                    'value' => 0,
+                    'message' => 'Le montant total doit être supérieur à 0.',
+                ]),
+            ],
         ])
         ->add('modePayement', 
         ChoiceType::class, [

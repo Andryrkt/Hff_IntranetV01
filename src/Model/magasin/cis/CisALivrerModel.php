@@ -19,13 +19,10 @@ class CisALivrerModel extends Model
         $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
         $numCis = $this->conditionSigne('slor_numcf', 'numCis', '=', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
-        
         $dateDebut = $this->conditionDateSigne( 'nlig_datecde', 'dateDebut', $criteria, '>=');
         $dateFin = $this->conditionDateSigne( 'nlig_datecde', 'dateFin', $criteria, '<=');
-
         $piece = $this->conditionPiece('pieces', $criteria);
         $orCompletOuNon = $this->conditionOrCompletOuNonCis('orCompletNon',$criteria);
-
         $agence = $this->conditionAgenceService("(CASE slor_natop 
                         WHEN 'CES' THEN TRIM(slor_succdeb)
                         WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
@@ -42,6 +39,7 @@ class CisALivrerModel extends Model
                     END)", 'service',$criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
 
+        //requête
         $statement = "SELECT
                     seor_refdem AS Num_DIT,
                     slor_numcf AS Num_CIS, 
@@ -127,5 +125,4 @@ class CisALivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-  
 }

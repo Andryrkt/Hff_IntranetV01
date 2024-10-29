@@ -95,6 +95,24 @@ trait ConditionModelTrait
         return $orCompletNom;
     }
 
+    private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $lesOrSelonCondition, array $criteria): string 
+    {
+
+        if(!empty($criteria[$indexCriteria])) {
+            if($criteria[$indexCriteria] === 'ORs COMPLET'){
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
+            } else if($criteria[$indexCriteria] === 'ORs INCOMPLETS') {
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
+            } else if($criteria[$indexCriteria] === 'TOUTS LES OR'){
+                $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
+            }
+        } else {
+            $orCompletNom =  " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
+        }
+
+        return $orCompletNom;
+    }
+
     private function conditionAgenceUser(string $indexCriteria, array $criteria): string 
     {
         if(!empty($criteria[$indexCriteria])){
@@ -105,6 +123,7 @@ trait ConditionModelTrait
 
         return $agenceUser;
     }
+
     private function conditionAgenceService(string $colonneBase, string $indexCriteria,array $criteria): string 
     {
         if(!empty($criteria[$indexCriteria])){

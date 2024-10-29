@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
       agencyDebit: 8, // Agences debiteur
       serviceDebit: 9, // Services debiteur
       interventionNumber: 10, // N° Intv
-      user: 17, // Utilisateur
+      user: 18, // Utilisateur
     };
 
     Object.keys(cellIndices).forEach((key) => {
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hideCells(row) {
-    const cellIndices = [1, 2, 3, 4, 6, 7, 8, 9, 10, 17]; // Indices des colonnes à masquer
+    const cellIndices = [1, 2, 3, 4, 6, 7, 8, 9, 10, 18]; // Indices des colonnes à masquer
     cellIndices.forEach((index) => {
       let cell = row.getElementsByTagName("td")[index];
       if (cell) {
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
       interventionNumber: currentRow
         .getElementsByTagName("td")[10]
         .textContent.trim(),
-      user: currentRow.getElementsByTagName("td")[17].textContent.trim(),
+      user: currentRow.getElementsByTagName("td")[18].textContent.trim(),
     };
 
     // Check if any of the key values differ from the previous row's values

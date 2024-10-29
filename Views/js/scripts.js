@@ -21,3 +21,12 @@
 // window.onmousemove = resetTimeout;
 // window.onkeypress = resetTimeout;
 // window.ontouchstart = resetTimeout;
+
+document.addEventListener("DOMContentLoaded", function () {
+  var tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  );
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});

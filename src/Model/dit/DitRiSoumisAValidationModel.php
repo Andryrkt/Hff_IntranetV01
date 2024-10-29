@@ -84,6 +84,7 @@ class DitRiSoumisAValidationModel extends Model
             seor_numor as numOr
             from sav_eor
             where seor_refdem = '".$numDit."'
+            AND seor_serv = 'SAV'
 
         ";
         $result = $this->connect->executeQuery($statement);

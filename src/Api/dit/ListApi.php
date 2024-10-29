@@ -32,7 +32,6 @@ class ListApi extends Controller
         $ri = $ditListeModel->recupItvComment($numOr);
         $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);
         
-
         foreach ($ri as &$value) {
             $estRiSoumis = in_array($value['numeroitv'], $riSoumis);
             $value['riSoumis'] = $estRiSoumis;

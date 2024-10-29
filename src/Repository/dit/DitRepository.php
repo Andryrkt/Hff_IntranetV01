@@ -149,7 +149,7 @@ class DitRepository extends EntityRepository
         ->setParameter('numOR', $numOr )
         ;
 
-      return $queryBuilder->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
 
     }
     
@@ -165,15 +165,15 @@ class DitRepository extends EntityRepository
      */
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
-       
+        
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+            $excludedStatuses = [50,51,53];
+            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 
         //filtre pour le statut        
@@ -379,7 +379,7 @@ class DitRepository extends EntityRepository
         ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35, 52];
+            $excludedStatuses = [50,51,53];
             $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $excludedStatuses);
 

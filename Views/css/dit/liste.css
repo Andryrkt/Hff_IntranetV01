@@ -1,0 +1,78 @@
+.aAffecter
+{
+    background-color: red ! important;
+    font-weight: bold;
+}
+
+.affecterSection
+{
+    background-color: orangered ! important;
+    font-weight: bold;
+}
+
+.cloturerValider
+{
+    background-color: green !important;
+    font-weight: bold;
+}
+
+.cloturerHorsDelai
+{
+    background-color: orange ! important;
+    font-weight: bold;
+}
+
+.cloturerAnnuler
+{
+    background-color: grey ! important;
+    font-weight: bold;
+}
+
+.terminer
+{
+    background-color: blue ! important;
+    font-weight: bold;
+}
+
+
+/**
+CARTE STATUT
+*/
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: baseline;
+    max-width: 90%;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    min-width: 6px;
+    max-width: 300px;
+    transition: 0.3s;
+    flex: 1 1 calc(33.333% - 30px); /* 3 cards per row */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+
+
+.card h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.card p {
+    margin: 3px 0 0;
+    font-size: 14px;
+    color: #777;
+}
