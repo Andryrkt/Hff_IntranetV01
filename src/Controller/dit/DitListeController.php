@@ -108,6 +108,7 @@ class DitListeController extends Controller
     
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
 
+        
 
         /** 
          * Docs à intégrer dans DW 
@@ -141,6 +142,7 @@ class DitListeController extends Controller
             'totalPages' =>$paginationData['lastPage'],
             'criteria' => $criteria,
             'resultat' => $paginationData['totalItems'],
+            'statusCounts' => $paginationData['statusCounts'],
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }

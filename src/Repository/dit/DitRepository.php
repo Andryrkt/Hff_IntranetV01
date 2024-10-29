@@ -172,15 +172,18 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [50,51,53];
-            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $statusesDefault = [50, 51, 53];
 
-        //filtre pour le statut        
-        if (!empty($ditSearch->getStatut())) {
-            $queryBuilder->andWhere('s.description LIKE :statut')
-                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        }
+            // Appliquer le filtre par statut ou exclure les statuts par défaut
+            if (!empty($ditSearch->getStatut())) {
+                // Si un statut spécifique est recherché, l'utiliser dans la requête
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+            } else {
+                // Appliquer les statuts par défaut si aucun filtre de statut n'est fourni
+                $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+                    ->setParameter('excludedStatuses', $statusesDefault);
+            }
 
         //filtre pour le type de document
         if (!empty($ditSearch->getTypeDocument())) {
@@ -362,14 +365,209 @@ class DitRepository extends EntityRepository
             // $sql = $queryBuilder->getQuery()->getSQL();
             // echo $sql;
 
+            // Récupérer le nombre de lignes par statut
+    $statusCounts = $this->countByStatus($ditSearch, $options);
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
             'totalItems' => $totalItems,
             'currentPage' => $page,
             'lastPage' => $lastPage,
+            'statusCounts' => $statusCounts,
         ];
     }
+
+    /** =====================================================
+     * Undocumented function
+     *
+     * @param DitSearch $ditSearch
+     * @param array $options
+     * @return void
+     *======================================================*/
+    public function countByStatus(DitSearch $ditSearch, array $options)
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('s.description AS statut, COUNT(d.id) AS count')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->leftJoin('d.typeDocument', 'td')
+            ->groupBy('s.description');
+
+            $statusesDefault = [50, 51, 53];
+
+            // Appliquer le filtre par statut ou exclure les statuts par défaut
+            if (!empty($ditSearch->getStatut())) {
+                // Si un statut spécifique est recherché, l'utiliser dans la requête
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+            }
+
+        //filtre pour le type de document
+        if (!empty($ditSearch->getTypeDocument())) {
+            $queryBuilder->andWhere('td.description LIKE :typeDocument')
+                ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
+        }
+
+        //filtre pour le niveau d'urgence
+        if (!empty($ditSearch->getNiveauUrgence())) {
+            $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
+                ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
+        }
+
+        //filtre pour l'id materiel
+        if (!empty($ditSearch->getIdMateriel())) {
+            $queryBuilder->andWhere('d.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $ditSearch->getIdMateriel() );
+        }
+
+        //filtre sur l'interne ou externe
+        if (!empty($ditSearch->getInternetExterne())) {
+            $queryBuilder->andWhere('d.internetExterne = :internetExterne')
+                ->setParameter('internetExterne',  $ditSearch->getInternetExterne() );
+        }
+
+        //filtre date debut
+        if (!empty($ditSearch->getDateDebut())) {
+            $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $ditSearch->getDateDebut());
+        }
+
+        //filtre date fin
+        if (!empty($ditSearch->getDateFin())) {
+            $queryBuilder->andWhere('d.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $ditSearch->getDateFin());
+        }
+
+        
+        if ($options['boolean']) {
+            //filtre selon l'agence emettteur
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+                ->setParameter('agEmet',  $ditSearch->getAgenceEmetteur()->getId());
+            }
+            //filtre selon le service emetteur
+            if (!empty($ditSearch->getServiceEmetteur())) {
+                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+            }
+        } else {
+            //ceci est figer pour les utilisateur autre que l'administrateur
+                $queryBuilder->andWhere('d.agenceServiceEmetteur = :agServEmet')
+                ->setParameter('agServEmet',  $options['codeAgence'] . '-' . $options['codeService'] );
+        }
+
+        //filtre selon l'agence debiteur
+        if (!empty($ditSearch->getAgenceDebiteur())) {
+            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
+                ->setParameter('agDebit',  $ditSearch->getAgenceDebiteur()->getId() );
+        }
+
+        //filtre selon le service debiteur
+        if(!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+            ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
+        }
+
+        //filtrer selon le numero dit
+        if(!empty($ditSearch->getNumDit())) {
+        
+            $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtre selon le numero Or
+        if(!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+            $queryBuilder->andWhere('d.numeroOR = :numOr')
+            ->setParameter('numOr', $ditSearch->getNumOr());
+        }
+
+         //filtre selon le numero Or
+         if(!empty($ditSearch->getStatutOr())) {
+            $queryBuilder->andWhere('d.statutOr = :statutOr')
+            ->setParameter('statutOr',  $ditSearch->getStatutOr());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getCategorie())) {
+            $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
+            ->setParameter('categorieDemande', $ditSearch->getCategorie());
+        }
+
+        //filtre selon le categorie de demande
+        if(!empty($ditSearch->getUtilisateur())) {
+            $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
+            ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
+        }
+
+        if($ditSearch->getDitSansOr()){
+            $queryBuilder->andWhere("d.numeroOR = ''");
+        }
+
+     // Filtrer selon la section affectée
+        $sectionAffectee = $ditSearch->getSectionAffectee();
+        if (!empty($sectionAffectee)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+
+            foreach ($groupes as $index => $groupe) {
+                $phraseConstruite = $groupe . $sectionAffectee;
+                // Utiliser une clé paramétrique plus simple
+                $paramKey = 'sectionAffectee_' . $index;
+                $orX->add($queryBuilder->expr()->like('d.sectionAffectee', ":$paramKey"));
+                $queryBuilder->setParameter($paramKey, '%'.$phraseConstruite.'%');
+            }
+
+            // Ajouter la clause WHERE avec OR
+            $queryBuilder->andWhere($orX);
+        }
+
+        //filtre selon le section support 1
+        $sectionSupport1 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport1)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport1;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport1', ':sectionSupport1_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport1_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+
+         //filtre selon le section support 2
+        $sectionSupport2 = $ditSearch->getSectionSupport2();
+        if (!empty($sectionSupport2)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+            
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport2;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
+            }
+            
+            $queryBuilder->andWhere($orX);
+        }
+
+          //filtre selon le section support 3
+        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport3)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+            $orX = $queryBuilder->expr()->orX();
+    
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe. $sectionSupport3;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport3', ':sectionSupport3_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport3_' . md5($phraseConstruite), $phraseConstruite);
+            }
+    
+            $queryBuilder->andWhere($orX);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
 
     public function findAndFilteredExcel( DitSearch $ditSearch, array $options)
     {
@@ -379,15 +577,18 @@ class DitRepository extends EntityRepository
         ->leftJoin('d.idStatutDemande', 's')
             ;
 
-            $excludedStatuses = [50,51,53];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $statusesDefault = [50, 51, 53];
 
-         
-                if (!empty($ditSearch->getStatut())) {
-                    $queryBuilder->andWhere('s.description LIKE :statut')
-                        ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-                }
+            // Appliquer le filtre par statut ou exclure les statuts par défaut
+            if (!empty($ditSearch->getStatut())) {
+                // Si un statut spécifique est recherché, l'utiliser dans la requête
+                $queryBuilder->andWhere('s.description LIKE :statut')
+                    ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+            } else {
+                // Appliquer les statuts par défaut si aucun filtre de statut n'est fourni
+                $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+                    ->setParameter('excludedStatuses', $statusesDefault);
+            }
     
             if (!empty($ditSearch->getTypeDocument())) {
                 $queryBuilder->andWhere('td.description LIKE :typeDocument')

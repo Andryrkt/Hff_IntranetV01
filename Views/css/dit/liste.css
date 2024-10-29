@@ -2,12 +2,14 @@
 {
     background-color: red ! important;
     font-weight: bold;
+    
 }
 
 .affecterSection
 {
-    background-color: orangered ! important;
+    background-color: #ff8d00 ! important;
     font-weight: bold;
+    
 }
 
 .cloturerValider
@@ -26,53 +28,59 @@
 {
     background-color: grey ! important;
     font-weight: bold;
+    color: #fff ! important;
 }
 
 .terminer
 {
     background-color: blue ! important;
     font-weight: bold;
+    color: #fff ! important;
 }
 
 
-/**
-CARTE STATUT
-*/
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: baseline;
-    max-width: 90%;
+.nbrStatut
+{
+    border-radius: 5px;
+    padding: 2px 5px; 
+    text-align: center;
+    color: #fff;
 }
 
-.card {
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    min-width: 6px;
-    max-width: 300px;
-    transition: 0.3s;
-    flex: 1 1 calc(33.333% - 30px); /* 3 cards per row */
+.a_affecter
+{
+    background-color: red ! important;
+    font-weight: bold;
 }
 
-.card:hover {
-    transform: translateY(-5px);
+.affectee_section
+{
+    background-color: #ff8d00 ! important;
+    font-weight: bold;
 }
 
-
-
-.card h4 {
-    margin: 0;
-    font-size: 16px;
-    color: #333;
+.cloturee_annulee
+{
+    background-color: grey ! important;
+    font-weight: bold;
+    color: #fff ! important;
 }
 
-.card p {
-    margin: 3px 0 0;
-    font-size: 14px;
-    color: #777;
+.cloturee_validee
+{
+    background-color: green !important;
+    font-weight: bold;
+}
+
+.terminee
+{
+    background-color: blue ! important;
+    font-weight: bold;
+    color: #fff ! important;
+}
+
+.cloturee_hors_delai
+{
+    background-color: orange ! important;
+    font-weight: bold;
 }
