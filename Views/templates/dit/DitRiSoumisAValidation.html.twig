@@ -56,6 +56,7 @@
 									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint01)}}
 								<!-- Conteneur pour afficher le nom du fichier -->
 								<div class="file-name-1" style="margin-top: 10px;"></div>
 								<div class="file-size" id="file-size-1"></div>

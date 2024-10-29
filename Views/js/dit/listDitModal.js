@@ -106,14 +106,13 @@ facturationModalInput.addEventListener("show.bs.modal", function (event) {
         // Générer les lignes du tableau en fonction des données
         data.forEach((item) => {
           // Vérifier si le statut est vide ou null
-          let statut = item.statut ? item.statut : "-";
-          let rowClass = item.statut ? "" : "textColor";
+          let rowClass = item.statut == "-" ? "textColor" : "";
 
           // Créer la ligne du tableau
           let row = `<tr>
                       <td class="${rowClass}">${item.numeroItv}</td>
                       <td class="${rowClass}">${item.numeroFact}</td>
-                      <td class="${rowClass}">${statut}</td>
+                      <td class="${rowClass}">${item.statut}</td>
                     </tr>`;
 
           tableBody.innerHTML += row;
@@ -188,7 +187,7 @@ riModalInput.addEventListener("show.bs.modal", function (event) {
                       <td>${risoumis}</td>
                       <td class="${rowClass}">${item.numeroitv}</td>
                       <td class="${rowClass}">${
-            item.commentaire ? item.commentaire : "-"
+            item.commentair ? item.commentair : "-"
           }</td>
                     </tr>`;
 

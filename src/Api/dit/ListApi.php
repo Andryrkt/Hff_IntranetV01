@@ -16,10 +16,34 @@ class ListApi extends Controller
      * */
     public function facturation($numOr)
     {
+        $ditListeModel = new DitListModel();
         $facture = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNumItvFacStatut($numOr);
+        $itv = $ditListeModel->recupItv($numOr);
 
+        $result = [];
+        foreach ($itv as $value) {
+            $found = false;
+                foreach ($facture as $item) {
+                    if ($item['numeroItv'] == $value) {
+                        $result[] = $item;
+                        $found = true;
+                        break;
+                    }
+                }
+            
+            
+            if (!$found) {
+                $result[] = [
+                    "numeroItv" => $value,
+                    "numeroFact" => "-",
+                    "statut" => "-"
+                ];
+            }
+        }
+
+        
         header("Content-type:application/json");
-        echo json_encode($facture);
+        echo json_encode($result);
     }
     
     /** 
@@ -37,7 +61,6 @@ class ListApi extends Controller
             $value['riSoumis'] = $estRiSoumis;
         }
         unset($value);// Libère la référence
-
 
         header("Content-type:application/json");
         echo json_encode($ri);

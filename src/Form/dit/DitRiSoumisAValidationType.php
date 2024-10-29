@@ -67,14 +67,15 @@ class DitRiSoumisAValidationType extends AbstractType
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Veuiller sélectionner la facture à soumettre .', // Message d'erreur si le champ est vide
+                        'message' => 'Veuiller sélectionner le RI à soumettre .', // Message d'erreur si le champ est vide
                     ]),
                     new File([
                         'maxSize' => '5M',
+                        'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
                         'mimeTypes' => [
                             'application/pdf',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                     ])
                 ],
             ])

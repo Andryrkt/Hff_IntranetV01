@@ -12,11 +12,10 @@ class DitListModel extends Model
     public function recupItvComment($numOr)
     {
         $statement = " SELECT 
-                    TRUNC(slor_nogrp / 100) as numeroItv, 
-                    trim(sitv_comment) as commentaire
-                    from sav_lor
-                    inner join sav_itv on sitv_numor = slor_numor and sitv_interv = slor_nogrp / 100 and slor_soc = 'HF'
-                    where slor_numor = '".$numOr."'
+                        sitv_interv as numeroItv,
+                        TRIM(sitv_comment) as commentair
+                    from sav_itv
+                    where sitv_numor = '".$numOr."'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -30,9 +29,9 @@ class DitListModel extends Model
     public function recupNbItv($numOr)
     {
         $statement = " SELECT 
-                    COUNT(slor_nogrp / 100) as nbItv
-                    from sav_lor
-                    where slor_numor = '".$numOr."'
+                    COUNT(sitv_interv) as nbItv
+                    from sav_itv
+                    where sitv_numor = '".$numOr."'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -42,5 +41,21 @@ class DitListModel extends Model
 
         // Vérifier si des données existent et retourner la première valeur de 'nbItv'
         return !empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
+    }
+
+    public function recupItv($numOr)
+    {
+        $statement = " SELECT 
+                    sitv_interv as itv
+                    from sav_itv
+                    where sitv_numor = '".$numOr."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
+
+        return array_column($dataUtf8, 'itv');
     }
 }

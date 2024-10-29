@@ -43,9 +43,7 @@ class DitFactureSoumisAValidationController extends Controller
         $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $ditFactureSoumiAValidation)->getForm();
 
         $form->handleRequest($request);
-        // dump($form->isSubmitted());
-// dd($form->isValid());
-// dd($form->getErrors(true));
+        
         if($form->isSubmitted() && $form->isValid())
         { 
             
