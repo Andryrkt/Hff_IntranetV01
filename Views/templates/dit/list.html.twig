@@ -17,16 +17,24 @@
 		{% include "/partials/_notification.html.twig" %}
 
 		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
-		<div class="my-3">
-			<i class="fa-solid fa-circle text-info"></i>
-			<small class="text-info">Partiellement dispo |</small>
-			<i class="fa-solid fa-circle text-primary"></i>
-			<small class="text-primary">Complet non livré</small>
-			<i class="fa-solid fa-circle text-warning"></i>
-			<small class="text-warning">Partiellement livré |</small>
-			<i class="fa-solid fa-circle text-success"></i>
-			<small class="text-success">Tout livré |</small>
+		<div class="row">
+
+			<div class="my-3">
+				<i class="fa-solid fa-circle text-info"></i>
+				<small class="text-info">Partiellement dispo |</small>
+				<i class="fa-solid fa-circle text-primary"></i>
+				<small class="text-primary">Complet non livré</small>
+				<i class="fa-solid fa-circle text-warning"></i>
+				<small class="text-warning">Partiellement livré |</small>
+				<i class="fa-solid fa-circle text-success"></i>
+				<small class="text-success">Tout livré |</small>
+			</div>
+
+
+			{# {% include "/dit/shared/_carteStatut.html.twig" %} #}
+
 		</div>
+
 	</div>
 
 	<div
@@ -137,7 +145,7 @@
 							{# FIN Statut #}
 
 							<td>
-								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank">{{ item.numeroDemandeIntervention }}</a>
+								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
 							<td>{{ item.idNiveauUrgence.description}}</td>
@@ -158,7 +166,7 @@
 							</td>
 							<td>
 								{% if item.numeroOr != '' %}
-									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black">{{ item.numeroOr}}</a>
+									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
 
@@ -167,10 +175,10 @@
 							{# <td>{{ item.statutachatpiece}}</td> #}
 							{# <td>{{ item.statutachatlocaux}}</td> #}
 							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">{{item.facturation}}</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#facturation" data-id="{{item.numeroOr}}" id="numOr">{{item.etatFacturation}}</a>
 							</td>
 							<td>
-								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr">{{ item.ri}}</a>
+								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr" data-bs-toggle="tooltip" title="lister les intervention soumis RI">{{ item.ri}}</a>
 							</td>
 							<td>{{ item.nbrPj}}</td>
 							<td>{{item.utilisateurDemandeur}}</td>

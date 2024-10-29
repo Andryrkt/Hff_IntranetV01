@@ -109,7 +109,6 @@ class DitListeController extends Controller
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
 
 
-
         /** 
          * Docs à intégrer dans DW 
          * */
