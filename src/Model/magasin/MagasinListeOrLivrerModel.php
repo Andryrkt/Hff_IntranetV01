@@ -313,8 +313,6 @@ class MagasinListeOrLivrerModel extends Model
                             slor_nolign asc
         ";
 
-
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

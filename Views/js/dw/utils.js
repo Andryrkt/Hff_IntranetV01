@@ -41,10 +41,12 @@ export function iconSelonTypeFile(extension) {
 export function afficherFichier(cheminFichier) {
   // const fileUrl = `http://localhost/Upload/${cheminFichier}`;
   //const fileUrl = `http://192.168.0.28/Hffintranet/${cheminFichier}`;
-  const fileUrl = `http://localhost/Upload/dit/DIT24096_50LCD.pdf`;
+  //const fileUrl = `http://localhost/Upload/dit/DIT24096_50LCD.pdf`;
+  const fileUrl = `http://192.168.0.28/Upload/${cheminFichier}`;
   // const fileUrl = `http://172.20.11.32/Hffintranet/${cheminFichier}`;
   //const fileUrl = `file:///192.168.0.15/hff_pdf/1428031_2COLAS.pdf`;
-
+  console.log(fileUrl);
+  
   const fileViewer = document.getElementById("file-viewer");
   fileViewer.innerHTML = `<iframe src="${fileUrl}" width="100%" height="800px" frameborder="0"></iframe>`;
 }
