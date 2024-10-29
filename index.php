@@ -61,11 +61,11 @@ try {
     $response->setContent($htmlContent);
     $response->setStatusCode(403);
 } 
-// catch (Exception $e) {
-//     $htmlContent = "<html><body><h1>500</h1><p>Une erreur s'est produite.</p></body></html>";
-//     $response->setContent($htmlContent);
-//     $response->setStatusCode(500);
-// }
+catch (Exception $e) {
+    $htmlContent = "<html><body><h1>500</h1><p>Une erreur s'est produite.</p></body></html>";
+    $response->setContent($htmlContent);
+    $response->setStatusCode(500);
+}
 
 $response->send();
 
