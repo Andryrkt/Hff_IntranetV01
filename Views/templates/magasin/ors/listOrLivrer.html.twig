@@ -61,7 +61,7 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					{% set textColor = "" %}
-					{% if item.quantitedemander != item.qtealivrer %}
+					{% if item.quantitedemander != item.qtealivrer and item.quantitedemander != item.quantitelivree %}
 						{% set textColor = "textColor" %}
 					{% endif %}
 

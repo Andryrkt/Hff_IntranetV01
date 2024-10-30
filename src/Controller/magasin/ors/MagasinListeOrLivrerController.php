@@ -57,7 +57,9 @@ class MagasinListeOrLivrerController extends Controller
         
         $form->handleRequest($request);
         $criteria = [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
+            "orCompletNon" => "ORs COMPLET",
+            "pieces" => "PIECES MAGASIN"
         ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
