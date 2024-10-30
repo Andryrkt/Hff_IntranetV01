@@ -85,13 +85,13 @@ class GenererPdfFactureAValidation extends GeneratePdf
                 if ($key === 0) {
                     $html .= '<th style="width: 20px; font-weight: 900;" >' . $value . '</th>';
                 } elseif ($key === 1) {
-                    $html .= '<th style="width: 200px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 190px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 2) {
                     $html .= '<th style="width: 40px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 3) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+                    $html .= '<th style="width: 55px; font-weight: bold;" >' . $value . '</th>';
                 } elseif ($key === 4) {
-                    $html .= '<th style="width: 50px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+                    $html .= '<th style="width: 55px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 5) {
                     $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" >' . $value . '</th>';
                 } elseif ($key === 6) {
@@ -113,13 +113,13 @@ class GenererPdfFactureAValidation extends GeneratePdf
                     if ($key === 'itv') {
                         $html .= '<td style="width: 20px"  >' . $cell . '</td>';
                     } elseif ($key === 'libelleItv') {
-                        $html .= '<td style="width: 200px; text-align: left;"  >' . $cell . '</td>';
+                        $html .= '<td style="width: 190px; text-align: left;"  >' . $cell . '</td>';
                     } elseif ($key === 'statutItv') {
                         $html .= '<td style="width: 40px; "  >' . $cell . '</td>';
                     } elseif ($key === 'mttItv') {
-                        $html .= '<td style="width: 50px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
+                        $html .= '<td style="width: 55px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'mttFac') {
-                        $html .= '<td style="width: 50px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
+                        $html .= '<td style="width: 55px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
                     } elseif ($key === 'AgServDebDit') {
                         $html .= '<td style="width: 40px; "  >' . $cell . '</td>';
                     } elseif ($key === 'AgServDebFac') {
@@ -141,13 +141,13 @@ class GenererPdfFactureAValidation extends GeneratePdf
                     if ($key === 'premierLigne') {
                         $html .= '<th style="width: 20px; font-weight: 900;" ></th>';
                     } elseif ($key === 'total') {
-                        $html .= '<th style="width: 200px; font-weight: bold;" > TOTAL</th>';
+                        $html .= '<th style="width: 190px; font-weight: bold;" > TOTAL</th>';
                     } elseif ($key === 'statur') {
                         $html .= '<th style="width: 40px; font-weight: bold; " ></th>';
                     } elseif ($key === 'totalMttItv') {
-                        $html .= '<th style="width: 50px; font-weight: bold; " >' . $this->formatNumberDecimal($value) . '</th>';
+                        $html .= '<th style="width: 55px; font-weight: bold; " >' . $this->formatNumberDecimal($value) . '</th>';
                     } elseif ($key === 'totalMttFac') {
-                        $html .= '<th style="width: 50px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
+                        $html .= '<th style="width: 55px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
                     } elseif ($key === 'AgServDebDit') {
                         $html .= '<th style="width: 40px; font-weight: bold; text-align: right;" ></th>';
                     } elseif ($key === 'AgServDebFac') {

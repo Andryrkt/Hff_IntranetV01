@@ -36,12 +36,12 @@ class DitRiSoumisAValidationModel extends Model
         return array_column($tab, 'numeroItv');
     }
 
-    public function findItvDejaSoumis($numDit)
+    public function findItvDejaSoumis($numOr)
     {
-        $sql ="SELECT
-            distinct numeroitv as numeroItv
-            from ri_soumis_a_validation
-            where numero_dit = '".$numDit."'";
+        $sql ="SELECT DISTINCT numeroitv AS numeroItv
+            FROM ri_soumis_a_validation
+            WHERE numero_oR = '".$numOr."'
+            ";
 
         $exec = $this->connexion->query($sql);
         $tab = [];
@@ -56,17 +56,16 @@ class DitRiSoumisAValidationModel extends Model
 
         if(!empty($itvDejaSoumis)){
             $chaine = implode(",", $itvDejaSoumis);
-            $condition = "  and slor_nogrp / 100 not in (".$chaine.")";
+            $condition = "  and sitv_interv not in (".$chaine.")";
         } else {
             $condition ="";
         }
 
         $statement = "SELECT 
-         slor_nogrp / 100 as numeroItv, 
+         sitv_interv as numeroItv, 
          trim(sitv_comment) as commentaire
-         from sav_lor
-        inner join sav_itv on sitv_numor = slor_numor and sitv_interv = slor_nogrp / 100 and slor_soc = 'HF'
-        where slor_numor = '".$numOr."'
+         from sav_itv
+        where sitv_numor = '".$numOr."'
             $condition
             group by 1,2
             ";

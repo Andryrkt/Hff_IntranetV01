@@ -101,3 +101,35 @@ function formatFileSize(bytes) {
     return (bytes / 1024).toFixed(2) + " KB";
   }
 }
+
+/**
+ * BLOCASE DE SOUMISI SI AUCUNE CASE N'EST PAS COCHE
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  // Récupérer le formulaire
+  var form = document.getElementById("upload-form");
+
+  // Écouter l'événement de soumission
+  form.addEventListener("submit", function (event) {
+    // Sélectionner toutes les cases à cocher
+    var checkboxes = document.querySelectorAll(
+      'input[type="checkbox"][id^="dit_ri_soumis_a_validation_checkbox_"]'
+    );
+    console.log(checkboxes);
+
+    var atLeastOneChecked = false;
+
+    // Vérifier si au moins une case est cochée
+    checkboxes.forEach(function (checkbox) {
+      if (checkbox.checked) {
+        atLeastOneChecked = true;
+      }
+    });
+
+    // Si aucune case n'est cochée, bloquer la soumission et afficher un message d'erreur
+    if (!atLeastOneChecked) {
+      event.preventDefault(); // Empêche la soumission du formulaire
+      alert("Veuillez cocher le(s) intervention(s) à valider.");
+    }
+  });
+});
