@@ -18,13 +18,13 @@ class ListApi extends Controller
     {
         $ditListeModel = new DitListModel();
         $facture = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNumItvFacStatut($numOr);
-        $itv = $ditListeModel->recupItv($numOr);
+        $itvNumFac = $ditListeModel->recupItvNumFac($numOr);
 
         $result = [];
-        foreach ($itv as $value) {
+        foreach ($itvNumFac as $value) {
             $found = false;
                 foreach ($facture as $item) {
-                    if ($item['numeroItv'] == $value) {
+                    if ($item['numeroItv'] == $value['itv']) {
                         $result[] = $item;
                         $found = true;
                         break;
@@ -34,8 +34,8 @@ class ListApi extends Controller
             
             if (!$found) {
                 $result[] = [
-                    "numeroItv" => $value,
-                    "numeroFact" => "-",
+                    "numeroItv" => $value['itv'],
+                    "numeroFact" => $value['numerofac'] ? $value['numerofac'] : "-",
                     "statut" => "-"
                 ];
             }

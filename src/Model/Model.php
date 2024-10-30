@@ -14,10 +14,8 @@ class Model
     protected $connexion04Gcot;
 
 
-
     public function __construct()
     {
-        $this->sqlServer = new SqlServerConnect();
 
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
@@ -25,28 +23,6 @@ class Model
         $this->connexion04Gcot = new connexionDote4Gcot();
     }
 
-    public function RecupereNumDom($colonne)
-    {
-        $NumDOM_Max = "SELECT  MAX(Numero_Ordre_Mission) FROM Demande_ordre_mission ";
-        $exec_NumDOM_Max = $this->connexion->query($NumDOM_Max);
-        if ($exec_NumDOM_Max === null) {
-            echo "null";
-        }
-        odbc_fetch_row($exec_NumDOM_Max);
-        return  odbc_result($exec_NumDOM_Max, $colonne);
-    }
-
-    public function RecupereNumBDM()
-    {
-        $NumDOM_Max = "SELECT  MAX(Numero_Demande_BADM) FROM Demande_Mouvement_Materiel ";
-
-        $exec_NumDOM_Max = $this->connexion->query($NumDOM_Max);
-        if ($exec_NumDOM_Max === null) {
-            echo "null";
-        }
-        odbc_fetch_row($exec_NumDOM_Max);
-        return  odbc_result($exec_NumDOM_Max, 1);
-    }
 
     /**
      * recuperation Mail de l'utilisateur connecter
@@ -82,7 +58,7 @@ class Model
         $sqlAgence_Service_Irim = "SELECT  agence_ips, 
                                             nom_agence_i100,
                                             service_ips,
-                                             nom_service_i100
+                                            nom_service_i100
                                     FROM Agence_Service_Irium, personnel,Profil_User
                                     WHERE Agence_Service_Irium.service_sage_paie = personnel.Code_AgenceService_Sage
                                     AND personnel.Code_AgenceService_Sage = '" . $CodeAgenceSage . "'
@@ -165,5 +141,4 @@ class Model
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
 
-    
 }
