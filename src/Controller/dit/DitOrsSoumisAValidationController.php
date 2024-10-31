@@ -109,16 +109,21 @@ class DitOrsSoumisAValidationController extends Controller
                                     ;
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 
+                $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+                $demandeIntervention->setStatutOr('Soumis à validation');
+                self::$em->persist($demandeIntervention);
+                
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
-               if(count($orSoumisValidataion) > 1){
-                   foreach ($orSoumisValidataion as $entity) {
+                if(count($orSoumisValidataion) > 1){
+                    foreach ($orSoumisValidataion as $entity) {
                        // Persist l'entité et l'historique
                        self::$em->persist($entity); // Persister chaque entité individuellement
                     }
                 } elseif(count($orSoumisValidataion) === 1) {
                     self::$em->persist($orSoumisValidataion[0]);
-                } 
+                }
+                
                 $historique = new DitHistoriqueOperationDocument();
                 $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
                     ->setUtilisateur($this->nomUtilisateur(self::$em))

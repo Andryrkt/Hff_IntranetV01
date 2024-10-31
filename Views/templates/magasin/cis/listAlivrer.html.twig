@@ -44,7 +44,7 @@
 				{% for item in data %}
 
 					{% set textColor = "" %}
-					{% if item.quantitercommander != item.quantiteralivrer and item.quantitercommander != item.quantiterlivrer %}
+					{% if item.quantitercommander > (item.quantiteralivrer + item.quantiterlivrer) %}
 						{% set textColor = "textColor" %}
 					{% endif %}
 
