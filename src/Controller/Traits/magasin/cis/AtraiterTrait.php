@@ -6,13 +6,9 @@ use App\Entity\admin\utilisateur\User;
 
 trait AtraiterTrait
 {
-    private function agenceUser($em): ?string
+    private function agenceUser($autoriser): ?string
     {
         $agenceServiceUser = $this->agenceServiceIpsObjet();
-
-        /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole($em);
-        //FIN AUTORISATION
 
         if($autoriser)
         {

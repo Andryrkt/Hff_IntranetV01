@@ -19,11 +19,13 @@ class CisATraiterController extends Controller
     {
         $cisATraiterModel = new CisATraiterModel();
 
-        $agenceUser = $this->agenceUser(self::$em);
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+        //FIN AUTORISATION
 
+        $agenceUser = $this->agenceUser($autoriser);
 
-
-        $form = self::$validator->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser], [
+        $form = self::$validator->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 

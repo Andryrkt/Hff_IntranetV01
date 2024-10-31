@@ -152,7 +152,7 @@ class ALivrerSearchtype extends AbstractType
                 'placeholder' => ' -- choisir agence --',
                 'data' => $options['data']['agenceUser'] ?? null,
                 'attr' => [
-                    'disabled' => true,
+                    'disabled' => !$options['data']['autoriser'],
                 ],
             ])
             
@@ -160,11 +160,11 @@ class ALivrerSearchtype extends AbstractType
                 'data' => $options['data']['agenceUser'] ?? null,
             ])
             
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
-                $data = $event->getData();
-                $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
-                $event->setData($data);
-            })
+            // ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+            //     $data = $event->getData();
+            //     $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
+            //     $event->setData($data);
+            // })
 
             ->add('orCompletNon',
             ChoiceType::class,
