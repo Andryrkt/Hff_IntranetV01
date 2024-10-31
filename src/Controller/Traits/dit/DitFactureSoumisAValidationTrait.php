@@ -18,25 +18,9 @@ trait DitFactureSoumisAValidationtrait
         return $user->getNomUtilisateur();
     }
 
-    private function etatOr($dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation): string
+    private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string
     {
-        $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
-
-        $estNumfac = false;
-        foreach ($infoFacture as $value) {
-            if(empty($value['numerofac'])){
-                $estNumfac = true;
-                break;
-            }
-        }
-
-        if($estNumfac){
-            $etatOr = 'Partiellement facturé';
-        } else {
-            $etatOr = 'Complètement facturé';
-        }
-    
-        return $etatOr;
+        return  $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR());
     }
 
   

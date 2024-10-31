@@ -90,7 +90,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) = sum(slor_qteres) + sum(slor_qterea)
-                            --and sum(slor_qteres) > 0
+                            and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         $result = $this->connect->executeQuery($statement);
@@ -122,7 +122,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) > sum(slor_qteres) + sum(slor_qterea)
-                            --and sum(slor_qteres) > 0
+                            and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         
@@ -155,7 +155,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) >= sum(slor_qteres) + sum(slor_qterea)
-                            --and sum(slor_qteres) > 0
+                            and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
 
@@ -246,7 +246,6 @@ class MagasinListeOrLivrerModel extends Model
                             seor_numor asc, 
                             slor_nolign asc
         ";
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

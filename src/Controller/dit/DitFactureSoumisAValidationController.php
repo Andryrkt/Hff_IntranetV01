@@ -137,7 +137,7 @@ class DitFactureSoumisAValidationController extends Controller
                     $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
                     $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
-                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
+                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
                     $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
                     $demandeIntervention->setEtatFacturation($etatOr);
                     self::$em->persist($demandeIntervention);

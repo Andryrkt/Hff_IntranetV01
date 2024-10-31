@@ -72,7 +72,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'required' => false
         ])
         ->add('numOr', NumberType::class, [
-            'label' => 'n° Or',
+            'label' => 'n° OR',
             'required' => false
         ])
         ->add('referencePiece', TextType::class, [
@@ -88,7 +88,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' =>  'Constructeur',
             'required' => false,
             'choices' => $this->recupConstructeur(),
-            'placeholder' => ' -- choisir un constructeur --'
+            'placeholder' => ' -- Choisir un constructeur --'
         ])
         ->add('dateDebut', DateType::class, [
             'widget' => 'single_text',
@@ -106,16 +106,16 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Etat OR',
             'required' => false,
             'choices' => self::OR_COMPLET_OU_NON,
-            'placeholder' => ' -- choisir une mode affichage --',
+            'placeholder' => ' -- Choisir la complétude des lignes --',
             'data' => 'ORs COMPLET'
         ])
         ->add('pieces',
         ChoiceType::class,
         [
-            'label' => 'Pièces',
+            'label' => 'Type ligne',
             'required' => false,
             'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
-            'placeholder' => ' -- choisir une mode affichage --',
+            'placeholder' => ' -- Choisir le type de ligne à afficher --',
             'data' => 'PIECES MAGASIN'
         ])
         ->add('agence',
@@ -124,7 +124,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
-            'placeholder' => ' -- choisir agence --'
+            'placeholder' => ' -- Choisir une agence --'
         ])
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
             $form = $event->getForm();
@@ -135,7 +135,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
                 'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
-                'placeholder' => ' -- choisir service --'
+                'placeholder' => ' -- Choisir un service --'
             ]);
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
@@ -160,7 +160,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Service débiteur',
             'required' => false,
             'choices' => $service,
-            'placeholder' => ' -- choisir service --'
+            'placeholder' => ' -- Choisir un service --'
         ]);
         
         })
@@ -169,7 +169,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Agence Emetteur',
             'required' => false,
             'choices' => $this->agenceUser() ?? [],
-            'placeholder' => ' -- choisir agence --',
+            'placeholder' => ' -- Choisir une agence --',
             'data' => $options['data']['agenceUser'] ?? null,
             'attr' => [
                 'disabled' => true,

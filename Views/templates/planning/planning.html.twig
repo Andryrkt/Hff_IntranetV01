@@ -75,17 +75,18 @@
 			<table class="table rounded table-plein-ecran">
 				<thead class="table-dark">
 					<tr>
-						<th>Agence - Service</th>
+						<th>Agence - Service Travaux</th>
 						<th>
-							id</th>
-						<th>CST</th>
-						<th>Type</th>
+							ID</th>
+						<th>Marque</th>
+						<th>Modèle</th>
 						<th>N° Série</th>
 						<th>
 							N° Parc</th>
 						<th>
 							Casier</th>
-						{% for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] %}
+							{# % for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] % #}
+						{% for month in ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'] %}
 							<th>{{ month }}</th>
 						{% endfor %}
 					</tr>

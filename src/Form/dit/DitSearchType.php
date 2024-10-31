@@ -93,7 +93,7 @@ class DitSearchType extends AbstractType
             'label' => 'Niveau d\'urgence',
             'class' => WorNiveauUrgence::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau--',
+            'placeholder' => '-- Choisir un niveau--',
             'required' => false,
             'attr' => [
                 'class' => 'niveauUrgence'
@@ -115,20 +115,20 @@ class DitSearchType extends AbstractType
             },
         ])
             ->add('idMateriel', NumberType::class, [
-                'label' => 'Id Materiel',
+                'label' => 'Id Matériel',
                 'required' => false,
             ])
             ->add('typeDocument', EntityType::class, [
                 'label' => 'Type de Document',
                 'class' => WorTypeDocument::class,
                 'choice_label' => 'description',
-                'placeholder' => '-- Choisir une type de document--',
+                'placeholder' => '-- Choisir un type de document--',
                 'required' => false,
             ])
             ->add('internetExterne', 
             ChoiceType::class, 
             [
-                'label' => "Interne et Externe",
+                'label' => "Interne - Externe",
                 'choices' => self::INTERNE_EXTERNE,
                 'placeholder' => '-- Choisir --',
                 'required' => false,
@@ -136,12 +136,12 @@ class DitSearchType extends AbstractType
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Demande Début',
+                'label' => 'Date début demande',
                 'required' => false,
             ])
             ->add('dateFin', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Demande Fin',
+                'label' => 'Date fin demande',
                 'required' => false,
             ])
             ->add('numParc', TextType::class, [
@@ -149,11 +149,11 @@ class DitSearchType extends AbstractType
                 'required' => false
             ])
             ->add('numSerie', TextType::class, [
-                'label' => "N° Serie",
+                'label' => "N° Série",
                 'required' => false
             ])
             ->add('agenceEmetteur', EntityType::class, [
-                'label' => "Agence Emetteur",
+                'label' => "Agence émetteur",
                 'class' => Agence::class,
                 'choice_label' => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
@@ -173,12 +173,12 @@ class DitSearchType extends AbstractType
                 }
             
                 $form->add('serviceEmetteur', EntityType::class, [
-                    'label' => "Service Emetteur",
+                    'label' => "Service émetteur",
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir une service--',
+                    'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function(ServiceRepository $serviceRepository) {
@@ -210,7 +210,7 @@ class DitSearchType extends AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir une service--',
+                    'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function(ServiceRepository $serviceRepository) {
@@ -220,7 +220,7 @@ class DitSearchType extends AbstractType
                 ]);
             })
             ->add('agenceDebiteur', EntityType::class, [
-                'label' => "Agence Debiteur",
+                'label' => "Agence débiteur",
                 'class' => Agence::class,
                 'choice_label' => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
@@ -240,12 +240,12 @@ class DitSearchType extends AbstractType
                 }
             
                 $form->add('serviceDebiteur', EntityType::class, [
-                    'label' => "Service Debiteur",
+                    'label' => "Service débiteur",
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir une service--',
+                    'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function(ServiceRepository $serviceRepository) {
@@ -272,12 +272,12 @@ class DitSearchType extends AbstractType
                 }
             
                 $form->add('serviceDebiteur', EntityType::class, [
-                    'label' => "Service Debiteur",
+                    'label' => "Service débiteur",
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir une service--',
+                    'placeholder' => '-- Choisir un service--',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function(ServiceRepository $serviceRepository) {
@@ -295,13 +295,13 @@ class DitSearchType extends AbstractType
             ->add('numOr',
             NumberType::class,
             [
-                'label' => 'N° Or',
+                'label' => 'N° OR',
                 'required' => false
             ])
             ->add('statutOr',
             ChoiceType::class,
             [
-                'label' => 'Statut Or',
+                'label' => 'Statut OR',
                 'required' => false,
                 'choices' => $this->statutOr(),
                 'placeholder' => '-- choisir une statut --'
@@ -309,7 +309,7 @@ class DitSearchType extends AbstractType
             ->add('ditSansOr', 
             CheckboxType::class,
             [
-                'label' => 'Dit sans Or',
+                'label' => 'DIT sans OR',
                 'required' => false
             ])
                 
