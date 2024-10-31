@@ -94,6 +94,8 @@ class CisALivrerModel extends Model
                     $constructeur 
                     $dateDebutCis
                     $dateFinCis
+                    $dateDebutOr
+                    $dateFinOr
                     $numOr
                     $numDit
                     $numCis
