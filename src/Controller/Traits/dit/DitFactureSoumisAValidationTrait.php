@@ -23,8 +23,6 @@ trait DitFactureSoumisAValidationtrait
         return  $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR());
     }
 
-  
-
 
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em, $ditFactureSoumiAValidation): array
     { 

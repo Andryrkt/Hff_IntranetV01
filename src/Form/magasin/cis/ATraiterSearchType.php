@@ -76,12 +76,22 @@ class ATraiterSearchType extends AbstractType
             'choices' => $this->recupConstructeur(),
             'placeholder' => ' -- choisir un constructeur --'
         ])
-        ->add('dateDebut', DateType::class, [
+        ->add('dateDebutCis', DateType::class, [
+            'widget' => 'single_text',
+            'label' => 'Date de création CIS (début)',
+            'required' => false,
+        ])
+        ->add('dateFinCis', DateType::class, [
+            'widget' => 'single_text',
+            'label' => 'Date de création CIS (fin)',
+            'required' => false,
+        ])
+        ->add('dateDebutOr', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date de création OR (début)',
             'required' => false,
         ])
-        ->add('dateFin', DateType::class, [
+        ->add('dateFinOr', DateType::class, [
             'widget' => 'single_text',
             'label' => 'Date de création OR (fin)',
             'required' => false,

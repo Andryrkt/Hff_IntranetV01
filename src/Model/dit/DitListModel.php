@@ -43,12 +43,18 @@ class DitListModel extends Model
         return !empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
     }
 
-    public function recupItv($numOr)
+    public function recupItvNumFac($numOr)
     {
-        $statement = " SELECT 
-                    sitv_interv as itv
-                    from sav_itv
-                    where sitv_numor = '".$numOr."'
+        $statement = " SELECT DISTINCT
+                        sitv_interv as itv,
+                        slor_numfac AS numeroFac
+                    FROM
+                        sav_itv
+                    JOIN
+                        sav_lor ON sitv_numor = slor_numor
+                        AND sitv_interv = slor_nogrp / 100
+                    WHERE
+                        sitv_numor = '".$numOr."'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -56,6 +62,6 @@ class DitListModel extends Model
         $data = $this->connect->fetchResults($result);
         $dataUtf8 = $this->convertirEnUtf8($data);
 
-        return array_column($dataUtf8, 'itv');
+        return $dataUtf8;
     }
 }

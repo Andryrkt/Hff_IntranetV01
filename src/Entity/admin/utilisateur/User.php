@@ -64,7 +64,7 @@ class User implements UserInterface
     private $roles;
 
 
-     /**
+    /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="users_applications")
      */

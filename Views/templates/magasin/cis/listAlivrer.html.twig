@@ -2,6 +2,7 @@
 
 {% block stylesheets%}
 <link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+<link rel="stylesheet" href="/Hffintranet/Views/css/magasin/ors/listOrLivrer.css">
 {% endblock%}
 
 
@@ -41,6 +42,12 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+
+					{% set textColor = "" %}
+					{% if item.quantitercommander != item.quantiteralivrer and item.quantitercommander != item.quantiterlivrer %}
+						{% set textColor = "textColor" %}
+					{% endif %}
+
 					<tr>
 						<td>
 							<i class="fas fa-ellipsis-vertical"></i>
@@ -53,13 +60,13 @@
 						<td class="text-center">{{item.date_or | date('d/m/Y')}}</td>
 						<td class="text-center">{{item.agence_service_debiteur_ou_client}}</td>
 						<td class="text-center">{{item.nitv}}</td>
-						<td class="text-center">{{item.numligne}}</td>
-						<td class="text-center">{{item.cst}}</td>
-						<td class="text-center">{{item.ref}}</td>
-						<td>{{item.designations}}</td>
-						<td class="text-center">{{item.quantitercommander == 0 ? '-' : item.quantitercommander}}</td>
-						<td class="text-center">{{item.quantiteralivrer == 0 ? '-' : item.quantiteralivrer}}</td>
-						<td class="text-center">{{item.quantiterlivrer == 0 ? '-' : item.quantiterlivrer}}</td>
+						<td class="text-center {{textColor}}">{{item.numligne}}</td>
+						<td class="text-center {{textColor}}">{{item.cst}}</td>
+						<td class="text-center {{textColor}}">{{item.ref}}</td>
+						<td class="{{textColor}}">{{item.designations}}</td>
+						<td class="text-center {{textColor}}">{{item.quantitercommander == 0 ? '-' : item.quantitercommander}}</td>
+						<td class="text-center {{textColor}}">{{item.quantiteralivrer == 0 ? '-' : item.quantiteralivrer}}</td>
+						<td class="text-center {{textColor}}">{{item.quantiterlivrer == 0 ? '-' : item.quantiterlivrer}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

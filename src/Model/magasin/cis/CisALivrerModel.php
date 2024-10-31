@@ -19,8 +19,10 @@ class CisALivrerModel extends Model
         $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
         $numCis = $this->conditionSigne('slor_numcf', 'numCis', '=', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
-        $dateDebut = $this->conditionDateSigne( 'nlig_datecde', 'dateDebut', $criteria, '>=');
-        $dateFin = $this->conditionDateSigne( 'nlig_datecde', 'dateFin', $criteria, '<=');
+        $dateDebutCis = $this->conditionDateSigne( 'nlig_datecde', 'dateDebutCis', $criteria, '>=');
+        $dateFinCis = $this->conditionDateSigne( 'nlig_datecde', 'dateFinCis', $criteria, '<=');
+        $dateDebutOr = $this->conditionDateSigne( 'seor_dateor', 'dateDebutOr', $criteria, '>=');
+        $dateFinOr = $this->conditionDateSigne( 'seor_dateor', 'dateFinOr', $criteria, '<=');
         $piece = $this->conditionPiece('pieces', $criteria);
         $orCompletOuNon = $this->conditionOrCompletOuNonCis('orCompletNon',$criteria);
         $agence = $this->conditionAgenceService("(CASE slor_natop 
@@ -90,8 +92,10 @@ class CisALivrerModel extends Model
                     $designation
                     $referencePiece 
                     $constructeur 
-                    $dateDebut
-                    $dateFin
+                    $dateDebutCis
+                    $dateFinCis
+                    $dateDebutOr
+                    $dateFinOr
                     $numOr
                     $numDit
                     $numCis

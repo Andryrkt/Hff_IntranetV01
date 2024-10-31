@@ -12,3 +12,4 @@ configuration_prod.txt
 /var/log/app_errors.log
 src/Controller/pdf/
 Dossiers ORs
+react-app

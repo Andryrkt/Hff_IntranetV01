@@ -93,6 +93,7 @@ class MagasinListeOrLivrerModel extends Model
                             and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
