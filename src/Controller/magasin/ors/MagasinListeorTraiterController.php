@@ -46,7 +46,7 @@ class MagasinListeOrTraiterController extends Controller
         }
 
         
-        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser], [
+        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser'=> $autoriser], [
             'method' => 'GET'
         ])->getForm();
         
