@@ -20,9 +20,13 @@ class CisALivrerController extends Controller
     {
         $cisATraiterModel = new CisALivrerModel();
 
-        $agenceUser = $this->agenceUser(self::$em);
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+        //FIN AUTORISATION
 
-        $form = self::$validator->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser], [
+        $agenceUser = $this->agenceUser($autoriser);
+
+        $form = self::$validator->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 

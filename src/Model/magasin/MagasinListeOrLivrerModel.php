@@ -427,7 +427,7 @@ public function agence()
                         FROM sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb IN ('01','50')
+                        --AND slor_succdeb IN ('01','50')
                     ";
 
         $result = $this->connect->executeQuery($statement);
