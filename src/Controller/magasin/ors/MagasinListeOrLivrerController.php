@@ -51,7 +51,7 @@ class MagasinListeOrLivrerController extends Controller
             $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
         }
 
-        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser], [
+        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser'=> $autoriser], [
             'method' => 'GET'
         ])->getForm();
         

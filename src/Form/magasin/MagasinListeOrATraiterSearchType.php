@@ -154,7 +154,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'placeholder' => ' -- Choisir une agence --',
             'data' => $options['data']['agenceUser'] ?? null,
             'attr' => [
-                'disabled' => true,
+                'disabled' => !$options['data']['autoriser'],
             ],
         ])
         
@@ -164,8 +164,10 @@ class MagasinListeOrATraiterSearchType extends AbstractType
         
         ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
             $data = $event->getData();
+            if(!$options['data']['autoriser']){
             $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
             $event->setData($data);
+            }
         });
         ;
     }
