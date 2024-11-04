@@ -103,54 +103,190 @@ trait DomsTrait
     }
 
 
-    /**
-     * TRAITEMENT DES FICHIER UPLOAD
-     *(copier le fichier uploder dans une repertoire et le donner un nom)
-     * @param [type] $form
-     * @param [type] $dits
-     * @param [type] $nomFichier
-     * @return void
-     */
-    private function uplodeFile($form, $dom, $nomFichier, &$pdfFiles)
-    {
-        /** @var UploadedFile $file*/
-        $file = $form->get($nomFichier)->getData();
-        $fileName = $dom->getNumeroOrdreMission(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
-       
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/fichier/';
-     
-        $file->move($fileDossier, $fileName);
+    // /**
+    //  * TRAITEMENT DES FICHIER UPLOAD
+    //  *(copier le fichier uploder dans une repertoire et le donner un nom)
+    //  * @param [type] $form
+    //  * @param [type] $dits
+    //  * @param [type] $nomFichier
+    //  * @return void
+    //  */
+    // private function uplodeFile($form, $dom, $nomFichier, &$pdfFiles)
+    // {
+        
+    //     /** @var UploadedFile $file */
+    //     $file = $form->get($nomFichier)->getData();
+        
+    //     if ($file) {
+    //         $errorCode = $file->getError();
+    //         if ($errorCode !== UPLOAD_ERR_OK) {
+    //             throw new \Exception('Erreur lors du téléchargement du fichier : ' . $errorCode);
+    //         }
 
-        if ($file->getClientOriginalExtension() === 'pdf') {
-            $pdfFiles[] = $fileDossier.$fileName;
-        }
+            
+    //         $fileName = $dom->getNumeroOrdreMission() . '_0' . substr($nomFichier, -1, 1) . '.' . $file->getClientOriginalExtension();
+    //         $fileDossier = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
+            
+    //         $file->move($fileDossier, $fileName);
+            
+    //         // Ajouter à la liste des fichiers PDF si c'est un PDF
+    //         if ($file->getClientOriginalExtension() === 'pdf') {
+    //             $pdfFiles[] = $fileDossier . $fileName;
+    //         }
+            
+    //         $setPieceJoint = 'set' . ucfirst($nomFichier);
+    //         $dom->$setPieceJoint($fileName);
+    //     }
+        
+    // }
 
-        $setPieceJoint = 'set'.ucfirst($nomFichier);
-        $dom->$setPieceJoint($fileName);
+
+    // private function envoiePieceJoint($form, $dom, $fusionPdf)
+    // {
+
+    //     $pdfFiles = [];
+
+    //     for ($i=1; $i < 2; $i++) { 
+    //         $nom = "pieceJoint{$i}";
+    //         if($form->get($nom)->getData() !== null){
+    //             $this->uplodeFile($form, $dom, $nom, $pdfFiles);
+    //         }
+    //     }
+    //     //ajouter le nom du pdf crée par dit en avant du tableau
+    //     array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
+
+    //     // Nom du fichier PDF fusionné
+    //     $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
+
+    //     // Appeler la fonction pour fusionner les fichiers PDF
+    //     if (!empty($pdfFiles)) {
+    //         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+    //     }
+    // }
+
+ /**
+ * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
+ *
+ * @param UploadedFile $file
+ * @param DomEntity $dom
+ * @param string $fieldName
+ * @param int $index
+ *
+ * @return string|null
+ *
+ * @throws \InvalidArgumentException
+ * @throws \RuntimeException
+ */
+private function uploadFile( $file, $dom, string $fieldName, int $index): ?string
+{
+    // Récupérer l'extension et le type MIME
+    $extension = strtolower($file->getClientOriginalExtension());
+    $mimeType = strtolower($file->getMimeType());
+
+    // Pour déboguer, enregistrer les valeurs
+    error_log("Uploading file for field $fieldName: Extension = $extension, MIME type = $mimeType");
+
+    // Validation des extensions et types MIME - uniquement PDF
+    $allowedExtensions = ['pdf'];
+    $allowedMimeTypes = ['application/pdf'];
+
+    if (
+        !$file->isValid() ||
+        !in_array($extension, $allowedExtensions, true) ||
+        !in_array($mimeType, $allowedMimeTypes, true)
+    ) {
+        throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName. Extension: $extension, MIME type: $mimeType");
     }
 
-    private function envoiePieceJoint($form, $dom, $fusionPdf)
-    {
+    // Générer un nom de fichier sécurisé et unique
+    $fileName = sprintf(
+        '%s_0%d.%s',
+        $dom->getNumeroOrdreMission(),
+        substr($fieldName, -1),
+        $file->guessExtension()
+    );
 
-        $pdfFiles = [];
+    // Définir le répertoire de destination
+    $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
 
-        for ($i=1; $i < 3; $i++) { 
-            $nom = "pieceJoint{$i}";
-            if($form->get($nom)->getData() !== null){
-                $this->uplodeFile($form, $dom, $nom, $pdfFiles);
+    // Assurer que le répertoire existe
+    if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+        throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+    }
+
+    try {
+        $file->move($destination, $fileName);
+    } catch (\Exception $e) {
+        throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+    }
+
+    // Retourner le chemin complet du fichier si c'est un PDF, sinon null
+    if ($extension === 'pdf') {
+        return $destination . $fileName;
+    }
+
+    return null;
+}
+
+
+/**
+ * Envoie des pièces jointes et fusionne les PDF.
+ *
+ * @param FormInterface $form
+ * @param DomEntity $dom
+ * @param FusionPdfService $fusionPdf
+ *
+ * @return void
+ *
+ * @throws \RuntimeException
+ */
+private function envoiePieceJoint($form, $dom, $fusionPdf): void
+{
+    $pdfFiles = [];
+
+    // Ajouter le fichier PDF principal en tête du tableau
+    $mainPdf = sprintf(
+        '%s/Upload/dom/%s_%s%s.pdf',
+        rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+        $dom->getNumeroOrdreMission(),
+        $dom->getAgenceEmetteurId()->getCodeAgence(),
+        $dom->getServiceEmetteurId()->getCodeService()
+    );
+
+    // Vérifier que le fichier principal existe avant de l'ajouter
+    if (!file_exists($mainPdf)) {
+        throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+    }
+
+    array_unshift($pdfFiles, $mainPdf);
+
+    // Récupérer tous les champs de fichiers du formulaire
+    foreach ($form->all() as $fieldName => $field) {
+        if (preg_match('/^pieceJoint\d+$/', $fieldName)) {
+            /** @var UploadedFile|null $file */
+            $file = $field->getData();
+            if ($file !== null) {
+                // Extraire l'index du champ (e.g., pieceJoint1 -> 1)
+                if (preg_match('/^pieceJoint(\d+)$/', $fieldName, $matches)) {
+                    $index = (int)$matches[1];
+                    $pdfPath = $this->uploadFile($file, $dom, $fieldName, $index);
+                    if ($pdfPath !== null) {
+                        $pdfFiles[] = $pdfPath;
+                    }
+                }
             }
         }
-        //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
-
-        // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
-
-        // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
-            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-        }
     }
+
+    // Nom du fichier PDF fusionné
+    $mergedPdfFile = $mainPdf;
+
+    // Appeler la fonction pour fusionner les fichiers PDF
+    if (!empty($pdfFiles)) {
+        $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+    }
+}
+
 
     private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em)
     {
@@ -179,6 +315,7 @@ trait DomsTrait
         $supplementJournaliere = $form->get('supplementJournaliere')->getData();
     
         if ($form1Data['salarier'] === "TEMPORAIRE") {
+        
             $dom->setNom($form1Data['nom']);
             $dom->setPrenom($form1Data['prenom']);
             $dom->setCin($form1Data['cin']);
@@ -301,9 +438,8 @@ trait DomsTrait
         $em->flush();
     }
 
-    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em)
+    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf)
     {
-        
             //RECUPERATION de la dernière NumeroDordre de mission 
             $this->enregistreDernierNumDansApplication($dom, $em);
 
@@ -314,24 +450,25 @@ trait DomsTrait
             $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
+            $this->envoiePieceJoint($form, $dom, $fusionPdf);
             $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence().''.$dom->getServiceEmetteurId()->getCodeService());
-            $this->envoiePieceJoint($form, $dom, $this->fusionPdf);
+            
     }
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
     {
         
-            $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
-       
+        $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
+    
         $trouve = false; // Variable pour indiquer si la date est trouvée
 
         // Parcourir chaque élément du tableau
         foreach ($Dates as $periode) {
             // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']);
-            $dateFin = new DateTime($periode['Date_Fin']);
-            $dateDebutInputObj = $dateDebutInput; // Correction de la variable
-            $dateFinInputObj = $dateFinInput; // Correction de la variable
+            $dateDebut = new DateTime($periode['Date_Debut']);//date dans la base de donner
+            $dateFin = new DateTime($periode['Date_Fin']);//date dans la base de donner
+            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
+            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
 
             // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
             if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables

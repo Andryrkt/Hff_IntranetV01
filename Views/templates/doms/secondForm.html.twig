@@ -34,7 +34,7 @@
 		<input type="hidden" id="categorie" value="{{criteria.categorie.id}}">
 		<input type="hidden" id="rmq" value="{{criteria.rmq.id}}">
 
-		{{ form_start(form)}}
+		{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
 
 
 		<div class="row">
@@ -213,22 +213,22 @@
 		<div class="row" id="PJ">
 			<div class="col-12 col-md-6">
 
-				{{ form_row(form.pieceJoint1)}}
+				{{ form_row(form.pieceJoint01)}}
 			</div>
 			<div class="col-12 col-md-6">
 
-				{{ form_row(form.pieceJoint2) }}
+				{{ form_row(form.pieceJoint02) }}
 			</div>
 
 		</div>
 		<div class="row">
 			<div class="mt-2 ">
-
-				<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
-					<i class="fa fa-print"></i>
-					Envoyer
-				</button>
-
+				<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
+					<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+						<i class="fa fa-print"></i>
+						Envoyer
+					</button>
+				</a>
 			</div>
 		</div>
 

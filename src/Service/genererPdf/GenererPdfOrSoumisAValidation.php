@@ -14,7 +14,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
      * generer pdf changement de Casier
      */
 
-    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $numDevis)
+    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $quelqueaffichage)
     {
         $pdf = new TCPDF();
 
@@ -40,7 +40,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(20, 6, 'N° Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(0, 6,$numDevis[0]['seor_numdev'] === '' ? 0 : $numDevis[0]['seor_numdev'] , 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6,$quelqueaffichage['numDevis'][0]['seor_numdev'] === '' ? 0 : $quelqueaffichage['numDevis'][0]['seor_numdev'] , 0, 0, '', false, '', 0, false, 'T', 'M');
 
         // Numéro OR
         $pdf->SetXY($startX, $pdf->GetY()+ 2);
@@ -56,6 +56,20 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(50, 6, $ditInsertionOr->getNumeroVersion(), 0, 1, '', false, '', 0, false, 'T', 'M');
 
+        // sortie magasin
+        $pdf->SetXY($startX, $pdf->GetY() + 2);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(45, 6, 'Sortie magasin : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $quelqueaffichage['sortieMagasin'], 0, 1, '', false, '', 0, false, 'T', 'M');
+
+        // Achat locaux
+        $pdf->SetXY($startX, $pdf->GetY() + 2);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(45, 6, 'Achat locaux : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(50, 6, $quelqueaffichage['achatLocaux'], 0, 1, '', false, '', 0, false, 'T', 'M');
+        
         // Fin du bloc
         $pdf->Ln(10, true);
 
@@ -173,10 +187,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         //montant total modifié
         $pdf->Cell(45, 6, ' - Montant total modifié :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->cell(50, 5, $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']), 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(5, true);
 
-        //montant total modifié
-        $pdf->Cell(0, 6, ' - Heure saisie inférieur dernière compteur relevé ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 //==========================================================================================================

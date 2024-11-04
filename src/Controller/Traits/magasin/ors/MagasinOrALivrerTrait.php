@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Controller\Traits\magasin\ors;
+
+
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+
+trait MagasinOrALIvrerTrait
+{
+    private function recupNumOrSelonCondition(array $criteria, $em): array
+    {
+        $magasinModel = new MagasinListeOrATraiterModel();
+        $numeroOrs = $magasinModel->recupNumOr($criteria);
+
+        $numOrValideItv = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv'];
+        $numOrValide = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr'];
+
+        $numOrValideItvString = $this->orEnString($numOrValideItv);
+        $numOrValideString = $this->orEnString($numOrValide);
+
+        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString));
+        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString));
+        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString));
+
+        return  [
+            "numOrLivrerComplet" => $numOrLivrerComplet,
+            "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
+            "numOrLivrerTout" => $numOrLivrerTout,
+            "numOrValideString" => $numOrValideItvString
+        ];
+    }
+
+    // private function numeroOrValide($numeroOrs, $magasinModel, $em)
+    // {
+    //     $numOrValide = [];
+    //     foreach ($numeroOrs as $numeroOr) {
+    //         $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+    //         if(!empty($numItv)){
+    //             $numItvs = $magasinModel->recupNumeroItv($numeroOr['numero_or'],$this->orEnString($numItv));
+    //             if($numItvs[0]['nbitv'] === "0"){
+    //                 $numOrValide[] = $numeroOr;
+    //             }
+    //         }
+    //     }
+
+    //     return $numOrValide;
+    // }
+
+    private function recupNumORItvValide($numeroOrs, $em)
+    {
+        $numOrValideItv = [];
+        $numOrValide = [];
+        foreach ($numeroOrs as $numeroOr) {
+            $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+            if(!empty($numItv)){
+                foreach ($numItv as  $value) {
+                    $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValide[] = $numeroOr['numero_or'];
+                }
+            }
+        }
+        return [
+            'numeroOr_itv' => $numOrValideItv,
+            'numeroOr' => $numOrValide
+        ];
+    }
+}

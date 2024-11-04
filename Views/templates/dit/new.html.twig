@@ -34,11 +34,11 @@
 
 					<div class="row">
 						<div class="col-12 col-md-2">{{ form_row(form.typeDocument) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
-						<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
-						<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
 					</div>
 
 
@@ -153,20 +153,23 @@
 							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 							{{ form_row(form.pieceJoint01)}}
+							{{ form_errors(form.pieceJoint01)}}
 
 							{{ form_row(form.pieceJoint02)}}
+							{{ form_errors(form.pieceJoint02) }}
 
 							{{ form_row(form.pieceJoint03)}}
-
+							{{ form_errors(form.pieceJoint03) }}
 						</div>
 
 					</div>
 
-
-					<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
-						<i class="fas fa-save"></i>
-						Enregistrer
-					</button>
+					<a onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<button type="submit" class="btn bouton" id="formDit">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</a>
 					{{ form_end(form) }}
 				</div>
 

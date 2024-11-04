@@ -18,14 +18,18 @@ trait DitTrait
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     } 
 
+    private function demandeDevis($dits){
+        return $dits->getDemandeDevis() === null ? 'NON' : $dits->getDemandeDevis();
+    }
     private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em) : DemandeIntervention
     {
+
             $demandeIntervention->setObjetDemande($dits->getObjetDemande());
             $demandeIntervention->setDetailDemande($dits->getDetailDemande());
             $demandeIntervention->setTypeDocument($dits->getTypeDocument());
             $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
             $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-            $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
+            $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
             $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
@@ -85,7 +89,7 @@ trait DitTrait
         //Categorie - avis recouvrement - devis demandé
         $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
         $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
-        $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
+        $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
 
         //Intervention
         $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());

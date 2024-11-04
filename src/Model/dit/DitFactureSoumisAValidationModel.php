@@ -76,7 +76,25 @@ class DitFactureSoumisAValidationModel extends Model
     }
     
 
-    public function recupOrSoumisValidation($numOr)
+    public function recupEtatOr($numOr)
+    {
+        $statement = " SELECT 
+                CASE 
+                    WHEN COUNT(*) > 0 THEN 'partiellement_facture'
+                    ELSE 'complement_facture'
+                END AS etat_facturation_or
+            FROM sav_lor
+            WHERE slor_numor = '".$numOr."' 
+            AND NVL(slor_numfac, 0) = 0 ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'etat_facturation_or');
+    }
+
+    public function recupOrSoumisValidation($numOr, $numFact)
     {
       $statement = "SELECT
         slor_numor,
@@ -170,6 +188,7 @@ class DitFactureSoumisAValidationModel extends Model
             'MAS'
         )
         AND seor_numor = '".$numOr."'
+        AND slor_numfac = '".$numFact."'
         --AND SEOR_SUCC = '01'
         group by
             1,
@@ -232,6 +251,7 @@ class DitFactureSoumisAValidationModel extends Model
             seor_numor as numOr
             from sav_eor
             where seor_refdem = '".$numDit."'
+            AND seor_serv = 'SAV'
 
         ";
         $result = $this->connect->executeQuery($statement);

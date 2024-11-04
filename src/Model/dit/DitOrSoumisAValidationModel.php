@@ -11,7 +11,7 @@ class DitOrSoumisAValidationModel extends Model
     use ConversionModel;
     public function recupOrSoumisValidation($numOr)
     {
-      $statement = "SELECT
+        $statement = "SELECT
         slor_numor,
         sitv_datdeb,
         trim(seor_refdem) as NUMERo_DIT,
@@ -141,6 +141,24 @@ class DitOrSoumisAValidationModel extends Model
             seor_numor as numOr
             from sav_eor
             where seor_refdem = '".$numDit."'
+            AND seor_serv = 'SAV'
+
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumeroMatricule($numDit, $numOr)
+    {
+        $statement = " SELECT 
+            seor_nummat as numMatricule
+            from sav_eor
+            where seor_refdem = '".$numDit."'
+            AND seor_numor = '".$numOr."'
+            AND seor_serv = 'SAV'
 
         ";
         $result = $this->connect->executeQuery($statement);
@@ -157,6 +175,64 @@ class DitOrSoumisAValidationModel extends Model
         where sitv_numor = '".$numOr."' 
         and sitv_datepla is null";
 
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupPositonOr($numor)
+    {
+        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '".$numor."'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return  array_column($this->convertirEnUtf8($data), 'position');
+    }
+
+    public function recupNbPieceMagasin($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_sortie_magasin 
+            from sav_lor 
+            where slor_constp not like ('Z%') 
+            and slor_constp not in ('LUB') 
+            and slor_typlig = 'P' 
+            and slor_numor = '".$numOr."'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNbAchatLocaux($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_achat_locaux 
+            from sav_lor 
+            where slor_constp like 'Z%'  
+            and slor_numor = '".$numOr."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupRefClient($numOr)
+    {
+        $statement =" SELECT seor_lib  
+                    from sav_eor 
+                    where seor_numor='".$numOr."'
+                    ";
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

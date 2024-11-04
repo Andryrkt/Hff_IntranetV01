@@ -1,0 +1,86 @@
+.aAffecter
+{
+    background-color: red ! important;
+    font-weight: bold;
+    
+}
+
+.affecterSection
+{
+    background-color: #ff8d00 ! important;
+    font-weight: bold;
+    
+}
+
+.cloturerValider
+{
+    background-color: #00800099 !important;
+    font-weight: bold;
+}
+
+.cloturerHorsDelai
+{
+    background-color: orange ! important;
+    font-weight: bold;
+}
+
+.cloturerAnnuler
+{
+    background-color: grey ! important;
+    font-weight: bold;
+    color: #fff ! important;
+}
+
+.terminer
+{
+    background-color: blue ! important;
+    font-weight: bold;
+    color: #fff ! important;
+}
+
+
+.nbrStatut
+{
+    border-radius: 5px;
+    padding: 2px 5px; 
+    text-align: center;
+    color: #fff;
+}
+
+.a_affecter
+{
+    background-color: red ! important;
+    font-weight: bold;
+}
+
+.affectee_section
+{
+    background-color: #ff8d00 ! important;
+    font-weight: bold;
+}
+
+.cloturee_annulee
+{
+    background-color: grey ! important;
+    font-weight: bold;
+    color: #fff ! important;
+}
+
+.cloturee_validee
+{
+    background-color: #00800099 !important;
+    font-weight: bold;
+}
+
+.terminee
+{
+    background-color: blue ! important;
+    font-weight: bold;
+    color: #fff ! important;
+}
+
+.cloturee_hors_delai
+{
+    background-color: orange ! important;
+    font-weight: bold;
+}

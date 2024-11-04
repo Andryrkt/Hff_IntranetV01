@@ -67,6 +67,24 @@ class PlanningModel extends Model
        }, $dataUtf8)
      );              
    }
+   public function recuperationSection(){
+
+    $statement = "SELECT  DISTINCT TRIM(sitv_typitv) as sec_num,
+                                   TRIM(atab_lib2) as sec_Lib
+                  FROM sav_itv
+                  INNER JOIN agr_tab ON atab_nom = 'TYI'
+                  AND atab_code = sitv_typitv ";
+     $result = $this->connect->executeQuery($statement);
+     $data = $this->connect->fetchResults($result);
+     $dataUtf8 = $this->convertirEnUtf8($data);
+     return array_combine(
+      array_column($dataUtf8, 'sec_lib'),
+      array_map(function($item) {
+          return $item['sec_num'];}, $dataUtf8)
+    ); 
+ 
+   }
+
 
    public function recuperationServiceDebite($agence){
 
@@ -98,11 +116,11 @@ class PlanningModel extends Model
   public function recuperationMaterielplanifier($criteria, $lesOrValides)
   {
     if(!empty($lesOrValides)){
-      $vOrvalDw = "AND seor_numor in ('".$lesOrValides."') ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
     }else{
-      $vOrvalDw = " AND seor_numor in ('')";
+      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
-
+ 
    $vligneType = $this->typeLigne($criteria);  
    $vPiecesSum = $this->sumPieces($criteria);
    $vYearsStatutPlan =  $this->planAnnee($criteria);
@@ -121,7 +139,9 @@ class PlanningModel extends Model
    $vconditionNumOr = $this->numOr($criteria);
    $vconditionNumSerie = $this->numSerie($criteria);
    $vconditionCasier = $this->casier($criteria);
-   $statement = " SELECT
+   $vsection = $this->section($criteria);
+
+                  $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -158,10 +178,8 @@ class PlanningModel extends Model
                    
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
                     AND (seor_nummat = mmat_nummat)
-                    --AND  slor_typlig = 'P'
                     AND slor_constp NOT like '%ZDI%'
-                   $vOrvalDw
-
+                    $vOrvalDw
                     $vligneType
 
                     AND $vYearsStatutPlan = $annee
@@ -177,10 +195,11 @@ class PlanningModel extends Model
                     $vconditionNumOr
                     $vconditionNumSerie
                     $vconditionCasier
+                    $vsection 
                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
         $result = $this->connect->executeQuery($statement);
-              //  dump($statement);
+                //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -254,11 +273,18 @@ class PlanningModel extends Model
 
                     CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
                     TO_CHAR((
-		                        (SELECT spic_datepic 
-                            FROM sav_pic
-                            WHERE spic_numor = slor_numor
-                            AND spic_refp = slor_refp
-                            AND spic_nolign = slor_nolign )), '%Y-%m-%d')
+		                                 SELECT spic_datepic
+                                     FROM (
+                                        SELECT spic_datepic,
+                                         ROW_NUMBER() OVER (ORDER BY spic_datepic ASC) AS rn
+                                         FROM sav_pic
+                                         WHERE spic_numor = slor_numor
+                                        AND spic_refp = slor_refp
+                                        AND spic_nolign = slor_nolign
+                                           ) AS ranked_dates
+                                       WHERE rn = 1
+                             ), '%Y-%m-%d')
+
 	                  WHEN slor_qterea = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
                   	TO_CHAR((
 		                        (SELECT sliv_date 
@@ -306,7 +332,7 @@ class PlanningModel extends Model
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
-      //  dump($statement);
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -419,4 +445,21 @@ public function recuperationEtaMag($numOr, $refp){
 
      return $numOr;
   }
+
+  public function recupNumeroItv($numOr, $stringItv)
+  {
+      $statement = " SELECT  
+                      COUNT(sitv_interv) as nbItv
+                      FROM sav_itv 
+                      where sitv_numor='".$numOr."'
+                      AND sitv_interv NOT IN ('".$stringItv."')";
+      
+      $result = $this->connect->executeQuery($statement);
+
+      $data = $this->connect->fetchResults($result);
+
+      return $this->convertirEnUtf8($data);
+
+  }
+  
 }

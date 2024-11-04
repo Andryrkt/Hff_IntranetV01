@@ -28,8 +28,14 @@ class DitFactureSoumisAValidationController extends Controller
      */
     public function factureSoumisAValidation(Request $request, $numDit)
     {
+        
+
         $ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $numOrBaseDonner = $ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
+        if(empty($numOrBaseDonner)){
+            $message = "Le DIT n'a pas encore du numéro OR";
+            $this->notification($message);
+        }
         $ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
         $ditFactureSoumiAValidation->setNumeroDit($numDit);
         $ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
@@ -37,9 +43,10 @@ class DitFactureSoumisAValidationController extends Controller
         $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $ditFactureSoumiAValidation)->getForm();
 
         $form->handleRequest($request);
-
+        
         if($form->isSubmitted() && $form->isValid())
         { 
+            
             //$demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
             
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
@@ -57,8 +64,6 @@ class DitFactureSoumisAValidationController extends Controller
             } else {
                 $nbFact = $nbFactInformix[0]['nbfact'];
             }
-
-            
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
@@ -124,14 +129,21 @@ class DitFactureSoumisAValidationController extends Controller
                         self::$em->flush();
                     
                         /** CREATION PDF */
-                    $orSoumisValidationModel = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR());
+                    $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
+                    
+                    $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
                     $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
                     $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
                     $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut);
+                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
-                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    
+                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
+                    $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
+                    $demandeIntervention->setEtatFacturation($etatOr);
+                    self::$em->persist($demandeIntervention);
+                    self::$em->flush();
+
+
                     $genererPdfFacture = new GenererPdfFactureAValidation();
                     $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
                     //envoie des pièce jointe dans une dossier et la fusionner

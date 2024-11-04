@@ -486,4 +486,19 @@ class DitModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'agservdebiteur');
     }
+
+    public function recupNbNumor($numDit)
+    {
+        $statement = "SELECT 
+            count(seor_numor) AS nbOr
+            from sav_eor 
+            where seor_refdem='".$numDit."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

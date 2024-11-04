@@ -4,12 +4,15 @@ namespace App\Model\magasin;
 
 use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
+use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
+
 
 class MagasinListeOrLivrerModel extends Model
 { 
     use ConversionModel;
     use FormatageTrait;
+    use ConditionModelTrait;
 
     public function recupUserCreateNumOr($numOr)
     {
@@ -65,28 +68,63 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerComplet()
+    public function recupOrLivrerComplet($numOrValideItv, $numOrValide)
     {
-        $statement = " SELECT 
-                            seor_numor as numeroOr
-                            from sav_lor as A
-                            inner join sav_eor on seor_soc = slor_soc 
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                            where slor_soc = 'HF'
-                            AND  (Select 
-                                    SUM ( CASE 
-                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-                                        END ) 
-                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
-                            = (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor )
-                            and slor_qteres <> 0
-                            and slor_typlig = 'P'
-                            and slor_constp not like 'Z%'
-                            and slor_constp not in ('LUB')
-                            and slor_succ = '01'
-                            and seor_serv ='SAV'
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) = sum(slor_qteres) + sum(slor_qterea)
+                            and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupOrLivrerIncomplet($numOrValideItv, $numOrValide)
+    {
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
+                            and seor_succ = slor_succ 
+                            and seor_numor = slor_numor
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) > sum(slor_qteres) + sum(slor_qterea)
+                            and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         
         $result = $this->connect->executeQuery($statement);
@@ -96,52 +134,32 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerIncomplet()
+    public function recupOrLivrerTout($numOrValideItv, $numOrValide)
     {
-        $statement = " SELECT distinct slor_numor from sav_lor
-                        inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ and seor_numor = slor_numor
-                        where
-                        slor_qteres > 0
-                        and slor_typlig = 'P'  
-                        and slor_constp not in ('LUB')
-                        and slor_typlig = 'P' 
-                        and slor_constp not like 'Z%'
-                        and seor_serv = 'SAV'
-                        and seor_succ = '01'
-                        and seor_typeor not in (501,550)
-                    ";
-        
-        $result = $this->connect->executeQuery($statement);
-
-        $data = $this->connect->fetchResults($result);
-
-        return $this->convertirEnUtf8($data);
-    }
-
-    public function recupOrLivrerTout()
-    {
-        $statement = " SELECT 
-                            seor_numor as numeroOr
-                            from sav_lor as A
-                            inner join sav_eor on seor_soc = slor_soc 
+        $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
+                        FROM sav_lor
+                        inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                            where slor_soc = 'HF'
-                            AND  (Select 
-                                    SUM ( CASE 
-                                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-                                            WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
-                                        END ) 
-                                from sav_lor as B where B.slor_numor =A.slor_numor ) 
-                            >= (Select SUM( slor_qteres ) from  sav_lor as B where B.slor_numor =A.slor_numor  )
-                            and slor_qteres <> 0
-                            and slor_typlig = 'P'
-                            and slor_constp not like 'Z%'
-                            and slor_constp not in ('LUB')
-                            and slor_succ = '01'
-                            and seor_serv ='SAV'
+                        WHERE
+                            slor_typlig = 'P'
+                        and slor_soc = 'HF'
+                            AND slor_constp NOT LIKE 'Z%'
+                            AND slor_constp NOT IN ('LUB')
+                            AND slor_succ = '01'
+                            AND seor_serv ='SAV'
+                        and slor_numor in ('".$numOrValide."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        GROUP BY 1
+                        HAVING 
+                            sum(CASE 
+                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                            END) >= sum(slor_qteres) + sum(slor_qterea)
+                            and sum(slor_qteres) > 0
+                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -151,99 +169,21 @@ class MagasinListeOrLivrerModel extends Model
 
     public function recupereListeMaterielValider( array $criteria = [], array $lesOrSelonCondition)
     {
-    
-        // if ($numOrValide === "") {
-        //     $numOrValide = '0';
-        //and slor_numor in (". $numOrValide .")
-        // }
+        //les condeition de filtre
+        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
+        $dateDebut = $this->conditionDateSigne( 'slor_datec', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne( 'slor_datec', 'dateFin', $criteria, '<=');
+        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
+        $piece = $this->conditionPiece('pieces', $criteria);
+        $agence = $this->conditionAgenceService("slor_succdeb", 'agence',$criteria);
+        $service = $this->conditionAgenceService("slor_servdeb", 'service',$criteria);
+        $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
+        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon',$lesOrSelonCondition, $criteria);
 
-        if(!empty($criteria['designation'])){
-            $designation = " AND slor_desi like '%" . $criteria['designation'] . "%'";
-        } else {
-            $designation = null;
-        }
-        
-        if(!empty($criteria['referencePiece'])){
-            $referencePiece = " AND slor_refp like '%" . $criteria['referencePiece'] . "%'";
-        } else {
-            $referencePiece = null;
-        }
-
-        if(!empty($criteria['constructeur'])){
-            $constructeur = " AND slor_constp  ='" . $criteria['constructeur'] . "'";
-        } else {
-            $constructeur = null;
-        }
-
-        if(!empty($criteria['dateDebut'])){
-            $dateDebut = " AND slor_datec >='" . $criteria['dateDebut']->format('m/d/Y') ."'";
-        } else {
-            $dateDebut = null;
-        }
-
-        if(!empty($criteria['dateFin'])){
-            $dateFin = " AND slor_datec <= '" .$criteria['dateFin']->format('m/d/Y')."'";
-        } else {
-            $dateFin = null;
-        }
-
-        if(!empty($criteria['numOr'])){
-            $numOr = " AND seor_numor  = '" . $criteria['numOr'] . "'";
-        } else {
-            $numOr = null;
-        }
-
-        if(!empty($criteria['numDit'])){
-            $numDit = " AND seor_refdem  = '" . $criteria['numDit'] . "'";
-        } else {
-            $numDit = null;
-        }
-
-        if(!empty($criteria['orCompletNon'])) {
-            if($criteria['orCompletNon'] === 'ORs COMPLET'){
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
-            } else if($criteria['orCompletNon'] === 'ORs INCOMPLETS') {
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerIncomplet']."')";
-            } else if($criteria['orCompletNon'] === 'TOUTS LES OR'){
-                $orCompletNom = " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerTout']."')";
-            }
-        } else {
-            $orCompletNom =  " AND slor_numor IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
-        }
-
-        if (!empty($criteria['pieces'])) {
-            if($criteria['pieces'] === "PIECES MAGASIN"){
-                $piece = " AND slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB')
-                    ";
-            } else if($criteria['pieces'] === "LUB") {
-                $piece = " AND slor_constp in ('LUB') ";
-
-            } else if($criteria['pieces'] === "ACHATS LOCAUX") {
-                $piece = " AND slor_constp like 'Z%' ";
-
-            }else if($criteria['pieces'] === "TOUTS PIECES") {
-                $piece = null;
-            }
-        } else {
-            $piece = " AND slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB')
-                    ";
-        }
-          
-        if(!empty($criteria['agence'])){
-            $agence = " AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$criteria['agence']."'";
-        } else {
-            $agence = "";
-        }
-
-        if(!empty($criteria['service'])){
-            $service = " AND slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) = '".$criteria['service']."'";
-        } else {
-            $service = "";
-        }
-
-
+        //requête
         $statement = " SELECT 
                         trim(seor_refdem) as referenceDIT,
                         seor_numor as numeroOr,
@@ -260,8 +200,12 @@ class MagasinListeOrLivrerModel extends Model
                         slor_datec as dateCreation,
                         slor_nogrp/100 as numInterv,
                         slor_nolign as numeroLigne,
-                        slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
-                        slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        --slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence,
+                        --slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service,
+                        slor_succdeb as agenceDebiteur,
+                        slor_servdeb as serviceDebiteur,
+                        slor_succ as agenceCrediteur,
+                        slor_servcrt as serviceCrediteur,
                         (SELECT SUM(CASE 
                                         WHEN B.slor_typlig = 'P' THEN (B.slor_qterel + B.slor_qterea + B.slor_qteres + B.slor_qtewait - B.slor_qrec) 
                                         WHEN B.slor_typlig IN ('F','M','U','C') THEN B.slor_qterea 
@@ -283,7 +227,8 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_succ = '01'
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
-                        and seor_numor in ('".$lesOrSelonCondition['numOrValideString']."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
+                        $agenceUser
                         $piece
                         $orCompletNom
                         $designation
@@ -295,15 +240,13 @@ class MagasinListeOrLivrerModel extends Model
                         $numDit
                         $agence
                         $service
-                       
+
                         order by 
                             seor_refdem desc,
                             slor_nogrp/100 desc, 
                             seor_numor asc, 
                             slor_nolign asc
         ";
-
-
 
         $result = $this->connect->executeQuery($statement);
 
@@ -477,4 +420,21 @@ public function agence()
         }, $dataUtf8);
     }
     
+
+    public function agenceUser()
+    {
+        $statement = "  SELECT DISTINCT
+                            slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
+                        FROM sav_lor
+                        WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
+                        AND slor_soc = 'HF'
+                        --AND slor_succdeb IN ('01','50')
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'agence');
+    }
 }

@@ -54,8 +54,10 @@ class DomFirstController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() ) {
-          
-            $dom->setSalarier($form->get('salarie')->getData());
+        
+            $salarier = $form->get('salarie')->getData();
+
+            $dom->setSalarier($salarier);
             $formData = $form->getData()->toArray();
 
 
@@ -77,6 +79,12 @@ class DomFirstController extends Controller
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds) || in_array(4, $roleIds);
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("dom_first_form");
     }
 
 }

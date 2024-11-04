@@ -217,10 +217,10 @@ class DomForm1Type extends AbstractType
             'required' => true
         ])
         ->add('cin',
-        NumberType::class,
+        TextType::class,
         [
             'label' => 'CIN',
-            'required' => true
+            'required' => true,
         ])
         ;
         

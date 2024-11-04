@@ -8,13 +8,14 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class MagasinListeOrATraiterSearchType extends AbstractType
@@ -40,6 +41,10 @@ class MagasinListeOrATraiterSearchType extends AbstractType
 
     private function agence(){
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
+    }
+
+    private function agenceUser(){
+        return array_combine($this->magasinModel->agenceUser(), $this->magasinModel->agenceUser());
     }
 
 
@@ -121,27 +126,49 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             $data = $event->getData();
             
             $service = [];
-        if($data['agence'] !== ""){
-            $services = $this->magasinModel->service($data['agence']);
-            
-            foreach ($services as $value) {
-                $service[$value['text']] = $value['text'];
+            if($data['agence'] !== ""){
+                $services = $this->magasinModel->service($data['agence']);
+                
+                foreach ($services as $value) {
+                    $service[$value['text']] = $value['text'];
+                }
+            } else {
+                $service = [];
             }
-        } else {
-            $service = [];
-        }
-   
-        
-        $form->add('service',
-        ChoiceType::class,
-        [
-            'label' => 'Service débiteur',
-            'required' => false,
-            'choices' => $service,
-            'placeholder' => ' -- choisir service --'
-        ]);
-           
+    
+            
+            $form->add('service',
+            ChoiceType::class,
+            [
+                'label' => 'Service débiteur',
+                'required' => false,
+                'choices' => $service,
+                'placeholder' => ' -- choisir service --'
+            ]);
         })
+
+        ->add('agenceUser', ChoiceType::class, [
+            'label' => 'Agence',
+            'required' => false,
+            'choices' => $this->agenceUser() ?? [],
+            'placeholder' => ' -- choisir agence --',
+            'data' => $options['data']['agenceUser'] ?? null,
+            'attr' => [
+                'disabled' => !$options['data']['autoriser'],
+            ],
+        ])
+        
+        ->add('agenceUserHidden', HiddenType::class, [
+            'data' => $options['data']['agenceUser'] ?? null,
+        ])
+        
+        ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
+            $data = $event->getData();
+            if(!$options['data']['autoriser']){
+            $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
+            $event->setData($data);
+            }
+        });
         ;
     }
 

@@ -29,6 +29,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
+use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -374,12 +375,12 @@ class DomForm2Type extends AbstractType
             'data' => $options["data"]->getPrenom() ?? null
         ])
         ->add('cin',
-        NumberType::class,
+        TextType::class,
         [
             'mapped' => false,
             'label' => 'CIN',
             'attr' => [
-                'disabled' => true
+                'disabled' => true,
             ],
             'data' => $options["data"]->getCin() ?? null
         ])
@@ -611,12 +612,21 @@ class DomForm2Type extends AbstractType
         ]) 
         ->add('totalGeneralPayer', 
         TextType::class,
-         [
+        [
             'label' => 'Montant Total',
             'required' => true,
             'attr' => [
                 'readonly' => true
-            ]
+            ],
+            'constraints' => [
+                new NotBlank([
+                    'message' => 'Le montant total ne peut pas être vide.',
+                ]),
+                new GreaterThan([
+                    'value' => 0,
+                    'message' => 'Le montant total doit être supérieur à 0.',
+                ]),
+            ],
         ])
         ->add('modePayement', 
         ChoiceType::class, [
@@ -639,38 +649,36 @@ class DomForm2Type extends AbstractType
                 ],
             'data' => $options['data']->getNumerotel()
         ])
-        ->add('pieceJoint1',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
-            'required' => $salarier !== 'PERMANENT',
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf'
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
-        ->add('pieceJoint2',
-        FileType::class, 
-        [
-            'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
-            'required' => false,
-            'constraints' => [
-                new File([
-                    'maxSize' => '5M',
-                    'mimeTypes' => [
-                        'application/pdf',
-                    ],
-                    'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                ])
-            ],
-        ]
-        )
+        ->add('pieceJoint01', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
+                'required' => $salarier !== 'PERMANENT',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+        ->add('pieceJoint02', 
+            FileType::class, 
+            [
+                'label' => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
+                'required' => $salarier !== 'PERMANENT',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
     ;
     }
 
