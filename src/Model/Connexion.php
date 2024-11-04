@@ -18,7 +18,8 @@ class Connexion
         $this->User = $_ENV['DB_USERNAME_SQLSERV'];
         $this->pswd = $_ENV['DB_PASSWORD_SQLSERV'];
         
-        $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
+
+        $this->conn = odbc_connect($this->DB , $this->User, $this->pswd);
         if (!$this->conn) {
             throw new \Exception("ODBC Connection failed:" . odbc_error());
         }

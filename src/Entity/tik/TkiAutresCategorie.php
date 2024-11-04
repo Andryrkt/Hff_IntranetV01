@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\tik;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\tik\TkiSousCategorie;
 
 /**
- * @ORM\Entity(repositoryClass=TkiAutresCategorieRepository::class)
+ * @ORM\Entity
+ * @ORM\Table(name="TKI_Autres_Categorie")
  */
 class TkiAutresCategorie
 {
@@ -15,79 +16,61 @@ class TkiAutresCategorie
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    /**
-     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="autresCategories")
-     * @ORM\JoinTable(name="sous_categories_autres_categories")
-     */
-     /**
-     * @ORM\ManyToMany(targetEntity="DemandeSupportInformatique", mappedBy="autresCategories")
-     */
-     private $demandes;
-     private $sousCategories;
-
-    public function __construct()
-    {
-        $this->sousCategories = new ArrayCollection();
-    }
-
-    // ... getters et setters
-    private $id;
+    private int $idAutresCategorie;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TkiSousCategorie::class)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity=TKISousCategorie::class, inversedBy="autresCategories")
+     * @ORM\JoinColumn(nullable=false, name="ID_Sous_Categorie", referencedColumnName="idSousCategorie")
      */
-    private $tkiSousCategorie;
+    private TkiSousCategorie $sousCategorie;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
      */
-    private $description;
+    private string $description;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", nullable=false)
      */
-    private $dateCreation;
+    private \DateTimeInterface $dateCreation;
 
-    // ... (getters et setters)
+    // Getters and setters
 
-     /**
-      * Get the value of sousCategories
-      */ 
-     public function getSousCategories()
-     {
-          return $this->sousCategories;
-     }
+    public function getIdAutresCategorie(): int
+    {
+        return $this->idAutresCategorie;
+    }
 
-     /**
-      * Set the value of sousCategories
-      *
-      * @return  self
-      */ 
-     public function setSousCategories($sousCategories)
-     {
-          $this->sousCategories = $sousCategories;
+    public function getSousCategorie(): TkiSousCategorie
+    {
+        return $this->sousCategorie;
+    }
 
-          return $this;
-     }
+    public function setSousCategorie(TkiSousCategorie $sousCategorie): self
+    {
+        $this->sousCategorie = $sousCategorie;
+        return $this;
+    }
 
-     /**
-      * Get the value of demandes
-      */ 
-     public function getDemandes()
-     {
-          return $this->demandes;
-     }
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
 
-     /**
-      * Set the value of demandes
-      *
-      * @return  self
-      */ 
-     public function setDemandes($demandes)
-     {
-          $this->demandes = $demandes;
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
 
-          return $this;
-     }
+    public function getDateCreation(): \DateTimeInterface
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
+        return $this;
+    }
 }

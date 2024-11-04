@@ -1,0 +1,11 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block content %}
+{{ form_start(form)}}
+{{form_row(form.description)}}
+{{form_row(form.sousCategories)}}
+<button>envoyer</button>
+{{ form_end(form)}}
+
+{% endblock %}

@@ -1,12 +1,15 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\tik;
 
+use App\Entity\tik\TkiCategorie;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity(repositoryClass=TkiSousCategorieRepository::class)
+ * @ORM\Entity
+ * @ORM\Table(name="TKI_Sous_Categorie")
  */
 class TkiSousCategorie
 {
@@ -15,107 +18,76 @@ class TkiSousCategorie
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    private int $idSousCategorie;
+
     /**
-     * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="sousCategories")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity=TKICategorie::class, inversedBy="sousCategories")
+     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="idCategorie")
      */
+    private TkiCategorie $categorie;
+
     /**
-     * @ORM\ManyToMany(targetEntity=TkiAutresCategorie::class, mappedBy="sousCategories")
+     * @ORM\Column(type="string", length=100, nullable=false)
      */
+    private string $description;
+
     /**
-     * @ORM\ManyToMany(targetEntity="DemandeSupportInformatique", mappedBy="autresCategories")
+     * @ORM\Column(type="date", nullable=false)
      */
-    private $demandes;
-    // ... getters et setters pour demandes
-    private $autresCategories;
+    private \DateTimeInterface $dateCreation;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TKIAutresCategorie::class, mappedBy="sousCategorie")
+     */
+    private Collection $autresCategories;
 
     public function __construct()
     {
         $this->autresCategories = new ArrayCollection();
     }
 
-    // ... getters et setters
+    // Getters and setters
 
-    
-    private $id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=TkiCategorie::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $tkiCategorie;
-    
-    // ... getters et setters
-
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
-    private $description;
-
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $dateCreation;
-
-    // ... (getters et setters)
-
-    /**
-     * Get the value of tkiCategorie
-     */ 
-    public function getTkiCategorie()
+    public function getIdSousCategorie(): int
     {
-        return $this->tkiCategorie;
+        return $this->idSousCategorie;
     }
 
-    /**
-     * Set the value of tkiCategorie
-     *
-     * @return  self
-     */ 
-    public function setTkiCategorie($tkiCategorie)
+    public function getCategorie(): TkiCategorie
     {
-        $this->tkiCategorie = $tkiCategorie;
+        return $this->categorie;
+    }
 
+    public function setCategorie(TkiCategorie $categorie): self
+    {
+        $this->categorie = $categorie;
         return $this;
     }
 
-    /**
-     * Get the value of autresCategories
-     */ 
-    public function getAutresCategories()
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getDateCreation(): \DateTimeInterface
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
+        return $this;
+    }
+
+    public function getAutresCategories(): Collection
     {
         return $this->autresCategories;
-    }
-
-    /**
-     * Set the value of autresCategories
-     *
-     * @return  self
-     */ 
-    public function setAutresCategories($autresCategories)
-    {
-        $this->autresCategories = $autresCategories;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandes
-     */ 
-    public function getDemandes()
-    {
-        return $this->demandes;
-    }
-
-    /**
-     * Set the value of demandes
-     *
-     * @return  self
-     */ 
-    public function setDemandes($demandes)
-    {
-        $this->demandes = $demandes;
-
-        return $this;
     }
 }

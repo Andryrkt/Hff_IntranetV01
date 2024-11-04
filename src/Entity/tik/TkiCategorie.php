@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
- * @ORM\Entity(repositoryClass=TkiCategorieRepository::class)
+ * @ORM\Entity
+ * @ORM\Table(name="TKI_Categorie")
  */
 class TkiCategorie
 {
@@ -15,72 +17,60 @@ class TkiCategorie
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    private int $idCategorie;
+
     /**
-     * @ORM\OneToMany(targetEntity=TkiSousCategorie::class, mappedBy="tkiCategorie")
+     * @ORM\Column(type="string", length=50, nullable=false)
      */
+    private string $description;
+
     /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
+     * @ORM\Column(type="date", nullable=false)
      */
-    private $demandes;
-    private $sousCategories;
+    private \DateTimeInterface $dateCreation;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TKISousCategorie::class, mappedBy="categorie")
+     */
+    private Collection $sousCategories;
+
     public function __construct()
     {
         $this->sousCategories = new ArrayCollection();
     }
 
-    // ... getters et setters
-    
-    private $id;
+    // Getters and setters
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
-    private $description;
+    public function getIdCategorie(): int
+    {
+        return $this->idCategorie;
+    }
 
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $dateCreation;
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
 
-    // ... (getters et setters)
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
 
-    /**
-     * Get the value of sousCategories
-     */ 
-    public function getSousCategories()
+    public function getDateCreation(): \DateTimeInterface
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
+        return $this;
+    }
+
+    public function getSousCategories(): Collection
     {
         return $this->sousCategories;
     }
-
-    /**
-     * Set the value of sousCategories
-     *
-     * @return  self
-     */ 
-    public function setSousCategories($sousCategories)
-    {
-        $this->sousCategories = $sousCategories;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandes
-     */ 
-    public function getDemandes()
-    {
-        return $this->demandes;
-    }
-
-    /**
-     * Set the value of demandes
-     *
-     * @return  self
-     */ 
-    public function setDemandes($demandes)
-    {
-        $this->demandes = $demandes;
-
-        return $this;
-    }
 }
+?>

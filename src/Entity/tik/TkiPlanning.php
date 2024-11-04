@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,7 +19,7 @@ class TkiPlanning
      */
     private $demande;
 
-    // ... (getters et setters)
+    
     private $id;
 
     /**
