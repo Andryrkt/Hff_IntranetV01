@@ -66,7 +66,7 @@ class CasierController extends Controller
                 }
 
             }
-           
+            
 
             self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',

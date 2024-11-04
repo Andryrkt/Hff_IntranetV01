@@ -126,7 +126,7 @@ class DitOrsSoumisAValidationController extends Controller
                 
                 $historique = new DitHistoriqueOperationDocument();
                 $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
-                    ->setUtilisateur($this->nomUtilisateur(self::$em))
+                    ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
                     ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(1))
                     ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
                     ;
@@ -141,7 +141,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
                 $quelqueaffichage = $this->quelqueAffichage($ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage);
+                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());

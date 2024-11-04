@@ -368,6 +368,11 @@ private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAVa
 private function nomUtilisateur($em){
     $userId = $this->sessionService->get('user_id', []);
     $user = $em->getRepository(User::class)->find($userId);
-    return $user->getNomUtilisateur();
+    return [
+        'nomUtilisateur' => $user->getNomUtilisateur(),
+        'mailUtilisateur' => $user->getMail()
+    ];
 }
+
+
 }

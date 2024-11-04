@@ -119,7 +119,7 @@ class DitFactureSoumisAValidationController extends Controller
                     }
                     $historique = new DitHistoriqueOperationDocument();
                         $historique->setNumeroDocument($dataForm->getNumeroFact())
-                            ->setUtilisateur($this->nomUtilisateur(self::$em))
+                            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
                             ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
                             ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
                             ;
@@ -145,7 +145,7 @@ class DitFactureSoumisAValidationController extends Controller
 
 
                     $genererPdfFacture = new GenererPdfFactureAValidation();
-                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
+                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur']);
                     //envoie des pièce jointe dans une dossier et la fusionner
                     $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
                     $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
