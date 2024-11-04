@@ -1,0 +1,114 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}Créer une Demande de Support Informatique{% endblock %}
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        
+        <h1 class="row justify-content-center align-items-center ">Créer une Demande de Support Informatique</h1>
+        <div class="row justify-content-center align-items-center">
+            <div class="w-40">
+                
+
+                
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+
+                {{ form_start(form, { 'attr': {'novalidate': 'novalidate'} }) }}
+                    <div class="row">
+
+                    <div class="form-group">
+                        {{ form_label(form.Mail_Demandeur) }}
+                        {{ form_widget(form.Mail_Demandeur, { 'attr': {'class': 'form-control'} }) }}
+                        {{ form_errors(form.Mail_Demandeur) }}
+                    </div>
+
+
+                    <div class="form-group">
+                        {{ form_label(form.Categorie) }}
+                        {{ form_widget(form.Categorie, { 'attr': {'class': 'form-control'} }) }}
+                        {{ form_errors(form.Categorie) }}
+                
+
+                    <div class="form-group">
+                        {{ form_label(form.Agence_Emetteur) }}
+                        {{ form_widget(form.Agence_Emetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
+                        {{ form_errors(form.Agence_Emetteur) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Agence_Debiteur) }}
+                        {{ form_widget(form.Agence_Debiteur, { 'attr': {'class': 'form-control',} }) }}
+                        {{ form_errors(form.Agence_Debiteur) }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form_label(form.Service_Emmetteur) }}
+                        {{ form_widget(form.Service_Emmetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
+                        {{ form_errors(form.Service_Emmetteur) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Service_Debiteur) }}
+                        {{ form_widget(form.Service_Debiteur, { 'attr': {'class': 'form-control',} }) }}
+                        {{ form_errors(form.Service_Debiteur) }}
+                    </div>
+
+
+                    <div class="form-group">
+                        {{ form_label(form.Objet_Demande) }}
+                        {{ form_widget(form.Objet_Demande, { 'attr': {'class': 'form-control'} }) }}
+                        {{ form_errors(form.Objet_Demande) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Detail_Demande) }}
+                        {{ form_widget(form.Detail_Demande, { 'attr': {'class': 'form-control', 'rows': 4} }) }}
+                        {{ form_errors(form.Detail_Demande) }}
+                    </div>
+                    
+
+                    <div class="form-group">
+                        {{ form_label(form.Piece_Jointe1) }}
+                        {{ form_widget(form.Piece_Jointe1, { 'attr': {'class': 'form-control-file'} }) }}
+                        {{ form_errors(form.Piece_Jointe1) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Piece_Jointe2) }}
+                        {{ form_widget(form.Piece_Jointe2, { 'attr': {'class': 'form-control-file'} }) }}
+                        {{ form_errors(form.Piece_Jointe2) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Piece_Jointe3) }}
+                        {{ form_widget(form.Piece_Jointe3, { 'attr': {'class': 'form-control-file'} }) }}
+                        {{ form_errors(form.Piece_Jointe3) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Date_Fin_Planning) }}
+                        {{ form_widget(form.Date_Fin_Planning, { 'attr': {'class': 'form-control','disabled': true} }) }}
+                        {{ form_errors(form.Date_Fin_Planning) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.Date_Fin_Souhaitee) }}
+                        {{ form_widget(form.Date_Fin_Souhaitee, { 'attr': {'class': 'form-control'} }) }}
+                        {{ form_errors(form.Date_Fin_Souhaitee) }}
+                    </div>
+
+                    <button class="btn btn-primary mt-3">SOUMETTRE</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
