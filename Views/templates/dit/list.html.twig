@@ -136,7 +136,7 @@
 											{% endif %}
 										</li>
 										<li>
-											<a class="dropdown-item" target="_blank" href="{{ path("dit_dossier_intervention_atelier")}}">Dossier DIT</a>
+											<a class="dropdown-item" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeIntervention})}}">Dossier DIT</a>
 										</li>
 										<li>
 											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
