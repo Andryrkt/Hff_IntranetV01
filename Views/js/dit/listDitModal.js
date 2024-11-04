@@ -220,3 +220,81 @@ riModalInput.addEventListener("hidden.bs.modal", function () {
   const tableBody = document.getElementById("riBody");
   tableBody.innerHTML = ""; // Vider le tableau
 });
+
+/** ============================================== 
+ *  niveau d'urgence MODAL
+ * 
+=================================================*/
+const niveauUrgenceModalInput = document.getElementById("niveauUrgence");
+
+niveauUrgenceModalInput.addEventListener("show.bs.modal", function (event) {
+  const button = event.relatedTarget; // Button that triggered the modal
+  const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+  const loadingNiveauUrgence = document.getElementById("loadingNiveauUrgence");
+  const dataContentNiveauUrgence = document.getElementById(
+    "dataContentNiveauUrgence"
+  );
+  // Afficher le spinner et masquer le contenu des données
+  loadingNiveauUrgence.style.display = "block";
+  dataContentNiveauUrgence.style.display = "none";
+
+  // Fetch request to get the data
+  fetch(`/Hffintranet/niveau-urgence-fetch/${id}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const tableBody = document.getElementById("niveauUrgenceBody");
+      tableBody.innerHTML = ""; // Clear previous data
+      console.log(data);
+
+      if (data.length > 0) {
+        // Générer les lignes du tableau en fonction des données
+        data.forEach((item) => {
+          // Vérifier si le statut est vide ou null
+          let risoumis = item.riSoumis
+            ? `<i class="fa-solid fa-check"></i>`
+            : "";
+          let rowClass = item.riSoumis ? "" : "textColor";
+
+          // Créer la ligne du tableau
+          let row = `<tr>
+                      <td>${risoumis}</td>
+                      <td class="${rowClass}">${item.numeroitv}</td>
+                      <td class="${rowClass}">${
+            item.commentair ? item.commentair : "-"
+          }</td>
+                    </tr>`;
+
+          tableBody.innerHTML += row;
+        });
+      } else {
+        // Si aucune donnée n'est disponible
+        tableBody.innerHTML =
+          '<tr><td colspan="3">Aucune donnée disponible.</td></tr>';
+      }
+
+      // Masquer le spinner et afficher les données
+      loadingri.style.display = "none";
+      dataContentri.style.display = "block";
+    })
+    .catch((error) => {
+      const tableBody = document.getElementById("AffecteeTableBody");
+      tableBody.innerHTML =
+        '<tr><td colspan="3">On ne peut pas récupérer les données</td></tr>';
+      console.error("There was a problem with the fetch operation:", error);
+
+      // Masquer le spinner même en cas d'erreur
+      loadingNiveauUrgence.style.display = "none";
+      dataContentNiveauUrgence.style.display = "block";
+    });
+});
+
+// Gestionnaire pour la fermeture du modal
+niveauUrgenceModalInput.addEventListener("hidden.bs.modal", function () {
+  const tableBody = document.getElementById("niveauUrgenceBody");
+  tableBody.innerHTML = ""; // Vider le tableau
+});

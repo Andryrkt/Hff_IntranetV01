@@ -115,4 +115,19 @@ class ListApi extends Controller
         echo json_encode($ri);
     }
 
+    /** 
+     * 
+     * @Route("/niveau-urgence-fetch/{numDit}", name="niveau_urgnece_fetch") 
+     * */
+    public function niveauUrgence($numDit)
+    {
+        /**
+         *  A FAIRE, EN ATTENTE DU TABLEAU
+         */
+        $niveauUrgence = [];
+
+        header("Content-type:application/json");
+        echo json_encode($niveauUrgence);
+    }
+
 }

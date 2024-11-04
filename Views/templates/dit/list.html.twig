@@ -158,7 +158,9 @@
 								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
-							<td class="text-center">{{ item.idNiveauUrgence.description}}</td>
+							<td class="text-center">
+								<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" data-id="{{item.numeroDemandeIntervention}}" id="numOr" data-bs-toggle="tooltip" title="niveau d'urgence">{{ item.idNiveauUrgence.description}}</a>
+							</td>
 							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
 							<td>{{ item.numSerie}}</td>
 							<td>{{ item.numParc}}</td>
