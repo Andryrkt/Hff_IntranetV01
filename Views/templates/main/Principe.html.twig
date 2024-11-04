@@ -47,16 +47,10 @@
 								<a class="dropdown-item" target="_blank" href="https://hffc.docuware.cloud/DocuWare/Platform/WebClient/Client/Search?sed=7c943028-4942-41fe-9f2f-22343198849a&intgParams=JmVwPWhCb0c3M3ZhWUZ5YU56TmdoNjljV2VpZ2x2WjhoRGpuS1ViNkpyZUdZa3R2VW04OTFWeWc4X0VnckxkUVEtWkN3YmNGLWJLTFFrNlhZbXVleW9TOGdhZjB6NnV5d0o2ZWpjb2wwMHY4QWoxQ0hDdWdVNXg4bXVvZFo2WEQxOUVEMA2&_auth=ATIVC4BFzhmN0ylU3RnqqY9KFQhydNizf6dRCPLuK6h0OEGdfM_aOmH_ifZsrywe-OQeIZ93ilEatMuP3-ewqxeZX9JEBrLuH5ppI54mEjjGtXgd338uN5DxnPBdhkr60T5LN9gUn4QhIlHJmPDPWdSiNSiCG8z5J75IuFUVBwXVn3OMJybr_yphQq7_IMokMDuSfa7m8knG4J9bjW-GKaOWTy3AMK31TOSqlw09z4LL2owMTVXR6dcfNFIHUpRvdhPRlULT2TmDklTHYEXZ7HKu2oRAfE5V0Wk99acuXR-1AU-L65JSZGUExZk9m-EeApnCqNBaqfSM1lHnir78lcXkvw2FU_tYe4_hUj-KLNV_8y9_79Pifr4RP2fkbakaGvjSJdsa3iCI2T6zwx8eUOXtmIE_0x50XMYWrO730UhbQ37g0A1MJ0vRq2FVOLTJaq7wEaAXeuARenbndcpTEqKaAL2ytqvfeUMwDI4Ge1QcoV6Xb57aF7in_b2Bmc065ceWOURhBqg4FFgRu43SGJ5AJUy_uozxGgoFzfFc70WoQTvtUPspCASpGVwKoIWPxZig1iBS6jVh9xkaanYW_MaKXxC68-IDbAFBG-y8KvhuqZcvR70rzAvM2RARRjoK0">Test accès docuware</a>
 							</li>
 						{% endif %}
-						{% if hasDIT and hasREP %}
-							<li>
-								<a class="dropdown-item" target="_blank" href="{{ path("dit_dossier_intervention_atelier")}}">Dossier DIT</a>
-							</li>
-						{% endif %}
 						<li>
 							<a class="dropdown-item" href="/Upload/documentation/Structure%20analytique%20HFF.pdf" target="_blank">
 								Plan analytique HFF
 							</a>
-
 						</li>
 					</ul>
 
@@ -76,6 +70,9 @@
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path("dit_index")}}">Consultation</a>
+							</li>
+							<li>
+								<a class="dropdown-item" target="_blank" href="{{ path("dit_dossier_intervention_atelier")}}">Dossier DIT</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="/Upload/excel_dit/DOSSIER%20DIT-%20Achats.xlsx" download>Télécharger Excel DIT</a>
