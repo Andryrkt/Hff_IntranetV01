@@ -2,6 +2,9 @@
 
 namespace App\Controller\dit;
 
+ini_set('upload_max_filesize', '5M');
+ini_set('post_max_size', '5M');
+
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -96,7 +99,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $estRi = false;
                 $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
-               
+                
                 if(empty($riSoumis)){
                     $estRi = true;                
                 } else {
@@ -107,10 +110,36 @@ class DitFactureSoumisAValidationController extends Controller
                         }
                     }
                 }
+
                 if($estRi){
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->notification($message);
                 } else {
+                
+                    
+                    
+                        /** CREATION PDF */
+                    $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
+                    
+                    $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
+                    $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
+                    $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
+                    $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
+                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
+            
+                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
+                    
+                    $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
+                    $demandeIntervention->setEtatFacturation($etatOr);
+                    self::$em->persist($demandeIntervention);
+                    self::$em->flush();
+
+
+                    $genererPdfFacture = new GenererPdfFactureAValidation();
+                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur']);
+                    //envoie des pièce jointe dans une dossier et la fusionner
+                    $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
+                    $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
                 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
@@ -127,29 +156,7 @@ class DitFactureSoumisAValidationController extends Controller
                         // Flushe toutes les entités et l'historique
                         
                         self::$em->flush();
-                    
-                        /** CREATION PDF */
-                    $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
-                    
-                    $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
-                    $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
-                    $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
-                    $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
-            
-                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
-                    $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
-                    $demandeIntervention->setEtatFacturation($etatOr);
-                    self::$em->persist($demandeIntervention);
-                    self::$em->flush();
 
-
-                    $genererPdfFacture = new GenererPdfFactureAValidation();
-                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur']);
-                    //envoie des pièce jointe dans une dossier et la fusionner
-                    $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
-                    $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
-                
                     $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                     $this->redirectToRoute("dit_index");
                 }

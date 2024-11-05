@@ -140,7 +140,7 @@
 										</li>
 										<li>
 											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
-												<a class="dropdown-item fw-bold" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" onclick="return confirm('Êtes-vous sûr(e) ? Cette action est irréversible.')">Clôturer la DIT</a>
+												<a class="dropdown-item fw-bold" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" onclick="return confirm('Êtes-vous sûr(e) ? Cette action est irréversible et mettera la statut de la DIT en CLOTUREE ANNULEE')">Clôturer la DIT</a>
 											{% endif %}
 										</li>
 									</ul>

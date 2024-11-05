@@ -19,12 +19,10 @@ class PlanningController extends Controller
     use PlanningTraits;
         private PlanningModel $planningModel;
         
-           public function __construct()
+        public function __construct()
         {
             parent::__construct();
             $this->planningModel = new PlanningModel();
-          
-
         }
 
         /**
@@ -44,7 +42,7 @@ class PlanningController extends Controller
                 ->setTypeLigne('TOUETS')
             ;
         
-           
+            
             
             $form = self::$validator->createBuilder(PlanningSearchType::class,$planningSearch,
             [ 
@@ -66,25 +64,22 @@ class PlanningController extends Controller
             //recupères les données du criteria dans une session nommé dit_serch_criteria
             $this->sessionService->set('planning_search_criteria', $criteriaTAb);
 
-           
-            if($request->query->get('action') !== 'oui') {
-               
+            
+            if($request->query->get('action') !== 'oui') 
+            {
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-                
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+                $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             } else {
                 $data = [];
             }
             
             
-           
-             
             $table = [];
             //Recuperation de idmat et les truc
             foreach ($data as $item ) {
                 $planningMateriel = new PlanningMateriel();
                   //initialisation
-                 $planningMateriel
+                    $planningMateriel
                         ->setCodeSuc($item['codesuc'])
                         ->setLibSuc($item['libsuc'])
                         ->setCodeServ($item['codeserv'])
@@ -137,18 +132,18 @@ foreach ($table as $materiel) {
         }
 
 
-     /**
+    /**
      * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
      */
     public function serviceDebiteur($agenceId)
     {
         $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
-       
+        
         header("Content-type:application/json");
 
         echo json_encode($serviceDebiteur);
     }
-   
+    
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -167,11 +162,9 @@ foreach ($table as $materiel) {
             $detailes = [];
             $recupPariel = [];
             $recupGot = [];
-            for ($i=0; $i < count($details); $i++) { 
-
-               
+            for ($i=0; $i < count($details); $i++) {
                 if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
-                   $recupGot = [];
+                    $recupGot = [];
                 } else {
                     $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
                     $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
@@ -198,11 +191,9 @@ foreach ($table as $materiel) {
                 }
                 // dump($recupGot);
                 if(!empty($recupGot)){
-                   
                     $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
-
                 }else{
-                     $details[$i]['Ord'] = "";
+                    $details[$i]['Ord'] = "";
                 }
                 
             }

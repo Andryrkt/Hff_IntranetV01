@@ -23,7 +23,7 @@ trait DitFactureSoumisAValidationtrait
 
     private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string
     {
-        return  $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR());
+        return $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR())[0];
     }
 
 
