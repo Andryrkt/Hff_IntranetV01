@@ -275,7 +275,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $pdf->writeHTML($html, true, false, true, false, '');
 
             $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', 'BI', 10);
+            $pdf->SetFont('helvetica', '', 10);
             $pdf->SetXY(118, 2);
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
