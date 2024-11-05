@@ -84,3 +84,12 @@
     background-color: orange ! important;
     font-weight: bold;
 }
+
+/* .widthPerso{
+    background-color: #ff8d00;
+} */
+
+/* Augmenter la largeur de la modale */
+.modal-dialog.custom-width {
+    max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
