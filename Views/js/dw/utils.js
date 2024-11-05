@@ -45,7 +45,7 @@ export function afficherFichier(cheminFichier) {
   //const fileUrl = `file:///192.168.0.15/hff_pdf/1428031_2COLAS.pdf`;
 
   const fileViewer = document.getElementById("file-viewer");
-  fileViewer.innerHTML = `<iframe src="${fileUrl}" width="100%" height="800px" frameborder="0"></iframe>`;
+  fileViewer.innerHTML = `<iframe src="${fileUrl}#toolbar=0" width="100%" height="800px" frameborder="0"></iframe>`;
 }
 
 export function couleurDefondClick(row) {

@@ -50,14 +50,15 @@
 								{% set icon = '<i class="fas ' ~ icons[extension] ~ ' fs-4"></i>' %}
 							{% endif %}
 
+							{% set numeroVersion = item.numero_version ? item.numero_version :'-'%}
 
-							<tr>
+							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}">
 								<td>{{icon|raw}}</td>
 								<td>{{item.nomDoc}}</td>
 								<td>{{item.numero_doc}}</td>
 								<td>{{item.date_creation | date('d/m/Y')}}</td>
 								<td>{{item.date_modification | date('d/m/Y')}}</td>
-								<td class="text-center">{{item.numero_version ? item.numero_version :''}}</td>
+								<td class="text-center">{{numeroVersion}}</td>
 								<td class="text-center">{{item.total_page}}</td>
 								<td>{{(item.taille_fichier / 1024) | number_format(2)  | replace({'.': ',', ',': '.'})}}
 									ko</td>

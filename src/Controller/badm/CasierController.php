@@ -64,7 +64,6 @@ class CasierController extends Controller
                     $this->sessionService->set('casierform1Data', $formData);
                     $this->redirectToRoute("casiser_formulaireCasier");
                 }
-
             }
             
 
