@@ -4,6 +4,7 @@ namespace App\Form\magasin;
 
 
 
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -66,6 +67,10 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'choice_label' => 'description',
             'placeholder' => '-- Choisir un niveau --',
             'required' => false,
+            'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
         ])
         ->add('numDit', TextType::class, [
             'label' => 'n° DIT',

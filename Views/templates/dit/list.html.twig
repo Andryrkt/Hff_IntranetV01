@@ -140,7 +140,7 @@
 										</li>
 										<li>
 											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
-												<a class="dropdown-item" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}">Cloturée annulée</a>
+												<a class="dropdown-item" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}">Clôturer la DIT</a>
 											{% endif %}
 										</li>
 									</ul>

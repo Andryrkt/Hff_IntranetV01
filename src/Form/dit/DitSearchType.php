@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
+use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -95,6 +96,10 @@ class DitSearchType extends AbstractType
             'choice_label' => 'description',
             'placeholder' => '-- Choisir une niveau--',
             'required' => false,
+            'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
             'attr' => [
                 'class' => 'niveauUrgence'
             ]

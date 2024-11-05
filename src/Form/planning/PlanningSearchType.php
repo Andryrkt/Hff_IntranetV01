@@ -4,6 +4,7 @@
 namespace App\Form\planning;
 
 
+use Doctrine\ORM\EntityRepository;
 use App\Model\planning\PlanningModel;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -97,6 +98,10 @@ class PlanningSearchType extends AbstractType
                     'choice_label' => 'description',
                     'placeholder' => '-- Choisir une niveau--',
                     'required' => false,
+                    'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
                     'attr' => [
                         'class' => 'niveauUrgence'
                     ]
