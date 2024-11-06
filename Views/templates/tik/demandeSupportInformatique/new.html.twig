@@ -2,18 +2,18 @@
 
 {% block title %}Créer une Demande de Support Informatique{% endblock %}
 {% block stylesheets %}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
     <div class="container">
         
-        <h1 class="row justify-content-center align-items-center ">Créer une Demande de Support Informatique</h1>
+        <h1 class="row justify-content-center align-items-center perso-titre">Demande de Support Informatique</h1>
         <div class="row justify-content-center align-items-center">
             <div class="w-40">
                 
 
-                
                 {% for message in app.flashes('success') %}
                     <div class="alert alert-success">{{ message }}</div>
                 {% endfor %}

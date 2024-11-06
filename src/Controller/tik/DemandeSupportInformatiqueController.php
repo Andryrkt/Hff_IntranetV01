@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\admin\tik;
+namespace App\Controller\tik;
 
 use App\Controller\Controller;
 use App\Form\tik\DemandeSupportInformatiqueType;
@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DemandeSupportInformatiqueController extends Controller
 {
     /**
-     * @Route("/demande_support_informatique", name="demande_support_informatique")
+     * @Route("/demande-support-informatique", name="demande_support_informatique")
      */
     public function new()
     {
