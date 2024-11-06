@@ -1,8 +1,12 @@
 <?php
 namespace App\Entity\tik;
 
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\Traits\AgenceServiceTrait;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
@@ -11,7 +15,7 @@ use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
- * @ORM\Table(name="Demande_Support_Informatique")Date_Fin
+ * @ORM\Table(name="Demande_Support_Informatique")
  */
 class DemandeSupportInformatique
 {
@@ -101,17 +105,17 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe1")
      */
-    private ?string $pieceJointe1 = null;
+    private ?string $pieceJointe01 = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe2")
      */
-    private ?string $pieceJointe2 = null;
+    private ?string $pieceJointe02 = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe3")
      */
-    private ?string $pieceJointe3 = null;
+    private ?string $pieceJointe03 = null;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Deb_Planning")
@@ -457,9 +461,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe1
      */ 
-    public function getPieceJointe1()
+    public function getPieceJointe01()
     {
-        return $this->pieceJointe1;
+        return $this->pieceJointe01;
     }
 
     /**
@@ -467,9 +471,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe1($pieceJointe1)
+    public function setPieceJointe01($pieceJointe1)
     {
-        $this->pieceJointe1 = $pieceJointe1;
+        $this->pieceJointe01 = $pieceJointe1;
 
         return $this;
     }
@@ -477,9 +481,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe2
      */ 
-    public function getPieceJointe2()
+    public function getPieceJointe02()
     {
-        return $this->pieceJointe2;
+        return $this->pieceJointe02;
     }
 
     /**
@@ -487,9 +491,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe2($pieceJointe2)
+    public function setPieceJointe02($pieceJointe2)
     {
-        $this->pieceJointe2 = $pieceJointe2;
+        $this->pieceJointe02 = $pieceJointe2;
 
         return $this;
     }
@@ -497,9 +501,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe3
      */ 
-    public function getPieceJointe3()
+    public function getPieceJointe03()
     {
-        return $this->pieceJointe3;
+        return $this->pieceJointe03;
     }
 
     /**
@@ -507,9 +511,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe3($pieceJointe3)
+    public function setPieceJointe03($pieceJointe3)
     {
-        $this->pieceJointe3 = $pieceJointe3;
+        $this->pieceJointe03 = $pieceJointe3;
 
         return $this;
     }
