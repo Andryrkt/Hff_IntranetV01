@@ -7,108 +7,176 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        
-        <h1 class="row justify-content-center align-items-center perso-titre">Demande de Support Informatique</h1>
-        <div class="row justify-content-center align-items-center">
-            <div class="w-40">
-                
+    <div class=" container">
+		<div class="card">
+			<div class="card-body">
 
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success">{{ message }}</div>
-                {% endfor %}
-                {% for message in app.flashes('error') %}
-                    <div class="alert alert-danger">{{ message }}</div>
-                {% endfor %}
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								Formulaire Demande d'intervention
+							</h3>
+						</div>
 
-                {{ form_start(form, { 'attr': {'novalidate': 'novalidate'} }) }}
-                    <div class="row">
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+					{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+					{{ form_errors(form)}}
 
-                    <div class="form-group">
-                        {{ form_label(form.Mail_Demandeur) }}
-                        {{ form_widget(form.Mail_Demandeur, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Mail_Demandeur) }}
-                    </div>
-
-
-                    <div class="form-group">
-                        {{ form_label(form.Categorie) }}
-                        {{ form_widget(form.Categorie, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Categorie) }}
-                
-
-                    <div class="form-group">
-                        {{ form_label(form.Agence_Emetteur) }}
-                        {{ form_widget(form.Agence_Emetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Agence_Emetteur) }}
-                    </div>
-
-                    <div class="form-group">
-                        {{ form_label(form.Agence_Debiteur) }}
-                        {{ form_widget(form.Agence_Debiteur, { 'attr': {'class': 'form-control',} }) }}
-                        {{ form_errors(form.Agence_Debiteur) }}
-                    </div>
-                    
-                    <div class="form-group">
-                        {{ form_label(form.Service_Emmetteur) }}
-                        {{ form_widget(form.Service_Emmetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Service_Emmetteur) }}
-                    </div>
-
-                    <div class="form-group">
-                        {{ form_label(form.Service_Debiteur) }}
-                        {{ form_widget(form.Service_Debiteur, { 'attr': {'class': 'form-control',} }) }}
-                        {{ form_errors(form.Service_Debiteur) }}
-                    </div>
+					<div class="">
+						{{ form_row(form.objetDemande)}}
+						{{ form_row(form.detailDemande)}}
+					</div>
 
 
-                    <div class="form-group">
-                        {{ form_label(form.Objet_Demande) }}
-                        {{ form_widget(form.Objet_Demande, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Objet_Demande) }}
-                    </div>
+					<div class="row">
+						<div class="col-12 col-md-2">{{ form_row(form.typeDocument) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
+					</div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Detail_Demande) }}
-                        {{ form_widget(form.Detail_Demande, { 'attr': {'class': 'form-control', 'rows': 4} }) }}
-                        {{ form_errors(form.Detail_Demande) }}
-                    </div>
-                    
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe1) }}
-                        {{ form_widget(form.Piece_Jointe1, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe1) }}
-                    </div>
+					<div class="row">
+						<div class="col-12 col-md-6">
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe2) }}
-                        {{ form_widget(form.Piece_Jointe2, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe2) }}
-                    </div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe3) }}
-                        {{ form_widget(form.Piece_Jointe3, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe3) }}
-                    </div>
+							{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6 mt-2">Débiteur</div>
+								<div class="col-12 col-md-6 mt-2">Emetteur</div>
+							</div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Date_Fin_Planning) }}
-                        {{ form_widget(form.Date_Fin_Planning, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Date_Fin_Planning) }}
-                    </div>
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.agence)}}
+									{{ form_row(form.service)}}
 
-                    <div class="form-group">
-                        {{ form_label(form.Date_Fin_Souhaitee) }}
-                        {{ form_widget(form.Date_Fin_Souhaitee, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Date_Fin_Souhaitee) }}
-                    </div>
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.agenceEmetteur)}}
+									{{ form_row(form.serviceEmetteur)}}
+								</div>
 
-                    <button class="btn btn-primary mt-3">SOUMETTRE</button>
-                {{ form_end(form) }}
-            </div>
-        </div>
-    </div>
+							</div>
+
+
+							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.nomClient)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numeroTel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.clientSousContrat)}}
+								</div>
+							</div>
+							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.idMateriel)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numSerie)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numParc)}}
+								</div>
+							</div>
+							<div class="row">
+								<span id="erreur"></span>
+							</div>
+
+
+							<div>
+								<ul>
+									<div class="row">
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Constructeur :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="constructeur"></div>
+											</li>
+											<li class="fw-bold">Désignation :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="designation"></div>
+											</li>
+											<li class="fw-bold">KM :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="km"></div>
+											</li>
+										</div>
+										<div class="col-12 col-md-6">
+											<li class="fw-bold">Modèle :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="model"></div>
+											</li>
+											<li class="fw-bold">Casier :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="casier"></div>
+											</li>
+											<li class="fw-bold">Heures :
+												<div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle" id="heures"></div>
+											</li>
+										</div>
+
+									</div>
+
+								</ul>
+							</div>
+
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.idNiveauUrgence)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.datePrevueTravaux)}}
+								</div>
+							</div>
+							{{ macroForm.sousTitre('Réparation', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.typeReparation) }}
+
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.reparationRealise) }}
+								</div>
+
+							</div>
+
+
+							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+							{{ form_row(form.pieceJoint01)}}
+							{{ form_errors(form.pieceJoint01)}}
+
+							{{ form_row(form.pieceJoint02)}}
+							{{ form_errors(form.pieceJoint02) }}
+
+							{{ form_row(form.pieceJoint03)}}
+							{{ form_errors(form.pieceJoint03) }}
+						</div>
+
+					</div>
+
+					<a onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<button type="submit" class="btn bouton" id="formDit">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</a>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+		<div id="materielInfos"></div>
+	</div>
 {% endblock %}
 
