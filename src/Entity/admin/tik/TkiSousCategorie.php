@@ -2,29 +2,28 @@
 
 namespace App\Entity\admin\tik;
 
-use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\tik\TkiCategorie;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="TKI_Sous_Categorie")
+ * @ORM\Table(name="TKI_SOUS_CATEGORIE")
  */
 class TkiSousCategorie
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="ID_Sous_Categorie")
      */
-    private int $idSousCategorie;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=TKICategorie::class, inversedBy="sousCategories")
-     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="idCategorie")
-     */
-    private TkiCategorie $categorie;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
@@ -32,18 +31,26 @@ class TkiSousCategorie
     private string $description;
 
     /**
-     * @ORM\Column(type="date", nullable=false)
+     * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="sousCategories")
+     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="idCategorie")
      */
-    private \DateTimeInterface $dateCreation;
+    private ?TkiCategorie $categorie;
 
     /**
-     * @ORM\OneToMany(targetEntity=TKIAutresCategorie::class, mappedBy="sousCategorie")
+     * @ORM\OneToMany(targetEntity=TkiAutresCategorie::class, mappedBy="sousCategorie")
      */
     private Collection $autresCategories;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="sousCategorie")
+     */
+    private Collection $supportInfo;
+
 
     public function __construct()
     {
         $this->autresCategories = new ArrayCollection();
+        $this->supportInfo = new ArrayCollection();
     }
 
     /**=====================================================================================
@@ -52,20 +59,12 @@ class TkiSousCategorie
      *
     =====================================================================================*/
 
-    public function getIdSousCategorie(): int
+    /**
+     * Get the value of id
+     */ 
+    public function getId()
     {
-        return $this->idSousCategorie;
-    }
-
-    public function getCategorie(): TkiCategorie
-    {
-        return $this->categorie;
-    }
-
-    public function setCategorie(TkiCategorie $categorie): self
-    {
-        $this->categorie = $categorie;
-        return $this;
+        return $this->id;
     }
 
     public function getDescription(): string
@@ -79,19 +78,70 @@ class TkiSousCategorie
         return $this;
     }
 
-    public function getDateCreation(): \DateTimeInterface
+    public function getCategorie(): ?TkiCategorie
     {
-        return $this->dateCreation;
+        return $this->categorie;
     }
 
-    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    public function setCategorie(?TkiCategorie $categorie): self
     {
-        $this->dateCreation = $dateCreation;
+        $this->categorie = $categorie;
         return $this;
     }
 
     public function getAutresCategories(): Collection
     {
         return $this->autresCategories;
+    }
+
+    public function addAutresCategories(?TkiAutresCategorie $autresCategories): self
+    {
+        if (!$this->autresCategories->contains($autresCategories)) {
+            $this->autresCategories[] = $autresCategories;
+            $autresCategories->setSousCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAutresCategories(?TkiAutresCategorie $autresCategories): self
+    {
+        if ($this->autresCategories->contains($autresCategories)) {
+            $this->autresCategories->removeElement($autresCategories);
+            if ($autresCategories->getSousCategorie() === $this) {
+                $autresCategories->setSousCategorie(null);
+            }
+        }
+        
+        return $this;
+    }
+
+
+
+    public function getSupportInfo(): Collection
+    {
+        return $this->supportInfo;
+    }
+
+    public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
+    {
+        if (!$this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo[] = $supportInfo;
+            $supportInfo->setSousCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportInfo(?DemandeSupportInformatique $supportInfo): self
+    {
+        if ($this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo->removeElement($supportInfo);
+            if ($supportInfo->getSousCategorie() === $this) {
+                $supportInfo->setSousCategorie(null);
+            }
+        }
+        
+        return $this;
     }
 }
