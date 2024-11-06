@@ -1,6 +1,8 @@
 <?php
 namespace App\Entity\tik;
 
+use App\Entity\Traits\AgenceServiceTrait;
+use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
@@ -10,6 +12,9 @@ use App\Repository\tik\DemandeSupportInformatiqueRepository;
  */
 class DemandeSupportInformatique
 {
+    use AgenceServiceEmetteurTrait;
+    use AgenceServiceTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -105,7 +110,7 @@ class DemandeSupportInformatique
      */
     private ?string $pieceJointe3 = null;
 
-     /**
+    /**
      * @ORM\Column(type="datetime", name="Date_Deb_Planning")
      */
     private $dateDebutPlanning;
@@ -131,6 +136,33 @@ class DemandeSupportInformatique
      */
     private $dateFinSouhaitee;
 
+     /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
+     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $agenceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceEmetteur")
+     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $serviceEmetteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceDebiteur")
+     * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $agenceDebiteurId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceDebiteur")
+     * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
+     * @Groups("intervention")
+     */
+    private  $serviceDebiteurId;
 
     /**=====================================================================================
      * 
@@ -146,5 +178,69 @@ class DemandeSupportInformatique
         return $this->id;
     }
 
+    public function getDateCreation()
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation($dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
+        return $this;
+    }
+    
+    public function getAgenceEmetteurId()
+    {
+        return $this->agenceEmetteurId;
+    }
+
+    
+    public function setAgenceEmetteurId($agenceEmetteurId): self
+    {
+        $this->agenceEmetteurId = $agenceEmetteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceEmetteurId()
+    {
+        return $this->serviceEmetteurId;
+    }
+
    
+    public function setServiceEmetteurId($serviceEmetteurId): self
+    {
+        $this->serviceEmetteurId = $serviceEmetteurId;
+
+        return $this;
+    }
+
+  
+    public function getAgenceDebiteurId()
+    {
+        return $this->agenceDebiteurId;
+    }
+
+    
+    public function setAgenceDebiteurId($agenceDebiteurId): self
+    {
+        $this->agenceDebiteurId = $agenceDebiteurId;
+
+        return $this;
+    }
+
+    
+    public function getServiceDebiteurId()
+    {
+        return $this->serviceDebiteurId;
+    }
+
+    
+    public function setServiceDebiteurId($serviceDebiteurId): self
+    {
+        $this->serviceDebiteurId = $serviceDebiteurId;
+
+        return $this;
+    }
 }
