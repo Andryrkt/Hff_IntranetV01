@@ -267,26 +267,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
 /**
  * sweetalert pur le bouron cloturer dit
  */
-// const cloturerDitInput = document.querySelector("#cloturerDit");
-// cloturerDitInput.addEventListener("click", () => {
-//   alert("Bonjour");
-// });
-// function cloturerDit() {
-//   Swal.fire({
-//     title: "Are you sure?",
-//     text: "You won't be able to revert this!",
-//     icon: "warning",
-//     showCancelButton: true,
-//     confirmButtonColor: "#3085d6",
-//     cancelButtonColor: "#d33",
-//     confirmButtonText: "Yes, delete it!",
-//   }).then((result) => {
-//     if (result.isConfirmed) {
-//       Swal.fire({
-//         title: "Deleted!",
-//         text: "Your file has been deleted.",
-//         icon: "success",
-//       });
-//     }
-//   });
-// }
+const clotureDit = document.querySelectorAll(".clotureDit");
+
+clotureDit.forEach((el) => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    let id = el.getAttribute("data-id");
+
+    Swal.fire({
+      title: "êtes-vous sur?",
+      text: "cette action est irreversible",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "OUI",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Changement de statut!",
+          text: "en CLOTUREE ANNULEE",
+          icon: "success",
+        }).then(() => {
+          window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+        });
+      }
+    });
+  });
+});

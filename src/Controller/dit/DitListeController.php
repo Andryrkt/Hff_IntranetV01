@@ -239,6 +239,10 @@ class DitListeController extends Controller
         $dit->setIdStatutDemande($statutCloturerAnnuler);
         self::$em->persist($dit);
         self::$em->flush();
+
+        $message = "La DIT a été clôturé avec succès.";
+        $this->notification($message);
+
         $this->redirectToRoute("dit_index");
     }
 
@@ -289,6 +293,12 @@ class DitListeController extends Controller
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
             'data' => $data,
         ]);
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'success', 'message' => $message]);
+        $this->redirectToRoute("dit_index");
     }
 
 }

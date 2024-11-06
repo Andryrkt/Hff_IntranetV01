@@ -92,6 +92,7 @@ class DitSearchType extends AbstractType
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',
+            'label_html' => true,
             'class' => WorNiveauUrgence::class,
             'choice_label' => 'description',
             'placeholder' => '-- Choisir une niveau--',

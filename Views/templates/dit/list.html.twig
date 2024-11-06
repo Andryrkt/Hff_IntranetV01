@@ -140,7 +140,7 @@
 										</li>
 										<li>
 											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
-												<a class="dropdown-item fw-bold" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" onclick="return confirm('Êtes-vous sûr(e) ? Cette action est irréversible et mettera la statut de la DIT en CLOTUREE ANNULEE')">Clôturer la DIT</a>
+												<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
 											{% endif %}
 										</li>
 									</ul>
@@ -159,7 +159,7 @@
 							</td>
 							<td>{{ item.typeDocument.description}}</td>
 							<td class="text-center">
-								<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" data-id="{{item.numeroDemandeIntervention}}" id="numOr" data-bs-toggle="tooltip" title="niveau d'urgence">{{ item.idNiveauUrgence.description}}</a>
+								{{ item.idNiveauUrgence.description}}
 							</td>
 							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
 							<td>{{ item.numSerie}}</td>
