@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Form\ticketing;
+namespace App\Form\admin\tik;
 
-use App\Entity\tik\TkiCategorie;
-use App\Entity\tik\TkiSousCategorie;
+use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\admin\tik\TkiSousCategorie;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

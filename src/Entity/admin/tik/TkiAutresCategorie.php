@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\tik;
+namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\tik\TkiSousCategorie;
+use App\Entity\admin\tik\TkiSousCategorie;
 
 /**
  * @ORM\Entity
@@ -34,7 +34,12 @@ class TkiAutresCategorie
      */
     private \DateTimeInterface $dateCreation;
 
-    // Getters and setters
+
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     public function getIdAutresCategorie(): int
     {

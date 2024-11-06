@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Controller\admin\tki;
+namespace App\Controller\admin\tik;
 
 use App\Controller\Controller;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Form\ticketing\DemandeSupportInformatiqueType;
+use App\Form\tik\DemandeSupportInformatiqueType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DemandeSupportInformatiqueController extends Controller

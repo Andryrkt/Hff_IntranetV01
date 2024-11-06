@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\tik;
+namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -31,7 +31,12 @@ class TkiStatutTicketInformatique
      */
     private $dateStatut;
 
-    // ... (getters et setters)
+    
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     /**
      * Get the value of numeroTicket

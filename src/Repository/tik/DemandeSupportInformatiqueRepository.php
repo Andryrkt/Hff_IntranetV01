@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\admin\tik;
+namespace App\Repository\tik;
 
 use Doctrine\ORM\EntityRepository;
 

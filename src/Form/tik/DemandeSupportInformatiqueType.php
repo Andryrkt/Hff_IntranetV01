@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\ticketing;
+namespace App\Form\tik;
 
 use Symfony\Component\Form\AbstractType;
 use App\Entity\tik\DemandeSupportInformatique;

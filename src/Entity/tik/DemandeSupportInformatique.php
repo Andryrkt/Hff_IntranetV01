@@ -2,6 +2,7 @@
 namespace App\Entity\tik;
 
 use Symfony\Component\Validator\Constraints\DateTime;
+use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
@@ -107,6 +108,12 @@ class DemandeSupportInformatique
      */
     private DateTime $Date_Fin_Souhaitee;
 
+
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     /**
      * Get the value of id

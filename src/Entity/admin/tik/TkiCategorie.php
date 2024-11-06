@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\tik;
+namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -39,7 +39,11 @@ class TkiCategorie
         $this->sousCategories = new ArrayCollection();
     }
 
-    // Getters and setters
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     public function getIdCategorie(): int
     {

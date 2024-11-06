@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\ticketing;
+namespace App\Form\admin\tik;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
