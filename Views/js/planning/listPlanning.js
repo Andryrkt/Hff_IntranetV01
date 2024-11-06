@@ -2,53 +2,52 @@
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
 const agenceDebiteurInput = document.querySelector(
-    "#planning_search_agenceDebite"
-  );
-  const serviceDebiteurInput = document.querySelector(
-    "#planning_search_serviceDebite"
-  );
-agenceDebiteurInput.addEventListener('change',selectAgence);
+  "#planning_search_agenceDebite"
+);
+const serviceDebiteurInput = document.querySelector(
+  "#planning_search_serviceDebite"
+);
+agenceDebiteurInput.addEventListener("change", selectAgence);
 
-  function selectAgence() {
-    serviceDebiteurInput.disabled = false;
-    
-    const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((services) => {
-        console.log(services);
+function selectAgence() {
+  serviceDebiteurInput.disabled = false;
 
-        // Effacer les éléments existants dans le conteneur
-        serviceDebiteurInput.innerHTML = ""; 
-      
-        for (var i = 0; i < services.length; i++) {
-          var div = document.createElement("div");
-          div.className = "form-check";
-      
-          var checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.name = 'planning_search[serviceDebite][]';
-          checkbox.value = services[i].value;
-          checkbox.id = "service_" + i;
-          checkbox.className = "form-check-input";
-      
-          var label = document.createElement("label");
-          label.htmlFor = checkbox.id;
-          label.appendChild(document.createTextNode(services[i].text));
-          label.className = "form-check-label";
-      
-          div.appendChild(checkbox);
-          div.appendChild(label);
-      
-          serviceDebiteurInput.appendChild(div);
-        }
-        
-      })
-      .catch((error) => console.error("Error:", error));
-  }
-  
-  /** LIST DETAIL MODAL */
+  const agenceDebiteur = agenceDebiteurInput.value;
+  let url = `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((services) => {
+      console.log(services);
+
+      // Effacer les éléments existants dans le conteneur
+      serviceDebiteurInput.innerHTML = "";
+
+      for (var i = 0; i < services.length; i++) {
+        var div = document.createElement("div");
+        div.className = "form-check";
+
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "planning_search[serviceDebite][]";
+        checkbox.value = services[i].value;
+        checkbox.id = "service_" + i;
+        checkbox.className = "form-check-input";
+
+        var label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        label.appendChild(document.createTextNode(services[i].text));
+        label.className = "form-check-label";
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+
+        serviceDebiteurInput.appendChild(div);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+/** LIST DETAIL MODAL */
 
 document.addEventListener("DOMContentLoaded", (event) => {
   const listeCommandeModal = document.getElementById("listeCommande");
@@ -56,6 +55,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
     const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    const numDit = button.getAttribute("data-numDit");
+    // Mettre à jour le lien avec le numDit dynamique
+    const dossierDitLink = document.getElementById("dossierDitLink");
+    dossierDitLink.href = `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`;
+    console.log(numDit);
 
     // Afficher le spinner et masquer le contenu des données
     document.getElementById("loading").style.display = "block";
@@ -71,80 +75,88 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .then((data) => {
         console.log(data);
-        
+
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
-        
-        
+
         tableBody.innerHTML = ""; // Clear previous data
 
         if (data.length > 0) {
           data.forEach((detail) => {
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`  ;
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
             // Formater la date
-            let dateEtaIvato   ;
-            let dateMagasin ;
-            let dateStatut; 
+            let dateEtaIvato;
+            let dateMagasin;
+            let dateStatut;
             let numCde;
             let statrmq;
             let statut;
             let message;
-            let cmdColorRmq = '';
+            let cmdColorRmq = "";
             let numRef;
-            if(formaterDate(detail.datestatut) == '01/01/1970'   || formaterDate(detail.datestatut) == '01/01/1900' ){
-              dateStatut = '';
-            }else{
+            if (
+              formaterDate(detail.datestatut) == "01/01/1970" ||
+              formaterDate(detail.datestatut) == "01/01/1900"
+            ) {
+              dateStatut = "";
+            } else {
               dateStatut = formaterDate(detail.datestatut);
             }
-            if(detail.Eta_ivato == '' || formaterDate(detail.Eta_ivato) === '01/01/1900' ){
-              dateEtaIvato = '';
-            }else{
-              dateEtaIvato = formaterDate(detail.Eta_ivato)
+            if (
+              detail.Eta_ivato == "" ||
+              formaterDate(detail.Eta_ivato) === "01/01/1900"
+            ) {
+              dateEtaIvato = "";
+            } else {
+              dateEtaIvato = formaterDate(detail.Eta_ivato);
             }
-            if(detail.Eta_magasin == '' || formaterDate(detail.Eta_magasin) === '01/01/1900' ){
-              dateMagasin = '';
-            }else{ 
-              dateMagasin = formaterDate(detail.Eta_magasin)
+            if (
+              detail.Eta_magasin == "" ||
+              formaterDate(detail.Eta_magasin) === "01/01/1900"
+            ) {
+              dateMagasin = "";
+            } else {
+              dateMagasin = formaterDate(detail.Eta_magasin);
             }
-            if(detail.numerocmd == null){
-              numCde = '';
-            }else{
+            if (detail.numerocmd == null) {
+              numCde = "";
+            } else {
               numCde = detail.numerocmd;
             }
-            if(detail.ref == null){
-              numRef = '';
-            }else{
+            if (detail.ref == null) {
+              numRef = "";
+            } else {
               numRef = detail.ref;
             }
-            if(detail.statut_ctrmq == null ){
-              statrmq = '';
-            }else{
+            if (detail.statut_ctrmq == null) {
+              statrmq = "";
+            } else {
               statrmq = detail.statut_ctrmq;
             }
-            if(detail.statut == null ){
-              statut = '';
-            }else{
+            if (detail.statut == null) {
+              statut = "";
+            } else {
               statut = detail.statut;
             }
-            if(detail.message == null ){
-              message = '';
-            }else{
+            if (detail.message == null) {
+              message = "";
+            } else {
               message = detail.message;
             }
-            //reception partiel 
-             let qteSolde = parseInt(detail.qteSlode);
-             let qteQte = parseInt(detail.qte);
+            //reception partiel
+            let qteSolde = parseInt(detail.qteSlode);
+            let qteQte = parseInt(detail.qte);
 
-            if(qteSolde > 0 && qteSolde != qteQte){
+            if (qteSolde > 0 && qteSolde != qteQte) {
               cmdColorRmq = 'style="background-color: yellow;"';
             }
             let cmdColor;
             let Ord = detail.Ord;
-            if(statut =='DISPO STOCK'){
+            if (statut == "DISPO STOCK") {
               cmdColor = 'style="background-color: #c8ad7f; color: white;"';
-            }else if(statut =='Error' || statut =='Back Order'){
+            } else if (statut == "Error" || statut == "Back Order") {
               cmdColor = 'style="background-color: red; color: white;"';
-            }else if (Ord == "ORD"){
+            } else if (Ord == "ORD") {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
 
@@ -156,10 +168,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td ${cmdColorRmq}>${statrmq}</td> 
                       <td>${detail.cst}</td> 
                       <td>${numRef}</td> 
-                      <td>${detail.desi	}</td> 
-                      <td>${parseInt(detail.qteres_or)  }</td> 
-                      <td>${parseInt(detail.qteall)	}</td> 
-                      <td>${parseInt(detail.qtereliquat)	}</td> 
+                      <td>${detail.desi}</td> 
+                      <td>${parseInt(detail.qteres_or)}</td> 
+                      <td>${parseInt(detail.qteall)}</td> 
+                      <td>${parseInt(detail.qtereliquat)}</td> 
                       <td>${parseInt(detail.qteliv)}</td> 
                       <td >${statut}</td> 
                       <td>${dateStatut}</td> 
@@ -199,17 +211,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tableBody.innerHTML = ""; // Vider le tableau
   });
 
-  function formaterDate(daty)
-  {
+  function formaterDate(daty) {
     const date = new Date(daty);
-            return  `${date
-              .getDate()
-              .toString()
-              .padStart(2, "0")}/${(date.getMonth() + 1)
-              .toString()
-              .padStart(2, "0")}/${date.getFullYear()}`;
+    return `${date.getDate().toString().padStart(2, "0")}/${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
   }
-  
 
   /** pour le separateur et fusion des numOR */
   const tableBody = document.querySelector("#tableBody");
@@ -293,4 +302,3 @@ document.addEventListener("DOMContentLoaded", (event) => {
     cellToRowspanService.classList.add("rowspan-cell");
   }
 });
-  

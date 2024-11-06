@@ -28,7 +28,7 @@
 		{% else %}
 			<div class="container">
 				<div class="mb-3">
-				
+
 					<i class="fa-solid fa-circle text-success"></i>
 					<small class="text-success">Tout livré |</small>
 					<i class="fa-solid fa-circle text-warning"></i>
@@ -38,21 +38,22 @@
 					<i class="fa-solid fa-circle text-primary"></i>
 					<small class="text-primary">Complet non livré</small>
 				</div>
-				<div class="d-flex justify-content-between">
+				<div
+					class="d-flex justify-content-between">
 					{# <div>
-						
-						 <a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-							Resultats</p>
-					</div>
-					<div>
-						<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-							pages</p>
-					</div> #}
+																										
+																										 <a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
+																											<i class="fas fa-table"></i>
+																											Excel</a>
+																									</div>
+																									<div>
+																										<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+																											Resultats</p>
+																									</div>
+																									<div>
+																										<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+																											pages</p>
+																									</div> #}
 					<div class="navigation">
 						{% set queryParams = criteria  %}
 
@@ -91,9 +92,9 @@
 					</tr>
 				</thead>
 				<tbody>
-				
+
 					{% for item in data %}
-					
+
 						<tr>
 							<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
 							<td>{{item.idmat}}</td>
@@ -105,45 +106,44 @@
 							{% set classe = '' %}
 
 							{% set moisDetails = item.moisDetails %}
-	
+
 
 							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
 							{% for i in 1..12 %}
 
-							{% set items = moisDetails | filter(mois => mois.mois == i) %}
-												
-							
-								<td class="">
-             					   {% if items is not empty %}
-                 					  {% for item in items %}
+								{% set items = moisDetails | filter(mois => mois.mois == i) %}
 
-									  		{% if item.qteCdm * 1 == item.qteLiv * 1 and item.qteCdm != '' and item.qteLiv != ''%}
-											{# total livré #}
+
+								<td class="">
+									{% if items is not empty %}
+										{% for item in items %}
+											{% if item.qteCdm * 1 == item.qteLiv * 1 and item.qteCdm != '' and item.qteLiv != ''%}
+												{# total livré #}
 												{% set classe = 'bg-success text-white' %}
 											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1 != item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
-											{# partiellement livré #}
+												{# partiellement livré #}
 												{% set classe = 'bg-warning text-white' %}
 											{% elseif item.qteCdm * 1 != item.qteAll * 1 and item.qteLiv * 1 == 0 and item.qteAll * 1 > 0 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
 												{% set classe = 'bg-info text-white' %}
-											{# partiellement dispo #}
+												{# partiellement dispo #}
 											{%  elseif item.qteCdm * 1 == item.qteAll * 1 and item.qteLiv * 1 < item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
 												{% set classe = 'bg-primary text-white' %}
-											{# complet non livré #}
+												{# complet non livré #}
 											{% else %}
 												{% set classe = '' %}
 											{% endif %}
-                     				   <a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
-											{{ item.orIntv }}
-                     				   </a><br>
-                  				  {% endfor %}
-                					{% else %}
-                				    <!-- Contenu pour les mois sans valeur -->
-                    					-
-               					 {% endif %}
+											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
+												{{ item.orIntv }}
+											</a><br>
+										{% endfor %}
+									{% else %}
+										<!-- Contenu pour les mois sans valeur -->
+										-
+									{% endif %}
 								</td>
 							{% endfor %}
 						</tr>
-				     {% endfor %}
+					{% endfor %}
 				</tbody>
 			</table>
 		{% endif %}

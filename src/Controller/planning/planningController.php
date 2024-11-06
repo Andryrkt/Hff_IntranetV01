@@ -7,6 +7,7 @@ use App\Model\planning\PlanningModel;
 
 use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
@@ -73,7 +74,7 @@ class PlanningController extends Controller
                 $data = [];
             }
             
-            
+
             $table = [];
             //Recuperation de idmat et les truc
             foreach ($data as $item ) {
@@ -96,38 +97,39 @@ class PlanningController extends Controller
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
                         ->setQteAll($item['qteall'])
+                        ->setNumDit(self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getNumeroDemandeIntervention())
                         ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'])
                     ;
                     $table[] = $planningMateriel;
             }
 
 
-// Fusionner les objets en fonction de l'idMat
+            // Fusionner les objets en fonction de l'idMat
 
-$fusionResult = [];
-foreach ($table as $materiel) {
-    $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+            $fusionResult = [];
+            foreach ($table as $materiel) {
+                $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
 
-    if (!isset($fusionResult[$key])) {
-        $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
-    } else {
-        // Si l'élément existe déjà, on fusionne les détails des mois
-        foreach ($materiel->moisDetails as $moisDetail) {
-            $fusionResult[$key]->addMoisDetail(
-                $moisDetail['mois'],
-                $moisDetail['orIntv'],
-                $moisDetail['qteCdm'],
-                $moisDetail['qteLiv'],
-                $moisDetail['qteAll']
-            );
-        }
-    }
-}
-// dump($fusionResult);
+                if (!isset($fusionResult[$key])) {
+                    $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+                } else {
+                    // Si l'élément existe déjà, on fusionne les détails des mois
+                    foreach ($materiel->moisDetails as $moisDetail) {
+                        $fusionResult[$key]->addMoisDetail(
+                            $moisDetail['mois'],
+                            $moisDetail['orIntv'],
+                            $moisDetail['qteCdm'],
+                            $moisDetail['qteLiv'],
+                            $moisDetail['qteAll']
+                        );
+                    }
+                }
+            }
+
+            // dump($fusionResult);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $fusionResult
-
             ]);
         }
 
@@ -158,7 +160,7 @@ foreach ($table as $materiel) {
             $details = [];
         } else {
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
-        
+            //$numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $detailes = [];
             $recupPariel = [];
             $recupGot = [];
@@ -195,9 +197,11 @@ foreach ($table as $materiel) {
                 }else{
                     $details[$i]['Ord'] = "";
                 }
-                
+            
+                // $detatils[$i]['numDit'] = $numDit;
             }
 
+            
         }
 
         // dd($details);
