@@ -83,7 +83,8 @@ class DemandeSupportInformatiqueType extends AbstractType
                     return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                 },
             //'data' => $options['data']->getService(),
-                'attr' => [ 'class' => 'serviceDebiteur']
+                'attr' => [ 'class' => 'serviceDebiteur',
+                'disabled' => true,]
             ]);
             
         })
@@ -141,7 +142,7 @@ class DemandeSupportInformatiqueType extends AbstractType
         
         ->add('dateFinSouhaitee', DateType::class, [
             'widget' => 'single_text',
-            'label' => 'Date prévue travaux *',
+            'label' => 'Date fin souhaitee *',
             'required' => true,
         ])
         ->add('objetDemande',
@@ -229,13 +230,13 @@ class DemandeSupportInformatiqueType extends AbstractType
             )
 
             ->add('categorie', EntityType::class, [
-                'label' => 'Catégorie',
+                'label' => 'Catégorie *',
                 'placeholder' => ' -- Choisir une catégorie',
                 'class' => TkiCategorie::class,
                 'choice_label' => 'description'
             ])
             ->add('parcInformatique', TextType::class, [
-                'label' => 'Parc informatique'
+                'label' => 'Parc informatique *'
             ])
         ;
     }
