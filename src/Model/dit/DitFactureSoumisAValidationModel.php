@@ -80,8 +80,8 @@ class DitFactureSoumisAValidationModel extends Model
     {
         $statement = " SELECT 
                 CASE 
-                    WHEN COUNT(*) > 0 THEN 'Partiellement facturé'
-                    ELSE 'Complètement facturé'
+                    WHEN COUNT(*) > 0 THEN 'PF'
+                    ELSE 'CF'
                 END AS etat_facturation_or
             FROM sav_lor
             WHERE slor_numor = '".$numOr."' 
