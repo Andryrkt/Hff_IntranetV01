@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -35,6 +36,7 @@ class DemandeSupportInformatiqueController extends Controller
             $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
             $userId = $this->sessionService->get('user_id');
             $user = self::$em->getRepository(User::class)->find($userId);
+            $statut = self::$em->getRepository(StatutDemande::class)->find('79');
             /** 
              * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
              * */
@@ -50,6 +52,7 @@ class DemandeSupportInformatiqueController extends Controller
                 ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
                 ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
                 ->setNumeroTicket($this->autoINcriment('TIK'))
+                ->setIdStatutDemande($statut)
             ;
             
              //RECUPERATION de la dernière NumeroDemandeIntervention 
@@ -62,6 +65,9 @@ class DemandeSupportInformatiqueController extends Controller
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
+
+            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->redirectToRoute("liste_tik_index");
         }
 
         self::$twig->display('tik/demandeSupportInformatique/new.html.twig', [

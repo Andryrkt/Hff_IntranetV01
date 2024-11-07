@@ -3,7 +3,9 @@ namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\Traits\AgenceServiceTrait;
@@ -11,7 +13,6 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
-use App\Entity\Traits\DateTrait;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
@@ -186,6 +187,12 @@ class DemandeSupportInformatique
      * 
      */
     private $userId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="supportInfo")
+     * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
+     */
+    private $idStatutDemande = null;
 
     /**=====================================================================================
      * 
@@ -738,5 +745,23 @@ class DemandeSupportInformatique
         return $this;
     }
 
-    
+    /**
+     * Get the value of idStatutDemande
+     */ 
+    public function getIdStatutDemande()
+    {
+        return $this->idStatutDemande;
+    }
+
+    /**
+     * Set the value of idStatutDemande
+     *
+     * @return  self
+     */ 
+    public function setIdStatutDemande($idStatutDemande)
+    {
+        $this->idStatutDemande = $idStatutDemande;
+
+        return $this;
+    }
 }
