@@ -11,7 +11,7 @@ class CisALivrerModel extends Model
     use ConversionModel;
     use ConditionModelTrait;
     
-    public function listOrALivrer(array $criteria = []): array
+    public function listOrALivrer(array $criteria = [], string $numORItvValides): array
     {
         $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
         $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
@@ -116,7 +116,7 @@ class CisALivrerModel extends Model
                         $orCompletOuNon
                     )
                 -- Ajouter des conditions supplémentaires ici pour la validation DocuWare
-                -- AND slor_numor IN (<liste_or_validé_docuware>) 
+                AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')
                 ORDER BY 
                     slor_numor, 
                     slor_nogrp, 

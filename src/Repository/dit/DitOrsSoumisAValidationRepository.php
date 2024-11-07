@@ -7,6 +7,18 @@ use Doctrine\ORM\EntityRepository;
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
 
+    public function findNumOrItvValide()
+    {
+        $query = $this->createQueryBuilder('osv')
+        ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
+        ->where('osv.statut IN (:statut)')
+        ->setParameter('statut', ['Validé', 'Livré'])
+        ->getQuery()
+        ->getSingleColumnResult();
+    
+        return $query;
+    }
+
     public function findNbrItv($numOr)
     {
         $nbrItv = $this->createQueryBuilder('osv')

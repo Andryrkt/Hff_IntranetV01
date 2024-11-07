@@ -11,7 +11,7 @@ class CisATraiterModel extends Model
     use ConversionModel;
     use ConditionModelTrait;
     
-    public function listOrATraiter(array $criteria = []): array
+    public function listOrATraiter(array $criteria = [], string $numORItvValides): array
     {
         //condition de recherche
         $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
@@ -107,7 +107,7 @@ class CisATraiterModel extends Model
                     $agence
                     $service
                 -- Ajouter d'autres conditions si nécessaire pour les pièces magasin et les achats locaux
-                -- AND slor_numor IN (<liste_or_validé_docuware>)
+                AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')
                 ORDER BY 
                     slor_datel, -- Date planning
                     slor_numor";
