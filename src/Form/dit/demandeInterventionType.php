@@ -286,6 +286,7 @@ class demandeInterventionType extends AbstractType
             ->add('idNiveauUrgence', 
             EntityType::class, [
                 'label' => 'Niveau d\'urgence *',
+                'label_html' => true,
                 'placeholder' => '-- Choisir un niveau --',
                 'class' => WorNiveauUrgence::class,
                 'choice_label' =>'description',
