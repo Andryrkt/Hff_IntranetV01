@@ -117,26 +117,26 @@ class DemandeSupportInformatiqueType extends AbstractType
         ->add('agenceEmetteur', 
         TextType::class,
         [
-        'mapped' => false,
-                    'label' => 'Agence *',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true
-                    ],
-                    'data' =>  null
+            'mapped' => false,
+            'label' => 'Agence *',
+            'required' => false,
+            'attr' => [
+                'readonly' => true
+            ],
+            'data' => $options["data"]->getAgenceEmetteur() ?? null
         ])
     
         ->add('serviceEmetteur', 
         TextType::class,
         [
             'mapped' => false,
-                    'label' => 'Service *',
-                    'required' => false,
-                    'attr' => [
-                        'readonly' => true,
-                        'disable' => true
-                    ],
-                    'data' =>  null
+            'label' => 'Service *',
+            'required' => false,
+            'attr' => [
+                'readonly' => true,
+                'disable' => true
+            ],
+            'data' => $options["data"]->getServiceEmetteur() ?? null
         ])
         
         

@@ -5,22 +5,26 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\DateTrait;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
  * @ORM\Table(name="Demande_Support_Informatique")
+ * @ORM\HasLifecycleCallbacks
  */
 class DemandeSupportInformatique
 {
     use AgenceServiceEmetteurTrait;
     use AgenceServiceTrait;
+    use DateTrait;
 
     /**
      * @ORM\Id
@@ -30,9 +34,14 @@ class DemandeSupportInformatique
     private int $id;
 
     /**
-     * @ORM\Column(type="datetime", name="Date_Creation")
+     * @ORM\Column(type="string", length=11, name="Numero_Ticket")
      */
-    private $dateCreation;
+    private string $numeroTicket;
+
+    /**
+     * @ORM\Column(type="string", length=5, name="heure_creation")
+     */
+    private $heureCreation;
 
     /**
      * @ORM\Column(type="string", length=50, name="Utilisateur_Demandeur")
@@ -56,19 +65,19 @@ class DemandeSupportInformatique
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKI_Categorie", referencedColumnName="ID_Categorie")
      */
     private ?TkiCategorie $categorie;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiSousCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_Sous_Categorie", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Sous_Categorie", referencedColumnName="ID_Sous_Categorie")
      */
     private ?TkiSousCategorie $sousCategorie;
 
    /**
      * @ORM\ManyToOne(targetEntity=TkiAutresCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_Autres_Categorie", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Autres_Categorie", referencedColumnName="ID_Autres_Categorie")
      */
     private ?TkiAutresCategorie $autresCategorie = null;
 
@@ -105,17 +114,17 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe1")
      */
-    private ?string $pieceJointe01 = null;
+    private ?string $pieceJoint01 = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe2")
      */
-    private ?string $pieceJointe02 = null;
+    private ?string $pieceJoint02 = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="Piece_Jointe3")
      */
-    private ?string $pieceJointe03 = null;
+    private ?string $pieceJoint03 = null;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Deb_Planning")
@@ -129,7 +138,7 @@ class DemandeSupportInformatique
 
     /**
      * @ORM\ManyToOne(targetEntity=WorNiveauUrgence::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="id", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, name="ID_Niveau_Urgence", referencedColumnName="id")
      */
     private int $niveauUrgence;
 
@@ -171,6 +180,13 @@ class DemandeSupportInformatique
      */
     private  $serviceDebiteurId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoUser")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * 
+     */
+    private $userId;
+
     /**=====================================================================================
      * 
      * GETTERS and SETTERS
@@ -185,14 +201,43 @@ class DemandeSupportInformatique
         return $this->id;
     }
 
-    public function getDateCreation()
+    /**
+     * Get the value of numeroTicket
+     */ 
+    public function getNumeroTicket()
     {
-        return $this->dateCreation;
+        return $this->numeroTicket;
     }
 
-    public function setDateCreation($dateCreation): self
+    /**
+     * Set the value of numeroTicket
+     *
+     * @return  self
+     */ 
+    public function setNumeroTicket($numeroTicket)
     {
-        $this->dateCreation = $dateCreation;
+        $this->numeroTicket = $numeroTicket;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of heureCreation
+     */ 
+    public function getHeureCreation()
+    {
+        return $this->heureCreation;
+    }
+
+    /**
+     * Set the value of heureCreation
+     *
+     * @return  self
+     */ 
+    public function setHeureCreation($heureCreation)
+    {
+        $this->heureCreation = $heureCreation;
+
         return $this;
     }
 
@@ -461,9 +506,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe1
      */ 
-    public function getPieceJointe01()
+    public function getPieceJoint01()
     {
-        return $this->pieceJointe01;
+        return $this->pieceJoint01;
     }
 
     /**
@@ -471,9 +516,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe01($pieceJointe1)
+    public function setPieceJoint01($pieceJointe1)
     {
-        $this->pieceJointe01 = $pieceJointe1;
+        $this->pieceJoint01 = $pieceJointe1;
 
         return $this;
     }
@@ -481,9 +526,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe2
      */ 
-    public function getPieceJointe02()
+    public function getPieceJoint02()
     {
-        return $this->pieceJointe02;
+        return $this->pieceJoint02;
     }
 
     /**
@@ -491,9 +536,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe02($pieceJointe2)
+    public function setPieceJoint02($pieceJointe2)
     {
-        $this->pieceJointe02 = $pieceJointe2;
+        $this->pieceJoint02 = $pieceJointe2;
 
         return $this;
     }
@@ -501,9 +546,9 @@ class DemandeSupportInformatique
     /**
      * Get the value of pieceJointe3
      */ 
-    public function getPieceJointe03()
+    public function getPieceJoint03()
     {
-        return $this->pieceJointe03;
+        return $this->pieceJoint03;
     }
 
     /**
@@ -511,9 +556,9 @@ class DemandeSupportInformatique
      *
      * @return  self
      */ 
-    public function setPieceJointe03($pieceJointe3)
+    public function setPieceJoint03($pieceJointe3)
     {
-        $this->pieceJointe03 = $pieceJointe3;
+        $this->pieceJoint03 = $pieceJointe3;
 
         return $this;
     }
@@ -673,4 +718,25 @@ class DemandeSupportInformatique
         return $this;
     }
 
+    /**
+     * Get the value of userId
+     */ 
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * Set the value of userId
+     *
+     * @return  self
+     */ 
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    
 }

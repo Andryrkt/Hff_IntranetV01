@@ -250,6 +250,7 @@ class Agence
         
         return $this;
     }
+    
     public function setDitAgenceEmetteurs($ditAgenceEmetteur)
     {
         $this->ditAgenceEmetteur = $ditAgenceEmetteur;
