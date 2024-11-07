@@ -60,10 +60,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const dossierDitLink = document.getElementById("dossierDitLink");
     console.log(numDit);
     console.log(dossierDitLink);
-    dossierDitLink.addEventListener("click", (event) => {
+    dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(`/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`, '_blank');
-    })
+    };
     
     // Afficher le spinner et masquer le contenu des données
     document.getElementById("loading").style.display = "block";

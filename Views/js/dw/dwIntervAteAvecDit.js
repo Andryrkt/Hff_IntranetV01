@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const numeroDoc = this.dataset.doc;
       const nomDoc = this.dataset.nomdoc;
       const numeroVersion = this.dataset.version;
+console.log(numeroDoc);
+console.log(nomDoc);
+console.log(numeroVersion);
+
+
 
       const url = `/Hffintranet/dw-chemin-fetch/${numeroDoc}/${nomDoc}/${numeroVersion}`;
       fetch(url, {
@@ -25,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return response.json();
         })
         .then((data) => {
+          
           console.log(data.chemin.chemin);
           afficherFichier(data.chemin.chemin);
         })

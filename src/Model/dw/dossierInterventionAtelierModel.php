@@ -374,6 +374,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-        return array_column($this->ConvertirEnUtf_8($tab), 'chemin');
+        return $this->ConvertirEnUtf_8($tab);
     }
 }
