@@ -20,7 +20,13 @@ trait DitFactureSoumisAValidationtrait
 
     private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string
     {
-        return  $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR());
+        $etatFac = $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR())[0];
+
+        if($etatFac == 'PF'){
+            return 'Partiellement facturé';
+        } else {
+            return 'Complètement facturé';
+        }
     }
 
 

@@ -110,24 +110,7 @@ class DitFactureSoumisAValidationController extends Controller
                 if($estRi){
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->notification($message);
-                } else {
-                
-                    /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                    // Persist les entités liées
-                    foreach ($factureSoumisAValidation as $entity) {
-                        self::$em->persist($entity); // Persister chaque entité individuellement
-                    }
-                    $historique = new DitHistoriqueOperationDocument();
-                        $historique->setNumeroDocument($dataForm->getNumeroFact())
-                            ->setUtilisateur($this->nomUtilisateur(self::$em))
-                            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
-                            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                            ;
-                        self::$em->persist($historique); // Persist l'historique avec les entités liées
-                        // Flushe toutes les entités et l'historique
-                        
-                        self::$em->flush();
-                    
+                } else {                    
                         /** CREATION PDF */
                     $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
                     
@@ -150,6 +133,23 @@ class DitFactureSoumisAValidationController extends Controller
                     $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
                     $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
                 
+
+                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
+                    // Persist les entités liées
+                    foreach ($factureSoumisAValidation as $entity) {
+                        self::$em->persist($entity); // Persister chaque entité individuellement
+                    }
+                    $historique = new DitHistoriqueOperationDocument();
+                        $historique->setNumeroDocument($dataForm->getNumeroFact())
+                            ->setUtilisateur($this->nomUtilisateur(self::$em))
+                            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
+                            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
+                            ;
+                        self::$em->persist($historique); // Persist l'historique avec les entités liées
+                        // Flushe toutes les entités et l'historique
+                        
+                        self::$em->flush();
+
                     $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                     $this->redirectToRoute("dit_index");
                 }

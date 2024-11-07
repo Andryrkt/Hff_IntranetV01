@@ -29,8 +29,14 @@
 					<div class="row">
 						<div class="col-12 col-md-6">
 							<div class="row">
-								<div class="col-12 col-md-6">{{ form_row(form.numeroDit)}}</div>
-								<div class="col-12 col-md-6">{{ form_row(form.numeroOR)}}</div>
+								<div class="col-12 col-md-6">{{ form_row(form.numeroDit)}}
+									{{ form_errors(form.numeroDit)}}
+								</div>
+								<div class="col-12 col-md-6">
+									{{ form_row(form.numeroOR)}}
+									{{ form_errors(form.numeroOR)}}
+
+								</div>
 							</div>
 						</div>
 						<div class="row">
@@ -70,6 +76,7 @@
 									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint01)}}
 								<!-- Conteneur pour afficher le nom du fichier -->
 								<div class="file-name-1" style="margin-top: 10px;"></div>
 								<div class="file-size" id="file-size-1"></div>
@@ -85,6 +92,7 @@
 									<button type="button" id="upload-btn-2" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint02, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint02)}}
 								<!-- Conteneur pour afficher le nom du fichier -->
 								<div class="file-name-2" style="margin-top: 10px;"></div>
 								<div class="file-size" id="file-size-2"></div>
@@ -100,6 +108,7 @@
 									<button type="button" id="upload-btn-3" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint03, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint03)}}
 								<!-- Conteneur pour afficher le nom du fichier -->
 								<div class="file-name-3" style="margin-top: 10px;"></div>
 								<div class="file-size" id="file-size-3"></div>
@@ -116,6 +125,7 @@
 									<button type="button" id="upload-btn-4" class="btn btn-primary">Sélectionner un fichier</button>
 								</div>
 								{{ form_widget(form.pieceJoint04, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint04)}}
 								<!-- Conteneur pour afficher le nom du fichier -->
 								<div class="file-name-4" style="margin-top: 10px;"></div>
 								<div class="file-size" id="file-size-4"></div>
