@@ -32,7 +32,8 @@ class CisATraiterController extends Controller
 
         $form->handleRequest($request);
         $criteria = [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
+            'orValide' => true
         ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();

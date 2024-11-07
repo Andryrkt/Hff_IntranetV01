@@ -13,6 +13,7 @@ class CisALivrerModel extends Model
     
     public function listOrALivrer(array $criteria = [], string $numORItvValides): array
     {
+        $orValide = $this->conditionOrValide($criteria['orValide'], $numORItvValides);
         $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
         $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
         $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
@@ -116,7 +117,7 @@ class CisALivrerModel extends Model
                         $orCompletOuNon
                     )
                 -- Ajouter des conditions supplémentaires ici pour la validation DocuWare
-                AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')
+                $orValide
                 ORDER BY 
                     slor_numor, 
                     slor_nogrp, 

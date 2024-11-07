@@ -14,6 +14,7 @@ class CisATraiterModel extends Model
     public function listOrATraiter(array $criteria = [], string $numORItvValides): array
     {
         //condition de recherche
+        $orValide = $this->conditionOrValide($criteria['orValide'], $numORItvValides);
         $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
         $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
         $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
@@ -107,7 +108,7 @@ class CisATraiterModel extends Model
                     $agence
                     $service
                 -- Ajouter d'autres conditions si nécessaire pour les pièces magasin et les achats locaux
-                AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')
+                $orValide
                 ORDER BY 
                     slor_datel, -- Date planning
                     slor_numor";
