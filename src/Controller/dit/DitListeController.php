@@ -10,9 +10,11 @@ use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
+use App\Entity\admin\StatutDemande;
 use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\DossierInterventionAtelierModel;
 
 class DitListeController extends Controller
 {
@@ -194,9 +196,8 @@ class DitListeController extends Controller
         $this->ajoutNbrPj($entities, self::$em);
 
           //recuperation de numero de serie et parc pour l'affichage
-          $this->ajoutNumSerieNumParc($entities);
-          
-          
+            $this->ajoutNumSerieNumParc($entities); 
+
     // Convertir les entités en tableau de données
     $data = [];
     $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
@@ -224,56 +225,80 @@ class DitListeController extends Controller
         ];
     }
 
-         $this->excelService->createSpreadsheet($data);
+        $this->excelService->createSpreadsheet($data);
     }
 
 
     /**
-     * @Route("/command-modal/{numOr}", name="liste_commandModal")
-     *
-     * @return void
+     * @Route("/cloturer-annuler/{id}", name="cloturer_annuler_dit_liste")
      */
-    public function commandModal($numOr)
+    public function clotureStatut($id)
     {
-        //RECUPERATION DE LISTE COMMANDE 
-        if ($numOr === '') {
-            $commandes = [];
-        } else {
-            $commandes = $this->ditModel->RecupereCommandeOr($numOr);
+        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+
+        $message = "La DIT a été clôturé avec succès.";
+        $this->notification($message);
+
+        $this->redirectToRoute("dit_index");
+    }
+
+    /**
+     * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
+     */
+    public function dwintervAteAvecDit($numDit)
+    {
+        $dwModel = new DossierInterventionAtelierModel();
+    
+        // Récupérer les données de la demande d'intervention et de l'ordre de réparation
+        $dwDit = $dwModel->findDwDit($numDit) ?? [];
+        foreach ($dwDit as $key =>$value) {
+            $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
         }
+        // dump($dwDit);
+        $dwOr = $dwModel->findDwOr($numDit) ?? [];
+        // dump($dwOr);
+        $dwfac = [];
+        $dwRi = [];
+        $dwCde = [];
 
-        header("Content-type:application/json");
+        // Si un ordre de réparation est trouvé, récupérer les autres données liées
+        if (!empty($dwOr)) {
+            $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
+            $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
+            $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
 
-        echo json_encode($commandes);
-    }
-
-    /**
-     * @Route("/section-affectee-modal-fetch/{id}", name="section_affectee_modal")
-     *
-     * @return void
-     */
-    public function sectionAffecteeModal($id)
-    {
-        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section'];
-
-        // Récupération des données
-        $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
-        
-        // Parcourir chaque élément du tableau et supprimer les mots
-        foreach ($sectionSupportAffectee as &$value) {
-            foreach ($value as &$texte) {
-                // Vérification si c'est bien une chaîne de caractères avant d'effectuer le remplacement
-                if (is_string($texte)) {
-                    $texte = str_replace($motsASupprimer, '', $texte);
-                    $texte = trim($texte); // Supprimer les espaces en trop après remplacement
-                }
+            foreach ($dwOr as $key =>$value) {
+                $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
+            }
+            
+            foreach ($dwfac as $key =>$value) {
+                $dwfac[$key]['nomDoc'] = 'Facture';
+            }
+            
+            foreach ($dwRi as $key =>$value) {
+                $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
+            }
+            foreach ($dwCde as $key =>$value) {
+                $dwCde[$key]['nomDoc'] = 'Commande';
             }
         }
-        
 
-        header("Content-type:application/json");
+        // Fusionner toutes les données dans un tableau associatif
+        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
 
-        echo json_encode($sectionSupportAffectee);
+        self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
+            'data' => $data,
+        ]);
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'success', 'message' => $message]);
+        $this->redirectToRoute("dit_index");
     }
 
 }

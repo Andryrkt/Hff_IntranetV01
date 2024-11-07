@@ -3,6 +3,7 @@
 namespace App\Form\magasin;
 
 
+use Doctrine\ORM\EntityRepository;
 use App\Model\magasin\MagasinModel;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -58,6 +59,10 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'choice_label' => 'description',
             'placeholder' => '-- Choisir un niveau --',
             'required' => false,
+            'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
         ])
         ->add('numDit', TextType::class, [
             'label' => 'n° DIT',

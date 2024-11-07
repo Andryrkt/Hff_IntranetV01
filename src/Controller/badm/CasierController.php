@@ -64,9 +64,8 @@ class CasierController extends Controller
                     $this->sessionService->set('casierform1Data', $formData);
                     $this->redirectToRoute("casiser_formulaireCasier");
                 }
-
             }
-           
+            
 
             self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',

@@ -7,6 +7,7 @@ use App\Model\planning\PlanningModel;
 
 use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
@@ -19,12 +20,10 @@ class PlanningController extends Controller
     use PlanningTraits;
         private PlanningModel $planningModel;
         
-           public function __construct()
+        public function __construct()
         {
             parent::__construct();
             $this->planningModel = new PlanningModel();
-          
-
         }
 
         /**
@@ -44,7 +43,7 @@ class PlanningController extends Controller
                 ->setTypeLigne('TOUETS')
             ;
         
-           
+            
             
             $form = self::$validator->createBuilder(PlanningSearchType::class,$planningSearch,
             [ 
@@ -66,25 +65,22 @@ class PlanningController extends Controller
             //recupères les données du criteria dans une session nommé dit_serch_criteria
             $this->sessionService->set('planning_search_criteria', $criteriaTAb);
 
-           
-            if($request->query->get('action') !== 'oui') {
-               
+            
+            if($request->query->get('action') !== 'oui') 
+            {
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-                
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+                $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             } else {
                 $data = [];
             }
             
-            
-           
-             
             $table = [];
             //Recuperation de idmat et les truc
             foreach ($data as $item ) {
                 $planningMateriel = new PlanningMateriel();
+                $numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getNumeroDemandeIntervention();
                   //initialisation
-                 $planningMateriel
+                    $planningMateriel
                         ->setCodeSuc($item['codesuc'])
                         ->setLibSuc($item['libsuc'])
                         ->setCodeServ($item['codeserv'])
@@ -101,54 +97,58 @@ class PlanningController extends Controller
                         ->setQteCdm($item['qtecdm'])
                         ->setQteLiv($item['qtliv'])
                         ->setQteAll($item['qteall'])
-                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'])
+                        ->setNumDit($numDit)
+                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit)
                     ;
                     $table[] = $planningMateriel;
             }
 
 
-// Fusionner les objets en fonction de l'idMat
+            // Fusionner les objets en fonction de l'idMat
 
-$fusionResult = [];
-foreach ($table as $materiel) {
-    $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+            $fusionResult = [];
+            foreach ($table as $materiel) {
+                $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
 
-    if (!isset($fusionResult[$key])) {
-        $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
-    } else {
-        // Si l'élément existe déjà, on fusionne les détails des mois
-        foreach ($materiel->moisDetails as $moisDetail) {
-            $fusionResult[$key]->addMoisDetail(
-                $moisDetail['mois'],
-                $moisDetail['orIntv'],
-                $moisDetail['qteCdm'],
-                $moisDetail['qteLiv'],
-                $moisDetail['qteAll']
-            );
-        }
-    }
-}
-// dump($fusionResult);
+                if (!isset($fusionResult[$key])) {
+                    $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+                } else {
+                    // Si l'élément existe déjà, on fusionne les détails des mois
+                    foreach ($materiel->moisDetails as $moisDetail) {
+
+                        $fusionResult[$key]->addMoisDetail(
+                            $moisDetail['mois'],
+                            $moisDetail['orIntv'],
+                            $moisDetail['qteCdm'],
+                            $moisDetail['qteLiv'],
+                            $moisDetail['qteAll'],
+                            $moisDetail['numDit']
+                        );
+                    }
+                    
+                }
+            }
+
+            //dump($fusionResult);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $fusionResult
-
             ]);
         }
 
 
-     /**
+    /**
      * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
      */
     public function serviceDebiteur($agenceId)
     {
         $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
-       
+        
         header("Content-type:application/json");
 
         echo json_encode($serviceDebiteur);
     }
-   
+    
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -163,15 +163,13 @@ foreach ($table as $materiel) {
             $details = [];
         } else {
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
-        
+            //$numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $detailes = [];
             $recupPariel = [];
             $recupGot = [];
-            for ($i=0; $i < count($details); $i++) { 
-
-               
+            for ($i=0; $i < count($details); $i++) {
                 if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
-                   $recupGot = [];
+                    $recupGot = [];
                 } else {
                     $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
                     $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
@@ -198,18 +196,18 @@ foreach ($table as $materiel) {
                 }
                 // dump($recupGot);
                 if(!empty($recupGot)){
-                   
                     $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
-
                 }else{
-                     $details[$i]['Ord'] = "";
+                    $details[$i]['Ord'] = "";
                 }
-                
+            
+                 //$detatils[$i]['numDit'] = $numDit;
             }
 
+            
         }
 
-        // dd($details);
+        //dd($details);
         header("Content-type:application/json");
 
         echo json_encode($details);

@@ -2,6 +2,9 @@
 
 namespace App\Controller\dit;
 
+ini_set('upload_max_filesize', '5M');
+ini_set('post_max_size', '5M');
+
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
@@ -109,19 +112,24 @@ class DitOrsSoumisAValidationController extends Controller
                                     ;
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 
+                $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+                $demandeIntervention->setStatutOr('Soumis à validation');
+                self::$em->persist($demandeIntervention);
+                
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                // Persist les entités liées
-               if(count($orSoumisValidataion) > 1){
-                   foreach ($orSoumisValidataion as $entity) {
+                if(count($orSoumisValidataion) > 1){
+                    foreach ($orSoumisValidataion as $entity) {
                        // Persist l'entité et l'historique
                        self::$em->persist($entity); // Persister chaque entité individuellement
                     }
                 } elseif(count($orSoumisValidataion) === 1) {
                     self::$em->persist($orSoumisValidataion[0]);
-                } 
+                }
+                
                 $historique = new DitHistoriqueOperationDocument();
                 $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
-                    ->setUtilisateur($this->nomUtilisateur(self::$em))
+                    ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
                     ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(1))
                     ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
                     ;
@@ -136,7 +144,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
                 $quelqueaffichage = $this->quelqueAffichage($ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage);
+                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());

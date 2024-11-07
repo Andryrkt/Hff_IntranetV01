@@ -2,6 +2,9 @@
 
 namespace App\Controller\dit;
 
+ini_set('upload_max_filesize', '5M');
+ini_set('post_max_size', '5M');
+
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -96,7 +99,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $estRi = false;
                 $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
-               
+                
                 if(empty($riSoumis)){
                     $estRi = true;                
                 } else {
@@ -107,6 +110,7 @@ class DitFactureSoumisAValidationController extends Controller
                         }
                     }
                 }
+
                 if($estRi){
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->notification($message);
@@ -121,6 +125,7 @@ class DitFactureSoumisAValidationController extends Controller
                     $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
                     $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
+                    
                     $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
                     $demandeIntervention->setEtatFacturation($etatOr);
                     self::$em->persist($demandeIntervention);
@@ -128,20 +133,19 @@ class DitFactureSoumisAValidationController extends Controller
 
 
                     $genererPdfFacture = new GenererPdfFactureAValidation();
-                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr);
+                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur']);
                     //envoie des pièce jointe dans une dossier et la fusionner
                     $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
                     $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
                 
-
-                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
+                    /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
                     foreach ($factureSoumisAValidation as $entity) {
                         self::$em->persist($entity); // Persister chaque entité individuellement
                     }
                     $historique = new DitHistoriqueOperationDocument();
                         $historique->setNumeroDocument($dataForm->getNumeroFact())
-                            ->setUtilisateur($this->nomUtilisateur(self::$em))
+                            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
                             ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
                             ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
                             ;

@@ -2,6 +2,9 @@
 
 namespace App\Controller\dit;
 
+ini_set('upload_max_filesize', '5M');
+ini_set('post_max_size', '5M');
+
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\DitTypeDocument;

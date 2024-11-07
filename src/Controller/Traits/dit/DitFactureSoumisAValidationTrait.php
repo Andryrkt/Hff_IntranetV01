@@ -15,7 +15,10 @@ trait DitFactureSoumisAValidationtrait
     private function nomUtilisateur($em){
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
-        return $user->getNomUtilisateur();
+        return [
+            'nomUtilisateur' => $user->getNomUtilisateur(),
+            'emailUtilisateur' => $user->getMail()
+        ];
     }
 
     private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string

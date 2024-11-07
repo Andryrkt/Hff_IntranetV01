@@ -311,7 +311,9 @@ trait DitOrSoumisAValidationTrait
                                 ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
                                 ->setMontantFraisDivers($orSoumis['montant_divers'])
                                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
-                                ->setLibellelItv($orSoumis['libelle_itv']);
+                                ->setLibellelItv($orSoumis['libelle_itv'])
+                                ->setStatut('Soumis à validation')
+                                ;
                     
                     $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
                 
@@ -366,6 +368,11 @@ private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAVa
 private function nomUtilisateur($em){
     $userId = $this->sessionService->get('user_id', []);
     $user = $em->getRepository(User::class)->find($userId);
-    return $user->getNomUtilisateur();
+    return [
+        'nomUtilisateur' => $user->getNomUtilisateur(),
+        'mailUtilisateur' => $user->getMail()
+    ];
 }
+
+
 }
