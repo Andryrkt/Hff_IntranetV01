@@ -247,6 +247,15 @@ trait DitListTrait
         return in_array(1, $roleIds) || in_array(4, $roleIds);
     }
 
+    private function autorisationRoleEnergie($em): bool
+    {
+        /** CREATION D'AUTORISATION */
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = $em->getRepository(User::class)->find($userId);
+        $roleIds = $userConnecter->getRoleIds();
+        return in_array(5, $roleIds);
+    }
+
 
     private function ajoutQuatreStatutOr($data){
         for ($i = 0; $i < count($data); $i++) { 

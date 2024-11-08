@@ -30,6 +30,8 @@ class DitListeController extends Controller
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
+
+        $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em); 
         //FIN AUTORISATION
 
         $ditSearch = new DitSearch();
@@ -41,7 +43,8 @@ class DitListeController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
+            'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
         $form->handleRequest($request);
@@ -81,6 +84,7 @@ class DitListeController extends Controller
     
         $option = [
             'boolean' => $autoriser,
+            'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
@@ -150,8 +154,6 @@ class DitListeController extends Controller
     }
 
 
-    
-    
     /**
      * @Route("/export-excel", name="export_excel")
      */
@@ -198,32 +200,32 @@ class DitListeController extends Controller
           //recuperation de numero de serie et parc pour l'affichage
             $this->ajoutNumSerieNumParc($entities); 
 
-    // Convertir les entités en tableau de données
-    $data = [];
-    $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
-    foreach ($entities as $entity) {
-        $data[] = [
-            $entity->getIdStatutDemande()->getDescription(),
-            $entity->getNumeroDemandeIntervention(), 
-            $entity->getTypeDocument()->getDescription(),
-            $entity->getIdNiveauUrgence()->getDescription(),
-            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
-            $entity->getNumSerie(),
-            $entity->getNumParc(),
-            $entity->getDateDemande(),
-            $entity->getInternetExterne(),
-            $entity->getAgenceServiceEmetteur(),
-            $entity->getAgenceServiceDebiteur(),
-            $entity->getObjetDemande(),
-            $entity->getSectionAffectee(),
-            $entity->getNumeroOr(),
-            $entity->getStatutOr(),
-            $entity->getStatutAchatPiece(),
-            $entity->getStatutAchatLocaux(),
-            $entity->getNbrPj(),
-            $entity->getUtilisateurDemandeur()
-        ];
-    }
+        // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity->getIdStatutDemande()->getDescription(),
+                $entity->getNumeroDemandeIntervention(), 
+                $entity->getTypeDocument()->getDescription(),
+                $entity->getIdNiveauUrgence()->getDescription(),
+                $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
+                $entity->getNumSerie(),
+                $entity->getNumParc(),
+                $entity->getDateDemande(),
+                $entity->getInternetExterne(),
+                $entity->getAgenceServiceEmetteur(),
+                $entity->getAgenceServiceDebiteur(),
+                $entity->getObjetDemande(),
+                $entity->getSectionAffectee(),
+                $entity->getNumeroOr(),
+                $entity->getStatutOr(),
+                $entity->getStatutAchatPiece(),
+                $entity->getStatutAchatLocaux(),
+                $entity->getNbrPj(),
+                $entity->getUtilisateurDemandeur()
+            ];
+        }
 
         $this->excelService->createSpreadsheet($data);
     }
