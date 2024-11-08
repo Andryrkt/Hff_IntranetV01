@@ -7,6 +7,7 @@ use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -91,6 +92,19 @@ class DemandeSupportInformatiqueController extends Controller
                 ->setNumeroTicket($this->autoINcriment('TIK'))
                 ->setIdStatutDemande($statut)
             ;
+
+            $this->historiqueStatut($supportInfo, $statut);
+    }
+
+    private function historiqueStatut($supportInfo, $statut)
+    {
+        $tikStatut = new TkiStatutTicketInformatique();
+        $tikStatut
+            ->setNumeroTicket($supportInfo->getNumeroTicket())
+            ->setCodeStatut($statut->getCodeStatut())
+        ;
+        self::$em->persist($tikStatut);
+        self::$em->flush();
     }
 
     private function rectificationDernierIdApplication($supportInfo)

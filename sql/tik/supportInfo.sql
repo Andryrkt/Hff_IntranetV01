@@ -24,3 +24,8 @@ ALTER TABLE Demande_Support_Informatique
 ALTER COLUMN date_creation DATE
 
 UPDATE applications SET derniere_id = 'TIK24110000' where id = 7
+
+ALTER TABLE Demande_Support_Informatique
+ALTER COLUMN date_creation DATETIME2
+ALTER TABLE Demande_Support_Informatique
+ALTER COLUMN date_modification DATETIME2

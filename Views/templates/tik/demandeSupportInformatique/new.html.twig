@@ -95,7 +95,7 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<i class="fas fa-paperclip" id="paperclip-icon"></i>
+						<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
 						<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
 							<i class="fas fa-save"></i>
 							Enregistrer
@@ -114,4 +114,10 @@
 
 {% block javascript %}
 	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
-{% endblock %}
+	<script>// document.addEventListener("DOMContentLoaded", function () {
+// CKEDITOR.replace('demande_support_informatique[detailDemande]', {
+// language: 'fr',
+// toolbar: 'basic', // Personnaliser la barre d'outils
+// });
+// });
+</script>{% endblock %}
