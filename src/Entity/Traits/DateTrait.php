@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait DateTrait
 {
     /**
-     * @ORM\Column(type="date", name="date_creation")
+     * @ORM\Column(type="datetime", name="date_creation")
      */
     private $dateCreation;
 
@@ -48,8 +48,8 @@ trait DateTrait
      */
     public function onPrePersist(): void
     {
-        $this->dateCreation = new \DateTime();
-        $this->dateModification = new \DateTime();
+        $this->dateCreation = new \DateTime('now');
+        $this->dateModification = new \DateTime('now');
         error_log('PrePersist called');
     }
 
@@ -58,7 +58,7 @@ trait DateTrait
      */
     public function onPreUpdate(): void
     {
-        $this->dateModification = new \DateTime();
+        $this->dateModification = new \DateTime('now');
         error_log('PreUpdate called');
     }
 }
