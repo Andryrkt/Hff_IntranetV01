@@ -15,7 +15,7 @@ trait DateTrait
     private $dateCreation;
 
     /**
-     * @ORM\Column(type="date", name="date_modification")
+     * @ORM\Column(type="datetime", name="date_modification")
      */
     private $dateModification;
 

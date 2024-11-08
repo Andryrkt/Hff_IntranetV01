@@ -3,98 +3,104 @@
 {% block title %}Créer une Demande de Support Informatique
 {% endblock %}
 {% block stylesheets %}
-	<link
-	href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-{# <link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet"> #}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
 	<div class=" container">
+
 		<div class="card">
 			<div class="card-body">
+				<div class="dropzone" id="dropzone">
+					<div class="container">
+						<div class="row">
+							<div class="col-12 col-md-11">
+								<h3 class="perso-titre">
+									Formulaire Demande de support informatique
+								</h3>
+							</div>
 
-				<div class="container">
-					<div class="row">
-						<div class="col-12 col-md-11">
-							<h3 class="perso-titre">
-								Formulaire Demande de support informatique
-							</h3>
+							<div class=" col-12 col-md-1">
+								<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+							</div>
 						</div>
+						{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
 
-						<div class=" col-12 col-md-1">
-							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						{{ form_errors(form)}}
+
+						<div class="row">
+
+							<div class="col-12 col-md-6">
+
+								{{ form_row(form.objetDemande)}}
+								{{ form_row(form.detailDemande)}}
+
+								<div class="row">
+									<div class="col-12 col-md-6">
+
+										{{ form_row(form.categorie)}}
+									</div>
+									<div class="col-12 col-md-6">
+
+										{{ form_row(form.parcInformatique)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ form_row(form.dateFinSouhaitee)}}
+									</div>
+								</div>
+
+
+							</div>
+
+							<div class="col-12 col-md-6">
+								{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+								<div class="row">
+									<div class="col-12 col-md-6 mt-2">Débiteur</div>
+									<div class="col-12 col-md-6 mt-2">Emetteur</div>
+								</div>
+
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ form_row(form.agence)}}
+										{{ form_row(form.service)}}
+
+									</div>
+									<div class="col-12 col-md-6">
+										{{ form_row(form.agenceEmetteur)}}
+										{{ form_row(form.serviceEmetteur)}}
+									</div>
+
+								</div>
+								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+
+								<div class="file-upload-wrapper">
+									<label for="file-input">
+
+										{{ form_widget(form.fileNames, {'attr': {'class': 'file-input', 'id': 'file-input', 'multiple': true, 'style': 'display: none'}}) }}
+									</label>
+									<ul id="file-list" class="file-list"></ul>
+									{{ form_errors(form.fileNames) }}
+								</div>
+
+
+							</div>
+
+
 						</div>
 					</div>
-					{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
-					{{ form_errors(form)}}
-
-					<div class="row">
-						<div class="col-12 col-md-6">
-
-							{{ form_row(form.objetDemande)}}
-							{{ form_row(form.detailDemande)}}
-
-							<div class="row">
-								<div class="col-12 col-md-6">
-
-									{{ form_row(form.categorie)}}
-								</div>
-								<div class="col-12 col-md-6">
-
-									{{ form_row(form.parcInformatique)}}
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-md-6">
-									{{ form_row(form.dateFinSouhaitee)}}
-								</div>
-							</div>
-
-
-						</div>
-						<div class="col-12 col-md-6">
-							{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
-							<div class="row">
-								<div class="col-12 col-md-6 mt-2">Débiteur</div>
-								<div class="col-12 col-md-6 mt-2">Emetteur</div>
-							</div>
-
-							<div class="row">
-								<div class="col-12 col-md-6">
-									{{ form_row(form.agence)}}
-									{{ form_row(form.service)}}
-
-								</div>
-								<div class="col-12 col-md-6">
-									{{ form_row(form.agenceEmetteur)}}
-									{{ form_row(form.serviceEmetteur)}}
-								</div>
-
-							</div>
-							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
-
-							{{ form_row(form.pieceJoint01)}}
-							{{ form_errors(form.pieceJoint01)}}
-
-							{{ form_row(form.pieceJoint02)}}
-							{{ form_errors(form.pieceJoint02) }}
-
-							{{ form_row(form.pieceJoint03)}}
-							{{ form_errors(form.pieceJoint03) }}
-
-
-						</div>
-
-					</div>
-
-					<a onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')" class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton" id="formDit">
+					<div class="d-flex justify-content-end">
+						<i class="fas fa-paperclip" id="paperclip-icon"></i>
+						<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
-					</a>
+					</div>
 
 					{{ form_end(form) }}
 				</div>
@@ -107,5 +113,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/tik/tik.js"></script>
+	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
 {% endblock %}

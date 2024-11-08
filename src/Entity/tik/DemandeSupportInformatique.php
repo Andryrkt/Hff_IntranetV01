@@ -154,6 +154,11 @@ class DemandeSupportInformatique
     private $dateFinSouhaitee;
 
     /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
+
+    /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      *
@@ -669,6 +674,26 @@ class DemandeSupportInformatique
 
         return $this;
     }
+
+     /**
+     * Get the value of fileNames
+     */ 
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */ 
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
+
+        return $this;
+    }
     
     public function getAgenceEmetteurId()
     {
@@ -764,4 +789,6 @@ class DemandeSupportInformatique
 
         return $this;
     }
+
+   
 }
