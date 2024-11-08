@@ -114,10 +114,12 @@
 
 {% block javascript %}
 	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
-	<script>// document.addEventListener("DOMContentLoaded", function () {
-// CKEDITOR.replace('demande_support_informatique[detailDemande]', {
-// language: 'fr',
-// toolbar: 'basic', // Personnaliser la barre d'outils
-// });
-// });
-</script>{% endblock %}
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+CKEDITOR.replace('demande_support_informatique[detailDemande]', {
+language: 'fr',
+toolbar: 'basic', // Personnaliser la barre d'outils
+});
+});
+	</script>
+{% endblock %}
