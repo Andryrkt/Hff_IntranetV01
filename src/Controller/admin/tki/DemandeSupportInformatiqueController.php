@@ -3,7 +3,6 @@
 namespace App\Controller\admin\tki;
 
 use App\Controller\Controller;
-use App\Entity\tik\DemandeSupportInformatique;
 use App\Form\ticketing\DemandeSupportInformatiqueType;
 use Symfony\Component\Routing\Annotation\Route;
 
