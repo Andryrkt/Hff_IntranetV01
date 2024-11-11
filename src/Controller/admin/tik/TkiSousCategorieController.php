@@ -35,9 +35,10 @@ class TkiSousCategorieController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $sousCategorie = $form->getData();
+            
 
             $selectedAutresCategories = $form->get('autresCategories')->getData();
-
+            
                 foreach ($selectedAutresCategories as $autresCategorie) {
                     $sousCategorie->addAutresCategorie($autresCategorie);
                 }

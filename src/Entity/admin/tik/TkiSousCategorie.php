@@ -20,10 +20,10 @@ class TkiSousCategorie
 
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer", name="ID_Sous_Categorie")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
