@@ -15,9 +15,6 @@ class TkiSousCategorieType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('idCategorie', IntegerType::class, [
-                'label' => 'ID Catégorie',
-            ])
             ->add('description', ChoiceType::class, [
                 'label' => 'Description',
                 'choices' => [

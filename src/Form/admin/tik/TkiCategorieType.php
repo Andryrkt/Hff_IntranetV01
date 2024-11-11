@@ -21,7 +21,9 @@ class TkiCategorieType extends AbstractType
             ->add('sousCategories', EntityType::class, [
                 'label' => 'sous categorie',
                 'class' => TkiSousCategorie::class,
-                'choice_label'=> 'description'
+                'choice_label'=> 'description',
+                'multiple' => true,
+                'expanded' => false
             ])
             ;
     }

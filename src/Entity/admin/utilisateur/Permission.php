@@ -38,8 +38,6 @@ class Permission
 
     /**
      * @ORM\ManyToMany(targetEntity=Role::class, mappedBy="permissions")
-     *
-     * @var [type]
      */
     private $roles;
 

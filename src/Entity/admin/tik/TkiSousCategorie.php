@@ -31,10 +31,9 @@ class TkiSousCategorie
     private string $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="sousCategories")
-     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="idCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategorie")
      */
-    private ?TkiCategorie $categorie;
+    private $categories;
 
     /**
      * @ORM\OneToMany(targetEntity=TkiAutresCategorie::class, mappedBy="sousCategorie")
@@ -49,6 +48,7 @@ class TkiSousCategorie
 
     public function __construct()
     {
+        $this->categories = new ArrayCollection();
         $this->autresCategories = new ArrayCollection();
         $this->supportInfo = new ArrayCollection();
     }
@@ -78,14 +78,29 @@ class TkiSousCategorie
         return $this;
     }
 
-    public function getCategorie(): ?TkiCategorie
+     /**
+     * @return Collection|Roles[]
+     */ 
+    public function getCategories(): Collection
     {
-        return $this->categorie;
+        return $this->categories;
     }
 
-    public function setCategorie(?TkiCategorie $categorie): self
+    public function addCategories(TkiCategorie $categories): self
     {
-        $this->categorie = $categorie;
+        if(!$this->categories->contains($categories)){
+            $this->categories[] = $categories;
+            $categories->addSousCategories($this);
+        }
+        return $this;
+    }
+
+    public function removeCategories(TkiCategorie $categories): self
+    {
+        if($this->categories->contains($categories)) {
+            $this->categories->removeElement($categories);
+            $categories->removeSousCategories($this);
+        }
         return $this;
     }
 
