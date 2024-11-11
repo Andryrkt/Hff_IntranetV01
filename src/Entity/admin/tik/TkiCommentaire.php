@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\tik;
+namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -51,5 +51,9 @@ class TkiCommentaires
      */
     private $dateCommentaire;
 
-    // ... (getters et setters)
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 }

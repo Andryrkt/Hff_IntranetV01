@@ -1,5 +1,6 @@
 <?php
-namespace App\Form\ticketing;
+
+namespace App\Form\admin\tik;
 
 
 use Symfony\Component\Form\AbstractType;
@@ -9,13 +10,13 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TkiSousCategorieType extends AbstractType
+class TkiAutresCategorieType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('idCategorie', IntegerType::class, [
-                'label' => 'ID Catégorie',
+            ->add('idSousCategorie', IntegerType::class, [
+                'label' => 'ID Sous-Catégorie',
             ])
             ->add('description', ChoiceType::class, [
                 'label' => 'Description',
@@ -35,7 +36,7 @@ class TkiSousCategorieType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => TkiSousCategorieType::class,
+            'data_class' => TkiAutresCategorieType::class,
         ]);
     }
 }

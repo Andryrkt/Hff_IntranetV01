@@ -12,6 +12,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\ServiceRepository;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -85,7 +86,21 @@ class Service
      */
     private $userServiceAutoriser;
 
-    //=========================================================================
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="serviceEmetteurId")
+     */
+    private Collection $tkiServiceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="serviceDebiteurId")
+     */
+    private Collection $tkiServiceDebiteur;
+
+   /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     public function __construct()
     {
@@ -97,6 +112,8 @@ class Service
         $this->userServiceAutoriser = new ArrayCollection();
         $this->domServiceEmetteur = new ArrayCollection();
         $this->domServiceDebiteur = new ArrayCollection();
+        $this->tkiServiceEmetteur = new ArrayCollection();
+        $this->tkiServiceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -412,6 +429,72 @@ class Service
     {
         $this->domServiceDebiteur = $domServiceDebiteur;
 
+        return $this;
+    }
+
+
+     /** TKI */
+
+       /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getTkiServiceEmetteur()
+    {
+        return $this->tkiServiceEmetteur;
+    }
+
+    public function addTkiServiceEmetteur(DemandeSupportInformatique $tkiServiceEmetteur): self
+    {
+        if (!$this->tkiServiceEmetteur->contains($tkiServiceEmetteur)) {
+            $this->tkiServiceEmetteur[] = $tkiServiceEmetteur;
+            $tkiServiceEmetteur->setServiceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTkiServiceEmetteur(DemandeSupportInformatique $tkiServiceEmetteur): self
+    {
+        if ($this->tkiServiceEmetteur->contains($tkiServiceEmetteur)) {
+            $this->tkiServiceEmetteur->removeElement($tkiServiceEmetteur);
+            if ($tkiServiceEmetteur->getServiceEmetteurId() === $this) {
+                $tkiServiceEmetteur->setServiceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+    
+    
+
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getTkiServiceDebiteur()
+    {
+        return $this->tkiServiceDebiteur;
+    }
+
+    public function addTkiServiceDebiteur(DemandeSupportInformatique $tkiServiceDebiteur): self
+    {
+        if (!$this->tkiServiceDebiteur->contains($tkiServiceDebiteur)) {
+            $this->tkiServiceDebiteur[] = $tkiServiceDebiteur;
+            $tkiServiceDebiteur->setServiceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTkiServiceDebiteur(DemandeSupportInformatique $tkiServiceDebiteur): self
+    {
+        if ($this->tkiServiceDebiteur->contains($tkiServiceDebiteur)) {
+            $this->tkiServiceDebiteur->removeElement($tkiServiceDebiteur);
+            if ($tkiServiceDebiteur->getServiceDebiteurId() === $this) {
+                $tkiServiceDebiteur->setServiceDebiteurId(null);
+            }
+        }
+        
         return $this;
     }
 

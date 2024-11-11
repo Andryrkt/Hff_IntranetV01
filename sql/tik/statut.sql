@@ -1,0 +1,2 @@
+ALTER TABLE TKI_Statut_Ticket_Informatique
+ALTER COLUMN Date_Statut DATETIME2

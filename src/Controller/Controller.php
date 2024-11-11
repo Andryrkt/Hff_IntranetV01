@@ -347,9 +347,8 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-       
+        
         $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
-       
 
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';

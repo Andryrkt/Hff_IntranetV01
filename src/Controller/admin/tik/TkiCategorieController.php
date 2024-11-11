@@ -1,8 +1,8 @@
 <?php
-namespace App\Controller\admin\tki;
+namespace App\Controller\admin\tik;
 
 use App\Controller\Controller;
-use App\Entity\tik\TkiCategorie;
+use App\Entity\admin\tik\TkiCategorie;
 use Symfony\Component\Routing\Annotation\Route;
 
 

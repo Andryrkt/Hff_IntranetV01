@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\tik;
+namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -47,7 +47,13 @@ class TkiPlanning
      */
     private $heureFinPlanning;
 
-    // ... (getters et setters)
+    
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
+    
 
     /**
      * Get the value of demande

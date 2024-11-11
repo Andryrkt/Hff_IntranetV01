@@ -1,114 +1,125 @@
 {% extends 'baseTemplate.html.twig' %}
 
-{% block title %}Créer une Demande de Support Informatique{% endblock %}
+{% block title %}Créer une Demande de Support Informatique
+{% endblock %}
 {% block stylesheets %}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
 {% endblock %}
 
+{% import "macroForm.html.twig" as macroForm %}
+
 {% block content %}
-    <div class="container">
-        
-        <h1 class="row justify-content-center align-items-center ">Créer une Demande de Support Informatique</h1>
-        <div class="row justify-content-center align-items-center">
-            <div class="w-40">
-                
+	<div class=" container">
 
-                
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success">{{ message }}</div>
-                {% endfor %}
-                {% for message in app.flashes('error') %}
-                    <div class="alert alert-danger">{{ message }}</div>
-                {% endfor %}
+		<div class="card">
+			<div class="card-body">
+				<div class="dropzone" id="dropzone">
+					<div class="container">
+						<div class="row">
+							<div class="col-12 col-md-11">
+								<h3 class="perso-titre">
+									Formulaire Demande de support informatique
+								</h3>
+							</div>
 
-                {{ form_start(form, { 'attr': {'novalidate': 'novalidate'} }) }}
-                    <div class="row">
+							<div class=" col-12 col-md-1">
+								<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+							</div>
+						</div>
+						{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
 
-                    <div class="form-group">
-                        {{ form_label(form.Mail_Demandeur) }}
-                        {{ form_widget(form.Mail_Demandeur, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Mail_Demandeur) }}
-                    </div>
+						{{ form_errors(form)}}
 
+						<div class="row">
 
-                    <div class="form-group">
-                        {{ form_label(form.Categorie) }}
-                        {{ form_widget(form.Categorie, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Categorie) }}
-                
+							<div class="col-12 col-md-6">
 
-                    <div class="form-group">
-                        {{ form_label(form.Agence_Emetteur) }}
-                        {{ form_widget(form.Agence_Emetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Agence_Emetteur) }}
-                    </div>
+								{{ form_row(form.objetDemande)}}
+								{{ form_row(form.detailDemande)}}
 
-                    <div class="form-group">
-                        {{ form_label(form.Agence_Debiteur) }}
-                        {{ form_widget(form.Agence_Debiteur, { 'attr': {'class': 'form-control',} }) }}
-                        {{ form_errors(form.Agence_Debiteur) }}
-                    </div>
-                    
-                    <div class="form-group">
-                        {{ form_label(form.Service_Emmetteur) }}
-                        {{ form_widget(form.Service_Emmetteur, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Service_Emmetteur) }}
-                    </div>
+								<div class="row">
+									<div class="col-12 col-md-6">
 
-                    <div class="form-group">
-                        {{ form_label(form.Service_Debiteur) }}
-                        {{ form_widget(form.Service_Debiteur, { 'attr': {'class': 'form-control',} }) }}
-                        {{ form_errors(form.Service_Debiteur) }}
-                    </div>
+										{{ form_row(form.categorie)}}
+									</div>
+									<div class="col-12 col-md-6">
+
+										{{ form_row(form.parcInformatique)}}
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ form_row(form.dateFinSouhaitee)}}
+									</div>
+								</div>
 
 
-                    <div class="form-group">
-                        {{ form_label(form.Objet_Demande) }}
-                        {{ form_widget(form.Objet_Demande, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Objet_Demande) }}
-                    </div>
+							</div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Detail_Demande) }}
-                        {{ form_widget(form.Detail_Demande, { 'attr': {'class': 'form-control', 'rows': 4} }) }}
-                        {{ form_errors(form.Detail_Demande) }}
-                    </div>
-                    
+							<div class="col-12 col-md-6">
+								{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+								<div class="row">
+									<div class="col-12 col-md-6 mt-2">Débiteur</div>
+									<div class="col-12 col-md-6 mt-2">Emetteur</div>
+								</div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe1) }}
-                        {{ form_widget(form.Piece_Jointe1, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe1) }}
-                    </div>
+								<div class="row">
+									<div class="col-12 col-md-6">
+										{{ form_row(form.agence)}}
+										{{ form_row(form.service)}}
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe2) }}
-                        {{ form_widget(form.Piece_Jointe2, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe2) }}
-                    </div>
+									</div>
+									<div class="col-12 col-md-6">
+										{{ form_row(form.agenceEmetteur)}}
+										{{ form_row(form.serviceEmetteur)}}
+									</div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Piece_Jointe3) }}
-                        {{ form_widget(form.Piece_Jointe3, { 'attr': {'class': 'form-control-file'} }) }}
-                        {{ form_errors(form.Piece_Jointe3) }}
-                    </div>
+								</div>
+								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-                    <div class="form-group">
-                        {{ form_label(form.Date_Fin_Planning) }}
-                        {{ form_widget(form.Date_Fin_Planning, { 'attr': {'class': 'form-control','disabled': true} }) }}
-                        {{ form_errors(form.Date_Fin_Planning) }}
-                    </div>
 
-                    <div class="form-group">
-                        {{ form_label(form.Date_Fin_Souhaitee) }}
-                        {{ form_widget(form.Date_Fin_Souhaitee, { 'attr': {'class': 'form-control'} }) }}
-                        {{ form_errors(form.Date_Fin_Souhaitee) }}
-                    </div>
+								<div class="file-upload-wrapper">
+									<label for="file-input">
 
-                    <button class="btn btn-primary mt-3">SOUMETTRE</button>
-                {{ form_end(form) }}
-            </div>
-        </div>
-    </div>
+										{{ form_widget(form.fileNames, {'attr': {'class': 'file-input', 'id': 'file-input', 'multiple': true, 'style': 'display: none'}}) }}
+									</label>
+									<ul id="file-list" class="file-list"></ul>
+									{{ form_errors(form.fileNames) }}
+								</div>
+
+
+							</div>
+
+
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
+						<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+		<div id="materielInfos"></div>
+	</div>
 {% endblock %}
 
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+CKEDITOR.replace('demande_support_informatique[detailDemande]', {
+language: 'fr',
+toolbar: 'basic', // Personnaliser la barre d'outils
+});
+});
+	</script>
+{% endblock %}

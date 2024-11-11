@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7abcccea74b9e3ab9777ad7513c72fdd76f30a6d',
+        'reference' => 'fd01650a40b19c1b1a3b4b799570967afa528654',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -163,6 +163,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'friendsofsymfony/ckeditor-bundle' => array(
+            'pretty_version' => '2.4.0',
+            'version' => '2.4.0.0',
+            'reference' => 'a4df4056b2832881e17b939e83f25406a6cc6414',
+            'type' => 'symfony-bundle',
+            'install_path' => __DIR__ . '/../friendsofsymfony/ckeditor-bundle',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'graham-campbell/result-type' => array(
             'pretty_version' => 'v1.1.2',
             'version' => '1.1.2.0',
@@ -310,7 +319,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7abcccea74b9e3ab9777ad7513c72fdd76f30a6d',
+            'reference' => 'fd01650a40b19c1b1a3b4b799570967afa528654',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -757,6 +766,15 @@
                 0 => '2.0',
             ),
         ),
+        'symfony/expression-language' => array(
+            'pretty_version' => 'v5.4.45',
+            'version' => '5.4.45.0',
+            'reference' => 'a784b66edc4c151eb05076d04707906ee2c209a9',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/expression-language',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/filesystem' => array(
             'pretty_version' => 'v5.4.39',
             'version' => '5.4.39.0',
@@ -791,7 +809,7 @@
             'type' => 'symfony-bundle',
             'install_path' => __DIR__ . '/../symfony/framework-bundle',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'symfony/http-foundation' => array(
             'pretty_version' => 'v5.4.40',
