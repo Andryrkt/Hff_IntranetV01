@@ -36,9 +36,10 @@ class TkiSousCategorie
     private $categories;
 
     /**
-     * @ORM\OneToMany(targetEntity=TkiAutresCategorie::class, mappedBy="sousCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiAutresCategorie::class, inversedBy="sousCategories")
+     * @ORM\JoinTable(name="souscategorie_autrescategories")
      */
-    private Collection $autresCategories;
+    private $autresCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="sousCategorie")
@@ -79,7 +80,7 @@ class TkiSousCategorie
     }
 
      /**
-     * @return Collection|Roles[]
+     * @return Collection
      */ 
     public function getCategories(): Collection
     {
@@ -104,30 +105,29 @@ class TkiSousCategorie
         return $this;
     }
 
+    /**
+     * @return Collection
+     */
     public function getAutresCategories(): Collection
     {
         return $this->autresCategories;
     }
 
-    public function addAutresCategories(?TkiAutresCategorie $autresCategories): self
+    public function addAutresCategories(TkiAutresCategorie $autresCategories): self
     {
         if (!$this->autresCategories->contains($autresCategories)) {
             $this->autresCategories[] = $autresCategories;
-            $autresCategories->setSousCategorie($this);
         }
 
         return $this;
     }
 
-    public function removeAutresCategories(?TkiAutresCategorie $autresCategories): self
+    public function removeAutresCategories(TkiAutresCategorie $autresCategories): self
     {
         if ($this->autresCategories->contains($autresCategories)) {
             $this->autresCategories->removeElement($autresCategories);
-            if ($autresCategories->getSousCategorie() === $this) {
-                $autresCategories->setSousCategorie(null);
-            }
         }
-        
+
         return $this;
     }
 

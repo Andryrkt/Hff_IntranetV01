@@ -81,7 +81,7 @@ class TkiCategorieController extends Controller
     }
 
     /**
-    * @Route("/admin/role/delete/{id}", name="role_delete")
+    * @Route("/admin/tki-categorie-delete/{id}", name="tki_categorie_delete")
     *
     * @return void
     */

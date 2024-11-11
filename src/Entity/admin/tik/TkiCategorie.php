@@ -69,7 +69,7 @@ class TkiCategorie
 
 
     /**
-     * @return Collection|Permission[]
+     * @return Collection
      */
     public function getSousCategories(): Collection
     {

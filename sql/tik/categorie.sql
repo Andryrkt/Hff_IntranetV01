@@ -53,3 +53,14 @@ VALUES (
         '2024-11-07',
         '2024-11-07'
     )
+
+CREATE TABLE categorie_souscategorie (
+    categorie_id INT,
+    souscategorie_id INT,
+    CONSTRAINT PK_categorie_souscategorie PRIMARY KEY (
+        categorie_id,
+        souscategorie_id
+    ),
+    CONSTRAINT FK_categorie_souscategorie_categorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_CATEGORIE (ID_Categorie),
+    CONSTRAINT FK_categorie_souscategorie_souscategorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (ID_Sous_Categorie)
+);
