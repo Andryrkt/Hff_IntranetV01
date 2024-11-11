@@ -20,15 +20,15 @@ class TkiSousCategorie
 
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @ORM\Column(type="integer", name="ID_Sous_Categorie")
      */
-    private int $id;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
      */
-    private string $description;
+    private $description;
 
     /**
      * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategorie")
@@ -44,8 +44,7 @@ class TkiSousCategorie
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="sousCategorie")
      */
-    private Collection $supportInfo;
-
+    private $supportInfo;
 
     public function __construct()
     {
@@ -59,10 +58,7 @@ class TkiSousCategorie
      * GETTERS and SETTERS
      *
     =====================================================================================*/
-
-    /**
-     * Get the value of id
-     */ 
+    
     public function getId()
     {
         return $this->id;
@@ -79,59 +75,57 @@ class TkiSousCategorie
         return $this;
     }
 
-     /**
-     * @return Collection
-     */ 
     public function getCategories(): Collection
     {
         return $this->categories;
     }
 
-    public function addCategories(TkiCategorie $categories): self
+    public function addCategories(?TkiCategorie $categories): self
     {
-        if(!$this->categories->contains($categories)){
+        if (!$this->categories->contains($categories)) {
             $this->categories[] = $categories;
             $categories->addSousCategories($this);
         }
         return $this;
     }
 
-    public function removeCategories(TkiCategorie $categories): self
+    public function removeCategories(?TkiCategorie $categories): self
     {
-        if($this->categories->contains($categories)) {
+        if ($this->categories->contains($categories)) {
             $this->categories->removeElement($categories);
             $categories->removeSousCategories($this);
         }
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getAutresCategories(): Collection
     {
         return $this->autresCategories;
     }
 
-    public function addAutresCategories(TkiAutresCategorie $autresCategories): self
+    public function addAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
-        if (!$this->autresCategories->contains($autresCategories)) {
-            $this->autresCategories[] = $autresCategories;
+        if (!$this->autresCategories->contains($autresCategorie)) {
+            $this->autresCategories[] = $autresCategorie;
+            $autresCategorie->addSousCategorie($this);
         }
-
         return $this;
     }
 
-    public function removeAutresCategories(TkiAutresCategorie $autresCategories): self
-    {
-        if ($this->autresCategories->contains($autresCategories)) {
-            $this->autresCategories->removeElement($autresCategories);
-        }
+    public function setAutresCategories(Collection $autresCategories): self
+{
+    $this->autresCategories = $autresCategories;
+    return $this;
+}
 
+    public function removeAutresCategorie(TkiAutresCategorie $autresCategorie): self
+    {
+        if ($this->autresCategories->contains($autresCategorie)) {
+            $this->autresCategories->removeElement($autresCategorie);
+            $autresCategorie->removeSousCategorie($this);
+        }
         return $this;
     }
-
-
 
     public function getSupportInfo(): Collection
     {
@@ -144,7 +138,6 @@ class TkiSousCategorie
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setSousCategorie($this);
         }
-
         return $this;
     }
 
@@ -156,7 +149,6 @@ class TkiSousCategorie
                 $supportInfo->setSousCategorie(null);
             }
         }
-        
         return $this;
     }
 }

@@ -30,9 +30,11 @@ class TkiAutresCategorie
     private string $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
-     */
-    private $sousCategories;
+ * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
+ */
+private Collection $sousCategories;
+
+
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
@@ -71,31 +73,33 @@ class TkiAutresCategorie
         return $this;
     }
 
-    /**
-     * @return Collection
-     */ 
-    public function getSousCategories(): Collection
-    {
-        return $this->sousCategories;
-    }
+   /**
+ * @return Collection
+ */
+public function getSousCategories(): Collection
+{
+    return $this->sousCategories;
+}
 
-    public function addSousCategories(TkiSousCategorie $sousCategories): self
+
+    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if(!$this->sousCategories->contains($sousCategories)){
-            $this->sousCategories[] = $sousCategories;
-            $sousCategories->addAutresCategories($this);
+        if (!$this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories[] = $sousCategorie;
+            $sousCategorie->addAutresCategorie($this);
         }
         return $this;
     }
-
-    public function removeSousCategories(TkiSousCategorie $sousCategories): self
+    
+    public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if($this->sousCategories->contains($sousCategories)) {
-            $this->sousCategories->removeElement($sousCategories);
-            $sousCategories->removeAutresCategories($this);
+        if ($this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories->removeElement($sousCategorie);
+            $sousCategorie->removeAutresCategorie($this);
         }
         return $this;
     }
+    
 
     public function getSupportInfo(): Collection
     {

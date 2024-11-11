@@ -14,3 +14,5 @@ CREATE TABLE souscategorie_autrescategories (
     CONSTRAINT FK_souscategorie_autrescategories_souscategorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (ID_Sous_Categorie),
     CONSTRAINT FK_souscategorie_autrescategories_autrescategorie_id FOREIGN KEY (autrescategorie_id) REFERENCES TKI_Autres_Categorie (ID_Autres_Categorie)
 );
+
+ALTER TABLE TKI_SOUS_CATEGORIE ALTER COLUMN date_creation DATETIME2

@@ -63,9 +63,9 @@ class TkiCategorieController extends Controller
      */
     public function edit(Request $request, int $id)
     {
-        $user = self::$em->getRepository(TkiCategorie::class)->find($id);
+        $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
         
-        $form = self::$validator->createBuilder(TkiCategorieType::class, $user)->getForm();
+        $form = self::$validator->createBuilder(TkiCategorieType::class, $categorie)->getForm();
 
         $form->handleRequest($request);
 

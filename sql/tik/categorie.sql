@@ -61,6 +61,6 @@ CREATE TABLE categorie_souscategorie (
         categorie_id,
         souscategorie_id
     ),
-    CONSTRAINT FK_categorie_souscategorie_categorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_CATEGORIE (ID_Categorie),
+    CONSTRAINT FK_categorie_souscategorie_categorie_id FOREIGN KEY (categorie_id) REFERENCES TKI_CATEGORIE (ID_Categorie),
     CONSTRAINT FK_categorie_souscategorie_souscategorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (ID_Sous_Categorie)
 );

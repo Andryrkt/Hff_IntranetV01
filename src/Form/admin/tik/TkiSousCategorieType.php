@@ -2,8 +2,8 @@
 
 namespace App\Form\admin\tik;
 
-
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -19,11 +19,12 @@ class TkiSousCategorieType extends AbstractType
                 'label' => 'Description',
             ])
             ->add('autresCategories', EntityType::class, [
-                'label' => 'Autres categories',
+                'label' => 'Autres catégories',
                 'class' => TkiAutresCategorie::class,
                 'choice_label'=> 'description',
                 'multiple' => true,
-                'expanded' => false
+                'expanded' => false,
+                'by_reference' => false, // Ajoutez cette ligne
             ])
         ;
     }
@@ -31,8 +32,7 @@ class TkiSousCategorieType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => TkiSousCategorieType::class,
+            'data_class' => TkiSousCategorie::class,
         ]);
     }
 }
-?>
