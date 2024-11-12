@@ -85,7 +85,7 @@ class DitListeController extends Controller
         $option = [
             'boolean' => $autoriser,
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getCodeAgence(),
+            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
@@ -113,8 +113,6 @@ class DitListeController extends Controller
         $this->ajoutConditionOrEqDit($paginationData['data']);
     
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
-
-        
 
         /** 
          * Docs à intégrer dans DW 

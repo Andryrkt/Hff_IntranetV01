@@ -95,7 +95,7 @@ trait DitListTrait
      */
     private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
-      
+    
         $criteria = $this->sessionService->get('dit_search_criteria', []);
         
         if($criteria !== null){
