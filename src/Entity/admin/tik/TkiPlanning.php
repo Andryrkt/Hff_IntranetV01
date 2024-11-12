@@ -3,6 +3,7 @@
 namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\tik\DemandeSupportInformatique;
 
 /**
  * @ORM\Entity(repositoryClass=TkiPlanningRepository::class)
@@ -14,13 +15,15 @@ class TkiPlanning
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+    private $id;
+
     /**
-     * @ORM\OneToOne(targetEntity="DemandeSupportInformatique", inversedBy="planning")
+     * @ORM\OneToOne(targetEntity=DemandeSupportInformatique::class, inversedBy="planning")
      */
     private $demande;
 
     
-    private $id;
+    
 
     /**
      * @ORM\Column(type="datetime")

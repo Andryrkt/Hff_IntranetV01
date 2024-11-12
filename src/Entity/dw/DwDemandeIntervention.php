@@ -28,7 +28,7 @@ class DwDemandeIntervention
     private $idDit;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_dit", unique= true)
+     * @ORM\Column(type="string", length=11, name="numero_dit")
      */
     private string $numeroDit;
 

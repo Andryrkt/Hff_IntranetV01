@@ -3,10 +3,17 @@
 namespace App\Entity\dit;
 
 use DateTime;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Secteur;
+use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\StatutDemande;
 use App\Entity\Traits\QuantiteDitTrait;
+use App\Entity\admin\dit\CategorieATEApp;
+use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\Traits\AgenceServiceTrait;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\BilanFinancierMaterielTrait;
 use App\Entity\Traits\CaracteristiqueMaterielTrait;
@@ -43,14 +50,14 @@ class AncienDit
     private ?string $numeroDemandeIntervention = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="WorTypeDocument", inversedBy="demandeInterventions")
+     * @ORM\ManyToOne(targetEntity=WorTypeDocument::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
      * @Groups("intervention")
      */
     private  $typeDocument = null;//relation avec la table wor_type_document
 
     /**
-     * @ORM\ManyToOne(targetEntity="Societte", inversedBy="demandeInterventions")
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
      * @Groups("intervention")
      */
@@ -69,7 +76,7 @@ class AncienDit
     private ?string $reparationRealise = null;
 
    /**
-     * @ORM\ManyToOne(targetEntity="CategorieATEAPP", inversedBy="DemandeIntervention")
+     * @ORM\ManyToOne(targetEntity=CategorieATEApp::class, inversedBy="DemandeIntervention")
      * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
      * @Groups("intervention")
      */
@@ -130,7 +137,7 @@ class AncienDit
     private ?string $demandeDevis = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="WorNiveauUrgence", inversedBy="DemandeInterventions")
+     * @ORM\ManyToOne(targetEntity=WorNiveauUrgence::class, inversedBy="DemandeInterventions")
      * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id")
      * @Groups("intervention")
      */
@@ -253,7 +260,7 @@ class AncienDit
     private ?string $observations = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="StatutDemande", inversedBy="DemandeIntervention")
+     * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="DemandeIntervention")
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      * @Groups("intervention")
      */
@@ -379,7 +386,7 @@ class AncienDit
     private ?string $codeAte = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Secteur", inversedBy="demandeInterventions")
+     * @ORM\ManyToOne(targetEntity=Secteur::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="secteur", referencedColumnName="id")
      * @Groups("intervention")
      */

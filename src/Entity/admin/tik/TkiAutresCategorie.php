@@ -20,7 +20,7 @@ class TkiAutresCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Autres_Categorie")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
@@ -30,11 +30,9 @@ class TkiAutresCategorie
     private string $description;
 
     /**
- * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
- */
-private Collection $sousCategories;
-
-
+     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
+     */
+    private Collection $sousCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")

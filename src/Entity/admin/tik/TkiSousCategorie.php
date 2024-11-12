@@ -21,7 +21,7 @@ class TkiSousCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Sous_Categorie")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 

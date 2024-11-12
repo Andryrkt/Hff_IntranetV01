@@ -36,7 +36,6 @@ class TkiSousCategorieController extends Controller
         {
             $sousCategorie = $form->getData();
             
-
             $selectedAutresCategories = $form->get('autresCategories')->getData();
             
                 foreach ($selectedAutresCategories as $autresCategorie) {
