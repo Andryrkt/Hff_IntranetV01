@@ -14,7 +14,7 @@ require_once __DIR__ . '/config/dotenv.php';
 // $dotenv->load();
 
 // Chemin vers les entités
-$paths = [dirname(__DIR__). "/src/Entity"];
+$paths = [__DIR__. "/src/Entity"];
 // Mode de développement
 $isDevMode = true;
 
@@ -45,6 +45,7 @@ $config->setMetadataDriverImpl($driver);
 //Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
+
 return $entityManager;
 // Configurez Doctrine pour utiliser l'AnnotationReader standard
 // $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
@@ -56,5 +57,3 @@ return $entityManager;
 
 // // Création de l'EntityManager
 // $entityManager = EntityManager::create($dbParams, $config);
-
-

@@ -569,7 +569,7 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
 
-     /**
+    /**
      * RECUPERE LES id du service Autoriser
      */
     public function getServiceAutoriserIds(): array

@@ -21,34 +21,34 @@ class TkiSousCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Sous_Categorie")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
      */
-    private string $description;
+    private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="sousCategories")
-     * @ORM\JoinColumn(nullable=false, name="ID_Categorie", referencedColumnName="idCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategorie")
      */
-    private ?TkiCategorie $categorie;
+    private $categories;
 
     /**
-     * @ORM\OneToMany(targetEntity=TkiAutresCategorie::class, mappedBy="sousCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiAutresCategorie::class, inversedBy="sousCategories")
+     * @ORM\JoinTable(name="souscategorie_autrescategories")
      */
-    private Collection $autresCategories;
+    private $autresCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="sousCategorie")
      */
-    private Collection $supportInfo;
-
+    private $supportInfo;
 
     public function __construct()
     {
+        $this->categories = new ArrayCollection();
         $this->autresCategories = new ArrayCollection();
         $this->supportInfo = new ArrayCollection();
     }
@@ -58,10 +58,7 @@ class TkiSousCategorie
      * GETTERS and SETTERS
      *
     =====================================================================================*/
-
-    /**
-     * Get the value of id
-     */ 
+    
     public function getId()
     {
         return $this->id;
@@ -78,14 +75,26 @@ class TkiSousCategorie
         return $this;
     }
 
-    public function getCategorie(): ?TkiCategorie
+    public function getCategories(): Collection
     {
-        return $this->categorie;
+        return $this->categories;
     }
 
-    public function setCategorie(?TkiCategorie $categorie): self
+    public function addCategories(?TkiCategorie $categories): self
     {
-        $this->categorie = $categorie;
+        if (!$this->categories->contains($categories)) {
+            $this->categories[] = $categories;
+            $categories->addSousCategories($this);
+        }
+        return $this;
+    }
+
+    public function removeCategories(?TkiCategorie $categories): self
+    {
+        if ($this->categories->contains($categories)) {
+            $this->categories->removeElement($categories);
+            $categories->removeSousCategories($this);
+        }
         return $this;
     }
 
@@ -94,29 +103,29 @@ class TkiSousCategorie
         return $this->autresCategories;
     }
 
-    public function addAutresCategories(?TkiAutresCategorie $autresCategories): self
+    public function addAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
-        if (!$this->autresCategories->contains($autresCategories)) {
-            $this->autresCategories[] = $autresCategories;
-            $autresCategories->setSousCategorie($this);
+        if (!$this->autresCategories->contains($autresCategorie)) {
+            $this->autresCategories[] = $autresCategorie;
+            $autresCategorie->addSousCategorie($this);
         }
-
         return $this;
     }
 
-    public function removeAutresCategories(?TkiAutresCategorie $autresCategories): self
+    public function setAutresCategories(Collection $autresCategories): self
+{
+    $this->autresCategories = $autresCategories;
+    return $this;
+}
+
+    public function removeAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
-        if ($this->autresCategories->contains($autresCategories)) {
-            $this->autresCategories->removeElement($autresCategories);
-            if ($autresCategories->getSousCategorie() === $this) {
-                $autresCategories->setSousCategorie(null);
-            }
+        if ($this->autresCategories->contains($autresCategorie)) {
+            $this->autresCategories->removeElement($autresCategorie);
+            $autresCategorie->removeSousCategorie($this);
         }
-        
         return $this;
     }
-
-
 
     public function getSupportInfo(): Collection
     {
@@ -129,7 +138,6 @@ class TkiSousCategorie
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setSousCategorie($this);
         }
-
         return $this;
     }
 
@@ -141,7 +149,6 @@ class TkiSousCategorie
                 $supportInfo->setSousCategorie(null);
             }
         }
-        
         return $this;
     }
 }

@@ -24,18 +24,18 @@ class AgenceServiceIrium
     private int $id;
 
     /**
-     * @ORM\Column(type="string", length="6")
+     * @ORM\Column(type="string", length="6", name="id_irium",  nullable=true)
      *
      * @var string
      */
-    private ?string $id_irium;
+    private ?string $idIrium = null;
 
     /**
-     * @ORM\Column(type="string", length="10")
+     * @ORM\Column(type="string", length="10", nullable=true)
      *
      * @var string
      */
-    private ?string $agence_i100;
+    private ?string $agence_i100 = null;
 
     /**
      * @ORM\Column(type="string", length="50")
@@ -45,11 +45,11 @@ class AgenceServiceIrium
     private ?string $nom_agence_i100;
 
     /**
-     * @ORM\Column(type="string", length="10")
+     * @ORM\Column(type="string", length="10", nullable=true)
      *
      * @var string
      */
-    private ?string $service_i100;
+    private ?string $service_i100 = null;
 
     /**
      * @ORM\Column(type="string", length="50", nullable=true)
@@ -87,11 +87,11 @@ class AgenceServiceIrium
     private ?string $societe_ios;
 
     /**
-     * @ORM\Column(type="string", length="6")
+     * @ORM\Column(type="string", length="6", nullable=true)
      *
      * @var string
      */
-    private ?string $service_sage_paie;
+    private ?string $service_sage_paie = null;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="agenceServiceIrium")
@@ -119,12 +119,12 @@ class AgenceServiceIrium
 
     public function getIdirium(): ?string
     {
-        return $this->id_irium;
+        return $this->idIrium;
     }
 
     public function setIdirium(?string $id_irium): self
     {
-        $this->id_irium = $id_irium;
+        $this->idIrium = $id_irium;
 
         return $this;
     }

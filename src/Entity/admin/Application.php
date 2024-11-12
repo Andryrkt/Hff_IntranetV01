@@ -37,11 +37,11 @@ class Application
     private string $codeApp;
 
     /**
-     * @ORM\Column(type="string", length=11, name="derniere_id")
+     * @ORM\Column(type="string", length=11, name="derniere_id", nullable=true)
      *
      * @var ?string
      */
-    private ?string $derniereId ;
+    private ?string $derniereId = null ;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
@@ -97,7 +97,7 @@ class Application
     }
 
   
-    public function setDerniereId(string $derniereId): self
+    public function setDerniereId(?string $derniereId): self
     {
         $this->derniereId = $derniereId;
 

@@ -66,19 +66,19 @@ class DemandeSupportInformatique
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_TKI_Categorie", referencedColumnName="ID_Categorie")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKI_Categorie", referencedColumnName="id")
      */
     private ?TkiCategorie $categorie;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiSousCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Sous_Categorie", referencedColumnName="ID_Sous_Categorie")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Sous_Categorie", referencedColumnName="id")
      */
     private ?TkiSousCategorie $sousCategorie;
 
    /**
      * @ORM\ManyToOne(targetEntity=TkiAutresCategorie::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Autres_Categorie", referencedColumnName="ID_Autres_Categorie")
+     * @ORM\JoinColumn(nullable=false, name="ID_TKL_Autres_Categorie", referencedColumnName="id")
      */
     private ?TkiAutresCategorie $autresCategorie = null;
 

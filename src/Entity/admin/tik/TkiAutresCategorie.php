@@ -20,7 +20,7 @@ class TkiAutresCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Autres_Categorie")
+     * @ORM\Column(type="integer")
      */
     private int $id;
 
@@ -29,11 +29,10 @@ class TkiAutresCategorie
      */
     private string $description;
 
-     /**
-     * @ORM\ManyToOne(targetEntity=TkiSousCategorie::class, inversedBy="autresCategories")
-     * @ORM\JoinColumn(name="ID_Sous_Categorie", referencedColumnName="id")
+    /**
+     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
      */
-    private ?TkiSousCategorie $sousCategorie;
+    private Collection $sousCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
@@ -43,6 +42,7 @@ class TkiAutresCategorie
 
     public function __construct()
     {
+        $this->sousCategories = new ArrayCollection();
         $this->supportInfo = new ArrayCollection();
     }
 
@@ -71,16 +71,33 @@ class TkiAutresCategorie
         return $this;
     }
 
-    public function getSousCategorie(): ?TkiSousCategorie
-    {
-        return $this->sousCategorie;
-    }
+   /**
+ * @return Collection
+ */
+public function getSousCategories(): Collection
+{
+    return $this->sousCategories;
+}
 
-    public function setSousCategorie(?TkiSousCategorie $sousCategorie): self
+
+    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        $this->sousCategorie = $sousCategorie;
+        if (!$this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories[] = $sousCategorie;
+            $sousCategorie->addAutresCategorie($this);
+        }
         return $this;
     }
+    
+    public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
+    {
+        if ($this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories->removeElement($sousCategorie);
+            $sousCategorie->removeAutresCategorie($this);
+        }
+        return $this;
+    }
+    
 
     public function getSupportInfo(): Collection
     {

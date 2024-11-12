@@ -4,15 +4,17 @@ namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity(repositoryClass=ProjetInformatiqueRepository::class)
+ * @ORM\Table(name="Projet_Informatique")
  */
 class ProjetInformatique
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM/Column(type="integer")
+     * @ORM\Column(type="integer", name="ID_Projet_Informatique")
      */
     private $id;
 
@@ -27,12 +29,12 @@ class ProjetInformatique
     private $numeroDemandeur;
 
     /**
-     * @ORM/Column(type="string", length=50, nullable=false)
+     * @ORM\Column(type="string", length=50, nullable=false)
      */
     private $mailDemandeur;
 
     /**
-     * @ORM/Column(type="string", length=2, nullable=false)
+     * @ORM\Column(type="string", length=2, nullable=false)
      */
     private $codeSociete;
 

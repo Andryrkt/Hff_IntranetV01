@@ -3,6 +3,7 @@
 namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\tik\TkiSousCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -27,9 +28,10 @@ class TkiCategorie
 
 
     /**
-     * @ORM\OneToMany(targetEntity=TKISousCategorie::class, mappedBy="categorie")
+     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categorie")
+     * @ORM\JoinTable(name="categorie_souscategorie")
      */
-    private Collection $sousCategories;
+    private $sousCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
@@ -66,30 +68,29 @@ class TkiCategorie
     }
 
 
+    /**
+     * @return Collection
+     */
     public function getSousCategories(): Collection
     {
         return $this->sousCategories;
     }
 
-    public function addSousCategories(?TkiSousCategorie $sousCategories): self
+    public function addSousCategories(TkiSousCategorie $sousCategories): self
     {
         if (!$this->sousCategories->contains($sousCategories)) {
             $this->sousCategories[] = $sousCategories;
-            $sousCategories->setCategorie($this);
         }
 
         return $this;
     }
 
-    public function removeSousCategories(?TkiSousCategorie $sousCategories): self
+    public function removeSousCategories(TkiSousCategorie $sousCategories): self
     {
         if ($this->sousCategories->contains($sousCategories)) {
             $this->sousCategories->removeElement($sousCategories);
-            if ($sousCategories->getCategorie() === $this) {
-                $sousCategories->setCategorie(null);
-            }
         }
-        
+
         return $this;
     }
 

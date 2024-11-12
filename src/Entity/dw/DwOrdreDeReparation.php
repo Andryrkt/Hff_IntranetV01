@@ -42,7 +42,7 @@ class DwOrdreDeReparation
 
 
     /**
-      * @ORM\Column(type="string", length=11, name="numero_dit", unique=true)
+      * @ORM\Column(type="string", length=11, name="numero_dit")
       *
       * @var string
       */
@@ -103,7 +103,7 @@ class DwOrdreDeReparation
 
     /**
      * @ORM\OneToOne(targetEntity=DwDemandeIntervention::class, inversedBy="ordreDeReparation")
-     * @ORM\JoinColumn(name="numero_dit", referencedColumnName="numero_dit", unique=true)
+     * @ORM\JoinColumn(name="numero_dit", referencedColumnName="numero_dit")
      */
     private $demandeIntervention;
 

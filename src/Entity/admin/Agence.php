@@ -18,7 +18,6 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
  * @ORM\Table(name="agences")
  * @ORM\Entity(repositoryClass=AgenceRepository::class)
  * @ORM\HasLifecycleCallbacks
