@@ -17,8 +17,7 @@ class DomSecondController extends Controller
     use FormatageTrait;
     use DomsTrait;
     
-   
-      /**
+    /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
     public function secondForm(Request $request)
