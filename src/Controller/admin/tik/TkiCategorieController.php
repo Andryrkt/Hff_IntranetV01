@@ -36,10 +36,10 @@ class TkiCategorieController extends Controller
         {
             $categorie = $form->getData();
 
-            $selectedSousCategories = $form->get('sousCategorie')->getData();
+            $selectedSousCategories = $form->get('sousCategories')->getData();
 
                 foreach ($selectedSousCategories as $sousCategorie) {
-                    $categorie->addPermission($sousCategorie);
+                    $categorie->addSousCategories($sousCategorie);
                 }
 
                 self::$em->persist($categorie);
@@ -55,7 +55,7 @@ class TkiCategorieController extends Controller
     }
 
     /**
-     * @Route("/admin/tki-categorie-edit/{$id}", name="tki_categorie_edit")
+     * @Route("/admin/tki-categorie-edit/{id}", name="tki_categorie_edit")
      *
      * @param Request $request
      * @param int $id

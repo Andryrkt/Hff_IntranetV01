@@ -16,7 +16,6 @@ class DetailTikController extends Controller
     {
         $tik = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
         
-        dump($tik);
         if (!$tik) {
             self::$twig->display('404.html.twig');
         } else {

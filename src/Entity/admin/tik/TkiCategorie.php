@@ -17,7 +17,7 @@ class TkiCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Categorie")
+     * @ORM\Column(type="integer", name="id")
      */
     private $id;
 
@@ -28,7 +28,7 @@ class TkiCategorie
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categorie")
+     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categories")
      * @ORM\JoinTable(name="categorie_souscategorie")
      */
     private $sousCategories;
@@ -80,8 +80,16 @@ class TkiCategorie
     {
         if (!$this->sousCategories->contains($sousCategories)) {
             $this->sousCategories[] = $sousCategories;
+            $sousCategories->addCategories($this);
         }
 
+        return $this;
+    }
+
+    
+    public function setSousCategories(Collection $SousCategories): self
+    {
+        $this->sousCategories = $SousCategories;
         return $this;
     }
 
