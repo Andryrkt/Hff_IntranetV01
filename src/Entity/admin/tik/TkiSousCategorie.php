@@ -31,7 +31,7 @@ class TkiSousCategorie
     private $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategories")
      */
     private $categories;
 
@@ -113,10 +113,10 @@ class TkiSousCategorie
     }
 
     public function setAutresCategories(Collection $autresCategories): self
-{
-    $this->autresCategories = $autresCategories;
-    return $this;
-}
+    {
+        $this->autresCategories = $autresCategories;
+        return $this;
+    }
 
     public function removeAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
