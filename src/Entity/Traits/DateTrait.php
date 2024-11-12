@@ -10,12 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 trait DateTrait
 {
     /**
-     * @ORM\Column(type="date", name="date_creation")
+     * @ORM\Column(type="datetime", name="date_creation")
      */
     private $dateCreation;
 
     /**
-     * @ORM\Column(type="date", name="date_modification")
+     * @ORM\Column(type="datetime", name="date_modification")
      */
     private $dateModification;
 

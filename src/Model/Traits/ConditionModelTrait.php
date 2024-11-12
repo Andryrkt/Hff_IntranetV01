@@ -134,4 +134,16 @@ trait ConditionModelTrait
         return $agenceUser;
     }
 
+    private function conditionOrValide($orValides, $numORItvValides)
+    {
+        if($orValides)
+        {
+            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')";
+        } else {
+            $orValide = '';
+        }
+
+        return $orValide;
+    }
+
 }

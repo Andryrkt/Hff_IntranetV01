@@ -95,7 +95,7 @@ trait DitListTrait
      */
     private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
-      
+    
         $criteria = $this->sessionService->get('dit_search_criteria', []);
         
         if($criteria !== null){
@@ -245,6 +245,15 @@ trait DitListTrait
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds) || in_array(4, $roleIds);
+    }
+
+    private function autorisationRoleEnergie($em): bool
+    {
+        /** CREATION D'AUTORISATION */
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = $em->getRepository(User::class)->find($userId);
+        $roleIds = $userConnecter->getRoleIds();
+        return in_array(5, $roleIds);
     }
 
 

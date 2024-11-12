@@ -24,9 +24,9 @@ trait DomsTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom) {
 
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-
+        // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+        // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+        $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
         $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
@@ -37,10 +37,10 @@ trait DomsTrait
             $dom->setPrenom($form1Data['prenom']);
             $dom->setCin($form1Data['cin']);
 
-            $agenceEmetteur = $CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-            $serviceEmetteur = $CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-            $codeAgenceEmetteur = $CodeServiceofCours[0]['agence_ips'] ;
-            $codeServiceEmetteur = $CodeServiceofCours[0]['service_ips'] ;
+            $agenceEmetteur = $agenceServiceEmetteur['agenceIps']->getCodeAgence() . ' ' . $agenceServiceEmetteur['agenceIps']->getLibelleAgence();
+            $serviceEmetteur = $agenceServiceEmetteur['serviceIps']->getCodeService() . ' ' . $agenceServiceEmetteur['serviceIps']->getLibelleService();
+            $codeAgenceEmetteur = $agenceServiceEmetteur['agenceIps']->getCodeAgence();
+            $codeServiceEmetteur = $agenceServiceEmetteur['serviceIps']->getCodeService() ;
         
         } else {
             
@@ -87,15 +87,19 @@ trait DomsTrait
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];
-            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+            // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+            // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+
+            // dump($CodeServiceofCours);
             
-            if($CodeServiceofCours[0]['agence_ips'] === '50'){
+            $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
+
+            if( $agenceServiceEmetteur['agenceIps']->getCodeAgence() == '50'){
                 $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-           } else {
-                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
-          return  [
+            } else {
+                    $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+            }
+        return  [
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq,
             'categorie' => $catg

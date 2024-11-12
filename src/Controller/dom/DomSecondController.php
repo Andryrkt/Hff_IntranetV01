@@ -17,8 +17,7 @@ class DomSecondController extends Controller
     use FormatageTrait;
     use DomsTrait;
     
-   
-      /**
+    /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
     public function secondForm(Request $request)
@@ -75,41 +74,6 @@ class DomSecondController extends Controller
                         $this->notification($message);
                     }
                 } 
-            // } else {
-
-            //         if ($form1Data['sousTypeDocument'] !== 'COMPLEMENT') 
-            //         {
-            //             if ($verificationDateExistant) 
-            //             {
-            //                 $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
-            //                 $this->notification($message);
-            //             } else {
-                    
-            //                 if ($form1Data['sousTypeDocument'] === 'FRAIS EXCEPTIONNEL' && $dom->getDevis() !== 'MGA') 
-            //                 {
-            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //                 }
-
-            //                 if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) 
-            //                 {
-            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //                 } else {
-            //                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-            //                     $this->notification($message);
-            //                 }
-            //             }
-                        
-            //         } else {
-            //             if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-            //                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //             } 
-            //             else {
-            //                 $message = "Assurer que le Montant Total est inférieur ou égale à 500.000";
-            //                 $this->notification($message);
-            //             }
-            //         }
-                
-            // }
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('doms_liste');

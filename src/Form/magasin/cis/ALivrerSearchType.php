@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class ALivrerSearchtype extends AbstractType
 {
@@ -185,6 +186,13 @@ class ALivrerSearchtype extends AbstractType
                 'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
                 'placeholder' => ' -- choisir une mode affichage --',
                 'data' => 'PIECES MAGASIN'
+            ])
+            ->add('orValide', 
+            CheckboxType::class,
+            [
+                'label' => 'OR validé',
+                'required' => false,
+                'data' => true // Définit la case comme cochée par défaut
             ])
         ;
     }
