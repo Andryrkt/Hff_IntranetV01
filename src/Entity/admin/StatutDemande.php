@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Form\demandeInterventionType;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\StatutDemandeRepository;
 
@@ -49,7 +50,7 @@ class StatutDemande
      */
     private $badms;
 
-  /**
+    /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="idStatutDemande")
      */
     private $demandeInterventions;
@@ -63,6 +64,11 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="idStatutDemande")
      */
     private $doms;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="idStatutDemande")
+     */
+    private $supportInfo;
     
     public function __construct()
     {
@@ -70,6 +76,7 @@ class StatutDemande
         $this->demandeInterventions = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->doms = new ArrayCollection();
+        $this->supportInfo = new ArrayCollection();
     }
 
     public function getId()
@@ -253,6 +260,36 @@ class StatutDemande
     {
         $this->doms = $doms;
 
+        return $this;
+    }
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getSupportInfo()
+    {
+        return $this->supportInfo;
+    }
+
+    public function addSupportInfo(DemandeSupportInformatique $supportInfo): self
+    {
+        if (!$this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo[] = $supportInfo;
+            $supportInfo->setIdStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportInfo(DemandeSupportInformatique $supportInfo): self
+    {
+        if ($this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo->removeElement($supportInfo);
+            if ($supportInfo->getIdStatutDemande() === $this) {
+                $supportInfo->setIdStatutDemande($this);
+            }
+        }
+        
         return $this;
     }
 }

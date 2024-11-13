@@ -63,7 +63,7 @@ class RoleController extends Controller
         }
 
 
-                /**
+    /**
      * @Route("/admin/role/edit/{id}", name="role_update")
      *
      * @return void
@@ -88,7 +88,6 @@ class RoleController extends Controller
         self::$twig->display('admin/role/edit.html.twig', [
             'form' => $form->createView(),
         ]);
-
     }
 
     /**

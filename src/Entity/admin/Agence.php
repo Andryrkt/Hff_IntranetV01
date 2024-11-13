@@ -14,10 +14,10 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
  * @ORM\Table(name="agences")
  * @ORM\Entity(repositoryClass=AgenceRepository::class)
  * @ORM\HasLifecycleCallbacks
@@ -90,15 +90,24 @@ class Agence
      */
     private $domAgenceDebiteur;
 
-   /**
- * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
- * @ORM\JoinTable(name="agence_user", 
- *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
- *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
- * )
- */
-private $usersAutorises;
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
+     * @ORM\JoinTable(name="agence_user", 
+     *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+     * )
+     */
+    private $usersAutorises;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="agenceEmetteurId")
+     */
+    private $tkiAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="agenceDebiteurId")
+     */
+    private $tkiAgenceDebiteur;
 
     public function __construct()
     {
@@ -111,6 +120,8 @@ private $usersAutorises;
         $this->usersAutorises = new ArrayCollection();
         $this->domAgenceEmetteur = new ArrayCollection();
         $this->domAgenceDebiteur = new ArrayCollection();
+        $this->tkiAgenceEmetteur = new ArrayCollection();
+        $this->tkiAgenceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -238,6 +249,7 @@ private $usersAutorises;
         
         return $this;
     }
+    
     public function setDitAgenceEmetteurs($ditAgenceEmetteur)
     {
         $this->ditAgenceEmetteur = $ditAgenceEmetteur;
@@ -388,6 +400,10 @@ public function removeUserAutorise(User $user): self
 }
 
 
+    
+
+
+
     /** DOM */
 
     public function getDomAgenceEmetteurs()
@@ -463,4 +479,62 @@ public function removeUserAutorise(User $user): self
         return $this;
     }
 
+    /** TKI */
+
+    public function getTkiAgenceEmetteur()
+    {
+        return $this->tkiAgenceEmetteur;
+    }
+
+    public function addTkiAgenceEmetteur(DemandeSupportInformatique $tkiAgenceEmetteur): self
+    {
+        if (!$this->tkiAgenceEmetteur->contains($tkiAgenceEmetteur)) {
+            $this->tkiAgenceEmetteur[] = $tkiAgenceEmetteur;
+            $tkiAgenceEmetteur->setAgenceEmetteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTkiAgenceEmetteur(DemandeSupportInformatique $tkiAgenceEmetteur): self
+    {
+        if ($this->tkiAgenceEmetteur->contains($tkiAgenceEmetteur)) {
+            $this->tkiAgenceEmetteur->removeElement($tkiAgenceEmetteur);
+            if ($tkiAgenceEmetteur->getAgenceEmetteurId() === $this) {
+                $tkiAgenceEmetteur->setAgenceEmetteurId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getTkiAgenceDebiteur()
+    {
+        return $this->tkiAgenceDebiteur;
+    }
+
+    public function addTkiAgenceDebiteur(DemandeSupportInformatique $tkiAgenceDebiteur): self
+    {
+        if (!$this->tkiAgenceDebiteur->contains($tkiAgenceDebiteur)) {
+            $this->tkiAgenceDebiteur[] = $tkiAgenceDebiteur;
+            $tkiAgenceDebiteur->setAgenceDebiteurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTkiAgenceDebiteur(DemandeSupportInformatique $tkiAgenceDebiteur): self
+    {
+        if ($this->tkiAgenceDebiteur->contains($tkiAgenceDebiteur)) {
+            $this->tkiAgenceDebiteur->removeElement($tkiAgenceDebiteur);
+            if ($tkiAgenceDebiteur->getAgenceDebiteurId() === $this) {
+                $tkiAgenceDebiteur->setAgenceDebiteurId(null);
+            }
+        }
+        
+        return $this;
+    }
 }

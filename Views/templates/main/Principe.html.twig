@@ -182,16 +182,17 @@
 					</li>
 				{% endif %}
 
+
 				{% if hasTIK %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							Support Info</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="#">Nouveau Support</a>
+								<a class="dropdown-item" href="{{ path("demande_support_informatique")}}">Nouveau demande</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="#">Liste de Support
+								<a class="dropdown-item" href="{{ path("liste_tik_index")}}">Consultation
 								</a>
 							</li>
 
@@ -209,6 +210,8 @@
 						</ul>
 					</li>
 				{% endif %}
+
+
 				<li class="nav-item dropdown">
 
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>
@@ -274,10 +277,13 @@
 							<li>
 								<a class="dropdown-item" href="#">Statut App</a>
 							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("tki_categorie_new")}}">tki categorie</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
 			</ul>
-		</div>
+		</li>
 	</div>
-</nav>
+</div></nav>

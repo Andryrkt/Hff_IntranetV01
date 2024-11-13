@@ -17,11 +17,11 @@
 			rel="stylesheet" href="/Hffintranet/Views/css/style.css">
 			{# <link rel="stylesheet" href="{{asset("build/global.css")}}"> #}
 			{% block stylesheets %}{% endblock %}
-			{% block title %}
-				<title>
+			<title>
+				{% block title %}
 					Hff Intranet
-				</title>
-			{% endblock %}
+				{% endblock %}
+			</title>
 		{% endblock %}
 	</head>
 	<body>
@@ -45,6 +45,8 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+		<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
 
 		<script type="module" src="{{asset("build/app.js")}}"></script>
 		<!-- <script type="module" src="/Hffintranet/Views/dist/bundle.js"></script> -->
