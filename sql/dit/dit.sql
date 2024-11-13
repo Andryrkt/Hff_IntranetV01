@@ -51,6 +51,9 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
         WHEN RIGHT(agence_service_debiteur, 3) = 'NOS' THEN '28'
         WHEN RIGHT(agence_service_debiteur, 3) = 'MAH' THEN '27'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'AMB' THEN '30'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TSI' THEN '23'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TUL' THEN '29'
         ELSE '0'
     END;
 

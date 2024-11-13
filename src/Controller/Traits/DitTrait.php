@@ -249,15 +249,16 @@ trait DitTrait
  */
 private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
 {
-    $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+    // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
+    // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+
+    $agenceService = $this->agenceServiceIpsObjet();
     
-    $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-    $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+    $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence() );
+    $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
+    $demandeIntervention->setAgence($agenceService['agenceIps']);
+    $demandeIntervention->setService($agenceService['serviceIps']);
     $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
-    $idAgence = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-    $demandeIntervention->setAgence($em->getRepository(Agence::class)->find($idAgence));
-    $demandeIntervention->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
 }
 
 

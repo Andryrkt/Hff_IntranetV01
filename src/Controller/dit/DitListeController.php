@@ -30,7 +30,7 @@ class DitListeController extends Controller
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
-
+        
         $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em); 
         //FIN AUTORISATION
 
