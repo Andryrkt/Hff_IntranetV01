@@ -21,6 +21,7 @@
 				{% set hasDIT = false %}
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
+				{% set hasTIK = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -33,6 +34,8 @@
 						{% set hasMAG = true %}
 					{% elseif item.codeApp == 'REP' %}
 						{% set hasREP = true %}
+					{% elseif item.codeApp == 'TIK' %}
+						{% set hasTIK = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -178,20 +181,23 @@
 						</ul>
 					</li>
 				{% endif %}
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Support Info</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="#">Nouveau Support</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Liste de Support
-							</a>
-						</li>
 
-					</ul>
-				</li>
+				{% if hasTIK %}
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Support Info</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="#">Nouveau Support</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="#">Liste de Support
+								</a>
+							</li>
+
+						</ul>
+					</li>
+				{% endif %}
 				{% if hasREP %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
