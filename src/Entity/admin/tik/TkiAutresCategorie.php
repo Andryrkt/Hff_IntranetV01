@@ -72,35 +72,36 @@ class TkiAutresCategorie
     }
 
    /**
- * @return Collection
- */
-public function getSousCategories(): Collection
-{
-    return $this->sousCategories;
-}
+     * @return Collection
+     */
+    public function getSousCategories(): Collection
+    {
+        return $this->sousCategories;
+    }
 
 
-    public function addSousCategories(TkiSousCategorie $sousCategorie): self
+    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
         if (!$this->sousCategories->contains($sousCategorie)) {
             $this->sousCategories[] = $sousCategorie;
-            $sousCategorie->addAutresCategories($this);
+            $sousCategorie->addAutresCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
         return $this;
     }
 
-    public function setSousCategories(Collection $SousCategories): self
+    public function setSousCategories(Collection $sousCategorie): self
     {
-        $this->sousCategories = $SousCategories;
+        $this->sousCategories = $sousCategorie;
         return $this;
     }
     
     public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if ($this->sousCategories->contains($sousCategorie)) {
-            $this->sousCategories->removeElement($sousCategorie);
-            $sousCategorie->removeAutresCategorie($this);
+        if ($this->sousCategories->removeElement($sousCategorie)) {
+            $sousCategorie->removeAutresCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
         return $this;
     }
     
