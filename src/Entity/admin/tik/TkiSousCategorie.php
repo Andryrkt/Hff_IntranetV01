@@ -80,27 +80,27 @@ class TkiSousCategorie
         return $this->categories;
     }
 
-    public function addCategories(TkiCategorie $categories): self
+    public function addCategorie(TkiCategorie $categorie): self
     {
-        if (!$this->categories->contains($categories)) {
-            $this->categories[] = $categories;
-            $categories->addSousCategories($this);
+        if (!$this->categories->contains($categorie)) {
+            $this->categories[] = $categorie;
+            $categorie->addSousCategorie($this);
         }
         return $this;
     }
 
-    public function setCategories(Collection $Categories): self
+    public function setCategorie(Collection $categorie): self
     {
-        $this->categories = $Categories;
+        $this->categories = $categorie;
         return $this;
     }
 
-    public function removeCategories(?TkiCategorie $categories): self
+    public function removeCategorie(TkiCategorie $categorie): self
     {
-        if ($this->categories->contains($categories)) {
-            $this->categories->removeElement($categories);
-            $categories->removeSousCategories($this);
+        if ($this->categories->removeElement($categorie)) {
+            $categorie->removeSousCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
         return $this;
     }
 
@@ -109,18 +109,18 @@ class TkiSousCategorie
         return $this->autresCategories;
     }
 
-    public function addAutresCategories(TkiAutresCategorie $autresCategorie): self
+    public function addAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
         if (!$this->autresCategories->contains($autresCategorie)) {
             $this->autresCategories[] = $autresCategorie;
-            $autresCategorie->addSousCategories($this);
+            $autresCategorie->addSousCategorie($this);
         }
         return $this;
     }
 
-    public function setAutresCategories(Collection $autresCategories): self
+    public function setAutresCategories(Collection $autresCategorie): self
     {
-        $this->autresCategories = $autresCategories;
+        $this->autresCategories = $autresCategorie;
         return $this;
     }
 
