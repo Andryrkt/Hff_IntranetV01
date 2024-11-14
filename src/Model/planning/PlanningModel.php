@@ -120,7 +120,7 @@ class PlanningModel extends Model
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
- 
+
     $vligneType = $this->typeLigne($criteria);  
     $vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);

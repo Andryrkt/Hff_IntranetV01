@@ -461,9 +461,8 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
     {
-        
         $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
-    
+
         $trouve = false; // Variable pour indiquer si la date est trouvée
 
         // Parcourir chaque élément du tableau
@@ -473,14 +472,14 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $dateFin = new DateTime($periode['Date_Fin']);//date dans la base de donner
             $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
             $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
-
+        
             // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
             if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables
                 $trouve = true;
+                
                 return $trouve;
             }
         }
-
         // Vérifier si aucune correspondance n'est trouvée
         return $trouve;
     }

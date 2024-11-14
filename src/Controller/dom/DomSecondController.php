@@ -40,7 +40,7 @@ class DomSecondController extends Controller
             $domForm = $form->getData();
 
             $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
-
+            
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
             
                 if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 

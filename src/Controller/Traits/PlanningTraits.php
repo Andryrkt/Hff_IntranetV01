@@ -16,12 +16,11 @@ trait PlanningTraits
     private function recupNumOrValider($criteria, $em){
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-        // $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
-        $numOrItvValide = $em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide();
+        $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
         $resNumor = $this->orEnString($numOrItvValide);
         return $resNumor;
     }
-/*
+
     private function recupNumORItvValide($numeroOrs, $em)
     {
         $numOrValide = [];
@@ -53,5 +52,5 @@ trait PlanningTraits
 
         return $numOrValide;
     }
-    */
+    
 }
