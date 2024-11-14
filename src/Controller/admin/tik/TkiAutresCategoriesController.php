@@ -39,6 +39,11 @@ class TkiAutresCategoriesController extends Controller
         {
             $autresCategories = $form->getData();
 
+            $selectedSousCategories = $form->get('sousCategories')->getData();
+
+                foreach ($selectedSousCategories as $sousCategorie) {
+                    $autresCategories->addSousCategories($sousCategorie);
+                }
 
                 self::$em->persist($autresCategories);
                 self::$em->flush();
