@@ -38,6 +38,8 @@ SET
         WHEN RIGHT(agence_service_emmeteur, 3) = 'MAS' THEN '36'
         WHEN RIGHT(agence_service_emmeteur, 3) = 'LR6' THEN '41'
         WHEN RIGHT(agence_service_emmeteur, 3) = 'ATE' THEN '3'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'LCD' THEN '9'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'UMP' THEN '17'
         ELSE '0'
     END;
 
@@ -66,8 +68,13 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'LGR' THEN '46'
         WHEN RIGHT(agence_service_debiteur, 3) = 'LR6' THEN '41'
         WHEN RIGHT(agence_service_debiteur, 3) = 'TUL' THEN '29'
-        ELSE '0'
-    END;
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LST' THEN '42'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LCD' THEN '9'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'COM' THEN '2'
+
+
+ELSE '0' END;
 
 UPDATE demande_intervention
 SET

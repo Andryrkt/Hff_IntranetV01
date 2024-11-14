@@ -176,7 +176,7 @@ class PlanningModel extends Model
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
                    
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw
