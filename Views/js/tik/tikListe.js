@@ -109,3 +109,30 @@ function selectAgenceDebiteur() {
     })
     .catch((error) => console.error("Error:", error));
 }
+
+/**
+ * recupérer le catégorie et afficher les sous catégorie correspondant
+ */
+const categorieInput = document.querySelector(".categorie");
+const sousCategorieInput = document.querySelector(".sous-categorie");
+console.log(categorieInput, sousCategorieInput);
+
+categorieInput.addEventListener("change", selectCategorieSousCategorie);
+
+function selectCategorieSousCategorie() {
+  const categorie = categorieInput.value;
+
+  if (categorie === "") {
+    while (sousCategorieInput.options.length > 0) {
+      sousCategorieInput.remove(0);
+    }
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = " -- Choisir une sous catégorie -- ";
+    sousCategorieInput.add(defaultOption);
+    return; // Sortir de la fonction
+  }
+
+  console.log(categorie);
+}

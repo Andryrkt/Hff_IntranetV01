@@ -5,6 +5,9 @@ namespace App\Entity\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\admin\tik\TkiSousCategorie;
 
 class TikSearch
 {
@@ -26,6 +29,18 @@ class TikSearch
 
     private ?Service $serviceDebiteur = null;
 
+    private ?TkiCategorie $categorie = null;
+
+    private ?TkiSousCategorie $sousCategorie = null;
+
+    private ?TkiAutresCategorie $autresCategories = null;
+
+    /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
+    
 
     /**
      * Get the value of demandeur
@@ -203,6 +218,66 @@ class TikSearch
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of categorie
+     */ 
+    public function getCategorie()
+    {
+        return $this->categorie;
+    }
+
+    /**
+     * Set the value of categorie
+     *
+     * @return  self
+     */ 
+    public function setCategorie($categorie)
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sousCategorie
+     */ 
+    public function getSousCategorie()
+    {
+        return $this->sousCategorie;
+    }
+
+    /**
+     * Set the value of sousCategorie
+     *
+     * @return  self
+     */ 
+    public function setSousCategorie($sousCategorie)
+    {
+        $this->sousCategorie = $sousCategorie;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of autresCategories
+     */ 
+    public function getAutresCategories()
+    {
+        return $this->autresCategories;
+    }
+
+    /**
+     * Set the value of autresCategories
+     *
+     * @return  self
+     */ 
+    public function setAutresCategories($autresCategories)
+    {
+        $this->autresCategories = $autresCategories;
 
         return $this;
     }
