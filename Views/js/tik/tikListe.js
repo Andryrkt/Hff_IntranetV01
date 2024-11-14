@@ -135,4 +135,35 @@ function selectCategorieSousCategorie() {
   }
 
   console.log(categorie);
+  let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((sousCategories) => {
+      console.log(sousCategories);
+
+      // Supprimer toutes les options existantes
+      while (sousCategorieInput.options.length > 0) {
+        sousCategorieInput.remove(0);
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une service -- ";
+      sousCategorieInput.add(defaultOption);
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < services.length; i++) {
+        var option = document.createElement("option");
+        option.value = services[i].value;
+        option.text = services[i].text;
+        sousCategorieInput.add(option);
+      }
+
+      //Afficher les nouvelles valeurs et textes des options
+      for (var i = 0; i < sousCategorieInput.options.length; i++) {
+        var option = sousCategorieInput.options[i];
+        console.log("Value: " + option.value + ", Text: " + option.text);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
 }

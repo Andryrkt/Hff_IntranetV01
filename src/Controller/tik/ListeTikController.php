@@ -40,7 +40,6 @@ class ListeTikController extends Controller
             'resultat' => $paginationData['totalItems'],
             'form' => $form->createView(),
             'criteria' => $criteria,
-            
         ]);
     }
 }
