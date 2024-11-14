@@ -76,31 +76,32 @@ class TkiCategorie
         return $this->sousCategories;
     }
 
-    public function addSousCategories(TkiSousCategorie $sousCategories): self
+    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if (!$this->sousCategories->contains($sousCategories)) {
-            $this->sousCategories[] = $sousCategories;
-            $sousCategories->addCategories($this);
+        if (!$this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories[] = $sousCategorie;
+            $sousCategorie->addCategorie($this);
         }
 
         return $this;
     }
 
     
-    public function setSousCategories(Collection $SousCategories): self
+    public function setSousCategories(Collection $sousCategorie): self
     {
-        $this->sousCategories = $SousCategories;
+        $this->sousCategories = $sousCategorie;
         return $this;
     }
 
-    public function removeSousCategories(TkiSousCategorie $sousCategories): self
+    public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if ($this->sousCategories->contains($sousCategories)) {
-            $this->sousCategories->removeElement($sousCategories);
+        if ($this->sousCategories->removeElement($sousCategorie)) {
+            $sousCategorie->removeCategorie($this); // Maintient la relation bidirectionnelle
         }
 
         return $this;
     }
+
 
     public function getSupportInfo(): Collection
     {
@@ -129,4 +130,3 @@ class TkiCategorie
         return $this;
     }
 }
-?>
