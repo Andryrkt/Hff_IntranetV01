@@ -80,12 +80,18 @@ public function getSousCategories(): Collection
 }
 
 
-    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
+    public function addSousCategories(TkiSousCategorie $sousCategorie): self
     {
         if (!$this->sousCategories->contains($sousCategorie)) {
             $this->sousCategories[] = $sousCategorie;
-            $sousCategorie->addAutresCategorie($this);
+            $sousCategorie->addAutresCategories($this);
         }
+        return $this;
+    }
+
+    public function setSousCategories(Collection $SousCategories): self
+    {
+        $this->sousCategories = $SousCategories;
         return $this;
     }
     
