@@ -8,7 +8,7 @@
 
 				<div class="container">
 					<h3 class="perso-titre">
-						Formulaire d'ajout des sous Catégories ticketing
+						Formulaire d'ajout de sous-catégorie ticketing
 					</h3>
 
 					<a href="{{path("tki_sous_categorie_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
@@ -17,10 +17,13 @@
 					{{ form_errors(form)}}
 
 					<div class="row">
-						<div class="col-12 col-md-6">
+						<div class="col-12 col-md-4">
+							{{ form_row(form.categories) }}
+						</div>
+						<div class="col-12 col-md-4">
 							{{ form_row(form.description) }}
 						</div>
-						<div class="col-12 col-md-6">
+						<div class="col-12 col-md-4">
 							{{ form_row(form.autresCategories) }}
 						</div>
 					</div>
