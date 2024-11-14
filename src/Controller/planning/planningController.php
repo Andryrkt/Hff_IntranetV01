@@ -42,9 +42,7 @@ class PlanningController extends Controller
                 ->setInterneExterne('TOUS')
                 ->setTypeLigne('TOUETS')
             ;
-        
-            
-            
+
             $form = self::$validator->createBuilder(PlanningSearchType::class,$planningSearch,
             [ 
                 'method' =>'GET'
@@ -69,7 +67,9 @@ class PlanningController extends Controller
             if($request->query->get('action') !== 'oui') 
             {
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
+dump($lesOrvalides);
                 $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+                dd($data);
             } else {
                 $data = [];
             }

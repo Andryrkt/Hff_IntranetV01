@@ -16,23 +16,25 @@ trait PlanningTraits
     private function recupNumOrValider($criteria, $em){
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-        $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
+        // $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
+        $numOrItvValide = $em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide();
         $resNumor = $this->orEnString($numOrItvValide);
         return $resNumor;
     }
-
+/*
     private function recupNumORItvValide($numeroOrs, $em)
     {
         $numOrValide = [];
         foreach ($numeroOrs as $numeroOr) {
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
+            dump($numItv);
             if(!empty($numItv)){
                 foreach ($numItv as  $value) {
                     $numOrValide[] = $numeroOr['numero_or'].'-'.$value;
                 }
             }
         }
-        
+        dump($numOrValide);
         return $numOrValide;
     }
 
@@ -51,5 +53,5 @@ trait PlanningTraits
 
         return $numOrValide;
     }
-    
+    */
 }
