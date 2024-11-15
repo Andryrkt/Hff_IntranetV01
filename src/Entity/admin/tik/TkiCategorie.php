@@ -6,10 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\tik\TkiSousCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\tik\TkiCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=TkiCategorieRepository::class)
  * @ORM\Table(name="TKI_CATEGORIE")
  */
 class TkiCategorie

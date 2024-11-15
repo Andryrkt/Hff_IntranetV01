@@ -8,10 +8,11 @@ use App\Entity\admin\tik\TkiCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\tik\TkiSousCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=TkiSousCategorieRepository::class)
  * @ORM\Table(name="TKI_SOUS_CATEGORIE")
  */
 class TkiSousCategorie
