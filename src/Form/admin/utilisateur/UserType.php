@@ -18,6 +18,7 @@ use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Repository\admin\utilisateur\RoleRepository;
+use App\Service\SessionManagerService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -27,20 +28,25 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class UserType extends AbstractType
 {
     private $ldap;
-    private $agenceRepository;
+    private $userRepository;
+    private $sessionService;
 
     public function __construct()
     {
         $this->ldap = new LdapModel();
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->userRepository = Controller::getEntity()->getRepository(User::class);
+        $this->sessionService = new SessionManagerService();
     }
 
     
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $userId = $this->sessionService->get('user_id');
+        $user = $this->userRepository->find($userId);
+        $password = $this->sessionService->get('password');
         
-        $users = $this->ldap->infoUser($_SESSION['user'], $_SESSION['password']);
+        $users = $this->ldap->infoUser($user->getNomUtilisateur(), $password);
    
         $nom = [];
         foreach ($users as $key => $value) {

@@ -11,6 +11,7 @@ use App\Model\dit\DitListModel;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,6 +30,12 @@ class DitListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $agenceIds = $user->getAgenceAutoriserIds();
+        $serviceIds = $user->getServiceAutoriserIds();
+        //dd($agenceIds, $serviceIds);
 
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
@@ -89,6 +96,8 @@ class DitListeController extends Controller
             'boolean' => $autoriser,
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
+            'agenceAutoriserIds' => $agenceIds,
+            'serviceAutoriserIds' => $serviceIds
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 

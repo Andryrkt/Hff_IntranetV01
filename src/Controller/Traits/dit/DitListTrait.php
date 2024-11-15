@@ -336,4 +336,28 @@ trait DitListTrait
         // Sauvegarde des changements dans la base de données
         $em->flush();
     } 
+
+    private function orEnString($tab): string
+    {
+        $numOrValide = $this->transformEnSeulTableau($tab);
+
+        return implode("','", $numOrValide);
+    }
+
+    private function transformEnSeulTableau(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as  $values) {
+            if(is_array($values)){
+                foreach ($values as $value) {
+                    $tab[] = $value;
+                }
+            } else {
+                $tab[] = $values;
+            }
+            
+        }
+
+        return $tab;
+    }
 }

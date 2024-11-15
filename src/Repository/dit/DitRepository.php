@@ -37,16 +37,27 @@ class DitRepository extends EntityRepository
             $this->applySection($queryBuilder, $ditSearch);
 
             if (!$options['boolean']) {
-            $queryBuilder
-    ->andWhere(
-        $queryBuilder->expr()->orX(
-            'd.agenceDebiteurId = :agDebit',
-            'd.agenceEmetteurId = :agEmet'
-        )
-    )
-    ->setParameter('agDebit', $options['codeAgence'])
-    ->setParameter('agEmet', $options['codeAgence']);
-        }
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder->expr()->orX(
+                            'd.agenceDebiteurId IN (:agDebit)',
+                            'd.agenceEmetteurId = :agEmet'
+                        )
+                    )
+                    ->setParameter('agDebit', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY) // Définit comme tableau d'entiers
+                    ->setParameter('agEmet', $options['codeAgence']) // Code agence est un entier unique
+            
+                    ->andWhere(
+                        $queryBuilder->expr()->orX(
+                            'd.serviceDebiteurId IN (:servDebit)',
+                            'd.serviceEmetteurId IN (:servEmet)'
+                        )
+                    )
+                    ->setParameter('servDebit', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY) // Tableau d'entiers
+                    ->setParameter('servEmet', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY); // Tableau d'entiers
+            }
+            
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 
@@ -58,8 +69,8 @@ class DitRepository extends EntityRepository
 
             $totalItems = count($paginator);
             $lastPage = ceil($totalItems / $limit);
-            // $sql = $queryBuilder->getQuery()->getSQL();
-            // echo $sql;
+            //  $sql = $queryBuilder->getQuery()->getSQL();
+            //  echo $sql;
 
             // Récupérer le nombre de lignes par statut
             $statusCounts = $this->countByStatus($ditSearch, $options);
@@ -71,6 +82,43 @@ class DitRepository extends EntityRepository
             'lastPage' => $lastPage,
             'statusCounts' => $statusCounts,
         ];
+    }
+
+    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
+    {
+        //if ($options['boolean']) {
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+                    ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
+            }
+            if (!empty($ditSearch->getServiceEmetteur())) {
+                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+            }
+        // } else {
+        //     if ($options['autorisationRoleEnergie']) {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
+        //     } else {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
+        //     }
+        // }
+
+        if (!empty($ditSearch->getAgenceDebiteur())) {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->andX(
+                    'd.agenceDebiteurId = :agDebit',
+                    'd.agenceEmetteurId = :agEmet'
+                )
+            )
+            ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
+            ->setParameter('agEmet', $options['codeAgence']);
+        }
+        
+
+        if (!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
+        }
     }
 
     /** =====================================================
@@ -241,38 +289,12 @@ class DitRepository extends EntityRepository
 
         // Apply agency and service filters based on user roles
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
-       
+        
     }
 
-    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
-    {
-        //if ($options['boolean']) {
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                    ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
-            }
-            if (!empty($ditSearch->getServiceEmetteur())) {
-                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
-            }
-        // } else {
-        //     if ($options['autorisationRoleEnergie']) {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
-        //     } else {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
-        //     }
-        // }
 
-        if (!empty($ditSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId());
-        }
 
-        if (!empty($ditSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
-        }
-    }
+    
 
         private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
         {
