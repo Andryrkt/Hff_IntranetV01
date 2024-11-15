@@ -20,6 +20,7 @@ class DetailTikType extends AbstractType
         $builder
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
+                'attr'         => ['id' => 'categorie'],
                 'placeholder'  => '-- Choix de catégorie --',
                 'class'        => TkiCategorie::class,
                 'choice_label' => 'description',
@@ -30,6 +31,7 @@ class DetailTikType extends AbstractType
             ])
             ->add('sousCategorie', EntityType::class, [
                 'label'        => 'Sous-catégories',
+                'attr'         => ['id' => 'sous-categorie'],
                 'placeholder'  => '-- Choix de sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
                 'choice_label' => 'description',
@@ -39,6 +41,7 @@ class DetailTikType extends AbstractType
             ])
             ->add('autresCategorie', EntityType::class, [
                 'label'        => 'Autres catégories',
+                'attr'         => ['id' => 'autre-categorie'],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
                 'choice_label' => 'description',
