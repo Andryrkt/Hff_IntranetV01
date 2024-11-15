@@ -14,11 +14,17 @@
 		<h3 class="perso-titre">
 			Liste de Demande support informatique
 		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/tik/demandeSupportInformatique/shared/_formulaireRecherche.html.twig" %}
 	</div>
 
 	<div
 		class="container-fluid">
 		<!-- DEBUT tableau -->
+
+		<div class="container">
+			{% include "/tik/demandeSupportInformatique/shared/_pagination.html.twig" %}
+		</div>
 
 		<table class="table rounded table-plein-ecran">
 			<thead class="table-dark">
@@ -62,9 +68,9 @@
 						<td>
 							<a href="{{ path("detail_tik", {id: item.id}) }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td class="text-center">{{ item.agenceServiceEmetteur}}</td>
-						<td class="text-center">{{ item.agenceServiceDebiteur}}</td>
-						<td class="text-center">{{item.dateCreation | date('d/m/Y')}}</td>
+						<td>{{ item.agenceServiceEmetteur}}</td>
+						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>{{item.dateCreation | date('d/m/Y')}}</td>
 						<td>{{ item.parcInformatique}}</td>
 						<td></td>
 						<td>{{ item.categorie.description}}</td>
@@ -82,5 +88,5 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/tik/tikListe.js" type="module"></script>
 {% endblock %}

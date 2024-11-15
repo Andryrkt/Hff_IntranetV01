@@ -3,7 +3,10 @@
 namespace App\Controller\tik;
 
 use App\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TikSearch;
+use App\Form\tik\TikSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListeTikController extends Controller
@@ -11,13 +14,32 @@ class ListeTikController extends Controller
     /**
      * @Route("/tik-liste", name="liste_tik_index")
      */
-    public function index()
+    public function index(Request $request)
     {
+        $tikSearch = new TikSearch();
+        $agenceServiceIps= $this->agenceServiceIpsObjet();
+        
+        //création et initialisation du formulaire de la recherche
+        $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
+            'method' => 'GET',
+            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+        ])->getForm();
 
-        $data = self::$em->getRepository(DemandeSupportInformatique::class)->findAll();
+        //recupère le numero de page
+        $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
+        $limit = 10;
+
+        $criteria =[];
+        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
-            'data' => $data
+            'data' => $paginationData['data'],
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages' =>$paginationData['lastPage'],
+            'resultat' => $paginationData['totalItems'],
+            'form' => $form->createView(),
+            'criteria' => $criteria,
         ]);
     }
 }
