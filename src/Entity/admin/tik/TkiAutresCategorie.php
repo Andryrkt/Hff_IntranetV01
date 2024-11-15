@@ -32,7 +32,7 @@ class TkiAutresCategorie
     /**
      * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
      */
-    private Collection $sousCategories;
+    private $sousCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
