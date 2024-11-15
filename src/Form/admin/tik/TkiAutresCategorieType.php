@@ -19,14 +19,6 @@ class TkiAutresCategorieType extends AbstractType
             ->add('description', TextType::class, [
                 'label' => 'Déscription de l\'autre catégorie *',
             ])
-            ->add('sousCategories', EntityType::class, [
-                'label' => 'Sous-catégories liée(s) *',
-                'placeholder'  => '-- Choisir une ou des sous-catégorie(s) --',
-                'class' => TkiSousCategorie::class,
-                'choice_label'=> 'description',
-                'multiple' => true,
-                'expanded' => false
-            ])
             ;
     }
 
