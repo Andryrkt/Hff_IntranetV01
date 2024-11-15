@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const select1 = document.getElementById('select1');
     const select2 = document.getElementById('select2');
