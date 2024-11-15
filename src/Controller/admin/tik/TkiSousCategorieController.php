@@ -32,25 +32,24 @@ class TkiSousCategorieController extends Controller
         $form = self::$validator->createBuilder(TkiSousCategorieType::class)->getForm();
         
         $form->handleRequest($request);
+
         if($form->isSubmitted() && $form->isValid())
         {
             $sousCategorie = $form->getData();
-            
-            $selectedCategories   = $form->get('categories')->getData();
-            $selectedAutresCategories = $form->get('autresCategories')->getData();
 
-                foreach ($selectedCategories as $Categorie) {
-                    $sousCategorie->addCategories($Categorie);
-                }
+            // Récupérer les catégories et autres catégories sélectionnées
+            $autresCategories = $form->get('autresCategories')->getData();
 
-                foreach ($selectedAutresCategories as $autresCategorie) {
-                    $sousCategorie->addAutresCategories($autresCategorie);
-                }
+            // Ajouter chaque catégorie et autre catégorie manuellement
 
-                self::$em->persist($sousCategorie);
-                self::$em->flush();
+            foreach ($autresCategories as $autreCategorie) {
+                $sousCategorie->addAutresCategorie($autreCategorie);
+            }
 
-                $this->redirectToRoute("tki_sous_categorie_index");
+            self::$em->persist($sousCategorie);
+            self::$em->flush();
+
+            $this->redirectToRoute("tki_sous_categorie_index");
         }
         
         self::$twig->display('admin/tik/sousCategorie/new.html.twig', 
@@ -68,14 +67,29 @@ class TkiSousCategorieController extends Controller
      */
     public function edit(Request $request, int $id)
     {
-        $user = self::$em->getRepository(TkiSousCategorie::class)->find($id);
+        $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
         
-        $form = self::$validator->createBuilder(TkiSousCategorieType::class, $user)->getForm();
+        $form = self::$validator->createBuilder(TkiSousCategorieType::class, $sousCategorie)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            // Récupérer les catégories et autres catégories sélectionnées dans le formulaire
+            $autresCategories = $form->get('autresCategories')->getData();
+
+            // Synchroniser les autres catégories
+            foreach ($sousCategorie->getAutresCategories() as $autreCategorie) {
+                if (!$autresCategories->contains($autreCategorie)) {
+                    $sousCategorie->removeAutresCategorie($autreCategorie);
+                }
+            }
+            foreach ($autresCategories as $autreCategorie) {
+                if (!$sousCategorie->getAutresCategories()->contains($autreCategorie)) {
+                    $sousCategorie->addAutresCategorie($autreCategorie);
+                }
+            }
+
             self::$em->flush();
             $this->redirectToRoute("tki_sous_categorie_index");
         }
