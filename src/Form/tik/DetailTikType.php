@@ -25,7 +25,7 @@ class DetailTikType extends AbstractType
         $builder
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
-                'attr'         => ['id' => 'categorie'],
+                'attr'         => ['class' => 'categorie'],
                 'placeholder'  => '-- Choix de catégorie --',
                 'class'        => TkiCategorie::class,
                 'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
@@ -39,7 +39,7 @@ class DetailTikType extends AbstractType
             ])
             ->add('sousCategorie', EntityType::class, [
                 'label'        => 'Sous-catégories',
-                'attr'         => ['id' => 'sous-categorie'],
+                'attr'         => ['class' => 'sous-categorie'],
                 'placeholder'  => '-- Choix de sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
                 'query_builder' => function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
@@ -52,7 +52,7 @@ class DetailTikType extends AbstractType
             ])
             ->add('autresCategorie', EntityType::class, [
                 'label'        => 'Autres catégories',
-                'attr'         => ['id' => 'autre-categorie'],
+                'attr'         => ['class' => 'autre-categorie'],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
                 'query_builder' => function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
