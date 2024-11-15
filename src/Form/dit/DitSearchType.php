@@ -356,18 +356,15 @@ class DitSearchType extends AbstractType
                     $form = $event->getForm();
                     $data = $event->getData();
                 
+                    $services = [];
                     if (isset($data['agenceEmetteur']) && $data['agenceEmetteur']) {
                         $agenceId = $data['agenceEmetteur'];
                         $agence = $this->agenceRepository->find($agenceId);
                 
                         if ($agence) {
                             $services = $agence->getServices();
-                        } else {
-                            $services = [];
-                        }
-                    } else {
-                        $services = [];
-                    }
+                        } 
+                    } 
                 
                     $form->add('serviceEmetteur', EntityType::class, [
                         'label' => "Service Emetteur",
@@ -461,7 +458,7 @@ class DitSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DitSearch::class,
         ]);
-        $resolver->setDefined('idAgenceEmetteur');
+        //$resolver->setDefined('idAgenceEmetteur');
         $resolver->setDefined('autorisationRoleEnergie');
     }
 }

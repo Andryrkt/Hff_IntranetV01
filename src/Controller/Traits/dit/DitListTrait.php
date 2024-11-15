@@ -99,13 +99,13 @@ trait DitListTrait
         $criteria = $this->sessionService->get('dit_search_criteria', []);
         
         if($criteria !== null){
-            if ($autoriser) {
+            // if ($autoriser) {
                 $agenceIpsEmetteur = null;
                 $serviceIpsEmetteur = null;
-            } else {
-                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            }
+            // } else {
+            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            // }
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
@@ -115,13 +115,13 @@ trait DitListTrait
             $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
         } else {
-            if ($autoriser) {
+            // if ($autoriser) {
                 $agenceIpsEmetteur = null;
                 $serviceIpsEmetteur = null;
-            } else {
-                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            }
+            // } else {
+            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            // }
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;

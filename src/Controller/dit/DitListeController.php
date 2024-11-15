@@ -43,7 +43,7 @@ class DitListeController extends Controller
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
+            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
@@ -86,7 +86,7 @@ class DitListeController extends Controller
             'boolean' => $autoriser,
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+            //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
         

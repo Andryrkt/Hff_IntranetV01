@@ -36,6 +36,17 @@ class DitRepository extends EntityRepository
              // section affect et support section
             $this->applySection($queryBuilder, $ditSearch);
 
+            if (!$options['boolean']) {
+            $queryBuilder
+    ->andWhere(
+        $queryBuilder->expr()->orX(
+            'd.agenceDebiteurId = :agDebit',
+            'd.agenceEmetteurId = :agEmet'
+        )
+    )
+    ->setParameter('agDebit', $options['codeAgence'])
+    ->setParameter('agEmet', $options['codeAgence']);
+        }
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
         ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 
@@ -235,7 +246,7 @@ class DitRepository extends EntityRepository
 
     private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
-        if ($options['boolean']) {
+        //if ($options['boolean']) {
             if (!empty($ditSearch->getAgenceEmetteur())) {
                 $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
                     ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
@@ -244,13 +255,13 @@ class DitRepository extends EntityRepository
                 $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
                     ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
             }
-        } else {
-            if ($options['autorisationRoleEnergie']) {
-                $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
-            } else {
-                $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
-            }
-        }
+        // } else {
+        //     if ($options['autorisationRoleEnergie']) {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
+        //     } else {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
+        //     }
+        // }
 
         if (!empty($ditSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
