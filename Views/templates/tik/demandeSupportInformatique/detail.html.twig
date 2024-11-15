@@ -12,8 +12,8 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class=" container">
-		<div class="card">
+	<div class=" container mt-3">
+		<div class="card mb-3">
 			<div class="card-body">
 
 				{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
@@ -111,33 +111,42 @@
 						{{ form_start(form, {'attr':{'id':'formTik'}}) }}
 
 							{{ form_errors(form)}}
-
-							{# DEBUT Intervention #}
-							{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 							<div class="row">
+								{# DEBUT COLONNE 1 #}
 								<div class="col-12 col-md-6">
-									{{form_row(form.niveauUrgence)}}
+									{# DEBUT Intervention #}
+									{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+									<div class="row">
+										<div class="col-12 col-md-12">
+											{{form_row(form.niveauUrgence)}}
+										</div>
+										<div class="col-12 col-md-12">
+											{{form_row(form.nomIntervenant)}}
+										</div>
+									</div>
+									{# FIN Intervention #}
 								</div>
-								<div class="col-12 col-md-6">
-									{{form_row(form.nomIntervenant)}}
-								</div>
-							</div>
-							{# FIN Intervention #}
+								{# FIN COLONNE 1 #}
 
-							{# DEBUT Observation Ticket #}
-							{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
-							<div class="row">
-								<div class="col-12 col-md-4">
-									{{ form_row(form.categorie) }}
+								{# DEBUT COLONNE 2 #}
+								<div class="col-12 col-md-6">
+									{# DEBUT Observation Ticket #}
+									{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
+									<div class="row">
+										<div class="col-12 col-md-12">
+											{{ form_row(form.categorie) }}
+										</div>
+										<div class="col-12 col-md-12">
+											{{ form_row(form.sousCategorie) }}
+										</div>
+										<div class="col-12 col-md-12">
+											{{ form_row(form.autresCategorie) }}
+										</div>
+									</div>
+									{# FIN Observation Ticket #}
 								</div>
-								<div class="col-12 col-md-4">
-									{{ form_row(form.sousCategorie) }}
-								</div>
-								<div class="col-12 col-md-4">
-									{{ form_row(form.autresCategorie) }}
-								</div>
+								{# FIN COLONNE 2 #}
 							</div>
-							{# FIN Observation Ticket #}
 
 							<div class="d-flex justify-content-end">
 								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
