@@ -37,11 +37,10 @@ class CasierController extends Controller
 
             $casier = new Casier();
 
-            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+            $agenceService = $this->agenceServiceIpsString();
     
-            $casier->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-            $casier->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+            $casier->setAgenceEmetteur($agenceService['agenceIps']  );
+            $casier->setServiceEmetteur($agenceService['serviceIps']);
             
             $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
             

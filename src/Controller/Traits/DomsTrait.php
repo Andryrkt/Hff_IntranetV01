@@ -24,8 +24,6 @@ trait DomsTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom) {
 
-        // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
@@ -87,10 +85,6 @@ trait DomsTrait
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];
-            // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-
-            // dump($CodeServiceofCours);
             
             $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
 
@@ -292,7 +286,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 }
 
 
-    private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em)
+    private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em, $user)
     {
         $statutDemande = $em->getRepository(StatutDemande::class)->find(1);
         if($domForm->getModePayement() === 'MOBILE MONEY'){
@@ -338,7 +332,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 
         if($form1Data['salarier'] === 'TEMPORAIRE'){
             $cin = $form1Data["cin"];
-             $matricule = "XER00 -" . $cin . " - TEMPORAIRE";
+            $matricule = "XER00 -" . $cin . " - TEMPORAIRE";
         } else {
                 $matricule = $form1Data['matricule'];
         }
@@ -349,13 +343,14 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $site = $domForm->getSite();
         }
 
+        
         $dom
             ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
             ->setSousTypeDocument($sousTypeDocument)
             ->setCategorie($categoryId)
             ->setMatricule($matricule)
-            ->setUtilisateurCreation($_SESSION['user'])
-            ->setNomSessionUtilisateur($_SESSION['user'])
+            ->setUtilisateurCreation($user->getNomUtilisateur())
+            ->setNomSessionUtilisateur($user->getNomUtilisateur())
             ->setNumeroOrdreMission($this->autoINcriment('DOM'))
             ->setIdStatutDemande($statutDemande)
             ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence().$serviceDebiteur->getCodeService())
@@ -377,7 +372,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         ;
     }
 
-    private function donnerPourPdf($dom, $domForm, $em)
+    private function donnerPourPdf($dom, $domForm, $em, $user)
     {
         if(explode(':',$dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':',$dom->getModePayement())[0] === 'ESPECE'){
             $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
@@ -387,7 +382,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
         }
 
-        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
         return  [
             "Devis" => $dom->getDevis(),
             "Prenoms" => $dom->getPrenom(),
@@ -442,7 +437,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         $em->flush();
     }
 
-    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf)
+    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user)
     {
             //RECUPERATION de la dernière NumeroDordre de mission 
             $this->enregistreDernierNumDansApplication($dom, $em);
@@ -451,7 +446,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $em->persist($dom);
             $em->flush();
 
-            $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
+            $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
             $this->envoiePieceJoint($form, $dom, $fusionPdf);

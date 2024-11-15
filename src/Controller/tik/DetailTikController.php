@@ -15,6 +15,9 @@ class DetailTikController extends Controller
      */
     public function detail($id, Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $tik = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
         
         if (!$tik) {

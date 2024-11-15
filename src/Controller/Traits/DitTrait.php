@@ -224,42 +224,39 @@ trait DitTrait
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em) : DemandeIntervention
+    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
     {
         $dits = $form->getData();
         
-            $dits->setUtilisateurDemandeur($_SESSION['user']);
+            $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
             $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dits->setIdStatutDemande($statutDemande);
             $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
-            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
             $dits->setMailDemandeur($email);
 
         return $dits;
     }
 
-/**
- * INITIALISER LA VALEUR DE LA FORMULAIRE
- *
- * @param DemandeIntervention $demandeIntervention
- * @param [type] $em
- * @return void
- */
-private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
-{
-    // $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-    // $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-
-    $agenceService = $this->agenceServiceIpsObjet();
-    
-    $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence() );
-    $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-    $demandeIntervention->setAgence($agenceService['agenceIps']);
-    $demandeIntervention->setService($agenceService['serviceIps']);
-    $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
-}
+    /**
+     * INITIALISER LA VALEUR DE LA FORMULAIRE
+     *
+     * @param DemandeIntervention $demandeIntervention
+     * @param [type] $em
+     * @return void
+     */
+    private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
+    {
+        $agenceService = $this->agenceServiceIpsObjet();
+        
+        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence() );
+        $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
+        $demandeIntervention->setAgence($agenceService['agenceIps']);
+        $demandeIntervention->setService($agenceService['serviceIps']);
+        $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
+    }
 
 
 }

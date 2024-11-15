@@ -43,9 +43,12 @@ class ProfilControl extends Controller
                             $userId = $user->getId();
                             $this->sessionService->set('user_id', $userId);
                             // session_start();
-                            $_SESSION['user'] = $Username;
 
-                            $_SESSION['password'] = $Password;
+                            $this->sessionService->set('user', $Username);
+                           //$_SESSION['user'] = $Username;
+
+                            $this->sessionService->set('password', $Password);
+                            //$_SESSION['password'] = $Password;
                         } else {
                             // Gérer le cas où l'utilisateur n'existe pas
                             throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);

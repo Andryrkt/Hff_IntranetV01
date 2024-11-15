@@ -22,6 +22,8 @@ class DemandeSupportInformatiqueController extends Controller
      */
     public function new(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $supportInfo = new DemandeSupportInformatique();
         //INITIALISATION DU FORMULAIRE

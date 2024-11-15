@@ -11,6 +11,7 @@ use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +35,11 @@ class DitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
+        //recuperation de l'utilisateur connecter
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
+
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($demandeIntervention, self::$em);
@@ -45,8 +51,8 @@ class DitController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         {
-        
-            $dits = $this->infoEntrerManuel($form, self::$em);
+            
+            $dits = $this->infoEntrerManuel($form, self::$em, $user);
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($dits->getNumeroDemandeIntervention());

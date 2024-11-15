@@ -16,7 +16,11 @@ class ListeTikController extends Controller
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $tikSearch = new TikSearch();
+
         $agenceServiceIps= $this->agenceServiceIpsObjet();
         
         //création et initialisation du formulaire de la recherche
