@@ -9,6 +9,7 @@ use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\utilisateur\User;
 
 class TikSearch
 {
@@ -21,6 +22,8 @@ class TikSearch
     private ?StatutDemande $statut = null;
 
     private ?WorNiveauUrgence $niveauUrgence = null;
+
+    private ?User $nomIntervenant;
 
     private ?\Datetime $dateDebut = null;
 
@@ -142,6 +145,26 @@ class TikSearch
     public function setNiveauUrgence($niveauUrgence)
     {
         $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomIntervenant
+     */ 
+    public function getNomIntervenant()
+    {
+        return $this->nomIntervenant;
+    }
+
+    /**
+     * Set the value of nomIntervenant
+     *
+     * @return  self
+     */ 
+    public function setNomIntervenant($nomIntervenant)
+    {
+        $this->nomIntervenant = $nomIntervenant;
 
         return $this;
     }
@@ -329,15 +352,23 @@ class TikSearch
     public function toArray(): array
     {
         return [
-            'niveauUrgence' => $this->niveauUrgence,
+            'numeroTicket' => $this->numeroTicket,
+            'demandeur' => $this->demandeur,
+            'numParc' => $this->numParc,
             'statut' => $this->statut,
+            'niveauUrgence' => $this->niveauUrgence,
+            'nomIntervenant' => $this->nomIntervenant,
             'dateDebut' => $this->dateDebut,
             'dateFin' => $this->dateFin,
-            'numParc' => $this->numParc,
             'agenceEmetteur' => $this->agenceEmetteur,
             'serviceEmetteur' => $this->serviceEmetteur,
             'agenceDebiteur' => $this->agenceDebiteur,
             'serviceDebiteur' => $this->serviceDebiteur,
+            'categorie' => $this->categorie,
+            'sousCategorie' => $this->sousCategorie,
+            'autreCategorie' => $this->autresCategories
         ];
     }
+
+    
 }

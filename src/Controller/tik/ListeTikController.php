@@ -17,12 +17,10 @@ class ListeTikController extends Controller
     public function index(Request $request)
     {
         $tikSearch = new TikSearch();
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
         
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
             'method' => 'GET',
-            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
         $form->handleRequest($request);
@@ -31,7 +29,7 @@ class ListeTikController extends Controller
         {
             // $criteria$form->getData());
         }
-        dd($tikSearch);
+        // dd($tikSearch);
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page

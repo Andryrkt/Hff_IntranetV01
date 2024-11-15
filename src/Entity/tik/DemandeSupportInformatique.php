@@ -141,7 +141,7 @@ class DemandeSupportInformatique
      * @ORM\ManyToOne(targetEntity=WorNiveauUrgence::class, inversedBy="supportInfo")
      * @ORM\JoinColumn(nullable=false, name="ID_Niveau_Urgence", referencedColumnName="id")
      */
-    private int $niveauUrgence;
+    private ?int $niveauUrgence = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Parc_Informatique")

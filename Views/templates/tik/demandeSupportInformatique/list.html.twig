@@ -42,6 +42,7 @@
 					<th>Catégorie/Sous-catégorie</th>
 					<th>Objet du demande</th>
 					<th>Demandeur</th>
+					<th>Intervenant</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -72,10 +73,11 @@
 						<td>{{ item.agenceServiceDebiteur}}</td>
 						<td>{{item.dateCreation | date('d/m/Y')}}</td>
 						<td>{{ item.parcInformatique}}</td>
-						<td></td>
+						<td>{{item.niveauUrgence}}</td>
 						<td>{{ item.categorie.description}}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
+						<td>{{ item.utilisateurIntervenant}}</td>
 
 					</tr>
 				{% endfor %}
