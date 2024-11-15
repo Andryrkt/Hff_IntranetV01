@@ -16,14 +16,6 @@ class TkiSousCategorieType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('categories', EntityType::class, [
-                'label'        => 'Catégorie liée *',
-                'placeholder'  => '-- Choisir une catégorie --',
-                'class'        => TkiCategorie::class,
-                'choice_label' => 'description',
-                'multiple'     => true,
-                'expanded'     => false
-            ])
             ->add('description', TextType::class, [
                 'label'        => 'Déscription de la sous-catégorie *',
             ])
@@ -34,8 +26,7 @@ class TkiSousCategorieType extends AbstractType
                 'choice_label' => 'description',
                 'required'     => false,
                 'multiple'     => true,
-                'expanded'     => false,
-                'by_reference' => false, // Ajoutez cette ligne
+                'expanded'     => false
             ])
         ;
     }
