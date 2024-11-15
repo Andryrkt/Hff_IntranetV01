@@ -26,7 +26,6 @@
 						<tr>
 							<th>Actions</th>
 							<th>Description de la sous-catégorie</th>
-							<th>Catégories liées</th>
 							<th>Autres Catégories liées</th>
 
 						</tr>
@@ -50,15 +49,6 @@
 									</div>
 								</td>
 								<td>{{item.description}}</td>
-								<td>
-									<ul>
-										{% for categorie in item.categories %}
-											<li>
-												{{ categorie.description }}
-											</li>
-										{% endfor %}
-									</ul>
-								</td>
 								<td>
 									<ul>
 										{% for autreCategorie in item.autresCategories %}
