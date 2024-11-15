@@ -14,7 +14,11 @@
 					<div class="col-12 col-md-2">
 						{{ form_row(form.demandeur) }}
 						{{ form_row(form.numParc) }}
-
+						{{ form_row(form.numeroTicket) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.niveauUrgence) }}
+						{{ form_row(form.statut) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}
@@ -34,9 +38,7 @@
 						{{form_row(form.agenceDebiteur)}}
 						{{form_row(form.serviceDebiteur)}}
 					</div>
-					<div class="col-12 col-md-2">
-						{{ form_row(form.niveauUrgence) }}
-					</div>
+
 					<div class="col-12 col-md-2">
 						{{ form_row(form.categorie) }}
 						{{ form_row(form.sousCategorie) }}

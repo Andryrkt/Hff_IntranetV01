@@ -25,13 +25,20 @@ class ListeTikController extends Controller
             //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
+        $form->handleRequest($request);
+        $criteria =[];
+        if($form->isSubmitted() && $form->isValid())
+        {
+            // $criteria$form->getData());
+        }
+        dd($tikSearch);
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 10;
 
-        $criteria =[];
-        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit);
+        
+        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data' => $paginationData['data'],
