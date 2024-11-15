@@ -8,6 +8,11 @@ use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
+use App\Repository\admin\tik\TkiAutreCategorieRepository;
+use App\Repository\admin\tik\TkiCategorieRepository;
+use App\Repository\admin\tik\TkiSousCategorieRepository;
+use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,6 +28,9 @@ class DetailTikType extends AbstractType
                 'attr'         => ['id' => 'categorie'],
                 'placeholder'  => '-- Choix de catégorie --',
                 'class'        => TkiCategorie::class,
+                'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
+                    return $TkiCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                },
                 'choice_label' => 'description',
                 'required'     => true,
                 'multiple'     => false,
@@ -34,6 +42,9 @@ class DetailTikType extends AbstractType
                 'attr'         => ['id' => 'sous-categorie'],
                 'placeholder'  => '-- Choix de sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
+                'query_builder' => function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
+                    return $TkiSousCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                },
                 'choice_label' => 'description',
                 'required'     => false,
                 'multiple'     => false,
@@ -44,6 +55,9 @@ class DetailTikType extends AbstractType
                 'attr'         => ['id' => 'autre-categorie'],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
+                'query_builder' => function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
+                    return $TkiAutreCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                },
                 'choice_label' => 'description',
                 'required'     => false,
                 'multiple'     => false,
@@ -54,6 +68,14 @@ class DetailTikType extends AbstractType
                 'placeholder'  => '-- Choisir un intervenant --',
                 'class'        => User::class,
                 'choice_label' => 'nom_utilisateur',
+                'query_builder' => function(UserRepository $userRepository) {
+                    return $userRepository
+                    ->createQueryBuilder('u')
+                    ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
+                    ->where('r.id = :roleId')  // Filtre sur l'id du rôle
+                    ->setParameter('roleId', 8) 
+                    ->orderBy('u.nom_utilisateur', 'ASC');;
+                },
                 'multiple'     => false,
                 'expanded'     => false
             ])
@@ -61,6 +83,9 @@ class DetailTikType extends AbstractType
                 'label'        => 'Niveau d\'urgence',
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
+                'query_builder' => function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
+                    return $WorNiveauUrgenceRepository->createQueryBuilder('w')->orderBy('w.description', 'DESC');
+                },
                 'choice_label' => 'description',
                 'multiple'     => false,
                 'expanded'     => false
