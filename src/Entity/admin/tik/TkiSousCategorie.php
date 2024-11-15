@@ -89,7 +89,7 @@ class TkiSousCategorie
         return $this;
     }
 
-    public function setCategorie(Collection $categorie): self
+    public function setCategories(Collection $categorie): self
     {
         $this->categories = $categorie;
         return $this;
