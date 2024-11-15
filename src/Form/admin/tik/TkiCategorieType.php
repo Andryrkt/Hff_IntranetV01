@@ -16,14 +16,16 @@ class TkiCategorieType extends AbstractType
     {
         $builder
             ->add('description', TextType::class, [
-                'label' => 'Description',
+                'label' => 'Déscription de la catégorie *',
             ])
             ->add('sousCategories', EntityType::class, [
-                'label' => 'sous categorie',
-                'class' => TkiSousCategorie::class,
-                'choice_label'=> 'description',
-                'multiple' => true,
-                'expanded' => false
+                'label'         => 'Sous-catégories liée(s)',
+                'placeholder'   => '-- Choisir une ou des sous-catégorie(s) --',
+                'class'         => TkiSousCategorie::class,
+                'choice_label'  => 'description',
+                'required'      => false,
+                'multiple'      => true,
+                'expanded'      => false
             ])
             ;
     }

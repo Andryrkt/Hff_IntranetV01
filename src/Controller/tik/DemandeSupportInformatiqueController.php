@@ -65,6 +65,7 @@ class DemandeSupportInformatiqueController extends Controller
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
         $supportInfo->setAgence($agenceService['agenceIps']);
         $supportInfo->setService($agenceService['serviceIps']);
+        $supportInfo->setDateFinSouhaiteeAutomatique();
     }
 
     private function ajoutDonnerDansEntity($donnerForm, $supportInfo)

@@ -26,6 +26,7 @@
 						<tr>
 							<th>Actions</th>
 							<th>Description</th>
+							<th>Sous-catégories</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -48,6 +49,15 @@
 									</div>
 								</td>
 								<td>{{item.description}}</td>
+								<td>
+									<ul>
+										{% for p in item.sousCategories %}
+											<li>
+												{{p.description}}
+											</li>
+										{% endfor %}
+									</ul>
+								</td>
 							</tr>
 						{% endfor %}
 					</tbody>

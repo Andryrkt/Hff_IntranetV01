@@ -13,8 +13,8 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
-use Symfony\Component\Validator\Constraints\DateTime;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
+use DateTime as GlobalDateTime;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
@@ -671,6 +671,34 @@ class DemandeSupportInformatique
     public function setDateFinSouhaitee($dateFinSouhaitee)
     {
         $this->dateFinSouhaitee = $dateFinSouhaitee;
+
+        return $this;
+    }
+
+    /**
+     * Set the automatic value of dateFinSouhaitee
+     *
+     * @return  self
+     */ 
+    public function setDateFinSouhaiteeAutomatique()
+    {
+        $date = new GlobalDateTime();
+
+        // Compteur pour les jours ouvrables ajoutés
+        $joursOuvrablesAjoutes = 0;
+
+        // Ajouter des jours jusqu'à obtenir 2 jours ouvrables
+        while ($joursOuvrablesAjoutes < 2) {
+            // Ajouter un jour
+            $date->modify('+1 day');
+            
+            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
+            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
+                $joursOuvrablesAjoutes++;
+            }
+        }
+
+        $this->setDateFinSouhaitee($date);
 
         return $this;
     }

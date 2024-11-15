@@ -9,7 +9,7 @@
 			<div class="card-body">
 
 				<h2 class="perso-titre">
-					Listes des sous Catégories ticketing
+					Listes des sous-catégories ticketing
 				</h2>
 
 				<div class="d-flex flex-row ">
@@ -25,14 +25,14 @@
 					<thead class="table-dark">
 						<tr>
 							<th>Actions</th>
-							<th>Description</th>
-							<th>Sous Catégories</th>
+							<th>Description de la sous-catégorie</th>
+							<th>Catégories liées</th>
+							<th>Autres Catégories liées</th>
 
 						</tr>
 					</thead>
 					<tbody>
 						{% for item in data %}
-
 							<tr>
 								<td>
 									<div class="dropdown">
@@ -52,9 +52,18 @@
 								<td>{{item.description}}</td>
 								<td>
 									<ul>
-										{% for p in item.autresCategories %}
+										{% for categorie in item.categories %}
 											<li>
-												{{p.description}}
+												{{ categorie.description }}
+											</li>
+										{% endfor %}
+									</ul>
+								</td>
+								<td>
+									<ul>
+										{% for autreCategorie in item.autresCategories %}
+											<li>
+												{{ autreCategorie.description }}
 											</li>
 										{% endfor %}
 									</ul>

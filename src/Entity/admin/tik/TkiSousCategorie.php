@@ -80,12 +80,18 @@ class TkiSousCategorie
         return $this->categories;
     }
 
-    public function addCategories(?TkiCategorie $categories): self
+    public function addCategories(TkiCategorie $categories): self
     {
         if (!$this->categories->contains($categories)) {
             $this->categories[] = $categories;
             $categories->addSousCategories($this);
         }
+        return $this;
+    }
+
+    public function setCategories(Collection $Categories): self
+    {
+        $this->categories = $Categories;
         return $this;
     }
 
@@ -103,11 +109,11 @@ class TkiSousCategorie
         return $this->autresCategories;
     }
 
-    public function addAutresCategorie(TkiAutresCategorie $autresCategorie): self
+    public function addAutresCategories(TkiAutresCategorie $autresCategorie): self
     {
         if (!$this->autresCategories->contains($autresCategorie)) {
             $this->autresCategories[] = $autresCategorie;
-            $autresCategorie->addSousCategorie($this);
+            $autresCategorie->addSousCategories($this);
         }
         return $this;
     }
