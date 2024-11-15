@@ -35,20 +35,15 @@ class TkiAutresCategoriesController extends Controller
         $form = self::$validator->createBuilder(TkiAutresCategorieType::class)->getForm();
         
         $form->handleRequest($request);
+
         if($form->isSubmitted() && $form->isValid())
         {
-            $autresCategories = $form->getData();
+            $autresCategorie = $form->getData();
 
-            $selectedSousCategories = $form->get('sousCategories')->getData();
+            self::$em->persist($autresCategorie);
+            self::$em->flush();
 
-                foreach ($selectedSousCategories as $sousCategorie) {
-                    $autresCategories->addSousCategories($sousCategorie);
-                }
-
-                self::$em->persist($autresCategories);
-                self::$em->flush();
-
-                $this->redirectToRoute("tki_autres_categories_index");
+            $this->redirectToRoute("tki_autres_categories_index");
         }
 
         self::$twig->display('admin/tik/autresCategories/new.html.twig', 
@@ -66,9 +61,9 @@ class TkiAutresCategoriesController extends Controller
      */
     public function edit(Request $request, int $id)
     {
-        $categorie = self::$em->getRepository(TkiAutresCategorie::class)->find($id);
+        $autresCategorie = self::$em->getRepository(TkiAutresCategorie::class)->find($id);
         
-        $form = self::$validator->createBuilder(TkiAutresCategorieType::class, $categorie)->getForm();
+        $form = self::$validator->createBuilder(TkiAutresCategorieType::class, $autresCategorie)->getForm();
 
         $form->handleRequest($request);
 
