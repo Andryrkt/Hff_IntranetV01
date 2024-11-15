@@ -5,14 +5,14 @@ EXEC sp_rename 'TKI_SOUS_CATEGORIE.Date_Creation',
 ALTER TABLE TKI_SOUS_CATEGORIE ADD date_modification DATE
 
 CREATE TABLE souscategorie_autrescategories (
-    souscategorie_id INT,
-    autrescategorie_id INT,
+    tkisouscategorie_id INT,
+    tkiautrescategorie_id INT,
     CONSTRAINT PK_souscategorie_autrescategories PRIMARY KEY (
-        souscategorie_id,
-        autrescategorie_id
+        tkisouscategorie_id,
+        tkiautrescategorie_id
     ),
-    CONSTRAINT FK_souscategorie_autrescategories_souscategorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (id),
-    CONSTRAINT FK_souscategorie_autrescategories_autrescategorie_id FOREIGN KEY (autrescategorie_id) REFERENCES TKI_Autres_Categorie (id)
+    CONSTRAINT FK_souscategorie_autrescategories_tkisouscategorie_id FOREIGN KEY (tkisouscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (id),
+    CONSTRAINT FK_souscategorie_autrescategories_tkiautrescategorie_id FOREIGN KEY (tkiautrescategorie_id) REFERENCES TKI_Autres_Categorie (id)
 );
 
 ALTER TABLE TKI_SOUS_CATEGORIE ALTER COLUMN date_creation DATETIME2

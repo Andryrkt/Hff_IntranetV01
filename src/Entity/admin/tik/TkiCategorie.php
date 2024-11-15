@@ -6,10 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\tik\TkiSousCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\tik\TkiCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=TkiCategorieRepository::class)
  * @ORM\Table(name="TKI_CATEGORIE")
  */
 class TkiCategorie
@@ -17,7 +18,7 @@ class TkiCategorie
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="id")
      */
     private $id;
 
@@ -28,7 +29,7 @@ class TkiCategorie
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categorie")
+     * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categories")
      * @ORM\JoinTable(name="categorie_souscategorie")
      */
     private $sousCategories;
@@ -76,23 +77,32 @@ class TkiCategorie
         return $this->sousCategories;
     }
 
-    public function addSousCategories(TkiSousCategorie $sousCategories): self
+    public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if (!$this->sousCategories->contains($sousCategories)) {
-            $this->sousCategories[] = $sousCategories;
+        if (!$this->sousCategories->contains($sousCategorie)) {
+            $this->sousCategories[] = $sousCategorie;
+            $sousCategorie->addCategorie($this);
         }
 
         return $this;
     }
 
-    public function removeSousCategories(TkiSousCategorie $sousCategories): self
+    
+    public function setSousCategories(Collection $sousCategorie): self
     {
-        if ($this->sousCategories->contains($sousCategories)) {
-            $this->sousCategories->removeElement($sousCategories);
+        $this->sousCategories = $sousCategorie;
+        return $this;
+    }
+
+    public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
+    {
+        if ($this->sousCategories->removeElement($sousCategorie)) {
+            $sousCategorie->removeCategorie($this); // Maintient la relation bidirectionnelle
         }
 
         return $this;
     }
+
 
     public function getSupportInfo(): Collection
     {
@@ -121,4 +131,3 @@ class TkiCategorie
         return $this;
     }
 }
-?>

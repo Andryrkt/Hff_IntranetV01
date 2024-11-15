@@ -7,10 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\tik\TkiSousCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\tik\TkiAutreCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=TkiAutreCategorieRepository::class)
  * @ORM\Table(name="TKI_Autres_Categorie")
  */
 class TkiAutresCategorie
@@ -32,7 +33,7 @@ class TkiAutresCategorie
     /**
      * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, mappedBy="autresCategories")
      */
-    private Collection $sousCategories;
+    private $sousCategories;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
@@ -72,29 +73,36 @@ class TkiAutresCategorie
     }
 
    /**
- * @return Collection
- */
-public function getSousCategories(): Collection
-{
-    return $this->sousCategories;
-}
+     * @return Collection
+     */
+    public function getSousCategories(): Collection
+    {
+        return $this->sousCategories;
+    }
 
 
     public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
         if (!$this->sousCategories->contains($sousCategorie)) {
             $this->sousCategories[] = $sousCategorie;
-            $sousCategorie->addAutresCategorie($this);
+            $sousCategorie->addAutresCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
+        return $this;
+    }
+
+    public function setSousCategories(Collection $sousCategorie): self
+    {
+        $this->sousCategories = $sousCategorie;
         return $this;
     }
     
     public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if ($this->sousCategories->contains($sousCategorie)) {
-            $this->sousCategories->removeElement($sousCategorie);
-            $sousCategorie->removeAutresCategorie($this);
+        if ($this->sousCategories->removeElement($sousCategorie)) {
+            $sousCategorie->removeAutresCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
         return $this;
     }
     

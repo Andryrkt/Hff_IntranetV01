@@ -55,14 +55,14 @@ VALUES (
     )
 
 CREATE TABLE categorie_souscategorie (
-    categorie_id INT,
-    souscategorie_id INT,
+    tkicategorie_id INT,
+    tkisouscategorie_id INT,
     CONSTRAINT PK_categorie_souscategorie PRIMARY KEY (
-        categorie_id,
-        souscategorie_id
+        tkicategorie_id,
+        tkisouscategorie_id
     ),
-    CONSTRAINT FK_categorie_souscategorie_categorie_id FOREIGN KEY (categorie_id) REFERENCES TKI_CATEGORIE (id),
-    CONSTRAINT FK_categorie_souscategorie_souscategorie_id FOREIGN KEY (souscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (id)
+    CONSTRAINT FK_categorie_souscategorie_tkicategorie_id FOREIGN KEY (tkicategorie_id) REFERENCES TKI_CATEGORIE (id),
+    CONSTRAINT FK_categorie_souscategorie_tkisouscategorie_id FOREIGN KEY (tkisouscategorie_id) REFERENCES TKI_SOUS_CATEGORIE (id)
 );
 
 CREATE TABLE TKI_CATEGORIE (

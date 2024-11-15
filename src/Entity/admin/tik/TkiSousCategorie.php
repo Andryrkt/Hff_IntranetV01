@@ -8,10 +8,11 @@ use App\Entity\admin\tik\TkiCategorie;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\tik\TkiSousCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=TkiSousCategorieRepository::class)
  * @ORM\Table(name="TKI_SOUS_CATEGORIE")
  */
 class TkiSousCategorie
@@ -31,7 +32,7 @@ class TkiSousCategorie
     private $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategorie")
+     * @ORM\ManyToMany(targetEntity=TkiCategorie::class, mappedBy="sousCategories")
      */
     private $categories;
 
@@ -80,21 +81,27 @@ class TkiSousCategorie
         return $this->categories;
     }
 
-    public function addCategories(?TkiCategorie $categories): self
+    public function addCategorie(TkiCategorie $categorie): self
     {
-        if (!$this->categories->contains($categories)) {
-            $this->categories[] = $categories;
-            $categories->addSousCategories($this);
+        if (!$this->categories->contains($categorie)) {
+            $this->categories[] = $categorie;
+            $categorie->addSousCategorie($this);
         }
         return $this;
     }
 
-    public function removeCategories(?TkiCategorie $categories): self
+    public function setCategories(Collection $categorie): self
     {
-        if ($this->categories->contains($categories)) {
-            $this->categories->removeElement($categories);
-            $categories->removeSousCategories($this);
+        $this->categories = $categorie;
+        return $this;
+    }
+
+    public function removeCategorie(TkiCategorie $categorie): self
+    {
+        if ($this->categories->removeElement($categorie)) {
+            $categorie->removeSousCategorie($this); // Maintenir la relation bidirectionnelle
         }
+
         return $this;
     }
 
@@ -112,11 +119,11 @@ class TkiSousCategorie
         return $this;
     }
 
-    public function setAutresCategories(Collection $autresCategories): self
-{
-    $this->autresCategories = $autresCategories;
-    return $this;
-}
+    public function setAutresCategories(Collection $autresCategorie): self
+    {
+        $this->autresCategories = $autresCategorie;
+        return $this;
+    }
 
     public function removeAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {

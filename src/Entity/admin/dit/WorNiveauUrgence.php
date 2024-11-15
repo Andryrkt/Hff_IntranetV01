@@ -8,11 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=WorNiveauUrgenceRepository::class)
  * @ORM\Table(name="wor_niveau_urgence")
  * @ORM\HasLifecycleCallbacks
  */

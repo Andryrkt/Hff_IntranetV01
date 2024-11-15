@@ -107,8 +107,13 @@
 <div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
 {% endmacro %}
 
+{% macro affichageHTML(label, value = "", id = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value | raw}}</div>
+{% endmacro %}
+
 {% macro affichageFile(label, value = "", directory) %}
-<label for="">{{label}}</label>
+<label for="" class="mt-2">{{label}}</label>
 <div class="d-flex align-items-center border border-secondary border-1 rounded px-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
 <a href=" {{directory}}/{{value}}" target="_blank">
 {{value}}
