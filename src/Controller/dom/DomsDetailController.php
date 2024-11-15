@@ -15,6 +15,9 @@ class DomsDetailController extends Controller
      */
     public function detailDom($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $dom = self::$em->getRepository(Dom::class)->findOneBy(['id' => $id]);
         $dom->setIdemnityDepl((int)str_replace('.','',$dom->getIdemnityDepl()));
         $matricule = $dom->getMatricule();

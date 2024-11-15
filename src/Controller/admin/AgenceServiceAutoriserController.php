@@ -15,6 +15,9 @@ class AgenceServiceAutoriserController extends Controller
          */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id'=>'DESC']);
 
         self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
@@ -27,6 +30,8 @@ class AgenceServiceAutoriserController extends Controller
          */
     public function new(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class)->getForm();
 
@@ -54,6 +59,8 @@ class AgenceServiceAutoriserController extends Controller
  */
 public function edit(Request $request, $id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
 
     $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
     
@@ -83,6 +90,9 @@ public function edit(Request $request, $id)
 */
 public function delete($id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+    
     $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
 
     self::$em->remove($user);

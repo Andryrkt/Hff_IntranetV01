@@ -27,6 +27,9 @@ class DitListeController extends Controller
      */
     public function index( Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
@@ -157,6 +160,9 @@ class DitListeController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
           //recupère les critères dans la session 
@@ -234,6 +240,9 @@ class DitListeController extends Controller
      */
     public function clotureStatut($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
         $dit->setIdStatutDemande($statutCloturerAnnuler);
@@ -251,6 +260,9 @@ class DitListeController extends Controller
      */
     public function dwintervAteAvecDit($numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $dwModel = new DossierInterventionAtelierModel();
     
         // Récupérer les données de la demande d'intervention et de l'ordre de réparation

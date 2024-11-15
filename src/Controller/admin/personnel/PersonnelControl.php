@@ -25,7 +25,10 @@ class PersonnelControl extends Controller
     /**
      * @Route("/index")
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder()
         ->add('firstName', TextType::class, array(
@@ -68,7 +71,8 @@ class PersonnelControl extends Controller
 
     public function showPersonnelForm()
     {
-       
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo 'okey';
@@ -91,7 +95,8 @@ class PersonnelControl extends Controller
 
     public function showListePersonnel()
     {
-        
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $infoPersonnel = $this->Person->recupInfoPersonnel();
 
@@ -110,7 +115,9 @@ class PersonnelControl extends Controller
 
     public function updatePersonnel()
     {
-
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $codeSage = $this->transformEnSeulTableau($this->Person->recupAgenceServiceSage());
         $codeIrium = $this->transformEnSeulTableau($this->Person->recupAgenceServiceIrium());
 

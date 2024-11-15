@@ -31,6 +31,9 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $magasinModel = new MagasinListeOrATraiterModel;
         $agenceServiceUser = $this->agenceServiceIpsObjet();
 
@@ -101,6 +104,9 @@ class MagasinListeOrTraiterController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $magasinModel = new MagasinListeOrATraiterModel;
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);

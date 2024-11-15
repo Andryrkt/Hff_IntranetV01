@@ -32,6 +32,9 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
             $casier = new Casier();
 
             $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
@@ -81,7 +84,9 @@ class CasierController extends Controller
      */
     public function FormulaireCasier(Request $request)
     {
-        
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);
         
@@ -184,6 +189,9 @@ class CasierController extends Controller
      */
     public function casierDestinataire()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
          //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();

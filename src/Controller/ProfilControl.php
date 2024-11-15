@@ -64,22 +64,6 @@ class ProfilControl extends Controller
         }
     }
 
-    // public function showinfoAllUsercours()
-    // {
-    //     $this->SessionStart();
-
-    //     try {
-    //         //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-    //         $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
-
-
-    //         //include 'Views/Principe.php';
-
-    //         include 'Views/Propos_page.php';
-    //     } catch (Exception $e) {
-    //         echo "Error: " . $e->getMessage();
-    //     }
-    // }
 
     /**
      * @Route("/Acceuil", name="profil_acceuil")

@@ -17,6 +17,9 @@ class FonctionController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
     
     
@@ -33,6 +36,9 @@ class FonctionController extends Controller
      */
     public function new(Request $request)
     {    
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $form = self::$validator->createBuilder(FonctionType::class)->getForm();
 
         $form->handleRequest($request);

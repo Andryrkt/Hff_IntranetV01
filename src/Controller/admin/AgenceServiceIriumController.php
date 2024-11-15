@@ -21,6 +21,9 @@ class AgenceServiceIriumController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id'=>'DESC']);
 
         self::$twig->display('admin/AgenceServiceIrium/list.html.twig', 
@@ -36,6 +39,9 @@ class AgenceServiceIriumController extends Controller
      */
     public function new(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $form = self::$validator->createBuilder(AgenceServiceIriumType::class)->getForm();
 
         $form->handleRequest($request);
@@ -63,6 +69,8 @@ class AgenceServiceIriumController extends Controller
  */
 public function edit(Request $request, $id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
 
     $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
     
@@ -92,6 +100,9 @@ public function edit(Request $request, $id)
 */
 public function delete($id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+    
     $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
 
     self::$em->remove($user);

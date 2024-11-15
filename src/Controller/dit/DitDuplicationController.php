@@ -27,6 +27,8 @@ class DitDuplicationController extends Controller
     */
     public function Duplication($numDit, $id, Request $request)
     {
+       //verification si user connecter
+       $this->verifierSessionUtilisateur();
        
          //INITIALISATION DU FORMULAIRE
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);

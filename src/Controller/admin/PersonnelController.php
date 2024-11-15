@@ -20,6 +20,9 @@ class PersonnelController extends Controller
     public function index(Request $request)
     {
 
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
     $data = self::$em->getRepository(Personnel::class)->findBy([], ['id'=>'DESC']);
 
     $criteria = [
@@ -60,7 +63,10 @@ class PersonnelController extends Controller
          * @Route("/admin/personnel/new", name="personnnel_new")
          */
         public function new(Request $request)
-        {    
+        {   
+            //verification si user connecter
+            $this->verifierSessionUtilisateur();
+        
             $personnel = new Personnel();
             
             $form = self::$validator->createBuilder(PersonnelType::class)->getForm();
@@ -104,6 +110,9 @@ class PersonnelController extends Controller
  */
 public function edit(Request $request, $id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+
     $user = self::$em->getRepository(Personnel::class)->find($id);
     
     $form = self::$validator->createBuilder(PersonnelType::class, $user)->getForm();
@@ -131,6 +140,9 @@ public function edit(Request $request, $id)
 */
 public function delete($id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+
     $user = self::$em->getRepository(Personnel::class)->find($id);
 
     self::$em->remove($user);
@@ -144,18 +156,12 @@ public function delete($id)
  */
 public function show($id)
 {
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
 
     $user = self::$em->getRepository(Personnel::class)->find($id);
 
     self::$twig->display('admin/Personnel/show.html.twig', [
-        
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
         'personnel' => $user
     ]);
 }

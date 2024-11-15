@@ -19,6 +19,9 @@ class SecteurController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(Secteur::class)->findBy([], ['id'=>'DESC']);
 
 
@@ -33,6 +36,8 @@ class SecteurController extends Controller
          */
         public function new(Request $request)
         {
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
     
             $form = self::$validator->createBuilder(SecteurType::class)->getForm();
     
@@ -61,6 +66,9 @@ class SecteurController extends Controller
     public function edit(Request $request, $id)
     {
 
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $secteur = self::$em->getRepository(Secteur::class)->find($id);
         
         $form = self::$validator->createBuilder(SecteurType::class, $secteur)->getForm();

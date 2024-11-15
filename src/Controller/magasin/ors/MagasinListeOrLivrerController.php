@@ -38,6 +38,9 @@ class MagasinListeOrLivrerController extends Controller
      */
     public function listOrLivrer(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $agenceServiceUser = $this->agenceServiceIpsObjet();
 
         /** CREATION D'AUTORISATION */
@@ -113,6 +116,9 @@ class MagasinListeOrLivrerController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);

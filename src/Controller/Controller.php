@@ -65,7 +65,6 @@ class Controller
     protected $domList;
     protected $ProfilModel;
     
-  
 
     protected $odbcCrud;
 
@@ -147,9 +146,6 @@ class Controller
         $this->excelService = new ExcelService();
 
     }
-
-
-
 
     public static function setTwig($twig)
     {
@@ -531,11 +527,9 @@ class Controller
     }
 
 
-    protected function controlSession()
+    protected function verifierSessionUtilisateur()
     {
-        $user = $this->sessionService->get('user_id', []);
-        
-        if (!$user) {
+        if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
         } 
     }

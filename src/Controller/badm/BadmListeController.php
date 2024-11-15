@@ -21,6 +21,9 @@ class BadmListeController extends Controller
      */
     public function AffichageListeBadm(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $autoriser = $this->autorisationRole(self::$em);
               
         $badmSearch = new BadmSearch();
@@ -124,6 +127,9 @@ class BadmListeController extends Controller
      */
     public function exportExcel()
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+
     // Récupère les critères dans la session
     $criteria = $this->sessionService->get('badm_search_criteria', []);
     $option = $this->sessionService->get('badm_search_option', []);
@@ -168,7 +174,11 @@ class BadmListeController extends Controller
  * @param Request $request
  * @return void
  */
-public function listAnnuler(Request $request){
+public function listAnnuler(Request $request)
+{
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+
     $autoriser = $this->autorisationRole(self::$em);
         
          $badmSearch = new BadmSearch();

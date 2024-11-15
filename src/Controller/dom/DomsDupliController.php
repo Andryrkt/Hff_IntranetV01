@@ -33,6 +33,9 @@ class DomsDupliController extends Controller
      */
     public function secondForm(Request $request, $id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1

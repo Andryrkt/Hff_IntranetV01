@@ -21,6 +21,8 @@ class SocietteController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
     $data = self::$em->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
 
@@ -36,6 +38,9 @@ class SocietteController extends Controller
          */
         public function new(Request $request)
         {
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
             $form = self::$validator->createBuilder(SocietteType::class)->getForm();
     
             $form->handleRequest($request);
@@ -65,6 +70,9 @@ class SocietteController extends Controller
      */
     public function edit(Request $request, $id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $user = self::$em->getRepository(Societte::class)->find($id);
         
         $form = self::$validator->createBuilder(SocietteType::class, $user)->getForm();
@@ -93,6 +101,9 @@ class SocietteController extends Controller
     */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $societte = self::$em->getRepository(Societte::class)->find($id);
 
         if ($societte) {

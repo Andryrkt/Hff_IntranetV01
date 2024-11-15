@@ -22,6 +22,8 @@ class ProfilUserController extends Controller
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(ProfilUserType::class)->getForm();
 
@@ -53,6 +55,8 @@ class ProfilUserController extends Controller
      */
     public function list()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id'=>'DESC']);
 
@@ -69,6 +73,9 @@ class ProfilUserController extends Controller
  */
     public function edit(Request $request, $id)
     {
+
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
         
@@ -107,6 +114,9 @@ class ProfilUserController extends Controller
  */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
 
         self::$em->remove($user);

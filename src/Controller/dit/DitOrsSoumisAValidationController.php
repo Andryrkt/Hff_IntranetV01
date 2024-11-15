@@ -41,6 +41,9 @@ class DitOrsSoumisAValidationController extends Controller
      */
     public function insertionOr(Request $request, $numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         if(empty($numOrBaseDonner)){

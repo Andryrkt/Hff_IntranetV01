@@ -20,6 +20,8 @@ class CasierListTemporaireController extends Controller
      */
     public function AffichageListeCasier(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
@@ -64,6 +66,9 @@ class CasierListTemporaireController extends Controller
      */
     public function tratitementBtnValide($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
        $casierValide = new CasierValider();
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 

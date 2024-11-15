@@ -31,7 +31,8 @@ class DitController extends Controller
      * @return void
      */
     public function new(Request $request){
-        
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
         
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
@@ -93,6 +94,7 @@ class DitController extends Controller
      * @return void
      */
     public function agence($id) {
+
         $agence = self::$em->getRepository(Agence::class)->find($id);
     
         $service = $agence->getServices();

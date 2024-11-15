@@ -31,8 +31,11 @@ class PlanningController extends Controller
          * 
          * @return void
          */
-        public function listePlanning( Request $request){
-            
+        public function listePlanning( Request $request)
+        {
+            //verification si user connecter
+            $this->verifierSessionUtilisateur();
+
             $planningSearch = new PlanningSearch();
             //initialisation
             $planningSearch
@@ -156,6 +159,7 @@ class PlanningController extends Controller
      */
     public function detailModal($numOr)
     {
+
         $criteria = $this->sessionService->get('planning_search_criteria', []);
     // dd($criteria);
         //RECUPERATION DE LISTE DETAIL 

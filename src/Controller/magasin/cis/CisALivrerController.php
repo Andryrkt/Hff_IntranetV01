@@ -19,6 +19,9 @@ class CisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $cisATraiterModel = new CisALivrerModel();
 
         /** CREATION D'AUTORISATION */
@@ -59,6 +62,9 @@ class CisALivrerController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $cisATraiterModel = new CisALivrerModel();
 
          //recupères les critère dans la session 
