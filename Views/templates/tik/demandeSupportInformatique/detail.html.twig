@@ -1,5 +1,7 @@
 {% extends 'baseTemplate.html.twig' %}
 
+{% block nav %}{% endblock %}
+
 {% block title %} Détail sur le ticket {% endblock %}
 
 {% block stylesheets %}
@@ -159,6 +161,8 @@
 		<div id="materielInfos"></div>
 	</div>
 {% endblock %}
+
+{% block footer %}{% endblock %}
 
 {% block javascript %}
 	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
