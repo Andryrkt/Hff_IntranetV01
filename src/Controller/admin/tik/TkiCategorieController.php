@@ -32,20 +32,22 @@ class TkiCategorieController extends Controller
         $form = self::$validator->createBuilder(TkiCategorieType::class)->getForm();
         
         $form->handleRequest($request);
+
         if($form->isSubmitted() && $form->isValid())
         {
             $categorie = $form->getData();
+            // Récupérer les sous-catégories sélectionnées dans le formulaire
+            $sousCategories = $form->get('sousCategories')->getData();
 
-            $selectedSousCategories = $form->get('sousCategories')->getData();
+            // Ajouter manuellement chaque sous-catégorie à la catégorie
+            foreach ($sousCategories as $sousCategorie) {
+                $categorie->addSousCategorie($sousCategorie);
+            }
 
-                foreach ($selectedSousCategories as $sousCategorie) {
-                    $categorie->addSousCategories($sousCategorie);
-                }
+            self::$em->persist($categorie);
+            self::$em->flush();
 
-                self::$em->persist($categorie);
-                self::$em->flush();
-
-                $this->redirectToRoute("tki_categorie_index");
+            $this->redirectToRoute("tki_categorie_index");
         }
         
         self::$twig->display('admin/tik/categorie/new.html.twig', 
@@ -71,6 +73,22 @@ class TkiCategorieController extends Controller
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $sousCategories = $form->get('sousCategories')->getData();
+
+            // Supprimer les sous-catégories qui ne sont plus sélectionnées
+            foreach ($categorie->getSousCategories() as $sousCategorie) {
+                if (!$sousCategories->contains($sousCategorie)) {
+                    $categorie->removeSousCategorie($sousCategorie);
+                }
+            }
+
+            // Ajouter les nouvelles sous-catégories sélectionnées
+            foreach ($sousCategories as $sousCategorie) {
+                if (!$categorie->getSousCategories()->contains($sousCategorie)) {
+                    $categorie->addSousCategorie($sousCategorie);
+                }
+            }
+        
             self::$em->flush();
             $this->redirectToRoute("tki_categorie_index");
         }
