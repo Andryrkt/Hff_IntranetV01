@@ -7,6 +7,7 @@ use App\Entity\admin\Service;
 use App\Entity\tik\TikSearch;
 use App\Controller\Controller;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\tik\TkiCategorie;
 use Symfony\Component\Form\FormEvents;
@@ -16,6 +17,7 @@ use App\Entity\admin\tik\TkiSousCategorie;
 use App\Repository\admin\ServiceRepository;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\Form\FormBuilderInterface;
+use App\Repository\admin\StatutDemandeRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Repository\admin\tik\TkiCategorieRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,10 +29,14 @@ use App\Repository\admin\tik\TkiAutreCategorieRepository;
 class TikSearchType extends AbstractType
 {
     private $agenceRepository;
+    private $sousCategorieRepository;
+    private $categoriesRepository;
 
     public function __construct()
    {
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->sousCategorieRepository = Controller::getEntity()->getRepository(TkiSousCategorie::class);
+        $this->categoriesRepository = Controller::getEntity()->getRepository(TkiCategorie::class);
    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -52,6 +58,25 @@ class TikSearchType extends AbstractType
                 'widget' => 'single_text',
                 'label' => 'Date Demande Fin',
                 'required' => false,
+            ])
+            ->add('numeroTicket', TextType::class, [
+                'label' => 'Numéro ticket',
+                'required' => false
+            ])
+            ->add('statut', EntityType::class, [
+                'label' => 'Statut',
+                'class' => StatutDemande::class,
+                'choice_label' => 'description',
+                'placeholder' => '-- Choisir un statut --',
+                'required' => false,
+                'attr' => [
+                    'class' => 'statut'
+                ],
+                'query_builder' => function (StatutDemandeRepository $er) {
+                    return $er->createQueryBuilder('s')
+                                ->where('s.codeApp = :codeApp')
+                                ->setParameter('codeApp', 'TKI');
+                },
             ])
             ->add('niveauUrgence', EntityType::class, [
                 'label' => 'Niveau d\'urgence',
@@ -249,9 +274,60 @@ class TikSearchType extends AbstractType
                     'attr' => ['class' => 'autres-categories']
                 ]);
             })
+
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+                //souscategorie
+                $sousCategories = [];
+                    if (isset($data['categorie']) && $data['categorie']) {
+                        $categorieId = $data['categorie'];
+                        $categorie = $this->categoriesRepository->find($categorieId);
+                
+                        if ($categorie) {
+                            $sousCategories = $categorie->getSousCategories();
+                        } 
+                    }
+
+                    //autrecategorie
+                $autresCategories = [];
+                if (isset($data['sousCategorie']) && $data['sousCategorie']) {
+                    $sousCategorieId = $data['sousCategorie'];
+                    $sousCategorie = $this->sousCategorieRepository->find($sousCategorieId);
+            
+                    if ($categorie) {
+                        $autresCategories = $sousCategorie->getAutresCategories();
+                    } 
+                }
+
+                $form->add('sousCategorie', EntityType::class, [
+                    'label' => 'Sous Catégorie',
+                    'class' => TkiSousCategorie::class,
+                    'choice_label' => 'description',
+                    'placeholder' => '-- Choisir une sous categorie--',
+                    'required' => false,
+                    'choices' => $sousCategories,
+                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                        return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
+                    },
+                    'attr' => ['class' => 'sous-categorie']
+                ]);
+
+                $form->add('autresCategories', EntityType::class, [
+                    'label' => 'Autres Catégories',
+                    'class' => TkiAutresCategorie::class,
+                    'choice_label' => 'description',
+                    'placeholder' => '-- Choisir une autre categorie--',
+                    'required' => false,
+                    'choices' => $autresCategories,
+                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                        return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
+                    },
+                    'attr' => ['class' => 'autres-categories']
+                ]);
+            })
         ;
 
-        
     }
 
     public function configureOptions(OptionsResolver $resolver)

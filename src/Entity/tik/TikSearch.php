@@ -5,21 +5,26 @@ namespace App\Entity\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
 
 class TikSearch
 {
+    private ?string $numeroTicket = '';
+
     private ?string $demandeur = '';
 
     private ?string $numParc = '';
 
-    private ?WorNiveauUrgence $niveauUrgence;
+    private ?StatutDemande $statut = null;
 
-    private ?\Datetime $dateDebut;
+    private ?WorNiveauUrgence $niveauUrgence = null;
 
-    private ?\Datetime $dateFin;
+    private ?\Datetime $dateDebut = null;
+
+    private ?\Datetime $dateFin = null;
 
     private ?Agence $agenceEmetteur = null;
 
@@ -41,6 +46,25 @@ class TikSearch
      *
     =====================================================================================*/
     
+    /**
+     * Get the value of numeroTicket
+     */ 
+    public function getNumeroTicket()
+    {
+        return $this->numeroTicket;
+    }
+
+    /**
+     * Set the value of numeroTicket
+     *
+     * @return  self
+     */ 
+    public function setNumeroTicket($numeroTicket)
+    {
+        $this->numeroTicket = $numeroTicket;
+
+        return $this;
+    }
 
     /**
      * Get the value of demandeur
@@ -78,6 +102,26 @@ class TikSearch
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
 
         return $this;
     }
@@ -280,5 +324,20 @@ class TikSearch
         $this->autresCategories = $autresCategories;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'niveauUrgence' => $this->niveauUrgence,
+            'statut' => $this->statut,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'numParc' => $this->numParc,
+            'agenceEmetteur' => $this->agenceEmetteur,
+            'serviceEmetteur' => $this->serviceEmetteur,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'serviceDebiteur' => $this->serviceDebiteur,
+        ];
     }
 }
