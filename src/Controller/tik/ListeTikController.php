@@ -35,7 +35,6 @@ class ListeTikController extends Controller
         //nombre de ligne par page
         $limit = 10;
 
-        
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [

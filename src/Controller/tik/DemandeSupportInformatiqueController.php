@@ -103,6 +103,7 @@ class DemandeSupportInformatiqueController extends Controller
         $tikStatut
             ->setNumeroTicket($supportInfo->getNumeroTicket())
             ->setCodeStatut($statut->getCodeStatut())
+            ->setIdStatutDemande($statut)
         ;
         self::$em->persist($tikStatut);
         self::$em->flush();

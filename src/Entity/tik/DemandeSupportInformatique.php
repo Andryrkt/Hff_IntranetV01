@@ -95,12 +95,13 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
      */
-    private string $nomIntervenant;
+    private ?string $mailIntervenant = null;
+    
 
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
      */
-    private ?string $mailIntervenant = null;
+    private ?string $nomIntervenant = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Objet_Demande")
@@ -139,9 +140,9 @@ class DemandeSupportInformatique
 
     /**
      * @ORM\ManyToOne(targetEntity=WorNiveauUrgence::class, inversedBy="supportInfo")
-     * @ORM\JoinColumn(nullable=false, name="ID_Niveau_Urgence", referencedColumnName="id")
+     * @ORM\JoinColumn(name="ID_Niveau_Urgence", referencedColumnName="id")
      */
-    private ?int $niveauUrgence = null;
+    private ?WorNiveauUrgence $niveauUrgence = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Parc_Informatique")
