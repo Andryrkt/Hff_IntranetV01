@@ -33,4 +33,26 @@ class ExcelService
         $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
     }
+
+    public function createSpreadsheetMode(array $data, $startCell = 'A1')
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Initialiser l'index de ligne et de colonne
+        [$startColumn, $startRow] = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::coordinateFromString($startCell);
+        $startColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($startColumn);
+        
+        // Ajouter des données en partant de la cellule spécifique
+        foreach ($data as $rowIndex => $row) {
+            foreach ($row as $colIndex => $value) {
+                $sheet->setCellValueByColumnAndRow($startColumnIndex + $colIndex, $startRow + $rowIndex, $value);
+            }
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="donnees.xlsx"');
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+    }
 }

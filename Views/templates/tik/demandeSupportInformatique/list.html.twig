@@ -2,7 +2,7 @@
 
 {% block stylesheets%}
 	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/tik/liste.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -46,8 +46,29 @@
 				</tr>
 			</thead>
 			<tbody>
-				{# DEBUT LOGIQUE #}
+
 				{% for item in data %}
+					{# DEBUT LOGIQUE #}
+					{% set classeStatutTik = '' %}
+					{% set styleStatutTik = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+						{% set classeStatutTik ='ouvert' %}
+					{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+						{% set classeStatutTik ='refuse' %}
+					{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+						{% set classeStatutTik ='encours' %}
+					{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+						{% set classeStatutTik ='planifie' %}
+					{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+						{% set classeStatutTik ='resolu' %}
+					{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+						{% set classeStatutTik ='reouvert' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+						{% set classeStatutTik ='cloture' %}
+					{% else %}
+						{% set classeStatutTik = '' %}
+					{% endif %}
 					{# FIN LOGIQUE #}
 					<tr>
 						{# Début Action #}
@@ -68,7 +89,7 @@
 
 						{# DEBUT Statut #}
 
-						<td>{{ item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
 
 						{# FIN Statut #}
 
