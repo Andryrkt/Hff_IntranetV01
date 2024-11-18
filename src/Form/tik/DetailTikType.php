@@ -15,6 +15,7 @@ use App\Repository\admin\tik\TkiSousCategorieRepository;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -23,13 +24,25 @@ class DetailTikType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('dateDebutPlanning', DateType::class, [
+                'widget'     => 'single_text',
+                'label'      => 'Date début planning ticket',
+                'required'   => false,
+            ])
+            ->add('dateFinPlanning', DateType::class, [
+                'widget'     => 'single_text',
+                'label'      => 'Date fin planning ticket',
+                'required'   => false,
+            ])
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
                 'attr'         => ['class' => 'categorie'],
-                'placeholder'  => '-- Choix de catégorie --',
+                'placeholder'  => '-- Choisir une catégorie --',
                 'class'        => TkiCategorie::class,
                 'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
-                    return $TkiCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                    return $TkiCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
                 },
                 'choice_label' => 'description',
                 'required'     => true,
@@ -40,10 +53,12 @@ class DetailTikType extends AbstractType
             ->add('sousCategorie', EntityType::class, [
                 'label'        => 'Sous-catégories',
                 'attr'         => ['class' => 'sous-categorie'],
-                'placeholder'  => '-- Choix de sous-catégorie --',
+                'placeholder'  => '-- Choisir une sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
-                'query_builder' => function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
-                    return $TkiSousCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                'query_builder'=> function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
+                    return $TkiSousCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
                 },
                 'choice_label' => 'description',
                 'required'     => false,
@@ -55,8 +70,10 @@ class DetailTikType extends AbstractType
                 'attr'         => ['class' => 'autre-categorie'],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
-                'query_builder' => function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
-                    return $TkiAutreCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                'query_builder'=> function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
+                    return $TkiAutreCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
                 },
                 'choice_label' => 'description',
                 'required'     => false,
@@ -68,13 +85,13 @@ class DetailTikType extends AbstractType
                 'placeholder'  => '-- Choisir un intervenant --',
                 'class'        => User::class,
                 'choice_label' => 'nom_utilisateur',
-                'query_builder' => function(UserRepository $userRepository) {
+                'query_builder'=> function(UserRepository $userRepository) {
                     return $userRepository
-                    ->createQueryBuilder('u')
-                    ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
-                    ->where('r.id = :roleId')  // Filtre sur l'id du rôle
-                    ->setParameter('roleId', 8) 
-                    ->orderBy('u.nom_utilisateur', 'ASC');;
+                        ->createQueryBuilder('u')
+                        ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
+                        ->where('r.id = :roleId')  // Filtre sur l'id du rôle
+                        ->setParameter('roleId', 8) 
+                        ->orderBy('u.nom_utilisateur', 'ASC');;
                 },
                 'multiple'     => false,
                 'expanded'     => false
@@ -83,8 +100,10 @@ class DetailTikType extends AbstractType
                 'label'        => 'Niveau d\'urgence',
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
-                'query_builder' => function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
-                    return $WorNiveauUrgenceRepository->createQueryBuilder('w')->orderBy('w.description', 'DESC');
+                'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
+                    return $WorNiveauUrgenceRepository
+                        ->createQueryBuilder('w')
+                        ->orderBy('w.description', 'DESC');
                 },
                 'choice_label' => 'description',
                 'multiple'     => false,
