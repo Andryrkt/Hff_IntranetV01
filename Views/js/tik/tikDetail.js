@@ -19,7 +19,7 @@ function selectCategorieSousCategorie() {
 
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
-    defaultOption.text = " -- Choisir une sous catégorie -- ";
+    defaultOption.text = " -- Choisir une sous-catégorie -- ";
     sousCategorieInput.add(defaultOption);
     return; // Sortir de la fonction
   }
@@ -37,7 +37,7 @@ function selectCategorieSousCategorie() {
 
       const defaultOption = document.createElement("option");
       defaultOption.value = "";
-      defaultOption.text = " -- Choisir une sous catégorie -- ";
+      defaultOption.text = " -- Choisir une sous-catégorie -- ";
       sousCategorieInput.add(defaultOption);
 
       // Ajouter les nouvelles options à partir du tableau services
