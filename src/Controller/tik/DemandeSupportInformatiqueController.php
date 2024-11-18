@@ -71,30 +71,30 @@ class DemandeSupportInformatiqueController extends Controller
     private function ajoutDonnerDansEntity($donnerForm, $supportInfo)
     {
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
-            $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
-            $userId = $this->sessionService->get('user_id');
-            $user = self::$em->getRepository(User::class)->find($userId);
-            $statut = self::$em->getRepository(StatutDemande::class)->find('79');
-            
-            /** 
-             * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
-             * */
-            $supportInfo 
-                ->setAgenceDebiteurId($donnerForm->getAgence())
-                ->setServiceDebiteurId($donnerForm->getService())
-                ->setAgenceEmetteurId($agenceEmetteur)
-                ->setServiceEmetteurId($serviceEmetteur)
-                ->setHeureCreation($this->getTime())
-                ->setUtilisateurDemandeur($user->getNomUtilisateur())
-                ->setUserId($user)
-                ->setMailDemandeur($user->getMail())
-                ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
-                ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
-                ->setNumeroTicket($this->autoINcriment('TIK'))
-                ->setIdStatutDemande($statut)
-            ;
+        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
+        
+        /** 
+         * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
+         * */
+        $supportInfo 
+            ->setAgenceDebiteurId($donnerForm->getAgence())
+            ->setServiceDebiteurId($donnerForm->getService())
+            ->setAgenceEmetteurId($agenceEmetteur)
+            ->setServiceEmetteurId($serviceEmetteur)
+            ->setHeureCreation($this->getTime())
+            ->setUtilisateurDemandeur($user->getNomUtilisateur())
+            ->setUserId($user)
+            ->setMailDemandeur($user->getMail())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
+            ->setNumeroTicket($this->autoINcriment('TIK'))
+            ->setIdStatutDemande($statut)
+        ;
 
-            $this->historiqueStatut($supportInfo, $statut);
+        $this->historiqueStatut($supportInfo, $statut);
     }
 
     private function historiqueStatut($supportInfo, $statut)
