@@ -23,7 +23,7 @@ class TikSearch
 
     private ?WorNiveauUrgence $niveauUrgence = null;
 
-    private ?User $nomIntervenant;
+    private ?User $nomIntervenant = null;
 
     private ?\Datetime $dateDebut = null;
 
