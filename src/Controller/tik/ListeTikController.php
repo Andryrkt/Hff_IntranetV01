@@ -29,7 +29,6 @@ class ListeTikController extends Controller
         {
             // $criteria$form->getData());
         }
-        // dd($tikSearch);
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page

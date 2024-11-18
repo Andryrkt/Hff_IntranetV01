@@ -108,91 +108,207 @@
 									{# FIN Pièces Jointes #}
 								</div>
 								{# FIN COLONNE 2 #}
+
+								{# DEBUT PARTIE POUR VALIDATEUR #}
+								{% if autoriser %}
+									{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
+									{{ form_start(form, {'attr':{'id':'formTik'}}) }}
+
+									{{ form_errors(form)}}
+									<div class="row">
+										<div class="col-12 col-md-11">
+											<h3 class="perso-titre">
+												Détail du ticket
+											</h3>
+										</div>
+
+										<div class=" col-12 col-md-1">
+											<a href="{{ path("liste_tik_index")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+										</div>
+									</div>
+
+									<div
+										class="row">
+										{# DEBUT COLONNE 1 #}
+										<div
+											class="col-12 col-md-6">
+											{# DEBUT TKI #}
+											{{ macroForm.sousTitre('TKI', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-6">
+													{{form_row(form.niveauUrgence)}}
+												</div>
+												<div class="col-12 col-md-6">
+													{{form_row(form.intervenant)}}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-12 col-md-6">
+													{{form_row(form.dateDebutPlanning)}}
+												</div>
+												<div class="col-12 col-md-6">
+													{{form_row(form.dateFinPlanning)}}
+												</div>
+											</div>
+											{# FIN TKI #}
+
+											{# DEBUT DEMANDE #}
+											{{ macroForm.sousTitre('Demande', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-4">
+													{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
+												</div>
+												<div class="col-12 col-md-4">
+													{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur) }}
+												</div>
+												<div class="col-12 col-md-4">
+													{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
+												</div>
+											</div>
+											<div class="col-12 col-md-12">
+												{{ macroForm.affichage('Objet de la demande', tik.objetDemande) }}
+											</div>
+											<div class="col-12 col-md-12">
+												{{ macroForm.affichageHTML('Détail de la demande', tik.detailDemande) }}
+											</div>
+											{# FIN DEMANDE #}
+										</div>
+										{# FIN COLONNE 1 #}
+
+										{# DEBUT COLONNE 2 #}
+										<div
+											class="col-12 col-md-6">
+
+											{# DEBUT Agence et service #}
+											{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-6">
+													{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
+												</div>
+												<div class="col-12 col-md-6">
+													{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
+												</div>
+											</div>
+											{# FIN Agence et service #}
+
+											{# DEBUT Pièces Jointes #}
+											{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+											{{ macroForm.affichageFile('Pièce jointe 01', tik.pieceJoint01)}}
+
+											{{ macroForm.affichageFile('Pièce jointe 02', tik.pieceJoint02)}}
+
+											{{ macroForm.affichageFile('Pièce jointe 03', tik.pieceJoint03)}}
+											{# FIN Pièces Jointes #}
+										</div>
+										{# FIN COLONNE 2 #}
+									</div>
+
+									<div class="d-flex justify-content-end">
+										<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
+											<i class="fas fa-xmark"></i>
+											Réfuser
+										</button>
+										<button type="submit" class="btn bouton" name="valider" id="btn_valider">
+											<i class="fas fa-check"></i>
+											Valider
+										</button>
+									</div>
+									{{ form_end(form) }}
+									{# FIN FORMULAIRE POUR LE VALIDATEUR #}
+								{% endif %}
+								{# FIN PARTIE POUR VALIDATEUR #}
 							</div>
 						</div>
-					</div>
-					{# FIN PARTIE POUR DETAILS SEULEMENT #}
+						{# FIN PARTIE POUR DETAILS SEULEMENT #}
 
-					{# DEBUT PARTIE POUR VALIDATEUR #}
-					{% if autoriser %}
-						<div class="dropzone mt-3">
-							<div
-								class="container">
-								{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
-								{{ form_start(form, {'attr':{'id':'formTik'}}) }}
-
-								{{ form_errors(form)}}
+						{# DEBUT PARTIE POUR VALIDATEUR #}
+						{% if autoriser %}
+							<div class="dropzone mt-3">
 								<div
-									class="row">
-									{# DEBUT COLONNE 1 #}
-									<div
-										class="col-12 col-md-6">
-										{# DEBUT Intervention #}
-										{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
-										<div class="row">
-											<div class="col-12 col-md-12">
-												{{form_row(form.niveauUrgence)}}
-											</div>
-											<div class="col-12 col-md-12">
-												{{form_row(form.nomIntervenant)}}
-											</div>
-										</div>
-										{# FIN Intervention #}
-									</div>
-									{# FIN COLONNE 1 #}
+									class="container">
+									{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
+									{{ form_start(form, {'attr':{'id':'formTik'}}) }}
 
-									{# DEBUT COLONNE 2 #}
+									{{ form_errors(form)}}
 									<div
-										class="col-12 col-md-6">
-										{# DEBUT Observation Ticket #}
-										{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
-										<div class="row">
-											<div class="col-12 col-md-12">
-												{{ form_row(form.categorie) }}
+										class="row">
+										{# DEBUT COLONNE 1 #}
+										<div
+											class="col-12 col-md-6">
+											{# DEBUT Intervention #}
+											{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-12">
+													{{form_row(form.niveauUrgence)}}
+												</div>
+												<div class="col-12 col-md-12">
+													{{form_row(form.nomIntervenant)}}
+												</div>
 											</div>
-											<div class="col-12 col-md-12">
-												{{ form_row(form.sousCategorie) }}
-											</div>
-											<div class="col-12 col-md-12">
-												{{ form_row(form.autresCategorie) }}
-											</div>
+											{# FIN Intervention #}
 										</div>
-										{# FIN Observation Ticket #}
-									</div>
-									{# FIN COLONNE 2 #}
-								</div>
+										{# FIN COLONNE 1 #}
 
-								<div class="d-flex justify-content-end">
-									<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
-										<i class="fas fa-xmark"></i>
-										Réfuser
-									</button>
-									<button type="submit" class="btn bouton" name="valider" id="btn_valider">
-										<i class="fas fa-check"></i>
-										Valider
-									</button>
+										{# DEBUT COLONNE 2 #}
+										<div
+											class="col-12 col-md-6">
+											{# DEBUT Observation Ticket #}
+											{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-12">
+													{{ form_row(form.categorie) }}
+												</div>
+												<div class="col-12 col-md-12">
+													{{ form_row(form.sousCategorie) }}
+												</div>
+												<div class="col-12 col-md-12">
+													{{ form_row(form.autresCategorie) }}
+												</div>
+											</div>
+											{# FIN Observation Ticket #}
+										</div>
+										{# FIN COLONNE 2 #}
+									</div>
+
+									<div class="d-flex justify-content-end">
+										<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
+											<i class="fas fa-xmark"></i>
+											Réfuser
+										</button>
+										<button type="submit" class="btn bouton" name="valider" id="btn_valider">
+											<i class="fas fa-check"></i>
+											Valider
+										</button>
+									</div>
+									{{ form_end(form) }}
+									{# FIN FORMULAIRE POUR LE VALIDATEUR #}
 								</div>
-								{{ form_end(form) }}
-								{# FIN FORMULAIRE POUR LE VALIDATEUR #}
 							</div>
-						</div>
-					{% endif %}
-					{# FIN PARTIE POUR VALIDATEUR #}
+						{% endif %}
+						{# FIN PARTIE POUR VALIDATEUR #}
+					</div>
+					<<<<<<<HEAD=======>>>
+					{# FIN PARTIE POUR DETAILS SEULEMENT #}
+					>>>> f2b98e9fdcb05df881449f23df60c5c3fc3cc590
 				</div>
+
+				<div id="materielInfos"></div>
 			</div>
 
-			<div id="materielInfos"></div>
 		</div>
 
-	</div>
+		<div
+			class="col-12 col-md-3">{# {% include "/tik/demandeSupportInformatique/shared/_commentaire.html.twig" %} #}
+		</div>
+	{% endblock %}
 
-	<div
-		class="col-12 col-md-3">{# {% include "/tik/demandeSupportInformatique/shared/_commentaire.html.twig" %} #}
-	</div>
-{% endblock %}
+	{% block footer %}{% endblock %}
 
-{% block footer %}{% endblock %}
-
-{% block javascript %}
-	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
-{% endblock %}
+	{% block javascript %}
+		{% if autoriser %}
+			<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
+		{% else %}
+			<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
+		{% endif %}
+	{% endblock %}

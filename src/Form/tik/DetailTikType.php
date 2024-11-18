@@ -2,6 +2,7 @@
 
 namespace App\Form\tik;
 
+use App\Controller\Controller;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
@@ -13,37 +14,63 @@ use App\Repository\admin\tik\TkiAutreCategorieRepository;
 use App\Repository\admin\tik\TkiCategorieRepository;
 use App\Repository\admin\tik\TkiSousCategorieRepository;
 use App\Repository\admin\utilisateur\UserRepository;
+use App\Service\SessionManagerService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DetailTikType extends AbstractType
 {
+    private User $connectedUser;
+
+    public function __construct() {
+        $em = Controller::getEntity();
+        $sessionService = new SessionManagerService;
+        $this->connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('dateDebutPlanning', DateType::class, [
+                'label'      => 'Date début planning ticket',
+                'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
+                'widget'     => 'single_text',
+                'required'   => false,
+            ])
+            ->add('dateFinPlanning', DateType::class, [
+                'label'      => 'Date fin planning ticket',
+                'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
+                'widget'     => 'single_text',
+                'required'   => false,
+            ])
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
-                'attr'         => ['id' => 'categorie'],
-                'placeholder'  => '-- Choix de catégorie --',
                 'class'        => TkiCategorie::class,
-                'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
-                    return $TkiCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
-                },
                 'choice_label' => 'description',
-                'required'     => true,
+                'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
+                    return $TkiCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
+                },
+                'data'         => $options['data']->getCategorie(),
+                'attr'         => ['class' => 'categorie'],
+                'placeholder'  => '-- Choisir une catégorie --',
                 'multiple'     => false,
                 'expanded'     => false,
-                'data'         => $options['data']->getCategorie()
+                'required'     => true,
             ])
             ->add('sousCategorie', EntityType::class, [
                 'label'        => 'Sous-catégories',
-                'attr'         => ['id' => 'sous-categorie'],
-                'placeholder'  => '-- Choix de sous-catégorie --',
+                'attr'         => ['class' => 'sous-categorie'],
+                'placeholder'  => '-- Choisir une sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
-                'query_builder' => function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
-                    return $TkiSousCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                'query_builder'=> function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
+                    return $TkiSousCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
                 },
                 'choice_label' => 'description',
                 'required'     => false,
@@ -52,43 +79,47 @@ class DetailTikType extends AbstractType
             ])
             ->add('autresCategorie', EntityType::class, [
                 'label'        => 'Autres catégories',
-                'attr'         => ['id' => 'autre-categorie'],
+                'attr'         => ['class' => 'autre-categorie'],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
-                'query_builder' => function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
-                    return $TkiAutreCategorieRepository->createQueryBuilder('t')->orderBy('t.description', 'ASC');
+                'query_builder'=> function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
+                    return $TkiAutreCategorieRepository
+                        ->createQueryBuilder('t')
+                        ->orderBy('t.description', 'ASC');
                 },
                 'choice_label' => 'description',
                 'required'     => false,
                 'multiple'     => false,
                 'expanded'     => false
             ])
-            ->add('nomIntervenant', EntityType::class, [
+            ->add('intervenant', EntityType::class, [
                 'label'        => 'Intervenant',
                 'placeholder'  => '-- Choisir un intervenant --',
                 'class'        => User::class,
                 'choice_label' => 'nom_utilisateur',
-                'query_builder' => function(UserRepository $userRepository) {
+                'query_builder'=> function(UserRepository $userRepository) {
                     return $userRepository
-                    ->createQueryBuilder('u')
-                    ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
-                    ->where('r.id = :roleId')  // Filtre sur l'id du rôle
-                    ->setParameter('roleId', 8) 
-                    ->orderBy('u.nom_utilisateur', 'ASC');;
+                        ->createQueryBuilder('u')
+                        ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
+                        ->where('r.id = :roleId')  // Filtre sur l'id du rôle
+                        ->setParameter('roleId', 8) 
+                        ->orderBy('u.nom_utilisateur', 'ASC');;
                 },
                 'multiple'     => false,
-                'expanded'     => false
+                'expanded'     => false,
             ])
             ->add('niveauUrgence', EntityType::class, [
                 'label'        => 'Niveau d\'urgence',
+                'choice_label' => 'description',
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
-                'query_builder' => function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
-                    return $WorNiveauUrgenceRepository->createQueryBuilder('w')->orderBy('w.description', 'DESC');
+                'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
+                    return $WorNiveauUrgenceRepository
+                        ->createQueryBuilder('w')
+                        ->orderBy('w.description', 'DESC');
                 },
-                'choice_label' => 'description',
                 'multiple'     => false,
-                'expanded'     => false
+                'expanded'     => false,
             ])
         ;   
     }

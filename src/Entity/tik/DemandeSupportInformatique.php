@@ -93,13 +93,19 @@ class DemandeSupportInformatique
     private string $agenceServiceDebiteur;
 
     /**
-     * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoIntervenant")
+     * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
+     */
+    private User $intervenant;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
      */
     private ?string $mailIntervenant = null;
     
 
     /**
-     * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
+     * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
      */
     private ?string $nomIntervenant = null;
 
@@ -142,7 +148,7 @@ class DemandeSupportInformatique
      * @ORM\ManyToOne(targetEntity=WorNiveauUrgence::class, inversedBy="supportInfo")
      * @ORM\JoinColumn(name="ID_Niveau_Urgence", referencedColumnName="id")
      */
-    private ?WorNiveauUrgence $niveauUrgence = null;
+    private ?WorNiveauUrgence $niveauUrgence;
 
     /**
      * @ORM\Column(type="string", length=50, name="Parc_Informatique")
@@ -819,5 +825,23 @@ class DemandeSupportInformatique
         return $this;
     }
 
-   
+    /**
+     * Get the value of intervenant
+     */ 
+    public function getIntervenant()
+    {
+        return $this->intervenant;
+    }
+
+    /**
+     * Set the value of intervenant
+     *
+     * @return  self
+     */ 
+    public function setIntervenant($intervenant)
+    {
+        $this->intervenant = $intervenant;
+
+        return $this;
+    }
 }
