@@ -144,6 +144,26 @@ class DitRepository extends EntityRepository
              // section affect et support section
         $this->applySection($queryBuilder, $ditSearch);
 
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        if (!$options['boolean']) {
+            $queryBuilder
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteurId = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $options['codeAgence'])
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+        
         return $queryBuilder->getQuery()->getResult();
     }
 
