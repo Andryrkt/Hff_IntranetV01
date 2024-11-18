@@ -98,16 +98,10 @@
 								{# FIN Pièces Jointes #}
 							</div>
 							{# FIN COLONNE 2 #}
-						</div>
-					</div>
-				</div>
-				{# FIN PARTIE POUR DETAILS SEULEMENT #}
 
-				{# DEBUT PARTIE POUR VALIDATEUR #}
-				{% if autoriser %}
-				<div class="dropzone mt-3">
-					<div class="container">
-						{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
+						{# DEBUT PARTIE POUR VALIDATEUR #}
+						{% if autoriser %}
+							{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
 						{{ form_start(form, {'attr':{'id':'formTik'}}) }}
 
 							{{ form_errors(form)}}
@@ -121,7 +115,7 @@
 											{{form_row(form.niveauUrgence)}}
 										</div>
 										<div class="col-12 col-md-6">
-											{{form_row(form.nomIntervenant)}}
+											{{form_row(form.intervenant)}}
 										</div>
 									</div>
 									<div class="row">
@@ -168,10 +162,13 @@
 							</div>
 						{{ form_end(form) }}
 						{# FIN FORMULAIRE POUR LE VALIDATEUR #}
+						{% endif %}
+						{# FIN PARTIE POUR VALIDATEUR #}
+						</div>
 					</div>
 				</div>
-				{% endif %}
-				{# FIN PARTIE POUR VALIDATEUR #}
+				{# FIN PARTIE POUR DETAILS SEULEMENT #}
+				
 			</div>
 		</div>
 
