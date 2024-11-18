@@ -36,25 +36,25 @@ class DitRepository extends EntityRepository
              // section affect et support section
             $this->applySection($queryBuilder, $ditSearch);
 
+            $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        
             if (!$options['boolean']) {
                 $queryBuilder
                     ->andWhere(
                         $queryBuilder->expr()->orX(
-                            'd.agenceDebiteurId IN (:agDebit)',
-                            'd.agenceEmetteurId = :agEmet'
+                            'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                            'd.agenceEmetteurId = :codeAgence'
                         )
                     )
-                    ->setParameter('agDebit', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY) // Définit comme tableau d'entiers
-                    ->setParameter('agEmet', $options['codeAgence']) // Code agence est un entier unique
-            
+                    ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                    ->setParameter('codeAgence', $options['codeAgence'])
                     ->andWhere(
                         $queryBuilder->expr()->orX(
-                            'd.serviceDebiteurId IN (:servDebit)',
-                            'd.serviceEmetteurId IN (:servEmet)'
+                            'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                            'd.serviceEmetteurId IN (:serviceAutoriserIds)'
                         )
                     )
-                    ->setParameter('servDebit', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY) // Tableau d'entiers
-                    ->setParameter('servEmet', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY); // Tableau d'entiers
+                    ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
             }
             
 
@@ -104,16 +104,11 @@ class DitRepository extends EntityRepository
         // }
 
         if (!empty($ditSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere(
-                $queryBuilder->expr()->andX(
-                    'd.agenceDebiteurId = :agDebit',
-                    'd.agenceEmetteurId = :agEmet'
-                )
-            )
-            ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
-            ->setParameter('agEmet', $options['codeAgence']);
+            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
+                        ->andWhere('d.agenceEmetteurId = :agEmet')
+                        ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
+                        ->setParameter('agEmet', $options['codeAgence']);
         }
-        
 
         if (!empty($ditSearch->getServiceDebiteur())) {
             $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
@@ -287,30 +282,26 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
-        // Apply agency and service filters based on user roles
-        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+        
         
     }
 
 
-
-    
-
-        private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
-        {
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                    ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
-            } else {
-                $queryBuilder->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.agenceEmetteurId IN (:agencesRattachees)',
-                        'd.agenceDebiteurId IN (:agencesRattachees)'
-                    )
+    private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
+    {
+        if (!empty($ditSearch->getAgenceEmetteur())) {
+            $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+                ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
+        } else {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX(
+                    'd.agenceEmetteurId IN (:agencesRattachees)',
+                    'd.agenceDebiteurId IN (:agencesRattachees)'
                 )
-                ->setParameter('agencesRattachees', $agencyIds);
-            }
+            )
+            ->setParameter('agencesRattachees', $agencyIds);
         }
+    }
 
 private function applySection($queryBuilder, DitSearch $ditSearch)
 {
