@@ -12,11 +12,9 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class=" container mt-3">
+	<div class=" container mt-5">
 		<div class="card mb-3">
 			<div class="card-body">
-
-				{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
 				<div class="dropzone" id="dropzone">
 					<div class="container">
 						<div class="row">
@@ -31,6 +29,7 @@
 							</div>
 						</div>
 
+						{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
 						<div class="row">
 							{# DEBUT COLONNE 1 #}
 							<div class="col-12 col-md-6">
@@ -99,34 +98,35 @@
 							</div>
 							{# FIN COLONNE 2 #}
 
-						{# DEBUT PARTIE POUR VALIDATEUR #}
+						{# FIN PARTIE POUR DETAILS SEULEMENT #}
+						
+						{# DEBUT PARTIE POUR VALIDATEUR OU INTERVENANT #}
 						{% if autoriser %}
-							{# DEBUT FORMULAIRE POUR LE VALIDATEUR #}
-						{{ form_start(form, {'attr':{'id':'formTik'}}) }}
+							{# DEBUT FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
+							{{ form_start(form, {'attr':{'id':'formTik'}}) }}
 
 							{{ form_errors(form)}}
 							<div class="row">
 								{# DEBUT COLONNE 1 #}
 								<div class="col-12 col-md-6">
-									{# DEBUT Intervention #}
-									{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 									<div class="row">
-										<div class="col-12 col-md-6">
-											{{form_row(form.niveauUrgence)}}
+										{# DEBUT Intervention #}
+										{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+										<div class="col-12 col-md-4">
+											{{ form_row(form.categorie) }}
+											{{ form_row(form.sousCategorie) }}
+											{{ form_row(form.autresCategorie) }}
 										</div>
-										<div class="col-12 col-md-6">
+										<div class="col-12 col-md-4">
+											{{form_row(form.niveauUrgence)}}
 											{{form_row(form.intervenant)}}
 										</div>
-									</div>
-									<div class="row">
-										<div class="col-12 col-md-6">
+										<div class="col-12 col-md-4">
 											{{form_row(form.dateDebutPlanning)}}
-										</div>
-										<div class="col-12 col-md-6">
 											{{form_row(form.dateFinPlanning)}}
 										</div>
+										{# FIN Intervention #}
 									</div>
-									{# FIN Intervention #}
 								</div>
 								{# FIN COLONNE 1 #}
 
@@ -134,41 +134,47 @@
 								<div class="col-12 col-md-6">
 									{# DEBUT Observation Ticket #}
 									{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
-									<div class="row">
-										<div class="col-12 col-md-12">
-											{{ form_row(form.categorie) }}
-										</div>
-										<div class="col-12 col-md-12">
-											{{ form_row(form.sousCategorie) }}
-										</div>
-										<div class="col-12 col-md-12">
-											{{ form_row(form.autresCategorie) }}
-										</div>
-									</div>
+
+									{{ form_row(form.commentaires) }}
 									{# FIN Observation Ticket #}
 								</div>
 								{# FIN COLONNE 2 #}
 							</div>
 
 							<div class="d-flex justify-content-end">
-								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
-									<i class="fas fa-xmark"></i>
-									Réfuser
-								</button>
-								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
-									<i class="fas fa-check"></i>
-									Valider
-								</button>
+								{% if validateur %}
+
+									{# BOUTONS POUR VALIDATEUR #}
+									<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
+										<i class="fas fa-xmark"></i>
+										Réfuser
+									</button>
+									<button type="submit" class="btn bouton" name="valider" id="btn_valider">
+										<i class="fas fa-check"></i>
+										Valider
+									</button>
+
+								{% else %}
+
+									{# BOUTONS POUR INTERVENANT #}
+									<button type="submit" class="btn bouton mx-3 text-white bg-primary" name="transferer" id="btn_transferer">
+										<i class="fas fa-paper-plane"></i>
+										Transférer
+									</button>
+									<button type="submit" class="btn bouton" name="planifier" id="btn_planifier">
+										<i class="fas fa-calendar"></i>
+										Planifier
+									</button>
+
+								{% endif %}
 							</div>
-						{{ form_end(form) }}
-						{# FIN FORMULAIRE POUR LE VALIDATEUR #}
+							{{ form_end(form) }}
+							{# FIN FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
 						{% endif %}
-						{# FIN PARTIE POUR VALIDATEUR #}
+						{# FIN PARTIE POUR VALIDATEUR OU INTERVENANT #}
 						</div>
 					</div>
 				</div>
-				{# FIN PARTIE POUR DETAILS SEULEMENT #}
-				
 			</div>
 		</div>
 
