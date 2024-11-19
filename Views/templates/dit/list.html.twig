@@ -193,7 +193,8 @@
 								<a href="#" data-bs-toggle="modal" data-bs-target="#ri" data-id="{{item.numeroOr}}" id="numOr" data-bs-toggle="tooltip" title="lister les intervention soumis RI">{{ item.ri}}</a>
 							</td>
 							<td class="text-center">{{ item.nbrPj}}</td>
-							<td>{{item.utilisateurDemandeur}}</td>
+							<td>{{ item.utilisateurDemandeur|upper }}</td>
+
 						</tr>
 					{% endfor %}
 				</tbody>
