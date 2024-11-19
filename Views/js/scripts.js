@@ -60,7 +60,7 @@ function resetTimeout() {
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
     window.location.href = "/Hffintranet/logout"; // URL de déconnexion
-  }, 300000); // 5 minutes
+  }, 3600000); // 1 heures
 }
 
 // Définir les événements pour détecter l'activité utilisateur
