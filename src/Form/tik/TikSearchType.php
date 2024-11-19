@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
@@ -20,6 +21,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Repository\admin\tik\TkiCategorieRepository;
+use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Repository\admin\tik\TkiSousCategorieRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -87,6 +89,21 @@ class TikSearchType extends AbstractType
                 'attr' => [
                     'class' => 'niveauUrgence'
                 ]
+            ])
+            ->add('nomIntervenant', EntityType::class, [
+                'label'        => 'Intervenant',
+                'placeholder'  => '-- Choisir un intervenant --',
+                'class'        => User::class,
+                'choice_label' => 'nom_utilisateur',
+                'required' => false,
+                'query_builder' => function(UserRepository $userRepository) {
+                    return $userRepository
+                    ->createQueryBuilder('u')
+                    ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
+                    ->where('r.id = :roleId')  // Filtre sur l'id du rôle
+                    ->setParameter('roleId', 8) 
+                    ->orderBy('u.nom_utilisateur', 'ASC');
+                }
             ])
             ->add('agenceEmetteur', EntityType::class, [
                 'label' => "Agence Emetteur",

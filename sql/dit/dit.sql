@@ -72,9 +72,9 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'LCD' THEN '9'
         WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
         WHEN RIGHT(agence_service_debiteur, 3) = 'COM' THEN '2'
-
-
-ELSE '0' END;
+        WHEN RIGHT(agence_service_debiteur, 3) = 'MAS' THEN '36'
+        ELSE '0'
+    END;
 
 UPDATE demande_intervention
 SET

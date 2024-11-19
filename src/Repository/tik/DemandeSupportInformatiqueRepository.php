@@ -20,10 +20,16 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
                 ->setParameter('niveauUrgence', '%' . $tikSearch->getNiveauUrgence() . '%');
         }
 
-        //filtre selon l'agence emettteur
+        //filtre selon le statut
         if (!empty($tikSearch->getStatut())) {
             $queryBuilder->andWhere('tki.idStatutDemande = :idStatut')
             ->setParameter('idStatut',  $tikSearch->getStatut()->getId());
+        }
+
+        //filtrer selon le nom d'intervenant
+        if(!empty($tikSearch->getNomIntervenant())) {
+            $queryBuilder->andWhere('tki.nomIntervenant = :interv')
+            ->setParameter('interv', $tikSearch->getNomIntervenant());
         }
 
         $this->conditionSaisieLibre($queryBuilder, $tikSearch);

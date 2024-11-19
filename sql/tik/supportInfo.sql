@@ -66,3 +66,10 @@ ALTER TABLE Demande_Support_Informatique
 ALTER COLUMN date_creation DATETIME2
 ALTER TABLE Demande_Support_Informatique
 ALTER COLUMN date_modification DATETIME2
+
+ALTER TABLE Demande_Support_Informatique
+ADD ID_Intervenant INT;
+
+ALTER TABLE Demande_Support_Informatique
+ADD CONSTRAINT FK_User_Intervenant
+FOREIGN KEY (ID_Intervenant) REFERENCES users (id);

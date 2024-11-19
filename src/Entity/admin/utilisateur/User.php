@@ -144,6 +144,11 @@ class User implements UserInterface
      */
     private $supportInfoUser;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
+     */
+    private $supportInfoIntervenant;
+
     //=================================================================================================================================
 
     public function __construct()
@@ -157,6 +162,7 @@ class User implements UserInterface
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
         $this->supportInfoUser = new ArrayCollection();
+        $this->supportInfoIntervenant = new ArrayCollection();
     }
 
     
@@ -549,12 +555,22 @@ public function removeAgenceAutorise(Agence $agence): self
 
 
     /**
-     * RECUPERE LES id de role
+     * RECUPERE LES id de role de l'User sous forme de tableau
      */
     public function getRoleIds(): array
     {
         return $this->roles->map(function($role) {
             return $role->getId();
+        })->toArray();
+    }
+
+    /**
+     * RECUPERE LES noms de role de l'User sous forme de tableau
+     */
+    public function getRoleNames(): array
+    {
+        return $this->roles->map(function($role) {
+            return $role->getRoleName();
         })->toArray();
     }
 
@@ -595,4 +611,24 @@ public function removeAgenceAutorise(Agence $agence): self
     public function getUsername(){}
 
     public function getUserIdentifier(){}
+
+    /**
+     * Get the value of supportInfoIntervenant
+     */ 
+    public function getSupportInfoIntervenant()
+    {
+        return $this->supportInfoIntervenant;
+    }
+
+    /**
+     * Set the value of supportInfoIntervenant
+     *
+     * @return  self
+     */ 
+    public function setSupportInfoIntervenant($supportInfoIntervenant)
+    {
+        $this->supportInfoIntervenant = $supportInfoIntervenant;
+
+        return $this;
+    }
 }
