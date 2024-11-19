@@ -18,6 +18,7 @@ use App\Service\SessionManagerService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -56,7 +57,10 @@ class DetailTikType extends AbstractType
                         ->orderBy('t.description', 'ASC');
                 },
                 'data'         => $options['data']->getCategorie(),
-                'attr'         => ['class' => 'categorie'],
+                'attr'         => [
+                    'class'    => 'categorie',
+                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
+                ],
                 'placeholder'  => '-- Choisir une catégorie --',
                 'multiple'     => false,
                 'expanded'     => false,
@@ -64,7 +68,10 @@ class DetailTikType extends AbstractType
             ])
             ->add('sousCategorie', EntityType::class, [
                 'label'        => 'Sous-catégories',
-                'attr'         => ['class' => 'sous-categorie'],
+                'attr'         => [
+                    'class'    => 'sous-categorie',
+                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())
+                ],
                 'placeholder'  => '-- Choisir une sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
                 'query_builder'=> function(TkiSousCategorieRepository $TkiSousCategorieRepository) {
@@ -79,7 +86,10 @@ class DetailTikType extends AbstractType
             ])
             ->add('autresCategorie', EntityType::class, [
                 'label'        => 'Autres catégories',
-                'attr'         => ['class' => 'autre-categorie'],
+                'attr'         => [
+                    'class'    => 'autre-categorie',
+                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())
+                ],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
                 'query_builder'=> function(TkiAutreCategorieRepository $TkiAutreCategorieRepository) {
@@ -111,6 +121,7 @@ class DetailTikType extends AbstractType
             ->add('niveauUrgence', EntityType::class, [
                 'label'        => 'Niveau d\'urgence',
                 'choice_label' => 'description',
+                'attr'         => ['disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
                 'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
@@ -120,6 +131,15 @@ class DetailTikType extends AbstractType
                 },
                 'multiple'     => false,
                 'expanded'     => false,
+            ])
+            ->add('commentaires', TextareaType::class, [
+                'label'    => 'Observation D.T',
+                'required' => true,
+                'attr'     => [
+                    'rows'     => 5,
+                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())  
+                ],
+                'mapped'   => false,
             ])
         ;   
     }
