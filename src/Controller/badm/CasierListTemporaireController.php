@@ -32,7 +32,7 @@ class CasierListTemporaireController extends Controller
         $empty = false;
         $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
-           $criteria = $form->getData();
+            $criteria = $form->getData();
         } 
 
         $page = max(1, $request->query->getInt('page', 1));
@@ -69,14 +69,14 @@ class CasierListTemporaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
-       $casierValide = new CasierValider();
+        $casierValide = new CasierValider();
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
-         $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
-         $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(56));
+        $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
+        $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(56));
 
-         self::$em->persist($CasierSeul);
-            self::$em->flush();
+        self::$em->persist($CasierSeul);
+        self::$em->flush();
 
         $casierValide
         ->setCasier($CasierSeul->getCasier())
