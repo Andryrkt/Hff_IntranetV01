@@ -38,15 +38,13 @@
 					<i class="fa-solid fa-circle text-primary"></i>
 					<small class="text-primary">Complet non livré</small>
 				</div>
-				<div
-					class="d-flex justify-content-between">
+				<div class="d-flex justify-content-between">
 					<div>
-																										
-					<a href="{{path("export_planning")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
-					<i class="fas fa-table"></i>
-					Excel</a>
+						<a href="{{path("export_planning")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
 					</div>
-				
+
 					<div class="navigation">
 						{% set queryParams = criteria  %}
 
@@ -79,7 +77,7 @@
 							N° Parc</th>
 						<th>
 							Casier</th>
-							{# % for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] % #}
+						{# % for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] % #}
 						{% for month in ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'] %}
 							<th>{{ month }}</th>
 						{% endfor %}
@@ -126,7 +124,7 @@
 											{% else %}
 												{% set classe = '' %}
 											{% endif %}
-											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
+											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
 												{{ item.orIntv }}
 											</a><br>
 										{% endfor %}

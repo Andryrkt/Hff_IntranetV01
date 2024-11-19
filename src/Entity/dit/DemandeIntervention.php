@@ -481,6 +481,11 @@ class DemandeIntervention
      */
     private $ri;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $migration;
+
     private $nbrPj;
 
     private $quatreStatutOr;
@@ -1421,6 +1426,25 @@ class DemandeIntervention
         return $this;
     }
 
+    /**
+     * Get the value of migration
+     */ 
+    public function getMigration()
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     *
+     * @return  self
+     */ 
+    public function setMigration($migration)
+    {
+        $this->migration = $migration;
+
+        return $this;
+    }
 
         /**
      * Get the value of nbrPj
@@ -1472,4 +1496,6 @@ class DemandeIntervention
         $this->estOrEqDit = $estOrEqDit;
         return $this;
     }
+
+    
 }

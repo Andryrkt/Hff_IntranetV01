@@ -18,12 +18,9 @@
 				<!-- Champ avec légende -->
 
 				<div class="mb-3">
-					<small style="color: #c8ad7f">DISPO STOCK |
-					</small>
-					<small class="text-danger">Back Order / Error |
-					</small>
-					<small style="color: #9ACD32">Commande envoyé CAT |
-					</small>
+					<small style="color: #c8ad7f">DISPO STOCK |</small>
+					<small class="text-danger">Back Order / Error |</small>
+					<small style="color: #9ACD32">Commande envoyé CAT |</small>
 					<small class="text-warning">Réception Partielle</small>
 				</div>
 				<!-- Spinner de chargement -->
@@ -66,6 +63,17 @@
 							{# </tr> #}
 							{# {% endfor %} #}
 						</tbody>
+					</table>
+
+					<h3 class="fw-bold bg-warning p-2">Technicien(s) interventant(s)</h3>
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th>Matricule</th>
+								<th>Nom et prenom(s)</th>
+							</tr>
+						</thead>
+						<tbody id="technicienTableBody"></tbody>
 					</table>
 				</div>
 			</div>

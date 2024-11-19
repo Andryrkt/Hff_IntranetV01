@@ -56,15 +56,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const button = event.relatedTarget; // Button that triggered the modal
     const id = button.getAttribute("data-id"); // Extract info from data-* attributes
     const numDit = button.getAttribute("data-numDit");
+    const migration = button.getAttribute("data-migration");
+    console.log(migration);
+
     // Mettre à jour le lien avec le numDit dynamique
     const dossierDitLink = document.getElementById("dossierDitLink");
+    if (migration == 1) {
+      dossierDitLink.disabled = true;
+    }
     console.log(numDit);
     console.log(dossierDitLink);
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
-      window.open(`/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`, '_blank');
+      window.open(
+        `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
+        "_blank"
+      );
     };
-    
+
     // Afficher le spinner et masquer le contenu des données
     document.getElementById("loading").style.display = "block";
     document.getElementById("dataContent").style.display = "none";

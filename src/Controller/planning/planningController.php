@@ -83,6 +83,7 @@ class PlanningController extends Controller
             foreach ($data as $item ) {
                 $planningMateriel = new PlanningMateriel();
                 $numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getNumeroDemandeIntervention();
+                $migrationDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getMigration();
                   //initialisation
                     $planningMateriel
                         ->setCodeSuc($item['codesuc'])
@@ -102,6 +103,7 @@ class PlanningController extends Controller
                         ->setQteLiv($item['qtliv'])
                         ->setQteAll($item['qteall'])
                         ->setNumDit($numDit)
+                        ->setMigration($migrationDit)
                         ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit)
                     ;
                     $table[] = $planningMateriel;
@@ -209,7 +211,6 @@ class PlanningController extends Controller
                  //$detatils[$i]['numDit'] = $numDit;
             }
 
-            
         }
 
         //dd($details);

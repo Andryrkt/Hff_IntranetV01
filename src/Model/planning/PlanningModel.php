@@ -465,4 +465,20 @@ public function recuperationEtaMag($numOr, $refp){
 
   }
   
+  public function findMigrationDit($numOr)
+  {
+      $sql="SELECT 
+        demande_intervention.migration 
+        FROM demande_intervention 
+        WHERE  numero_or = '".$numOr."'
+      ";
+
+      $execQuery = $this->connexion->query($sql);
+      $tab = [];
+      while ($row = odbc_fetch_array($execQuery)) {
+          $tab[] = $row;
+      }
+
+      return $tab;
+  }
 }
