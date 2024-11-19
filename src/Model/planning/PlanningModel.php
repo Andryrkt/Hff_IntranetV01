@@ -21,7 +21,9 @@ class PlanningModel extends Model
                       AND  (ASUC_NUM like '01' 
                       or ASUC_NUM like '20' 
                       or ASUC_NUM like '30'
-                       or ASUC_NUM like '40')
+                       or ASUC_NUM like '40'
+                       or ASUC_NUM like '50'
+                       )
                       order by 1
         ";
         $result = $this->connect->executeQuery($statement);
@@ -176,7 +178,7 @@ class PlanningModel extends Model
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
                    
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LST', 'LR6')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw

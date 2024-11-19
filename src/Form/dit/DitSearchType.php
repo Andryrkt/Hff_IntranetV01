@@ -461,7 +461,7 @@ class DitSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DitSearch::class,
         ]);
-        $resolver->setDefined('idAgenceEmetteur');
+        //$resolver->setDefined('idAgenceEmetteur');
         $resolver->setDefined('autorisationRoleEnergie');
     }
 }
