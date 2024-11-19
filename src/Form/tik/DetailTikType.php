@@ -36,13 +36,13 @@ class DetailTikType extends AbstractType
     {
         $builder
             ->add('dateDebutPlanning', DateType::class, [
-                'label'      => 'Date début planning ticket',
+                'label'      => 'Début planning',
                 'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
                 'widget'     => 'single_text',
                 'required'   => false,
             ])
             ->add('dateFinPlanning', DateType::class, [
-                'label'      => 'Date fin planning ticket',
+                'label'      => 'Fin planning',
                 'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
                 'widget'     => 'single_text',
                 'required'   => false,
