@@ -1,29 +1,33 @@
 
+document.addEventListener("DOMContentLoaded", function () {
+  const tikCategorie     = document.querySelector("#detail_tik_categorie");
+  const tikNiveauUrgence = document.querySelector("#detail_tik_niveauUrgence");
+  const tikIntervenant   = document.querySelector("#detail_tik_intervenant");
+  const tikCommentaires  = document.querySelector("#detail_tik_commentaires");
+  const validerBtn       = document.querySelector("#btn_valider");
+  const refuserBtn       = document.querySelector("#btn_refuser");
+
+  refuserBtn.addEventListener("click", function () {
+    tikCategorie.removeAttribute("required");
+    tikNiveauUrgence.removeAttribute("required");
+    tikIntervenant.removeAttribute("required");
+    tikCommentaires.setAttribute("required", "required");
+  });
+
+  validerBtn.addEventListener("click", function () {
+    tikCategorie.setAttribute("required", "required");
+    tikNiveauUrgence.setAttribute("required", "required");
+    tikIntervenant.setAttribute("required", "required");
+    tikCommentaires.removeAttribute("required");
+  });
+});
+
 /**
  * recupérer le catégorie et afficher les sous catégorie et autre categorie correspondant
  */
 const categorieInput = document.querySelector(".categorie");
 const sousCategorieInput = document.querySelector(".sous-categorie");
 const autreCategorieInput = document.querySelector(".autre-categorie");
-
-document.addEventListener("DOMContentLoaded", function () {
-  const idServiceIntervenant = document.querySelector(
-    "#dit_validation_idServiceIntervenant"
-  );
-  const codeSection = document.querySelector("#dit_validation_codeSection");
-  const validerBtn = document.querySelector("#btn_valider");
-  const refuserBtn = document.querySelector("#btn_refuser");
-
-  refuserBtn.addEventListener("click", function () {
-    idServiceIntervenant.removeAttribute("required");
-    codeSection.removeAttribute("required");
-  });
-
-  validerBtn.addEventListener("click", function () {
-    idServiceIntervenant.setAttribute("required", "required");
-    codeSection.setAttribute("required", "required");
-  });
-});
 
 //AFFICHAGE SOUS CATEGORIES
 categorieInput.addEventListener("change", selectCategorieSousCategorie);
@@ -131,4 +135,3 @@ function selectCategorieSousCategorie() {
       .catch((error) => console.error("Error:", error));
   }
 }
-
