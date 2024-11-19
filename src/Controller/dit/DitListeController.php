@@ -105,6 +105,7 @@ class DitListeController extends Controller
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
+        // dd($ditSearch);
         //recupération des données filtrée
         $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
         //dump($paginationData);
