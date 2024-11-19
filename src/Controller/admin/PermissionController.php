@@ -19,6 +19,9 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(Permission::class)->findBy([], ['id'=>'DESC']);
 
 
@@ -33,6 +36,9 @@ class PermissionController extends Controller
          */
         public function new(Request $request)
         {
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
     
             $form = self::$validator->createBuilder(PermissionType::class)->getForm();
     
@@ -60,6 +66,9 @@ class PermissionController extends Controller
      */
     public function edit(Request $request, $id)
     {
+
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $permission = self::$em->getRepository(Permission::class)->find($id);
         
@@ -89,6 +98,9 @@ class PermissionController extends Controller
     */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $permission = self::$em->getRepository(Permission::class)->find($id);
 
         if ($permission) {

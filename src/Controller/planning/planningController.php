@@ -11,6 +11,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
+use Dotenv\Parser\Entry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -31,8 +32,11 @@ class PlanningController extends Controller
          * 
          * @return void
          */
-        public function listePlanning( Request $request){
-            
+        public function listePlanning( Request $request)
+        {
+            //verification si user connecter
+            $this->verifierSessionUtilisateur();
+
             $planningSearch = new PlanningSearch();
             //initialisation
             $planningSearch
@@ -42,9 +46,7 @@ class PlanningController extends Controller
                 ->setInterneExterne('TOUS')
                 ->setTypeLigne('TOUETS')
             ;
-        
-            
-            
+
             $form = self::$validator->createBuilder(PlanningSearchType::class,$planningSearch,
             [ 
                 'method' =>'GET'
@@ -69,7 +71,9 @@ class PlanningController extends Controller
             if($request->query->get('action') !== 'oui') 
             {
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
+
                 $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+
             } else {
                 $data = [];
             }
@@ -128,7 +132,7 @@ class PlanningController extends Controller
                     
                 }
             }
-
+                
             //dump($fusionResult);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
@@ -156,6 +160,7 @@ class PlanningController extends Controller
      */
     public function detailModal($numOr)
     {
+
         $criteria = $this->sessionService->get('planning_search_criteria', []);
     // dd($criteria);
         //RECUPERATION DE LISTE DETAIL 
@@ -212,4 +217,129 @@ class PlanningController extends Controller
 
         echo json_encode($details);
     }
+
+
+    /**
+     * @Route("/export_excel_planning", name= "export_planning")
+     */
+    public function exportExcel(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        $criteria = $this->sessionService->get('planning_search_criteria');
+
+        //crée une objet à partir du tableau critère reçu par la session
+        $planningSearch = new PlanningSearch();
+        $planningSearch
+            ->setAgence($criteria["agence"])
+            ->setAnnee($criteria["annee"])
+            ->setInterneExterne($criteria["interneExterne"])
+            ->setFacture($criteria["facture"])
+            ->setPlan($criteria["plan"])
+            ->setDateDebut($criteria["dateDebut"])
+            ->setDateFin($criteria["dateFin"])
+            ->setNumOr($criteria["numOr"])
+            ->setNumSerie($criteria["numSerie"])
+            ->setIdMat($criteria["idMat"])
+            ->setNumParc($criteria["numParc"])
+            ->setAgenceDebite($criteria["agenceDebite"])
+            ->setServiceDebite($criteria["serviceDebite"])
+            ->setTypeligne($criteria["typeligne"])  
+        ;
+        
+        
+            $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+
+            $data = $this->planningModel->recuperationMaterielplanifier($planningSearch,$lesOrvalides);
+
+        
+        
+        $table = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item ) {
+            $planningMateriel = new PlanningMateriel();
+            $numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getNumeroDemandeIntervention();
+              //initialisation
+                $planningMateriel
+                    ->setCodeSuc($item['codesuc'])
+                    ->setLibSuc($item['libsuc'])
+                    ->setCodeServ($item['codeserv'])
+                    ->setLibServ($item['libserv'])
+                    ->setIdMat($item['idmat'])
+                    ->setMarqueMat($item['markmat'])
+                    ->setTypeMat($item['typemat'])
+                    ->setNumSerie($item['numserie'])
+                    ->setNumParc($item['numparc'])
+                    ->setCasier($item['casier'])
+                    ->setAnnee($item['annee'])
+                    ->setMois($item['mois'])
+                    ->setOrIntv($item['orintv'])
+                    ->setQteCdm($item['qtecdm'])
+                    ->setQteLiv($item['qtliv'])
+                    ->setQteAll($item['qteall'])
+                    ->setNumDit($numDit)
+                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit)
+                ;
+                $table[] = $planningMateriel;
+        }
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = [];
+        foreach ($table as $materiel) {
+            $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+            if (!isset($fusionResult[$key])) {
+                $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+            } else {
+                // Si l'élément existe déjà, on fusionne les détails des mois
+                foreach ($materiel->moisDetails as $moisDetail) {
+
+                    $fusionResult[$key]->addMoisDetail(
+                        $moisDetail['mois'],
+                        $moisDetail['orIntv'],
+                        $moisDetail['qteCdm'],
+                        $moisDetail['qteLiv'],
+                        $moisDetail['qteAll'],
+                        $moisDetail['numDit']
+                    );
+                }
+                
+            }
+        }
+
+
+                // Convertir les entités en tableau de données
+                $data = [];
+                $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
+                foreach ($fusionResult as $entity) {
+                    $row = [
+                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                        $entity->getIdMat(),
+                        $entity->getMarqueMat(),
+                        $entity->getTypeMat(),
+                        $entity->getnumSerie(),
+                        $entity->getnumParc(),
+                        $entity->getCasier(),
+                    ];
+                
+                    // Initialiser les mois avec des valeurs par défaut
+                    $moisData = array_fill(1, 12, '-');
+                
+                    // Ajouter les données des mois disponibles
+                    foreach ($entity->getMoisDetails() as $value) {
+                        if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
+                            if ($moisData[$value['mois']] !== '-') {
+                                $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
+                            } else {
+                                $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
+                            }
+                        }
+                    }
+                
+                    // Fusionner les données générales avec celles des mois
+                    $data[] = array_merge($row, $moisData);
+                }
+                
+                $this->excelService->createSpreadsheet($data);
+            
+
+    }
+
 }

@@ -16,6 +16,9 @@ class BadmDetailController extends Controller
      */
     public function detailBadm($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
         
         $badmDetailModel = new BadmDetailModel();

@@ -244,7 +244,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds);
+        return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
     }
 
     private function autorisationRoleEnergie($em): bool
@@ -336,4 +336,28 @@ trait DitListTrait
         // Sauvegarde des changements dans la base de données
         $em->flush();
     } 
+
+    private function orEnString($tab): string
+    {
+        $numOrValide = $this->transformEnSeulTableau($tab);
+
+        return implode("','", $numOrValide);
+    }
+
+    private function transformEnSeulTableau(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as  $values) {
+            if(is_array($values)){
+                foreach ($values as $value) {
+                    $tab[] = $value;
+                }
+            } else {
+                $tab[] = $values;
+            }
+            
+        }
+
+        return $tab;
+    }
 }

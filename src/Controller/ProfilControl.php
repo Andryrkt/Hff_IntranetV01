@@ -43,9 +43,12 @@ class ProfilControl extends Controller
                             $userId = $user->getId();
                             $this->sessionService->set('user_id', $userId);
                             // session_start();
-                            $_SESSION['user'] = $Username;
 
-                            $_SESSION['password'] = $Password;
+                            $this->sessionService->set('user', $Username);
+                           //$_SESSION['user'] = $Username;
+
+                            $this->sessionService->set('password', $Password);
+                            //$_SESSION['password'] = $Password;
                         } else {
                             // Gérer le cas où l'utilisateur n'existe pas
                             throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
@@ -64,22 +67,6 @@ class ProfilControl extends Controller
         }
     }
 
-    // public function showinfoAllUsercours()
-    // {
-    //     $this->SessionStart();
-
-    //     try {
-    //         //$UserConnect = $this->ProfilModel->getProfilUser($_SESSION['user']);
-    //         $infoUserCours = $this->ProfilModel->getINfoAllUserCours($_SESSION['user']);
-
-
-    //         //include 'Views/Principe.php';
-
-    //         include 'Views/Propos_page.php';
-    //     } catch (Exception $e) {
-    //         echo "Error: " . $e->getMessage();
-    //     }
-    // }
 
     /**
      * @Route("/Acceuil", name="profil_acceuil")

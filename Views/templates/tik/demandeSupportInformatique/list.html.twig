@@ -1,0 +1,92 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
+{% endblock %}
+
+{# {% import "macroForm.html.twig" as form %} #}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste de Demande support informatique
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/tik/demandeSupportInformatique/shared/_formulaireRecherche.html.twig" %}
+	</div>
+
+	<div
+		class="container-fluid">
+		<!-- DEBUT tableau -->
+
+		<div class="container">
+			{% include "/tik/demandeSupportInformatique/shared/_pagination.html.twig" %}
+		</div>
+
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>Statut</th>
+					<th>N° ticket</th>
+					<th>Ag/Serv Emetteur</th>
+					<th>Ag/Serv Debiteur</th>
+					<th>Date de demande</th>
+					<th>N° parc PC</th>
+					<th>Niveau Urgence</th>
+					<th>Catégorie/Sous-catégorie</th>
+					<th>Objet du demande</th>
+					<th>Demandeur</th>
+				</tr>
+			</thead>
+			<tbody>
+				{# DEBUT LOGIQUE #}
+				{% for item in data %}
+					{# FIN LOGIQUE #}
+					<tr>
+						{# Début Action #}
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+							</div>
+						</td>
+						{# Fin Actions #}
+
+						{# DEBUT Statut #}
+
+						<td>{{ item.idStatutDemande.description | trim}}</td>
+
+						{# FIN Statut #}
+
+						<td>
+							<a href="{{ path("detail_tik", {id: item.id}) }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
+						</td>
+						<td>{{ item.agenceServiceEmetteur}}</td>
+						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>{{item.dateCreation | date('d/m/Y')}}</td>
+						<td>{{ item.parcInformatique}}</td>
+						<td></td>
+						<td>{{ item.categorie.description}}</td>
+						<td>{{ item.objetDemande }}</td>
+						<td>{{ item.utilisateurDemandeur}}</td>
+
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/tik/tikListe.js" type="module"></script>
+{% endblock %}

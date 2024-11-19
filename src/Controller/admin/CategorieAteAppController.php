@@ -18,6 +18,9 @@ class CategorieAteAppController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(CategorieAteApp::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());
@@ -32,6 +35,8 @@ class CategorieAteAppController extends Controller
          */
         public function new(Request $request)
         {
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
     
             $form = self::$validator->createBuilder(CategorieAteAppType::class)->getForm();
     

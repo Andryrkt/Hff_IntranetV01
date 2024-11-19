@@ -6,11 +6,14 @@ namespace App\Entity\admin\dit;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=WorNiveauUrgenceRepository::class)
  * @ORM\Table(name="wor_niveau_urgence")
  * @ORM\HasLifecycleCallbacks
  */
@@ -33,17 +36,23 @@ class WorNiveauUrgence{
      */
     private string $description;
 
-    
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="categorie")
+     */
+    private Collection $supportInfo;
 
     public function __construct()
     {
-        
         $this->demandeInterventions = new ArrayCollection();
-        
+        $this->supportInfo = new ArrayCollection();
     }
-    /**
-     * Get the value of id
-     */ 
+
+     /**=====================================================================================
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
+
 
     public function getId()
     {
@@ -108,6 +117,34 @@ class WorNiveauUrgence{
 
         return $this;
     }
+
+
+    public function getSupportInfo(): Collection
+    {
+        return $this->supportInfo;
+    }
+
+    public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
+    {
+        if (!$this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo[] = $supportInfo;
+            $supportInfo->setNiveauUrgence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportInfo(?DemandeSupportInformatique $supportInfo): self
+    {
+        if ($this->supportInfo->contains($supportInfo)) {
+            $this->supportInfo->removeElement($supportInfo);
+            if ($supportInfo->getNiveauUrgence() === $this) {
+                $supportInfo->setNiveauUrgence(null);
+            }
+        }
+        return $this;
+    }
+
 
     public function __toString()
     {

@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Annotations\Annotation;
 trait CaracteristiqueMaterielTrait
 {
-    
    private $constructeur = "";
 
    private $designation = "";

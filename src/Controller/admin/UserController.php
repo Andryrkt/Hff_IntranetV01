@@ -40,6 +40,8 @@ class UserController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
         $data = $this->transformIdEnObjetEntitySuperieur($data);
@@ -54,6 +56,9 @@ class UserController extends Controller
      */
     public function new(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $user = new User();
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
@@ -107,7 +112,8 @@ class UserController extends Controller
  */
 public function edit(Request $request, $id)
 {
-
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
 
     $user = self::$em->getRepository(User::class)->find($id);
     // Conversion de l'utilisateur en objet s'il est en tableau
@@ -149,6 +155,8 @@ public function edit(Request $request, $id)
  */
 public function delete(Request $request, $id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
 
     $user = self::$em->getRepository(User::class)->find($id);
 
@@ -202,6 +210,9 @@ public function delete(Request $request, $id)
  */
 public function show($id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+    
     $data = self::$em->getRepository(User::class)->find($id);
 
     self::$twig->display('admin/utilisateur/details.html.twig', [

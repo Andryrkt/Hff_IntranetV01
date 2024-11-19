@@ -18,6 +18,9 @@ class CisATraiterController extends Controller
      */
     public function listCisATraiter(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $cisATraiterModel = new CisATraiterModel();
 
         /** CREATION D'AUTORISATION */
@@ -59,6 +62,9 @@ class CisATraiterController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 

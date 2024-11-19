@@ -11,6 +11,7 @@ use App\Model\dit\DitListModel;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,10 +28,19 @@ class DitListeController extends Controller
      */
     public function index( Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $agenceIds = $user->getAgenceAutoriserIds();
+        $serviceIds = $user->getServiceAutoriserIds();
+        //dd($agenceIds, $serviceIds);
+
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
-
+        
         $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em); 
         //FIN AUTORISATION
 
@@ -86,6 +96,8 @@ class DitListeController extends Controller
             'boolean' => $autoriser,
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
+            'agenceAutoriserIds' => $agenceIds,
+            'serviceAutoriserIds' => $serviceIds
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
@@ -157,6 +169,9 @@ class DitListeController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
           //recupère les critères dans la session 
@@ -234,6 +249,9 @@ class DitListeController extends Controller
      */
     public function clotureStatut($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
         $dit->setIdStatutDemande($statutCloturerAnnuler);
@@ -251,6 +269,9 @@ class DitListeController extends Controller
      */
     public function dwintervAteAvecDit($numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $dwModel = new DossierInterventionAtelierModel();
     
         // Récupérer les données de la demande d'intervention et de l'ordre de réparation

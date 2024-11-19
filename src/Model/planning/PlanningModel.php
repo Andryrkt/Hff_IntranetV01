@@ -122,26 +122,26 @@ class PlanningModel extends Model
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
- 
-   $vligneType = $this->typeLigne($criteria);  
-   $vPiecesSum = $this->sumPieces($criteria);
-   $vYearsStatutPlan =  $this->planAnnee($criteria);
-   $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-   $vMonthStatutPlan = $this->planMonth($criteria);
-   $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-   $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-   $vStatutFacture = $this->facture($criteria);
-   $annee =  $this->criterAnnee($criteria);
-   $agence = $this->agence($criteria);
-   $vStatutInterneExterne = $this->interneExterne($criteria);
-   $agenceDebite = $this->agenceDebite($criteria);
-   $serviceDebite = $this->serviceDebite($criteria);
-   $vconditionNumParc = $this->numParc($criteria);
-   $vconditionIdMat = $this->idMat($criteria);
-   $vconditionNumOr = $this->numOr($criteria);
-   $vconditionNumSerie = $this->numSerie($criteria);
-   $vconditionCasier = $this->casier($criteria);
-   $vsection = $this->section($criteria);
+
+    $vligneType = $this->typeLigne($criteria);  
+    $vPiecesSum = $this->sumPieces($criteria);
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
 
                   $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
@@ -177,8 +177,7 @@ class PlanningModel extends Model
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
-                   
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LST', 'LR6')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw
@@ -198,8 +197,10 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
+
+        
         $result = $this->connect->executeQuery($statement);
                 //  dump($statement);
         $data = $this->connect->fetchResults($result);

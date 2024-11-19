@@ -19,6 +19,9 @@ class ServiceController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
 
 
@@ -33,6 +36,9 @@ class ServiceController extends Controller
          */
         public function new(Request $request)
         {    
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
             $form = self::$validator->createBuilder(ServiceType::class)->getForm();
     
             $form->handleRequest($request);
@@ -59,6 +65,9 @@ class ServiceController extends Controller
      */
     public function edit(Request $request, $id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $permission = self::$em->getRepository(Service::class)->find($id);
         
         $form = self::$validator->createBuilder(ServiceType::class, $permission)->getForm();

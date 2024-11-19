@@ -20,6 +20,9 @@ SET
     agence_emetteur_id = CASE
         WHEN LEFT(agence_service_emmeteur, 2) = '92' THEN '11'
         WHEN LEFT(agence_service_emmeteur, 2) = '80' THEN '8'
+        WHEN LEFT(agence_service_emmeteur, 2) = '50' THEN '6'
+        WHEN LEFT(agence_service_emmeteur, 2) = '90' THEN '9'
+        WHEN LEFT(agence_service_emmeteur, 2) = '01' THEN '1'
         ELSE '0'
     END;
 
@@ -31,6 +34,12 @@ SET
         WHEN RIGHT(agence_service_emmeteur, 3) = 'INF' THEN '13'
         WHEN RIGHT(agence_service_emmeteur, 3) = 'NOS' THEN '28'
         WHEN RIGHT(agence_service_emmeteur, 3) = 'MAH' THEN '27'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'COM' THEN '2'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'MAS' THEN '36'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'LR6' THEN '41'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'ATE' THEN '3'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'LCD' THEN '9'
+        WHEN RIGHT(agence_service_emmeteur, 3) = 'UMP' THEN '17'
         ELSE '0'
     END;
 
@@ -40,6 +49,9 @@ SET
         WHEN LEFT(agence_service_debiteur, 2) = '92' THEN '11'
         WHEN LEFT(agence_service_debiteur, 2) = '80' THEN '8'
         WHEN LEFT(agence_service_debiteur, 2) = '91' THEN '10'
+        WHEN LEFT(agence_service_debiteur, 2) = '90' THEN '9'
+        WHEN LEFT(agence_service_debiteur, 2) = '01' THEN '1'
+        WHEN LEFT(agence_service_debiteur, 2) = '50' THEN '6'
         ELSE '0'
     END;
 
@@ -51,8 +63,18 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
         WHEN RIGHT(agence_service_debiteur, 3) = 'NOS' THEN '28'
         WHEN RIGHT(agence_service_debiteur, 3) = 'MAH' THEN '27'
-        ELSE '0'
-    END;
+        WHEN RIGHT(agence_service_debiteur, 3) = 'AMB' THEN '30'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TSI' THEN '23'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LGR' THEN '46'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LR6' THEN '41'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TUL' THEN '29'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LST' THEN '42'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LCD' THEN '9'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'COM' THEN '2'
+
+
+ELSE '0' END;
 
 UPDATE demande_intervention
 SET

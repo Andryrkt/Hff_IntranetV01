@@ -40,20 +40,13 @@
 				</div>
 				<div
 					class="d-flex justify-content-between">
-					{# <div>
+					<div>
 																										
-																										 <a href="{{path("export_excel")}}" id="excelDit" name="excelBadm" class="btn btn bg-success text-white my-3 fw-bold">
-																											<i class="fas fa-table"></i>
-																											Excel</a>
-																									</div>
-																									<div>
-																										<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
-																											Resultats</p>
-																									</div>
-																									<div>
-																										<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
-																											pages</p>
-																									</div> #}
+					<a href="{{path("export_planning")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
+					<i class="fas fa-table"></i>
+					Excel</a>
+					</div>
+				
 					<div class="navigation">
 						{% set queryParams = criteria  %}
 

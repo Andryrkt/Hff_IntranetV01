@@ -16,11 +16,13 @@ use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
+use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\admin\utilisateur\UserRepository;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="users")
  * @ORM\HasLifecycleCallbacks
  */
@@ -137,6 +139,11 @@ class User implements UserInterface
      */
     private $commentaireDitOr;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
+     */
+    private $supportInfoUser;
+
     //=================================================================================================================================
 
     public function __construct()
@@ -149,6 +156,7 @@ class User implements UserInterface
         $this->serviceAutoriser = new ArrayCollection();
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
+        $this->supportInfoUser = new ArrayCollection();
     }
 
     
@@ -508,6 +516,38 @@ public function removeAgenceAutorise(Agence $agence): self
         return $this;
     }
 
+
+     /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getSupportInfoUser()
+    {
+        return $this->supportInfoUser;
+    }
+
+    public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    {
+        if (!$this->supportInfoUser->contains($supportInfoUser)) {
+            $this->supportInfoUser[] = $supportInfoUser;
+            $supportInfoUser->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    {
+        if ($this->supportInfoUser->contains($supportInfoUser)) {
+            $this->supportInfoUser->removeElement($supportInfoUser);
+            if ($supportInfoUser->getUserId() === $this) {
+                $supportInfoUser->setUserId(null);
+            }
+        }
+        
+        return $this;
+    }
+
+
     /**
      * RECUPERE LES id de role
      */
@@ -530,7 +570,7 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
 
-     /**
+    /**
      * RECUPERE LES id du service Autoriser
      */
     public function getServiceAutoriserIds(): array

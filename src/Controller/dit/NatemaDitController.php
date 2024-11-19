@@ -28,6 +28,8 @@ class NatemaDitController extends Controller
      */
     public function new(Request $request){
         
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(NatemaDitType::class)->getForm();
 

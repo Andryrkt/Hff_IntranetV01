@@ -65,7 +65,6 @@ class Controller
     protected $domList;
     protected $ProfilModel;
     
-  
 
     protected $odbcCrud;
 
@@ -147,9 +146,6 @@ class Controller
         $this->excelService = new ExcelService();
 
     }
-
-
-
 
     public static function setTwig($twig)
     {
@@ -347,9 +343,8 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-       
+        
         $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
-       
 
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
@@ -532,11 +527,9 @@ class Controller
     }
 
 
-    protected function controlSession()
+    protected function verifierSessionUtilisateur()
     {
-        $user = $this->sessionService->get('user_id', []);
-        
-        if (!$user) {
+        if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
         } 
     }

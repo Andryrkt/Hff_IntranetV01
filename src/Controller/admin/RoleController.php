@@ -19,6 +19,8 @@ class RoleController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $data = self::$em->getRepository(Role::class)->findBy([], ['id'=>'DESC']);
 
@@ -34,6 +36,8 @@ class RoleController extends Controller
          */
         public function new(Request $request)
         {
+            //verification si user connecter
+        $this->verifierSessionUtilisateur();
     
             $form = self::$validator->createBuilder(RoleType::class)->getForm();
     
@@ -63,13 +67,16 @@ class RoleController extends Controller
         }
 
 
-                /**
+    /**
      * @Route("/admin/role/edit/{id}", name="role_update")
      *
      * @return void
      */
     public function edit(Request $request, $id)
     {
+
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(Role::class)->find($id);
         
@@ -88,7 +95,6 @@ class RoleController extends Controller
         self::$twig->display('admin/role/edit.html.twig', [
             'form' => $form->createView(),
         ]);
-
     }
 
     /**
@@ -98,6 +104,9 @@ class RoleController extends Controller
     */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $role = self::$em->getRepository(Role::class)->find($id);
 
         if ($role) {

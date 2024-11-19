@@ -27,6 +27,8 @@ class DitDuplicationController extends Controller
     */
     public function Duplication($numDit, $id, Request $request)
     {
+       //verification si user connecter
+       $this->verifierSessionUtilisateur();
        
          //INITIALISATION DU FORMULAIRE
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
@@ -122,7 +124,7 @@ class DitDuplicationController extends Controller
 
                 
                 //ENVOYER le PDF DANS DOXCUWARE
-                if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
+                if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92" || $dits->getAgence()->getCodeAgence() === "50") {
                     $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
                 }
 

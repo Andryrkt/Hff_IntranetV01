@@ -18,6 +18,9 @@ class AgenceController extends Controller
      */
     public function index()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $data = self::$em->getRepository(Agence::class)->findBy([], ['id'=>'DESC']);
 
         self::$twig->display('admin/agence/list.html.twig', 
@@ -31,7 +34,9 @@ class AgenceController extends Controller
          */
         public function new(Request $request)
         {
-          
+            //verification si user connecter
+            $this->verifierSessionUtilisateur();
+
             $form = self::$validator->createBuilder(AgenceType::class)->getForm();
     
             $form->handleRequest($request);
@@ -68,6 +73,9 @@ class AgenceController extends Controller
  */
 public function edit(Request $request, $id)
 {
+    //verification si user connecter
+    $this->verifierSessionUtilisateur();
+    
     $agence = self::$em->getRepository(Agence::class)->find($id);
 
     $form = self::$validator->createBuilder(AgenceType::class, $agence)->getForm();
