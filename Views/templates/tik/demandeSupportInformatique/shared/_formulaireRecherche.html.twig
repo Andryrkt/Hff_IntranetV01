@@ -19,6 +19,7 @@
 					<div class="col-12 col-md-2">
 						{{ form_row(form.niveauUrgence) }}
 						{{ form_row(form.statut) }}
+						{{ form_row(form.nomIntervenant) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}
@@ -26,13 +27,8 @@
 
 					</div>
 					<div class="col-12 col-md-2">
-						{% if 1 in role_ids %}
-							{{form_row(form.agenceEmetteur)}}
-							{{form_row(form.serviceEmetteur)}}
-						{% else %}
-							{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-							{{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-						{% endif %}
+						{{form_row(form.agenceEmetteur)}}
+						{{form_row(form.serviceEmetteur)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.agenceDebiteur)}}

@@ -17,12 +17,10 @@ class ListeTikController extends Controller
     public function index(Request $request)
     {
         $tikSearch = new TikSearch();
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
         
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
             'method' => 'GET',
-            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
         $form->handleRequest($request);
@@ -36,7 +34,6 @@ class ListeTikController extends Controller
         //nombre de ligne par page
         $limit = 10;
 
-        
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [

@@ -101,12 +101,13 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
      */
-    private ?string $nomIntervenant;
+    private ?string $mailIntervenant = null;
+    
 
     /**
      * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
      */
-    private ?string $mailIntervenant = null;
+    private ?string $nomIntervenant = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Objet_Demande")

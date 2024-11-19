@@ -2,7 +2,9 @@
 
 {% block nav %}{% endblock %}
 
-{% block title %} Détail sur le ticket {% endblock %}
+{% block title %}
+	Détail sur le ticket
+{% endblock %}
 
 {% block stylesheets %}
 	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
@@ -32,10 +34,11 @@
 						{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
 						<div class="row">
 							{# DEBUT COLONNE 1 #}
-							<div class="col-12 col-md-6">
+							<div
+								class="col-12 col-md-6">
 								{# DEBUT TKI #}
 								{{ macroForm.sousTitre('TKI', {class: 'sousTitre'})}}
-                                <div class="row">
+								<div class="row">
 									<div class="col-12 col-md-4">
 										{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
 									</div>
@@ -52,15 +55,15 @@
 								{{ macroForm.sousTitre('Demande', {class: 'sousTitre'})}}
 								<div class="row">
 									<div class="col-12 col-md-4">
-                                        {{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
-									</div>         
+										{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
+									</div>
 									<div class="col-12 col-md-4">
-                                        {{ macroForm.affichage('Email du demandeur', tik.mailDemandeur) }}
+										{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur) }}
 									</div>
-                                    <div class="col-12 col-md-4">
-                                        {{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
+									<div class="col-12 col-md-4">
+										{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
 									</div>
-                                </div>
+								</div>
 								<div class="col-12 col-md-12">
 									{{ macroForm.affichage('Objet de la demande', tik.objetDemande) }}
 								</div>
@@ -72,12 +75,13 @@
 							{# FIN COLONNE 1 #}
 
 							{# DEBUT COLONNE 2 #}
-							<div class="col-12 col-md-6">
+							<div
+								class="col-12 col-md-6">
 
 								{# DEBUT Agence et service #}
 								{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
 								<div class="row">
-                                    <div class="col-12 col-md-6">
+									<div class="col-12 col-md-6">
 										{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
 									</div>
 									<div class="col-12 col-md-6">
@@ -85,15 +89,15 @@
 									</div>
 								</div>
 								{# FIN Agence et service #}
-								
+
 								{# DEBUT Pièces Jointes #}
 								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
-                                
-                                {{ macroForm.affichageFile('Pièce jointe 01', tik.pieceJoint01)}}
 
-                                {{ macroForm.affichageFile('Pièce jointe 02', tik.pieceJoint02)}}
+								{{ macroForm.affichageFile('Pièce jointe 01', tik.pieceJoint01)}}
 
-                                {{ macroForm.affichageFile('Pièce jointe 03', tik.pieceJoint03)}}
+								{{ macroForm.affichageFile('Pièce jointe 02', tik.pieceJoint02)}}
+
+								{{ macroForm.affichageFile('Pièce jointe 03', tik.pieceJoint03)}}
 								{# FIN Pièces Jointes #}
 							</div>
 							{# FIN COLONNE 2 #}
@@ -186,8 +190,8 @@
 
 {% block javascript %}
 	{% if autoriser %}
-		<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>		
+		<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
 	{% else %}
-		<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>		
+		<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
 	{% endif %}
 {% endblock %}
