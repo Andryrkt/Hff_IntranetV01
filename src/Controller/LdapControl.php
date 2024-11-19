@@ -14,6 +14,7 @@ class LdapControl
     }
     public function connect_to_user($user, $pswd)
     {
+
         return $this->LdapModel->userConnect($user, $pswd);
     }
 }

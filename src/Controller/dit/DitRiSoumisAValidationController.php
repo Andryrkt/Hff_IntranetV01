@@ -159,8 +159,6 @@ class DitRiSoumisAValidationController extends Controller
                         ;
                     self::$em->persist($historique); // Persist l'historique avec les entités liées
 
-                    
-                    
 
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
@@ -174,8 +172,6 @@ class DitRiSoumisAValidationController extends Controller
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
                 $this->redirectToRoute("dit_index");
             }
-
-
         } 
 
 

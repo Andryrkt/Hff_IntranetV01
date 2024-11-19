@@ -22,7 +22,9 @@ class Authentification extends Controller
      */
     public function deconnexion()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $this->SessionDestroy();
-       
     }
 }
