@@ -22,6 +22,7 @@ class PlanningMateriel{
     private $qteAll;
     public $moisDetails = [];
     private $numDit;
+    private $migration;
    
 
     /**
@@ -394,6 +395,26 @@ class PlanningMateriel{
     public function setNumDit($numDit)
     {
         $this->numDit = $numDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of migration
+     */ 
+    public function getMigration()
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     *
+     * @return  self
+     */ 
+    public function setMigration($migration)
+    {
+        $this->migration = $migration;
 
         return $this;
     }

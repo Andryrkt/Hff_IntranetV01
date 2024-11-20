@@ -75,7 +75,7 @@ class DitValidationController extends Controller
         $dit = $form->getData();
         
         $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
-       dump($userDemandeur);
+        dump($userDemandeur);
             $userDemandeur = $this->arrayToObjet($userDemandeur);
             dump($userDemandeur);
             $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
@@ -91,32 +91,32 @@ class DitValidationController extends Controller
             $content = $this->emailRefu($variableEmail);
     
             $this->confirmationEmail($email, $content);
-           
+            
         } elseif ($request->request->has('valider')) {
             
-         
-           $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
-           $dit
+            
+            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
+            $dit
             ->setIdStatutDemande($statutDemande)
             ->setDateValidation(new \DateTime($this->getDatesystem()))
             ->setHeureValidation($this->getTime())
-           ;
-           self::$em->flush();
+            ;
+            self::$em->flush();
 
-           dd($dit);
+            dd($dit);
 
-           if($dit->getDemandeDevis() === "OUI") {
+            if($dit->getDemandeDevis() === "OUI") {
 
             $variableEmail = $this->donnerValideAvecDevis($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
 
             $content = $this->emailValideAvecDevis($variableEmail);
     
             $this->confirmationEmail($email, $content);
-           } else {
+            } else {
             $content = $this->emailValideSansDevis();
     
             $this->confirmationEmail($email, $content);
-           }
+            }
         }
 
         $this->redirectToRoute("dit_index");

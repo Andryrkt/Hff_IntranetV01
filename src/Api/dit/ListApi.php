@@ -52,7 +52,6 @@ class ListApi extends Controller
                 }
             }
         }
-        
 
         header("Content-type:application/json");
 

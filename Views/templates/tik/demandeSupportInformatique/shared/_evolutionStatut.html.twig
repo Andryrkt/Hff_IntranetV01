@@ -1,0 +1,50 @@
+<table class="table rounded table-plein-ecran">
+	<thead class="table-dark">
+		<tr>
+			<th>
+				<i class="fas fa-ellipsis-vertical"></i>
+			</th>
+			<th>Statut</th>
+			<th>Date</th>
+		</tr>
+	</thead>
+	<tbody>
+
+		{% for item in data %}
+			{# DEBUT LOGIQUE #}
+			{% set classeStatutTik = '' %}
+			{% set styleStatutTik = '' %}
+
+			{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+				{% set classeStatutTik ='ouvert' %}
+			{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+				{% set classeStatutTik ='refuse' %}
+			{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+				{% set classeStatutTik ='encours' %}
+			{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+				{% set classeStatutTik ='planifie' %}
+			{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+				{% set classeStatutTik ='resolu' %}
+			{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+				{% set classeStatutTik ='reouvert' %}
+			{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+				{% set classeStatutTik ='cloture' %}
+			{% else %}
+				{% set classeStatutTik = '' %}
+			{% endif %}
+			{# FIN LOGIQUE #}
+			<tr>
+				{# Début Action #}
+				<td class="align-middle" style="padding: 0px">
+					<i class="fas fa-ellipsis-vertical"></i>
+				</td>
+				{# Fin Actions #}
+
+				{# DEBUT Statut #}
+				<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
+				{# FIN Statut #}
+				<td>{{item.dateStatut | date('d/m/Y')}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

@@ -49,7 +49,7 @@ function selectAgence() {
 }
 
 /**
- * FICHIER
+ * FICHIER (Ajout)
  *
  */
 document.addEventListener("DOMContentLoaded", function () {
@@ -59,6 +59,26 @@ document.addEventListener("DOMContentLoaded", function () {
   const paperclipIcon = document.getElementById("paperclip-icon");
 
   let filesArray = [];
+  const existingFiles = Array.from(document.querySelectorAll(".file-item"));
+
+  // Ajouter les fichiers existants à filesArray
+  existingFiles.forEach((fileItem) => {
+    filesArray.push({
+      id: fileItem.getAttribute("data-id"),
+      name: fileItem.querySelector(".file-name").textContent,
+      size: parseInt(fileItem.querySelector(".file-size").textContent),
+      existing: true, // Marque comme fichier existant en base
+    });
+
+    const removeButton = fileItem.querySelector(".remove-file");
+    removeButton.addEventListener("click", () => {
+      // Supprimer visuellement et logiquement le fichier
+      filesArray = filesArray.filter(
+        (f) => f.id !== removeButton.getAttribute("data-id")
+      );
+      fileList.removeChild(fileItem);
+    });
+  });
 
   function displayFiles(files) {
     files.forEach((file) => {
@@ -76,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const fileSize = document.createElement("span");
         fileSize.classList.add("file-size");
-        fileSize.textContent = `(${(file.size / 1024).toFixed(0)} Ko)`;
+        fileSize.textContent = `(${(file.size / 1024).toFixed(1)} Ko)`;
 
         const removeButton = document.createElement("span");
         removeButton.textContent = "×";
@@ -87,9 +107,9 @@ document.addEventListener("DOMContentLoaded", function () {
           updateFileInput();
         });
 
-        // Spinner pour indiquer le chargement
         const spinner = document.createElement("div");
         spinner.classList.add("spinner");
+        spinner.textContent = "Chargement...";
 
         listItem.appendChild(fileName);
         listItem.appendChild(fileSize);
@@ -97,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
         listItem.appendChild(spinner);
         fileList.appendChild(listItem);
 
-        // Démarrer le spinner pour simuler le chargement
         startLoading(spinner);
       }
     });
@@ -106,7 +125,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateFileInput() {
     const dataTransfer = new DataTransfer();
-    filesArray.forEach((file) => dataTransfer.items.add(file));
+    filesArray
+      .filter((file) => !file.existing) // Inclut uniquement les nouveaux fichiers dans l'input
+      .forEach((file) => dataTransfer.items.add(file));
     fileInput.files = dataTransfer.files;
   }
 
@@ -136,9 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function startLoading(spinner) {
-    // Simuler le chargement et retirer le spinner après 2 secondes
     setTimeout(() => {
       spinner.remove();
-    }, 2000); // Retirer le spinner après 2 secondes
+    }, 2000);
   }
 });

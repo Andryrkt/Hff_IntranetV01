@@ -355,29 +355,27 @@ public function recuperationEtaMag($numOr, $refp){
         $data = array();
         while ($tabType = odbc_fetch_array($sql)) {
           $data[] = $tabType;
-       }
-       return $data;
+      }
+      return $data;
 }
 /**
  * Etat partiel piece
  */
-
- public function recuperationPartiel($numcde, $refp){
+public function recuperationPartiel($numcde, $refp){
     $statement = " SELECT fcdl_solde as solde,
                           fcdl_qte as qte
-			             FROM FRN_CDL 
-				           WHERE  fcdl_numcde = '$numcde' 
-				           AND  fcdl_refp = '$refp'
+                  FROM FRN_CDL 
+                  WHERE  fcdl_numcde = '$numcde' 
+                  AND  fcdl_refp = '$refp'
     ";
-     $result = $this->connect->executeQuery($statement);
-     $data = $this->connect->fetchResults($result);
-     $resultat = $this->convertirEnUtf8($data);
-   return $resultat;
- }
- /**
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+  return $resultat;
+}
+  /**
   * gcot ORD
   */
-
   public function recuperationinfodGcot ($numcde){
       $statement = "SELECT Code_Statut  as Ord
 					FROM  GCOT_Statut_Dossier 
@@ -437,16 +435,16 @@ public function recuperationEtaMag($numOr, $refp){
                   and date_validation_or <>'' 
                   $vconditionNumOr
                   $nivUrg
-                   ";
+                  ";
     //  dump($statement);
-     $execQueryNumOr = $this->connexion->query($statement);
-     $numOr = array();
+    $execQueryNumOr = $this->connexion->query($statement);
+    $numOr = array();
 
-     while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-         $numOr[] = $row_num_or;
-     }
+    while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+        $numOr[] = $row_num_or;
+    }
 
-     return $numOr;
+    return $numOr;
   }
 
   public function recupNumeroItv($numOr, $stringItv)
@@ -462,7 +460,27 @@ public function recuperationEtaMag($numOr, $refp){
       $data = $this->connect->fetchResults($result);
 
       return $this->convertirEnUtf8($data);
-
   }
-  
+
+  public function recupTechnicientIntervenant($numOr, $numItv)
+  {
+      $statement = " SELECT distinct 
+        --skr_id as numero_tech,
+        ssal_numsal AS matricule, 
+        ssal_nom AS matriculeNomPrenom
+        --ofh_id as numero_or, 
+        --ofs_id as numero_intervention
+        from skw
+        inner join ska on ska.skw_id = skw.skw_id
+        inner join sav_sal on sav_sal.ssal_numsal = ska.skr_id
+        and ofs_id = '".$numItv."'
+        where skw.ofh_id ='".$numOr."'
+      ";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
 }

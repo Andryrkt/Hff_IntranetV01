@@ -1,59 +1,134 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const select1 = document.getElementById('select1');
-    const select2 = document.getElementById('select2');
-    const select3 = document.getElementById('select3');
 
-    // Fonction générique pour faire une requête vers l'API et obtenir des données
-    const fetchData = async (url) => {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Erreur : ${response.statusText}`);
-            return await response.json();
-        } catch (error) {
-            console.error('Erreur lors de la récupération des données :', error);
-            return [];
-        }
-    };
+/**
+ * recupérer le catégorie et afficher les sous catégorie et autre categorie correspondant
+ */
+const categorieInput = document.querySelector(".categorie");
+const sousCategorieInput = document.querySelector(".sous-categorie");
+const autreCategorieInput = document.querySelector(".autre-categorie");
 
-    // Fonction pour mettre à jour un select avec des options
-    const updateSelect = (select, options) => {
-        select.innerHTML = '<option value="" selected disabled>Choose an option</option>';
-        select.disabled = options.length === 0;
+document.addEventListener("DOMContentLoaded", function () {
+  const idServiceIntervenant = document.querySelector(
+    "#dit_validation_idServiceIntervenant"
+  );
+  const codeSection = document.querySelector("#dit_validation_codeSection");
+  const validerBtn = document.querySelector("#btn_valider");
+  const refuserBtn = document.querySelector("#btn_refuser");
 
-        options.forEach(option => {
-            const opt = document.createElement('option');
-            opt.value = option.value;
-            opt.textContent = option.label;
-            select.appendChild(opt);
-        });
-    };
+  refuserBtn.addEventListener("click", function () {
+    idServiceIntervenant.removeAttribute("required");
+    codeSection.removeAttribute("required");
+  });
 
-    // Initialiser le select1 avec les catégories principales
-    const initSelect1 = async () => {
-        const categories = await fetchData('/api/categories');  // Exemple d'URL pour l'API
-        updateSelect(select1, categories);
-    };
-
-    // Mise à jour de select2 en fonction de la sélection dans select1
-    select1.addEventListener('change', async () => {
-        const category = select1.value;
-        if (category) {
-            const subCategories = await fetchData(`/api/categories/${category}/subcategories`);
-            updateSelect(select2, subCategories);
-            select3.innerHTML = '<option value="" selected disabled>Choose an option</option>';
-            select3.disabled = true;
-        }
-    });
-
-    // Mise à jour de select3 en fonction de la sélection dans select2
-    select2.addEventListener('change', async () => {
-        const subCategory = select2.value;
-        if (subCategory) {
-            const options = await fetchData(`/api/subcategories/${subCategory}/options`);
-            updateSelect(select3, options);
-        }
-    });
-
-    // Charger initialement les catégories dans select1
-    initSelect1();
+  validerBtn.addEventListener("click", function () {
+    idServiceIntervenant.setAttribute("required", "required");
+    codeSection.setAttribute("required", "required");
+  });
 });
+
+//AFFICHAGE SOUS CATEGORIES
+categorieInput.addEventListener("change", selectCategorieSousCategorie);
+
+function selectCategorieSousCategorie() {
+  const categorie = categorieInput.value;
+
+  if (categorie === "") {
+    while (sousCategorieInput.options.length > 0) {
+      sousCategorieInput.remove(0);
+    }
+
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = " -- Choisir une sous-catégorie -- ";
+    sousCategorieInput.add(defaultOption);
+    return; // Sortir de la fonction
+  }
+
+  let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((sousCategories) => {
+      console.log(sousCategories);
+
+      // Supprimer toutes les options existantes
+      while (sousCategorieInput.options.length > 0) {
+        sousCategorieInput.remove(0);
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une sous-catégorie -- ";
+      sousCategorieInput.add(defaultOption);
+
+      // Ajouter les nouvelles options à partir du tableau services
+      for (var i = 0; i < sousCategories.length; i++) {
+        var option = document.createElement("option");
+        option.value = sousCategories[i].value;
+        option.text = sousCategories[i].text;
+        sousCategorieInput.add(option);
+      }
+
+      //Afficher les nouvelles valeurs et textes des options
+      for (var i = 0; i < sousCategorieInput.options.length; i++) {
+        var option = sousCategorieInput.options[i];
+        console.log("Value: " + option.value + ", Text: " + option.text);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+
+  //AFFICHAGE AUTRES CATEGORIE
+  sousCategorieInput.addEventListener(
+    "change",
+    selectSousCategorieAutresCategories
+  );
+
+  function selectSousCategorieAutresCategories() {
+    const sousCategorie = sousCategorieInput.value;
+
+    if (sousCategorie === "") {
+      while (autreCategorieInput.options.length > 0) {
+        autreCategorieInput.remove(0);
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.text = " -- Choisir une sous catégorie -- ";
+      autreCategorieInput.add(defaultOption);
+      return; // Sortir de la fonction
+    }
+
+    console.log(sousCategorie);
+
+    let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((autresCategories) => {
+        console.log(autresCategories);
+
+        // Supprimer toutes les options existantes
+        while (autreCategorieInput.options.length > 0) {
+          autreCategorieInput.remove(0);
+        }
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.text = " -- Choisir une autre categorie-- ";
+        autreCategorieInput.add(defaultOption);
+
+        // Ajouter les nouvelles options à partir du tableau services
+        for (var i = 0; i < autresCategories.length; i++) {
+          var option = document.createElement("option");
+          option.value = autresCategories[i].value;
+          option.text = autresCategories[i].text;
+          autreCategorieInput.add(option);
+        }
+
+        //Afficher les nouvelles valeurs et textes des options
+        for (var i = 0; i < autreCategorieInput.options.length; i++) {
+          var option = autreCategorieInput.options[i];
+          console.log("Value: " + option.value + ", Text: " + option.text);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+}
+

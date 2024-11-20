@@ -53,7 +53,7 @@ class DemandeSupportInformatiqueController extends Controller
         ]);
     }
 
-        /**
+    /**
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
      * @param DemandeIntervention $demandeIntervention
@@ -73,30 +73,30 @@ class DemandeSupportInformatiqueController extends Controller
     private function ajoutDonnerDansEntity($donnerForm, $supportInfo)
     {
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
-            $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
-            $userId = $this->sessionService->get('user_id');
-            $user = self::$em->getRepository(User::class)->find($userId);
-            $statut = self::$em->getRepository(StatutDemande::class)->find('79');
-            
-            /** 
-             * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
-             * */
-            $supportInfo 
-                ->setAgenceDebiteurId($donnerForm->getAgence())
-                ->setServiceDebiteurId($donnerForm->getService())
-                ->setAgenceEmetteurId($agenceEmetteur)
-                ->setServiceEmetteurId($serviceEmetteur)
-                ->setHeureCreation($this->getTime())
-                ->setUtilisateurDemandeur($user->getNomUtilisateur())
-                ->setUserId($user)
-                ->setMailDemandeur($user->getMail())
-                ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
-                ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
-                ->setNumeroTicket($this->autoINcriment('TIK'))
-                ->setIdStatutDemande($statut)
-            ;
+        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
+        
+        /** 
+         * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
+         * */
+        $supportInfo 
+            ->setAgenceDebiteurId($donnerForm->getAgence())
+            ->setServiceDebiteurId($donnerForm->getService())
+            ->setAgenceEmetteurId($agenceEmetteur)
+            ->setServiceEmetteurId($serviceEmetteur)
+            ->setHeureCreation($this->getTime())
+            ->setUtilisateurDemandeur($user->getNomUtilisateur())
+            ->setUserId($user)
+            ->setMailDemandeur($user->getMail())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
+            ->setNumeroTicket($this->autoINcriment('TIK'))
+            ->setIdStatutDemande($statut)
+        ;
 
-            $this->historiqueStatut($supportInfo, $statut);
+        $this->historiqueStatut($supportInfo, $statut);
     }
 
     private function historiqueStatut($supportInfo, $statut)
@@ -105,6 +105,7 @@ class DemandeSupportInformatiqueController extends Controller
         $tikStatut
             ->setNumeroTicket($supportInfo->getNumeroTicket())
             ->setCodeStatut($statut->getCodeStatut())
+            ->setIdStatutDemande($statut)
         ;
         self::$em->persist($tikStatut);
         self::$em->flush();
@@ -133,7 +134,20 @@ class DemandeSupportInformatiqueController extends Controller
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
                 $prefix = $supportInfo->getNumeroTicket() .'_';
                 $fileName = $fileUploader->upload($file, $prefix);
-                $fileNames[] = $fileName;
+                // Obtenir la taille du fichier dans l'emplacement final
+            $filePath = $chemin . '/' . $fileName;
+            $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
+            if (file_exists($filePath)) {
+                $fileSize = round(filesize($filePath) / 1024, 2);
+            } else {
+                $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
+            }
+            
+                $fileNames[] = 
+                    [
+                        'name' => $fileName,
+                        'size' => $fileSize
+                    ];
             }
         }
        // Enregistrez les noms des fichiers dans votre entité

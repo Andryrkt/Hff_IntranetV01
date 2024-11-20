@@ -3,6 +3,7 @@
 namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\StatutDemande;
 
 /**
  * @ORM\Entity(repositoryClass=TkiStatutRepository::class)
@@ -32,6 +33,12 @@ class TkiStatutTicketInformatique
      * @ORM\Column(type="datetime", name="Date_Statut")
      */
     private $dateStatut;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="statutTik")
+     * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
+     */
+    private $idStatutDemande = null;
 
     
     /**=====================================================================================
@@ -115,5 +122,25 @@ class TkiStatutTicketInformatique
     public function onPrePersist(): void
     {
         $this->dateStatut = new \DateTime('now');
+    }
+
+    /**
+     * Get the value of idStatutDemande
+     */ 
+    public function getIdStatutDemande()
+    {
+        return $this->idStatutDemande;
+    }
+
+    /**
+     * Set the value of idStatutDemande
+     *
+     * @return  self
+     */ 
+    public function setIdStatutDemande($idStatutDemande)
+    {
+        $this->idStatutDemande = $idStatutDemande;
+
+        return $this;
     }
 }

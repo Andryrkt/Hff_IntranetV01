@@ -61,3 +61,43 @@ label {
     font-weight: bold;
     border-radius: 5px;
 }
+
+
+/* CHONOMETTRE */
+.chrono-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 20px auto;
+  }
+  
+  .chrono-svg {
+    transform: rotate(-90deg); /* Faire commencer le cercle en haut */
+  }
+  
+  .chrono-bg {
+    fill: none;
+    stroke: #e0e0e0; /* Couleur de fond */
+    stroke-width: 10;
+  }
+  
+  .chrono-progress {
+    fill: none;
+    stroke: #4caf50; /* Couleur du cercle actif */
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 283; /* Périmètre du cercle (2 * PI * r) */
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.5s linear;
+  }
+  
+  .chrono-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: #f7f1f1;
+  }
+  

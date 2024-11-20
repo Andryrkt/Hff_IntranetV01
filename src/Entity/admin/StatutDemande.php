@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\StatutDemandeRepository;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 /**
  * @ORM\Entity(repositoryClass=StatutDemandeRepository::class)
@@ -69,6 +70,11 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="idStatutDemande")
      */
     private $supportInfo;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiStatutTicketInformatique::class, mappedBy="idStatutDemande")
+     */
+    private $statutTik;
     
     public function __construct()
     {
@@ -77,6 +83,7 @@ class StatutDemande
         $this->casiers = new ArrayCollection();
         $this->doms = new ArrayCollection();
         $this->supportInfo = new ArrayCollection();
+        $this->statutTik = new ArrayCollection();
     }
 
     public function getId()
@@ -263,7 +270,7 @@ class StatutDemande
         return $this;
     }
 
-     /**
+    /**
      * Get the value of demandeInterventions
      */ 
     public function getSupportInfo()
@@ -287,6 +294,37 @@ class StatutDemande
             $this->supportInfo->removeElement($supportInfo);
             if ($supportInfo->getIdStatutDemande() === $this) {
                 $supportInfo->setIdStatutDemande($this);
+            }
+        }
+        
+        return $this;
+    }
+
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getStatutTik()
+    {
+        return $this->statutTik;
+    }
+
+    public function addStatutTik(TkiStatutTicketInformatique $statutTik): self
+    {
+        if (!$this->statutTik->contains($statutTik)) {
+            $this->statutTik[] = $statutTik;
+            $statutTik->setIdStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatutTik(TkiStatutTicketInformatique $statutTik): self
+    {
+        if ($this->statutTik->contains($statutTik)) {
+            $this->statutTik->removeElement($statutTik);
+            if ($statutTik->getIdStatutDemande() === $this) {
+                $statutTik->setIdStatutDemande($this);
             }
         }
         

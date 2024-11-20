@@ -2,7 +2,7 @@
 
 {% block stylesheets%}
 	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/tik/liste.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -11,6 +11,8 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
+
+
 		<h3 class="perso-titre">
 			Liste de Demande support informatique
 		</h3>
@@ -42,11 +44,33 @@
 					<th>Catégorie/Sous-catégorie</th>
 					<th>Objet du demande</th>
 					<th>Demandeur</th>
+					<th>Intervenant</th>
 				</tr>
 			</thead>
 			<tbody>
-				{# DEBUT LOGIQUE #}
+
 				{% for item in data %}
+					{# DEBUT LOGIQUE #}
+					{% set classeStatutTik = '' %}
+					{% set styleStatutTik = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+						{% set classeStatutTik ='ouvert' %}
+					{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+						{% set classeStatutTik ='refuse' %}
+					{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+						{% set classeStatutTik ='encours' %}
+					{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+						{% set classeStatutTik ='planifie' %}
+					{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+						{% set classeStatutTik ='resolu' %}
+					{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+						{% set classeStatutTik ='reouvert' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+						{% set classeStatutTik ='cloture' %}
+					{% else %}
+						{% set classeStatutTik = '' %}
+					{% endif %}
 					{# FIN LOGIQUE #}
 					<tr>
 						{# Début Action #}
@@ -55,13 +79,19 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										<a class="dropdown-item fw-bold" href="{{ path("tik_modification_edit", {id: item.id})}}">Modifier</a>
+									</li>
+
+								</ul>
 							</div>
 						</td>
 						{# Fin Actions #}
 
 						{# DEBUT Statut #}
 
-						<td>{{ item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
 
 						{# FIN Statut #}
 
@@ -71,19 +101,20 @@
 						<td>{{ item.agenceServiceEmetteur}}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
 						<td>{{item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ item.parcInformatique}}</td>
-						<td></td>
+						<td>{{ item.parcInformatique }}</td>
+						<td>{{ item.niveauUrgence.description }}</td>
 						<td>{{ item.categorie.description}}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
+						<td>{{ item.nomIntervenant}}</td>
 
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
-
 	<!-- FIN tableau -->
+
 
 {% endblock %}
 {% block javascript %}

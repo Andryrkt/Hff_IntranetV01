@@ -34,15 +34,15 @@ class BadmDupliController extends Controller
         
 
         $data = $this->badm->findAll($dataDb->getIdMateriel(),'','');
-       
+        
         /** INITIALISATION du formulaire 2*/
-       $badm = $this->initialisation($badm, $dataDb->getTypeMouvement(), $data, self::$em);
+        $badm = $this->initialisation($badm, $dataDb->getTypeMouvement(), $data, self::$em);
 
        //création du formulaire
-       $form = self::$validator->createBuilder(BadmForm2Type::class, $badm)->getForm();
+        $form = self::$validator->createBuilder(BadmForm2Type::class, $badm)->getForm();
 
 
-       $form->handleRequest($request);
+        $form->handleRequest($request);
 
             if($form->isSubmitted() && $form->isValid())
             {
@@ -83,7 +83,7 @@ class BadmDupliController extends Controller
                     $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
                     $OR = $this->ouiNonOr($orDb);
                     $orDb = $this->miseEnformeOrDb($orDb);
-                     
+                    
                     //envoie des pièce jointe dans une dossier et le fusionner
                     $this->envoiePieceJoint($form, $badm);
 
@@ -91,7 +91,7 @@ class BadmDupliController extends Controller
 
                     $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
                     $idServiceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
-                   
+                    
                     $badm
                     ->setAgenceEmetteurId($idAgenceEmetteur)
                     ->setServiceEmetteurId($idServiceEmetteur)
