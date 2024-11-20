@@ -280,7 +280,7 @@ class DomModel extends Model
         //             GROUP BY Matricule";
         $SqlDate = "SELECT  Date_Debut, Date_Fin
         FROM Demande_ordre_mission
-        WHERE  Matricule = '4174'  
+        WHERE  Matricule = '".$matricule."' 
         AND ID_Statut_Demande IN (1, 6)";
         $execSqlDate = $this->connexion->query($SqlDate);
        

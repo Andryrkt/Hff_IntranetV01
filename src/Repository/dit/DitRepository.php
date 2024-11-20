@@ -105,9 +105,10 @@ class DitRepository extends EntityRepository
 
         if (!empty($ditSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                        ->andWhere('d.agenceEmetteurId = :agEmet')
+                        //->andWhere('d.agenceEmetteurId = :agEmet')
                         ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
-                        ->setParameter('agEmet', $options['codeAgence']);
+                        //->setParameter('agEmet', $options['codeAgence'])
+                        ;
         }
 
         if (!empty($ditSearch->getServiceDebiteur())) {
