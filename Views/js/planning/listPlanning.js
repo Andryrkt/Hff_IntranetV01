@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
-    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    const orIntv = button.getAttribute("data-id"); // Extract info from data-* attributes
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
     console.log(migration);
@@ -78,6 +78,70 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("loading").style.display = "block";
     document.getElementById("dataContent").style.display = "none";
 
+    fetchDetailModal(orIntv);
+    const numOr = orIntv.split("-")[0];
+    const numItv = orIntv.split("-")[1];
+    //console.log(numOr, numItv);
+
+    fetchTechnicienInterv(numOr, numItv);
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
+  });
+
+  function masquerSpinner() {
+    // Masquer le spinner et afficher les données
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dataContent").style.display = "block";
+  }
+
+  function fetchTechnicienInterv(numOr, numItv) {
+    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+
+        const tableBody = document.getElementById("technicienTableBody");
+
+        tableBody.innerHTML = ""; // Clear previous data
+
+        if (data.length > 0) {
+          data.forEach((technicien) => {
+            let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+            // Affichage
+            let row = `<tr>
+              <td>${technicien.matricule}</td> 
+              <td>${nomPrenom}</td> 
+          </tr>`;
+            tableBody.innerHTML += row;
+          });
+
+          masquerSpinner();
+        } else {
+          // Si les données sont vides, afficher un message vide
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+          masquerSpinner();
+        }
+      })
+      .catch((error) => {
+        const tableBody = document.getElementById("commandesTableBody");
+        tableBody.innerHTML =
+          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+        console.error("There was a problem with the fetch operation:", error);
+        masquerSpinner();
+      });
+  }
+
+  function fetchDetailModal(id) {
     // Fetch request to get the data
     fetch(`/Hffintranet/detail-modal/${id}`)
       .then((response) => {
@@ -195,15 +259,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
             tableBody.innerHTML += row;
           });
 
-          // Masquer le spinner et afficher les données
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          masquerSpinner();
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          masquerSpinner();
         }
       })
       .catch((error) => {
@@ -212,17 +273,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
 
-        // Masquer le spinner même en cas d'erreur
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dataContent").style.display = "block";
+        masquerSpinner();
       });
-  });
-
-  // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    tableBody.innerHTML = ""; // Vider le tableau
-  });
+  }
 
   function formaterDate(daty) {
     const date = new Date(daty);
@@ -233,7 +286,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .padStart(2, "0")}/${date.getFullYear()}`;
   }
 
-  /** pour le separateur et fusion des numOR */
+  /**
+   * pour le separateur et fusion des numOR
+   *
+   * */
   const tableBody = document.querySelector("#tableBody");
   const rows = document.querySelectorAll("#tableBody tr");
 
