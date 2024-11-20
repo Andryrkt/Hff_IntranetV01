@@ -63,7 +63,6 @@ class PlanningController extends Controller
             {
                   // dd($form->getdata());
                 $criteria =  $form->getdata();
-
             }
 
             /**
@@ -88,8 +87,8 @@ class PlanningController extends Controller
             $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
-                
-            //dump($fusionResult);
+
+            
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $fusionResult
@@ -118,6 +117,7 @@ class PlanningController extends Controller
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
+        
 
                 // Convertir les entités en tableau de données
                 $data = [];
@@ -184,8 +184,11 @@ class PlanningController extends Controller
         //Recuperation de idmat et les truc
         foreach ($data as $item ) {
             $planningMateriel = new PlanningMateriel();
-            $numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]])->getNumeroDemandeIntervention();
-              //initialisation
+            $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
+            $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
+            $migration = $ditRepositoryConditionner->getMigration();
+            
+            //initialisation
                 $planningMateriel
                     ->setCodeSuc($item['codesuc'])
                     ->setLibSuc($item['libsuc'])
@@ -204,11 +207,10 @@ class PlanningController extends Controller
                     ->setQteLiv($item['qtliv'])
                     ->setQteAll($item['qteall'])
                     ->setNumDit($numDit)
-                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit)
+                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
-
         return $objetPlanning;
     }
 
@@ -230,7 +232,8 @@ class PlanningController extends Controller
                         $moisDetail['qteCdm'],
                         $moisDetail['qteLiv'],
                         $moisDetail['qteAll'],
-                        $moisDetail['numDit']
+                        $moisDetail['numDit'],
+                        $moisDetail['migration']
                     );
                 }
                 
