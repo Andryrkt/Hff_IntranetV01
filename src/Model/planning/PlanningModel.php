@@ -226,15 +226,18 @@ class PlanningModel extends Model
         }
     }
       $statement = " SELECT slor_numor as numOr,
+                            slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
                             slor_qterel AS QteReliquat,
-                            CASE WHEN slor_typlig = 'P' THEN
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-		                        ELSE 
-                            slor_qterea 
+                            CASE 
+                              WHEN slor_typlig = 'P' 
+                                THEN
+                                  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+		                          ELSE 
+                                slor_qterea 
 	                          	END AS QteRes_Or,
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
@@ -475,6 +478,26 @@ public function recuperationPartiel($numcde, $refp){
         inner join sav_sal on sav_sal.ssal_numsal = ska.skr_id
         and ofs_id = '".$numItv."'
         where skw.ofh_id ='".$numOr."'
+      ";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function recupTechnicien2($numOr, $numItv)
+  {
+    $statement = " SELECT
+        ssal_numsal AS matricule, 
+        ssal_nom AS matriculeNomPrenom 
+        --sitv_numor 
+        from sav_itv
+        inner join sav_sal on sav_sal.ssal_numsal = sitv_techn
+        where sitv_numor = '".$numOr."'
+        and sitv_interv = '".$numItv."' 
+        and ssal_numsal <> 9999
       ";
 
     $result = $this->connect->executeQuery($statement);

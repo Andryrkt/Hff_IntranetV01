@@ -99,6 +99,11 @@ class PlanningApi extends Controller
     {
         $matriculeNom = $this->planningModel->recupTechnicientIntervenant($numOr, $numItv);
 
+        if(empty($matriculeNom))
+        {
+            $matriculeNom = $this->planningModel->recupTechnicien2($numOr, $numItv);
+        }
+
         header("Content-type:application/json");
 
         echo json_encode($matriculeNom);
