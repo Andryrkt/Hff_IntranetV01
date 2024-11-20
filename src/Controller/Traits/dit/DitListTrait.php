@@ -183,10 +183,18 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $data[$i]->setNumSerie($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_serie']);
-                $data[$i]->setNumParc($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_parc']);
+                $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                if(!empty($numSerieParc)) {
+                    $numSerie = $numSerieParc[0]['num_serie'];
+                    $numParc = $numSerieParc[0]['num_parc'];
+                    $data[$i]->setNumSerie($numSerie);
+                    $data[$i]->setNumParc($numParc);
+                } else {
+                    $data[$i]->setNumSerie('');
+                    $data[$i]->setNumParc('');
+                }
             }
-    }
+        }
     }
 
     private function ajoutStatutAchatPiece($data){

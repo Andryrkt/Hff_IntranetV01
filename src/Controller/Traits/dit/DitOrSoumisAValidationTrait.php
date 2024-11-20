@@ -125,6 +125,7 @@ trait DitOrSoumisAValidationTrait
     {
         $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dit_index");
+        exit();
     }
 
     private function autoIncrement($num)
