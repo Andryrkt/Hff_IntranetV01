@@ -36,8 +36,7 @@ class WorTypeDocument
      */
     private string $description;
 
-    
-   /**
+    /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="typeDocument")
      */
     private $demandeInterventions;

@@ -56,7 +56,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ])
             ->getQuery()
             ->getSingleColumnResult();
-
+            
         return $nbrItv;
     }
 

@@ -61,8 +61,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // Mettre à jour le lien avec le numDit dynamique
     const dossierDitLink = document.getElementById("dossierDitLink");
-    if (migration == 1) {
-      dossierDitLink.disabled = true;
+    if (migration == "1") {
+      console.log(dossierDitLink);
+      dossierDitLink.style.display = "none";
     }
     //console.log(numDit);
     //console.log(dossierDitLink);
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("dataContent").style.display = "none";
 
     fetchDetailModal(orIntv);
+
     const numOr = orIntv.split("-")[0];
     const numItv = orIntv.split("-")[1];
     console.log(numOr, numItv);
@@ -133,7 +135,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("technicienTableBody");
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
@@ -151,8 +153,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
 
@@ -160,7 +160,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         if (data.length > 0) {
           data.forEach((detail) => {
+            console.log(detail);
+
             Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
+
             // Formater la date
             let dateEtaIvato;
             let dateMagasin;
@@ -255,98 +258,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${dateEtaIvato}</td> 
                       <td>${dateMagasin}</td> 
                       <td>${message}</td> 
-                  </tr>`;
-            tableBody.innerHTML += row;
-          });
-
-          masquerSpinner();
-        } else {
-          // Si les données sont vides, afficher un message vide
-          tableBody.innerHTML =
-            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          masquerSpinner();
-        }
-      })
-      .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
-        tableBody.innerHTML =
-          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error("There was a problem with the fetch operation:", error);
-
-        masquerSpinner();
-      });
-  }
-
-  function fetchDetailModalCis(id) {
-    // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-
-        const tableBody = document.getElementById("commandesTableBody");
-        const Ornum = document.getElementById("orIntv");
-
-        tableBody.innerHTML = ""; // Clear previous data
-
-        if (data.length > 0) {
-          data.forEach((detail) => {
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
-            // Formater la date
-            let numCis = "";
-            let statrmq;
-            let cmdColorRmq = "";
-            let numRef;
-
-            if (detail.numerocmd !== null) {
-              numCis = detail.numcis;
-            }
-
-            if (detail.ref == null) {
-              numRef = "";
-            } else {
-              numRef = detail.ref;
-            }
-            if (detail.statut_ctrmq == null) {
-              statrmq = "";
-            } else {
-              statrmq = detail.statut_ctrmq;
-            }
-            //reception partiel
-            let qteSolde = parseInt(detail.qteSlode);
-            let qteQte = parseInt(detail.qte);
-
-            if (qteSolde > 0 && qteSolde != qteQte) {
-              cmdColorRmq = 'style="background-color: yellow;"';
-            }
-            let cmdColor;
-            let Ord = detail.Ord;
-            if (statut == "DISPO STOCK") {
-              cmdColor = 'style="background-color: #c8ad7f; color: white;"';
-            } else if (statut == "Error" || statut == "Back Order") {
-              cmdColor = 'style="background-color: red; color: white;"';
-            } else if (Ord == "ORD") {
-              cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
-            }
-
-            // Affichage
-            let row = `<tr>
-                      <td>${detail.numor}</td> 
-                      <td>${detail.intv}</td> 
-                      <td ${cmdColor}>${numCis}</td> 
-                      <td ${cmdColorRmq}>${statrmq}</td> 
-                      <td>${detail.cst}</td> 
-                      <td>${numRef}</td> 
-                      <td>${detail.desi}</td> 
-                      <td>${parseInt(detail.qteres_or)}</td> 
-                      <td>${parseInt(detail.qteall)}</td> 
-                      <td>${parseInt(detail.qtereliquat)}</td> 
-                      <td>${parseInt(detail.qteliv)}</td> 
                   </tr>`;
             tableBody.innerHTML += row;
           });

@@ -178,6 +178,7 @@ class DitListeController extends Controller
           //recupère les critères dans la session 
         $options = $this->sessionService->get('dit_search_option', []);
 
+        
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
         $ditSearch
@@ -200,6 +201,11 @@ class DitListeController extends Controller
             ->setDitSansOr($criteria["ditSansOr"])
             ->setCategorie($criteria["categorie"])
             ->setUtilisateur($criteria["utilisateur"])
+            ->setDitSansOr($criteria["ditSansOr"])
+            ->setSectionAffectee($criteria["sectionAffectee"])
+            ->setSectionSupport1($criteria["sectionSupport1"])
+            ->setSectionSupport2($criteria["sectionSupport2"])
+            ->setSectionSupport3($criteria["sectionSupport3"])
         ;
         
 
@@ -216,7 +222,8 @@ class DitListeController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or DW', 'Statut Livraison pièces', 'Statut Achats Locaux', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
+
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getIdStatutDemande()->getDescription(),
@@ -234,8 +241,8 @@ class DitListeController extends Controller
                 $entity->getSectionAffectee(),
                 $entity->getNumeroOr(),
                 $entity->getStatutOr(),
-                $entity->getStatutAchatPiece(),
-                $entity->getStatutAchatLocaux(),
+                $entity->getEtatFacturation(),
+                $entity->getRi(),
                 $entity->getNbrPj(),
                 $entity->getUtilisateurDemandeur()
             ];

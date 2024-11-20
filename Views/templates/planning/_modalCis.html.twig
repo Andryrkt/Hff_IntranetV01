@@ -4,7 +4,7 @@
 			<div class="modal-header">
 				<h5 class="modal-title">
 					Listes ligne de l'OR
-					<small class="text-success d-block mt-auto" id="orIntv"></small>
+					<small class="text-success d-block mt-auto" id="orIntvcis"></small>
 				</h5>
 
 				<div class="ms-auto d-flex align-items-center">
@@ -24,14 +24,14 @@
 					<small class="text-warning">Réception Partielle</small>
 				</div>
 				<!-- Spinner de chargement -->
-				<div id="loading" class="text-center">
+				<div id="loadingcis" class="text-center">
 					<div class="spinner-border" role="status">
 						<span class="visually-hidden">Chargement...</span>
 					</div>
 				</div>
 
 				<!-- Contenu des données -->
-				<div id="dataContent" style="display: none;">
+				<div id="dataContentcis" style="display: none;">
 
 					<table class="table rounded mt-1">
 						<thead class="table">
@@ -39,6 +39,7 @@
 								<th>N° OR</th>
 								<th>Intv</th>
 								<th>N° CIS</th>
+								<th>N° Commande</th>
 								<th>Statut ctrmrq</th>
 								<th>CST</th>
 								<th>Ref</th>
@@ -47,11 +48,17 @@
 								<th>Qté ALL</th>
 								<th>QTé RLQ</th>
 								<th>QTé LIV</th>
+								<th>Statut</th>
+								<th>Date Statut</th>
+								<th>ETA Ivato</th>
+								<th>ETA Magasin</th>
+								<th>Message</th>
 							</tr>
 						</thead>
 						<tbody id="cisTableBody"></tbody>
 					</table>
 
+					{# AFFICHAGE Technicients Intervenant #}
 					<h3 class="fw-bold bg-warning p-2">Technicien(s) interventant(s)</h3>
 					<table class="table rounded mt-1">
 						<thead class="table">
