@@ -10,23 +10,30 @@ trait PlanningTraits
     {
         $numOrValide = $this->transformEnSeulTableau($criteria);
 
-         return implode("','", $numOrValide);
+        return implode("','", $numOrValide);
     }
 
     private function recupNumOrValider($criteria, $em){
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
         $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
+        //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
         return $resNumor;
     }
 
+
+    private function recupNumOrValidersansVmax($em)
+    {
+        return $em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide();
+    }
+
+    
     private function recupNumORItvValide($numeroOrs, $em)
     {
         $numOrValide = [];
         foreach ($numeroOrs as $numeroOr) {
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-    
             if(!empty($numItv)){
                 foreach ($numItv as  $value) {
                     $numOrValide[] = $numeroOr['numero_or'].'-'.$value;
@@ -35,7 +42,7 @@ trait PlanningTraits
         }
         return $numOrValide;
     }
-
+/*
     private function numeroOrValide($numeroOrs, $PlanningModel, $em)
     {
         $numOrValide = [];
@@ -51,5 +58,5 @@ trait PlanningTraits
 
         return $numOrValide;
     }
-    
+    */
 }

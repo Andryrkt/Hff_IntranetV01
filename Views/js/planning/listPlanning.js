@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const dossierDitLink = document.getElementById("dossierDitLink");
     if (migration == "1") {
       console.log(dossierDitLink);
-
       dossierDitLink.style.display = "none";
     }
     //console.log(numDit);
@@ -81,6 +80,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("dataContent").style.display = "none";
 
     fetchDetailModal(orIntv);
+
     const numOr = orIntv.split("-")[0];
     const numItv = orIntv.split("-")[1];
     //console.log(numOr, numItv);
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById("technicienTableBody");
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
@@ -153,8 +153,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
 
@@ -162,7 +160,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         if (data.length > 0) {
           data.forEach((detail) => {
+            console.log(detail);
+
             Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
+
             // Formater la date
             let dateEtaIvato;
             let dateMagasin;

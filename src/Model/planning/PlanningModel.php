@@ -435,7 +435,7 @@ public function recuperationPartiel($numcde, $refp){
                   numero_or 
                   FROM demande_intervention
                   WHERE date_validation_or is not null
-                  and date_validation_or <>'' 
+                  and date_validation_or = '1900-01-01'
                   $vconditionNumOr
                   $nivUrg
                   ";
