@@ -123,10 +123,16 @@
 												{# complet non livré #}
 											{% else %}
 												{% set classe = '' %}
+											{% endif %}.
+											{% if item.orIntv starts with '1' %}
+												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
+													{{ item.orIntv }}
+												</a><br>
+											{% else %}
+												<a href="#" data-bs-toggle="modal" data-bs-target="#cisPlanning" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
+													{{ item.orIntv }}
+												</a><br>
 											{% endif %}
-											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
-												{{ item.orIntv }}
-											</a><br>
 										{% endfor %}
 									{% else %}
 										<!-- Contenu pour les mois sans valeur -->
