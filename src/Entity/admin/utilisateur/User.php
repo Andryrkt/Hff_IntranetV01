@@ -72,11 +72,11 @@ class User implements UserInterface
      */
     private $applications;
     
-     /**
-     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users", cascade={"remove"})
-     * @ORM\JoinTable(name="users_societe")
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
      */
-    private $societtes;
+    private ?Societte $societtes;
 
 
      /**
@@ -154,7 +154,6 @@ class User implements UserInterface
     public function __construct()
     {
         $this->applications = new ArrayCollection();
-        $this->societtes = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->agencesAutorisees = new ArrayCollection();
@@ -268,28 +267,17 @@ class User implements UserInterface
 
 
     
-    public function getSociettes(): Collection
+    public function getSociettes()
     {
         return $this->societtes;
     }
 
-    public function addSociette(Societte $societte): self
-    {
-        if (!$this->societtes->contains($societte)) {
-            $this->societtes[] = $societte;
-        }
+    public function setSociettes(?Societte $societtes): self
+{
+    $this->societtes = $societtes;
+    return $this;
+}
 
-        return $this;
-    }
-
-    public function removeSociette(Societte $societte): self
-    {
-        if ($this->societtes->contains($societte)) {
-            $this->societtes->removeElement($societte);
-        }
-
-        return $this;
-    }
 
 
     public function getPersonnels()

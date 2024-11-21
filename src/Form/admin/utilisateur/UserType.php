@@ -11,6 +11,7 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use App\Service\SessionManagerService;
 use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\Fonction;
@@ -27,26 +28,30 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class UserType extends AbstractType
 {
     private $ldap;
-    private $agenceRepository;
+    private $em;
+    private $sessionService;
 
     public function __construct()
     {
         $this->ldap = new LdapModel();
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->em = Controller::getEntity();
+        $this->sessionService = new SessionManagerService();
     }
 
     
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        
-        $users = $this->ldap->infoUser($_SESSION['user'], $_SESSION['password']);
+        $userId = $this->sessionService->get('user_id');
+        $password = $this->sessionService->get('password');
+        $user = $this->em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+        $users = $this->ldap->infoUser($user, $password);
    
         $nom = [];
         foreach ($users as $key => $value) {
             $nom[]=$key;
         }
- 
+
 
         $builder
         ->add('nom_utilisateur', 
@@ -66,7 +71,7 @@ class UserType extends AbstractType
             ])
         ->add('mail', 
             EmailType::class, [
-                'label' => 'Email',
+                'label' => 'Email *',
                 'required' =>true,
                 
             ])
@@ -103,10 +108,8 @@ class UserType extends AbstractType
                 'choice_label' => function (Societte $societte): string {
                     return $societte->getCodeSociete() . ' ' . $societte->getNom();
                 },
-                'multiple' => true,
-                'expanded' => true,
+                'placeholder' => '-- Choisir une sociétés--',
                 'required' => true,
-                
             ])
             ->add('personnels', 
             EntityType::class,
@@ -114,7 +117,7 @@ class UserType extends AbstractType
                 'label' => 'Nom Personnel *',
                 'class' => Personnel::class,
                 'choice_label' => 'Matricule',
-                'placeholder' => '-- Choisir un nom --',
+                'placeholder' => '-- Choisir une matricuel --',
                 'required' => true,
                 
             ])
