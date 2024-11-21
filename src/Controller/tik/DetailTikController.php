@@ -10,6 +10,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -96,11 +97,24 @@ class DetailTikController extends Controller
                 $this->redirectToRoute("liste_tik_index");
             }
 
+            $date = new DateTime();
+
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
-                'tik'        => $supportInfo,
-                'form'       => $form->createView(),
-                'autoriser'  => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
-                'validateur' => in_array("VALIDATEUR", $connectedUser->getRoleNames())                                   // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
+                'tik'          => $supportInfo,
+                'form'         => $form->createView(),
+                'autoriser'    => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
+                'validateur'   => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
+                'connectedUser'=>$connectedUser,
+                'commentaires' => self::$em->getRepository(TkiCommentaires::class)
+                                           ->findBy(
+                                                ['numeroTicket' =>$supportInfo->getNumeroTicket()],
+                                                ['dateCreation' => 'DESC']
+                                            ),
+                'historiqueStatut' => self::$em->getRepository(TkiStatutTicketInformatique::class)
+                                               ->findBy(
+                                                    ['numeroTicket'=>$supportInfo->getNumeroTicket()],
+                                                    ['dateStatut'  => 'DESC']
+                                                ),
             ]);
         } 
     }
