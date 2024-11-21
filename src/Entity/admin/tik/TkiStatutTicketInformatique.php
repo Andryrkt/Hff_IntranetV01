@@ -4,9 +4,10 @@ namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
+use App\Repository\admin\tik\TkiStatusTicketInformatiqueRepository;
 
 /**
- * @ORM\Entity(repositoryClass=TkiStatutRepository::class)
+ * @ORM\Entity(repositoryClass=TkiStatusTicketInformatiqueRepository::class)
  * @ORM\Table(name="TKI_Statut_Ticket_Informatique")
  * @ORM\HasLifecycleCallbacks
  */
