@@ -62,7 +62,7 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=2, name="Code_Societe")
      */
-    private string $codeSociete;
+    private ?string $codeSociete;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="supportInfo")
