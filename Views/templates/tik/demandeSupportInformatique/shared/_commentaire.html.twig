@@ -30,15 +30,22 @@
 		</div>
 	{% endif %}
 
-		<form class="chat-form">
+	{{ form_start(formCommentaire) }}
 			<div class="container-inputs-stuffs">
 				<div class="group-inp">
-					<textarea placeholder="Entrer votre message ici" minlength="1" maxlength="1500"></textarea>
+					{{ form_widget(formCommentaire.commentaires, {
+							'attr': {
+								'placeholder': 'Entrer votre message ici',
+								'class': 'form-control',  
+								'minlength': '1',
+								'maxlength': '1500'
+							}
+						}) }}
 				</div>
 				<button class="submit-msg-btn" name="commenter" id="btn_commenter">
 					<i class="fas fa-paper-plane"></i>
 				</button>
 			</div>
-		</form>
+	{{ form_end(formCommentaire) }}
 	</div>
 </div>
