@@ -53,7 +53,7 @@
 			</div>
 			<div class="email-body">
 				<p>Bonjour,</p>
-				<p>{{ message }}</p>
+				<p>{{ message|raw }}</p>
 				<p>
 					Observation:
 					{{ observation }}</p>
@@ -61,13 +61,13 @@
 				<p>
 					<span class="fw-bold">NB:</span>
 					connectez-vous à Hffintranet avant de cliquer sur le bouton (<a href="http://192.168.0.28/Hffintranet/">lien vers Hffintranet</a>)</p>
-				<a href="{{ path(action_url) }}" class="button">Detail de la demande</a>
+				<a href="{{ action_url }}" class="button">Detail de la demande</a>
 				<p class="fw-bold">Cordialement .</p>
 			</div>
 			<div class="email-footer">
 				&copy;
 				{{ "now"|date("Y") }}
-				Henry Fraise Fis & cie.
+				Henri Fraise Fis & cie.
 			</div>
 		</div>
 	</body>

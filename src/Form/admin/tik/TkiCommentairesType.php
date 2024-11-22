@@ -2,9 +2,8 @@
 
 namespace App\Form\admin\tik;
 
-
+use App\Entity\admin\tik\TkiCommentaires;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -36,18 +35,13 @@ class TkiCommentairesType extends AbstractType
             ->add('piecesJointes3', FileType::class, [
                 'label' => 'Pièce Jointe 3',
                 'required' => false,
-            ])
-            ->add('dateCommentaire', DateTimeType::class, [
-                'label' => 'Date du Commentaire',
-                'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd HH:mm:ss',
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => TkiCommentairesType::class,
+            'data_class' => TkiCommentaires::class,
         ]);
     }
 }

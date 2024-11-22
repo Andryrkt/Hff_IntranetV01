@@ -5,11 +5,12 @@ namespace App\Entity\admin\tik;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\Traits\DateTrait;
+use App\Repository\admin\tik\TkiCommentaireRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=TkiCommentairesRepository::class)
+ * @ORM\Entity(repositoryClass=TkiCommentaireRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class TkiCommentaires
@@ -69,6 +70,11 @@ class TkiCommentaires
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $fichiers_detail;
+
+    public function __construct($numeroTicket = '', $nomUtilisateur = '') {
+        $this->numeroTicket   = $numeroTicket;
+        $this->nomUtilisateur = $nomUtilisateur;
+    }
 
     /**=====================================================================================
      * 

@@ -48,8 +48,9 @@ trait DateTrait
      */
     public function onPrePersist(): void
     {
-        $this->dateCreation = new \DateTime('now');
-        $this->dateModification = new \DateTime('now');
+        $timezone = new \DateTimeZone('Indian/Antananarivo');
+        $this->dateCreation = new \DateTime('now', $timezone);
+        $this->dateModification = new \DateTime('now', $timezone);
         error_log('PrePersist called');
     }
 
@@ -58,7 +59,8 @@ trait DateTrait
      */
     public function onPreUpdate(): void
     {
-        $this->dateModification = new \DateTime('now');
+        $timezone = new \DateTimeZone('Indian/Antananarivo');
+        $this->dateModification = new \DateTime('now', $timezone);
         error_log('PreUpdate called');
     }
 }

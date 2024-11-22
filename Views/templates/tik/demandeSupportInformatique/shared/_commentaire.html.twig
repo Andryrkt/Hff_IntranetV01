@@ -1,50 +1,51 @@
-<div class="chat-global">
-
-	<div class="nav-top">
-		<div class="location">
-			<img src="ressources/left-chevron.svg">
-			<p>Back</p>
+<div class="card me-2">
+	<div class="card-body p-0">
+		<div class="nav-top">
+			Commentaires
 		</div>
-	</div>
-
-	<div class="conversation">
-		<div class="talk left">
-			<img src="ressources/avatar2.jpg">
-			<p>Lorem ipsum dolor sit amet.</p>
+	{% if items is empty %}
+		<div class="conversation mt-3">
+			<p class="align-self-center">Pas encore de commentaires</p>
 		</div>
-		<div class="talk right">
-			<p>Lorem ipsum dolor sit amet.</p>
-			<img src="ressources/avatar1.jpg">
+	{% else %}
+		<div class="conversation mt-3">
+			{% for item in items %}
+				{% if connectedUser.id != item.utilisateur.id %}
+					<div class="talk left">
+						<div class="user">
+							<div class="icon-user d-flex align-items-end justify-content-center">
+								<i class="fa fa-user"></i>
+							</div>
+							<span>{{ item.utilisateur.nom_utilisateur }}</span>
+						</div>
+				{% else %}
+					<div class="talk right">
+				{% endif %}
+						<div class="msg mb-3">
+							<p>{{ item.commentaires }}</p>
+							<time>{{ item.dateCreation|diffForHumans }}</time>
+						</div>
+					</div>	
+			{% endfor %}
 		</div>
-		<div class="talk left">
-			<img src="ressources/avatar2.jpg">
-			<p>Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet.</p>
-		</div>
-		<div class="talk right">
-			<p>Lorem ipsum dolor sit amet.</p>
-			<img src="ressources/avatar1.jpg">
-		</div>
-	</div>
+	{% endif %}
 
-
-	<form class="chat-form">
-
-		<div class="container-inputs-stuffs">
-
-			<div class="files-logo-cont">
-				<img src="ressources/paperclip.svg">
+	{{ form_start(formCommentaire) }}
+			<div class="container-inputs-stuffs">
+				<div class="group-inp">
+					{{ form_widget(formCommentaire.commentaires, {
+							'attr': {
+								'placeholder': 'Entrer votre message ici',
+								'class': 'form-control',  
+								'minlength': '1',
+								'maxlength': '1500'
+							}
+						}) }}
+				</div>
+				<button class="submit-msg-btn" name="commenter" id="btn_commenter">
+					<i class="fas fa-paper-plane"></i>
+				</button>
 			</div>
-
-			<div class="group-inp">
-				<textarea placeholder="Enter your message here" minlength="1" maxlength="1500"></textarea>
-				<img src="ressources/smile.svg">
-			</div>
-
-
-			<button class="submit-msg-btn">
-				<img src="ressources/send.svg">
-			</button>
-		</div>
-
-	</form>
+	{{ form_end(formCommentaire) }}
+	</div>
 </div>
