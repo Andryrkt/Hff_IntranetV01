@@ -9,7 +9,13 @@
 		</div>
 	{% else %}
 		<div class="conversation mt-3">
+			{% set dateTemp = null %}
 			{% for item in items %}
+				{% if dateTemp != item.dateCreation|date('d/m/Y') %}
+					<span class="header-time">{{ item.dateCreation|date('d/m/Y') }}</span>	
+					{% set dateTemp = item.dateCreation|date('d/m/Y') %}
+				{% endif %}
+
 				{% if connectedUser.id != item.utilisateur.id %}
 					<div class="talk left">
 						<div class="user">
@@ -23,25 +29,19 @@
 				{% endif %}
 						<div class="msg mb-3">
 							<p>{{ item.commentaires }}</p>
-							<time>{{ item.dateCreation|diffForHumans }}</time>
+							<time>{{ item.dateCreation|date('H:i') }}</time>
 						</div>
 					</div>	
 			{% endfor %}
 		</div>
 	{% endif %}
 
-	{{ form_start(formCommentaire) }}
+	{{ form_start(formCommentaire, {'attr': {'class': 'chat-form'}}) }}
 			<div class="container-inputs-stuffs">
 				<div class="group-inp">
-					{{ form_widget(formCommentaire.commentaires, {
-							'attr': {
-								'placeholder': 'Entrer votre message ici',
-								'class': 'form-control',  
-								'minlength': '1',
-								'maxlength': '1500'
-							}
-						}) }}
+					{{ form_widget(formCommentaire.commentaires) }}
 				</div>
+				<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" aria-label="Ajouter des fichiers" data-bs-original-title="Ajouter des fichiers"></i>
 				<button class="submit-msg-btn" name="commenter" id="btn_commenter">
 					<i class="fas fa-paper-plane"></i>
 				</button>
