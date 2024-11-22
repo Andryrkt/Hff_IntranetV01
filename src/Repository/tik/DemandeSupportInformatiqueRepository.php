@@ -8,17 +8,17 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DemandeSupportInformatiqueRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, TikSearch $tikSearch = null)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, TikSearch $tikSearch = null, array $option)
     {
         $queryBuilder = $this->createQueryBuilder('tki')
             ->leftJoin('tki.niveauUrgence', 'nu')
             ;
 
         
-        $this->conditionListeDeChoix($queryBuilder, $tikSearch);
+        $this->conditionListeDeChoix($queryBuilder, $tikSearch, $option);
         $this->conditionSaisieLibre($queryBuilder, $tikSearch);
         $this->dateFinDebut($queryBuilder, $tikSearch);
-        $this->agenceServiceEmetteur($queryBuilder, $tikSearch);
+        $this->agenceServiceEmetteur($queryBuilder, $tikSearch, $option);
         $this->agenceServiceDebiteur($queryBuilder, $tikSearch);
         $this->conditionCategorie($queryBuilder, $tikSearch);
         
@@ -46,7 +46,7 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
         ];
     }
 
-    private function conditionListeDeChoix($queryBuilder, $tikSearch)
+    private function conditionListeDeChoix($queryBuilder, $tikSearch, $option)
     {
             //filtre pour le niveau d'urgence
             if (!empty($tikSearch->getNiveauUrgence())) {
@@ -59,12 +59,21 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
                 $queryBuilder->andWhere('tki.idStatutDemande = :idStatut')
                 ->setParameter('idStatut',  $tikSearch->getStatut()->getId());
             }
-    
-            //filtrer selon le nom d'intervenant
-            if(!empty($tikSearch->getNomIntervenant())) {
-                $queryBuilder->andWhere('tki.nomIntervenant = :interv')
-                ->setParameter('interv', $tikSearch->getNomIntervenant());
+
+            if($option['autorisation']['autoriserIntervenant']){
+                //figer pour l'intervenant
+                if(!empty($tikSearch->getNomIntervenant())) {
+                    $queryBuilder->andWhere('tki.nomIntervenant = :interv')
+                    ->setParameter('interv', $option['user']->getNomUtilisateur());
+                }
+            } else {
+                //filtrer selon le nom d'intervenant
+                if(!empty($tikSearch->getNomIntervenant())) {
+                    $queryBuilder->andWhere('tki.nomIntervenant = :interv')
+                    ->setParameter('interv', $tikSearch->getNomIntervenant());
+                }
             }
+            
     }
 
     private function conditionSaisieLibre($queryBuilder, $tikSearch)
@@ -103,8 +112,9 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
         }
     }
 
-    private function agenceServiceEmetteur($queryBuilder, $tikSearch)
+    private function agenceServiceEmetteur($queryBuilder, $tikSearch, $option)
     {
+        if ($option['autorisation']['autoriser']) {
         //filtre selon l'agence emettteur
         if (!empty($tikSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('tki.agenceEmetteurId = :agEmet')
@@ -115,6 +125,18 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             $queryBuilder->andWhere('tki.serviceEmetteurId = :agServEmet')
             ->setParameter('agServEmet', $tikSearch->getServiceEmetteur()->getId());
         }
+    } else {
+        //filtre selon l'agence emettteur
+        if (!empty($tikSearch->getAgenceEmetteur())) {
+            $queryBuilder->andWhere('tki.agenceEmetteurId = :agEmet')
+            ->setParameter('agEmet',  $option['idAgence']);
+        }
+        //filtre selon le service emetteur
+        if (!empty($tikSearch->getServiceEmetteur())) {
+            $queryBuilder->andWhere('tki.serviceEmetteurId = :agServEmet')
+            ->setParameter('agServEmet', $option['idService']);
+        }
+    }
     }
 
     private function agenceServiceDebiteur($queryBuilder, $tikSearch)
