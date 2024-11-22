@@ -15,27 +15,15 @@ class TkiCommentairesType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('numeroTicket', TextType::class, [
-                'label' => 'Numéro de Ticket',
-            ])
-            ->add('nomUtilisateur', TextType::class, [
-                'label' => 'Nom de l\'Utilisateur',
-            ])
             ->add('commentaires', TextareaType::class, [
-                'label' => 'Commentaires',
+                'label' => false,
+                'attr'  => [
+                    'placeholder' => 'Entrer votre commentaire ici',
+                    'minlength'   => '1',
+                    'maxlength'   => '1500'
+                ]
             ])
-            ->add('piecesJointes1', FileType::class, [
-                'label' => 'Pièce Jointe 1',
-                'required' => false,
-            ])
-            ->add('piecesJointes2', FileType::class, [
-                'label' => 'Pièce Jointe 2',
-                'required' => false,
-            ])
-            ->add('piecesJointes3', FileType::class, [
-                'label' => 'Pièce Jointe 3',
-                'required' => false,
-            ]);
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
