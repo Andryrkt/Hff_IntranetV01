@@ -125,6 +125,10 @@ class DetailTikController extends Controller
             $formCommentaire->handleRequest($request);
             
             if ($request->request->has('commenter') && $formCommentaire->isSubmitted() && $formCommentaire->isValid()) {
+                $commentaire
+                    ->setUtilisateur($connectedUser)
+                    ->setDemandeSupportInformatique($supportInfo)
+                ;
                 //envoi les donnée dans la base de donnée
                 self::$em->persist($commentaire);
                 self::$em->flush();
@@ -143,7 +147,7 @@ class DetailTikController extends Controller
                 'commentaires' => self::$em->getRepository(TkiCommentaires::class)
                                            ->findBy(
                                                 ['numeroTicket' =>$supportInfo->getNumeroTicket()],
-                                                ['dateCreation' => 'DESC']
+                                                ['dateCreation' => 'ASC']
                                             ),
                 'historiqueStatut' => self::$em->getRepository(TkiStatutTicketInformatique::class)
                                                ->findBy(
