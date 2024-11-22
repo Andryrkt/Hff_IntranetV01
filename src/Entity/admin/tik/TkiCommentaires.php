@@ -71,6 +71,11 @@ class TkiCommentaires
      */
     private ?string $fichiers_detail;
 
+    public function __construct($numeroTicket = '', $nomUtilisateur = '') {
+        $this->numeroTicket   = $numeroTicket;
+        $this->nomUtilisateur = $nomUtilisateur;
+    }
+
     /**=====================================================================================
      * 
      * GETTERS and SETTERS
