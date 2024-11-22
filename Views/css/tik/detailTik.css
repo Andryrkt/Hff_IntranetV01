@@ -69,6 +69,11 @@
     justify-content: flex-end;
     overflow:hidden;
 }
+.conversation .header-time {
+    align-self: center;
+    font-size: 0.6rem !important;
+    color: #6c757d;
+}
 .talk {
     color: #f1f1f1;
     display: flex;
@@ -176,7 +181,8 @@
     resize: none;
     border: none;
     outline: none;
-    border-radius: 9999px;
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
     padding-left: 10px;
     font-size: 16px;
     width: 100%;
@@ -185,7 +191,7 @@
 }
 
 .submit-msg-btn {
-    background: #fff;
+    background: #ffc107;
     border-top-right-radius: 25px;
     border-bottom-right-radius: 25px;
     width: 40px;
