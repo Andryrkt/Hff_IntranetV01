@@ -72,7 +72,6 @@ class MagasinListeOrATraiterModel extends Model
     {
         $statement = " SELECT
                             min(sitv_datepla) as datePlanning2 
-
                         from sav_itv 
                         where sitv_numor = '".$numOr."'
                         group by sitv_numor
@@ -129,7 +128,7 @@ class MagasinListeOrATraiterModel extends Model
             where 
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
-            and slor_succ = '01'
+            -- and slor_succ in ('01', '50')
             and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
             $agenceUser
             $designation
@@ -168,7 +167,7 @@ class MagasinListeOrATraiterModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            -- and slor_succ in ('01', '50')
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -236,7 +235,6 @@ class MagasinListeOrATraiterModel extends Model
             where 
             slor_soc = 'HF'
 
-            and slor_succ = '01'
             and slor_desi like '%" . $designations . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -263,7 +261,7 @@ class MagasinListeOrATraiterModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+
             and slor_refp like '%" . $refPiece . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
