@@ -133,14 +133,12 @@ class DetailTikType extends AbstractType
                 'expanded'     => false,
             ])
             ->add('commentaires', TextareaType::class, [
-                'label'    => 'Observation D.T **',
+                'label'    => 'Observation concernant le ticket',
                 'required' => true,
                 'attr'     => [
-                    'rows'     => 5,
-                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())  
+                    'rows'     => 5
                 ],
-                'mapped'   => false,
-                'help'     => "**: requis seulement pour le cas de refus"
+                'mapped'   => false
             ])
         ;   
     }
