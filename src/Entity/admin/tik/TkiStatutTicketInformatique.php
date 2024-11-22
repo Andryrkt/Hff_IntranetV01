@@ -122,7 +122,8 @@ class TkiStatutTicketInformatique
      */
     public function onPrePersist(): void
     {
-        $this->dateStatut = new \DateTime('now');
+        $timezone = new \DateTimeZone('Indian/Antananarivo');
+        $this->dateStatut = new \DateTime('now', $timezone);
     }
 
     /**
