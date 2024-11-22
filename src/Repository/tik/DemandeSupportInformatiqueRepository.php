@@ -14,30 +14,16 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             ->leftJoin('tki.niveauUrgence', 'nu')
             ;
 
-            //filtre pour le niveau d'urgence
-        if (!empty($tikSearch->getNiveauUrgence())) {
-            $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                ->setParameter('niveauUrgence', '%' . $tikSearch->getNiveauUrgence() . '%');
-        }
-
-        //filtre selon le statut
-        if (!empty($tikSearch->getStatut())) {
-            $queryBuilder->andWhere('tki.idStatutDemande = :idStatut')
-            ->setParameter('idStatut',  $tikSearch->getStatut()->getId());
-        }
-
-        //filtrer selon le nom d'intervenant
-        if(!empty($tikSearch->getNomIntervenant())) {
-            $queryBuilder->andWhere('tki.nomIntervenant = :interv')
-            ->setParameter('interv', $tikSearch->getNomIntervenant());
-        }
-
+        
+        $this->conditionListeDeChoix($queryBuilder, $tikSearch);
         $this->conditionSaisieLibre($queryBuilder, $tikSearch);
         $this->dateFinDebut($queryBuilder, $tikSearch);
         $this->agenceServiceEmetteur($queryBuilder, $tikSearch);
         $this->agenceServiceDebiteur($queryBuilder, $tikSearch);
         $this->conditionCategorie($queryBuilder, $tikSearch);
         
+
+
         $queryBuilder->orderBy('tki.dateCreation', 'DESC');
 
         $queryBuilder->setFirstResult(($page - 1) * $limit)
@@ -58,6 +44,27 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             'currentPage' => $page,
             'lastPage' => $lastPage,
         ];
+    }
+
+    private function conditionListeDeChoix($queryBuilder, $tikSearch)
+    {
+            //filtre pour le niveau d'urgence
+            if (!empty($tikSearch->getNiveauUrgence())) {
+                $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
+                    ->setParameter('niveauUrgence', '%' . $tikSearch->getNiveauUrgence() . '%');
+            }
+    
+            //filtre selon le statut
+            if (!empty($tikSearch->getStatut())) {
+                $queryBuilder->andWhere('tki.idStatutDemande = :idStatut')
+                ->setParameter('idStatut',  $tikSearch->getStatut()->getId());
+            }
+    
+            //filtrer selon le nom d'intervenant
+            if(!empty($tikSearch->getNomIntervenant())) {
+                $queryBuilder->andWhere('tki.nomIntervenant = :interv')
+                ->setParameter('interv', $tikSearch->getNomIntervenant());
+            }
     }
 
     private function conditionSaisieLibre($queryBuilder, $tikSearch)
