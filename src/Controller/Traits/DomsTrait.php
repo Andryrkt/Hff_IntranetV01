@@ -458,24 +458,24 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
     {
         $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
 
-        $trouve = false; // Variable pour indiquer si la date est trouvée
-
-        // Parcourir chaque élément du tableau
+        if (empty($Dates)) {
+            return false; // Pas de périodes dans la base
+        }
+    
+        // Convertir les dates d'entrée si elles sont en chaînes
+        $dateDebutInputObj = $dateDebutInput instanceof DateTime ? $dateDebutInput : new DateTime($dateDebutInput);
+        $dateFinInputObj = $dateFinInput instanceof DateTime ? $dateFinInput : new DateTime($dateFinInput);
+    
         foreach ($Dates as $periode) {
-            // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']);//date dans la base de donner
-            $dateFin = new DateTime($periode['Date_Fin']);//date dans la base de donner
-            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
-            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
-        
-            // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
-            if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables
-                $trouve = true;
-                
-                return $trouve;
+            $dateDebut = new DateTime($periode['Date_Debut']); // Date dans la base
+            $dateFin = new DateTime($periode['Date_Fin']); // Date dans la base
+    
+            // Vérifier si les périodes se chevauchent
+            if ($dateDebutInputObj <= $dateFin && $dateFinInputObj >= $dateDebut) {
+                return true; // Dates se chevauchent
             }
         }
-        // Vérifier si aucune correspondance n'est trouvée
-        return $trouve;
+    
+        return false; // Pas de chevauchement
     }
 }
