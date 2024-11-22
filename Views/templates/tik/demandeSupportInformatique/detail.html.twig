@@ -101,7 +101,7 @@
 									{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 									{% for fileName in tik.fileNames %}
-										{{ macroForm.affichageFile('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
+										{{ macroForm.affichageFileDownload('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
 									{% endfor %}
 
 									{# FIN Pièces Jointes #}
