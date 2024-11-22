@@ -149,6 +149,11 @@ class User implements UserInterface
      */
     private $supportInfoIntervenant;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
+     */
+    private $supportInfoValidateur;
+
     //=================================================================================================================================
 
     public function __construct()
