@@ -1,6 +1,6 @@
 
 /* Core styles/functionality */
-  .card-body input {
+  #historiqueStatut {
     position: absolute;
     opacity: 0;
     z-index: -1;

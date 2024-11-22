@@ -53,7 +53,7 @@
 											{{ macroForm.affichage('Date de création', tik.dateCreation|date('d/m/Y')) }}
 										</div>
 										<div class="col-12 col-md-4">
-											{{ macroForm.affichage('Date souhaitée de livraison', tik.dateFinSouhaitee|date('d/m/Y')) }}
+											{{ macroForm.affichage('Date de livraison', tik.dateFinSouhaitee|date('d/m/Y')) }}
 										</div>
 									</div>
 									{# FIN TKI #}
@@ -65,7 +65,7 @@
 											{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
 										</div>
 										<div class="col-12 col-md-4">
-											{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur) }}
+											{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur, 'emailDemandeur') }}
 										</div>
 										<div class="col-12 col-md-4">
 											{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
@@ -100,11 +100,10 @@
 									{# DEBUT Pièces Jointes #}
 									{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
-									{{ macroForm.affichageFile('Pièce jointe 01', tik.pieceJoint01)}}
+									{% for fileName in tik.fileNames %}
+										{{ macroForm.affichageFile('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
+									{% endfor %}
 
-									{{ macroForm.affichageFile('Pièce jointe 02', tik.pieceJoint02)}}
-
-									{{ macroForm.affichageFile('Pièce jointe 03', tik.pieceJoint03)}}
 									{# FIN Pièces Jointes #}
 								</div>
 								{# FIN COLONNE 2 #}
@@ -165,7 +164,7 @@
 											Valider
 										</button>
 
-									{% else %}
+									{% elseif intervenant %}
 
 										{# BOUTONS POUR INTERVENANT #}
 										<button type="submit" class="btn bouton" name="resolu" id="btn_resolu">
@@ -195,7 +194,7 @@
 			<div class="col-3">
 				{{ include('tik/demandeSupportInformatique/shared/_statutTicket.html.twig', { items: historiqueStatut }) }}
 
-				{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser }) }}
+				{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser, formCommentaire: formCommentaire }) }}
 						
 			</div>
 		</div>
@@ -210,4 +209,17 @@
 	{% else %}
 		<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
 	{% endif %}
+	<script>
+		const div = document.getElementById('emailDemandeur');
+		const originalText = div.textContent;
+
+		// Vérifie si le texte dépasse
+		if (div.scrollWidth > div.clientWidth) {
+			let truncatedText = originalText;
+			while (div.scrollWidth > div.clientWidth) {
+				truncatedText = truncatedText.slice(0, -1); // Retire un caractère
+				div.textContent = truncatedText + '...'; // Ajoute les points de suspension
+			}
+		}
+	</script>
 {% endblock %}
