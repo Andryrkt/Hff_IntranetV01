@@ -36,16 +36,19 @@
 		</div>
 	{% endif %}
 
-	{{ form_start(formCommentaire, {'attr': {'class': 'chat-form'}}) }}
-			<div class="container-inputs-stuffs">
-				<div class="group-inp">
-					{{ form_widget(formCommentaire.commentaires) }}
+	{% if canComment %}
+		{{ form_start(form, {'attr': {'class': 'chat-form'}}) }}
+				<div class="container-inputs-stuffs">
+					<div class="group-inp">
+						{{ form_widget(form.commentaires) }}
+					</div>
+					<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" aria-label="Ajouter des fichiers" data-bs-original-title="Ajouter des fichiers"></i>
+					<button class="submit-msg-btn" name="commenter" id="btn_commenter">
+						<i class="fas fa-paper-plane"></i>
+					</button>
 				</div>
-				<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" aria-label="Ajouter des fichiers" data-bs-original-title="Ajouter des fichiers"></i>
-				<button class="submit-msg-btn" name="commenter" id="btn_commenter">
-					<i class="fas fa-paper-plane"></i>
-				</button>
-			</div>
-	{{ form_end(formCommentaire) }}
+		{{ form_end(form) }}
+	{% endif %}
+	
 	</div>
 </div>
