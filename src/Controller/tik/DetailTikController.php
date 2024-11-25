@@ -74,7 +74,7 @@ class DetailTikController extends Controller
                         $this->historiqueStatut($supportInfo, $button['statut']); // historisation du statut
 
                         // Envoi email refus
-                        $variableEmail = $this->donneeEmail($supportInfo, $form->get('commentaires')->getData(), $connectedUser);
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
                         
                         $this->confirmerEnvoiEmail($this->emailRefuse($variableEmail));
 
@@ -96,7 +96,7 @@ class DetailTikController extends Controller
                         $intervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
 
                         // Envoi email validation
-                        $variableEmail = $this->donneeEmail($supportInfo, 'Intervenant affecté: '.$intervenant, $connectedUser);
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $intervenant);
                         
                         $this->confirmerEnvoiEmail($this->emailValide($variableEmail));
         
@@ -132,8 +132,6 @@ class DetailTikController extends Controller
                 //envoi les donnée dans la base de donnée
                 self::$em->persist($commentaire);
                 self::$em->flush();
-
-                $this->redirectToRoute("liste_tik_index");
             }
 
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
@@ -201,16 +199,16 @@ class DetailTikController extends Controller
         self::$em->flush();
     }
 
-    private function donneeEmail(DemandeSupportInformatique $tik, string $observation, User $userConnecter) : array
+    private function donneeEmail(DemandeSupportInformatique $tik, User $userConnecter, $variable = '') : array
     {
         return [
+            'id'                 => $tik->getId(),
+            'numTik'             => $tik->getNumeroTicket(),
             'emailUserDemandeur' => $tik->getMailDemandeur(),
             'emailIntervenant'   => $tik->getMailIntervenant(),
+            'variable'           => $variable,
+            'validateur'         => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
             'template'           => 'tik/email/emailTik.html.twig',
-            'numTik'             => $tik->getNumeroTicket(),
-            'id'                 => $tik->getId(),
-            'observation'        => $observation,
-            'validateur'         => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
         ];
     }
 
@@ -220,9 +218,9 @@ class DetailTikController extends Controller
             'to'        => $tab['emailUserDemandeur'],
             'template'  => $tab['template'],
             'variables' => [
-                'subject'     => "DEMANDE DE SUPPORT INFORMATIQUE REFUSEE ({$tab['numTik']})",
-                'message'     => "La demande de support informatique <b>{$tab['numTik']}</b> a été réfusée par <b>{$tab['validateur']}</b>.",
-                'observation' => $tab['observation'],
+                'statut'      => "refuse",
+                'subject'     => "{$tab['numTik']} - Ticket refusé",
+                'tab'         => $tab,
                 'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
             ]
         ];
@@ -235,9 +233,9 @@ class DetailTikController extends Controller
             'cc'        => [$tab['emailIntervenant']],
             'template'  => $tab['template'],
             'variables' => [ 
-                'subject'     => "DEMANDE DE SUPPORT INFORMATIQUE VALIDEE ({$tab['numTik']})",
-                'message'     => "La demande de support informatique <b>{$tab['numTik']}</b> a été validée par <b>{$tab['validateur']}</b>.",
-                'observation' => $tab['observation'],
+                'statut'      => "valide",
+                'subject'     => "{$tab['numTik']} - Ticket validé",
+                'tab'         => $tab,
                 'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
             ]
         ];

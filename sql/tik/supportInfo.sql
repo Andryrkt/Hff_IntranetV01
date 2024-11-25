@@ -73,3 +73,11 @@ ADD ID_Intervenant INT;
 ALTER TABLE Demande_Support_Informatique
 ADD CONSTRAINT FK_User_Intervenant
 FOREIGN KEY (ID_Intervenant) REFERENCES users (id);
+
+
+ALTER TABLE Demande_Support_Informatique
+ADD ID_Validateur INT;
+
+ALTER TABLE Demande_Support_Informatique
+ADD CONSTRAINT FK_User_Validateur
+FOREIGN KEY (ID_Validateur) REFERENCES users (id);

@@ -97,6 +97,12 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
      */
     private User $intervenant;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoValidateur")
+     * @ORM\JoinColumn(nullable=true, name="ID_Validateur", referencedColumnName="id")
+     */
+    private User $validateur;
 
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")

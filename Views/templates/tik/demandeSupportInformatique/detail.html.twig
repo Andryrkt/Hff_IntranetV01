@@ -82,26 +82,33 @@
 								{# FIN COLONNE 1 #}
 
 								{# DEBUT COLONNE 2 #}
-								<div
-									class="col-12 col-md-6">
-
-									{# DEBUT Agence et service #}
-									{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+								<div 	class="col-12 col-md-6">
 									<div class="row">
-										<div class="col-12 col-md-6">
-											{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
+										<div class="col-12 col-md-3">
+											{{ macroForm.sousTitre('Société', {class: 'sousTitre'})}}
+
+											{{ macroForm.affichage('Code société', tik.codeSociete)}}
 										</div>
-										<div class="col-12 col-md-6">
-											{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
+										<div class="col-12 col-md-9">
+											{# DEBUT Agence et service #}
+											{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+											<div class="row">
+												<div class="col-12 col-md-6">
+													{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
+												</div>
+												<div class="col-12 col-md-6">
+													{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
+												</div>
+											</div>
+											{# FIN Agence et service #}
 										</div>
 									</div>
-									{# FIN Agence et service #}
 
 									{# DEBUT Pièces Jointes #}
 									{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
 
 									{% for fileName in tik.fileNames %}
-										{{ macroForm.affichageFile('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
+										{{ macroForm.affichageFileDownload('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
 									{% endfor %}
 
 									{# FIN Pièces Jointes #}
