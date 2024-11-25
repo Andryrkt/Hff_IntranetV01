@@ -12,6 +12,7 @@ use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
 use Dotenv\Parser\Entry;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -154,6 +155,51 @@ class PlanningController extends Controller
                 $this->excelService->createSpreadsheet($data);
     }
 
+
+
+    
+    /**
+     * @Route("/export_excel_planning01", name= "export_planning01")
+     */
+    public function exportExcel01(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
+        $criteria = $this->sessionService->get('planning_search_criteria');
+
+        $planningSearch = $this->creationObjetCriteria($criteria);
+        
+        $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+
+        $data = $this->planningModel->exportExcelPlanning($planningSearch,$lesOrvalides);
+
+        
+        $tabObjetPlanning = $this->creationTableauObjetExport($data);
+       
+        
+
+                // Convertir les entités en tableau de données
+                $data = [];
+                $data[] = ['Agence\Service','N°OR-Itv', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Mois planning','Statut IPS','COMMENTAIRE ICI','ACTION']; // En-têtes des colonnes
+                foreach ($tabObjetPlanning as $entity) {
+                    $data[] = [
+                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                        $entity->getOrIntv(),
+                        $entity->getIdMat(),
+                        $entity->getMarqueMat(),
+                        $entity->getTypeMat(),
+                        $entity->getnumSerie(),
+                        $entity->getnumParc(),
+                        $entity->getCasier(),
+                        $entity->getMois(),
+                        $entity->getPos()
+                        
+                    ];
+                }
+                
+                $this->excelService->createSpreadsheet($data);
+    }
+
     private function creationObjetCriteria(array $criteria): PlanningSearch
     {
         //crée une objet à partir du tableau critère reçu par la session
@@ -172,9 +218,42 @@ class PlanningController extends Controller
             ->setAgenceDebite($criteria["agenceDebite"])
             ->setServiceDebite($criteria["serviceDebite"])
             ->setTypeligne($criteria["typeligne"])  
+            
         ;
 
         return $this->planningSearch;
+    }
+
+    private function creationTableauObjetExport(array $data):array{
+
+         $objetPlanning = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item ) {
+            $planningMateriel = new PlanningMateriel();
+          
+            
+            //initialisation
+                $planningMateriel
+                    ->setCodeSuc($item['codesuc'])
+                    ->setLibSuc($item['libsuc'])
+                    ->setCodeServ($item['codeserv'])
+                    ->setLibServ($item['libserv'])
+                    ->setIdMat($item['idmat'])
+                    ->setMarqueMat($item['markmat'])
+                    ->setTypeMat($item['typemat'])
+                    ->setNumSerie($item['numserie'])
+                    ->setNumParc($item['numparc'])
+                    ->setCasier($item['casier'])
+                    ->setAnnee($item['annee'])
+                    ->setMois($item['mois'])
+                    ->setPos($item['slor_pos'])
+                    ->setOrIntv($item['orintv'])
+                    
+                ;
+                $objetPlanning[] = $planningMateriel;
+        }
+       
+        return $objetPlanning;
     }
 
     private function creationTableauObjetPlanning(array $data): array
