@@ -111,6 +111,8 @@ class DetailTikController extends Controller
 
                     case 'valider':
                         $supportInfo
+                            ->setIntervenant($dataForm->getIntervenant())
+                            ->setValidateur($connectedUser)
                             ->setNomIntervenant($dataForm->getIntervenant()->getNomUtilisateur())
                             ->setMailIntervenant($dataForm->getIntervenant()->getMail())
                             ->setIdStatutDemande($button['statut'])    // statut en cours
@@ -168,6 +170,7 @@ class DetailTikController extends Controller
                 'form'              => $form->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),
                 'canComment'        => $canComment,
+                'statutOuvert'      => $supportInfo->getIdStatutDemande()->getId() == 79,
                 'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
                 'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
                 'intervenant'       => ($supportInfo->getIdStatutDemande()->getId() == 81) && ($supportInfo->getIntervenant()->getId()==$connectedUser->getId()),  // statut en cours et l'utilisateur connecté est l'intervenant
