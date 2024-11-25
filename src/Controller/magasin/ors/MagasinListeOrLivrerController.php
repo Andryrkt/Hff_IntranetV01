@@ -69,7 +69,6 @@ class MagasinListeOrLivrerController extends Controller
         } 
 
         $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
-
             $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
     
             //enregistrer les critère de recherche dans la session

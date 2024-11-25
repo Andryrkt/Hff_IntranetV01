@@ -80,7 +80,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
+                            -- AND slor_succ = '01'
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -113,7 +113,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
+                            -- AND slor_succ = '01'
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -146,7 +146,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
+                            -- AND slor_succ = '01'
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -224,7 +224,7 @@ class MagasinListeOrLivrerModel extends Model
 
                         where slor_soc = 'HF'
                         and slor_typlig = 'P'
-                        and slor_succ = '01'
+                        -- and slor_succ in ('01', '50')
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
@@ -247,6 +247,7 @@ class MagasinListeOrLivrerModel extends Model
                             seor_numor asc, 
                             slor_nolign asc
         ";
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -266,7 +267,7 @@ class MagasinListeOrLivrerModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            -- and slor_succ in ('01', '50')
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -335,7 +336,6 @@ class MagasinListeOrLivrerModel extends Model
             where 
             slor_soc = 'HF'
 
-            and slor_succ = '01'
             and slor_desi like '%" . $designations . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -362,7 +362,6 @@ class MagasinListeOrLivrerModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
             and slor_refp like '%" . $refPiece . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -427,7 +426,7 @@ public function agence()
                         FROM sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        --AND slor_succdeb IN ('01','50')
+                        AND slor_succdeb IN ('01','50')
                     ";
 
         $result = $this->connect->executeQuery($statement);
