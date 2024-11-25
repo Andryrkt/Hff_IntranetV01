@@ -7,19 +7,37 @@ document.addEventListener("DOMContentLoaded", function () {
   const validerBtn       = document.querySelector("#btn_valider");
   const refuserBtn       = document.querySelector("#btn_refuser");
 
-  refuserBtn.addEventListener("click", function () {
-    tikCategorie.removeAttribute("required");
-    tikNiveauUrgence.removeAttribute("required");
-    tikIntervenant.removeAttribute("required");
-    tikCommentaires.setAttribute("required", "required");
-  });
+  if (refuserBtn !== null) {
+    refuserBtn.addEventListener("click", function () {
+      tikCategorie.removeAttribute("required");
+      tikNiveauUrgence.removeAttribute("required");
+      tikIntervenant.removeAttribute("required");
+      tikCommentaires.setAttribute("required", "required");
+    });
+  }
+  if (validerBtn !== null) {
+    validerBtn.addEventListener("click", function () {
+      tikCategorie.setAttribute("required", "required");
+      tikNiveauUrgence.setAttribute("required", "required");
+      tikIntervenant.setAttribute("required", "required");
+      tikCommentaires.removeAttribute("required");
+    });
+  }
+  
+  function toggleFormDisabled(formId) {
+    const form = document.getElementById(formId);
+    const isDisabled = form.getAttribute('disabledEdit'); 
 
-  validerBtn.addEventListener("click", function () {
-    tikCategorie.setAttribute("required", "required");
-    tikNiveauUrgence.setAttribute("required", "required");
-    tikIntervenant.setAttribute("required", "required");
-    tikCommentaires.removeAttribute("required");
-  });
+    if (form) {
+        Array.from(form.elements).forEach((element) => {
+          if (isDisabled == 'true') {
+            element.disabled = isDisabled;
+          }
+        });
+    }
+  }
+
+  toggleFormDisabled('formTik');
 });
 
 /**
