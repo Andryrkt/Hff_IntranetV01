@@ -3,57 +3,66 @@
 namespace App\Api\tik;
 
 use App\Controller\Controller;
+use App\Entity\tik\TkiPlanning;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CategorieApi extends Controller
+class CalendarApi extends Controller
 {
     /**
-     * @Route("/api/tik/calendar-fetch", name="calendar-fetch")
-     *
-     * @return void
+     * @Route("/api/tik/calendar-fetch", name="calendar-fetch", methods={"GET", "POST"})
      */
-    public function calendar()
+    public function calendar(Request $request): JsonResponse
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Récupération des événements
-            $stmt = $pdo->query('SELECT * FROM events');
-            $events = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $events[] = [
-                    'id' => $row['id'],
-                    'title' => $row['title'],
-                    'start' => $row['start'],
-                    'end' => $row['end']
+        // Vérifier si c'est une méthode GET
+        if ($request->isMethod('GET')) {
+            // Récupération des événements depuis la base de données
+            $events = self::$em->getRepository(TkiPlanning::class)->findAll();
+
+            // Transformation des données en tableau JSON
+            $eventData = [];
+            foreach ($events as $event) {
+                $eventData[] = [
+                    'id' => $event->getId(),
+                    'title' => $event->getObjetDemande(),
+                    'description' => $event->getDetailDemande(),
+                    'start' => $event->getDateDebutPlanning()->format('Y-m-d H:i:s'),
+                    'end' => $event->getDateFinPlanning()->format('Y-m-d H:i:s'),
                 ];
             }
-        
-            $stmt = $pdo->query('SELECT * FROM ticketing');
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $events[] = [
-                    'id' => $row['id'],
-                    'title' => $row['title'],
-                    'start' => $row['start'],
-                    'end' => $row['end']
-                ];
-            }
-        
-            echo json_encode($events);
-        
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Création d'un nouvel événement
-            $data = json_decode(file_get_contents('php://input'), true);
-        
-            if (isset($data['title'], $data['start'], $data['end'])) {
-                $stmt = $pdo->prepare('INSERT INTO events (title, start, end) VALUES (:title, :start, :end)');
-                $stmt->execute([
-                    ':title' => $data['title'],
-                    ':start' => $data['start'],
-                    ':end' => $data['end']
-                ]);
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Invalid data']);
-            }
+
+            // Retourner les données en JSON
+            return new JsonResponse($eventData);
         }
+
+        // Vérifier si c'est une méthode POST
+        if ($request->isMethod('POST')) {
+            // Récupérer les données JSON envoyées
+            $data = json_decode($request->getContent(), true);
+
+            // Validation des données
+            if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
+                // Création de l'événement
+                $event = new TkiPlanning();
+                $event->setObjetDemande($data['title']);
+                $event->setDetailDemande($data['description']);
+                $event->setDateDebutPlanning(new \DateTime($data['start']));
+                $event->setDateFinPlanning(new \DateTime($data['end']));
+
+                // Sauvegarde dans la base de données
+                $entityManager = self::$em;
+                $entityManager->persist($event);
+                $entityManager->flush();
+
+                return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
+            }
+
+            // Retourner une erreur si les données sont invalides
+            return new JsonResponse(['error' => 'Invalid data'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Retourner une erreur si la méthode n'est pas autorisée
+        return new JsonResponse(['error' => 'Method not allowed'], JsonResponse::HTTP_METHOD_NOT_ALLOWED);
     }
 }

@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
       day: "Jour",
       list: "Planning",
     },
-    events: "/agendat/api.php",
+    events: "/Hffintranet/api/tik/calendar-fetch",
     editable: true,
     selectable: true,
     select: function (info) {
@@ -44,13 +44,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const start = document.getElementById("calendar_dateDebutPlanning").value;
     const end = document.getElementById("calendar_dateFinPlanning").value;
 
-    fetch("/agendat/api.php", {
+    fetch("/Hffintranet/api/tik/calendar-fetch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, description, start, end }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        response.json();
+      })
       .then((data) => {
+        console.log(data);
+
         if (data.success) {
           alert("Événement ajouté avec succès !");
           calendar.refetchEvents();

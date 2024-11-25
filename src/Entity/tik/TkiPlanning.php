@@ -5,6 +5,7 @@ namespace App\Entity\tik;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use App\Repository\tik\TkiPlanningRepository;
 use App\Entity\tik\DemandeSupportInformatique;
 
 /**
@@ -51,7 +52,7 @@ class TkiPlanning
 
     /**
      * @ORM\OneToOne(targetEntity=DemandeSupportInformatique::class, inversedBy="planning", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(name="demande_id", referencedColumnName="ID_Demande_Support_Informatique", nullable=true)
      */
     private $demandeId;
 
