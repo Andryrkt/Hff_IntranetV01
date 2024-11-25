@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Controller\tik;
+
+use App\Controller\Controller;
+use App\Form\tik\CalendarType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+class CalendarPlanningController extends Controller
+{
+    /**
+     * @Route("/tik-calendar-planning", name="tik_calendar_planning")
+     */
+    public function calendar(Request $request)
+    {
+
+        $form = self::$validator->createBuilder(CalendarType::class)->getForm();
+        self::$twig->display('tik/planning/calendar.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+}
