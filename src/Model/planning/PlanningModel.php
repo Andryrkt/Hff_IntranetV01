@@ -207,7 +207,99 @@ class PlanningModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
   }
-    
+
+  public function exportExcelPlanning($criteria, $lesOrValides){
+    if(!empty($lesOrValides)){
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+    }else{
+      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+    }
+
+    $vligneType = $this->typeLigne($criteria);  
+    $vPiecesSum = $this->sumPieces($criteria);
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+
+                  $statement = " SELECT
+                      trim(seor_succ) as codeSuc, 
+                      trim(asuc_lib) as libSuc, 
+                      trim(seor_servcrt) as codeServ, 
+                      trim(ser.atab_lib) as libServ, 
+                      
+                      mmat_nummat as idMat,
+                      trim(mmat_marqmat) as markMat,
+                      trim(mmat_typmat) as typeMat ,
+                      trim(mmat_numserie) as numSerie,
+                      trim(mmat_recalph) as numParc,
+                      trim(mmat_numparc) as casier,
+                      $vYearsStatutPlan as annee,
+                      $vMonthStatutPlan as mois,
+                      seor_numor ||'-'||sitv_interv as orIntv,
+
+                      (  SELECT SUM( CASE WHEN slor_typlig = 'P' AND slor_constp NOT like '%ZDI%' THEN
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                                          ELSE slor_qterea END )
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vPiecesSum ) as QteCdm,
+                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vPiecesSum ) as QtLiv,
+                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vPiecesSum ) as QteALL
+
+                    FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+                    WHERE seor_numor = slor_numor
+                    AND seor_serv <> 'DEV'
+                    AND sitv_numor = slor_numor 
+                    AND sitv_interv = slor_nogrp/100
+                    AND (seor_succ = asuc_num) -- OR mmat_succ = asuc_parc)
+                    AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                    AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+                    AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+                    $vStatutFacture
+                    AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6')
+                    AND (seor_nummat = mmat_nummat)
+                    AND slor_constp NOT like '%ZDI%'
+                    $vOrvalDw
+                    $vligneType
+
+                    AND $vYearsStatutPlan = $annee
+                    $vConditionNoPlanning 
+                    $agence
+                    $vStatutInterneExterne
+                    $agenceDebite
+                    $serviceDebite
+                    $vDateDMonthPlan
+                    $vDateFMonthPlan
+                    $vconditionNumParc
+                    $vconditionIdMat
+                    $vconditionNumOr
+                    $vconditionNumSerie
+                    $vconditionCasier
+                    $vsection 
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+		                order by 1,5  ";      
+
+        
+        $result = $this->connect->executeQuery($statement);
+                  dd($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+
+  }
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
     if(!empty($criteria['typeligne'])){
         switch($criteria['typeligne']){

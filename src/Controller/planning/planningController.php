@@ -109,7 +109,7 @@ class PlanningController extends Controller
         
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
 
-        $data = $this->planningModel->recuperationMaterielplanifier($planningSearch,$lesOrvalides);
+        $data = $this->planningModel->exportExcelPlanning($planningSearch,$lesOrvalides);
 
         
         
