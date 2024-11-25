@@ -50,33 +50,31 @@ document.addEventListener("DOMContentLoaded", function () {
       body: JSON.stringify({ title, description, start, end }),
     })
       .then((response) => {
-        console.log(response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         response.json();
       })
       .then((data) => {
         console.log(data);
 
-        if (data.success) {
-          alert("Événement ajouté avec succès !");
-          calendar.refetchEvents();
+        alert("Événement ajouté avec succès !");
+        calendar.refetchEvents();
 
-          // Réinitialiser le formulaire et masquer le modal
-          document.getElementById("eventForm").reset();
-          const eventModal = bootstrap.Modal.getInstance(
-            document.getElementById("eventModal")
-          );
-          eventModal.hide();
-        } else {
-          alert("Erreur lors de l'ajout de l'événement.");
-        }
+        // Réinitialiser le formulaire et masquer le modal
+        document.getElementById("eventForm").reset();
+        const eventModal = bootstrap.Modal.getInstance(
+          document.getElementById("eventModal")
+        );
+        eventModal.hide();
       });
   });
 
   /*
 DATE de debut et date de fin
 */
-  flatpickr(".datetime-picker", {
-    enableTime: true,
-    dateFormat: "Y-m-d H:i",
-  });
+  // flatpickr(".datetime-picker", {
+  //   enableTime: true,
+  //   dateFormat: "Y-m-d H:i",
+  // });
 });

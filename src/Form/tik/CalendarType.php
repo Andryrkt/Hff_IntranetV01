@@ -27,21 +27,11 @@ class CalendarType extends AbstractType
             ->add('dateDebutPlanning', DateTimeType::class, [
                 'label' => 'Date de début',
                 'widget' => 'single_text',
-                'html5' => false, // Désactiver HTML5 pour utiliser un format personnalisé
-                'format' => 'dd-MM-yyyy HH:mm', // Format personnalisé
-                'attr' => [
-                    'class' => 'datetime-picker', // Ajout d'une classe pour un sélecteur personnalisé
-                ],
             ])
             ->add('dateFinPlanning', DateTimeType::class, [
                 'label' => 'Date de fin',
                 'widget' => 'single_text',
-                'html5' => false,
-                'format' => 'dd-MM-yyyy HH:mm',
-                'attr' => [
-                    'class' => 'datetime-picker',
-                ],
-            ]);            
+            ]);          
         ;
     }
 

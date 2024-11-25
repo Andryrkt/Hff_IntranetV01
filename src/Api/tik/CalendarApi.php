@@ -4,21 +4,27 @@ namespace App\Api\tik;
 
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CalendarApi extends Controller
 {
     /**
      * @Route("/api/tik/calendar-fetch", name="calendar-fetch", methods={"GET", "POST"})
      */
-    public function calendar(Request $request): JsonResponse
+    public function calendar(Request $request)
     {
+        header("Content-type: application/json");
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
+
+            $userId = $this->sessionService->get('user_id');
+            // $user = self::$em->getRepository(User::class)->find($userId);
+
             // Récupération des événements depuis la base de données
-            $events = self::$em->getRepository(TkiPlanning::class)->findAll();
+            $events = self::$em->getRepository(TkiPlanning::class)->findBy(['userId' => $userId]);
 
             // Transformation des données en tableau JSON
             $eventData = [];
@@ -32,8 +38,8 @@ class CalendarApi extends Controller
                 ];
             }
 
-            // Retourner les données en JSON
-            return new JsonResponse($eventData);
+            echo json_encode($eventData);
+            exit;
         }
 
         // Vérifier si c'est une méthode POST
@@ -43,26 +49,32 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
+                
+                $userId = $this->sessionService->get('user_id');
+                $user = self::$em->getRepository(User::class)->find($userId);
                 // Création de l'événement
                 $event = new TkiPlanning();
                 $event->setObjetDemande($data['title']);
                 $event->setDetailDemande($data['description']);
                 $event->setDateDebutPlanning(new \DateTime($data['start']));
                 $event->setDateFinPlanning(new \DateTime($data['end']));
+                $event->setUserId($user);
 
                 // Sauvegarde dans la base de données
                 $entityManager = self::$em;
                 $entityManager->persist($event);
                 $entityManager->flush();
 
-                return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
+                
+                echo json_encode(['success' => true]);
+                exit;
             }
 
-            // Retourner une erreur si les données sont invalides
-            return new JsonResponse(['error' => 'Invalid data'], JsonResponse::HTTP_BAD_REQUEST);
+            echo json_encode(['error' => 'Données invalides']);
+            exit;
         }
 
-        // Retourner une erreur si la méthode n'est pas autorisée
-        return new JsonResponse(['error' => 'Method not allowed'], JsonResponse::HTTP_METHOD_NOT_ALLOWED);
+        header("HTTP/1.1 405 Method Not Allowed");
+        echo json_encode(['error' => 'Méthode non autorisée']);
     }
 }
