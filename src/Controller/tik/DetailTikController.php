@@ -12,7 +12,6 @@ use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Service\EmailService;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,6 +31,36 @@ class DetailTikController extends Controller
          * @var User $connectedUser l'utilisateur connecté
          */
         $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+
+        /** 
+         * @var User $demandeur l'utilisateur qui a fait la demande de support info
+         */
+        $demandeur   = $supportInfo->getUserId();
+
+        /** 
+         * @var User $validateur l'utilisateur qui a validé ou refusé la demande
+         */
+        $validateur  = $supportInfo->getValidateur();
+
+        /** 
+         * @var User $intervenant l'utilisateur qui a été assigné à la demande
+         */
+        $intervenant = $supportInfo->getIntervenant();
+
+        /** 
+         * @var array $authorizedUsers les utilisateurs autorisés à commenter
+         */
+        $authorizedUsers = [ $demandeur->getId(), ];
+        
+        if ($validateur !== null)  { $authorizedUsers[] = $validateur->getId(); }
+        if ($intervenant !== null) { $authorizedUsers[] = $intervenant->getId();}
+
+        /** 
+         * Vérifie si l'utilisateur connecté peut commenter.
+         * 
+         * @var bool $canComment Indique si l'utilisateur connecté peut commenter ou non.
+         */
+        $canComment = in_array($connectedUser->getId(), $authorizedUsers, true);
 
         if (!$supportInfo) {
             self::$twig->display('404.html.twig');
@@ -93,10 +122,10 @@ class DetailTikController extends Controller
 
                         $this->historiqueStatut($supportInfo, $button['statut']);
 
-                        $intervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
+                        $nomPrenomIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
 
                         // Envoi email validation
-                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $intervenant);
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
                         
                         $this->confirmerEnvoiEmail($this->emailValide($variableEmail));
         
@@ -135,19 +164,20 @@ class DetailTikController extends Controller
             }
 
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
-                'tik'          => $supportInfo,
-                'form'         => $form->createView(),
-                'formCommentaire' => $formCommentaire->createView(),
-                'autoriser'    => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
-                'validateur'   => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
-                'intervenant'  => ($supportInfo->getIdStatutDemande()->getId() == 81) && ($supportInfo->getIntervenant()->getId()==$connectedUser->getId()),  // statut en cours et l'utilisateur connecté est l'intervenant
-                'connectedUser'=> $connectedUser,
-                'commentaires' => self::$em->getRepository(TkiCommentaires::class)
+                'tik'               => $supportInfo,
+                'form'              => $form->createView(),
+                'formCommentaire'   => $formCommentaire->createView(),
+                'canComment'        => $canComment,
+                'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
+                'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
+                'intervenant'       => ($supportInfo->getIdStatutDemande()->getId() == 81) && ($supportInfo->getIntervenant()->getId()==$connectedUser->getId()),  // statut en cours et l'utilisateur connecté est l'intervenant
+                'connectedUser'     => $connectedUser,
+                'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
                                            ->findBy(
                                                 ['numeroTicket' =>$supportInfo->getNumeroTicket()],
                                                 ['dateCreation' => 'ASC']
                                             ),
-                'historiqueStatut' => self::$em->getRepository(TkiStatutTicketInformatique::class)
+                'historiqueStatut'  => self::$em->getRepository(TkiStatutTicketInformatique::class)
                                                ->findBy(
                                                     ['numeroTicket'=>$supportInfo->getNumeroTicket()],
                                                     ['dateStatut'  => 'DESC']
