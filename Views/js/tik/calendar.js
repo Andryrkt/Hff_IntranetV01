@@ -19,8 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
     editable: true,
     selectable: true,
     select: function (info) {
-      document.getElementById("calendar_dateDebut").value = info.startStr;
-      document.getElementById("calendar_dateFin").value = info.endStr;
+      document.getElementById("calendar_dateDebutPlanning").value =
+        info.startStr;
+      document.getElementById("calendar_dateFinPlanning").value = info.endStr;
 
       // Afficher le modal
       const eventModal = new bootstrap.Modal(
@@ -38,10 +39,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("eventForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const title = document.getElementById("calendar_titre").value;
-    const description = document.getElementById("calendar_description").value;
-    const start = document.getElementById("calendar_dateDebut").value;
-    const end = document.getElementById("calendar_dateFin").value;
+    const title = document.getElementById("calendar_objetDemande").value;
+    const description = document.getElementById("calendar_detailDemande").value;
+    const start = document.getElementById("calendar_dateDebutPlanning").value;
+    const end = document.getElementById("calendar_dateFinPlanning").value;
 
     fetch("/agendat/api.php", {
       method: "POST",

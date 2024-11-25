@@ -14,8 +14,15 @@ class CalendarPlanningController extends Controller
      */
     public function calendar(Request $request)
     {
-
         $form = self::$validator->createBuilder(CalendarType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            dd($form->getData());
+        }
+        
         self::$twig->display('tik/planning/calendar.html.twig', [
             'form' => $form->createView()
         ]);

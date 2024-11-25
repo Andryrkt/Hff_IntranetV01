@@ -2,6 +2,7 @@
 
 namespace App\Form\tik;
 
+use App\Entity\tik\TkiPlanning;
 use DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,15 +16,15 @@ class CalendarType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('titre', TextType::class, [
+            ->add('objetDemande', TextType::class, [
                 'label' => 'Titre',
                 'required' => true,
             ])
-            ->add('description', TextareaType::class, [
+            ->add('detailDemande', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
             ])
-            ->add('dateDebut', DateTimeType::class, [
+            ->add('dateDebutPlanning', DateTimeType::class, [
                 'label' => 'Date de début',
                 'widget' => 'single_text',
                 'html5' => false, // Désactiver HTML5 pour utiliser un format personnalisé
@@ -32,7 +33,7 @@ class CalendarType extends AbstractType
                     'class' => 'datetime-picker', // Ajout d'une classe pour un sélecteur personnalisé
                 ],
             ])
-            ->add('dateFin', DateTimeType::class, [
+            ->add('dateFinPlanning', DateTimeType::class, [
                 'label' => 'Date de fin',
                 'widget' => 'single_text',
                 'html5' => false,
@@ -42,11 +43,12 @@ class CalendarType extends AbstractType
                 ],
             ]);            
         ;
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => TkiPlanning::class,
+        ]);
     }
 }
