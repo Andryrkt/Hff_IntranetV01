@@ -266,7 +266,6 @@ class MagasinListeOrLivrerModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -361,7 +360,6 @@ class MagasinListeOrLivrerModel extends Model
             
             where 
             slor_soc = 'HF'
-
             and slor_refp like '%" . $refPiece . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
