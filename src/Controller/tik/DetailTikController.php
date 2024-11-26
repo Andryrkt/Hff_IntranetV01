@@ -12,6 +12,7 @@ use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Service\EmailService;
+use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -160,9 +161,17 @@ class DetailTikController extends Controller
                     ->setUtilisateur($connectedUser)
                     ->setDemandeSupportInformatique($supportInfo)
                 ;
+                $this->traitementEtEnvoiDeFichier($formCommentaire, $commentaire);
+
                 //envoi les donnée dans la base de donnée
                 self::$em->persist($commentaire);
                 self::$em->flush();
+
+                $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
+
+                $this->confirmerEnvoiEmail($this->emailComment($variableEmail, $connectedUser->getMail()));
+                
+                $this->redirectToRoute("liste_tik_index");
             }
 
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
@@ -237,10 +246,11 @@ class DetailTikController extends Controller
         return [
             'id'                 => $tik->getId(),
             'numTik'             => $tik->getNumeroTicket(),
+            'emailValidateur'    => $tik->getValidateur() ? $tik->getValidateur()->getMail() : null,
             'emailUserDemandeur' => $tik->getMailDemandeur(),
-            'emailIntervenant'   => $tik->getMailIntervenant(),
+            'emailIntervenant'   => $tik->getMailIntervenant(),   
             'variable'           => $variable,
-            'validateur'         => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
+            'userConnecter'      => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
             'template'           => 'tik/email/emailTik.html.twig',
         ];
     }
@@ -274,6 +284,23 @@ class DetailTikController extends Controller
         ];
     }
 
+    private function emailComment($tab, $emailUserConnected): array
+    {
+        $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+        $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+        return [ 
+            'to'        => $cc[0],
+            'cc'        => $cc[1] ? null : [$cc[1]],
+            'template'  => $tab['template'],
+            'variables' => [ 
+                'statut'      => "comment",
+                'subject'     => "{$tab['numTik']} - Commentaire émis",
+                'tab'         => $tab,
+                'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
+            ]
+        ];
+    }
+
     /** 
      * fonction pour vérifier l'envoi du mail ou non 
      */
@@ -288,5 +315,41 @@ class DetailTikController extends Controller
         } else {
             $this->sessionService->set('notification',['type' => 'danger', 'message' => "l'email n'a pas été envoyé."]);
         }
+    }
+
+    /** 
+     * Fonction pour le traitement de fichier
+     */
+    private function traitementEtEnvoiDeFichier($form, TkiCommentaires $commentaire)
+    {
+        //TRAITEMENT FICHIER
+        $fileNames = [];
+        // Récupérez les fichiers uploadés depuis le formulaire
+        $files        = $form->get('fileNames')->getData();
+        $chemin       = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $fileUploader = new FileUploaderService($chemin);
+        if ($files) {
+            foreach ($files as $file) {
+                // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
+                $prefix   = $commentaire->getNumeroTicket().'_commentaire_';
+                $fileName = $fileUploader->upload($file, $prefix);
+                // Obtenir la taille du fichier dans l'emplacement final
+                $filePath = $chemin . '/' . $fileName;
+                $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
+                if (file_exists($filePath)) {
+                    $fileSize = round(filesize($filePath) / 1024, 2);
+                } else {
+                    $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
+                }
+                
+                $fileNames[] = [
+                    'name' => $fileName,
+                    'size' => $fileSize
+                ];
+            }
+        }
+
+       // Enregistrez les noms des fichiers dans votre entité
+        $commentaire->setFileNames($fileNames);
     }
 }
