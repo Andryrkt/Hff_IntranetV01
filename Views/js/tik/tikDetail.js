@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const myForm = document.getElementById('formTik');
   
   function validateDates() {
-    const errorMessage = document.querySelector('.error-message');
+    const errorMessage = document.querySelector('.error-message-date');
     const startDate = new Date(dateDebutPlanning.value);
     const endDate   = new Date(dateFinPlanning.value);
 
@@ -90,9 +90,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  tikIntervenant.addEventListener("change", validateIntervenant)
+
+  function validateIntervenant() {
+    const errorMessage = document.querySelector('.error-message-intervenant');
+    const intervenant  = transfererBtn.getAttribute('data-intervenant');
+
+    // Vérifier si la date de fin est après la date de début
+    if (tikIntervenant.value == intervenant) {
+      errorMessage.style.display = 'block'; // Afficher le message d'erreur
+      return false;
+    } else {
+      errorMessage.style.display = 'none';
+      return true;
+    }
+  }
+
   // Valider la date lors de l'envoi du formulaire
   myForm.addEventListener('submit', function(event) {
-    if (!validateDates()) {
+    if (!validateDates() || !validateIntervenant()) {
         event.preventDefault(); // Empêcher l'envoi du formulaire si les dates ne sont pas valides
     }
   });

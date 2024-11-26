@@ -137,11 +137,14 @@
 											<div class="col-12 col-md-4">
 												{{form_row(form.niveauUrgence)}}
 												{{form_row(form.intervenant)}}
+												<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
+													Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
+												</div>
 											</div>
 											<div class="col-12 col-md-4">
 												{{form_row(form.dateDebutPlanning)}}
 												{{form_row(form.dateFinPlanning)}}
-												<div class="error-message text-bg-danger rounded p-2">
+												<div class="error-message error-message-date text-bg-danger rounded p-2">
 													La date de fin pour le planning doit être supérieur à celui de la date de début.
 												</div>
 											</div>
@@ -189,7 +192,7 @@
 											<i class="fas fa-check"></i>
 											Résoudre
 										</button>
-										<button type="submit" class="btn bouton mx-3 text-white bg-black" name="transferer" id="btn_transferer">
+										<button type="submit" class="btn bouton mx-3 text-white bg-black" data-intervenant="{{ connectedUser.id }}" name="transferer" id="btn_transferer">
 											<i class="fas fa-arrows-turn-right"></i>
 											Transférer
 										</button>
