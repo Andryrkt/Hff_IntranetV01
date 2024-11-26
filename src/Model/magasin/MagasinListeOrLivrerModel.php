@@ -75,13 +75,12 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
+                        WHERE slor_soc = 'HF'
+                            --and slor_typlig = 'P'
+                            --AND slor_constp NOT LIKE 'Z%'
+                            --AND slor_constp NOT IN ('LUB')
                             --and slor_succ in ('01', '50')
-                            AND seor_serv ='SAV'
+                            --AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
                         GROUP BY 1
@@ -108,13 +107,12 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
+                        WHERE slor_soc = 'HF'
+                         --and slor_typlig = 'P'
+                            --AND slor_constp NOT LIKE 'Z%'
+                            --AND slor_constp NOT IN ('LUB')
                             --and slor_succ in ('01', '50')
-                            AND seor_serv ='SAV'
+                            --AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
                         GROUP BY 1
@@ -141,13 +139,13 @@ class MagasinListeOrLivrerModel extends Model
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
+                        WHERE slor_soc = 'HF'
+                            -- AND slor_typlig = 'P'
+                        
+                            --AND slor_constp NOT LIKE 'Z%'
+                            --AND slor_constp NOT IN ('LUB')
                             --and slor_succ in ('01', '50')
-                            AND seor_serv ='SAV'
+                            --AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
                         GROUP BY 1
@@ -304,8 +302,7 @@ class MagasinListeOrLivrerModel extends Model
         $statement = "SELECT 
         numero_or 
         FROM demande_intervention
-        WHERE date_validation_or is not null
-        and date_validation_or <>'' 
+        WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01') 
         {$niveauUrgence}
         {$numDit}
         {$numOr}
