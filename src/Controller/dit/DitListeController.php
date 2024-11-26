@@ -127,6 +127,8 @@ class DitListeController extends Controller
     
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
 
+        $this->ajoutMarqueCasierMateriel($paginationData['data']);
+
         /** 
          * Docs à intégrer dans DW 
          * */
@@ -210,19 +212,20 @@ class DitListeController extends Controller
         
 
         $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
+        
         $this->ajoutStatutAchatPiece($entities);
 
-        //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($entities);
 
         $this->ajoutNbrPj($entities, self::$em);
 
-          //recuperation de numero de serie et parc pour l'affichage
-            $this->ajoutNumSerieNumParc($entities); 
+        $this->ajoutNumSerieNumParc($entities); 
+
+        $this->ajoutMarqueCasierMateriel($entities);
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
 
         foreach ($entities as $entity) {
             $data[] = [
@@ -244,7 +247,9 @@ class DitListeController extends Controller
                 $entity->getEtatFacturation(),
                 $entity->getRi(),
                 $entity->getNbrPj(),
-                $entity->getUtilisateurDemandeur()
+                $entity->getUtilisateurDemandeur(),
+                $entity->getMarque(),
+                $entity->getCasier()
             ];
         }
 

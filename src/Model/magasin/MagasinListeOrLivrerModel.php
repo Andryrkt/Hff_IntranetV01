@@ -80,7 +80,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            -- AND slor_succ = '01'
+                            --and slor_succ in ('01', '50')
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -113,7 +113,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            -- AND slor_succ = '01'
+                            --and slor_succ in ('01', '50')
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -123,7 +123,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) > sum(slor_qteres) + sum(slor_qterea)
-                            and sum(slor_qteres) > 0
+                            --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         
@@ -146,7 +146,7 @@ class MagasinListeOrLivrerModel extends Model
                         and slor_soc = 'HF'
                             AND slor_constp NOT LIKE 'Z%'
                             AND slor_constp NOT IN ('LUB')
-                            -- AND slor_succ = '01'
+                            --and slor_succ in ('01', '50')
                             AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
@@ -156,7 +156,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) >= sum(slor_qteres) + sum(slor_qterea)
-                            and sum(slor_qteres) > 0
+                            --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
 
@@ -224,7 +224,7 @@ class MagasinListeOrLivrerModel extends Model
 
                         where slor_soc = 'HF'
                         and slor_typlig = 'P'
-                        -- and slor_succ in ('01', '50')
+                        --and slor_succ in ('01', '50')
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
@@ -267,7 +267,6 @@ class MagasinListeOrLivrerModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            -- and slor_succ in ('01', '50')
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -377,7 +376,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-public function agence()
+    public function agence()
     {
         $statement = "  SELECT DISTINCT
                             slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence

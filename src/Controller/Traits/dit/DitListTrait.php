@@ -197,6 +197,25 @@ trait DitListTrait
         }
     }
 
+    private function ajoutMarqueCasierMateriel($data)
+    {
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                // Associez chaque entité à ses valeurs de num_serie et num_parc
+                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                if(!empty($marqueCasier)) {
+                    $marque = $marqueCasier[0]['marque'];
+                    $casier = $marqueCasier[0]['casier'];
+                    $data[$i]->setMarque($marque);
+                    $data[$i]->setCasier($casier);
+                } else {
+                    $data[$i]->setMarque('');
+                    $data[$i]->setCasier('');
+                }
+            }
+        }
+    }
+
     private function ajoutStatutAchatPiece($data){
         for ($i=0 ; $i < count($data) ; $i++ ) { 
             if ($data[$i]->getNumeroOR() !== null) {

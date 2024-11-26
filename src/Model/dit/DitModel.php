@@ -17,9 +17,6 @@ class DitModel extends Model
      */
     public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
-
-      
-      
       if($matricule === '' || $matricule === '0' || $matricule === null){
        $conditionNummat = "";
       } else {
@@ -496,6 +493,27 @@ class DitModel extends Model
         ";
 
         $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupMarqueCasierMateriel($matricule)
+    {
+        $statement = "SELECT
+        mmat_nummat as num_matricule,
+        trim(mmat_marqmat) as marque,
+        trim(mmat_numparc) as casier
+
+        from mat_mat
+        where mmat_nummat ='".$matricule."'
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
 
         $data = $this->connect->fetchResults($result);
 

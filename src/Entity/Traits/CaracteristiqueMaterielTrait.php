@@ -18,7 +18,8 @@ trait CaracteristiqueMaterielTrait
 
    private $numSerie = "";
 
-   
+   private $marque = "";
+
 
    /**
     * @ORM\Column(type="integer", name="KM_machine")
@@ -34,6 +35,12 @@ trait CaracteristiqueMaterielTrait
     */
    private $heure;
 
+
+   /** ===================================================================================================================
+     * 
+     * GETTER and SETTER
+     * 
+    *===============================================================================================================*/
 
    
 
@@ -117,7 +124,25 @@ trait CaracteristiqueMaterielTrait
       return $this;
    }
 
-   
+   /**
+    * Get the value of marque
+    */ 
+    public function getMarque()
+    {
+       return $this->marque;
+    }
+ 
+    /**
+     * Set the value of marque
+     *
+     * @return  self
+     */ 
+    public function setMarque($marque)
+    {
+       $this->marque = $marque;
+ 
+       return $this;
+    }
    
    public function getKm()
    {
@@ -147,5 +172,7 @@ trait CaracteristiqueMaterielTrait
    }
 
    
+   
+
    
 }

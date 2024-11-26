@@ -69,9 +69,7 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									<li>
 										{% if item.referencedit is not empty %}
-											<a class="dropdown-item fw-bold" 
-											target="_blank" 
-											href="{{ path('dw_interv_ate_avec_dit', {'numDit': item.referencedit}) }}">
+											<a class="dropdown-item fw-bold" target="_blank" href="{{ path('dw_interv_ate_avec_dit', {'numDit': item.referencedit}) }}">
 												Dossier DIT
 											</a>
 										{% endif %}
