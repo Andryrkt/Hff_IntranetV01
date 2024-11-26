@@ -3,6 +3,8 @@ namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\tik\TkiPlanning;
+use DateTime as GlobalDateTime;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
@@ -14,7 +16,6 @@ use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
-use DateTime as GlobalDateTime;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
@@ -210,6 +211,11 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
     private $idStatutDemande = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
+     */
+    private $planning;
 
     /**=====================================================================================
      * 
@@ -850,6 +856,24 @@ class DemandeSupportInformatique
         return $this;
     }
 
+    public function getPlanning(): ?TkiPlanning
+    {
+        return $this->planning;
+    }
+
+    public function setPlanning(?TkiPlanning $planning): self
+    {
+        // set the owning side of the relation if necessary
+        if ($planning && $planning->getDemandeId() !== $this) {
+            $planning->setDemandeId($this);
+        }
+
+        $this->planning = $planning;
+
+        return $this;
+
+    }
+    
     /**
      * Get the value of validateur
      */ 
