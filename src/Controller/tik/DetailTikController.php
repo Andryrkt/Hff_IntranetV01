@@ -8,6 +8,7 @@ use App\Entity\admin\tik\TkiCommentaires;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiPlanning;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
@@ -136,7 +137,36 @@ class DetailTikController extends Controller
                         break;
 
                     case 'planifier':
-                        # code...
+                        $supportInfo
+                            ->setIdStatutDemande($button['statut'])    // statut en cours
+                        ;
+
+                        $planning = new TkiPlanning;
+                        $planning
+                            ->setNumeroTicket($dataForm->getNumeroTicket())
+                            ->setDateDebutPlanning($dataForm->getDateDebutPlanning())
+                            ->setDateFinPlanning($dataForm->getDateFinPlanning())
+                            ->setObjetDemande($dataForm->getObjetDemande())
+                            ->setDetailDemande($dataForm->getDetailDemande())
+                            ->setUserId($connectedUser)
+                            ->setDemandeId($dataForm)
+                        ;
+                        
+                        //envoi les donnée dans la base de donnée
+                        self::$em->persist($supportInfo);
+                        self::$em->persist($planning);
+
+                        self::$em->flush(); 
+
+                        $this->historiqueStatut($supportInfo, $button['statut']);
+
+                        $nomPrenomIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
+
+                        // Envoi email validation
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
+                        
+                        $this->confirmerEnvoiEmail($this->emailTikPlanifie($variableEmail));
+
                         break;
 
                     case 'transferer':
@@ -167,7 +197,7 @@ class DetailTikController extends Controller
                         // Envoi email resolution
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
 
-                        $this->confirmerEnvoiEmail($this->emailTikResolu($variableEmail, $connectedUser->getMail()));
+                        $this->confirmerEnvoiEmail($this->emailTikResolu($variableEmail));
 
                         break;
                 }
@@ -325,7 +355,7 @@ class DetailTikController extends Controller
         $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
         return [ 
             'to'        => $cc[0],
-            'cc'        => isset($cc[1]) ? ($cc[1] ? [$cc[1]] : []) : null,
+            'cc'        => !empty($cc[1]) ? [$cc[1]] : [],
             'template'  => $tab['template'],
             'variables' => [ 
                 'statut'      => "comment",
@@ -339,17 +369,35 @@ class DetailTikController extends Controller
     /** 
      * email pour un ticket résolu
      */
-    private function emailTikResolu($tab, $emailUserConnected): array
+    private function emailTikResolu($tab): array
     {
-        $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
-        $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
         return [ 
-            'to'        => $cc[0],
-            'cc'        => isset($cc[1]) ? ($cc[1] ? [$cc[1]] : []) : null,
+            'to'        => $tabEmail[0],
+            'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
             'template'  => $tab['template'],
             'variables' => [
                 'statut'      => "resolu",
                 'subject'     => "{$tab['numTik']} - Ticket résolu",
+                'tab'         => $tab,
+                'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket planifié
+     */
+    private function emailTikPlanifie($tab): array
+    {
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
+        return [ 
+            'to'        => $tabEmail[0],
+            'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "planifie",
+                'subject'     => "{$tab['numTik']} - Ticket planifié",
                 'tab'         => $tab,
                 'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
             ]
