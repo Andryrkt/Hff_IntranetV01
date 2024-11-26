@@ -120,7 +120,7 @@
 							{# DEBUT PARTIE POUR VALIDATEUR OU INTERVENANT #}
 							{% if autoriser %}
 								{# DEBUT FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
-								{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': statutOuvert and validateur ? 'true' : 'false'}}) }}
+								{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': (statutOuvert and validateur) or intervenant ? 'false' : 'true'}}) }}
 
 								{{ form_errors(form)}}
 								<div class="row">
@@ -141,6 +141,9 @@
 											<div class="col-12 col-md-4">
 												{{form_row(form.dateDebutPlanning)}}
 												{{form_row(form.dateFinPlanning)}}
+												<div class="error-message text-bg-danger rounded p-2">
+													La date de fin pour le planning doit être supérieur à celui de la date de début.
+												</div>
 											</div>
 											{# FIN Intervention #}
 										</div>
@@ -149,11 +152,19 @@
 
 									{# DEBUT COLONNE 2 #}
 									<div class="col-12 col-md-6">
-										{# DEBUT Observation Ticket #}
-										{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
+										{% if validateur %}
+											{# DEBUT Observation Ticket #}
+											{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
 
-										{{ form_row(form.commentaires) }}
-										{# FIN Observation Ticket #}
+											{{ form_label(form.commentaires, 'Observation du ticket') }}
+										{% else %}
+											{# DEBUT Résolution Ticket #}
+											{{ macroForm.sousTitre('Résolution Ticket', {class: 'sousTitre'})}}
+
+											{{ form_label(form.commentaires, 'Résolution du ticket') }}
+										{% endif %}
+
+										{{ form_widget(form.commentaires) }}
 									</div>
 									{# FIN COLONNE 2 #}
 								</div>
@@ -174,9 +185,9 @@
 									{% elseif intervenant %}
 
 										{# BOUTONS POUR INTERVENANT #}
-										<button type="submit" class="btn bouton" name="resolu" id="btn_resolu">
+										<button type="submit" class="btn bouton" name="resoudre" id="btn_resoudre">
 											<i class="fas fa-check"></i>
-											Résolu
+											Résoudre
 										</button>
 										<button type="submit" class="btn bouton mx-3 text-white bg-black" name="transferer" id="btn_transferer">
 											<i class="fas fa-arrows-turn-right"></i>
