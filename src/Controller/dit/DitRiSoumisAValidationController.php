@@ -91,14 +91,13 @@ class DitRiSoumisAValidationController extends Controller
                 
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
                 $ditRiSoumiAValidation
-                ->setNumeroDit($numDit)
-                ->setNumeroOR($dataForm->getNumeroOR())
-                ->setHeureSoumission($this->getTime())
-                ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                ->setNumeroSoumission($numeroSoumission)
+                    ->setNumeroDit($numDit)
+                    ->setNumeroOR($dataForm->getNumeroOR())
+                    ->setHeureSoumission($this->getTime())
+                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                    ->setNumeroSoumission($numeroSoumission)
                 ;
 
-                
                 $historique = new DitHistoriqueOperationDocument();
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
                 

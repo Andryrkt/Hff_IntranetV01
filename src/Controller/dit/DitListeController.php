@@ -77,12 +77,12 @@ class DitListeController extends Controller
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
         } 
-       
-       $criteria = [];
-       //transformer l'objet ditSearch en tableau
-       $criteria = $ditSearch->toArray();
-       //recupères les données du criteria dans une session nommé dit_serch_criteria
-       $this->sessionService->set('dit_search_criteria', $criteria);
+        
+        $criteria = [];
+        //transformer l'objet ditSearch en tableau
+        $criteria = $ditSearch->toArray();
+        //recupères les données du criteria dans une session nommé dit_serch_criteria
+        $this->sessionService->set('dit_search_criteria', $criteria);
     
 
         //recupère le numero de page

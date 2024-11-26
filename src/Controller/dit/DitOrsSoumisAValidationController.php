@@ -51,8 +51,10 @@ class DitOrsSoumisAValidationController extends Controller
             $this->notification($message);
         }
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
-        $ditInsertionOrSoumis->setNumeroDit($numDit);
-        $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
+        $ditInsertionOrSoumis
+            ->setNumeroDit($numDit)
+            ->setNumeroOR($numOrBaseDonner[0]['numor'])
+            ;
 
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
@@ -71,16 +73,14 @@ class DitOrsSoumisAValidationController extends Controller
             $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
 
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            
             $idMateriel = $ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
-            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
-            
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
 
-            $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR()); // Exemple de valeur, vous pouvez la changer selon vos besoins
-
+            $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
+            
+            $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
@@ -106,39 +106,24 @@ class DitOrsSoumisAValidationController extends Controller
             }
             else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
-                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-            
+                
                 $ditInsertionOrSoumis
-                                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                                    ->setHeureSoumission($this->getTime())
-                                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                                    ;
+                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ->setHeureSoumission($this->getTime())
+                ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                ;
+                
+                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 
-                $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-                $demandeIntervention->setStatutOr('Soumis à validation');
-                self::$em->persist($demandeIntervention);
+                /** Modification de la colonne statut_or dans la table demande_intervention */
+                $this->modificationStatutOr($numDit);
                 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-               // Persist les entités liées
-                if(count($orSoumisValidataion) > 1){
-                    foreach ($orSoumisValidataion as $entity) {
-                       // Persist l'entité et l'historique
-                       self::$em->persist($entity); // Persister chaque entité individuellement
-                    }
-                } elseif(count($orSoumisValidataion) === 1) {
-                    self::$em->persist($orSoumisValidataion[0]);
-                }
-                
-                $historique = new DitHistoriqueOperationDocument();
-                $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
-                    ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
-                    ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(1))
-                    ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                    ;
-                self::$em->persist($historique); // Persist l'historique avec les entités liées
-                // Flushe toutes les entités et l'historique
-                self::$em->flush();
+                $this->envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis);
+
+                // Persist l'historique avec les entités liées
+                $this->envoieDonnerHistoriqueDocument($ditInsertionOrSoumis);
 
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
@@ -152,11 +137,8 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
 
-                //modifier la colonne numero_or dans la table demande_intervention
-                $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-                $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
-                $dit->setStatutOr('Soumis à validation');
-                self::$em->flush();
+                /** modifier la colonne numero_or dans la table demande_intervention */
+                $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
                 //redirection
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
@@ -169,6 +151,51 @@ class DitOrsSoumisAValidationController extends Controller
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function modificationStatutOr($numDit)
+    {
+        $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $demandeIntervention->setStatutOr('Soumis à validation');
+        self::$em->persist($demandeIntervention);
+        self::$em->flush();
+    }
+
+    private function envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis) 
+    {
+        // Persist les entités liées
+        if(count($orSoumisValidataion) > 1){
+            foreach ($orSoumisValidataion as $entity) {
+               // Persist l'entité et l'historique
+               self::$em->persist($entity); // Persister chaque entité individuellement
+            }
+        } elseif(count($orSoumisValidataion) === 1) {
+            self::$em->persist($orSoumisValidataion[0]);
+        }
+        
+        
+        // Flushe toutes les entités et l'historique
+        self::$em->flush();
+    }
+
+    private function envoieDonnerHistoriqueDocument($ditInsertionOrSoumis)
+    {
+        $historique = new DitHistoriqueOperationDocument();
+        $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
+            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
+            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(1))
+            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
+            ;
+        self::$em->persist($historique);
+        self::$em->flush();
+    }
+
+    private function modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis)
+    {
+        $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
+        $dit->setStatutOr('Soumis à validation');
+        self::$em->flush();
     }
 
     private function quelqueAffichage($ditOrsoumisAValidationModel, $numOr)
