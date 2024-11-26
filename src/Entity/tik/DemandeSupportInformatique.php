@@ -97,13 +97,13 @@ class DemandeSupportInformatique
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoIntervenant")
      * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
      */
-    private User $intervenant;
+    private ?User $intervenant;
     
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoValidateur")
      * @ORM\JoinColumn(nullable=true, name="ID_Validateur", referencedColumnName="id")
      */
-    private User $validateur;
+    private ?User $validateur;
 
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
@@ -869,6 +869,27 @@ class DemandeSupportInformatique
         }
 
         $this->planning = $planning;
+
+        return $this;
+
+    }
+    
+    /**
+     * Get the value of validateur
+     */ 
+    public function getValidateur()
+    {
+        return $this->validateur;
+    }
+
+    /**
+     * Set the value of validateur
+     *
+     * @return  self
+     */ 
+    public function setValidateur($validateur)
+    {
+        $this->validateur = $validateur;
 
         return $this;
     }

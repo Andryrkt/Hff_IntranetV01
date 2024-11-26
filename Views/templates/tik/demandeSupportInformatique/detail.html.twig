@@ -82,7 +82,7 @@
 								{# FIN COLONNE 1 #}
 
 								{# DEBUT COLONNE 2 #}
-								<div 	class="col-12 col-md-6">
+								<div class="col-12 col-md-6">
 									<div class="row">
 										<div class="col-12 col-md-3">
 											{{ macroForm.sousTitre('Société', {class: 'sousTitre'})}}
@@ -201,7 +201,7 @@
 			<div class="col-3">
 				{{ include('tik/demandeSupportInformatique/shared/_statutTicket.html.twig', { items: historiqueStatut }) }}
 
-				{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser, formCommentaire: formCommentaire }) }}
+				{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser, form: formCommentaire, canComment: canComment }) }}
 						
 			</div>
 		</div>
@@ -213,10 +213,9 @@
 
 {% block javascript %}
 	{% if autoriser %}
-		<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
 	{% else %}
-		<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
 	{% endif %}
+	<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
 	<script>
 		const div = document.getElementById('emailDemandeur');
 		const originalText = div.textContent;
