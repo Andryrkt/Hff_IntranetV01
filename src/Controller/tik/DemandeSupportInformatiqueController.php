@@ -25,9 +25,12 @@ class DemandeSupportInformatiqueController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
         $supportInfo = new DemandeSupportInformatique();
         //INITIALISATION DU FORMULAIRE
-        $this->initialisationForm($supportInfo);
+        $this->initialisationForm($supportInfo, $user);
 
         $form = self::$validator->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
         
@@ -36,7 +39,7 @@ class DemandeSupportInformatiqueController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $donnerForm = $form->getData();
-            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo);
+            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
             
@@ -60,7 +63,7 @@ class DemandeSupportInformatiqueController extends Controller
      * @param [type] $em
      * @return void
      */
-    private function initialisationForm(DemandeSupportInformatique $supportInfo)
+    private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)
     {
         $agenceService = $this->agenceServiceIpsObjet();
         $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence());
@@ -68,19 +71,16 @@ class DemandeSupportInformatiqueController extends Controller
         $supportInfo->setAgence($agenceService['agenceIps']);
         $supportInfo->setService($agenceService['serviceIps']);
         $supportInfo->setDateFinSouhaiteeAutomatique();
+        $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
 
-    private function ajoutDonnerDansEntity($donnerForm, $supportInfo)
+    private function ajoutDonnerDansEntity($donnerForm, DemandeSupportInformatique $supportInfo, User $user)
     {
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        
         $statut = self::$em->getRepository(StatutDemande::class)->find('79');
         
-        /** 
-         * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
-         * */
         $supportInfo 
             ->setAgenceDebiteurId($donnerForm->getAgence())
             ->setServiceDebiteurId($donnerForm->getService())
@@ -94,6 +94,7 @@ class DemandeSupportInformatiqueController extends Controller
             ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
+            ->setCodeSociete($user->getSociettes()->getCodeSociete())
         ;
 
         $this->historiqueStatut($supportInfo, $statut);

@@ -45,3 +45,7 @@ where
         where
             matricule = users.matricule
     )
+
+ALTER TABLE users ADD societe_id INT
+
+UPDATE users set societe_id = 1

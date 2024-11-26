@@ -41,6 +41,24 @@
 				text-decoration: none;
 				border-radius: 5px;
 			}
+			.valide {
+				background-color: #198754;
+			}
+			.refuse {
+				background-color: #dc3545;
+			}
+			.cloture {
+				background-color: #0dcaf0;
+			} /* pas encore de template pour le body */
+			.planifie {
+				background-color: #ffc107;
+			} /* pas encore de template pour le body */
+			.valide,
+			.refuse,
+			.cloture,
+			.planifie {
+				color: #fff
+			}
 			.fw-bold {
 				font-weight: bold;
 			}
@@ -48,27 +66,22 @@
 	</head>
 	<body>
 		<div class="email-container">
-			<div class="email-header">
-				{{ subject }}
-			</div>
+			{{ include('tik/email/shared/_header.html.twig', { numTik:tab.numTik, statut:statut }) }}
+
 			<div class="email-body">
 				<p>Bonjour,</p>
-				<p>{{ message }}</p>
-				<p>
-					Observation:
-					{{ observation }}</p>
+
+				{% include 'tik/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
+
 				<p>Vous pouvez voir le détail en cliquant sur le bouton ci-dessous.</p>
 				<p>
 					<span class="fw-bold">NB:</span>
-					connectez-vous à Hffintranet avant de cliquer sur le bouton (<a href="http://192.168.0.28/Hffintranet/">lien vers Hffintranet</a>)</p>
-				<a href="{{ path(action_url)}}" class="button">Detail de la demande</a>
+					Connectez-vous à Hffintranet avant de cliquer sur le bouton (<a href="http://192.168.0.28/Hffintranet/">lien vers Hffintranet</a>)</p>
+				<a href="{{ action_url }}" class="button">Detail de la demande</a>
 				<p class="fw-bold">Cordialement .</p>
 			</div>
-			<div class="email-footer">
-				&copy;
-				{{ "now"|date("Y") }}
-				Henry Fraise Fis & cie.
-			</div>
+
+			{{ include('tik/email/shared/_footer.html.twig') }}
 		</div>
 	</body>
 </html>

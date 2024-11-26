@@ -3,6 +3,8 @@ namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\tik\TkiPlanning;
+use DateTime as GlobalDateTime;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
@@ -14,7 +16,6 @@ use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
-use DateTime as GlobalDateTime;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
@@ -62,7 +63,7 @@ class DemandeSupportInformatique
     /**
      * @ORM\Column(type="string", length=2, name="Code_Societe")
      */
-    private string $codeSociete;
+    private ?string $codeSociete;
 
     /**
      * @ORM\ManyToOne(targetEntity=TkiCategorie::class, inversedBy="supportInfo")
@@ -96,18 +97,23 @@ class DemandeSupportInformatique
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoIntervenant")
      * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
      */
-    private User $intervenant;
+    private ?User $intervenant;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoValidateur")
+     * @ORM\JoinColumn(nullable=true, name="ID_Validateur", referencedColumnName="id")
+     */
+    private ?User $validateur;
 
     /**
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
      */
-    private ?string $mailIntervenant = null;
-    
-
+    private ?string $nomIntervenant = null;
+      
     /**
      * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
      */
-    private ?string $nomIntervenant = null;
+    private ?string $mailIntervenant = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Objet_Demande")
@@ -205,6 +211,11 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
     private $idStatutDemande = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
+     */
+    private $planning;
 
     /**=====================================================================================
      * 
@@ -841,6 +852,44 @@ class DemandeSupportInformatique
     public function setIntervenant($intervenant)
     {
         $this->intervenant = $intervenant;
+
+        return $this;
+    }
+
+    public function getPlanning(): ?TkiPlanning
+    {
+        return $this->planning;
+    }
+
+    public function setPlanning(?TkiPlanning $planning): self
+    {
+        // set the owning side of the relation if necessary
+        if ($planning && $planning->getDemandeId() !== $this) {
+            $planning->setDemandeId($this);
+        }
+
+        $this->planning = $planning;
+
+        return $this;
+
+    }
+    
+    /**
+     * Get the value of validateur
+     */ 
+    public function getValidateur()
+    {
+        return $this->validateur;
+    }
+
+    /**
+     * Set the value of validateur
+     *
+     * @return  self
+     */ 
+    public function setValidateur($validateur)
+    {
+        $this->validateur = $validateur;
 
         return $this;
     }

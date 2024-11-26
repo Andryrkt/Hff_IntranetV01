@@ -109,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const spinner = document.createElement("div");
         spinner.classList.add("spinner");
-        spinner.textContent = "Chargement...";
 
         listItem.appendChild(fileName);
         listItem.appendChild(fileSize);

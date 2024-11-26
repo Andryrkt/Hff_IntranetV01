@@ -25,24 +25,4 @@ trait MagasinTrait
         return implode("','", $numOrValide);
     }
 
-    private function firstDateOfWeek()
-    {
-        $today = new \DateTime();
-        $dayOfWeek = $today->format('N');
-        $daysToMonday = $dayOfWeek - 1;
-        return $today->modify("-$daysToMonday days");
-    }
-
-    private function recupNumOrSelonCond(array $criteria): array
-    {
-        $magasinModel = new MagasinListeOrATraiterModel();
-        $numOrValideString = $this->orEnString($magasinModel->recupNumOr($criteria));
-        $numOrEncours = $this->orEnString($this->magasinListOrEncoursModel->recupOrEncours());
-
-        return  [
-            "numOrEncours" => $numOrEncours,
-            "numOrValideString" => $numOrValideString
-        ];
-    }
-
 }

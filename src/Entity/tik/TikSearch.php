@@ -43,6 +43,8 @@ class TikSearch
 
     private ?TkiAutresCategorie $autresCategories = null;
 
+    private bool $autoriser;
+
     /**=====================================================================================
      * 
      * GETTERS and SETTERS
@@ -349,6 +351,26 @@ class TikSearch
         return $this;
     }
 
+     /**
+     * Get the value of autoriser
+     */ 
+    public function getAutoriser()
+    {
+        return $this->autoriser;
+    }
+
+    /**
+     * Set the value of autoriser
+     *
+     * @return  self
+     */ 
+    public function setAutoriser($autoriser)
+    {
+        $this->autoriser = $autoriser;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -369,6 +391,4 @@ class TikSearch
             'autreCategorie' => $this->autresCategories
         ];
     }
-
-    
 }

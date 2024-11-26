@@ -7,6 +7,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
+use App\Entity\tik\TkiPlanning;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
@@ -18,8 +19,8 @@ use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Security\Core\User\UserInterface;
 use App\Repository\admin\utilisateur\UserRepository;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -72,11 +73,11 @@ class User implements UserInterface
      */
     private $applications;
     
-     /**
-     * @ORM\ManyToMany(targetEntity=Societte::class, inversedBy="users", cascade={"remove"})
-     * @ORM\JoinTable(name="users_societe")
+    /**
+     * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
      */
-    private $societtes;
+    private ?Societte $societtes;
 
 
      /**
@@ -149,12 +150,22 @@ class User implements UserInterface
      */
     private $supportInfoIntervenant;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
+     */
+    private $supportInfoValidateur;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
+     */
+    private $tikPlanningUser;
+
     //=================================================================================================================================
 
     public function __construct()
     {
         $this->applications = new ArrayCollection();
-        $this->societtes = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->casiers = new ArrayCollection();
         $this->agencesAutorisees = new ArrayCollection();
@@ -163,6 +174,7 @@ class User implements UserInterface
         $this->commentaireDitOr = new ArrayCollection();
         $this->supportInfoUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
+        $this->tikPlanningUser = new ArrayCollection();
     }
 
     
@@ -268,28 +280,17 @@ class User implements UserInterface
 
 
     
-    public function getSociettes(): Collection
+    public function getSociettes()
     {
         return $this->societtes;
     }
 
-    public function addSociette(Societte $societte): self
-    {
-        if (!$this->societtes->contains($societte)) {
-            $this->societtes[] = $societte;
-        }
+    public function setSociettes(?Societte $societtes): self
+{
+    $this->societtes = $societtes;
+    return $this;
+}
 
-        return $this;
-    }
-
-    public function removeSociette(Societte $societte): self
-    {
-        if ($this->societtes->contains($societte)) {
-            $this->societtes->removeElement($societte);
-        }
-
-        return $this;
-    }
 
 
     public function getPersonnels()
@@ -553,6 +554,56 @@ public function removeAgenceAutorise(Agence $agence): self
         return $this;
     }
 
+    /**
+     * Get the value of supportInfoIntervenant
+     */ 
+    public function getSupportInfoIntervenant()
+    {
+        return $this->supportInfoIntervenant;
+    }
+
+    /**
+     * Set the value of supportInfoIntervenant
+     *
+     * @return  self
+     */ 
+    public function setSupportInfoIntervenant($supportInfoIntervenant)
+    {
+        $this->supportInfoIntervenant = $supportInfoIntervenant;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeInterventions
+     */ 
+    public function getTikPlanningUser()
+    {
+        return $this->tikPlanningUser;
+    }
+
+    public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    {
+        if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
+            $this->tikPlanningUser[] = $tikPlanningUser;
+            $tikPlanningUser->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    {
+        if ($this->tikPlanningUser->contains($tikPlanningUser)) {
+            $this->tikPlanningUser->removeElement($tikPlanningUser);
+            if ($tikPlanningUser->getUserId() === $this) {
+                $tikPlanningUser->setUserId(null);
+            }
+        }
+        
+        return $this;
+    }
+
 
     /**
      * RECUPERE LES id de role de l'User sous forme de tableau
@@ -611,24 +662,4 @@ public function removeAgenceAutorise(Agence $agence): self
     public function getUsername(){}
 
     public function getUserIdentifier(){}
-
-    /**
-     * Get the value of supportInfoIntervenant
-     */ 
-    public function getSupportInfoIntervenant()
-    {
-        return $this->supportInfoIntervenant;
-    }
-
-    /**
-     * Set the value of supportInfoIntervenant
-     *
-     * @return  self
-     */ 
-    public function setSupportInfoIntervenant($supportInfoIntervenant)
-    {
-        $this->supportInfoIntervenant = $supportInfoIntervenant;
-
-        return $this;
-    }
 }
