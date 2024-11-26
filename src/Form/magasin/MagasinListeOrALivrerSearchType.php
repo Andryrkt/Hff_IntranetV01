@@ -111,7 +111,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
             'label' => 'Etat OR',
             'required' => false,
             'choices' => self::OR_COMPLET_OU_NON,
-            'placeholder' => ' -- Choisir la complétude des lignes --',
+            'placeholder' => false,
             'data' => 'ORs COMPLET'
         ])
         ->add('pieces',
