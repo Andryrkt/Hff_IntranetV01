@@ -61,7 +61,7 @@ class DetailTikController extends Controller
          * 
          * @var bool $canComment Indique si l'utilisateur connecté peut commenter ou non.
          */
-        $canComment = in_array($connectedUser->getId(), $authorizedUsers, true);
+        $canComment = in_array($connectedUser->getId(), $authorizedUsers);
 
         if (!$supportInfo) {
             self::$twig->display('404.html.twig');
@@ -93,6 +93,7 @@ class DetailTikController extends Controller
                         ;
 
                         $supportInfo
+                            ->setValidateur($connectedUser)
                             ->setIdStatutDemande($button['statut'])    // statut refusé
                         ;
 
@@ -106,7 +107,7 @@ class DetailTikController extends Controller
                         // Envoi email refus
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
                         
-                        $this->confirmerEnvoiEmail($this->emailRefuse($variableEmail));
+                        $this->confirmerEnvoiEmail($this->emailTikRefuse($variableEmail));
 
                         break;
 
@@ -130,20 +131,44 @@ class DetailTikController extends Controller
                         // Envoi email validation
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
                         
-                        $this->confirmerEnvoiEmail($this->emailValide($variableEmail));
+                        $this->confirmerEnvoiEmail($this->emailTikValide($variableEmail));
         
+                        break;
+
+                    case 'planifier':
+                        # code...
                         break;
 
                     case 'transferer':
                         # code...
                         break;
-
-                    case 'planifier':
-                        # code...
-                        break;
                         
-                    case 'planifier':
-                        # code...
+                    case 'resoudre':
+                        $commentaires = new TkiCommentaires;
+                        $commentaires
+                            ->setNumeroTicket($dataForm->getNumeroTicket())
+                            ->setNomUtilisateur($connectedUser->getNomUtilisateur())
+                            ->setCommentaires($form->get('commentaires')->getData())
+                            ->setUtilisateur($connectedUser)
+                            ->setDemandeSupportInformatique($supportInfo)
+                        ;
+
+                        $supportInfo
+                            ->setIdStatutDemande($button['statut'])    // statut resolu
+                        ;
+                        
+                        self::$em->persist($commentaires);
+                        self::$em->persist($supportInfo);
+
+                        self::$em->flush();
+
+                        $this->historiqueStatut($supportInfo, $button['statut']); // historisation du statut
+
+                        // Envoi email resolution
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
+
+                        $this->confirmerEnvoiEmail($this->emailTikResolu($variableEmail, $connectedUser->getMail()));
+
                         break;
                 }
                 
@@ -169,7 +194,7 @@ class DetailTikController extends Controller
 
                 $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
 
-                $this->confirmerEnvoiEmail($this->emailComment($variableEmail, $connectedUser->getMail()));
+                $this->confirmerEnvoiEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
                 
                 $this->redirectToRoute("liste_tik_index");
             }
@@ -185,15 +210,15 @@ class DetailTikController extends Controller
                 'intervenant'       => ($supportInfo->getIdStatutDemande()->getId() == 81) && ($supportInfo->getIntervenant()->getId()==$connectedUser->getId()),  // statut en cours et l'utilisateur connecté est l'intervenant
                 'connectedUser'     => $connectedUser,
                 'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
-                                           ->findBy(
-                                                ['numeroTicket' =>$supportInfo->getNumeroTicket()],
-                                                ['dateCreation' => 'ASC']
-                                            ),
+                                                ->findBy(
+                                                        ['numeroTicket' =>$supportInfo->getNumeroTicket()],
+                                                        ['dateCreation' => 'ASC']
+                                                    ),
                 'historiqueStatut'  => self::$em->getRepository(TkiStatutTicketInformatique::class)
-                                               ->findBy(
-                                                    ['numeroTicket'=>$supportInfo->getNumeroTicket()],
-                                                    ['dateStatut'  => 'DESC']
-                                                ),
+                                                ->findBy(
+                                                        ['numeroTicket'=>$supportInfo->getNumeroTicket()],
+                                                        ['dateStatut'  => 'DESC']
+                                                    ),
             ]);
         } 
     }
@@ -207,6 +232,7 @@ class DetailTikController extends Controller
             '80' => 'refuser',      // statut Refusé
             '81' => 'valider',      // statut en cours
             '82' => 'planifier',    // statut planifié
+            '83' => 'resoudre',     // statut planifié
             '00' => 'transferer',   
         ];
 
@@ -255,7 +281,10 @@ class DetailTikController extends Controller
         ];
     }
 
-    private function emailRefuse($tab): array
+    /** 
+     * email pour un ticket refusé
+     */
+    private function emailTikRefuse($tab): array
     {
         return [ 
             'to'        => $tab['emailUserDemandeur'],
@@ -269,7 +298,10 @@ class DetailTikController extends Controller
         ];
     }
 
-    private function emailValide($tab): array
+    /** 
+     * email pour un ticket validé
+     */
+    private function emailTikValide($tab): array
     {
         return [ 
             'to'        => $tab['emailUserDemandeur'],
@@ -284,17 +316,40 @@ class DetailTikController extends Controller
         ];
     }
 
-    private function emailComment($tab, $emailUserConnected): array
+    /** 
+     * email pour un ticket commenté
+     */
+    private function emailTikCommente($tab, $emailUserConnected): array
     {
         $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
         $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
         return [ 
             'to'        => $cc[0],
-            'cc'        => $cc[1] ? null : [$cc[1]],
+            'cc'        => isset($cc[1]) ? ($cc[1] ? [$cc[1]] : []) : null,
             'template'  => $tab['template'],
             'variables' => [ 
                 'statut'      => "comment",
                 'subject'     => "{$tab['numTik']} - Commentaire émis",
+                'tab'         => $tab,
+                'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket résolu
+     */
+    private function emailTikResolu($tab, $emailUserConnected): array
+    {
+        $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+        $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+        return [ 
+            'to'        => $cc[0],
+            'cc'        => isset($cc[1]) ? ($cc[1] ? [$cc[1]] : []) : null,
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "resolu",
+                'subject'     => "{$tab['numTik']} - Ticket résolu",
                 'tab'         => $tab,
                 'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
             ]
