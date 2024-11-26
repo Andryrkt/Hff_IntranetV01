@@ -12,14 +12,13 @@ trait MagasinOrALIvrerTrait
     {
         $magasinModel = new MagasinListeOrATraiterModel();
         $numeroOrs = $magasinModel->recupNumOr($criteria);
-        $numOrValideItv = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv'];
-        $numOrValide = $this->recupNumORItvValide($numeroOrs, $em)['numeroOr'];
-        $numOrValideItvString = $this->orEnString($numOrValideItv);
-        $numOrValideString = $this->orEnString($numOrValide);
     
-        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString));
-        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString));
-        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString));
+        $numOrValideItvString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv']);
+        $numOrValideString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr']);
+    
+        $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString, $criteria));
+        $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString, $criteria));
+        $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString, $criteria));
 
         return  [
             "numOrLivrerComplet" => $numOrLivrerComplet,

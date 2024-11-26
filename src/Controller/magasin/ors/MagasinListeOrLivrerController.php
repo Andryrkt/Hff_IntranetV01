@@ -73,7 +73,6 @@ class MagasinListeOrLivrerController extends Controller
 
         $data = $this->recupData($criteria);
 
-
         self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()

@@ -75,12 +75,12 @@ class DitOrsSoumisAValidationController extends Controller
             $idMateriel = $ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
+
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
             
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
 
-            $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR()); // Exemple de valeur, vous pouvez la changer selon vos besoins
-
+            $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());

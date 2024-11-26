@@ -292,88 +292,87 @@ trait DitOrSoumisAValidationTrait
 
     private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
     {
-
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
-                foreach ($orSoumisValidationModel as $orSoumis) {
-                    // Instancier une nouvelle entité pour chaque entrée du tableau
-                    $ditInsertionOr = new DitOrsSoumisAValidation(); 
-                    
-                    $ditInsertionOr
-                                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                                ->setHeureSoumission($this->getTime())
-                                ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                                ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
-                                ->setNumeroItv($orSoumis['numero_itv'])
-                                ->setNombreLigneItv($orSoumis['nombre_ligne'])
-                                ->setMontantItv($orSoumis['montant_itv'])
-                                ->setMontantPiece($orSoumis['montant_piece'])
-                                ->setMontantMo($orSoumis['montant_mo'])
-                                ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
-                                ->setMontantFraisDivers($orSoumis['montant_divers'])
-                                ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
-                                ->setLibellelItv($orSoumis['libelle_itv'])
-                                ->setStatut('Soumis à validation')
-                                ;
-                    
-                    $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
-                
-                }
-                return $orSoumisValidataion;
+        foreach ($orSoumisValidationModel as $orSoumis) {
+            // Instancier une nouvelle entité pour chaque entrée du tableau
+            $ditInsertionOr = new DitOrsSoumisAValidation(); 
+            
+            $ditInsertionOr
+                        ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                        ->setHeureSoumission($this->getTime())
+                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                        ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
+                        ->setNumeroItv($orSoumis['numero_itv'])
+                        ->setNombreLigneItv($orSoumis['nombre_ligne'])
+                        ->setMontantItv($orSoumis['montant_itv'])
+                        ->setMontantPiece($orSoumis['montant_piece'])
+                        ->setMontantMo($orSoumis['montant_mo'])
+                        ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
+                        ->setMontantFraisDivers($orSoumis['montant_divers'])
+                        ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
+                        ->setLibellelItv($orSoumis['libelle_itv'])
+                        ->setStatut('Soumis à validation')
+                        ;
+            
+            $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
+        }
+
+        return $orSoumisValidataion;
     }
 
     // Fonction pour trouver les numéros d'intervention manquants
-private function objetsManquantsParNumero($tableauA, $tableauB) {
-    $manquants = [];
-    foreach ($tableauB as $objetB) {
-        $trouve = false;
-        foreach ($tableauA as $objetA) {
-            if ($objetA->estEgalParNumero($objetB)) {
-                $trouve = true;
-                break;
-            }
-        }
-        if (!$trouve) {
-            $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
-            // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
-             $nouvelObjet = new DitOrsSoumisAValidation();
-             $nouvelObjet->setNumeroItv($numeroItvExist);
-             $manquants[] = $nouvelObjet;
-        }
-    }
-    return $manquants;
-}
-
-// Fonction pour trier les tableaux par numero d'intervention
-private function trierTableauParNumero(&$tableau) {
-    usort($tableau, function($a, $b) {
-        return strcmp($a->getNumeroItv(), $b->getNumeroItv());
-    });
-}
-
-private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel)
-{
-    $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-    $datePlannig2 =$ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
-
-            $aBlocker = false;
-            if(empty($datePlannig1)){
-                if((int)$datePlannig2[0]['nbplanning'] > 0){
-                    $aBlocker = true;
+    private function objetsManquantsParNumero($tableauA, $tableauB) {
+        $manquants = [];
+        foreach ($tableauB as $objetB) {
+            $trouve = false;
+            foreach ($tableauA as $objetA) {
+                if ($objetA->estEgalParNumero($objetB)) {
+                    $trouve = true;
+                    break;
                 }
             }
-        
-    return $aBlocker;
-}
+            if (!$trouve) {
+                $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+                // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
+                $nouvelObjet = new DitOrsSoumisAValidation();
+                $nouvelObjet->setNumeroItv($numeroItvExist);
+                $manquants[] = $nouvelObjet;
+            }
+        }
+        return $manquants;
+    }
 
-private function nomUtilisateur($em){
-    $userId = $this->sessionService->get('user_id', []);
-    $user = $em->getRepository(User::class)->find($userId);
-    return [
-        'nomUtilisateur' => $user->getNomUtilisateur(),
-        'mailUtilisateur' => $user->getMail()
-    ];
-}
+    // Fonction pour trier les tableaux par numero d'intervention
+    private function trierTableauParNumero(&$tableau) {
+        usort($tableau, function($a, $b) {
+            return strcmp($a->getNumeroItv(), $b->getNumeroItv());
+        });
+    }
+
+    private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel): bool
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
+        $datePlannig2 =$ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
+
+                $aBlocker = false;
+                if(empty($datePlannig1)){
+                    if((int)$datePlannig2[0]['nbplanning'] > 0){
+                        $aBlocker = true;
+                    }
+                }
+            
+        return $aBlocker;
+    }
+
+    private function nomUtilisateur($em){
+        $userId = $this->sessionService->get('user_id', []);
+        $user = $em->getRepository(User::class)->find($userId);
+        return [
+            'nomUtilisateur' => $user->getNomUtilisateur(),
+            'mailUtilisateur' => $user->getMail()
+        ];
+    }
 
 
 }
