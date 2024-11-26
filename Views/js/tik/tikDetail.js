@@ -4,12 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
   /**
    * BOUTON REFUSER ET VALIDER DU VALIDATEUR
    */
+  const validerBtn       = document.querySelector("#btn_valider");
+  const refuserBtn       = document.querySelector("#btn_refuser");
+
   const tikCategorie     = document.querySelector("#detail_tik_categorie");
   const tikNiveauUrgence = document.querySelector("#detail_tik_niveauUrgence");
   const tikIntervenant   = document.querySelector("#detail_tik_intervenant");
   const tikCommentaires  = document.querySelector("#detail_tik_commentaires");
-  const validerBtn       = document.querySelector("#btn_valider");
-  const refuserBtn       = document.querySelector("#btn_refuser");
 
   if (refuserBtn !== null) {
     refuserBtn.addEventListener("click", function () {
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
       tikCommentaires.setAttribute("required", "required");
     });
   }
+
   if (validerBtn !== null) {
     validerBtn.addEventListener("click", function () {
       tikCategorie.setAttribute("required", "required");
@@ -27,6 +29,73 @@ document.addEventListener("DOMContentLoaded", function () {
       tikCommentaires.removeAttribute("required");
     });
   }
+
+  /**
+   * BOUTON RESOUDRE, PLANIFIER ET TRANSFERER DE L'INTERVENANT
+   */
+  const resoudreBtn   = document.querySelector("#btn_resoudre");
+  const transfererBtn = document.querySelector("#btn_transferer");
+  const planifierBtn  = document.querySelector("#btn_planifier");
+
+  const dateDebutPlanning = document.querySelector("#detail_tik_dateDebutPlanning");
+  const dateFinPlanning   = document.querySelector("#detail_tik_dateFinPlanning");
+
+  if (resoudreBtn !== null) {
+    resoudreBtn.addEventListener("click", function () {
+      tikCommentaires.setAttribute("required", "required");
+      tikIntervenant.removeAttribute("required");
+      dateDebutPlanning.removeAttribute("required");
+      dateFinPlanning.removeAttribute("required");
+    });
+  }
+
+  if (transfererBtn !== null) {
+    transfererBtn.addEventListener("click", function () {
+      tikCommentaires.removeAttribute("required");
+      tikIntervenant.setAttribute("required", "required");
+      dateDebutPlanning.removeAttribute("required");
+      dateFinPlanning.removeAttribute("required");
+    });
+  }
+
+  if (planifierBtn !== null) {
+    planifierBtn.addEventListener("click", function () {
+      tikCommentaires.removeAttribute("required");
+      tikIntervenant.removeAttribute("required");
+      dateDebutPlanning.setAttribute("required", "required");
+      dateFinPlanning.setAttribute("required", "required");
+    });
+  }
+
+  dateDebutPlanning.addEventListener("change", validateDates);
+  dateFinPlanning.addEventListener("change", validateDates);
+
+  /**
+   * Formulaire 
+   */
+  const myForm = document.getElementById('formTik');
+  
+  function validateDates() {
+    const errorMessage = document.querySelector('.error-message');
+    const startDate = new Date(dateDebutPlanning.value);
+    const endDate   = new Date(dateFinPlanning.value);
+
+    // Vérifier si la date de fin est après la date de début
+    if (startDate && endDate && endDate < startDate) {
+      errorMessage.style.display = 'block'; // Afficher le message d'erreur
+      return false;
+    } else {
+      errorMessage.style.display = 'none';
+      return true;
+    }
+  }
+
+  // Valider la date lors de l'envoi du formulaire
+  myForm.addEventListener('submit', function(event) {
+    if (!validateDates()) {
+        event.preventDefault(); // Empêcher l'envoi du formulaire si les dates ne sont pas valides
+    }
+  });
   
   /**
    * Fonction pour switcher les champs disabled du formulaire avec id=formId
@@ -34,6 +103,10 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   function toggleFormDisabled(formId) {
     const form = document.getElementById(formId);
+    if (!form) {
+        console.error(`Element with ID "${formId}" not found.`);
+        return;
+    }
     const isDisabled = form.getAttribute('disabledEdit'); 
 
     if (form) {
@@ -151,7 +224,8 @@ const categorieInput = document.querySelector(".categorie");
 const sousCategorieInput = document.querySelector(".sous-categorie");
 const autreCategorieInput = document.querySelector(".autre-categorie");
 
-//AFFICHAGE SOUS CATEGORIES
+if (categorieInput !== null) {
+  //AFFICHAGE SOUS CATEGORIES
 categorieInput.addEventListener("change", selectCategorieSousCategorie);
 
 function selectCategorieSousCategorie() {
@@ -256,4 +330,5 @@ function selectCategorieSousCategorie() {
       })
       .catch((error) => console.error("Error:", error));
   }
+}
 }
