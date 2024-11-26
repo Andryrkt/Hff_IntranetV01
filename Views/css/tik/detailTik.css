@@ -82,7 +82,7 @@
     align-items: center;
 }
 .talk .msg {
-    padding: 10px;
+    padding: 7px 10px 3px;
     border-radius: 10px;
 }
 
@@ -112,13 +112,15 @@
 .user {
     display: block;
     align-self: flex-end;
-    transform: translateY(-10px);
 }
 .user span {
     color: #212529;
 }
 
+.error-message {display: none;}
+
 .icon-user {
+    margin: auto;
     width: 25px;
     height: 25px;
     color: #000;
