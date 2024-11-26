@@ -45,10 +45,9 @@ class Societte
     private $demandeInterventions;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="societtes")
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes")
      */
     private $users;
-   
 
     public function __construct()
     {
@@ -122,6 +121,9 @@ class Societte
     }
 
     
+     /**
+     * @return Collection|User[]
+     */ 
     public function getUsers(): Collection
     {
         return $this->users;
@@ -131,8 +133,9 @@ class Societte
     {
         if (!$this->users->contains($user)) {
             $this->users[] = $user;
-            $user->addSociette($this);
+            $user->setSociettes($this);
         }
+
         return $this;
     }
 
@@ -140,8 +143,18 @@ class Societte
     {
         if ($this->users->contains($user)) {
             $this->users->removeElement($user);
-            $user->removeSociette($this);
+            if ($user->getSociettes() === $this) {
+                $user->setSociettes(null);
+            }
         }
+        
+        return $this;
+    }
+
+    public function setUsers($users): self
+    {
+        $this->users = $users;
+
         return $this;
     }
 }

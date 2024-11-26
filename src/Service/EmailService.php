@@ -28,6 +28,7 @@ class EmailService
        //$this->mailer->Password = '2b6615f71ff2a7';
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port = 587;
+        $this->mailer->CharSet = 'UTF-8';
 
         // Définir l'expéditeur par défaut
         $this->mailer->setFrom("noreply.email@hff.mg", 'noreply');

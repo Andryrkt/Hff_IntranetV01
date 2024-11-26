@@ -2,11 +2,12 @@
 
 namespace App\Controller\tik;
 
+use App\Entity\tik\TikSearch;
 use App\Controller\Controller;
+use App\Form\tik\TikSearchType;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
-use App\Entity\tik\TikSearch;
-use App\Form\tik\TikSearchType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListeTikController extends Controller
@@ -21,6 +22,22 @@ class ListeTikController extends Controller
         
         $tikSearch = new TikSearch();
         
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole($user);
+        $autoriserIntervenant = $this->autorisationIntervenant($user);
+        $autorisation = [
+            'autoriser' => $autoriser,
+            'autoriserIntervenant' => $autoriserIntervenant
+        ];
+        //FIN AUTORISATION
+
+        $agenceServiceIps= $this->agenceServiceIpsObjet();
+
+        $this->initialisationFormRecherche( $autorisation, $agenceServiceIps, $tikSearch, $user);
+
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
             'method' => 'GET',
@@ -37,7 +54,14 @@ class ListeTikController extends Controller
         //nombre de ligne par page
         $limit = 10;
 
-        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch);
+        $option = [
+            'autorisation' => $autorisation,
+            'user' => $user,
+            'idAgence' => $tikSearch->getAgenceEmetteur() === null ? null :  $tikSearch->getAgenceEmetteur()->getId(),
+            'idService' => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId()
+        ];
+
+        $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data' => $paginationData['data'],
@@ -47,5 +71,42 @@ class ListeTikController extends Controller
             'form' => $form->createView(),
             'criteria' => $criteria,
         ]);
+    }
+
+    private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
+    {
+        if ($autorisation['autoriser']) {
+            $agenceIpsEmetteur = null;
+            $serviceIpsEmetteur = null;
+        } else {
+            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+            $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+        }
+
+        if($autorisation['autoriserIntervenant']) {
+            $intervenant = $user;
+        } else {
+            $intervenant = null;
+        }
+
+        $tikSearch
+            ->setAgenceEmetteur($agenceIpsEmetteur)
+            ->setServiceEmetteur($serviceIpsEmetteur)
+            ->setAutoriser($autorisation['autoriser'])
+            ->setNomIntervenant($intervenant)
+            ;
+    }
+
+    private function autorisationRole($user): bool
+    {
+        /** CREATION D'AUTORISATION */
+        $roleIds = $user->getRoleIds();
+        return in_array(1, $roleIds) || in_array(2, $roleIds) || in_array(8, $roleIds);
+    }
+
+    private function autorisationIntervenant($user): bool
+    {
+        $roleIds = $user->getRoleIds();
+        return in_array(8, $roleIds);
     }
 }

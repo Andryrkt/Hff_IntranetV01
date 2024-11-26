@@ -1,0 +1,16 @@
+<div class="email-header">
+    {{ numTik }} - TICKET 
+    <span class="{{ statut }}">
+        {% if statut == "valide" %}
+            VALIDÉ
+        {% elseif statut == "refuse" %}
+            REFUSÉ
+        {% elseif statut == "cloture" %}
+            CLÔTURÉ
+        {% elseif statut == "planifie" %}
+            PLANIFIÉ
+        {% elseif statut == "resolu" %}
+            RÉSOLU
+        {% endif %}
+    </span>
+</div>

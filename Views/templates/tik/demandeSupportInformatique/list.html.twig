@@ -100,13 +100,13 @@
 						</td>
 						<td>{{ item.agenceServiceEmetteur}}</td>
 						<td>{{ item.agenceServiceDebiteur}}</td>
-						<td>{{item.dateCreation | date('d/m/Y')}}</td>
+						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
 						<td>{{ item.parcInformatique }}</td>
 						<td>{{ item.niveauUrgence.description }}</td>
 						<td>{{ item.categorie.description}}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.nomIntervenant}}</td>
+						<td>{{ item.nomIntervenant }}</td>
 
 					</tr>
 				{% endfor %}

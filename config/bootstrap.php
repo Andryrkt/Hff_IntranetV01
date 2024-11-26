@@ -24,7 +24,7 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
-
+use App\Twig\CarbonExtension;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
@@ -169,6 +169,7 @@ $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
+$twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
 $publicPath = '/Hffintranet/public';
