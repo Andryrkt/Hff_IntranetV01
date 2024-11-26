@@ -355,11 +355,12 @@ class DitModel extends Model
           count(slor_constp) as NOMBRE_LIGNE,
           Sum(
               CASE
-                  WHEN slor_typlig = 'P' THEN (
-                      slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                  )
+                  WHEN slor_typlig = 'P' 
+                  THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
-              END * CASE
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -369,10 +370,10 @@ class DitModel extends Model
               CASE
                   WHEN slor_typlig = 'P'
                   AND slor_constp NOT like 'Z%'
-                  AND slor_constp <> 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  AND slor_constp <> 'LUB' THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -410,12 +411,14 @@ class DitModel extends Model
 
           Sum(
               CASE
-                  WHEN slor_typlig = 'P'
-                  AND slor_constp NOT like 'Z%'
-                  AND slor_constp = 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  WHEN 
+                    slor_typlig = 'P'
+                    AND slor_constp NOT like 'Z%'
+                    AND slor_constp = 'LUB' 
+                  THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END

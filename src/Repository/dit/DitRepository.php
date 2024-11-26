@@ -33,6 +33,8 @@ class DitRepository extends EntityRepository
 
             $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
 
+            $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
+
              // section affect et support section
             $this->applySection($queryBuilder, $ditSearch);
 
@@ -84,38 +86,7 @@ class DitRepository extends EntityRepository
         ];
     }
 
-    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
-    {
-        //if ($options['boolean']) {
-            if (!empty($ditSearch->getAgenceEmetteur())) {
-                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                    ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
-            }
-            if (!empty($ditSearch->getServiceEmetteur())) {
-                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
-                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
-            }
-        // } else {
-        //     if ($options['autorisationRoleEnergie']) {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
-        //     } else {
-        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
-        //     }
-        // }
-
-        if (!empty($ditSearch->getAgenceDebiteur())) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
-                        //->andWhere('d.agenceEmetteurId = :agEmet')
-                        ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
-                        //->setParameter('agEmet', $options['codeAgence'])
-                        ;
-        }
-
-        if (!empty($ditSearch->getServiceDebiteur())) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
-                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
-        }
-    }
+   
 
     /** =====================================================
      * Undocumented function
@@ -131,8 +102,6 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ->leftJoin('d.typeDocument', 'td')
             ->groupBy('s.description');
-
-            $statusesDefault = [50, 51, 53];
 
             // Appliquer le filtre par statut ou exclure les statuts par défaut
             if (!empty($ditSearch->getStatut())) {
@@ -184,6 +153,7 @@ class DitRepository extends EntityRepository
             ;
 
             $this->applyStatusFilter($queryBuilder, $ditSearch);
+            $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
             $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
 
          //filtre selon le section affectée
@@ -226,6 +196,40 @@ class DitRepository extends EntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+    private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
+    {
+        //if ($options['boolean']) {
+            if (!empty($ditSearch->getAgenceEmetteur())) {
+                $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+                    ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
+            }
+            if (!empty($ditSearch->getServiceEmetteur())) {
+                $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+                    ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
+            }
+        // } else {
+        //     if ($options['autorisationRoleEnergie']) {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [9, 10, 11]);
+        //     } else {
+        //         $this->applyAgencyRoleFilter($queryBuilder, $ditSearch, [$options['codeAgence']]);
+        //     }
+        // }
+
+        if (!empty($ditSearch->getAgenceDebiteur())) {
+            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
+                        //->andWhere('d.agenceEmetteurId = :agEmet')
+                        ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
+                        //->setParameter('agEmet', $options['codeAgence'])
+                        ;
+        }
+
+        if (!empty($ditSearch->getServiceDebiteur())) {
+            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+                ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
+        }
+    }
+
     
     private function applyStatusFilter($queryBuilder, DitSearch $ditSearch)
     {
@@ -240,6 +244,15 @@ class DitRepository extends EntityRepository
         }
     }
 
+
+    private function applyniveauUrgenceFilters($queryBuilder, DitSearch $ditSearch)
+    {
+        if (!empty($ditSearch->getNiveauUrgence())) {
+            $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
+                ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence()->getDescription() . '%');
+        }
+    }
+
     private function applyCommonFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
         // Filters for type, urgency, material, etc.
@@ -247,22 +260,22 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere('td.description LIKE :typeDocument')
                 ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
         }
-        if (!empty($ditSearch->getNiveauUrgence())) {
-            $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
-                ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence() . '%');
-        }
+        
         if (!empty($ditSearch->getIdMateriel())) {
             $queryBuilder->andWhere('d.idMateriel = :idMateriel')
                 ->setParameter('idMateriel', $ditSearch->getIdMateriel());
         }
+
         if (!empty($ditSearch->getInternetExterne())) {
             $queryBuilder->andWhere('d.internetExterne = :internetExterne')
                 ->setParameter('internetExterne', $ditSearch->getInternetExterne());
         }
+
         if (!empty($ditSearch->getDateDebut())) {
             $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $ditSearch->getDateDebut());
         }
+
         if (!empty($ditSearch->getDateFin())) {
             $queryBuilder->andWhere('d.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $ditSearch->getDateFin());
@@ -303,8 +316,6 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere("d.numeroOR = ''");
         }
 
-        
-        
     }
 
 
