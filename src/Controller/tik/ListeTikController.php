@@ -4,6 +4,11 @@ namespace App\Controller\tik;
 
 use App\Entity\tik\TikSearch;
 use App\Controller\Controller;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\admin\tik\TkiCategorie;
+use App\Entity\admin\tik\TkiSousCategorie;
 use App\Form\tik\TikSearchType;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,14 +50,13 @@ class ListeTikController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $tikSearch = $form->getData();
-
         }
 
-        $criterias =[];
+        $criteria=[];
         // transformer l'objet tikSearch en tableau
-        $criterias = $tikSearch->toArray();
+        $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
-        $this->sessionService->set('tik_search_criteria', []);
+        $this->sessionService->set('tik_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -74,13 +78,14 @@ class ListeTikController extends Controller
             'totalPages' =>$paginationData['lastPage'],
             'resultat' => $paginationData['totalItems'],
             'form' => $form->createView(),
-            'criteria' => $criterias,
+            'criteria' => $criteria,
         ]);
     }
 
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
-
+        $criteria = $this->sessionService->get('tik_search_criteria', []);
+        
         if ($autorisation['autoriser']) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
@@ -95,12 +100,35 @@ class ListeTikController extends Controller
             $intervenant = null;
         }
 
+        if (!empty($criteria)) {
+            $intervenant    = isset($criteria['nomIntervenant']) ? self::$em->getRepository(User::class)              ->find($criteria['nomIntervenant']) : null;
+            $statut         = isset($criteria['statut'])         ? self::$em->getRepository(StatutDemande::class)     ->find($criteria['statut'])         : null;
+            $niveauUrgence  = isset($criteria['niveauUrgence'])  ? self::$em->getRepository(WorNiveauUrgence::class)  ->find($criteria['niveauUrgence'])  : null;
+            $categorie      = isset($criteria['categorie'])      ? self::$em->getRepository(TkiCategorie::class)      ->find($criteria['categorie'])      : null;
+            $sousCategorie  = isset($criteria['sousCategorie'])  ? self::$em->getRepository(TkiSousCategorie::class)  ->find($criteria['sousCategorie'])  : null;
+            $autreCategorie = isset($criteria['autreCategorie']) ? self::$em->getRepository(TkiAutresCategorie::class)->find($criteria['autreCategorie']) : null;
+
+            $tikSearch
+                ->setNumeroTicket($criteria['numeroTicket'] ?? null)
+                ->setDemandeur($criteria['demandeur'] ?? null)
+                ->setNumParc($criteria['numParc'] ?? null)
+                ->setDateDebut($criteria['dateDebut'] ?? null)
+                ->setDateFin($criteria['dateFin'] ?? null)
+                ->setStatut($statut)
+                ->setNiveauUrgence($niveauUrgence)
+                ->setCategorie($categorie)
+                ->setSousCategorie($sousCategorie)
+                ->setAutresCategories($autreCategorie)
+            ;
+        }
+        
+
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)
             ->setServiceEmetteur($serviceIpsEmetteur)
             ->setAutoriser($autorisation['autoriser'] ?? false)
             ->setNomIntervenant($intervenant)
-            ;
+        ;
     }
 
     private function autorisationRole($user): bool

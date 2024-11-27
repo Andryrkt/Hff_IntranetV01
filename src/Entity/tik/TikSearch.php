@@ -374,22 +374,21 @@ class TikSearch
     public function toArray(): array
     {
         return [
-            'numeroTicket' => $this->numeroTicket ?? "",
-            'demandeur' => $this->demandeur ?? "",
-            'numParc' => $this->numParc ?? "",
-            'statut' => $this->statut ?? "",
-            'niveauUrgence' => $this->niveauUrgence ?? null,
-            'nomIntervenant' => $this->nomIntervenant ?? null,
-            'dateDebut' => $this->dateDebut ?? null,
-            'dateFin' => $this->dateFin ?? null,
-            'agenceEmetteur' => $this->agenceEmetteur ?? null,
-            'serviceEmetteur' => $this->serviceEmetteur ?? null,
-            'agenceDebiteur' => $this->agenceDebiteur ?? null,
-            'serviceDebiteur' => $this->serviceDebiteur ?? null,
-            'categorie' => $this->categorie ?? null,
-            'sousCategorie' => $this->sousCategorie ?? null,
-            'autreCategorie' => $this->autresCategories ?? null,
-            'autorisers' => false
+            'numeroTicket'    => $this->numeroTicket,
+            'demandeur'       => $this->demandeur,
+            'numParc'         => $this->numParc,
+            'statut'          => $this->statut === null ? null : $this->statut->getId(),
+            'niveauUrgence'   => $this->niveauUrgence === null ? null : $this->niveauUrgence->getId(),
+            'nomIntervenant'  => $this->nomIntervenant === null ? null : $this->nomIntervenant->getId(),
+            'dateDebut'       => $this->dateDebut,
+            'dateFin'         => $this->dateFin,
+            'agenceEmetteur'  => $this->agenceEmetteur === null ? null : $this->agenceEmetteur->getId(),
+            'serviceEmetteur' => $this->serviceEmetteur === null ? null : $this->serviceEmetteur->getId(),
+            'agenceDebiteur'  => $this->agenceDebiteur === null ? null : $this->agenceDebiteur->getId(),
+            'serviceDebiteur' => $this->serviceDebiteur === null ? null : $this->serviceDebiteur->getId(),
+            'categorie'       => $this->categorie === null ? null : $this->categorie->getId(),
+            'sousCategorie'   => $this->sousCategorie === null ? null : $this->sousCategorie->getId(),
+            'autreCategorie'  => $this->autresCategories === null ? null : $this->autresCategories->getId()
         ];
     }
 }
