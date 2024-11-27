@@ -138,7 +138,7 @@ class DetailTikController extends Controller
 
                     case 'planifier':
                         $supportInfo
-                            ->setIdStatutDemande($button['statut'])    // statut en cours
+                            ->setIdStatutDemande($button['statut'])    // statut planifié
                         ;
 
                         $planning = new TkiPlanning;
@@ -160,18 +160,38 @@ class DetailTikController extends Controller
 
                         $this->historiqueStatut($supportInfo, $button['statut']);
 
-                        $nomPrenomIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
-
-                        // Envoi email validation
-                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
+                        // Envoi email de planification
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser);
                         
                         $this->confirmerEnvoiEmail($this->emailTikPlanifie($variableEmail));
+
+                        $this->redirectToRoute("tik_calendar_planning");
 
                         break;
 
                     case 'transferer':
-                        # code...
+                        $supportInfo
+                            ->setIntervenant($dataForm->getIntervenant())                              // nouveau intervenant
+                            ->setNomIntervenant($dataForm->getIntervenant()->getNomUtilisateur())      // nom d'utilisateur du nouveau intervenant
+                            ->setMailIntervenant($dataForm->getIntervenant()->getMail())               // mail du nouveau intervenant
+                            // ->setIdStatutDemande($button['statut'])                                 ******* QUESTION: statut ????
+                        ;
+                        
+                        //envoi les donnée dans la base de donnée
+                        self::$em->persist($supportInfo);
+                        self::$em->flush(); 
+
+                        // $this->historiqueStatut($supportInfo, $button['statut']);                   ******* QUESTION: historisation ????      
+
+                        $nomPrenomNouveauIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
+
+                        // Envoi email de transfert
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomNouveauIntervenant);
+                        
+                        $this->confirmerEnvoiEmail($this->emailTikTransfere($variableEmail));
+        
                         break;
+
                         
                     case 'resoudre':
                         $commentaires = new TkiCommentaires;
@@ -229,15 +249,18 @@ class DetailTikController extends Controller
                 $this->redirectToRoute("liste_tik_index");
             }
 
+            $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 79;
+            $isIntervenant = $supportInfo->getIntervenant() !== null && ($supportInfo->getIntervenant()->getId() == $connectedUser->getId());
+
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
                 'tik'               => $supportInfo,
                 'form'              => $form->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),
                 'canComment'        => $canComment,
-                'statutOuvert'      => $supportInfo->getIdStatutDemande()->getId() == 79,
+                'statutOuvert'      => $statutOuvert,
                 'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
                 'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
-                'intervenant'       => ($supportInfo->getIdStatutDemande()->getId() == 81) && ($supportInfo->getIntervenant()->getId()==$connectedUser->getId()),  // statut en cours et l'utilisateur connecté est l'intervenant
+                'intervenant'       => !$statutOuvert && $isIntervenant,                   // statut différent de ouvert et l'utilisateur connecté est l'intervenant
                 'connectedUser'     => $connectedUser,
                 'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
                                                 ->findBy(
@@ -275,7 +298,7 @@ class DetailTikController extends Controller
         foreach ($actions as $code => $action) {
             if ($request->request->has($action)) {
                 return [
-                    'statut' => $statutDemande->find($code),
+                    'statut' => $statutDemande->find($code), // l'entité StatutDemande ayant un id=$code
                     'action' => $action
                 ];
             }
@@ -398,6 +421,25 @@ class DetailTikController extends Controller
             'variables' => [
                 'statut'      => "planifie",
                 'subject'     => "{$tab['numTik']} - Ticket planifié",
+                'tab'         => $tab,
+                'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket transferé
+     */
+    private function emailTikTransfere($tab): array
+    {
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur'], $tab['emailIntervenant']]));
+        return [ 
+            'to'        => $tabEmail[0],
+            'cc'        => array_slice($tabEmail, 1),
+            'template'  => $tab['template'],
+            'variables' => [ 
+                'statut'      => "transfere",
+                'subject'     => "{$tab['numTik']} - Ticket transféré",
                 'tab'         => $tab,
                 'action_url'  => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
             ]
