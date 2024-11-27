@@ -136,13 +136,7 @@ class DemandeSupportInformatiqueController extends Controller
                 $prefix = $supportInfo->getNumeroTicket() .'_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
-            $filePath = $chemin . '/' . $fileName;
-            $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
-            if (file_exists($filePath)) {
-                $fileSize = round(filesize($filePath) / 1024, 2);
-            } else {
-                $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
-            }
+                $fileSize = $this->tailleFichier($chemin, $fileName);
             
                 $fileNames[] = 
                     [
@@ -153,6 +147,18 @@ class DemandeSupportInformatiqueController extends Controller
         }
        // Enregistrez les noms des fichiers dans votre entité
         $supportInfo->setFileNames($fileNames);
+    }
+
+    private function tailleFichier(string $chemin, string $fileName): int
+    {
+        $filePath = $chemin . '/' . $fileName;
+        $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
+        if (file_exists($filePath)) {
+            $fileSize = round(filesize($filePath) / 1024, 2);
+        } else {
+            $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
+        }
+        return $fileSize;
     }
 }
 

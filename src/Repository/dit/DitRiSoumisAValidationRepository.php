@@ -52,7 +52,6 @@ class DitRiSoumisAValidationRepository extends EntityRepository
 
     public function findNbreNumItv($numOr)
     {
-            // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
             $nbrItv = $this->createQueryBuilder('rsv')
                 ->select('COUNT(rsv.numeroItv)')  
                 ->where('rsv.numeroOR = :numOr') 
