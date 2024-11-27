@@ -70,6 +70,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->notification($message);
             }
             
+            /** DEBUT CONDITION DE BLOCAGE */
             $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
 
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
@@ -84,6 +85,7 @@ class DitOrsSoumisAValidationController extends Controller
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
             
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
+             /** FIN CONDITION DE BLOCAGE */
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
@@ -114,9 +116,9 @@ class DitOrsSoumisAValidationController extends Controller
                 ;
                 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-                // dump($orSoumisValidationModel);
+                 //dump($orSoumisValidationModel);
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
-                // dump($orSoumisValidataion);
+                 //dump($orSoumisValidataion);
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);
@@ -172,7 +174,7 @@ class DitOrsSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-    private function envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis) 
+    private function envoieDonnerDansBd($orSoumisValidataion) 
     {
         // Persist les entités liées
         if(count($orSoumisValidataion) > 1){

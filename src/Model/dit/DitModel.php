@@ -440,7 +440,8 @@ class DitModel extends Model
               'CSP',
               'MAS'
           )
-          AND seor_numor = '".$numOr."'
+          --AND seor_numor = '".$numOr."'
+          AND seor_numor = '51302469'
           --AND SEOR_SUCC = '01'
           group by
               1,
