@@ -60,6 +60,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (planifierBtn !== null) {
     planifierBtn.addEventListener("click", function () {
+      const errorMessage = document.querySelector('.error-message-intervenant');
+      errorMessage.style.display = 'none';
       tikCommentaires.removeAttribute("required");
       tikIntervenant.removeAttribute("required");
       dateDebutPlanning.setAttribute("required", "required");
@@ -90,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  tikIntervenant.addEventListener("change", validateIntervenant)
+  tikIntervenant.addEventListener("change", validateIntervenant);
 
   function validateIntervenant() {
     const errorMessage = document.querySelector('.error-message-intervenant');
@@ -108,8 +110,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Valider la date lors de l'envoi du formulaire
   myForm.addEventListener('submit', function(event) {
-    if (!validateDates() || !validateIntervenant()) {
-        event.preventDefault(); // Empêcher l'envoi du formulaire si les dates ne sont pas valides
+    const boutonClique = event.submitter.name;
+    let condition = false;
+
+    switch (boutonClique) {
+      case "transferer":
+        condition = !validateIntervenant();
+        break;
+
+      case "planifier":
+        condition = !validateDates();
+        break;
+    
+      default:
+        break;
+    }
+    if (condition) {
+        event.preventDefault(); 
     }
   });
   
