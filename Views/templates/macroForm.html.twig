@@ -156,3 +156,8 @@
   {% endfor %}
 </ul>
 {% endmacro %} 
+
+{# Fonction pour concaténer une catégorie et sous-catégorie #}
+{% macro concat(categorie, sousCategorie) %}
+    {{ sousCategorie ? categorie ~ '/' ~ sousCategorie : categorie }}
+{% endmacro %}

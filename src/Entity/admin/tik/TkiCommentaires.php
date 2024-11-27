@@ -67,9 +67,9 @@ class TkiCommentaires
     private $utilisateur;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="json", name="fichiers_detail")
      */
-    private ?string $fichiers_detail;
+    private $fileNames = [];
 
     public function __construct($numeroTicket = '', $nomUtilisateur = '') {
         $this->numeroTicket   = $numeroTicket;
@@ -223,26 +223,6 @@ class TkiCommentaires
     }
 
     /**
-     * Get the value of fichiers_detail
-     */ 
-    public function getFichiers_detail()
-    {
-        return $this->fichiers_detail;
-    }
-
-    /**
-     * Set the value of fichiers_detail
-     *
-     * @return  self
-     */ 
-    public function setFichiers_detail($fichiers_detail)
-    {
-        $this->fichiers_detail = $fichiers_detail;
-
-        return $this;
-    }
-
-    /**
      * Get the value of utilisateur
      */ 
     public function getUtilisateur()
@@ -278,6 +258,26 @@ class TkiCommentaires
     public function setDemandeSupportInformatique($demandeSupportInformatique)
     {
         $this->demandeSupportInformatique = $demandeSupportInformatique;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */ 
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */ 
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
 
         return $this;
     }

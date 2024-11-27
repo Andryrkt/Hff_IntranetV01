@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="/Hffintranet/Views/css/tik/liste.css">
 {% endblock %}
 
-{# {% import "macroForm.html.twig" as form %} #}
+{% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
@@ -103,7 +103,7 @@
 						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
 						<td>{{ item.parcInformatique }}</td>
 						<td>{{ item.niveauUrgence.description }}</td>
-						<td>{{ item.categorie.description}}</td>
+						<td>{{ macroForm.concat(item.categorie.description, item.sousCategorie.description)}}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
 						<td>{{ item.nomIntervenant }}</td>

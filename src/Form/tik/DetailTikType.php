@@ -17,7 +17,7 @@ use App\Repository\admin\utilisateur\UserRepository;
 use App\Service\SessionManagerService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -35,15 +35,21 @@ class DetailTikType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('dateDebutPlanning', DateType::class, [
+            ->add('dateDebutPlanning', DateTimeType::class, [
                 'label'      => 'Début planning',
-                'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
-                'widget'     => 'single_text',
+                'attr'       => [
+                    'disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
+                    'type' => 'datetime-local' // Utilisation de l'input datetime-local
+                ],
+                'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
                 'required'   => false,
             ])
-            ->add('dateFinPlanning', DateType::class, [
+            ->add('dateFinPlanning', DateTimeType::class, [
                 'label'      => 'Fin planning',
-                'attr'       => ['disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
+                'attr'       => [
+                    'disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
+                    'type' => 'datetime-local' // Utilisation de l'input datetime-local
+                ],
                 'widget'     => 'single_text',
                 'required'   => false,
             ])

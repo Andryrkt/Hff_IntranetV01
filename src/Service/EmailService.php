@@ -61,8 +61,10 @@ class EmailService
 
         // Set the recipient
         $this->twigMailer->getPhpMailer()->addAddress($to);
-        foreach ($cc as $c) {
-            $this->twigMailer->getPhpMailer()->addCC($c);
+        if ($cc !== null) {
+            foreach ($cc as $c) {
+                $this->twigMailer->getPhpMailer()->addCC($c);
+            }
         }
 
         // Send the email

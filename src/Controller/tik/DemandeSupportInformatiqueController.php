@@ -133,7 +133,7 @@ class DemandeSupportInformatiqueController extends Controller
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
-                $prefix = $supportInfo->getNumeroTicket() .'_';
+                $prefix = $supportInfo->getNumeroTicket() .'_detail_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
                 $fileSize = $this->tailleFichier($chemin, $fileName);
