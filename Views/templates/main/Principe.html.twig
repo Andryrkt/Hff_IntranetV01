@@ -188,7 +188,6 @@
 					</li>
 				{% endif %}
 
-
 				{% if hasTIK %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -201,7 +200,9 @@
 								<a class="dropdown-item" href="{{ path("liste_tik_index")}}">Consultation
 								</a>
 							</li>
-
+							<li>
+								<a class="dropdown-item" href="{{ path("tik_calendar_planning")}}">Planning</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}

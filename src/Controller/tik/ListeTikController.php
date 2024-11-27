@@ -49,11 +49,13 @@ class ListeTikController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria =[];
+        
         if($form->isSubmitted() && $form->isValid())
         {
             $tikSearch = $form->getData();
         }
+
+        $criteria=[];
         // transformer l'objet tikSearch en tableau
         $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
@@ -127,7 +129,7 @@ class ListeTikController extends Controller
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)
             ->setServiceEmetteur($serviceIpsEmetteur)
-            ->setAutoriser($autorisation['autoriser'])
+            ->setAutoriser($autorisation['autoriser'] ?? false)
             ->setNomIntervenant($intervenant)
         ;
     }
