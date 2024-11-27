@@ -44,8 +44,13 @@ class ListeTikController extends Controller
         $criteria =[];
         if($form->isSubmitted() && $form->isValid())
         {
-            // $criteria$form->getData());
+            $criteria = $form->getData();
         }
+        // transformer l'objet tikSearch en tableau
+        $criteria = $criteria->toArray();
+        //recupères les données du criteria dans une session nommé tik_search_criteria
+        $this->sessionService->set('tik_search_criteria', $criteria);
+
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
