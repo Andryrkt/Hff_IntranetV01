@@ -41,15 +41,18 @@ class ListeTikController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria =[];
+        
         if($form->isSubmitted() && $form->isValid())
         {
-            $criteria = $form->getData();
+            $tikSearch = $form->getData();
+
         }
+
+        $criterias =[];
         // transformer l'objet tikSearch en tableau
-        $criteria = $criteria->toArray();
+        $criterias = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
-        $this->sessionService->set('tik_search_criteria', $criteria);
+        $this->sessionService->set('tik_search_criteria', []);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -71,12 +74,13 @@ class ListeTikController extends Controller
             'totalPages' =>$paginationData['lastPage'],
             'resultat' => $paginationData['totalItems'],
             'form' => $form->createView(),
-            'criteria' => $criteria,
+            'criteria' => $criterias,
         ]);
     }
 
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
+
         if ($autorisation['autoriser']) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
@@ -94,7 +98,7 @@ class ListeTikController extends Controller
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)
             ->setServiceEmetteur($serviceIpsEmetteur)
-            ->setAutoriser($autorisation['autoriser'])
+            ->setAutoriser($autorisation['autoriser'] ?? false)
             ->setNomIntervenant($intervenant)
             ;
     }

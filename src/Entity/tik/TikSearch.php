@@ -374,21 +374,22 @@ class TikSearch
     public function toArray(): array
     {
         return [
-            'numeroTicket' => $this->numeroTicket,
-            'demandeur' => $this->demandeur,
-            'numParc' => $this->numParc,
-            'statut' => $this->statut,
-            'niveauUrgence' => $this->niveauUrgence,
-            'nomIntervenant' => $this->nomIntervenant,
-            'dateDebut' => $this->dateDebut,
-            'dateFin' => $this->dateFin,
-            'agenceEmetteur' => $this->agenceEmetteur,
-            'serviceEmetteur' => $this->serviceEmetteur,
-            'agenceDebiteur' => $this->agenceDebiteur,
-            'serviceDebiteur' => $this->serviceDebiteur,
-            'categorie' => $this->categorie,
-            'sousCategorie' => $this->sousCategorie,
-            'autreCategorie' => $this->autresCategories
+            'numeroTicket' => $this->numeroTicket ?? "",
+            'demandeur' => $this->demandeur ?? "",
+            'numParc' => $this->numParc ?? "",
+            'statut' => $this->statut ?? "",
+            'niveauUrgence' => $this->niveauUrgence ?? null,
+            'nomIntervenant' => $this->nomIntervenant ?? null,
+            'dateDebut' => $this->dateDebut ?? null,
+            'dateFin' => $this->dateFin ?? null,
+            'agenceEmetteur' => $this->agenceEmetteur ?? null,
+            'serviceEmetteur' => $this->serviceEmetteur ?? null,
+            'agenceDebiteur' => $this->agenceDebiteur ?? null,
+            'serviceDebiteur' => $this->serviceDebiteur ?? null,
+            'categorie' => $this->categorie ?? null,
+            'sousCategorie' => $this->sousCategorie ?? null,
+            'autreCategorie' => $this->autresCategories ?? null,
+            'autorisers' => false
         ];
     }
 }
