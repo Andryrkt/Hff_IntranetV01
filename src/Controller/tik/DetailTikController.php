@@ -165,7 +165,7 @@ class DetailTikController extends Controller
                         $this->historiqueStatut($supportInfo, $button['statut']);
 
                         // Envoi email de planification
-                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser);
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $dataForm->getDateDebutPlanning());
                         
                         $this->confirmerEnvoiEmail($this->emailTikPlanifie($variableEmail));
 
