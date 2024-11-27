@@ -32,13 +32,15 @@ class CasierController extends Controller
      */
     public function NouveauCasier(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
             $casier = new Casier();
 
-            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+            $agenceService = $this->agenceServiceIpsString();
     
-            $casier->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-            $casier->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
+            $casier->setAgenceEmetteur($agenceService['agenceIps']  );
+            $casier->setServiceEmetteur($agenceService['serviceIps']);
             
             $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
             
@@ -64,9 +66,8 @@ class CasierController extends Controller
                     $this->sessionService->set('casierform1Data', $formData);
                     $this->redirectToRoute("casiser_formulaireCasier");
                 }
-
             }
-           
+            
 
             self::$twig->display(
                 'badm/casier/nouveauCasier.html.twig',
@@ -82,7 +83,9 @@ class CasierController extends Controller
      */
     public function FormulaireCasier(Request $request)
     {
-        
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);
         
@@ -185,6 +188,9 @@ class CasierController extends Controller
      */
     public function casierDestinataire()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
          //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();

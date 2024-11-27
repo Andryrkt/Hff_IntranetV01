@@ -20,7 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class DitOrsSoumisAValidationType extends AbstractType
 {
-   
+    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -52,23 +52,24 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'data' => $options['data']->getNumeroOR()
             ])
             ->add('pieceJoint01', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => true,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuiller sélectionner l\'OR .', // Message d'erreur si le champ est vide
-                    ]),
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                    ])
-                ],
-            ])
+                FileType::class, 
+                [
+                    'label' => 'Upload File',
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Veuiller sélectionner l\'OR.', // Message d'erreur si le champ est vide
+                        ]),
+                        new File([
+                            'maxSize' => '5M',
+                            'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.', // Message personnalisé pour la taille
+                            'mimeTypes' => [
+                                'application/pdf',
+                            ],
+                            'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
+                        ])
+                    ],
+                ])
             ->add('pieceJoint02', 
             FileType::class, 
             [
@@ -77,10 +78,11 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',
+                        'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.',
                         'mimeTypes' => [
                             'application/pdf',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                     ])
                 ],
             ])
@@ -92,10 +94,11 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',
+                        'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.',
                         'mimeTypes' => [
                             'application/pdf',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                     ])
                 ],
             ])
@@ -107,10 +110,11 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',
+                        'maxSizeMessage' => 'Le fichier ne doit pas dépasser 5 Mo.',
                         'mimeTypes' => [
                             'application/pdf',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                     ])
                 ],
             ])

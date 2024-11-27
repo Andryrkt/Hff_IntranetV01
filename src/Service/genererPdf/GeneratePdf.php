@@ -34,8 +34,18 @@ class GeneratePdf
         
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/RI_' .$numeroOR.'-'. $numeroVersion. '.pdf';
+        $cheminFichierDistant = 'C:/DOCUWARE/RAPPORT_INTERVENTION/RI_' .$numeroOR.'-'. $numeroVersion. '.pdf';
         $cheminDestinationLocal = 'C:/wamp64/www/Upload/vri/RI_' .$numeroOR.'-'.$numeroVersion . '.pdf'; // avec tiret 6
         copy($cheminDestinationLocal, $cheminFichierDistant);
     } 
+
+    public function copyToDWCdeSoumis($fileName){
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' .$fileName;
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/cde/' .$fileName;
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "okey";
+        } else {
+            echo "sorry";
+        }
+    }
 }

@@ -7,9 +7,12 @@ use App\Model\planning\PlanningModel;
 
 use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
+use Dotenv\Parser\Entry;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,14 +20,15 @@ class PlanningController extends Controller
 {        
     use Transformation; 
     use PlanningTraits;
+
         private PlanningModel $planningModel;
+        private PlanningSearch $planningSearch;
         
-           public function __construct()
+        public function __construct()
         {
             parent::__construct();
             $this->planningModel = new PlanningModel();
-          
-
+            $this->planningSearch = new PlanningSearch();
         }
 
         /**
@@ -32,186 +36,289 @@ class PlanningController extends Controller
          * 
          * @return void
          */
-        public function listePlanning( Request $request){
+        public function listePlanning( Request $request)
+        {
+            //verification si user connecter
+            $this->verifierSessionUtilisateur();
+
             
-            $planningSearch = new PlanningSearch();
             //initialisation
-            $planningSearch
+            $this->planningSearch
                 ->setAnnee(date('Y'))
                 ->setFacture('ENCOURS')
                 ->setPlan('PLANIFIE')
                 ->setInterneExterne('TOUS')
                 ->setTypeLigne('TOUETS')
             ;
-        
-           
-            
-            $form = self::$validator->createBuilder(PlanningSearchType::class,$planningSearch,
+
+            $form = self::$validator->createBuilder(PlanningSearchType::class,$this->planningSearch,
             [ 
                 'method' =>'GET'
             ])->getForm();
 
             $form->handleRequest($request);
-            $criteria = $planningSearch;
+            //initialisation criteria
+            $criteria = $this->planningSearch;
+
             if($form->isSubmitted() && $form->isValid())
             {
                   // dd($form->getdata());
                 $criteria =  $form->getdata();
-
             }
+
+            /**
+             * Transformation du critère en tableau
+             */
             $criteriaTAb = [];
             //transformer l'objet ditSearch en tableau
             $criteriaTAb = $criteria->toArray();
-            // dump($criteriaTAb);
             //recupères les données du criteria dans une session nommé dit_serch_criteria
             $this->sessionService->set('planning_search_criteria', $criteriaTAb);
 
-           
-            if($request->query->get('action') !== 'oui') {
-               
+            
+            if($request->query->get('action') !== 'oui') 
+            {
                 $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-                
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
+
+                $data = $this->planningModel->recuperationMaterielplanifier($criteria,$lesOrvalides);
             } else {
                 $data = [];
             }
             
+            $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+            // Fusionner les objets en fonction de l'idMat
+            $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
+
             
-           
-             
-            $table = [];
-            //Recuperation de idmat et les truc
-            foreach ($data as $item ) {
-                $planningMateriel = new PlanningMateriel();
-                  //initialisation
-                 $planningMateriel
-                        ->setCodeSuc($item['codesuc'])
-                        ->setLibSuc($item['libsuc'])
-                        ->setCodeServ($item['codeserv'])
-                        ->setLibServ($item['libserv'])
-                        ->setIdMat($item['idmat'])
-                        ->setMarqueMat($item['markmat'])
-                        ->setTypeMat($item['typemat'])
-                        ->setNumSerie($item['numserie'])
-                        ->setNumParc($item['numparc'])
-                        ->setCasier($item['casier'])
-                        ->setAnnee($item['annee'])
-                        ->setMois($item['mois'])
-                        ->setOrIntv($item['orintv'])
-                        ->setQteCdm($item['qtecdm'])
-                        ->setQteLiv($item['qtliv'])
-                        ->setQteAll($item['qteall'])
-                        ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'])
-                    ;
-                    $table[] = $planningMateriel;
-            }
-
-
-// Fusionner les objets en fonction de l'idMat
-
-$fusionResult = [];
-foreach ($table as $materiel) {
-    $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
-
-    if (!isset($fusionResult[$key])) {
-        $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
-    } else {
-        // Si l'élément existe déjà, on fusionne les détails des mois
-        foreach ($materiel->moisDetails as $moisDetail) {
-            $fusionResult[$key]->addMoisDetail(
-                $moisDetail['mois'],
-                $moisDetail['orIntv'],
-                $moisDetail['qteCdm'],
-                $moisDetail['qteLiv'],
-                $moisDetail['qteAll']
-            );
-        }
-    }
-}
-// dump($fusionResult);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'data' => $fusionResult
-
             ]);
         }
 
 
-     /**
-     * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
-     */
-    public function serviceDebiteur($agenceId)
-    {
-        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
-       
-        header("Content-type:application/json");
-
-        echo json_encode($serviceDebiteur);
-    }
-   
     /**
-     * @Route("/detail-modal/{numOr}", name="liste_detailModal")
-     *
-     * @return void
+     * @Route("/export_excel_planning", name= "export_planning")
      */
-    public function detailModal($numOr)
-    {
-        $criteria = $this->sessionService->get('planning_search_criteria', []);
-    // dd($criteria);
-        //RECUPERATION DE LISTE DETAIL 
-        if ($numOr === '') {
-            $details = [];
-        } else {
-            $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
+    public function exportExcel(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
         
-            $detailes = [];
-            $recupPariel = [];
-            $recupGot = [];
-            for ($i=0; $i < count($details); $i++) { 
+        $criteria = $this->sessionService->get('planning_search_criteria');
 
-               
-                if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
-                   $recupGot = [];
-                } else {
-                    $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
-                    $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
-                    $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
+        $planningSearch = $this->creationObjetCriteria($criteria);
+        
+        $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+
+        $data = $this->planningModel->exportExcelPlanning($planningSearch,$lesOrvalides);
+
+        
+        
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
+
+        
+
+                // Convertir les entités en tableau de données
+                $data = [];
+                $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
+                foreach ($fusionResult as $entity) {
+                    $row = [
+                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                        $entity->getIdMat(),
+                        $entity->getMarqueMat(),
+                        $entity->getTypeMat(),
+                        $entity->getnumSerie(),
+                        $entity->getnumParc(),
+                        $entity->getCasier(),
+                    ];
+                
+                    // Initialiser les mois avec des valeurs par défaut
+                    $moisData = array_fill(1, 12, '-');
+                
+                    // Ajouter les données des mois disponibles
+                    foreach ($entity->getMoisDetails() as $value) {
+                        if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
+                            if ($moisData[$value['mois']] !== '-') {
+                                $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
+                            } else {
+                                $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
+                            }
+                        }
+                    }
+                
+                    // Fusionner les données générales avec celles des mois
+                    $data[] = array_merge($row, $moisData);
                 }
                 
-                if(!empty($detailes[0])){
-                        $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
-                        $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin']; 
-                        $detailes = [];                 
-                } 
-                else {
-                    $details[$i]['Eta_ivato'] = "";
-                    $details[$i]['Eta_magasin'] = "";  
-                    $detailes = [];              
-                } 
-                
-                if(!empty($recupPariel[$i])){
-                    $details[$i]['qteSlode'] = $recupPariel[$i]['0']['solde'];
-                    $details[$i]['qte'] = $recupPariel[$i]['0']['qte'];
-                }else{
-                    $details[$i]['qteSlode'] = "";
-                    $details[$i]['qte'] = "";
-                }
-                // dump($recupGot);
-                if(!empty($recupGot)){
-                   
-                    $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
+                $this->excelService->createSpreadsheet($data);
+    }
 
-                }else{
-                     $details[$i]['Ord'] = "";
+
+
+    
+    /**
+     * @Route("/export_excel_planning01", name= "export_planning01")
+     */
+    public function exportExcel01(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
+        $criteria = $this->sessionService->get('planning_search_criteria');
+
+        $planningSearch = $this->creationObjetCriteria($criteria);
+        
+        $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+
+        $data = $this->planningModel->exportExcelPlanning($planningSearch,$lesOrvalides);
+
+        
+        $tabObjetPlanning = $this->creationTableauObjetExport($data);
+       
+        
+
+                // Convertir les entités en tableau de données
+                $data = [];
+                $data[] = ['Agence\Service','N°OR-Itv', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Mois planning','Statut IPS','COMMENTAIRE ICI','ACTION']; // En-têtes des colonnes
+                foreach ($tabObjetPlanning as $entity) {
+                    $data[] = [
+                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                        $entity->getOrIntv(),
+                        $entity->getIdMat(),
+                        $entity->getMarqueMat(),
+                        $entity->getTypeMat(),
+                        $entity->getnumSerie(),
+                        $entity->getnumParc(),
+                        $entity->getCasier(),
+                        $entity->getMois(),
+                        $entity->getPos()
+                        
+                    ];
+                }
+                
+                $this->excelService->createSpreadsheet($data);
+    }
+
+    private function creationObjetCriteria(array $criteria): PlanningSearch
+    {
+        //crée une objet à partir du tableau critère reçu par la session
+        $this->planningSearch
+            ->setAgence($criteria["agence"])
+            ->setAnnee($criteria["annee"])
+            ->setInterneExterne($criteria["interneExterne"])
+            ->setFacture($criteria["facture"])
+            ->setPlan($criteria["plan"])
+            ->setDateDebut($criteria["dateDebut"])
+            ->setDateFin($criteria["dateFin"])
+            ->setNumOr($criteria["numOr"])
+            ->setNumSerie($criteria["numSerie"])
+            ->setIdMat($criteria["idMat"])
+            ->setNumParc($criteria["numParc"])
+            ->setAgenceDebite($criteria["agenceDebite"])
+            ->setServiceDebite($criteria["serviceDebite"])
+            ->setTypeligne($criteria["typeligne"])  
+            
+        ;
+
+        return $this->planningSearch;
+    }
+
+    private function creationTableauObjetExport(array $data):array{
+
+         $objetPlanning = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item ) {
+            $planningMateriel = new PlanningMateriel();
+          
+            
+            //initialisation
+                $planningMateriel
+                    ->setCodeSuc($item['codesuc'])
+                    ->setLibSuc($item['libsuc'])
+                    ->setCodeServ($item['codeserv'])
+                    ->setLibServ($item['libserv'])
+                    ->setIdMat($item['idmat'])
+                    ->setMarqueMat($item['markmat'])
+                    ->setTypeMat($item['typemat'])
+                    ->setNumSerie($item['numserie'])
+                    ->setNumParc($item['numparc'])
+                    ->setCasier($item['casier'])
+                    ->setAnnee($item['annee'])
+                    ->setMois($item['mois'])
+                    ->setPos($item['slor_pos'])
+                    ->setOrIntv($item['orintv'])
+                    
+                ;
+                $objetPlanning[] = $planningMateriel;
+        }
+       
+        return $objetPlanning;
+    }
+
+    private function creationTableauObjetPlanning(array $data): array
+    {
+        
+        $objetPlanning = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item ) {
+            $planningMateriel = new PlanningMateriel();
+            $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
+            $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
+            $migration = $ditRepositoryConditionner->getMigration();
+            
+            //initialisation
+                $planningMateriel
+                    ->setCodeSuc($item['codesuc'])
+                    ->setLibSuc($item['libsuc'])
+                    ->setCodeServ($item['codeserv'])
+                    ->setLibServ($item['libserv'])
+                    ->setIdMat($item['idmat'])
+                    ->setMarqueMat($item['markmat'])
+                    ->setTypeMat($item['typemat'])
+                    ->setNumSerie($item['numserie'])
+                    ->setNumParc($item['numparc'])
+                    ->setCasier($item['casier'])
+                    ->setAnnee($item['annee'])
+                    ->setMois($item['mois'])
+                    ->setOrIntv($item['orintv'])
+                    ->setQteCdm($item['qtecdm'])
+                    ->setQteLiv($item['qtliv'])
+                    ->setQteAll($item['qteall'])
+                    ->setNumDit($numDit)
+                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
+                ;
+                $objetPlanning[] = $planningMateriel;
+        }
+        return $objetPlanning;
+    }
+
+    private function ajoutMoiDetail(array $objetPlanning): array
+    {
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = [];
+        foreach ($objetPlanning as $materiel) {
+            $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+            if (!isset($fusionResult[$key])) {
+                $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+            } else {
+                // Si l'élément existe déjà, on fusionne les détails des mois
+                foreach ($materiel->moisDetails as $moisDetail) {
+
+                    $fusionResult[$key]->addMoisDetail(
+                        $moisDetail['mois'],
+                        $moisDetail['orIntv'],
+                        $moisDetail['qteCdm'],
+                        $moisDetail['qteLiv'],
+                        $moisDetail['qteAll'],
+                        $moisDetail['numDit'],
+                        $moisDetail['migration']
+                    );
                 }
                 
             }
-
         }
 
-        // dd($details);
-        header("Content-type:application/json");
-
-        echo json_encode($details);
+        return $fusionResult;
     }
 }

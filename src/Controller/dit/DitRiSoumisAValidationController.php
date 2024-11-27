@@ -2,6 +2,9 @@
 
 namespace App\Controller\dit;
 
+ini_set('upload_max_filesize', '5M');
+ini_set('post_max_size', '5M');
+
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\DitTypeDocument;
@@ -26,6 +29,9 @@ class DitRiSoumisAValidationController extends Controller
      */
     public function riSoumisAValidation(Request $request, $numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
         if(empty($numOrBaseDonner)){
@@ -85,14 +91,13 @@ class DitRiSoumisAValidationController extends Controller
                 
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
                 $ditRiSoumiAValidation
-                ->setNumeroDit($numDit)
-                ->setNumeroOR($dataForm->getNumeroOR())
-                ->setHeureSoumission($this->getTime())
-                ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                ->setNumeroSoumission($numeroSoumission)
+                    ->setNumeroDit($numDit)
+                    ->setNumeroOR($dataForm->getNumeroOR())
+                    ->setHeureSoumission($this->getTime())
+                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                    ->setNumeroSoumission($numeroSoumission)
                 ;
 
-                
                 $historique = new DitHistoriqueOperationDocument();
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
                 
@@ -153,8 +158,6 @@ class DitRiSoumisAValidationController extends Controller
                         ;
                     self::$em->persist($historique); // Persist l'historique avec les entités liées
 
-                    
-                    
 
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
@@ -168,8 +171,6 @@ class DitRiSoumisAValidationController extends Controller
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
                 $this->redirectToRoute("dit_index");
             }
-
-
         } 
 
 

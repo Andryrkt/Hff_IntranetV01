@@ -97,7 +97,6 @@ trait ConditionModelTrait
 
     private function conditionOrCompletOuNonOrALivrer(string $indexCriteria, array $lesOrSelonCondition, array $criteria): string 
     {
-
         if(!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === 'ORs COMPLET'){
                 $orCompletNom = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$lesOrSelonCondition['numOrLivrerComplet']."')";
@@ -133,6 +132,18 @@ trait ConditionModelTrait
         }
 
         return $agenceUser;
+    }
+
+    private function conditionOrValide($orValides, $numORItvValides)
+    {
+        if($orValides)
+        {
+            $orValide = " AND slor_numor||'-'||TRUNC(slor_nogrp/100) IN ('".$numORItvValides."')";
+        } else {
+            $orValide = '';
+        }
+
+        return $orValide;
     }
 
 }

@@ -18,11 +18,11 @@
 					</h3>
 					<div class="d-flex justify-content-between">
 						<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold  fond-btn">Retour</a>
-						{% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %}
-						<a href="/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank">
-							<i class="fas fa-print"></i>
-							Imprimer
-						</a>
+						{# {% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %} #}
+					{# <a href="/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank"> #}
+						{# <i class="fas fa-print"></i> #}
+						{# Imprimer #}
+						{# </a> #}
 					</div>
 
 

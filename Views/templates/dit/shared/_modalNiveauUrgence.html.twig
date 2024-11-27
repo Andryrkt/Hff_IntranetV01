@@ -1,0 +1,75 @@
+<div class="modal fade" tabindex="-1" id="niveauUrgence" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Liste Niveau d'Urgence
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			{# body du modal#}
+			<div
+				class="modal-body">
+
+				<!-- Contenu des données -->
+				<div>
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th class="text-center">Ordre de priorité</th>
+								<th>Définition</th>
+								<th class="text-center">Délestage</th>
+								<th class="text-center">Pénalités</th>
+								<th>Délai d'intervention</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="text-center">P0</td>
+								<td>Machine à l'arrêt, backup non dispo</td>
+								<td class="text-center">Oui</td>
+								<td class="text-center">Oui</td>
+								<td>Intervention immédiate</td>
+							</tr>
+							<tr>
+								<td class="text-center">P1</td>
+								<td>Machine à l'arrêt, bakup dispo</td>
+								<td class="text-center">Non</td>
+								<td class="text-center">Non</td>
+								<td>Intervention < 1 semaine / fonction de la dispo de PDR
+								</td>
+							</tr>
+							<tr>
+								<td class="text-center">P2</td>
+								<td>Maintenance Planifiée
+									<br>
+									- Maintenance périodique
+									<br>
+									- Nettoyages radiateur
+									<br>
+									- Réglage soupape
+									<br>
+									- Etc…
+								</td>
+								<td class="text-center">Non</td>
+								<td class="text-center">Non</td>
+								<td>Intervention < 1 mois</td>
+							</tr>
+							<tr>
+								<td class="text-center">P3</td>
+								<td>Révision générale
+									<br>
+									- Top END
+									<br>
+									- Major Overhaul
+								</td>
+								<td class="text-center">Non</td>
+								<td class="text-center">Non</td>
+								<td>Intervention > 6 mois</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

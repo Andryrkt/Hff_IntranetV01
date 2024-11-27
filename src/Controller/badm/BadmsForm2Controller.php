@@ -27,6 +27,9 @@ class BadmsForm2Controller extends Controller
      */
     public function newForm1(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $badm = new Badm();
 
         //recupération des donnée qui vient du formulaire 1

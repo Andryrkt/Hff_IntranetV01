@@ -11,7 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class NatemaDitController extends Controller
 {
     public function index(){
-           
         $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
@@ -28,6 +27,8 @@ class NatemaDitController extends Controller
      */
     public function new(Request $request){
         
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(NatemaDitType::class)->getForm();
 

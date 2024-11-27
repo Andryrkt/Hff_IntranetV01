@@ -38,20 +38,20 @@
 					<th>Date planning</th>
 					<th>Niv. d'urg</th>
 					<th>Date  OR</th>
-					<th class="text-center">Agences Emetteur</th>
-					<th class="text-center">Services Emetteur</th>
-					<th class="text-center">Agences débiteur</th>
-					<th class="text-center">Services débiteur</th>
-					<th class="text-center">N° Intv</th>
+					<th class="text-center">Agence Emetteur</th>
+					<th class="text-center">Service Emetteur</th>
+					<th class="text-center">Agence débiteur</th>
+					<th class="text-center">Service débiteur</th>
+					<th class="text-center">N° ITV</th>
 					<th class="text-center">N° lig</th>
-					<th>Cst</th>
+					<th>CST</th>
 					<th>Réf</th>
-					<th>Désignations</th>
+					<th>Désignation</th>
 
-					<th class="text-center">Qté dem</th>
-					<th class="text-center">Qté à livr</th>
-					<th class="text-center">Qté déjà livée</th>
-					<th>Utilisateurs</th>
+					<th class="text-center">Qté demandée</th>
+					<th class="text-center">Qté à livrer</th>
+					<th class="text-center">Qté déjà livrée</th>
+					<th>Utilisateur</th>
 					{# <th class="text-center">Qté rés</th>#}
 					{# <th class="text-center">Qté rel</th> #}
 
@@ -61,14 +61,27 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					{% set textColor = "" %}
-					{% if item.quantitedemander != item.qtealivrer and item.quantitedemander != item.quantitelivree %}
+					{% if item.quantitedemander > (item.qtealivrer + item.quantitelivree) %}
 						{% set textColor = "textColor" %}
 					{% endif %}
 
 
 					<tr>
-						<td class="">
-							<i class="fas fa-ellipsis-vertical"></i>
+						<td class="" style="vertical-align: middle">
+							<div class="dropdown">
+								<div type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</div>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										{% if item.referencedit is not empty %}
+											<a class="dropdown-item fw-bold" target="_blank" href="{{ path('dw_interv_ate_avec_dit', {'numDit': item.referencedit}) }}">
+												Dossier DIT
+											</a>
+										{% endif %}
+									</li>
+								</ul>
+							</div>
 						</td>
 						<td class="fw-bold ">{{item.referencedit}}</td>
 						<td class="fw-bold ">{{item.numeroor}}</td>

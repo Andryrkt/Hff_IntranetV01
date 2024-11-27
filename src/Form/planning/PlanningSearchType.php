@@ -4,6 +4,7 @@
 namespace App\Form\planning;
 
 
+use Doctrine\ORM\EntityRepository;
 use App\Model\planning\PlanningModel;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -81,10 +82,10 @@ class PlanningSearchType extends AbstractType
             $section = $this->planningModel->recuperationSection();
                 $builder
                 ->add('agence', ChoiceType::class, [
-                    'label' =>  'Liste Agence',
+                    'label' =>  'Agence Travaux',
                     'required' => false,
                     'choices' => $agence,
-                    'placeholder' => ' -- choisir une agence --',
+                    'placeholder' => ' -- Choisir une agence --',
                     /*'choice_label' => function($choice,$key,$values){
                       return $values;  
                     },*/
@@ -95,18 +96,22 @@ class PlanningSearchType extends AbstractType
                     'label' => 'Niveau d\'urgence',
                     'class' => WorNiveauUrgence::class,
                     'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une niveau--',
+                    'placeholder' => '-- Choisir un niveau--',
                     'required' => false,
+                    'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
                     'attr' => [
                         'class' => 'niveauUrgence'
                     ]
                 ])
                
                 ->add('annee', ChoiceType::class,[
-                    'label' =>'Année de planification : ',
+                    'label' =>'Année',
                     'required' =>true,
                     'choices' => $annee,
-                    'placeholder' => " -- choisir l'année --",
+                    'placeholder' => " -- Choisir l'année --",
                     'data' => date('Y')
                 ])
                 ->add('interneExterne', ChoiceType::class,[
@@ -134,7 +139,7 @@ class PlanningSearchType extends AbstractType
                     'data' => 'ENCOURS'
                 ])
                 ->add('plan',ChoiceType::class,[
-                    'label' => 'Plannification',
+                    'label' => 'Planification',
                     'required' => true,
                     'choices' => self::PLANIFIER,
                     'attr' => ['class'=> 'plan'],
@@ -151,11 +156,11 @@ class PlanningSearchType extends AbstractType
                     'required' => false,
                 ])
                 ->add('numOr', TextType::class, [
-                    'label' => "N° Or",
+                    'label' => "N° OR",
                     'required' => false
                 ])
                 ->add('numSerie', TextType::class, [
-                    'label' => "N° Serie",
+                    'label' => "N° Série",
                     'required' => false
                 ])
                 ->add('idMat', TextType::class, [
@@ -171,25 +176,25 @@ class PlanningSearchType extends AbstractType
                     'required' => false
                 ])
                 ->add('agenceDebite', ChoiceType::class,[
-                    'label' =>'Agence Débiteur : ',
+                    'label' =>'Agence Débiteur',
                     'required' =>false,
                     'choices' => $agenceDebite ,
-                    'placeholder' => " -- choisir une agence --",
+                    'placeholder' => " -- Choisir une agence --",
                     
                 ])
                 ->add('section',ChoiceType::class,[
-                    'label' => 'Section :',
+                    'label' => 'Section',
                     'required' => false,
                     'choices' =>$section,
-                    'placeholder' => "-- choisir un section --"
+                    'placeholder' => "-- Choisir une section --"
                 ]
 
                 )
                 ->add('serviceDebite', ChoiceType::class,[
-                    'label' =>'Service Débiteur : ',
+                    'label' =>'Service Débiteur',
                     'multiple' => true,
                     'choices' => [],
-                    'placeholder' => " -- choisir service--",
+                    'placeholder' => " -- Choisir un service--",
                     'expanded' => true,
                 ])
               

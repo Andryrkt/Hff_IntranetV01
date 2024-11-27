@@ -1,4 +1,4 @@
-ALTER TABLE Demande_ordre_mission
+WXWHENALTER TABLE Demande_ordre_mission
 ADD agence_emetteur_id INT
 ALTER TABLE Demande_ordre_mission
 ADD service_emetteur_id INT

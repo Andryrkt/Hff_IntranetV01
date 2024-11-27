@@ -32,19 +32,19 @@ class DomApi extends Controller
         $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($id);
         if($CodeServiceofCours[0]['agence_ips'] === '50'){
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-           
-       } else {
-        $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-       }
+        
+        } else {
+            $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+        }
     
-       $criteria = [
-        'sousTypeDoc' => $sousTypedocument,
-        'rmq' => $rmq
-     ];
+        $criteria = [
+            'sousTypeDoc' => $sousTypedocument,
+            'rmq' => $rmq
+        ];
 
         
-     $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
- 
+        $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
+
 
         header("Content-type:application/json");
 
@@ -74,20 +74,20 @@ class DomApi extends Controller
     public function agence($id) {
         $agence = self::$em->getRepository(Agence::class)->find($id);
     
-    $service = $agence->getServices();
+        $service = $agence->getServices();
 
-    //   $services = $service->getValues();
-        $services = [];
-    foreach ($service as $key => $value) {
-        $services[] = [
-            'value' => $value->getId(),
-            'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-        ];
-    }
+        //   $services = $service->getValues();
+            $services = [];
+        foreach ($service as $key => $value) {
+            $services[] = [
+                'value' => $value->getId(),
+                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+            ];
+        }
 
-    header("Content-type:application/json");
+        header("Content-type:application/json");
 
-    echo json_encode($services);
+        echo json_encode($services);
     }
 
     /**

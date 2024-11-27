@@ -68,30 +68,30 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerComplet($numOrValideItv, $numOrValide)
+    public function recupOrLivrerComplet($numOrValideItv, $numOrValide, $criteria)
     {
+        $piece = $this->conditionPiece('pieces', $criteria);
+
         $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
                         FROM sav_lor
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
-                            AND seor_serv ='SAV'
-                        and slor_numor in ('".$numOrValide."')
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
-                        GROUP BY 1
-                        HAVING 
-                            sum(CASE 
-                                WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                                WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
-                            END) = sum(slor_qteres) + sum(slor_qterea)
-                            and sum(slor_qteres) > 0
-                        order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
+                        WHERE slor_soc = 'HF'
+                            and slor_typlig = 'P'
+                            $piece
+                            --and slor_succ in ('01', '50')
+                            --AND seor_serv ='SAV'
+                            and slor_numor in ('".$numOrValide."')
+                            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                            GROUP BY 1
+                            HAVING 
+                                sum(CASE 
+                                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
+                                END) = sum(slor_qteres) + sum(slor_qterea)
+                                and sum(slor_qteres) > 0
+                            order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -101,20 +101,20 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerIncomplet($numOrValideItv, $numOrValide)
+    public function recupOrLivrerIncomplet($numOrValideItv, $numOrValide, $criteria)
     {
+        $piece = $this->conditionPiece('pieces', $criteria);
+
         $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
                         FROM sav_lor
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
-                            AND seor_serv ='SAV'
+                        WHERE slor_soc = 'HF'
+                            and slor_typlig = 'P'
+                            $piece
+                            --and slor_succ in ('01', '50')
+                            --AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
                         GROUP BY 1
@@ -123,7 +123,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) > sum(slor_qteres) + sum(slor_qterea)
-                            and sum(slor_qteres) > 0
+                            --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
         
@@ -134,20 +134,22 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupOrLivrerTout($numOrValideItv, $numOrValide)
+    public function recupOrLivrerTout($numOrValideItv, $numOrValide, $criteria)
     {
+        $piece = $this->conditionPiece('pieces', $criteria);
+
         $statement = " SELECT slor_numor||'-'||TRUNC(slor_nogrp/100)
                         FROM sav_lor
                         inner join sav_eor on seor_soc = slor_soc 
                             and seor_succ = slor_succ 
                             and seor_numor = slor_numor
-                        WHERE
-                            slor_typlig = 'P'
-                        and slor_soc = 'HF'
-                            AND slor_constp NOT LIKE 'Z%'
-                            AND slor_constp NOT IN ('LUB')
-                            AND slor_succ = '01'
-                            AND seor_serv ='SAV'
+                        WHERE slor_soc = 'HF'
+                            AND slor_typlig = 'P'
+                            $piece
+                            --AND slor_constp NOT LIKE 'Z%'
+                            --AND slor_constp NOT IN ('LUB')
+                            --and slor_succ in ('01', '50')
+                            --AND seor_serv ='SAV'
                         and slor_numor in ('".$numOrValide."')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
                         GROUP BY 1
@@ -156,7 +158,7 @@ class MagasinListeOrLivrerModel extends Model
                                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                             END) >= sum(slor_qteres) + sum(slor_qterea)
-                            and sum(slor_qteres) > 0
+                            --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
 
@@ -224,7 +226,7 @@ class MagasinListeOrLivrerModel extends Model
 
                         where slor_soc = 'HF'
                         and slor_typlig = 'P'
-                        and slor_succ = '01'
+                        --and slor_succ in ('01', '50')
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
                         and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
@@ -248,6 +250,7 @@ class MagasinListeOrLivrerModel extends Model
                             slor_nolign asc
         ";
 
+        //dd($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -267,7 +270,6 @@ class MagasinListeOrLivrerModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -305,8 +307,7 @@ class MagasinListeOrLivrerModel extends Model
         $statement = "SELECT 
         numero_or 
         FROM demande_intervention
-        WHERE date_validation_or is not null
-        and date_validation_or <>'' 
+        WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01') 
         {$niveauUrgence}
         {$numDit}
         {$numOr}
@@ -336,7 +337,6 @@ class MagasinListeOrLivrerModel extends Model
             where 
             slor_soc = 'HF'
 
-            and slor_succ = '01'
             and slor_desi like '%" . $designations . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -363,7 +363,6 @@ class MagasinListeOrLivrerModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
             and slor_refp like '%" . $refPiece . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -379,7 +378,7 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-public function agence()
+    public function agence()
     {
         $statement = "  SELECT DISTINCT
                             slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence

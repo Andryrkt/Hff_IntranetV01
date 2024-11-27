@@ -11,6 +11,7 @@ use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,9 @@ class DitController extends Controller
     use DitTrait;
     use FormatageTrait;
 
+
+    
+
     /**
      * @Route("/dit/new", name="dit_new")
      *
@@ -31,8 +35,17 @@ class DitController extends Controller
      * @return void
      */
     public function new(Request $request){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
         
-        
+        //recuperation de l'utilisateur connecter
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
+        /** Autorisation accées */
+        $this->autorisationAcces($user);
+        /** FIN AUtorisation acées */
+
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($demandeIntervention, self::$em);
@@ -44,8 +57,8 @@ class DitController extends Controller
 
         if($form->isSubmitted() && $form->isValid())
         {
-        
-            $dits = $this->infoEntrerManuel($form, self::$em);
+            
+            $dits = $this->infoEntrerManuel($form, self::$em, $user);
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($dits->getNumeroDemandeIntervention());
@@ -71,9 +84,9 @@ class DitController extends Controller
             self::$em->flush();
             
             //ENVOYER le PDF DANS DOXCUWARE
-            if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
+        
                 $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
-            }
+            
 
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("dit_index");
@@ -85,7 +98,22 @@ class DitController extends Controller
         ]);
     }
 
-   
+    private function autorisationApp($user): bool
+    {
+        //id pour DIT est 4
+        $AppIds = $user->getApplicationsIds();
+        return in_array(4, $AppIds) ;
+    }
+
+    private function autorisationAcces($user)
+    {
+        if(!$this->autorisationApp($user)) {
+            $message = "vous n'avez pas l'autorisation";
+            $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+            $this->redirectToRoute("profil_acceuil");
+            exit();
+        }
+    }
    
     /**
      * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
@@ -93,6 +121,7 @@ class DitController extends Controller
      * @return void
      */
     public function agence($id) {
+
         $agence = self::$em->getRepository(Agence::class)->find($id);
     
         $service = $agence->getServices();
@@ -135,7 +164,6 @@ class DitController extends Controller
         $jsonData = json_encode($data);
 
         $this->testJson($jsonData);
-       
     }
 
 

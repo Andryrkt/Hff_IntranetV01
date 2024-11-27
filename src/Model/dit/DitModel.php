@@ -17,9 +17,6 @@ class DitModel extends Model
      */
     public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
-
-      
-      
       if($matricule === '' || $matricule === '0' || $matricule === null){
        $conditionNummat = "";
       } else {
@@ -358,11 +355,12 @@ class DitModel extends Model
           count(slor_constp) as NOMBRE_LIGNE,
           Sum(
               CASE
-                  WHEN slor_typlig = 'P' THEN (
-                      slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                  )
+                  WHEN slor_typlig = 'P' 
+                  THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
-              END * CASE
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -372,10 +370,10 @@ class DitModel extends Model
               CASE
                   WHEN slor_typlig = 'P'
                   AND slor_constp NOT like 'Z%'
-                  AND slor_constp <> 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  AND slor_constp <> 'LUB' THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -413,12 +411,14 @@ class DitModel extends Model
 
           Sum(
               CASE
-                  WHEN slor_typlig = 'P'
-                  AND slor_constp NOT like 'Z%'
-                  AND slor_constp = 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  WHEN 
+                    slor_typlig = 'P'
+                    AND slor_constp NOT like 'Z%'
+                    AND slor_constp = 'LUB' 
+                  THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -440,7 +440,8 @@ class DitModel extends Model
               'CSP',
               'MAS'
           )
-          AND seor_numor = '".$numOr."'
+          --AND seor_numor = '".$numOr."'
+          AND seor_numor = '51302469'
           --AND SEOR_SUCC = '01'
           group by
               1,
@@ -496,6 +497,27 @@ class DitModel extends Model
         ";
 
         $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupMarqueCasierMateriel($matricule)
+    {
+        $statement = "SELECT
+        mmat_nummat as num_matricule,
+        trim(mmat_marqmat) as marque,
+        trim(mmat_numparc) as casier
+
+        from mat_mat
+        where mmat_nummat ='".$matricule."'
+        and MMAT_ETSTOCK in ('ST','AT', '--')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
 
         $data = $this->connect->fetchResults($result);
 

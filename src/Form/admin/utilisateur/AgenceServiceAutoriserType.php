@@ -37,7 +37,6 @@ class AgenceServiceAutoriserType extends AbstractType
             'label' => "Nom d'utilisateur",
             'choices' => array_combine($nom, $nom),
             'placeholder' => '-- Choisir un nom d\'utilisateur --'
-           
         ])
     
         ->add('Code_AgenceService_IRIUM', 

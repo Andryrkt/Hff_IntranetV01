@@ -3,6 +3,7 @@
 namespace App\Form\magasin;
 
 
+use Doctrine\ORM\EntityRepository;
 use App\Model\magasin\MagasinModel;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -58,13 +59,17 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'choice_label' => 'description',
             'placeholder' => '-- Choisir un niveau --',
             'required' => false,
+            'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
         ])
         ->add('numDit', TextType::class, [
             'label' => 'n° DIT',
             'required' => false
         ])
         ->add('numOr', NumberType::class, [
-            'label' => 'n° Or',
+            'label' => 'n° OR',
             'required' => false
         ])
         ->add('referencePiece', TextType::class, [
@@ -80,7 +85,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' =>  'Constructeur',
             'required' => false,
             'choices' => $this->recupConstructeur(),
-            'placeholder' => ' -- choisir un constructeur --'
+            'placeholder' => ' -- Choisir un constructeur --'
         ])
         ->add('dateDebut', DateType::class, [
             'widget' => 'single_text',
@@ -98,7 +103,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' => 'Pièces',
             'required' => false,
             'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
-            'placeholder' => ' -- choisir une mode affichage --',
+            'placeholder' => ' -- Choisir un type de ligne --',
             'data' => 'PIECES MAGASIN'
         ])
         ->add('agence',
@@ -107,7 +112,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' => 'Agence débiteur',
             'required' => false,
             'choices' => $this->agence() ?? [],
-            'placeholder' => ' -- choisir agence --'
+            'placeholder' => ' -- Choisir une agence --'
         ])
         ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
             $form = $event->getForm();
@@ -118,7 +123,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
                 'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => [],
-                'placeholder' => ' -- choisir service --'
+                'placeholder' => ' -- Choisir un service --'
             ]);
         })
         ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
@@ -143,7 +148,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
                 'label' => 'Service débiteur',
                 'required' => false,
                 'choices' => $service,
-                'placeholder' => ' -- choisir service --'
+                'placeholder' => ' -- Choisir un service --'
             ]);
         })
 
@@ -151,7 +156,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' => 'Agence',
             'required' => false,
             'choices' => $this->agenceUser() ?? [],
-            'placeholder' => ' -- choisir agence --',
+            'placeholder' => ' -- Choisir une agence --',
             'data' => $options['data']['agenceUser'] ?? null,
             'attr' => [
                 'disabled' => !$options['data']['autoriser'],

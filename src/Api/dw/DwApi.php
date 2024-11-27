@@ -64,4 +64,34 @@ class DwApi extends Controller
         echo json_encode($data);
     }
 
+    /**
+     *@Route("/dw-chemin-fetch/{numDoc}/{nomDoc}/{numVersion}", name="fetch_dw_chemin")
+     */
+    public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
+    {
+        $dwModel = new DossierInterventionAtelierModel();
+    
+        switch ($nomDoc) {
+            case 'Demande d\'intervention':
+                $dw = $dwModel->findCheminDit($numDoc) ?? [];
+                break;
+            case 'Ordre de réparation':
+                $dw = $dwModel->findCheminOr($numDoc, $numVersion) ?? [];
+                break;
+            case 'Facture':
+                $dw = $dwModel->findCheminFac($numDoc) ?? [];
+                break;
+            case 'Rapport d\'intervention':
+                $dw = $dwModel->findCheminRi($numDoc) ?? [];
+                break;
+            default:
+                $dw = $dwModel->findCheminCde($numDoc) ?? [];
+                break;
+        }
+        
+        header("Content-type:application/json");
+
+        echo json_encode(['chemin' =>$dw[0]]);
+    }
+
 }

@@ -263,3 +263,35 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tableBody.innerHTML = ""; // Vider le tableau
   });
 });
+
+/**
+ * sweetalert pur le bouron cloturer dit
+ */
+const clotureDit = document.querySelectorAll(".clotureDit");
+
+clotureDit.forEach((el) => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    let id = el.getAttribute("data-id");
+
+    Swal.fire({
+      title: "êtes-vous sur?",
+      text: "cette action est irreversible",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "OUI",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Changement de statut!",
+          text: "en CLOTUREE ANNULEE",
+          icon: "success",
+        }).then(() => {
+          window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+        });
+      }
+    });
+  });
+});

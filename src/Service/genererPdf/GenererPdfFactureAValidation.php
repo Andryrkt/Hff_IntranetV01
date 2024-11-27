@@ -13,7 +13,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
     /**
      * generer pdf facture à validation
      */
-    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr)
+    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr, $email)
     {
         $pdf = new TCPDF();
 
@@ -271,7 +271,10 @@ class GenererPdfFactureAValidation extends GeneratePdf
 
             $pdf->writeHTML($html, true, false, true, false, '');
 
-
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->SetXY(118, 2);
+            $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/';

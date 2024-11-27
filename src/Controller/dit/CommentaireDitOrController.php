@@ -14,6 +14,9 @@ class CommentaireDitOrController extends Controller
      * @return void
      */
     public function newCommentaire(){
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $form = self::$validator->createBuilder(CommentaireDitOrType::class)->getForm();
 
         self::$twig->display('dit/newCommentaireDitOr.html.twig', [

@@ -19,6 +19,8 @@ class DossierInterventionAtelierController extends Controller
      */
     public function dossierInterventionAtelier(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
         
         $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, [ 'method' => 'GET'])->getForm();
 

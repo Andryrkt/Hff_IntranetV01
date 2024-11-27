@@ -4,20 +4,11 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\Application;
-use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\DomsTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Service\genererPdf\GeneratePdfDom;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -27,12 +18,18 @@ class DomSecondController extends Controller
     use FormatageTrait;
     use DomsTrait;
     
-   
-      /**
+    /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
     public function secondForm(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
+        //recuperation de l'utilisateur connecter
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
@@ -50,8 +47,8 @@ class DomSecondController extends Controller
 
             $domForm = $form->getData();
 
-            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
-
+            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em, $user);
+            
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
             
                 if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' ) 
@@ -63,12 +60,12 @@ class DomSecondController extends Controller
                     } else {
                         if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') 
                         {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                         } 
 
                         if (explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= "500.000")) 
                         {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                         } else {
                             $message = "Assurez vous que le Montant Total est inférieur à 500.000";
                             $this->notification($message);
@@ -78,48 +75,13 @@ class DomSecondController extends Controller
                 } else {
                     if (explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= "500.000")) 
                     {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
+                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                     } else {
                         $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
                         $this->notification($message);
                     }
                 } 
-            // } else {
-
-            //         if ($form1Data['sousTypeDocument'] !== 'COMPLEMENT') 
-            //         {
-            //             if ($verificationDateExistant) 
-            //             {
-            //                 $message = $dom->getMatricule() .' '. $dom->getNom() .' '. $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
-            //                 $this->notification($message);
-            //             } else {
-                    
-            //                 if ($form1Data['sousTypeDocument'] === 'FRAIS EXCEPTIONNEL' && $dom->getDevis() !== 'MGA') 
-            //                 {
-            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //                 }
-
-            //                 if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) 
-            //                 {
-            //                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //                 } else {
-            //                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-            //                     $this->notification($message);
-            //                 }
-            //             }
-                        
-            //         } else {
-            //             if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-            //                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf);
-            //             } 
-            //             else {
-            //                 $message = "Assurer que le Montant Total est inférieur ou égale à 500.000";
-            //                 $this->notification($message);
-            //             }
-            //         }
-                
-            // }
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('doms_liste');

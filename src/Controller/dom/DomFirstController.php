@@ -21,6 +21,9 @@ class DomFirstController extends Controller
      */
     public function firstForm(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $dom = new Dom();
 
         $userId = $this->sessionService->get('user_id', []);

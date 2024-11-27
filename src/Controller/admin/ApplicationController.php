@@ -17,7 +17,9 @@ class ApplicationController extends Controller
      * @return void
      */
     public function index()
-    {    
+    {    //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $data = self::$em->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());

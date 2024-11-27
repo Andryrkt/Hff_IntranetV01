@@ -18,7 +18,8 @@
 						{{ form_row(form.sectionAffectee) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.niveauUrgence) }}
+						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" data-id="{{item.numeroDemandeIntervention}}" id="numOr">Niveau d\'urgence</a>', { 'label_html': true }) }}
+						{{ form_widget(form.niveauUrgence) }}
 						{{form_row(form.internetExterne)}}
 						{{form_row(form.numOr)}}
 						{{form_row(form.sectionSupport1)}}
@@ -31,13 +32,13 @@
 
 					</div>
 					<div class="col-12 col-md-2">
-						{% if 1 in role_ids or 4 in role_ids %}
+						{# {% if 1 in role_ids or 4 in role_ids or 5 in role_ids or 6 in role_ids %} #}
 							{{form_row(form.agenceEmetteur)}}
 							{{form_row(form.serviceEmetteur)}}
-						{% else %}
-							{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-							{{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-						{% endif %}
+						{# {% else %} #}
+							{# {{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }} #}
+							{# {{ form_row(form.serviceEmetteur, {'attr': {'disabled': 'disabled'}}) }} #}
+						{# {% endif %} #}
 						{{form_row(form.categorie)}}
 						{{form_row(form.sectionSupport3)}}
 

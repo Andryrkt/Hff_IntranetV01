@@ -21,7 +21,9 @@ class PlanningModel extends Model
                       AND  (ASUC_NUM like '01' 
                       or ASUC_NUM like '20' 
                       or ASUC_NUM like '30'
-                       or ASUC_NUM like '40')
+                       or ASUC_NUM like '40'
+                       or ASUC_NUM like '50'
+                       )
                       order by 1
         ";
         $result = $this->connect->executeQuery($statement);
@@ -120,26 +122,26 @@ class PlanningModel extends Model
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
- 
-   $vligneType = $this->typeLigne($criteria);  
-   $vPiecesSum = $this->sumPieces($criteria);
-   $vYearsStatutPlan =  $this->planAnnee($criteria);
-   $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-   $vMonthStatutPlan = $this->planMonth($criteria);
-   $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-   $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-   $vStatutFacture = $this->facture($criteria);
-   $annee =  $this->criterAnnee($criteria);
-   $agence = $this->agence($criteria);
-   $vStatutInterneExterne = $this->interneExterne($criteria);
-   $agenceDebite = $this->agenceDebite($criteria);
-   $serviceDebite = $this->serviceDebite($criteria);
-   $vconditionNumParc = $this->numParc($criteria);
-   $vconditionIdMat = $this->idMat($criteria);
-   $vconditionNumOr = $this->numOr($criteria);
-   $vconditionNumSerie = $this->numSerie($criteria);
-   $vconditionCasier = $this->casier($criteria);
-   $vsection = $this->section($criteria);
+
+    $vligneType = $this->typeLigne($criteria);  
+    $vPiecesSum = $this->sumPieces($criteria);
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
 
                   $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
@@ -175,8 +177,7 @@ class PlanningModel extends Model
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
-                   
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw
@@ -196,15 +197,103 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
+
+        
         $result = $this->connect->executeQuery($statement);
                 //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
   }
-    
+
+  public function exportExcelPlanning($criteria, $lesOrValides){
+    if(!empty($lesOrValides)){
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+    }else{
+      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+    }
+
+    $vligneType = $this->typeLigne($criteria);  
+    $vPiecesSum = $this->sumPieces($criteria);
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+
+                  $statement = " SELECT
+                      trim(seor_succ) as codeSuc, 
+                      trim(asuc_lib) as libSuc, 
+                      trim(seor_servcrt) as codeServ, 
+                      trim(ser.atab_lib) as libServ, 
+                      
+                      mmat_nummat as idMat,
+                      trim(mmat_marqmat) as markMat,
+                      trim(mmat_typmat) as typeMat ,
+                      trim(mmat_numserie) as numSerie,
+                      trim(mmat_recalph) as numParc,
+                      trim(mmat_numparc) as casier,
+                      $vYearsStatutPlan as annee,
+                      $vMonthStatutPlan as mois,
+                      seor_numor ||'-'||sitv_interv as orIntv,
+                      slor_pos
+                      
+                    FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+                    WHERE seor_numor = slor_numor
+                    AND seor_serv <> 'DEV'
+                    AND sitv_numor = slor_numor 
+                    AND sitv_interv = slor_nogrp/100
+                    AND (seor_succ = asuc_num) -- OR mmat_succ = asuc_parc)
+                    AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                    AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+                    AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+                    $vStatutFacture
+                    AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6')
+                    AND (seor_nummat = mmat_nummat)
+                    AND slor_constp NOT like '%ZDI%'
+                    $vOrvalDw
+                    $vligneType
+
+                    AND $vYearsStatutPlan = $annee
+                    $vConditionNoPlanning 
+                    $agence
+                    $vStatutInterneExterne
+                    $agenceDebite
+                    $serviceDebite
+                    $vDateDMonthPlan
+                    $vDateFMonthPlan
+                    $vconditionNumParc
+                    $vconditionIdMat
+                    $vconditionNumOr
+                    $vconditionNumSerie
+                    $vconditionCasier
+                    $vsection 
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+		                order by 1,5  ";      
+
+        
+        $result = $this->connect->executeQuery($statement);
+                  // dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+
+  }
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
     if(!empty($criteria['typeligne'])){
         switch($criteria['typeligne']){
@@ -223,15 +312,18 @@ class PlanningModel extends Model
         }
     }
       $statement = " SELECT slor_numor as numOr,
+                            slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
                             slor_qterel AS QteReliquat,
-                            CASE WHEN slor_typlig = 'P' THEN
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
-		                        ELSE 
-                            slor_qterea 
+                            CASE 
+                              WHEN slor_typlig = 'P' 
+                                THEN
+                                  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+		                          ELSE 
+                                slor_qterea 
 	                          	END AS QteRes_Or,
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
@@ -352,29 +444,27 @@ public function recuperationEtaMag($numOr, $refp){
         $data = array();
         while ($tabType = odbc_fetch_array($sql)) {
           $data[] = $tabType;
-       }
-       return $data;
+      }
+      return $data;
 }
 /**
  * Etat partiel piece
  */
-
- public function recuperationPartiel($numcde, $refp){
+public function recuperationPartiel($numcde, $refp){
     $statement = " SELECT fcdl_solde as solde,
                           fcdl_qte as qte
-			             FROM FRN_CDL 
-				           WHERE  fcdl_numcde = '$numcde' 
-				           AND  fcdl_refp = '$refp'
+                  FROM FRN_CDL 
+                  WHERE  fcdl_numcde = '$numcde' 
+                  AND  fcdl_refp = '$refp'
     ";
-     $result = $this->connect->executeQuery($statement);
-     $data = $this->connect->fetchResults($result);
-     $resultat = $this->convertirEnUtf8($data);
-   return $resultat;
- }
- /**
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+  return $resultat;
+}
+  /**
   * gcot ORD
   */
-
   public function recuperationinfodGcot ($numcde){
       $statement = "SELECT Code_Statut  as Ord
 					FROM  GCOT_Statut_Dossier 
@@ -430,20 +520,19 @@ public function recuperationEtaMag($numOr, $refp){
     $statement = "SELECT 
                   numero_or 
                   FROM demande_intervention
-                  WHERE date_validation_or is not null
-                  and date_validation_or <>'' 
+                  WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01')
                   $vconditionNumOr
                   $nivUrg
-                   ";
+                  ";
     //  dump($statement);
-     $execQueryNumOr = $this->connexion->query($statement);
-     $numOr = array();
+    $execQueryNumOr = $this->connexion->query($statement);
+    $numOr = array();
 
-     while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-         $numOr[] = $row_num_or;
-     }
+    while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+        $numOr[] = $row_num_or;
+    }
 
-     return $numOr;
+    return $numOr;
   }
 
   public function recupNumeroItv($numOr, $stringItv)
@@ -459,7 +548,47 @@ public function recuperationEtaMag($numOr, $refp){
       $data = $this->connect->fetchResults($result);
 
       return $this->convertirEnUtf8($data);
-
   }
-  
+
+  public function recupTechnicientIntervenant($numOr, $numItv)
+  {
+      $statement = " SELECT distinct 
+        --skr_id as numero_tech,
+        ssal_numsal AS matricule, 
+        ssal_nom AS matriculeNomPrenom
+        --ofh_id as numero_or, 
+        --ofs_id as numero_intervention
+        from skw
+        inner join ska on ska.skw_id = skw.skw_id
+        inner join sav_sal on sav_sal.ssal_numsal = ska.skr_id
+        and ofs_id = '".$numItv."'
+        where skw.ofh_id ='".$numOr."'
+      ";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function recupTechnicien2($numOr, $numItv)
+  {
+    $statement = " SELECT
+        ssal_numsal AS matricule, 
+        ssal_nom AS matriculeNomPrenom 
+        --sitv_numor 
+        from sav_itv
+        inner join sav_sal on sav_sal.ssal_numsal = sitv_techn
+        where sitv_numor = '".$numOr."'
+        and sitv_interv = '".$numItv."' 
+        and ssal_numsal <> 9999
+      ";
+
+    $result = $this->connect->executeQuery($statement);
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
 }

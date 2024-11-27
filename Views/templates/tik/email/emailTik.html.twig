@@ -41,13 +41,26 @@
 				text-decoration: none;
 				border-radius: 5px;
 			}
-			.valide   { background-color: #198754; }
-			.refuse   { background-color: #dc3545; }
+			.valide {
+				background-color: #198754;
+			}
+			.refuse {
+				background-color: #dc3545;
+			}
 			.resolu   { background-color: #d4edda; color: #155724; }
-			.cloture  { background-color: #0dcaf0; }  /* pas encore de template pour le body */
-			.planifie { background-color: #ffc107; }  
+			.cloture {
+				background-color: #0dcaf0;
+			} /* pas encore de template pour le body */
+			.planifie {
+				background-color: #ffc107;
+			} 
 			.transfere { background-color: #ffe8b3; color: #663c00; }  
-			.valide, .refuse, .cloture, .planifie { color: #fff}
+			.valide,
+			.refuse,
+			.cloture,
+			.planifie {
+				color: #fff
+			}
 			.fw-bold {
 				font-weight: bold;
 			}
@@ -55,13 +68,13 @@
 	</head>
 	<body>
 		<div class="email-container">
-		    {{ include('tik/email/shared/_header.html.twig', { numTik:tab.numTik, statut:statut }) }}
+			{{ include('tik/email/shared/_header.html.twig', { numTik:tab.numTik, statut:statut }) }}
 
 			<div class="email-body">
 				<p>Bonjour,</p>
 
 				{% include 'tik/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
-				
+
 				<p>Vous pouvez voir le détail en cliquant sur le bouton ci-dessous.</p>
 				<p>
 					<span class="fw-bold">NB:</span>
@@ -69,7 +82,7 @@
 				<a href="{{ action_url }}" class="button">Detail de la demande</a>
 				<p class="fw-bold">Cordialement .</p>
 			</div>
-		
+
 			{{ include('tik/email/shared/_footer.html.twig') }}
 		</div>
 	</body>

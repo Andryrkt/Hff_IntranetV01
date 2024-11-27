@@ -21,6 +21,9 @@ class PlanningMateriel{
     private $qteLiv;
     private $qteAll;
     public $moisDetails = [];
+    private $numDit;
+    private $migration;
+    private $pos;
    
 
     /**
@@ -344,13 +347,16 @@ class PlanningMateriel{
 
         return $this;
     }
-    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv, $qteAll) {
+    
+    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration) {
         $this->moisDetails[] = [
             'mois' => $mois,
             'orIntv' => $orIntv,
             'qteCdm' => $qteCdm,
             'qteLiv' => $qteLiv,
-            'qteAll' => $qteAll
+            'qteAll' => $qteAll,
+            'numDit' => $numDit,
+            'migration' => $migration
         ];
     }
     
@@ -371,6 +377,66 @@ class PlanningMateriel{
     public function setMoisDetails($moisDetails)
     {
         $this->moisDetails = $moisDetails;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numDit
+     */ 
+    public function getNumDit()
+    {
+        return $this->numDit;
+    }
+
+    /**
+     * Set the value of numDit
+     *
+     * @return  self
+     */ 
+    public function setNumDit($numDit)
+    {
+        $this->numDit = $numDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of migration
+     */ 
+    public function getMigration()
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     *
+     * @return  self
+     */ 
+    public function setMigration($migration)
+    {
+        $this->migration = $migration;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pos
+     */ 
+    public function getPos()
+    {
+        return $this->pos;
+    }
+
+    /**
+     * Set the value of pos
+     *
+     * @return  self
+     */ 
+    public function setPos($pos)
+    {
+        $this->pos = $pos;
 
         return $this;
     }

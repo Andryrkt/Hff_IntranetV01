@@ -5,6 +5,7 @@ namespace App\Form\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\dit\DemandeIntervention;
@@ -23,8 +24,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -285,10 +286,15 @@ class demandeInterventionType extends AbstractType
             ->add('idNiveauUrgence', 
             EntityType::class, [
                 'label' => 'Niveau d\'urgence *',
+                'label_html' => true,
                 'placeholder' => '-- Choisir un niveau --',
                 'class' => WorNiveauUrgence::class,
                 'choice_label' =>'description',
                 'required' => false,
+                'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+        },
             ])
             ->add('avisRecouvrement', 
             ChoiceType::class, 
@@ -430,6 +436,5 @@ class demandeInterventionType extends AbstractType
             'data_class' => DemandeIntervention::class,
         ]);
     }
-
 
 }

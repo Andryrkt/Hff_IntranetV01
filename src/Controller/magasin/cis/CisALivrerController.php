@@ -4,6 +4,7 @@ namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
 use App\Model\magasin\cis\CisALivrerModel;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\magasin\cis\ALivrerSearchtype;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,6 +19,9 @@ class CisALivrerController extends Controller
      */
     public function listCisALivrer(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $cisATraiterModel = new CisALivrerModel();
 
         /** CREATION D'AUTORISATION */
@@ -34,14 +38,15 @@ class CisALivrerController extends Controller
 
         $form->handleRequest($request);
         $criteria = [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
+            "orValide" => true,
         ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
 
-
-        $data = $cisATraiterModel->listOrALivrer($criteria);
+        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
+        $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
@@ -57,12 +62,16 @@ class CisALivrerController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $cisATraiterModel = new CisALivrerModel();
 
          //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
 
-        $entities = $cisATraiterModel->listOrALivrer($criteria);
+        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
+        $entities = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
          // Convertir les entités en tableau de données
         $data = [];

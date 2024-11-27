@@ -286,4 +286,94 @@ class DossierInterventionAtelierModel extends Model
         return $this->ConvertirEnUtf_8($tab);
     }
 
+
+    public function findCheminDit($numDoc)
+    {
+        $sql =" SELECT DISTINCT 
+        dit.path AS chemin
+
+        FROM DW_Demande_Intervention dit
+        WHERE dit.numero_dit = '".$numDoc."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findCheminOr($numDoc, $numVersion)
+    {
+        $sql =" SELECT DISTINCT 
+        ord.path AS chemin
+
+        FROM DW_Ordre_De_Reparation ord
+        WHERE ord.numero_or = '".$numDoc."'
+        AND ord.numero_version = '".$numVersion."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findCheminFac($numDoc)
+    {
+        $sql =" SELECT DISTINCT 
+        --FACTURE
+        fac.path AS chemin
+
+        FROM DW_Facture fac
+        WHERE fac.numero_fac = '".$numDoc."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findCheminRi($numDoc)
+    {
+        $sql =" SELECT DISTINCT 
+            --RAPORT D'INTERVENTION
+            ri.path AS chemin
+
+            FROM DW_Rapport_Intervention ri
+            WHERE ri.numero_ri = '".$numDoc."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findCheminCde($numDoc)
+    {
+        $sql =" SELECT DISTINCT 
+            --COMMANDE
+            cde.path AS chemin
+
+            FROM DW_Commande cde
+            WHERE cde.numero_cde = '".$numDoc."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
 }

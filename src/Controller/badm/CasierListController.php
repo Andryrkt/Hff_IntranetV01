@@ -19,6 +19,9 @@ class CasierListController extends Controller
  */
     public function AffichageListeCasier(Request $request)
     {   
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();

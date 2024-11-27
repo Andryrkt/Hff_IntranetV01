@@ -39,17 +39,17 @@
 					<th class="text-center">N° OR</th>
 					<th>Date planning</th>
 					<th>Niv. d'urg</th>
-					<th>Date  OR</th>
+					<th>Date OR</th>
 					<th class="text-center">Agence Emetteur</th>
 					<th class="text-center">Service Emetteur</th>
-					<th class="text-center">Agences Débiteur</th>
-					<th class="text-center">Services Débiteur</th>
-					<th class="text-center">N° Intv</th>
+					<th class="text-center">Agence Débiteur</th>
+					<th class="text-center">Service Débiteur</th>
+					<th class="text-center">N° ITV</th>
 					<th class="text-center">N° lig</th>
-					<th>Cst</th>
+					<th>CST</th>
 					<th>Réf</th>
-					<th>Désignations</th>
-					<th class="text-center">Qté dem</th>
+					<th>Désignation</th>
+					<th class="text-center">Qté demandée</th>
 					<th>Utilisateur</th>
 
 					{# <th class="text-center">Qté rés</th>#}
@@ -61,8 +61,21 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					<tr>
-						<td class="">
-							<i class="fas fa-ellipsis-vertical"></i>
+						<td class="" style="vertical-align: middle">
+							<div class="dropdown">
+								<div type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</div>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										{% if item.referencedit is not empty %}
+											<a class="dropdown-item fw-bold" target="_blank" href="{{ path('dw_interv_ate_avec_dit', {'numDit': item.referencedit}) }}">
+												Dossier DIT
+											</a>
+										{% endif %}
+									</li>
+								</ul>
+							</div>
 						</td>
 						<td class="fw-bold ">{{item.referencedit}}</td>
 						<td class="fw-bold ">{{item.numeroor}}</td>

@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\dit;
 
+use App\Entity\dit\AncienDit;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
@@ -35,16 +36,20 @@ class WorTypeDocument
      */
     private string $description;
 
-    
-   /**
+    /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="typeDocument")
      */
     private $demandeInterventions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=AncienDit::class, mappedBy="typeDocument")
+     */
+    private $ancienDit;
+
     
     public function __construct()
     {
-
+        $this->ancienDit = new ArrayCollection();
         $this->demandeInterventions = new ArrayCollection();
     }
     
@@ -122,6 +127,44 @@ class WorTypeDocument
 
         return $this;
     }
+    
+
+    /**
+     * Get the value of demandeInterventions
+     */
+    public function getAncienDit()
+    {
+        return $this->ancienDit;
+    }
+
+    public function addAncienDit(AncienDit $ancienDit): self
+    {
+        if (!$this->ancienDit->contains($ancienDit)) {
+            $this->ancienDit[] = $ancienDit;
+            $ancienDit->setTypeDocument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAncienDit(AncienDit $ancienDit): self
+    {
+        if ($this->ancienDit->contains($ancienDit)) {
+            $this->ancienDit->removeElement($ancienDit);
+            if ($ancienDit->getTypeDocument() === $this) {
+                $ancienDit->setTypeDocument(null);
+            }
+        }
+
+        return $this;
+    }
+    public function setAncienDit($ancienDit)
+    {
+        $this->ancienDit = $ancienDit;
+
+        return $this;
+    }
+
 
     public function __toString()
     {

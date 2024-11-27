@@ -95,17 +95,17 @@ trait DitListTrait
      */
     private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
-      
+    
         $criteria = $this->sessionService->get('dit_search_criteria', []);
         
         if($criteria !== null){
-            if ($autoriser) {
+            // if ($autoriser) {
                 $agenceIpsEmetteur = null;
                 $serviceIpsEmetteur = null;
-            } else {
-                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            }
+            // } else {
+            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            // }
             $typeDocument = $criteria['typeDocument'] === null ? null : $em->getRepository(WorTypeDocument::class)->find($criteria['typeDocument']->getId());
             $niveauUrgence = $criteria['niveauUrgence'] === null ? null : $em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence']->getId());
             $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
@@ -115,13 +115,13 @@ trait DitListTrait
             $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
             $categorie = $criteria['categorie'] === null ? null : $em->getRepository(CategorieAteApp::class)->find($criteria['categorie']);
         } else {
-            if ($autoriser) {
+            // if ($autoriser) {
                 $agenceIpsEmetteur = null;
                 $serviceIpsEmetteur = null;
-            } else {
-                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-            }
+            // } else {
+            //     $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+            //     $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            // }
             $typeDocument = null;
             $niveauUrgence = null;
             $statut = null;
@@ -183,10 +183,37 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $data[$i]->setNumSerie($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_serie']);
-                $data[$i]->setNumParc($this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel())[0]['num_parc']);
+                $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                if(!empty($numSerieParc)) {
+                    $numSerie = $numSerieParc[0]['num_serie'];
+                    $numParc = $numSerieParc[0]['num_parc'];
+                    $data[$i]->setNumSerie($numSerie);
+                    $data[$i]->setNumParc($numParc);
+                } else {
+                    $data[$i]->setNumSerie('');
+                    $data[$i]->setNumParc('');
+                }
             }
+        }
     }
+
+    private function ajoutMarqueCasierMateriel($data)
+    {
+        if (!empty($data)) {
+            for ($i = 0; $i < count($data); $i++) {
+                // Associez chaque entité à ses valeurs de num_serie et num_parc
+                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                if(!empty($marqueCasier)) {
+                    $marque = $marqueCasier[0]['marque'];
+                    $casier = $marqueCasier[0]['casier'];
+                    $data[$i]->setMarque($marque);
+                    $data[$i]->setCasier($casier);
+                } else {
+                    $data[$i]->setMarque('');
+                    $data[$i]->setCasier('');
+                }
+            }
+        }
     }
 
     private function ajoutStatutAchatPiece($data){
@@ -244,7 +271,16 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds);
+        return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
+    }
+
+    private function autorisationRoleEnergie($em): bool
+    {
+        /** CREATION D'AUTORISATION */
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = $em->getRepository(User::class)->find($userId);
+        $roleIds = $userConnecter->getRoleIds();
+        return in_array(5, $roleIds);
     }
 
 
@@ -327,4 +363,28 @@ trait DitListTrait
         // Sauvegarde des changements dans la base de données
         $em->flush();
     } 
+
+    private function orEnString($tab): string
+    {
+        $numOrValide = $this->transformEnSeulTableau($tab);
+
+        return implode("','", $numOrValide);
+    }
+
+    private function transformEnSeulTableau(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as  $values) {
+            if(is_array($values)){
+                foreach ($values as $value) {
+                    $tab[] = $value;
+                }
+            } else {
+                $tab[] = $values;
+            }
+            
+        }
+
+        return $tab;
+    }
 }

@@ -15,12 +15,21 @@ trait DitFactureSoumisAValidationtrait
     private function nomUtilisateur($em){
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
-        return $user->getNomUtilisateur();
+        return [
+            'nomUtilisateur' => $user->getNomUtilisateur(),
+            'emailUtilisateur' => $user->getMail()
+        ];
     }
 
     private function etatOr($dataForm, $ditFactureSoumiAValidationModel): string
     {
-        return  $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR());
+        $etatFac = $ditFactureSoumiAValidationModel->recupEtatOr($dataForm->getNumeroOR())[0];
+
+        if($etatFac == 'PF'){
+            return 'Partiellement facturé';
+        } else {
+            return 'Complètement facturé';
+        }
     }
 
 

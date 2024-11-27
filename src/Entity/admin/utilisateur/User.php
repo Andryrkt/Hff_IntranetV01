@@ -60,7 +60,7 @@ class User implements UserInterface
      */
     private $mail;
     
-     /**
+    /**
      * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="user_roles")
      */
@@ -648,6 +648,12 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
    
+    public function getApplicationsIds(): array
+    {
+        return $this->applications->map(function($app) {
+            return $app->getId();
+        })->toArray();
+    }
 
     
     public function getPassword(){}

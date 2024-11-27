@@ -24,9 +24,7 @@ trait DomsTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom) {
 
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-
+        $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
         $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
@@ -37,10 +35,10 @@ trait DomsTrait
             $dom->setPrenom($form1Data['prenom']);
             $dom->setCin($form1Data['cin']);
 
-            $agenceEmetteur = $CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-            $serviceEmetteur = $CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']);
-            $codeAgenceEmetteur = $CodeServiceofCours[0]['agence_ips'] ;
-            $codeServiceEmetteur = $CodeServiceofCours[0]['service_ips'] ;
+            $agenceEmetteur = $agenceServiceEmetteur['agenceIps']->getCodeAgence() . ' ' . $agenceServiceEmetteur['agenceIps']->getLibelleAgence();
+            $serviceEmetteur = $agenceServiceEmetteur['serviceIps']->getCodeService() . ' ' . $agenceServiceEmetteur['serviceIps']->getLibelleService();
+            $codeAgenceEmetteur = $agenceServiceEmetteur['agenceIps']->getCodeAgence();
+            $codeServiceEmetteur = $agenceServiceEmetteur['serviceIps']->getCodeService() ;
         
         } else {
             
@@ -87,15 +85,15 @@ trait DomsTrait
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
             $catg = $form1Data['categorie'];
-            $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-            $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
             
-            if($CodeServiceofCours[0]['agence_ips'] === '50'){
+            $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
+
+            if( $agenceServiceEmetteur['agenceIps']->getCodeAgence() == '50'){
                 $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-           } else {
-                $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
-           }
-          return  [
+            } else {
+                    $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+            }
+        return  [
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq,
             'categorie' => $catg
@@ -288,7 +286,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 }
 
 
-    private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em)
+    private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em, $user)
     {
         $statutDemande = $em->getRepository(StatutDemande::class)->find(1);
         if($domForm->getModePayement() === 'MOBILE MONEY'){
@@ -334,7 +332,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 
         if($form1Data['salarier'] === 'TEMPORAIRE'){
             $cin = $form1Data["cin"];
-             $matricule = "XER00 -" . $cin . " - TEMPORAIRE";
+            $matricule = "XER00 -" . $cin . " - TEMPORAIRE";
         } else {
                 $matricule = $form1Data['matricule'];
         }
@@ -345,13 +343,14 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $site = $domForm->getSite();
         }
 
+        
         $dom
             ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
             ->setSousTypeDocument($sousTypeDocument)
             ->setCategorie($categoryId)
             ->setMatricule($matricule)
-            ->setUtilisateurCreation($_SESSION['user'])
-            ->setNomSessionUtilisateur($_SESSION['user'])
+            ->setUtilisateurCreation($user->getNomUtilisateur())
+            ->setNomSessionUtilisateur($user->getNomUtilisateur())
             ->setNumeroOrdreMission($this->autoINcriment('DOM'))
             ->setIdStatutDemande($statutDemande)
             ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence().$serviceDebiteur->getCodeService())
@@ -373,7 +372,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         ;
     }
 
-    private function donnerPourPdf($dom, $domForm, $em)
+    private function donnerPourPdf($dom, $domForm, $em, $user)
     {
         if(explode(':',$dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':',$dom->getModePayement())[0] === 'ESPECE'){
             $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
@@ -383,7 +382,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $mode = 'TEL '.explode(':',$dom->getModePayement())[1];
         }
 
-        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
         return  [
             "Devis" => $dom->getDevis(),
             "Prenoms" => $dom->getPrenom(),
@@ -438,7 +437,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
         $em->flush();
     }
 
-    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf)
+    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user)
     {
             //RECUPERATION de la dernière NumeroDordre de mission 
             $this->enregistreDernierNumDansApplication($dom, $em);
@@ -447,7 +446,7 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
             $em->persist($dom);
             $em->flush();
 
-            $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
+            $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user);
             $genererPdfDom = new GeneratePdfDom();
             $genererPdfDom->genererPDF($tabInternePdf);
             $this->envoiePieceJoint($form, $dom, $fusionPdf);
@@ -457,27 +456,26 @@ private function envoiePieceJoint($form, $dom, $fusionPdf): void
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
     {
-        
         $Dates = $this->DomModel->getInfoDOMMatrSelet($matricule);
+
+        if (empty($Dates)) {
+            return false; // Pas de périodes dans la base
+        }
     
-        $trouve = false; // Variable pour indiquer si la date est trouvée
-
-        // Parcourir chaque élément du tableau
+        // Convertir les dates d'entrée si elles sont en chaînes
+        $dateDebutInputObj = $dateDebutInput instanceof DateTime ? $dateDebutInput : new DateTime($dateDebutInput);
+        $dateFinInputObj = $dateFinInput instanceof DateTime ? $dateFinInput : new DateTime($dateFinInput);
+    
         foreach ($Dates as $periode) {
-            // Convertir les dates en objets DateTime pour faciliter la comparaison
-            $dateDebut = new DateTime($periode['Date_Debut']);//date dans la base de donner
-            $dateFin = new DateTime($periode['Date_Fin']);//date dans la base de donner
-            $dateDebutInputObj = $dateDebutInput; // date entrer par l'utilisateur
-            $dateFinInputObj = $dateFinInput; // date entrer par l'utilisateur
-
-            // Vérifier si la date à vérifier est comprise entre la date de début et la date de fin
-            if (($dateFinInputObj >= $dateDebut && $dateFinInputObj <= $dateFin) || ($dateDebutInputObj >= $dateDebut && $dateDebutInputObj <= $dateFin) || ($dateDebutInputObj === $dateFin)) { // Correction des noms de variables
-                $trouve = true;
-                return $trouve;
+            $dateDebut = new DateTime($periode['Date_Debut']); // Date dans la base
+            $dateFin = new DateTime($periode['Date_Fin']); // Date dans la base
+    
+            // Vérifier si les périodes se chevauchent
+            if ($dateDebutInputObj <= $dateFin && $dateFinInputObj >= $dateDebut) {
+                return true; // Dates se chevauchent
             }
         }
-
-        // Vérifier si aucune correspondance n'est trouvée
-        return $trouve;
+    
+        return false; // Pas de chevauchement
     }
 }

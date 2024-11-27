@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
+use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -14,6 +15,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
@@ -86,15 +88,22 @@ class DitSearchType extends AbstractType
    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-     
+        
+        $autorisationRoleEnergie = $options['autorisationRoleEnergie'];
+        
        
         $builder
         ->add('niveauUrgence', EntityType::class, [
             'label' => 'Niveau d\'urgence',
+            'label_html' => true,
             'class' => WorNiveauUrgence::class,
             'choice_label' => 'description',
-            'placeholder' => '-- Choisir une niveau--',
+            'placeholder' => '-- Choisir un niveau--',
             'required' => false,
+            'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                    },
             'attr' => [
                 'class' => 'niveauUrgence'
             ]
@@ -115,20 +124,20 @@ class DitSearchType extends AbstractType
             },
         ])
             ->add('idMateriel', NumberType::class, [
-                'label' => 'Id Materiel',
+                'label' => 'Id Matériel',
                 'required' => false,
             ])
             ->add('typeDocument', EntityType::class, [
                 'label' => 'Type de Document',
                 'class' => WorTypeDocument::class,
                 'choice_label' => 'description',
-                'placeholder' => '-- Choisir une type de document--',
+                'placeholder' => '-- Choisir un type de document--',
                 'required' => false,
             ])
             ->add('internetExterne', 
             ChoiceType::class, 
             [
-                'label' => "Interne et Externe",
+                'label' => "Interne - Externe",
                 'choices' => self::INTERNE_EXTERNE,
                 'placeholder' => '-- Choisir --',
                 'required' => false,
@@ -136,12 +145,12 @@ class DitSearchType extends AbstractType
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Demande Début',
+                'label' => 'Date début demande',
                 'required' => false,
             ])
             ->add('dateFin', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date Demande Fin',
+                'label' => 'Date fin demande',
                 'required' => false,
             ])
             ->add('numParc', TextType::class, [
@@ -149,143 +158,10 @@ class DitSearchType extends AbstractType
                 'required' => false
             ])
             ->add('numSerie', TextType::class, [
-                'label' => "N° Serie",
+                'label' => "N° Série",
                 'required' => false
             ])
-            ->add('agenceEmetteur', EntityType::class, [
-                'label' => "Agence Emetteur",
-                'class' => Agence::class,
-                'choice_label' => function (Agence $agence): string {
-                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-                },
-                'placeholder' => '-- Choisir une agence--',
-                'required' => false,
-                'attr' => [ 'class' => 'agenceEmetteur']
-            ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-            
-                if ($data && $data->getAgenceEmetteur()) {
-                    $services = $data->getAgenceEmetteur()->getServices();
-                } else {
-                    $services = [];
-                }
-            
-                $form->add('serviceEmetteur', EntityType::class, [
-                    'label' => "Service Emetteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir une service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceEmetteur']
-                ]);
-            })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-            
-                if (isset($data['agenceEmetteur']) && $data['agenceEmetteur']) {
-                    $agenceId = $data['agenceEmetteur'];
-                    $agence = $this->agenceRepository->find($agenceId);
-            
-                    if ($agence) {
-                        $services = $agence->getServices();
-                    } else {
-                        $services = [];
-                    }
-                } else {
-                    $services = [];
-                }
-            
-                $form->add('serviceEmetteur', EntityType::class, [
-                    'label' => "Service Emetteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir une service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceEmetteur']
-                ]);
-            })
-            ->add('agenceDebiteur', EntityType::class, [
-                'label' => "Agence Debiteur",
-                'class' => Agence::class,
-                'choice_label' => function (Agence $agence): string {
-                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
-                },
-                'placeholder' => '-- Choisir une agence--',
-                'required' => false,
-                'attr' => [ 'class' => 'agenceDebiteur']
-            ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-            
-                if ($data && $data->getAgenceDebiteur()) {
-                    $services = $data->getAgenceDebiteur()->getServices();
-                } else {
-                    $services = [];
-                }
-            
-                $form->add('serviceDebiteur', EntityType::class, [
-                    'label' => "Service Debiteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir une service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceDebiteur']
-                ]);
-            })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-            
-                if (isset($data['agenceDebiteur']) && $data['agenceDebiteur']) {
-                    $agenceId = $data['agenceDebiteur'];
-                    $agence = $this->agenceRepository->find($agenceId);
-            
-                    if ($agence) {
-                        $services = $agence->getServices();
-                    } else {
-                        $services = [];
-                    }
-                } else {
-                    $services = [];
-                }
-            
-                $form->add('serviceDebiteur', EntityType::class, [
-                    'label' => "Service Debiteur",
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'placeholder' => '-- Choisir une service--',
-                    'choices' => $services,
-                    'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
-                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
-                    },
-                    'attr' => [ 'class' => 'serviceDebiteur']
-                ]);
-            }) 
+                
             ->add('numDit',
             TextType::class,
             [
@@ -295,13 +171,13 @@ class DitSearchType extends AbstractType
             ->add('numOr',
             NumberType::class,
             [
-                'label' => 'N° Or',
+                'label' => 'N° OR',
                 'required' => false
             ])
             ->add('statutOr',
             ChoiceType::class,
             [
-                'label' => 'Statut Or',
+                'label' => 'Statut OR',
                 'required' => false,
                 'choices' => $this->statutOr(),
                 'placeholder' => '-- choisir une statut --'
@@ -309,7 +185,7 @@ class DitSearchType extends AbstractType
             ->add('ditSansOr', 
             CheckboxType::class,
             [
-                'label' => 'Dit sans Or',
+                'label' => 'DIT sans OR',
                 'required' => false
             ])
                 
@@ -364,6 +240,217 @@ class DitSearchType extends AbstractType
                 
             ])
             ;
+
+            if($autorisationRoleEnergie)
+            {
+               $builder ->add('agenceEmetteur', EntityType::class, [
+                'label' => "Agence émetteur",
+                'class' => Agence::class,
+                'choice_label' => function (Agence $agence): string {
+                    return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                },
+                'placeholder' => '-- Choisir une agence--',
+                'required' => false,
+                'query_builder' => function(AgenceRepository $agenceRepository) {
+                        return $agenceRepository->createQueryBuilder('a')
+                            ->where('a.codeAgence IN (:codes)')
+                            ->setParameter('codes', [90, 91, 92])
+                            ->orderBy('a.codeAgence', 'ASC');
+                    },
+                'attr' => [ 'class' => 'agenceEmetteur']
+            ])
+            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+            
+                if ($data && $data->getAgenceEmetteur()) {
+                    $services = $data->getAgenceEmetteur()->getServices();
+                } else {
+                    $services = [];
+                }
+            
+                $form->add('serviceEmetteur', EntityType::class, [
+                    'label' => "Service émetteur",
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'placeholder' => '-- Choisir un service--',
+                    'choices' => $services,
+                    'required' => false,
+                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                    },
+                    'attr' => [ 'class' => 'serviceEmetteur']
+                ]);
+            })
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+            
+                if (isset($data['agenceEmetteur']) && $data['agenceEmetteur']) {
+                    $agenceId = $data['agenceEmetteur'];
+                    $agence = $this->agenceRepository->find($agenceId);
+            
+                    if ($agence) {
+                        $services = $agence->getServices();
+                    } else {
+                        $services = [];
+                    }
+                } else {
+                    $services = [];
+                }
+            
+                $form->add('serviceEmetteur', EntityType::class, [
+                    'label' => "Service Emetteur",
+                    'class' => Service::class,
+                    'choice_label' => function (Service $service): string {
+                        return $service->getCodeService() . ' ' . $service->getLibelleService();
+                    },
+                    'placeholder' => '-- Choisir un service--',
+                    'choices' => $services,
+                    'required' => false,
+                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                        return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                    },
+                    'attr' => [ 'class' => 'serviceEmetteur']
+                ]);
+            });
+            } else {
+                $builder->add('agenceEmetteur', EntityType::class, [
+                    'label' => "Agence émetteur",
+                    'class' => Agence::class,
+                    'choice_label' => function (Agence $agence): string {
+                        return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                    },
+                    'placeholder' => '-- Choisir une agence--',
+                    'required' => false,
+                    'attr' => [ 'class' => 'agenceEmetteur']
+                ])
+                ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+                    $form = $event->getForm();
+                    $data = $event->getData();
+                
+                    if ($data && $data->getAgenceEmetteur()) {
+                        $services = $data->getAgenceEmetteur()->getServices();
+                    } else {
+                        $services = [];
+                    }
+                
+                    $form->add('serviceEmetteur', EntityType::class, [
+                        'label' => "Service émetteur",
+                        'class' => Service::class,
+                        'choice_label' => function (Service $service): string {
+                            return $service->getCodeService() . ' ' . $service->getLibelleService();
+                        },
+                        'placeholder' => '-- Choisir un service--',
+                        'choices' => $services,
+                        'required' => false,
+                        'query_builder' => function(ServiceRepository $serviceRepository) {
+                            return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                        },
+                        'attr' => [ 'class' => 'serviceEmetteur']
+                    ]);
+                })
+                ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+                    $form = $event->getForm();
+                    $data = $event->getData();
+                
+                    $services = [];
+                    if (isset($data['agenceEmetteur']) && $data['agenceEmetteur']) {
+                        $agenceId = $data['agenceEmetteur'];
+                        $agence = $this->agenceRepository->find($agenceId);
+                
+                        if ($agence) {
+                            $services = $agence->getServices();
+                        } 
+                    } 
+                
+                    $form->add('serviceEmetteur', EntityType::class, [
+                        'label' => "Service Emetteur",
+                        'class' => Service::class,
+                        'choice_label' => function (Service $service): string {
+                            return $service->getCodeService() . ' ' . $service->getLibelleService();
+                        },
+                        'placeholder' => '-- Choisir un service--',
+                        'choices' => $services,
+                        'required' => false,
+                        'query_builder' => function(ServiceRepository $serviceRepository) {
+                            return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                        },
+                        'attr' => [ 'class' => 'serviceEmetteur']
+                    ]);
+                });
+        }
+
+        $builder
+        ->add('agenceDebiteur', EntityType::class, [
+            'label' => "Agence débiteur",
+            'class' => Agence::class,
+            'choice_label' => function (Agence $agence): string {
+                return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+            },
+            'placeholder' => '-- Choisir une agence--',
+            'required' => false,
+            'attr' => [ 'class' => 'agenceDebiteur']
+        ])
+        ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+        
+            if ($data && $data->getAgenceDebiteur()) {
+                $services = $data->getAgenceDebiteur()->getServices();
+            } else {
+                $services = [];
+            }
+        
+            $form->add('serviceDebiteur', EntityType::class, [
+                'label' => "Service débiteur",
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'placeholder' => '-- Choisir un service--',
+                'choices' => $services,
+                'required' => false,
+                'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+                'attr' => [ 'class' => 'serviceDebiteur']
+            ]);
+        })
+        ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            $form = $event->getForm();
+            $data = $event->getData();
+        
+            if (isset($data['agenceDebiteur']) && $data['agenceDebiteur']) {
+                $agenceId = $data['agenceDebiteur'];
+                $agence = $this->agenceRepository->find($agenceId);
+        
+                if ($agence) {
+                    $services = $agence->getServices();
+                } else {
+                    $services = [];
+                }
+            } else {
+                $services = [];
+            }
+        
+            $form->add('serviceDebiteur', EntityType::class, [
+                'label' => "Service débiteur",
+                'class' => Service::class,
+                'choice_label' => function (Service $service): string {
+                    return $service->getCodeService() . ' ' . $service->getLibelleService();
+                },
+                'placeholder' => '-- Choisir un service--',
+                'choices' => $services,
+                'required' => false,
+                'query_builder' => function(ServiceRepository $serviceRepository) {
+                    return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                },
+                'attr' => [ 'class' => 'serviceDebiteur']
+            ]);
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -371,6 +458,7 @@ class DitSearchType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DitSearch::class,
         ]);
-        $resolver->setDefined('idAgenceEmetteur');
+        //$resolver->setDefined('idAgenceEmetteur');
+        $resolver->setDefined('autorisationRoleEnergie');
     }
 }

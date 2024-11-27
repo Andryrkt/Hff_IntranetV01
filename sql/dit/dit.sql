@@ -210,3 +210,24 @@ ADD etat_facturation VARCHAR(255)
 --Ajout de colone ri
 ALTER TABLE demande_intervention
 ADD ri VARCHAR(255)
+
+UPDATE wor_niveau_urgence
+SET
+    description = CASE
+        WHEN description = 'CRITIQUE' THEN 'P0'
+        WHEN description = 'URGENT' THEN 'P1'
+        WHEN description = 'NORMAL' THEN 'P2'
+        ELSE description
+    END;
+
+INSERT INTO
+    wor_niveau_urgence (
+        description,
+        date_creation,
+        date_modification
+    )
+VALUES (
+        'P3',
+        '2024-11-04',
+        '2024-11-04'
+    );

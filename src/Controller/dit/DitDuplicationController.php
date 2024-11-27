@@ -8,6 +8,7 @@ use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
@@ -27,7 +28,11 @@ class DitDuplicationController extends Controller
     */
     public function Duplication($numDit, $id, Request $request)
     {
-       
+       //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        
          //INITIALISATION DU FORMULAIRE
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $codeEmetteur = explode('-', $dit->getAgenceServiceEmetteur());
@@ -91,7 +96,7 @@ class DitDuplicationController extends Controller
 
             // Vérifier si le formulaire est soumis et valide
             if ($form->isSubmitted() && $form->isValid()) {
-                $dits = $this->infoEntrerManuel($form, self::$em);
+                $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
                 //envoie des pièce jointe dans une dossier
                 $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
@@ -122,7 +127,7 @@ class DitDuplicationController extends Controller
 
                 
                 //ENVOYER le PDF DANS DOXCUWARE
-                if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92") {
+                if($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92" || $dits->getAgence()->getCodeAgence() === "50") {
                     $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
                 }
 

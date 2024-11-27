@@ -73,7 +73,7 @@ class CasierModel extends Model
         (select  mimm_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
         
         from mat_mat, agr_succ, outer mat_bil
-        WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+        WHERE (MMAT_SUCC in ('01', '02', '20', '30', '40', '50', '60', '80', '90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01','02', '20', '30', '40', '50', '60', '80', '90','91','92') ))
         
         
          and trim(MMAT_ETSTOCK) in ('ST','AT')
@@ -84,7 +84,6 @@ class CasierModel extends Model
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-        and mmat_affect in ('LCD','IMM','VTE','SDO')
         and (MMAT_ETACHAT = 'FA' and MMAT_ETVENTE = '--')
         ".$conditionNummat."
       ".$conditionNumParc."

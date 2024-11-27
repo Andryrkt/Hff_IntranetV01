@@ -21,6 +21,9 @@ class BadmsController extends Controller
      */
     public function newForm1(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
             /** RECUPERATION ID USER CONNECTER */
             $userId = $this->sessionService->get('user_id');
             /** INITIALISATION*/

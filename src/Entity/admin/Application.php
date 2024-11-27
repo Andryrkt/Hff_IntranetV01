@@ -18,7 +18,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Application
 {
-   use DateTrait;
+    use DateTrait;
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

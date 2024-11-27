@@ -22,6 +22,9 @@ class ListeTikController extends Controller
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $tikSearch = new TikSearch();
         
         $userId = $this->sessionService->get('user_id');

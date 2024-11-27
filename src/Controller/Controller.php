@@ -27,8 +27,6 @@ use App\Model\TransferDonnerModel;
 
 use App\Service\FlashManagerService;
 
-
-
 use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
 use App\Service\ExcelExporterService;
@@ -36,7 +34,7 @@ use App\Entity\admin\utilisateur\User;
 
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
-use App\Model\admin\user\ProfilUserModel;
+//use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -64,15 +62,10 @@ class Controller
     protected $duplicata;
     protected $domList;
     protected $ProfilModel;
-    
-  
-
-    protected $odbcCrud;
 
     protected static $generator;
     protected static $twig;
     protected $loader;
-   
 
     protected $request;
     protected $response;
@@ -109,10 +102,7 @@ class Controller
 
         $this->profilModel = new ProfilModel();
 
-        $this->odbcCrud = new OdbcCrudModel();
 
-
-        
         $this->badm = new BadmModel();
 
         $this->Person = new PersonnelModel();
@@ -133,7 +123,7 @@ class Controller
 
         $this->parsedown = new Parsedown();
 
-        $this->profilUser = new ProfilUserModel();
+        //$this->profilUser = new ProfilUserModel();
 
         $this->ditModel = new DitModel();
 
@@ -147,9 +137,6 @@ class Controller
         $this->excelService = new ExcelService();
 
     }
-
-
-
 
     public static function setTwig($twig)
     {
@@ -249,20 +236,7 @@ class Controller
     }
 
 
-    public function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
-    {
-        for ($i = 1; $i < $LongerVoulu; $i++) {
-            if (strlen($ChaineComplet) < $LongerVoulu) {
-                if ($PositionComplet = "G") {
-                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
-                } else {
-                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
-                }
-            }
-        }
-        return $ChaineComplet;
-    }
-
+    
 
 
     protected function conversionCaratere(string $chaine): string
@@ -335,6 +309,20 @@ class Controller
         }
     }
     
+    private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
+    {
+        for ($i = 1; $i < $LongerVoulu; $i++) {
+            if (strlen($ChaineComplet) < $LongerVoulu) {
+                if ($PositionComplet = "G") {
+                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
+                } else {
+                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
+                }
+            }
+        }
+        return $ChaineComplet;
+    }
+
 
     /**
      * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
@@ -531,11 +519,9 @@ class Controller
     }
 
 
-    protected function controlSession()
+    protected function verifierSessionUtilisateur()
     {
-        $user = $this->sessionService->get('user_id', []);
-        
-        if (!$user) {
+        if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
         } 
     }

@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\cis\CisATraiterModel;
 use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,9 @@ class CisATraiterController extends Controller
      */
     public function listCisATraiter(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $cisATraiterModel = new CisATraiterModel();
 
         /** CREATION D'AUTORISATION */
@@ -31,13 +35,18 @@ class CisATraiterController extends Controller
 
         $form->handleRequest($request);
         $criteria = [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
+            'orValide' => true
         ];
         if($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         } 
         
-        $data = $cisATraiterModel->listOrATraiter($criteria);
+        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
+        
+        $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
+
+        
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
@@ -53,12 +62,16 @@ class CisATraiterController extends Controller
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_traiter_search_criteria', []);
 
-        $entities = $cisATraiterModel->listOrATraiter($criteria);
+        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
+        $entities = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
 
         // Convertir les entités en tableau de données
         $data = [];
