@@ -12,6 +12,7 @@ use App\Entity\tik\TkiPlanning;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
+use App\Repository\tik\TkiPlanningRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
@@ -141,7 +142,10 @@ class DetailTikController extends Controller
                             ->setIdStatutDemande($button['statut'])    // statut planifié
                         ;
 
-                        $planning = new TkiPlanning;
+                        $planning = self::$em->getRepository(TkiPlanning::class)->findOneBy(['numeroTicket'=>$dataForm->getNumeroTicket()]);
+
+                        $planning = $planning ?? new TkiPlanning;
+
                         $planning
                             ->setNumeroTicket($dataForm->getNumeroTicket())
                             ->setDateDebutPlanning($dataForm->getDateDebutPlanning())
