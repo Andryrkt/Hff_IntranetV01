@@ -430,7 +430,9 @@ class DitModel extends Model
               AND seor_serv <> 'DEV'
               AND sitv_numor = slor_numor
               AND sitv_interv = slor_nogrp / 100
-
+              AND seor_soc = 'HF'
+              AND slor_soc=seor_soc
+              AND sitv_soc=seor_soc
           AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
           AND sitv_servcrt IN (
               'ATE',
@@ -438,10 +440,11 @@ class DitModel extends Model
               'GAR',
               'MAN',
               'CSP',
-              'MAS'
+              'MAS',
+              'LR6',
+              'LST'
           )
-          --AND seor_numor = '".$numOr."'
-          AND seor_numor = '51302469'
+          AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'
           group by
               1,
