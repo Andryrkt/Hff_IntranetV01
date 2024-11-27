@@ -25,6 +25,9 @@ class DitController extends Controller
     use DitTrait;
     use FormatageTrait;
 
+
+    
+
     /**
      * @Route("/dit/new", name="dit_new")
      *
@@ -39,6 +42,9 @@ class DitController extends Controller
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
 
+        /** Autorisation accées */
+        $this->autorisationAcces($user);
+        /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();
         //INITIALISATION DU FORMULAIRE
@@ -92,7 +98,22 @@ class DitController extends Controller
         ]);
     }
 
-   
+    private function autorisationApp($user): bool
+    {
+        //id pour DIT est 4
+        $AppIds = $user->getApplicationsIds();
+        return in_array(4, $AppIds) ;
+    }
+
+    private function autorisationAcces($user)
+    {
+        if(!$this->autorisationApp($user)) {
+            $message = "vous n'avez pas l'autorisation";
+            $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+            $this->redirectToRoute("profil_acceuil");
+            exit();
+        }
+    }
    
     /**
      * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
@@ -143,7 +164,6 @@ class DitController extends Controller
         $jsonData = json_encode($data);
 
         $this->testJson($jsonData);
-       
     }
 
 
