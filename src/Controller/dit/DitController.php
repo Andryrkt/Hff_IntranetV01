@@ -47,6 +47,7 @@ class DitController extends Controller
         /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();
+        
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($demandeIntervention, self::$em);
 

@@ -8,3 +8,5 @@
 1/ rado peut crée une dit alors qu'il n'a pas l'autorisation d'accéder au page de création dit (okey)
 2/ le numero or 51302514 est envoyer en ors soumis à validation, le problème est que sur la page de garde du pdf générer les montants sont null et le compentatire et le numero d'intervention sont vide
 => stiv_pos = 'EC' à verifier pourquoi le donner ne s'affiche pas sur le pdf
+numeroDit : DIT24119994
+numeroOr: 51302404
