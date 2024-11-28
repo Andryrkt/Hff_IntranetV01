@@ -65,11 +65,11 @@ class DitOrsSoumisAValidationController extends Controller
         {  
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             
-            // if(strpos($originalName, 'Ordre de réparation') !== 0){
+            if(strpos($originalName, 'Ordre de réparation') !== 0){
             
-            //     $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
-            //     $this->notification($message);
-            // }
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+                $this->notification($message);
+            }
             
             /** DEBUT CONDITION DE BLOCAGE */
             $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
