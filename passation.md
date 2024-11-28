@@ -112,7 +112,7 @@ src
         |planning
         |tik
         |Traits
-    |Entity (tous les noms de fichiers sont terminer par ".php")
+    |Entity (tous les noms de fichiers sont terminer par ".php" | c'est le mappage avec le base de donnée)
         |admin
         |badm
         |dit
@@ -126,6 +126,20 @@ src
         |admin
         |badm
         |dit
+            demandeInterventiontype.php
+                methode obligatoire :
+
+                ```php
+                public function buildForm(FormBuilderInterface $builder, array $options)
+                {}
+
+                    public function configureOptions(OptionsResolver $resolver)
+                    {
+                        $resolver->setDefaults([
+                            'data_class' => DemandeIntervention::class,
+                        ]);
+                    }
+                ```
         |dom
         |dw
         |magasin
@@ -137,14 +151,14 @@ src
     |Service (tous les noms de fichiers sont terminer par "Service.php")
 
 Views
-    |css
-    |js
-    |templates
-        |admin
-        |badm
-        |dit
-        |shared
-        new.html.twig
+|css
+|js
+|templates
+|admin
+|badm
+|dit
+|shared
+new.html.twig
 
             ```php
             {{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
@@ -317,5 +331,10 @@ Views
         macroForm.html.twig
         signin.html.twig
 
+# pour nouvelle projet, voici les étapes à suivre
 
-# pour nouvelle projet (application) voi
+    - creation d'entité et ses relation avec d'autre entité
+    - creation de repository
+    - creation de form
+    - creation de controller
+    - creation template
