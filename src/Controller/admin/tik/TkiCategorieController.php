@@ -110,7 +110,7 @@ class TkiCategorieController extends Controller
         if ($categorie) {
             $SousCategories = $categorie->getSousCategories();
             foreach ($SousCategories as $sousCategorie) {
-                $categorie->removePermission($sousCategorie);
+                $categorie->removeSousCategorie($sousCategorie);
                 self::$em->persist($sousCategorie); // Persist the permission to register the removal
             }
 
