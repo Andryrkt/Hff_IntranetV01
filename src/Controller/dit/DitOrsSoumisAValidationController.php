@@ -50,6 +50,7 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Le DIT n'a pas encore du numéro OR";
             $this->notification($message);
         }
+
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
             ->setNumeroDit($numDit)
@@ -64,11 +65,11 @@ class DitOrsSoumisAValidationController extends Controller
         {  
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
             
-            if(strpos($originalName, 'Ordre de réparation') !== 0){
+            // if(strpos($originalName, 'Ordre de réparation') !== 0){
             
-                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
-                $this->notification($message);
-            }
+            //     $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+            //     $this->notification($message);
+            // }
             
             /** DEBUT CONDITION DE BLOCAGE */
             $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
@@ -83,7 +84,7 @@ class DitOrsSoumisAValidationController extends Controller
             
             $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
-            
+
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
              /** FIN CONDITION DE BLOCAGE */
             
@@ -96,7 +97,7 @@ class DitOrsSoumisAValidationController extends Controller
             } elseif(!in_array($agServDebiteurBDSql, $agServInformix)) {
                 $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
                 $this->notification($message);
-            } elseif (in_array($pos, $invalidPositions)) {
+            } elseif (in_array($pos[0]['position'], $invalidPositions)) {
                 $message = "Echec de la soumission de l'OR";
                 $this->notification($message);
             } elseif ($demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule']) {
@@ -144,7 +145,6 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }
-        
         }
 
 

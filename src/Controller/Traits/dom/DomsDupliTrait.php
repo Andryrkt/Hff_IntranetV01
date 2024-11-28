@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Traits;
+namespace App\Controller\Traits\dom;
 
 use DateTime;
 use App\Entity\admin\Agence;
