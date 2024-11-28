@@ -328,17 +328,17 @@ class PlanningModel extends Model
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
                             
-                     CASE  WHEN slor_natcm = 'C' THEN 
-                     'COMMANDE'
-                      WHEN slor_natcm = 'L' THEN 
-                      'RECEPTION'
+                      CASE  
+                        WHEN slor_natcm = 'C' THEN 'COMMANDE'
+                        WHEN slor_natcm = 'L' THEN 'RECEPTION'
                       END AS Statut_ctrmq,
-                      CASE WHEN slor_natcm = 'C' THEN 
-                      slor_numcf
-                      WHEN slor_natcm = 'L' THEN 
-                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
-                      AND fllf_ligne = slor_noligncm
-                      AND fllf_refp = slor_refp)
+                      CASE 
+                        WHEN slor_natcm = 'C' THEN 
+                          slor_numcf
+                        WHEN slor_natcm = 'L' THEN 
+                          (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
+                          AND fllf_ligne = slor_noligncm
+                          AND fllf_refp = slor_refp)
                       END  AS numeroCmd,
 
                       CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
@@ -414,11 +414,17 @@ class PlanningModel extends Model
                                                       AND Parts_CST = slor_constp 
                                                       AND Line_Number = slor_noligncm )
 					            	)
-	                    END as Message                       
+	                    END as Message,
+                      nlig_numcf as numcde_cis,
+                      CASE  
+                        WHEN nlig_natcm = 'C' THEN 'COMMANDE'
+                        WHEN nlig_natcm = 'L' THEN 'RECEPTION'
+                      END AS Statut_cis_ctrmq                         
 
                 FROM sav_lor
-	              JOIN sav_itv ON slor_numor = sitv_numor 
-                AND sitv_interv = slor_nogrp / 100
+	                JOIN sav_itv ON slor_numor = sitv_numor 
+                  AND sitv_interv = slor_nogrp / 100
+                  LEFT JOIN neg_lig ON slor_numcf = nlig_numcde
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne
