@@ -69,7 +69,8 @@ class DitOrsSoumisAValidationController extends Controller
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
                 $this->notification($message);
             }
-
+            
+            /** DEBUT CONDITION DE BLOCAGE */
             $ditInsertionOrSoumis->setNumeroOR(explode('_',$originalName)[1]);
 
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
@@ -77,13 +78,14 @@ class DitOrsSoumisAValidationController extends Controller
 
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
-
+            
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
             
             $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
-
+            
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
+             /** FIN CONDITION DE BLOCAGE */
             
             if($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()){
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
@@ -106,7 +108,7 @@ class DitOrsSoumisAValidationController extends Controller
             }
             else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
-                
+
                 $ditInsertionOrSoumis
                 ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                 ->setHeureSoumission($this->getTime())
@@ -114,8 +116,10 @@ class DitOrsSoumisAValidationController extends Controller
                 ;
                 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
+                 //dump($orSoumisValidationModel);
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
-                
+                 //dump($orSoumisValidataion);
+
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);
                 
@@ -127,12 +131,8 @@ class DitOrsSoumisAValidationController extends Controller
 
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
-                $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
-                $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
-                $quelqueaffichage = $this->quelqueAffichage($ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
-                $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+                $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $ditOrsoumisAValidationModel, $genererPdfDit);
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
@@ -153,6 +153,19 @@ class DitOrsSoumisAValidationController extends Controller
         ]);
     }
 
+    private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $ditOrsoumisAValidationModel, $genererPdfDit)
+    {
+        $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+        // dump($OrSoumisAvant);
+        $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+        // dump($OrSoumisAvantMax);
+        $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
+        // dd($montantPdf);
+        $quelqueaffichage = $this->quelqueAffichage($ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
+        
+        $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+    }
+
     private function modificationStatutOr($numDit)
     {
         $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
@@ -161,7 +174,7 @@ class DitOrsSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-    private function envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis) 
+    private function envoieDonnerDansBd($orSoumisValidataion) 
     {
         // Persist les entités liées
         if(count($orSoumisValidataion) > 1){

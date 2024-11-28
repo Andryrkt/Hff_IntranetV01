@@ -309,7 +309,7 @@ class Controller
         }
     }
     
-    public function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
+    private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
     {
         for ($i = 1; $i < $LongerVoulu; $i++) {
             if (strlen($ChaineComplet) < $LongerVoulu) {

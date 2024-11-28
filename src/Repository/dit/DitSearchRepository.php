@@ -54,6 +54,4 @@ class DitRepository extends EntityRepository
         ->getScalarResult();
         return array_column($result, 'statutOr');
     }
-
-
 }

@@ -38,4 +38,14 @@ class GeneratePdf
         $cheminDestinationLocal = 'C:/wamp64/www/Upload/vri/RI_' .$numeroOR.'-'.$numeroVersion . '.pdf'; // avec tiret 6
         copy($cheminDestinationLocal, $cheminFichierDistant);
     } 
+
+    public function copyToDWCdeSoumis($fileName){
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' .$fileName;
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/cde/' .$fileName;
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "okey";
+        } else {
+            echo "sorry";
+        }
+    }
 }

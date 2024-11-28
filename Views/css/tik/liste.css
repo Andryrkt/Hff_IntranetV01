@@ -14,7 +14,7 @@
 .encours
 {
     background-color: blue ! important;
-    color: white;
+    color: white !important;
     font-weight: bold;
 }
 

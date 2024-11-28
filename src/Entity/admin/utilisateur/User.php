@@ -648,6 +648,12 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
    
+    public function getApplicationsIds(): array
+    {
+        return $this->applications->map(function($app) {
+            return $app->getId();
+        })->toArray();
+    }
 
     
     public function getPassword(){}

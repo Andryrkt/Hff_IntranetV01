@@ -10,8 +10,7 @@ use App\Repository\dit\DitCdeSoumisAValidationRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DitCdeSoumisAValidationRepository::class)
- * TODO : change le nom de la table
- * @ORM\Table(name="ri_soumis_a_validation")
+ * @ORM\Table(name="cde_soumis_a_validation")
  * @ORM\HasLifecycleCallbacks
  */
 class DitCdeSoumisAValidation

@@ -319,21 +319,21 @@ class DitRepository extends EntityRepository
     }
 
 
-    private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
-    {
-        if (!empty($ditSearch->getAgenceEmetteur())) {
-            $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
-        } else {
-            $queryBuilder->andWhere(
-                $queryBuilder->expr()->orX(
-                    'd.agenceEmetteurId IN (:agencesRattachees)',
-                    'd.agenceDebiteurId IN (:agencesRattachees)'
-                )
-            )
-            ->setParameter('agencesRattachees', $agencyIds);
-        }
-    }
+    // private function applyAgencyRoleFilter($queryBuilder, DitSearch $ditSearch, array $agencyIds)
+    // {
+    //     if (!empty($ditSearch->getAgenceEmetteur())) {
+    //         $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+    //             ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
+    //     } else {
+    //         $queryBuilder->andWhere(
+    //             $queryBuilder->expr()->orX(
+    //                 'd.agenceEmetteurId IN (:agencesRattachees)',
+    //                 'd.agenceDebiteurId IN (:agencesRattachees)'
+    //             )
+    //         )
+    //         ->setParameter('agencesRattachees', $agencyIds);
+    //     }
+    // }
 
 private function applySection($queryBuilder, DitSearch $ditSearch)
 {
@@ -542,6 +542,5 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
         ;
 
         return $queryBuilder->getQuery()->getResult();
-
     }
 }
