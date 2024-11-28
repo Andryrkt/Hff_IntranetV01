@@ -34,25 +34,12 @@ class DetailTikType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $idStatut      = $options['data']->getIdStatutDemande()->getId();
+        $statutOuvert  = $idStatut == '79';
+        $validateur    = in_array("VALIDATEUR", $this->connectedUser->getRoleNames());
+        $intervenant   = in_array("INTERVENANT", $this->connectedUser->getRoleNames());
+        $disabled      = ($statutOuvert) ? !$validateur : $intervenant ;
         $builder
-            ->add('dateDebutPlanning', DateTimeType::class, [
-                'label'      => 'Début planning',
-                'attr'       => [
-                    'disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
-                    'type' => 'datetime-local' // Utilisation de l'input datetime-local
-                ],
-                'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
-                'required'   => false,
-            ])
-            ->add('dateFinPlanning', DateTimeType::class, [
-                'label'      => 'Fin planning',
-                'attr'       => [
-                    'disabled' => !in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
-                    'type' => 'datetime-local' // Utilisation de l'input datetime-local
-                ],
-                'widget'     => 'single_text',
-                'required'   => false,
-            ])
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
                 'class'        => TkiCategorie::class,
@@ -65,7 +52,7 @@ class DetailTikType extends AbstractType
                 'data'         => $options['data']->getCategorie(),
                 'attr'         => [
                     'class'    => 'categorie',
-                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames()),
+                    'disabled' => $disabled,
                 ],
                 'placeholder'  => '-- Choisir une catégorie --',
                 'multiple'     => false,
@@ -76,7 +63,7 @@ class DetailTikType extends AbstractType
                 'label'        => 'Sous-catégories',
                 'attr'         => [
                     'class'    => 'sous-categorie',
-                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())
+                    'disabled' => $disabled
                 ],
                 'placeholder'  => '-- Choisir une sous-catégorie --',
                 'class'        => TkiSousCategorie::class,
@@ -94,7 +81,7 @@ class DetailTikType extends AbstractType
                 'label'        => 'Autres catégories',
                 'attr'         => [
                     'class'    => 'autre-categorie',
-                    'disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())
+                    'disabled' => $disabled
                 ],
                 'placeholder'  => '-- Choix d\'autre catégorie --',
                 'class'        => TkiAutresCategorie::class,
@@ -107,6 +94,22 @@ class DetailTikType extends AbstractType
                 'required'     => false,
                 'multiple'     => false,
                 'expanded'     => false
+            ])
+            ->add('niveauUrgence', EntityType::class, [
+                'label'        => 'Niveau d\'urgence',
+                'choice_label' => 'description',
+                'attr'         => [
+                    'disabled' => $disabled
+                ],
+                'placeholder'  => '-- Choisir le niveau d\'urgence --',
+                'class'        => WorNiveauUrgence::class,
+                'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
+                    return $WorNiveauUrgenceRepository
+                        ->createQueryBuilder('w')
+                        ->orderBy('w.description', 'DESC');
+                },
+                'multiple'     => false,
+                'expanded'     => false,
             ])
             ->add('intervenant', EntityType::class, [
                 'label'        => 'Intervenant',
@@ -124,19 +127,23 @@ class DetailTikType extends AbstractType
                 'multiple'     => false,
                 'expanded'     => false,
             ])
-            ->add('niveauUrgence', EntityType::class, [
-                'label'        => 'Niveau d\'urgence',
-                'choice_label' => 'description',
-                'attr'         => ['disabled' => in_array("INTERVENANT", $this->connectedUser->getRoleNames())],
-                'placeholder'  => '-- Choisir le niveau d\'urgence --',
-                'class'        => WorNiveauUrgence::class,
-                'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
-                    return $WorNiveauUrgenceRepository
-                        ->createQueryBuilder('w')
-                        ->orderBy('w.description', 'DESC');
-                },
-                'multiple'     => false,
-                'expanded'     => false,
+            ->add('dateDebutPlanning', DateTimeType::class, [
+                'label'      => 'Début planning',
+                'attr'       => [
+                    'disabled' => !$disabled,
+                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
+                ],
+                'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
+                'required'   => false,
+            ])
+            ->add('dateFinPlanning', DateTimeType::class, [
+                'label'      => 'Fin planning',
+                'attr'       => [
+                    'disabled' => !$disabled,
+                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
+                ],
+                'widget'     => 'single_text',
+                'required'   => false,
             ])
             ->add('commentaires', TextareaType::class, [
                 'label'    => 'Observation concernant le ticket',
