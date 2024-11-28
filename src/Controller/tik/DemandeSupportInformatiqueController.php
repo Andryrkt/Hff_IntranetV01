@@ -68,8 +68,8 @@ class DemandeSupportInformatiqueController extends Controller
         $agenceService = $this->agenceServiceIpsObjet();
         $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence());
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $supportInfo->setAgence($agenceService['agenceIps']);
-        $supportInfo->setService($agenceService['serviceIps']);
+        $supportInfo->setAgence(self::$em->getRepository(Agence::class)->find('08'));    // agence Administration
+        $supportInfo->setService(self::$em->getRepository(Service::class)->find('13'));   // service Informatique
         $supportInfo->setDateFinSouhaiteeAutomatique();
         $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
