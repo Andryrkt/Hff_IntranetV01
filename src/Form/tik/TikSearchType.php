@@ -263,7 +263,7 @@ class TikSearchType extends AbstractType
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+                
                 $sousCategorie = [];
                 if ($data && $data->getCategorie()) {
                     $sousCategorie = $data->getCategorie()->getSousCategories();
