@@ -5,6 +5,7 @@ namespace App\Controller\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
@@ -19,6 +20,8 @@ use App\Service\fichier\FileUploaderService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
+    use lienGenerique;
+
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
      */
@@ -188,7 +191,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'statut'     => "newTik",
                 'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
                 'tab'        => $tab,
-                'action_url' => "http://localhost/Hffintranet/tik-detail/{$tab['id']}"   // TO DO: à changer plus tard
+                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]
         ];
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
