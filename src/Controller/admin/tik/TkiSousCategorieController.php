@@ -109,14 +109,14 @@ class TkiSousCategorieController extends Controller
         $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
 
         if ($sousCategorie) {
-            $autresCategories = $sousCategorie->getSousCategories();
+            $autresCategories = $sousCategorie->getAutresCategories();
             foreach ($autresCategories as $autreCategorie) {
-                $autreCategorie->removePermission($autreCategorie);
+                $autreCategorie->removeAutresCategorie($autreCategorie);
                 self::$em->persist($autreCategorie); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
-            $sousCategorie->getSousCategories()->clear();
+            $sousCategorie->getAutresCategories()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();

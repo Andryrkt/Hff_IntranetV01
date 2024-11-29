@@ -13,9 +13,8 @@
 
 .encours
 {
-    background-color: blue ! important;
-    color: white !important;
-    font-weight: bold;
+    background-color: cyan ! important;
+    color: #000 !important;
 }
 
 .planifie

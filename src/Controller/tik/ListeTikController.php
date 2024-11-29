@@ -103,7 +103,7 @@ class ListeTikController extends Controller
             $intervenant = null;
         }
 
-        if (!empty($criteria)) {
+        if (!empty(array_filter($criteria))) {
             $intervenant    = isset($criteria['nomIntervenant']) ? self::$em->getRepository(User::class)              ->find($criteria['nomIntervenant']) : null;
             $statut         = isset($criteria['statut'])         ? self::$em->getRepository(StatutDemande::class)     ->find($criteria['statut'])         : null;
             $niveauUrgence  = isset($criteria['niveauUrgence'])  ? self::$em->getRepository(WorNiveauUrgence::class)  ->find($criteria['niveauUrgence'])  : null;
