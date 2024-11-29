@@ -123,9 +123,9 @@ function fetchDetailModalCis(id) {
           let dateEtaIvato;
           let dateMagasin;
           let dateStatut;
-          let numCde;
+          let numeroCdeCis;
           var numCis;
-          let statrmq;
+          let StatutCtrmqCis;
           let statut;
           let message;
           let cmdColorRmq = "";
@@ -159,20 +159,20 @@ function fetchDetailModalCis(id) {
           } else {
             numCis = detail.numcis;
           }
-          if (detail.numerocmd == null) {
-            numCde = "";
+          if (detail.numerocdecis == null) {
+            numeroCdeCis = "";
           } else {
-            numCde = detail.numerocmd;
+            numeroCdeCis = detail.numerocdecis;
           }
           if (detail.ref == null) {
             numRef = "";
           } else {
             numRef = detail.ref;
           }
-          if (detail.statut_ctrmq == null) {
-            statrmq = "";
+          if (detail.Statut_ctrmq_cis == null) {
+            StatutCtrmqCis = "";
           } else {
-            statrmq = detail.statut_ctrmq;
+            StatutCtrmqCis = detail.Statut_ctrmq_cis;
           }
           if (detail.statut == null) {
             statut = "";
@@ -208,8 +208,8 @@ function fetchDetailModalCis(id) {
                       <td>${detail.numor}</td> 
                       <td>${detail.intv}</td> 
                       <td>${numCis}</td> 
-                      <td ${cmdColor}>${numCde}</td> 
-                      <td ${cmdColorRmq}>${statrmq}</td> 
+                      <td ${cmdColor}>${numeroCdeCis}</td> 
+                      <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
                       <td>${detail.cst}</td> 
                       <td>${numRef}</td> 
                       <td>${detail.desi}</td> 
