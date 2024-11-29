@@ -154,8 +154,6 @@ class MagasinListeOrLivrerController extends Controller
             $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
             if( !empty($ditRepository)){
-                // $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                // $data[$i]['niveauUrgence'] = $dit[0]['description'];
                 $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
                 $idMateriel = $ditRepository->getIdMateriel();

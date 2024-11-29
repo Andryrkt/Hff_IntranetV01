@@ -89,7 +89,7 @@ class MagasinListeOrTraiterController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° Or', 'Date planning', "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence Débiteur', 'Service Débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Utilisateur']; 
+        $data[] = ['N° DIT', 'N° Or', 'Date planning', "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence Débiteur', 'Service Débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Utilisateur', 'ID Materiel', 'Marque', 'Casier']; 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['referencedit'],
@@ -106,7 +106,10 @@ class MagasinListeOrTraiterController extends Controller
                 $entity['referencepiece'],
                 $entity['designationi'],
                 $entity['quantitedemander'],
-                $entity['nomPrenom']
+                $entity['nomPrenom'],
+                $entity['idMateriel'],
+                $entity['marque'],
+                $entity['casier']
             ];
         }
 
@@ -142,11 +145,20 @@ class MagasinListeOrTraiterController extends Controller
                 } else {
                     $data[$i]['datePlanning'] = '';
                 }
-                $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-                if( !empty($dit)){
-                    $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
-                    $data[$i]['niveauUrgence'] = $dit[0]['description'];
-                } 
+
+
+                $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+                if( !empty($ditRepository)){
+                    $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
+                    $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
+                    $idMateriel = $ditRepository->getIdMateriel();
+                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
+                    $data[$i]['idMateriel'] = $idMateriel;
+                    $data[$i]['marque'] = $marqueCasier[0]['marque'];
+                    $data[$i]['casier'] = $marqueCasier[0]['casier'];
+                } else {
+                    break;
+                }
             }
 
             return $data;
