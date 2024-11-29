@@ -21,4 +21,20 @@ class UserRepository extends EntityRepository
             ->getResult()
         ;
     }
+
+    /** 
+     * Fonction pour obtenir la liste des utilisateurs ayant un role spécifique
+     * 
+     * @param string $roleName nom du role à chercher
+     */
+    public function findByRole(string $roleName)
+    {
+        return $this->createQueryBuilder('u')
+            ->join('u.roles', 'r') // Jointure avec la table des rôles, r: alias pour l'entité Role
+            ->where('r.role_name = :roleName') // Condition sur le nom du rôle
+            ->setParameter('roleName', $roleName) // Paramètre pour le rôle
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
