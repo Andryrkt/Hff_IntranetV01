@@ -216,7 +216,7 @@ class PlanningModel extends Model
     }
 
     $vligneType = $this->typeLigne($criteria);  
-    $vPiecesSum = $this->sumPieces($criteria);
+    //$vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);
     $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
     $vMonthStatutPlan = $this->planMonth($criteria);
