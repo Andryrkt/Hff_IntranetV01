@@ -420,7 +420,7 @@ class PlanningModel extends Model
                       WHEN nlig_natcm = 'L' THEN 
                       'RECEPTION'
                       END AS Statut_ctrmq_cis,
-nlig_numcf as numerocdecis                        
+                      nlig_numcf as numerocdecis                        
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
