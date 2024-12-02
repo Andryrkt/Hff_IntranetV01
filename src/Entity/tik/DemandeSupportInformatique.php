@@ -157,9 +157,9 @@ class DemandeSupportInformatique
     private ?WorNiveauUrgence $niveauUrgence;
 
     /**
-     * @ORM\Column(type="string", length=50, name="Parc_Informatique")
+     * @ORM\Column(type="string", length=50, nullable=true, name="Parc_Informatique")
      */
-    private string $parcInformatique;
+    private ?string $parcInformatique = null;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Fin_Souhaitee")
