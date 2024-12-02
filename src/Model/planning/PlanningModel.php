@@ -414,11 +414,17 @@ class PlanningModel extends Model
                                                       AND Parts_CST = slor_constp 
                                                       AND Line_Number = slor_noligncm )
 					            	)
-	                    END as Message                       
+	                    END as Message ,
+                      CASE  WHEN nlig_natcm = 'C' THEN 
+                     'COMMANDE'
+                      WHEN nlig_natcm = 'L' THEN 
+                      'RECEPTION'
+                      END AS Statut_ctrmq_cis,
+                      nlig_numcf as numerocdecis                        
 
                 FROM sav_lor
-	              JOIN sav_itv ON slor_numor = sitv_numor 
-                AND sitv_interv = slor_nogrp / 100
+	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
+                LEFT JOIN neg_lig ON slor_numcf = nlig_numcde
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne

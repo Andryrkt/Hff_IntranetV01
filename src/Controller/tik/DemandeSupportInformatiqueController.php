@@ -5,6 +5,7 @@ namespace App\Controller\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
@@ -13,10 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
+use App\Repository\admin\utilisateur\UserRepository;
+use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
+    use lienGenerique;
+
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
      */
@@ -47,6 +52,12 @@ class DemandeSupportInformatiqueController extends Controller
             self::$em->persist($supportInfo);
             self::$em->flush();
 
+            $this->envoyerMailAuxValidateurs([
+                'id'            => $donnerForm->getId(),
+                'numTik'        => $donnerForm->getNumeroTicket(),
+                'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
+            ]);
+
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
         }
@@ -68,8 +79,8 @@ class DemandeSupportInformatiqueController extends Controller
         $agenceService = $this->agenceServiceIpsObjet();
         $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence());
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $supportInfo->setAgence($agenceService['agenceIps']);
-        $supportInfo->setService($agenceService['serviceIps']);
+        $supportInfo->setAgence(self::$em->getRepository(Agence::class)->find('08'));    // agence Administration
+        $supportInfo->setService(self::$em->getRepository(Service::class)->find('13'));   // service Informatique
         $supportInfo->setDateFinSouhaiteeAutomatique();
         $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
@@ -159,6 +170,31 @@ class DemandeSupportInformatiqueController extends Controller
             $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
         }
         return $fileSize;
+    }
+    
+    /** 
+     * Fonctions pour envoyer un mail aux validateurs
+     */
+    private function envoyerMailAuxValidateurs(array $tab)
+    {
+        $email       = new EmailService;
+
+        $emailValidateurs = array_map(function($validateur) {
+            return $validateur->getMail();
+        }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
+
+        $content = [
+            'to'        => $emailValidateurs[0],
+            'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'tik/email/emailTik.html.twig',
+            'variables' => [
+                'statut'     => "newTik",
+                'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+            ]
+        ];
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }
 
