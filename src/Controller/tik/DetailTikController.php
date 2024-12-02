@@ -80,6 +80,7 @@ class DetailTikController extends Controller
                  * @var DemandeSupportInformatique $dataForm l'entité du DemandeSupportInformatique envoyé par le formualire de validation
                  */
                 $dataForm = $form->getData();
+                $numTik   = $dataForm->getNumeroTicket(); // numéro du ticket
 
                 /** 
                  * @var array $button tableau associatif contenant "action" => l'action de la requête (refuser, valider, ...); "statut" => code statut (79, 80, ...) de la demande selon l'action 
@@ -112,7 +113,12 @@ class DetailTikController extends Controller
                         // Envoi email refus
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
                         
-                        $this->confirmerEnvoiEmail($this->emailTikRefuse($variableEmail));
+                        $this->envoyerEmail($this->emailTikRefuse($variableEmail));
+                        
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success', 
+                            'message' => "Le ticket $numTik a été refusé."
+                        ]);
 
                         break;
 
@@ -136,7 +142,12 @@ class DetailTikController extends Controller
                         // Envoi email validation
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
                         
-                        $this->confirmerEnvoiEmail($this->emailTikValide($variableEmail));
+                        $this->envoyerEmail($this->emailTikValide($variableEmail));
+
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success', 
+                            'message' => "Le ticket $numTik a été validé."
+                        ]);
         
                         break;
 
@@ -170,7 +181,7 @@ class DetailTikController extends Controller
                         // Envoi email de planification
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $dataForm->getDateDebutPlanning());
                         
-                        $this->confirmerEnvoiEmail($this->emailTikPlanifie($variableEmail));
+                        $this->envoyerEmail($this->emailTikPlanifie($variableEmail));
 
                         $this->redirectToRoute("tik_calendar_planning");
 
@@ -195,7 +206,12 @@ class DetailTikController extends Controller
                         // Envoi email de transfert
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomNouveauIntervenant);
                         
-                        $this->confirmerEnvoiEmail($this->emailTikTransfere($variableEmail));
+                        $this->envoyerEmail($this->emailTikTransfere($variableEmail));
+
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success', 
+                            'message' => "Le ticket $numTik a été transféré."
+                        ]);
         
                         break;
 
@@ -224,7 +240,12 @@ class DetailTikController extends Controller
                         // Envoi email resolution
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
 
-                        $this->confirmerEnvoiEmail($this->emailTikResolu($variableEmail));
+                        $this->envoyerEmail($this->emailTikResolu($variableEmail));
+
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success', 
+                            'message' => "Le ticket $numTik a été résolu."
+                        ]);
 
                         break;
                 }
@@ -251,7 +272,7 @@ class DetailTikController extends Controller
 
                 $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
 
-                $this->confirmerEnvoiEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
+                $this->envoyerEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
                 
                 $this->redirectToRoute("liste_tik_index");
             }
@@ -456,17 +477,13 @@ class DetailTikController extends Controller
     /** 
      * fonction pour vérifier l'envoi du mail ou non 
      */
-    private function confirmerEnvoiEmail(array $content)
+    private function envoyerEmail(array $content)
     {
         $email = new EmailService;
         
         $content['cc'] = $content['cc'] ?? [];
         
-        if ($email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables'])) {
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Une email a été envoyé.']);
-        } else {
-            $this->sessionService->set('notification',['type' => 'danger', 'message' => "l'email n'a pas été envoyé."]);
-        }
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 
     /** 
