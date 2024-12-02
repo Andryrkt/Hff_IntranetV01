@@ -12,7 +12,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $query = $this->createQueryBuilder('osv')
         ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
         ->where('osv.statut IN (:statut)')
-        ->setParameter('statut', ['Validé', 'Livré'])
+        ->setParameter('statut', ['Validé', 'Livré','Livré partiellement'])
         ->getQuery()
         ->getSingleColumnResult();
     
@@ -41,7 +41,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $statut = ['Validé', 'Livré'];
+        $statut = ['Validé', 'Livré','Livré partiellement'];
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')

@@ -96,7 +96,7 @@ class DitOrsSoumisAValidationController extends Controller
             } elseif(!in_array($agServDebiteurBDSql, $agServInformix)) {
                 $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
                 $this->notification($message);
-            } elseif (in_array($pos, $invalidPositions)) {
+            } elseif (in_array($pos[0]['position'], $invalidPositions)) {
                 $message = "Echec de la soumission de l'OR";
                 $this->notification($message);
             } elseif ($demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule']) {
