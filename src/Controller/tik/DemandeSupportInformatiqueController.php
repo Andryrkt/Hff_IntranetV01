@@ -55,6 +55,8 @@ class DemandeSupportInformatiqueController extends Controller
             $this->envoyerMailAuxValidateurs([
                 'id'            => $donnerForm->getId(),
                 'numTik'        => $donnerForm->getNumeroTicket(),
+                'objet'         => $donnerForm->getObjetDemande(),
+                'detail'        => $donnerForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
