@@ -128,7 +128,8 @@ class DemandeSupportInformatiqueType extends AbstractType
             'choice_label' => 'description'
         ])
         ->add('parcInformatique', TextType::class, [
-            'label' => 'Parc informatique '
+            'label' => 'Parc informatique ',
+            'required' => false,
         ])
         ->add('codeSociete', TextType::class, [
             'label' => 'Code Société',
