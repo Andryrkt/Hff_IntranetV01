@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     const numOr = orIntv.split("-")[0];
     const numItv = orIntv.split("-")[1];
-    //console.log(numOr, numItv);
+    console.log(numOr, numItv);
 
     fetchTechnicienInterv(numOr, numItv);
   });

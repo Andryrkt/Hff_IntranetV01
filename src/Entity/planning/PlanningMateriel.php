@@ -24,6 +24,7 @@ class PlanningMateriel{
     private $numDit;
     private $migration;
     private $pos;
+    private $numeroOr;
    
 
     /**
@@ -437,6 +438,26 @@ class PlanningMateriel{
     public function setPos($pos)
     {
         $this->pos = $pos;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroOr
+     */ 
+    public function getNumeroOr()
+    {
+        return $this->numeroOr;
+    }
+
+    /**
+     * Set the value of numeroOr
+     *
+     * @return  self
+     */ 
+    public function setNumeroOr($numeroOr)
+    {
+        $this->numeroOr = $numeroOr;
 
         return $this;
     }

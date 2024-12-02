@@ -286,6 +286,7 @@ class PlanningController extends Controller
                     ->setQteLiv($item['qtliv'])
                     ->setQteAll($item['qteall'])
                     ->setNumDit($numDit)
+                    ->setNumeroOr($item['numeroor'])
                     ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
                 ;
                 $objetPlanning[] = $planningMateriel;
