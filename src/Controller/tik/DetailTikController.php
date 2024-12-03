@@ -402,11 +402,21 @@ class DetailTikController extends Controller
      */
     private function emailTikCommente($tab, $emailUserConnected): array
     {
-        $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
-        $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+        if (isset($tab['emailValidateur'])) {
+            $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+            $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+            $to = $cc[0];
+            $cc = !empty($cc[1]) ? [$cc[1]] : [];
+        } else {
+            $emailValidateurs = array_map(function($validateur) {
+                return $validateur->getMail();
+            }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
+            $to = $emailValidateurs[0];
+            $cc = array_slice($emailValidateurs, 1);
+        }
         return [ 
-            'to'        => $cc[0],
-            'cc'        => !empty($cc[1]) ? [$cc[1]] : [],
+            'to'        => $to,
+            'cc'        => $cc,
             'template'  => $tab['template'],
             'variables' => [ 
                 'statut'      => "comment",

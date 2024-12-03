@@ -76,7 +76,6 @@ class ListeTikController extends Controller
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
     
-        dump($criteria);
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data'        => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
