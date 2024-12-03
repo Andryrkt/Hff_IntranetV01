@@ -12,7 +12,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $query = $this->createQueryBuilder('osv')
         ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
         ->where('osv.statut IN (:statut)')
-        ->setParameter('statut', ['Validé', 'Livré'])
+        ->setParameter('statut', ['Validé', 'Livré','Livré partiellement'])
         ->getQuery()
         ->getSingleColumnResult();
     
