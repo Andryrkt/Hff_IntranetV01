@@ -118,6 +118,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         startLoading(spinner);
       }
+      else {
+        alert('Merci de choisir un autre fichier.');
+      }
     });
     updateFileInput();
   }
