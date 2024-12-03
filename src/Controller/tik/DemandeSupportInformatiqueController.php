@@ -55,6 +55,8 @@ class DemandeSupportInformatiqueController extends Controller
             $this->envoyerMailAuxValidateurs([
                 'id'            => $donnerForm->getId(),
                 'numTik'        => $donnerForm->getNumeroTicket(),
+                'objet'         => $donnerForm->getObjetDemande(),
+                'detail'        => $donnerForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
@@ -101,8 +103,8 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUtilisateurDemandeur($user->getNomUtilisateur())
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
-            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() .'-'. $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() .'-'. $donnerForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
             ->setCodeSociete($user->getSociettes()->getCodeSociete())
