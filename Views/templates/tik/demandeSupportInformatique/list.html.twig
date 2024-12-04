@@ -41,9 +41,6 @@
 					<th>N° parc PC</th>
 					<th>Objet du demande</th>
 					<th>Date de demande</th>
-					<th>Catégorie/Sous-catégorie</th>
-					<th>Ag/Serv Emetteur</th>
-					<th>Ag/Serv Debiteur</th>
 					<th>Intervenant</th>
 				</tr>
 			</thead>
@@ -103,9 +100,6 @@
 						<td>{{ item.parcInformatique }}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ macroForm.concat(item.categorie.description, item.sousCategorie.description)}}</td>
-						<td>{{ item.agenceServiceEmetteur}}</td>
-						<td>{{ item.agenceServiceDebiteur}}</td>
 						<td>{{ item.nomIntervenant }}</td>
 
 					</tr>
