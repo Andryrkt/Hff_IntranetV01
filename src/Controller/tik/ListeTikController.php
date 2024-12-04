@@ -172,5 +172,4 @@ class ListeTikController extends Controller
         
         return in_array($roleId, $roleIds); 
     }
-
 }
