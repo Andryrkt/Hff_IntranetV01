@@ -62,12 +62,7 @@ class DitFactureSoumisAValidationController extends Controller
 
             $ditFactureSoumiAValidation->setNumeroFact(explode('_',$originalName)[1]);
 
-            $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
-            if(empty($nbFactInformix)){
-                $nbFact = 0;
-            } else {
-                $nbFact = $nbFactInformix[0]['nbfact'];
-            }
+            $nbFact = $this->nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
@@ -83,34 +78,11 @@ class DitFactureSoumisAValidationController extends Controller
             else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
-                
-                $ditFactureSoumiAValidation
-                            ->setNumeroDit($numDit)
-                            ->setNumeroOR($dataForm->getNumeroOR())
-                            ->setNumeroFact($dataForm->getNumeroFact())
-                            ->setHeureSoumission($this->getTime())
-                            ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                            ->setNumeroSoumission($numeroSoumission)
-                        ;
+                $this->ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
                 
-                $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(),$ditFactureSoumiAValidation->getNumeroFact());
-                
-
-                $estRi = false;
-                $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
-                
-                if(empty($riSoumis)){
-                    $estRi = true;                
-                } else {
-                    for ($i=0; $i < count($infoFacture); $i++) { 
-                        if( !in_array($infoFacture[$i]['numeroitv'], $riSoumis)){
-                            $estRi = true;
-                            break;
-                        }
-                    }
-                }
+                $estRi = $this->conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit);
 
                 if($estRi){
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
@@ -126,11 +98,7 @@ class DitFactureSoumisAValidationController extends Controller
                     $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
             
                     $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
-                    
-                    $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
-                    $demandeIntervention->setEtatFacturation($etatOr);
-                    self::$em->persist($demandeIntervention);
-                    self::$em->flush();
+                    $this->modificationEtatFacturDit($etatOr, $numDit);
 
 
                     $genererPdfFacture = new GenererPdfFactureAValidation();
@@ -141,19 +109,8 @@ class DitFactureSoumisAValidationController extends Controller
                 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
-                    foreach ($factureSoumisAValidation as $entity) {
-                        self::$em->persist($entity); // Persister chaque entité individuellement
-                    }
-                    $historique = new DitHistoriqueOperationDocument();
-                        $historique->setNumeroDocument($dataForm->getNumeroFact())
-                            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
-                            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
-                            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                            ;
-                        self::$em->persist($historique); // Persist l'historique avec les entités liées
-                        // Flushe toutes les entités et l'historique
-                        
-                        self::$em->flush();
+                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    $this->ajoutDataHistoriqueOperation($dataForm);
 
                     $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                     $this->redirectToRoute("dit_index");
@@ -167,5 +124,79 @@ class DitFactureSoumisAValidationController extends Controller
         ]);
     }
 
-  
+    private function ajoutDataFactureAValidation(array $factureSoumisAValidation): void
+    {
+        foreach ($factureSoumisAValidation as $entity) {
+            self::$em->persist($entity); // Persister chaque entité individuellement
+        }
+        
+        self::$em->flush();
+    }
+
+    private function ajoutDataHistoriqueOperation($dataForm): void
+    {
+        $historique = new DitHistoriqueOperationDocument();
+                        $historique->setNumeroDocument($dataForm->getNumeroFact())
+                            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
+                            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
+                            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
+                            ;
+                        self::$em->persist($historique); // Persist l'historique avec les entités liées
+                        // Flushe toutes les entités et l'historique
+                        
+                        self::$em->flush();
+    }
+
+    private function modificationEtatFacturDit($etatOr, $numDit): void
+    {
+        $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention'=>$numDit]);
+                    $demandeIntervention->setEtatFacturation($etatOr);
+                    self::$em->persist($demandeIntervention);
+                    self::$em->flush();
+    }
+
+    private function conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit)
+    {
+        $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(),$ditFactureSoumiAValidation->getNumeroFact());
+                
+
+                $estRi = false;
+                $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+                
+                if(empty($riSoumis)){
+                    $estRi = true;                
+                } else {
+                    for ($i=0; $i < count($infoFacture); $i++) { 
+                        if( !in_array($infoFacture[$i]['numeroitv'], $riSoumis)){
+                            $estRi = true;
+                            break;
+                        }
+                    }
+                }
+        return $estRi;
+    }
+
+    private function nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)
+    {
+        $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
+            if(empty($nbFactInformix)){
+                $nbFact = 0;
+            } else {
+                $nbFact = $nbFactInformix[0]['nbfact'];
+            }
+
+            return $nbFact;
+    }
+
+    private function ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission)
+    {
+        $ditFactureSoumiAValidation
+                            ->setNumeroDit($numDit)
+                            ->setNumeroOR($dataForm->getNumeroOR())
+                            ->setNumeroFact($dataForm->getNumeroFact())
+                            ->setHeureSoumission($this->getTime())
+                            ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                            ->setNumeroSoumission($numeroSoumission)
+                        ;
+    }
 }
