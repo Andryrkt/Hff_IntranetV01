@@ -144,7 +144,6 @@ class PlanningModel extends Model
     $vsection = $this->section($criteria);
 
                   $statement = " SELECT
-                      seor_numor as numeroOr,
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -178,7 +177,7 @@ class PlanningModel extends Model
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw
@@ -198,7 +197,7 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
 
         
@@ -416,16 +415,16 @@ class PlanningModel extends Model
                                                       AND Line_Number = slor_noligncm )
 					            	)
 	                    END as Message ,
-                      CASE  WHEN nlig_natcm = 'C' THEN 
-                     'COMMANDE'
-                      WHEN nlig_natcm = 'L' THEN 
-                      'RECEPTION'
-                      END AS Statut_ctrmq_cis,
-                      nlig_numcf as numerocdecis                        
+                     CASE  WHEN nlig_natcm = 'C' THEN 
+                    'COMMANDE'
+                     WHEN nlig_natcm = 'L' THEN 
+                    'RECEPTION'
+                    END AS Statut_ctrmq_cis,
+                    nlig_numcf as numerocdecis                        
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
-                LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
+              LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne
@@ -527,7 +526,7 @@ public function recuperationPartiel($numcde, $refp){
     $statement = "SELECT 
                   numero_or 
                   FROM demande_intervention
-                  WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01')
+                  WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
                   $vconditionNumOr
                   $nivUrg
                   ";
