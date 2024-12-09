@@ -6,3 +6,7 @@ CREATE TABLE TKI_Statut_Ticket_Informatique (
 );
 
 ALTER TABLE TKI_Statut_Ticket_Informatique ADD ID_Statut_Demande INT
+
+
+
+

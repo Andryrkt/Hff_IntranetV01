@@ -142,7 +142,7 @@ class Agence
         return $this;
     }
 
- 
+
     public function getLibelleAgence()
     {
         return $this->libelleAgence;
@@ -155,7 +155,7 @@ class Agence
         return $this;
     }
 
-   
+
     public function getServices(): Collection
     {
         return $this->services;
@@ -182,7 +182,7 @@ class Agence
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -206,10 +206,10 @@ class Agence
                 $casier->setAgenceRattacher(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
@@ -220,9 +220,9 @@ class Agence
 
     /** DIT */
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDitAgenceEmetteurs()
     {
         return $this->ditAgenceEmetteur;
@@ -246,22 +246,22 @@ class Agence
                 $ditAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setDitAgenceEmetteurs($ditAgenceEmetteur)
     {
         $this->ditAgenceEmetteur = $ditAgenceEmetteur;
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDitAgenceDebiteurs()
     {
         return $this->ditAgenceDebiteur;
@@ -285,7 +285,7 @@ class Agence
                 $ditAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -298,9 +298,9 @@ class Agence
 
 
     /** BADM */
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getbadmAgenceEmetteurs()
     {
         return $this->badmAgenceEmetteur;
@@ -324,7 +324,7 @@ class Agence
                 $badmAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
     public function setbadmAgenceEmetteurs($badmAgenceEmetteur)
@@ -333,12 +333,12 @@ class Agence
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getbadmAgenceDebiteurs()
     {
         return $this->badmAgenceDebiteur;
@@ -362,7 +362,7 @@ class Agence
                 $badmAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -375,32 +375,32 @@ class Agence
 
 
     public function getUsersAutorises(): Collection
-{
-    return $this->usersAutorises;
-}
-
-public function addUserAutorise(User $user): self
-{
-    if (!$this->usersAutorises->contains($user)) {
-        $this->usersAutorises[] = $user;
-        $user->addAgenceAutorise($this);
+    {
+        return $this->usersAutorises;
     }
 
-    return $this;
-}
+    public function addUserAutorise(User $user): self
+    {
+        if (!$this->usersAutorises->contains($user)) {
+            $this->usersAutorises[] = $user;
+            $user->addAgenceAutorise($this);
+        }
 
-public function removeUserAutorise(User $user): self
-{
-    if ($this->usersAutorises->contains($user)) {
-        $this->usersAutorises->removeElement($user);
-        $user->removeAgenceAutorise($this);
+        return $this;
     }
 
-    return $this;
-}
+    public function removeUserAutorise(User $user): self
+    {
+        if ($this->usersAutorises->contains($user)) {
+            $this->usersAutorises->removeElement($user);
+            $user->removeAgenceAutorise($this);
+        }
+
+        return $this;
+    }
 
 
-    
+
 
 
 
@@ -429,7 +429,7 @@ public function removeUserAutorise(User $user): self
                 $domAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -439,12 +439,12 @@ public function removeUserAutorise(User $user): self
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDomAgenceDebiteurs()
     {
         return $this->domAgenceDebiteur;
@@ -468,7 +468,7 @@ public function removeUserAutorise(User $user): self
                 $domAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -504,13 +504,13 @@ public function removeUserAutorise(User $user): self
                 $tkiAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getTkiAgenceDebiteur()
     {
         return $this->tkiAgenceDebiteur;
@@ -534,7 +534,7 @@ public function removeUserAutorise(User $user): self
                 $tkiAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 }

@@ -14,20 +14,22 @@ require_once __DIR__ . '/config/dotenv.php';
 // $dotenv->load();
 
 // Chemin vers les entités
-$paths = [__DIR__. "/src/Entity"];
+$paths = [__DIR__ . "/src/Entity"];
 // Mode de développement
 $isDevMode = true;
 
 // Configuration de la base de données
+// Configuration de la base de données
 $dbParams = [
-    'driver'   => 'pdo_sqlsrv',
-    'host'     => $_ENV["DB_HOST"], 
-    'port'     => '1433',
-    'user'     => $_ENV["DB_USERNAME"] ,
-    'password' => $_ENV["DB_PASSWORD"],
-    'dbname'   => $_ENV["DB_NAME"],
-    'options'  => [],    
+    'driver'   => 'pdo_mysql', // Utilisation de MySQL
+    'host'     => $_ENV["DB_HOST"], // Exemple : 'localhost'
+    'port'     => '3306', // Port par défaut pour MySQL
+    'user'     => $_ENV["DB_USERNAME"], // Exemple : 'root'
+    'password' => $_ENV["DB_PASSWORD"], // Exemple : ''
+    'dbname'   => $_ENV["DB_NAME"], // Exemple : 'ticketing'
+    'options'  => [],
 ];
+
 
 // Configuration du lecteur d'annotations
 $annotationReader = new AnnotationReader();

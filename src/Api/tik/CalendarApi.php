@@ -49,7 +49,7 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
-                
+
                 $userId = $this->sessionService->get('user_id');
                 $user = self::$em->getRepository(User::class)->find($userId);
                 // Création de l'événement
@@ -65,7 +65,7 @@ class CalendarApi extends Controller
                 $entityManager->persist($event);
                 $entityManager->flush();
 
-                
+
                 echo json_encode(['success' => true]);
                 exit;
             }

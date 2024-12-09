@@ -105,6 +105,7 @@ class AgenceServiceIrium
 
     //=============================================================================================
 
+
     public function __construct()
     {
         $this->userAgenceService = new ArrayCollection();
@@ -146,7 +147,7 @@ class AgenceServiceIrium
         return $this->nom_agence_i100;
     }
 
-    
+
     public function setNomagencei100(?string $nom_agence_i100): self
     {
         $this->nom_agence_i100 = $nom_agence_i100;
@@ -170,7 +171,7 @@ class AgenceServiceIrium
     {
         return $this->nom_service_i100;
     }
- 
+
     public function setNomservicei100(?string $nom_service_i100): self
     {
         $this->nom_service_i100 = $nom_service_i100;
@@ -183,7 +184,7 @@ class AgenceServiceIrium
         return $this->agence_ips;
     }
 
- 
+
     public function setAgenceips(?string $agence_ips): self
     {
         $this->agence_ips = $agence_ips;
@@ -209,7 +210,7 @@ class AgenceServiceIrium
         return $this->libelle_service_ips;
     }
 
- 
+
     public function setLibelleserviceips(?string $libelle_service_ips): self
     {
         $this->libelle_service_ips = $libelle_service_ips;
@@ -235,7 +236,7 @@ class AgenceServiceIrium
         return $this->service_sage_paie;
     }
 
-  
+
     public function setService_sage_paie(?string $service_sage_paie): self
     {
         $this->service_sage_paie = $service_sage_paie;
@@ -243,9 +244,9 @@ class AgenceServiceIrium
         return $this;
     }
 
-      /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getUserAgenceService()
     {
         return $this->userAgenceService;
@@ -269,7 +270,7 @@ class AgenceServiceIrium
                 $userAgenceService->setAgenceServiceIrium(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -304,7 +305,7 @@ class AgenceServiceIrium
                 $personnelId->setAgenceServiceIriumId(null);
             }
         }
-        
+
         return $this;
     }
 

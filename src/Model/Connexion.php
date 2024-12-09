@@ -6,7 +6,7 @@ use App\Controller\Controller;
 
 class Connexion
 {
-    private $DB;
+    private $dsn;
     private $User;
     private $pswd;
     private $conn;
@@ -14,83 +14,95 @@ class Connexion
     public function __construct()
     {
         try {
-        $this->DB = $_ENV['DB_DNS_SQLSERV'];
-        $this->User = $_ENV['DB_USERNAME_SQLSERV'];
-        $this->pswd = $_ENV['DB_PASSWORD_SQLSERV'];
-        
+            // Récupération des informations de connexion à partir des variables d'environnement
+            $this->dsn = "mysql:host=localhost;dbname=ticketing";   // Exemple: 'mysql:host=localhost;dbname=testdb'
+            $this->User = 'root';  // Nom d'utilisateur MySQL
+            $this->pswd = '';  // Mot de passe MySQL
 
-        $this->conn = odbc_connect($this->DB , $this->User, $this->pswd);
-        if (!$this->conn) {
-            throw new \Exception("ODBC Connection failed:" . odbc_error());
+            // Connexion PDO à la base de données
+            $this->conn = new \PDO($this->dsn, $this->User, $this->pswd);
+            // Configuration pour gérer les erreurs
+            $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        } catch (\PDOException $e) {
+            // Capture de l'erreur et redirection vers la page d'erreur
+            $this->logError($e->getMessage());
+            $this->redirectToErrorPage($e->getMessage());
         }
-    } catch (\Exception $e) {
-        // Capture de l'erreur et redirection vers la page d'erreur
-        $this->logError($e->getMessage());
-        $this->redirectToErrorPage($e->getMessage());
-    }
     }
 
-    public function getConnexion() {
+    public function getConnection()
+    {
         return $this->conn;
     }
 
+    // Exécution d'une requête SQL simple (SELECT)
     public function query($sql)
     {
         try {
-        $result = odbc_exec($this->conn, $sql);
-        if (!$result) {
-            $this->logError("ODBC Query failed: " . odbc_errormsg($this->conn));
-            throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
+            // Exécution de la requête SQL
+            $result = $this->conn->query($sql);
+            if (!$result) {
+                $this->logError("PDO Query failed: " . $this->conn->errorInfo()[2]);
+                throw new \Exception("PDO Query failed: " . $this->conn->errorInfo()[2]);
+            }
+            return $result;
+        } catch (\Exception $e) {
+            // Capture de l'erreur et redirection vers la page d'erreur
+            $this->logError($e->getMessage());
+            $this->redirectToErrorPage($e->getMessage());
         }
-        return $result;
-    } catch (\Exception $e) {
-        // Capture de l'erreur et redirection vers la page d'erreur
-        $this->logError($e->getMessage());
-        $this->redirectToErrorPage($e->getMessage());
-    }
     }
 
+    // Exécution d'une requête préparée avec des paramètres
     public function prepareAndExecute($sql, $params)
     {
         try {
-        $stmt = odbc_prepare($this->conn, $sql);
-        if (!$stmt) {
-            $this->logError("ODBC Prepare failed: " . odbc_errormsg($this->conn));
-            throw new \Exception("ODBC Prepare failed: " . odbc_errormsg($this->conn));
+            // Préparation de la requête
+            $stmt = $this->conn->prepare($sql);
+            if (!$stmt) {
+                $this->logError("PDO Prepare failed: " . $this->conn->errorInfo()[2]);
+                throw new \Exception("PDO Prepare failed: " . $this->conn->errorInfo()[2]);
+            }
+
+            // Exécution <de></de> la requête avec les paramètres
+            if (!$stmt->execute($params)) {
+                $this->logError("PDO Execute failed: " . $stmt->errorInfo()[2]);
+                throw new \Exception("PDO Execute failed: " . $stmt->errorInfo()[2]);
+            }
+            return $stmt;
+        } catch (\Exception $e) {
+            // Capture de l'erreur et redirection vers la page d'erreur
+            $this->logError($e->getMessage());
+            $this->redirectToErrorPage($e->getMessage());
         }
-        if (!odbc_execute($stmt, $params)) {
-            $this->logError("ODBC Execute failed: " . odbc_errormsg($this->conn));
-            throw new \Exception("ODBC Execute failed: " . odbc_errormsg($this->conn));
-        }
-        return $stmt;
-    } catch (\Exception $e) {
-        // Capture de l'erreur et redirection vers la page d'erreur
-        $this->logError($e->getMessage());
-        $this->redirectToErrorPage($e->getMessage());
-    }
     }
 
+    // Méthode appelée lorsque l'objet est détruit (fermeture de la connexion PDO)
     public function __destruct()
     {
-        if ($this->conn && is_resource($this->conn)) {
-            odbc_close($this->conn);
+        // Fermeture de la connexion PDO
+        if ($this->conn) {
+            $this->conn = null;
         }
     }
 
+    // Méthode de journalisation des erreurs
     private function logError($message)
     {
-        error_log($message, 3, "C:\wamp64\www\Hffintranet/var/log/app_errors.log");
+        error_log($message, 3, "C:\\wamp64\\www\\Hffintranet/var/log/app_errors.log");
     }
 
-      // Méthode pour rediriger vers la page d'erreur
-      private function redirectToErrorPage($errorMessage)
-      {
-          $this->redirectToRoute('utilisateur_non_touver', ["message" => $errorMessage]);
-      }
-     
-      protected function redirectToRoute(string $routeName, array $params = []) {
-          $url = Controller::getGenerator()->generate($routeName, $params);
-          header("Location: $url");
-          exit();
-      }
+    // Méthode pour rediriger vers la page d'erreur
+    private function redirectToErrorPage($errorMessage)
+    {
+        $this->redirectToRoute('utilisateur_non_touver', ["message" => $errorMessage]);
+    }
+
+    // Méthode pour rediriger vers une autre page
+    protected function redirectToRoute(string $routeName, array $params = [])
+    {
+        $url = Controller::getGenerator()->generate($routeName, $params);
+        header("Location: $url");
+        exit();
+    }
 }

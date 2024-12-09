@@ -24,9 +24,9 @@ class ListeTikController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $tikSearch = new TikSearch();
-        
+
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
 
@@ -39,9 +39,10 @@ class ListeTikController extends Controller
         ];
         //FIN AUTORISATION
 
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
+        // $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agenceServiceIps = [];
 
-        $this->initialisationFormRecherche( $autorisation, $agenceServiceIps, $tikSearch, $user);
+        $this->initialisationFormRecherche($autorisation, $agenceServiceIps, $tikSearch, $user);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
@@ -49,13 +50,12 @@ class ListeTikController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        
-        if($form->isSubmitted() && $form->isValid())
-        {
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $tikSearch = $form->getData();
         }
 
-        $criteria=[];
+        $criteria = [];
         // transformer l'objet tikSearch en tableau
         $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
@@ -74,11 +74,11 @@ class ListeTikController extends Controller
         ];
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
-    
+
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
-            'totalPages' =>$paginationData['lastPage'],
+            'totalPages' => $paginationData['lastPage'],
             'resultat' => $paginationData['totalItems'],
             'form' => $form->createView(),
             'criteria' => $criteria,
@@ -88,27 +88,31 @@ class ListeTikController extends Controller
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
         $criteria = $this->sessionService->get('tik_search_criteria', []);
-        
+
         if ($autorisation['autoriser']) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
         } else {
-            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            if (!empty($agenceServiceIps)) {
+                $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
+                $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
+            } else {
+                $agenceIpsEmetteur = null;
+                $serviceIpsEmetteur = null;
+            }
         }
 
-        if($autorisation['autoriserIntervenant']) {
+        if ($autorisation['autoriserIntervenant']) {
             $intervenant = $user;
         } else {
             $intervenant = null;
         }
-
         if (!empty(array_filter($criteria))) {
-            $intervenant    = isset($criteria['nomIntervenant']) ? self::$em->getRepository(User::class)              ->find($criteria['nomIntervenant']) : null;
-            $statut         = isset($criteria['statut'])         ? self::$em->getRepository(StatutDemande::class)     ->find($criteria['statut'])         : null;
-            $niveauUrgence  = isset($criteria['niveauUrgence'])  ? self::$em->getRepository(WorNiveauUrgence::class)  ->find($criteria['niveauUrgence'])  : null;
-            $categorie      = isset($criteria['categorie'])      ? self::$em->getRepository(TkiCategorie::class)      ->find($criteria['categorie'])      : null;
-            $sousCategorie  = isset($criteria['sousCategorie'])  ? self::$em->getRepository(TkiSousCategorie::class)  ->find($criteria['sousCategorie'])  : null;
+            $intervenant    = isset($criteria['nomIntervenant']) ? self::$em->getRepository(User::class)->find($criteria['nomIntervenant']) : null;
+            $statut         = isset($criteria['statut'])         ? self::$em->getRepository(StatutDemande::class)->find($criteria['statut'])         : null;
+            $niveauUrgence  = isset($criteria['niveauUrgence'])  ? self::$em->getRepository(WorNiveauUrgence::class)->find($criteria['niveauUrgence'])  : null;
+            $categorie      = isset($criteria['categorie'])      ? self::$em->getRepository(TkiCategorie::class)->find($criteria['categorie'])      : null;
+            $sousCategorie  = isset($criteria['sousCategorie'])  ? self::$em->getRepository(TkiSousCategorie::class)->find($criteria['sousCategorie'])  : null;
             $autreCategorie = isset($criteria['autreCategorie']) ? self::$em->getRepository(TkiAutresCategorie::class)->find($criteria['autreCategorie']) : null;
 
             $tikSearch
@@ -124,7 +128,7 @@ class ListeTikController extends Controller
                 ->setAutresCategories($autreCategorie)
             ;
         }
-        
+
 
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)

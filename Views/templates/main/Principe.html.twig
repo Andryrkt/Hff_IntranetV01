@@ -16,12 +16,12 @@
 				{# FIN Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
-				{% set hasBDM = false %}
-				{% set hasDOM = false %}
-				{% set hasDIT = false %}
-				{% set hasMAG = false %}
-				{% set hasREP = false %}
-				{% set hasTIK = false %}
+				{% set hasBDM = true %}
+				{% set hasDOM = true %}
+				{% set hasDIT = true %}
+				{% set hasMAG = true %}
+				{% set hasREP = true %}
+				{% set hasTIK = true %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -47,11 +47,11 @@
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 						{% if 1 in role_ids  %}
 							<li>
-								<a class="dropdown-item" target="_blank" href="https://hffc.docuware.cloud/DocuWare/Platform/WebClient/Client/Search?sed=7c943028-4942-41fe-9f2f-22343198849a&intgParams=JmVwPWhCb0c3M3ZhWUZ5YU56TmdoNjljV2VpZ2x2WjhoRGpuS1ViNkpyZUdZa3R2VW04OTFWeWc4X0VnckxkUVEtWkN3YmNGLWJLTFFrNlhZbXVleW9TOGdhZjB6NnV5d0o2ZWpjb2wwMHY4QWoxQ0hDdWdVNXg4bXVvZFo2WEQxOUVEMA2&_auth=ATIVC4BFzhmN0ylU3RnqqY9KFQhydNizf6dRCPLuK6h0OEGdfM_aOmH_ifZsrywe-OQeIZ93ilEatMuP3-ewqxeZX9JEBrLuH5ppI54mEjjGtXgd338uN5DxnPBdhkr60T5LN9gUn4QhIlHJmPDPWdSiNSiCG8z5J75IuFUVBwXVn3OMJybr_yphQq7_IMokMDuSfa7m8knG4J9bjW-GKaOWTy3AMK31TOSqlw09z4LL2owMTVXR6dcfNFIHUpRvdhPRlULT2TmDklTHYEXZ7HKu2oRAfE5V0Wk99acuXR-1AU-L65JSZGUExZk9m-EeApnCqNBaqfSM1lHnir78lcXkvw2FU_tYe4_hUj-KLNV_8y9_79Pifr4RP2fkbakaGvjSJdsa3iCI2T6zwx8eUOXtmIE_0x50XMYWrO730UhbQ37g0A1MJ0vRq2FVOLTJaq7wEaAXeuARenbndcpTEqKaAL2ytqvfeUMwDI4Ge1QcoV6Xb57aF7in_b2Bmc065ceWOURhBqg4FFgRu43SGJ5AJUy_uozxGgoFzfFc70WoQTvtUPspCASpGVwKoIWPxZig1iBS6jVh9xkaanYW_MaKXxC68-IDbAFBG-y8KvhuqZcvR70rzAvM2RARRjoK0">Test accès docuware</a>
+								<a class="dropdown-item" href="#">Test accès docuware</a>
 							</li>
 						{% endif %}
 						<li>
-							<a class="dropdown-item" href="/Upload/documentation/Structure%20analytique%20HFF.pdf" target="_blank">
+							<a class="dropdown-item" href="#" target="_blank">
 								Plan analytique HFF
 							</a>
 						</li>
@@ -69,19 +69,19 @@
 							Demande d'Intervention</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="{{ path("dit_new")}}">Nouvelle Demande</a>
+								<a class="dropdown-item" href="#">Nouvelle Demande</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("dit_index")}}">Consultation</a>
+								<a class="dropdown-item" href="#">Consultation</a>
 							</li>
 							<li>
-								<a class="dropdown-item" target="_blank" href="{{ path("dit_dossier_intervention_atelier")}}">Dossier DIT</a>
+								<a class="dropdown-item" href="#">Dossier DIT</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="/Upload/excel_dit/DOSSIER%20DIT-%20Achats.xlsx" download>Télécharger Excel DIT</a>
+								<a class="dropdown-item" href="#">Télécharger Excel DIT</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
+								<a class="dropdown-item" href="#">Glossaire OR</a>
 							</li>
 
 						</ul>
@@ -101,10 +101,10 @@
 								<li class="dropdown-header">
 									Ordre de Mission</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("dom_first_form")}}">Nouvelle Demande</a>
+									<a class="dropdown-item" href="#">Nouvelle Demande</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("doms_liste")}}">Consultation</a>
+									<a class="dropdown-item" href="#">Consultation</a>
 								</li>
 								<li>
 									<hr class="dropdown-divider">
@@ -117,19 +117,19 @@
 									Mouvement matériel (BADM)
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("badms_newForm1")}}">Nouvelle Demande</a>
+									<a class="dropdown-item" href="#">Nouvelle Demande</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">Consultation</a>
+									<a class="dropdown-item" href="#">Consultation</a>
 								</li>
 								<li class="dropdown-header">
 									Casier
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("casier_nouveau")}}">Nouveau Casier</a>
+									<a class="dropdown-item" href="#">Nouveau Casier</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">Consultation Casier</a>
+									<a class="dropdown-item" href="#">Consultation Casier</a>
 								</li>
 
 							{% endif %}
@@ -161,10 +161,10 @@
 								OR
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
+								<a class="dropdown-item" href="#">Liste à traiter</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("magasinListe_or_Livrer")}}">Liste des OR à livrer</a>
+								<a class="dropdown-item" href="#">Liste des OR à livrer</a>
 							</li>
 							<li>
 								<hr class="dropdown-divider">
@@ -173,10 +173,10 @@
 								CIS
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("cis_liste_a_traiter")}}">Liste des CIS à traiter</a>
+								<a class="dropdown-item" href="#">Liste des CIS à traiter</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("cis_liste_a_livrer")}}">Liste des CIS à livrer</a>
+								<a class="dropdown-item" href="#">Liste des CIS à livrer</a>
 							</li>
 							{# <li class="dropdown-header"> #}
 						{# CDE #}
@@ -212,7 +212,7 @@
 							Reporting</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
+								<a class="dropdown-item" href="#">Planning</a>
 							</li>
 						</ul>
 					</li>
@@ -226,7 +226,7 @@
 
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 						<li>
-							<a class="dropdown-item" href="{{ path("badm_index")}}">Procédure d'utilisation</a>
+							<a class="dropdown-item" href="#">Procédure d'utilisation</a>
 						</li>
 
 						<li>

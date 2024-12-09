@@ -75,7 +75,7 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity=TkiStatutTicketInformatique::class, mappedBy="idStatutDemande")
      */
     private $statutTik;
-    
+
     public function __construct()
     {
         $this->badms = new ArrayCollection();
@@ -157,12 +157,12 @@ class StatutDemande
 
     public function __toString()
     {
-        return $this->description; 
+        return $this->description;
     }
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDemandeInterventions()
     {
         return $this->demandeInterventions;
@@ -186,7 +186,7 @@ class StatutDemande
                 $demandeIntervention->setIdStatutDemande(null);
             }
         }
-        
+
         return $this;
     }
     public function setDemandeInterventions($demandeInterventions)
@@ -196,9 +196,9 @@ class StatutDemande
         return $this;
     }
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -222,10 +222,10 @@ class StatutDemande
                 $casier->setIdStatutDemande(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
@@ -236,7 +236,7 @@ class StatutDemande
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDoms()
     {
         return $this->doms;
@@ -260,7 +260,7 @@ class StatutDemande
                 $doms->setIdStatutDemande($this);
             }
         }
-        
+
         return $this;
     }
     public function setDoms($doms)
@@ -272,7 +272,7 @@ class StatutDemande
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getSupportInfo()
     {
         return $this->supportInfo;
@@ -296,14 +296,14 @@ class StatutDemande
                 $supportInfo->setIdStatutDemande($this);
             }
         }
-        
+
         return $this;
     }
 
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getStatutTik()
     {
         return $this->statutTik;
@@ -327,7 +327,7 @@ class StatutDemande
                 $statutTik->setIdStatutDemande($this);
             }
         }
-        
+
         return $this;
     }
 }

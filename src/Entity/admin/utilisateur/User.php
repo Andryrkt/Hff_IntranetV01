@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="users")
  * @ORM\HasLifecycleCallbacks
  */
-class User implements UserInterface
+class User
 {
     use DateTrait;
 
@@ -50,8 +50,8 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      *
      * @var [type]
-     */ 
-    private $matricule;
+     */
+    // private $matricule;
 
     /**
      * @ORM\Column(type="string")
@@ -59,7 +59,7 @@ class User implements UserInterface
      * @var [type]
      */
     private $mail;
-    
+
     /**
      * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="user_roles")
@@ -67,12 +67,12 @@ class User implements UserInterface
     private $roles;
 
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
-     * @ORM\JoinTable(name="users_applications")
-     */
-    private $applications;
-    
+    // /**
+    //  * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
+    //  * @ORM\JoinTable(name="users_applications")
+    //  */
+    // private $applications;
+
     /**
      * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
@@ -80,29 +80,29 @@ class User implements UserInterface
     private ?Societte $societtes;
 
 
-     /**
-     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
-     * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
-     */
-    private $personnels;
-
-    
-   /**
-     * @ORM\Column(type="json", nullable=true)
-     */
-    private $superieurs = [];
+    // /**
+    //  * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
+    //  * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
+    //  */
+    // private $personnels;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
-     */
-    private $casiers;
+    // /**
+    //  * @ORM\Column(type="json", nullable=true)
+    //  */
+    // private $superieurs = [];
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
-     * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
-     */
-    private  $fonction ;
+
+    // /**
+    //  * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
+    //  */
+    // private $casiers;
+
+    // /**
+    //  * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
+    //  * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
+    //  */
+    // private  $fonction ;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
@@ -110,74 +110,60 @@ class User implements UserInterface
      */
     private $agenceServiceIrium;
 
-        /**
-     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
-     * @ORM\JoinTable(name="agence_user", 
-     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
-     * )
-     */
-    private $agencesAutorisees;
+    // /**
+    //  * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
+    //  * @ORM\JoinTable(name="agence_user", 
+    //  *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+    //  *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
+    //  * )
+    //  */
+    // private $agencesAutorisees;
 
 
-      /**
-     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
-     * @ORM\JoinTable(name="users_service")
-     */
-    private $serviceAutoriser;
+    // /**
+    //  * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
+    //  * @ORM\JoinTable(name="users_service")
+    //  */
+    // private $serviceAutoriser;
 
 
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
-     * @ORM\JoinTable(name="users_permission")
-     */
-    private $permissions;
+    // /**
+    //  * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
+    //  * @ORM\JoinTable(name="users_permission")
+    //  */
+    // private $permissions;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=CommentaireDitOr::class, mappedBy="utilisateurId")
-     */
-    private $commentaireDitOr;
+    // /**
+    //  * @ORM\OneToMany(targetEntity=CommentaireDitOr::class, mappedBy="utilisateurId")
+    //  */
+    // private $commentaireDitOr;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
-     */
-    private $supportInfoUser;
+    // /**
+    //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
+    //  */
+    // private $supportInfoUser;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
-     */
-    private $supportInfoIntervenant;
+    // /**
+    //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
+    //  */
+    // private $supportInfoIntervenant;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
-     */
-    private $supportInfoValidateur;
+    // /**
+    //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
+    //  */
+    // private $supportInfoValidateur;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
-     */
-    private $tikPlanningUser;
+    // /**
+    //  * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
+    //  */
+    // private $tikPlanningUser;
 
     //=================================================================================================================================
 
-    public function __construct()
-    {
-        $this->applications = new ArrayCollection();
-        $this->roles = new ArrayCollection();
-        $this->casiers = new ArrayCollection();
-        $this->agencesAutorisees = new ArrayCollection();
-        $this->serviceAutoriser = new ArrayCollection();
-        $this->permissions = new ArrayCollection();
-        $this->commentaireDitOr = new ArrayCollection();
-        $this->supportInfoUser = new ArrayCollection();
-        $this->supportInfoIntervenant = new ArrayCollection();
-        $this->tikPlanningUser = new ArrayCollection();
-    }
 
-    
     public function getId()
     {
         return $this->id;
@@ -207,42 +193,42 @@ class User implements UserInterface
         return $this;
     }
 
-    
+
     public function getNomUtilisateur(): string
     {
         return $this->nom_utilisateur;
     }
 
-    
-    public function setNomUtilisateur( string $nom_utilisateur): self
+
+    public function setNomUtilisateur(string $nom_utilisateur): self
     {
         $this->nom_utilisateur = $nom_utilisateur;
 
         return $this;
     }
 
-    
-    public function getMatricule(): int
-    {
-        return $this->matricule;
-    }
 
-    
-    public function setMatricule($matricule): self
-    {
-        $this->matricule = $matricule;
+    // public function getMatricule(): int
+    // {
+    //     return $this->matricule;
+    // }
 
-        return $this;
-    }
 
-    
+    // public function setMatricule($matricule): self
+    // {
+    //     $this->matricule = $matricule;
+
+    //     return $this;
+    // }
+
+
     public function getMail()
     {
         return $this->mail;
     }
 
-    
-    public function setMail( $mail): self
+
+    public function setMail($mail): self
     {
         $this->mail = $mail;
 
@@ -250,158 +236,157 @@ class User implements UserInterface
     }
 
 
-    
-   
-     /**
-     * @return Collection|Application[]
-     */
-    public function getApplications(): Collection
-    {
-        return $this->applications;
-    }
-
-    public function addApplication(Application $application): self
-    {
-        if (!$this->applications->contains($application)) {
-            $this->applications[] = $application;
-        }
-
-        return $this;
-    }
-
-    public function removeApplication(Application $application): self
-    {
-        if ($this->applications->contains($application)) {
-            $this->applications->removeElement($application);
-        }
-
-        return $this;
-    }
 
 
-    
+    // /**
+    //  * @return Collection|Application[]
+    //  */
+    // public function getApplications(): Collection
+    // {
+    //     return $this->applications;
+    // }
+
+    // public function addApplication(Application $application): self
+    // {
+    //     if (!$this->applications->contains($application)) {
+    //         $this->applications[] = $application;
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function removeApplication(Application $application): self
+    // {
+    //     if ($this->applications->contains($application)) {
+    //         $this->applications->removeElement($application);
+    //     }
+
+    //     return $this;
+    // }
+
+
+
     public function getSociettes()
     {
         return $this->societtes;
     }
 
     public function setSociettes(?Societte $societtes): self
-{
-    $this->societtes = $societtes;
-    return $this;
-}
-
-
-
-    public function getPersonnels()
     {
-        return $this->personnels;
-    }
-
-  
-    public function setPersonnels($personnel): self
-    {
-        $this->personnels = $personnel;
-
+        $this->societtes = $societtes;
         return $this;
     }
 
-    public function getSuperieurs(): array
-    {
-        if($this->superieurs !== null){
-            return $this->superieurs;
-        } else {
-            return [];
-        }
-        
-    }
 
-    public function setSuperieurs(array $superieurs): self
-    {
-        $this->superieurs = $superieurs;
 
-        return $this;
-    }
+    // public function getPersonnels()
+    // {
+    //     return $this->personnels;
+    // }
 
-    public function addSuperieur( User $superieurId): self
-    {
-        
-        $superieurIds[] = $superieurId->getId();
 
-        if($this->superieurs === null ){
-            $this->superieurs = [];
-        }
+    // public function setPersonnels($personnel): self
+    // {
+    //     $this->personnels = $personnel;
 
-        if (!in_array($superieurIds, $this->superieurs, true)) {
-            $this->superieurs[] = $superieurId;
-        }
+    //     return $this;
+    // }
 
-        return $this;
-    }
+    // public function getSuperieurs(): array
+    // {
+    //     if ($this->superieurs !== null) {
+    //         return $this->superieurs;
+    //     } else {
+    //         return [];
+    //     }
+    // }
 
-    public function removeSuperieur(User $superieurId): self
-    {
-        $superieurIds[] = $superieurId->getId();
-        
-        if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
-            unset($this->superieurs[$key]);
-            $this->superieurs = array_values($this->superieurs);
-        }
+    // public function setSuperieurs(array $superieurs): self
+    // {
+    //     $this->superieurs = $superieurs;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-     /**
-     * Get the value of demandeInterventions
-     */ 
-    public function getCasiers()
-    {
-        return $this->casiers;
-    }
+    // public function addSuperieur(User $superieurId): self
+    // {
 
-    public function addCasier(Casier $casier): self
-    {
-        if (!$this->casiers->contains($casier)) {
-            $this->casiers[] = $casier;
-            $casier->setNomSessionUtilisateur($this);
-        }
+    //     $superieurIds[] = $superieurId->getId();
 
-        return $this;
-    }
+    //     if ($this->superieurs === null) {
+    //         $this->superieurs = [];
+    //     }
 
-    public function removeCasier(Casier $casier): self
-    {
-        if ($this->casiers->contains($casier)) {
-            $this->casiers->removeElement($casier);
-            if ($casier->getNomSessionUtilisateur() === $this) {
-                $casier->setNomSessionUtilisateur(null);
-            }
-        }
-        
-        return $this;
-    }
-    
-    public function setCasiers($casier)
-    {
-        $this->casiers = $casier;
+    //     if (!in_array($superieurIds, $this->superieurs, true)) {
+    //         $this->superieurs[] = $superieurId;
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-   public function getFonction()
-    {
-        return $this->fonction;
-    }
+    // public function removeSuperieur(User $superieurId): self
+    // {
+    //     $superieurIds[] = $superieurId->getId();
 
-  
-    public function setFonction($fonction): self
-    {
-        $this->fonction = $fonction;
+    //     if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
+    //         unset($this->superieurs[$key]);
+    //         $this->superieurs = array_values($this->superieurs);
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    
+    // /**
+    //  * Get the value of demandeInterventions
+    //  */
+    // public function getCasiers()
+    // {
+    //     return $this->casiers;
+    // }
+
+    // public function addCasier(Casier $casier): self
+    // {
+    //     if (!$this->casiers->contains($casier)) {
+    //         $this->casiers[] = $casier;
+    //         $casier->setNomSessionUtilisateur($this);
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function removeCasier(Casier $casier): self
+    // {
+    //     if ($this->casiers->contains($casier)) {
+    //         $this->casiers->removeElement($casier);
+    //         if ($casier->getNomSessionUtilisateur() === $this) {
+    //             $casier->setNomSessionUtilisateur(null);
+    //         }
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function setCasiers($casier)
+    // {
+    //     $this->casiers = $casier;
+
+    //     return $this;
+    // }
+
+    // public function getFonction()
+    // {
+    //     return $this->fonction;
+    // }
+
+
+    // public function setFonction($fonction): self
+    // {
+    //     $this->fonction = $fonction;
+
+    //     return $this;
+    // }
+
+
 
     public function getAgenceServiceIrium()
     {
@@ -415,194 +400,194 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getAgencesAutorisees(): Collection
-    {
-        return $this->agencesAutorisees;
-    }
+    // public function getAgencesAutorisees(): Collection
+    // {
+    //     return $this->agencesAutorisees;
+    // }
 
-public function addAgenceAutorise(Agence $agence): self
-{
-    if (!$this->agencesAutorisees->contains($agence)) {
-        $this->agencesAutorisees[] = $agence;
-    }
+    // public function addAgenceAutorise(Agence $agence): self
+    // {
+    //     if (!$this->agencesAutorisees->contains($agence)) {
+    //         $this->agencesAutorisees[] = $agence;
+    //     }
 
-    return $this;
-}
+    //     return $this;
+    // }
 
-public function removeAgenceAutorise(Agence $agence): self
-{
-    if ($this->agencesAutorisees->contains($agence)) {
-        $this->agencesAutorisees->removeElement($agence);
-    }
+    // public function removeAgenceAutorise(Agence $agence): self
+    // {
+    //     if ($this->agencesAutorisees->contains($agence)) {
+    //         $this->agencesAutorisees->removeElement($agence);
+    //     }
 
-    return $this;
-}
-
-
-    public function getServiceAutoriser(): Collection
-    {
-        return $this->serviceAutoriser;
-    }
-
-    public function addServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser[] = $serviceAutoriser;
-        }
-
-        return $this;
-    }
-
-    public function removeServiceAutoriser(Service $serviceAutoriser): self
-    {
-        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
-            $this->serviceAutoriser->removeElement($serviceAutoriser);
-        }
-
-        return $this;
-    }
-
-    public function getPermissions(): Collection
-    {
-        return $this->permissions;
-    }
-
-    public function addPermisssion(Permission $permissions): self
-    {
-        if (!$this->permissions->contains($permissions)) {
-            $this->permissions[] = $permissions;
-        }
-
-        return $this;
-    }
-
-    public function removePermission(Permission $permissions): self
-    {
-        if ($this->permissions->contains($permissions)) {
-            $this->permissions->removeElement($permissions);
-        }
-
-        return $this;
-    }
+    //     return $this;
+    // }
 
 
-    /**
-     * Get the value of demandeInterventions
-     */ 
-    public function getCommentaireDitOrs()
-    {
-        return $this->commentaireDitOr;
-    }
+    // public function getServiceAutoriser(): Collection
+    // {
+    //     return $this->serviceAutoriser;
+    // }
 
-    public function addCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
-    {
-        if (!$this->commentaireDitOr->contains($commentaireDitOr)) {
-            $this->commentaireDitOr[] = $commentaireDitOr;
-            $commentaireDitOr->setUtilisateurId($this);
-        }
+    // public function addServiceAutoriser(Service $serviceAutoriser): self
+    // {
+    //     if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
+    //         $this->serviceAutoriser[] = $serviceAutoriser;
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    public function removeCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
-    {
-        if ($this->commentaireDitOr->contains($commentaireDitOr)) {
-            $this->casiers->removeElement($commentaireDitOr);
-            if ($commentaireDitOr->getUtilisateurId() === $this) {
-                $commentaireDitOr->setUtilisateurId(null);
-            }
-        }
-        
-        return $this;
-    }
-    
-    public function setCommentaireDitOrs($commentaireDitOr)
-    {
-        $this->commentaireDitOr = $commentaireDitOr;
+    // public function removeServiceAutoriser(Service $serviceAutoriser): self
+    // {
+    //     if ($this->serviceAutoriser->contains($serviceAutoriser)) {
+    //         $this->serviceAutoriser->removeElement($serviceAutoriser);
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
+
+    // public function getPermissions(): Collection
+    // {
+    //     return $this->permissions;
+    // }
+
+    // public function addPermisssion(Permission $permissions): self
+    // {
+    //     if (!$this->permissions->contains($permissions)) {
+    //         $this->permissions[] = $permissions;
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function removePermission(Permission $permissions): self
+    // {
+    //     if ($this->permissions->contains($permissions)) {
+    //         $this->permissions->removeElement($permissions);
+    //     }
+
+    //     return $this;
+    // }
 
 
-     /**
-     * Get the value of demandeInterventions
-     */ 
-    public function getSupportInfoUser()
-    {
-        return $this->supportInfoUser;
-    }
+    // /**
+    //  * Get the value of demandeInterventions
+    //  */
+    // public function getCommentaireDitOrs()
+    // {
+    //     return $this->commentaireDitOr;
+    // }
 
-    public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    {
-        if (!$this->supportInfoUser->contains($supportInfoUser)) {
-            $this->supportInfoUser[] = $supportInfoUser;
-            $supportInfoUser->setUserId($this);
-        }
+    // public function addCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
+    // {
+    //     if (!$this->commentaireDitOr->contains($commentaireDitOr)) {
+    //         $this->commentaireDitOr[] = $commentaireDitOr;
+    //         $commentaireDitOr->setUtilisateurId($this);
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    {
-        if ($this->supportInfoUser->contains($supportInfoUser)) {
-            $this->supportInfoUser->removeElement($supportInfoUser);
-            if ($supportInfoUser->getUserId() === $this) {
-                $supportInfoUser->setUserId(null);
-            }
-        }
-        
-        return $this;
-    }
+    // public function removeCommentaireDitOr(CommentaireDitOr $commentaireDitOr): self
+    // {
+    //     if ($this->commentaireDitOr->contains($commentaireDitOr)) {
+    //         $this->casiers->removeElement($commentaireDitOr);
+    //         if ($commentaireDitOr->getUtilisateurId() === $this) {
+    //             $commentaireDitOr->setUtilisateurId(null);
+    //         }
+    //     }
 
-    /**
-     * Get the value of supportInfoIntervenant
-     */ 
-    public function getSupportInfoIntervenant()
-    {
-        return $this->supportInfoIntervenant;
-    }
+    //     return $this;
+    // }
 
-    /**
-     * Set the value of supportInfoIntervenant
-     *
-     * @return  self
-     */ 
-    public function setSupportInfoIntervenant($supportInfoIntervenant)
-    {
-        $this->supportInfoIntervenant = $supportInfoIntervenant;
+    // public function setCommentaireDitOrs($commentaireDitOr)
+    // {
+    //     $this->commentaireDitOr = $commentaireDitOr;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
-    /**
-     * Get the value of demandeInterventions
-     */ 
-    public function getTikPlanningUser()
-    {
-        return $this->tikPlanningUser;
-    }
 
-    public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    {
-        if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
-            $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUserId($this);
-        }
+    // /**
+    //  * Get the value of demandeInterventions
+    //  */
+    // public function getSupportInfoUser()
+    // {
+    //     return $this->supportInfoUser;
+    // }
 
-        return $this;
-    }
+    // public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    // {
+    //     if (!$this->supportInfoUser->contains($supportInfoUser)) {
+    //         $this->supportInfoUser[] = $supportInfoUser;
+    //         $supportInfoUser->setUserId($this);
+    //     }
 
-    public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    {
-        if ($this->tikPlanningUser->contains($tikPlanningUser)) {
-            $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUserId() === $this) {
-                $tikPlanningUser->setUserId(null);
-            }
-        }
-        
-        return $this;
-    }
+    //     return $this;
+    // }
+
+    // public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    // {
+    //     if ($this->supportInfoUser->contains($supportInfoUser)) {
+    //         $this->supportInfoUser->removeElement($supportInfoUser);
+    //         if ($supportInfoUser->getUserId() === $this) {
+    //             $supportInfoUser->setUserId(null);
+    //         }
+    //     }
+
+    //     return $this;
+    // }
+
+    // /**
+    //  * Get the value of supportInfoIntervenant
+    //  */
+    // public function getSupportInfoIntervenant()
+    // {
+    //     return $this->supportInfoIntervenant;
+    // }
+
+    // /**
+    //  * Set the value of supportInfoIntervenant
+    //  *
+    //  * @return  self
+    //  */
+    // public function setSupportInfoIntervenant($supportInfoIntervenant)
+    // {
+    //     $this->supportInfoIntervenant = $supportInfoIntervenant;
+
+    //     return $this;
+    // }
+
+    // /**
+    //  * Get the value of demandeInterventions
+    //  */
+    // public function getTikPlanningUser()
+    // {
+    //     return $this->tikPlanningUser;
+    // }
+
+    // public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    // {
+    //     if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
+    //         $this->tikPlanningUser[] = $tikPlanningUser;
+    //         $tikPlanningUser->setUserId($this);
+    //     }
+
+    //     return $this;
+    // }
+
+    // public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    // {
+    //     if ($this->tikPlanningUser->contains($tikPlanningUser)) {
+    //         $this->tikPlanningUser->removeElement($tikPlanningUser);
+    //         if ($tikPlanningUser->getUserId() === $this) {
+    //             $tikPlanningUser->setUserId(null);
+    //         }
+    //     }
+
+    //     return $this;
+    // }
 
 
     /**
@@ -610,7 +595,7 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getRoleIds(): array
     {
-        return $this->roles->map(function($role) {
+        return $this->roles->map(function ($role) {
             return $role->getId();
         })->toArray();
     }
@@ -620,52 +605,52 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getRoleNames(): array
     {
-        return $this->roles->map(function($role) {
+        return $this->roles->map(function ($role) {
             return $role->getRoleName();
         })->toArray();
     }
 
 
-    /**
-     * RECUPERE LES id de l'agence Autoriser
-     */
-    public function getAgenceAutoriserIds(): array
-    {
-        return $this->agencesAutorisees->map(function($agenceAutorise) {
-            return $agenceAutorise->getId();
-        })->toArray();
-    }
+    // /**
+    //  * RECUPERE LES id de l'agence Autoriser
+    //  */
+    // public function getAgenceAutoriserIds(): array
+    // {
+    //     return $this->agencesAutorisees->map(function ($agenceAutorise) {
+    //         return $agenceAutorise->getId();
+    //     })->toArray();
+    // }
 
 
-    /**
-     * RECUPERE LES id du service Autoriser
-     */
-    public function getServiceAutoriserIds(): array
-    {
-        return $this->serviceAutoriser->map(function($serviceAutorise) {
-            return $serviceAutorise->getId();
-        })->toArray();
-    }
+    // /**
+    //  * RECUPERE LES id du service Autoriser
+    //  */
+    // public function getServiceAutoriserIds(): array
+    // {
+    //     return $this->serviceAutoriser->map(function ($serviceAutorise) {
+    //         return $serviceAutorise->getId();
+    //     })->toArray();
+    // }
 
-   
-    public function getApplicationsIds(): array
-    {
-        return $this->applications->map(function($app) {
-            return $app->getId();
-        })->toArray();
-    }
 
-    
-    public function getPassword(){}
+    // public function getApplicationsIds(): array
+    // {
+    //     return $this->applications->map(function ($app) {
+    //         return $app->getId();
+    //     })->toArray();
+    // }
 
-   
-    public function getSalt(){}
 
- 
-    public function eraseCredentials(){}
+    public function getPassword() {}
 
-    
-    public function getUsername(){}
 
-    public function getUserIdentifier(){}
+    public function getSalt() {}
+
+
+    public function eraseCredentials() {}
+
+
+    public function getUsername() {}
+
+    public function getUserIdentifier() {}
 }
