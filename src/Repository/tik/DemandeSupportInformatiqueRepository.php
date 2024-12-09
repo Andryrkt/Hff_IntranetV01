@@ -15,13 +15,13 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             ;
 
         
+        $this->conditionDemandeur($queryBuilder, $option);
         $this->conditionListeDeChoix($queryBuilder, $tikSearch, $option);
         $this->conditionSaisieLibre($queryBuilder, $tikSearch);
         $this->dateFinDebut($queryBuilder, $tikSearch);
         $this->agenceServiceEmetteur($queryBuilder, $tikSearch, $option);
         $this->agenceServiceDebiteur($queryBuilder, $tikSearch);
         $this->conditionCategorie($queryBuilder, $tikSearch);
-        
 
 
         $queryBuilder->orderBy('tki.dateCreation', 'DESC');
@@ -44,6 +44,16 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
             'currentPage' => $page,
             'lastPage' => $lastPage,
         ];
+    }
+
+    private function conditionDemandeur($queryBuilder, $option)
+    {
+        if(!$option['autorisation']['autoriserIntervenant'] && !$option['autorisation']['autoriserValidateur']) {
+            $queryBuilder
+                ->andWhere('tki.utilisateurDemandeur LIKE :demandeur')
+                ->setParameter('demandeur', $option['user']->getNomUtilisateur())
+            ;
+        }
     }
 
     private function conditionListeDeChoix($queryBuilder, $tikSearch, $option)

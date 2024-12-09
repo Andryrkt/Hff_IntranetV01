@@ -13,6 +13,7 @@ use App\Form\tik\TikSearchType;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
+use InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListeTikController extends Controller
@@ -32,10 +33,10 @@ class ListeTikController extends Controller
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($user);
-        $autoriserIntervenant = $this->autorisationIntervenant($user);
         $autorisation = [
-            'autoriser' => $autoriser,
-            'autoriserIntervenant' => $autoriserIntervenant
+            'autoriser'            => $autoriser,
+            'autoriserIntervenant' => $this->autorisationIntervenant($user),
+            'autoriserValidateur'  => $this->autorisationValidateur($user),
         ];
         //FIN AUTORISATION
 
@@ -68,48 +69,52 @@ class ListeTikController extends Controller
 
         $option = [
             'autorisation' => $autorisation,
-            'user' => $user,
-            'idAgence' => $tikSearch->getAgenceEmetteur() === null ? null :  $tikSearch->getAgenceEmetteur()->getId(),
-            'idService' => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId()
+            'user'         => $user,
+            'idAgence'     => $tikSearch->getAgenceEmetteur() === null ? null :  $tikSearch->getAgenceEmetteur()->getId(),
+            'idService'    => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId()
         ];
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
     
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
-            'data' => $paginationData['data'],
+            'data'        => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
-            'totalPages' =>$paginationData['lastPage'],
-            'resultat' => $paginationData['totalItems'],
-            'form' => $form->createView(),
-            'criteria' => $criteria,
+            'totalPages'  => $paginationData['lastPage'],
+            'resultat'    => $paginationData['totalItems'],
+            'form'        => $form->createView(),
+            'criteria'    => $criteria,
         ]);
     }
 
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
-        $criteria = $this->sessionService->get('tik_search_criteria', []);
+        // Initialisation des critères depuis la session
+        $criteria = $this->sessionService->get('tik_search_criteria', []) ?? [];
         
-        if ($autorisation['autoriser']) {
-            $agenceIpsEmetteur = null;
-            $serviceIpsEmetteur = null;
-        } else {
-            $agenceIpsEmetteur = $agenceServiceIps['agenceIps'];
-            $serviceIpsEmetteur = $agenceServiceIps['serviceIps'];
-        }
+        // Définition des valeurs par défaut en fonction des autorisations
+        $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
+        $serviceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['serviceIps'];
+        
+        $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria))? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
+        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? self::$em->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
 
-        if($autorisation['autoriserIntervenant']) {
-            $intervenant = $user;
-        } else {
-            $intervenant = null;
-        }
-
+        // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty(array_filter($criteria))) {
-            $intervenant    = isset($criteria['nomIntervenant']) ? self::$em->getRepository(User::class)              ->find($criteria['nomIntervenant']) : null;
-            $statut         = isset($criteria['statut'])         ? self::$em->getRepository(StatutDemande::class)     ->find($criteria['statut'])         : null;
-            $niveauUrgence  = isset($criteria['niveauUrgence'])  ? self::$em->getRepository(WorNiveauUrgence::class)  ->find($criteria['niveauUrgence'])  : null;
-            $categorie      = isset($criteria['categorie'])      ? self::$em->getRepository(TkiCategorie::class)      ->find($criteria['categorie'])      : null;
-            $sousCategorie  = isset($criteria['sousCategorie'])  ? self::$em->getRepository(TkiSousCategorie::class)  ->find($criteria['sousCategorie'])  : null;
-            $autreCategorie = isset($criteria['autreCategorie']) ? self::$em->getRepository(TkiAutresCategorie::class)->find($criteria['autreCategorie']) : null;
+            $repositories = [
+                'nomIntervenant' => User::class,
+                'statut'         => StatutDemande::class,
+                'niveauUrgence'  => WorNiveauUrgence::class,
+                'categorie'      => TkiCategorie::class,
+                'sousCategorie'  => TkiSousCategorie::class,
+                'autreCategorie' => TkiAutresCategorie::class,
+            ];
+
+            $entities = [];
+            foreach ($repositories as $key => $entityClass) {
+                $entities[$key] = isset($criteria[$key])
+                    ? self::$em->getRepository($entityClass)->find($criteria[$key])
+                    : null;
+            }
 
             $tikSearch
                 ->setNumeroTicket($criteria['numeroTicket'] ?? null)
@@ -117,33 +122,54 @@ class ListeTikController extends Controller
                 ->setNumParc($criteria['numParc'] ?? null)
                 ->setDateDebut($criteria['dateDebut'] ?? null)
                 ->setDateFin($criteria['dateFin'] ?? null)
-                ->setStatut($statut)
-                ->setNiveauUrgence($niveauUrgence)
-                ->setCategorie($categorie)
-                ->setSousCategorie($sousCategorie)
-                ->setAutresCategories($autreCategorie)
-            ;
+                ->setStatut($entities['statut'])
+                ->setNiveauUrgence($entities['niveauUrgence'])
+                ->setCategorie($entities['categorie'])
+                ->setSousCategorie($entities['sousCategorie'])
+                ->setAutresCategories($entities['autreCategorie']);
         }
         
-
+        // Définition des propriétés générales
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)
             ->setServiceEmetteur($serviceIpsEmetteur)
+            ->setStatut($entities['statut'])
             ->setAutoriser($autorisation['autoriser'] ?? false)
-            ->setNomIntervenant($intervenant)
+            ->setNomIntervenant($entities['nomIntervenant'])
         ;
     }
 
-    private function autorisationRole($user): bool
+    private function autorisationRole(User $user): bool
     {
-        /** CREATION D'AUTORISATION */
-        $roleIds = $user->getRoleIds();
-        return in_array(1, $roleIds) || in_array(2, $roleIds) || in_array(8, $roleIds);
+        return $this->hasRole($user, 1) || $this->hasRole($user, 2) || $this->hasRole($user, 8);
     }
 
-    private function autorisationIntervenant($user): bool
+    private function autorisationIntervenant(User $user): bool
+    {
+        return $this->hasRole($user, 8);
+    }
+
+    private function autorisationValidateur(User $user): bool
+    {
+        return $this->hasRole($user, 2);
+    }
+
+    /**
+     * Vérifie si un utilisateur possède un rôle spécifique.
+     *
+     * @param User $user L'utilisateur à vérifier.
+     * @param int $roleId L'identifiant du rôle à rechercher.
+     * @return bool Retourne true si l'utilisateur possède le rôle, sinon false.
+     */
+    private function hasRole(User $user, int $roleId): bool
     {
         $roleIds = $user->getRoleIds();
-        return in_array(8, $roleIds);
+        
+        // S'assurer que $roleIds est un tableau avant de continuer.
+        if (!is_array($roleIds)) {
+            throw new InvalidArgumentException('Les rôles retournés doivent être un tableau.');
+        }
+        
+        return in_array($roleId, $roleIds); 
     }
 }
