@@ -425,7 +425,7 @@ class PlanningModel extends Model
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
-                LEFT JOIN neg_lig ON slor_numcf = nlig_numcde
+                LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne
