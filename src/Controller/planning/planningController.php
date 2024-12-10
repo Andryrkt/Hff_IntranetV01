@@ -60,7 +60,7 @@ class PlanningController extends Controller
             $form->handleRequest($request);
             //initialisation criteria
             $criteria = $this->planningSearch;
-
+            $monthsBefore = 3;
             if($form->isSubmitted() && $form->isValid())
             {
                   // dd($form->getdata());
@@ -90,24 +90,12 @@ class PlanningController extends Controller
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
-            $formMoisAvant = self::$validator->createBuilder(MoisAvantType::class,null,
-            [ 
-                'method' =>'GET'
-            ])->getForm();
+            $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths());
             
-            $formMoisAvant->handleRequest($request);
-            $monthsBefore = 3;
-            if($formMoisAvant->isSubmitted() && $formMoisAvant->isValid())
-            {
-               $monthsBefore = $formMoisAvant->getdata()['months'];
-            }
-
-            $forDisplay = $this->prepareDataForDisplay($fusionResult, $monthsBefore);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
                 'preparedData' => $forDisplay['preparedData'],
                 'uniqueMonths' => $forDisplay['uniqueMonths'],
-                'formMoisAvant' => $formMoisAvant->createView()
             ]);
         }
 
@@ -133,41 +121,40 @@ class PlanningController extends Controller
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
-        
 
-                // Convertir les entités en tableau de données
-                $data = [];
-                $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
-                foreach ($fusionResult as $entity) {
-                    $row = [
-                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
-                        $entity->getIdMat(),
-                        $entity->getMarqueMat(),
-                        $entity->getTypeMat(),
-                        $entity->getnumSerie(),
-                        $entity->getnumParc(),
-                        $entity->getCasier(),
-                    ];
-                
-                    // Initialiser les mois avec des valeurs par défaut
-                    $moisData = array_fill(1, 12, '-');
-                
-                    // Ajouter les données des mois disponibles
-                    foreach ($entity->getMoisDetails() as $value) {
-                        if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
-                            if ($moisData[$value['mois']] !== '-') {
-                                $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
-                            } else {
-                                $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
-                            }
-                        }
+        // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
+        foreach ($fusionResult as $entity) {
+            $row = [
+                $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                $entity->getIdMat(),
+                $entity->getMarqueMat(),
+                $entity->getTypeMat(),
+                $entity->getnumSerie(),
+                $entity->getnumParc(),
+                $entity->getCasier(),
+            ];
+        
+            // Initialiser les mois avec des valeurs par défaut
+            $moisData = array_fill(1, 12, '-');
+        
+            // Ajouter les données des mois disponibles
+            foreach ($entity->getMoisDetails() as $value) {
+                if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
+                    if ($moisData[$value['mois']] !== '-') {
+                        $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
+                    } else {
+                        $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
                     }
-                
-                    // Fusionner les données générales avec celles des mois
-                    $data[] = array_merge($row, $moisData);
                 }
-                
-                $this->excelService->createSpreadsheet($data);
+            }
+        
+            // Fusionner les données générales avec celles des mois
+            $data[] = array_merge($row, $moisData);
+        }
+        
+        $this->excelService->createSpreadsheet($data);
     }
 
 

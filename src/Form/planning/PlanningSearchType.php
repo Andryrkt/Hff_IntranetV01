@@ -108,13 +108,13 @@ class PlanningSearchType extends AbstractType
                     ]
                 ])
                
-                ->add('annee', ChoiceType::class,[
-                    'label' =>'Année',
-                    'required' =>true,
-                    'choices' => $annee,
-                    'placeholder' => " -- Choisir l'année --",
-                    'data' => date('Y')
-                ])
+                // ->add('annee', ChoiceType::class,[
+                //     'label' =>'Année',
+                //     'required' =>true,
+                //     'choices' => $annee,
+                //     'placeholder' => " -- Choisir l'année --",
+                //     'data' => date('Y')
+                // ])
                 ->add('interneExterne', ChoiceType::class,[
                     'label' => 'Interne / Externe',
                     'required' => true,
@@ -214,6 +214,18 @@ class PlanningSearchType extends AbstractType
                         'expanded' => true,
                     ]);
                 }) 
+                ->add('months', ChoiceType::class, [
+                    'choices' => [
+                        '3 mois avant' => 3,
+                        '6 mois avant' => 6,
+                        '9 mois avant' => 9,
+                        '12 mois glissant' => 11,
+                    ],
+                    'expanded' => false, // Utiliser une liste déroulante
+                    'multiple' => false, // Sélectionner une seule valeur
+                    'label' => 'Nombre de mois', // Label du champ
+                    'data' => 3
+                ]);
                 ;
 
     }
