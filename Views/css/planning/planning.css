@@ -5,3 +5,8 @@
     cursor: not-allowed; /* Curseur qui indique que l'action est impossible */
     opacity: 0.7; /* Légèrement transparent pour un effet visuel */
 }
+
+
+.modal-dialog.custom-width {
+    max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
