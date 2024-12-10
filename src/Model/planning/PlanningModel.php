@@ -316,6 +316,8 @@ class PlanningModel extends Model
       $statement = " SELECT slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
+                            trim(sitv_comment) as commentaire,
+                            slor_datel as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
@@ -417,10 +419,9 @@ class PlanningModel extends Model
                                                       AND Line_Number = slor_noligncm )
 					            	)
 	                    END as Message ,
-                     CASE  WHEN nlig_natcm = 'C' THEN 
-                    'COMMANDE'
-                     WHEN nlig_natcm = 'L' THEN 
-                    'RECEPTION'
+                    CASE  
+                      WHEN nlig_natcm = 'C' THEN 'COMMANDE'
+                      WHEN nlig_natcm = 'L' THEN 'RECEPTION'
                     END AS Statut_ctrmq_cis,
                     nlig_numcf as numerocdecis                        
 

@@ -91,7 +91,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Gestionnaire pour la fermeture du modal
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
+    const Ornum = document.getElementById("orIntv");
+    const datePlanningCommentaire = document.getElementById(
+      "datePlanningCommentaire"
+    );
     tableBody.innerHTML = ""; // Vider le tableau
+    Ornum.innerHTML = "";
+    datePlanningCommentaire.innerHTML = "";
   });
 
   function masquerSpinner() {
@@ -151,14 +157,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
-
+        const datePlanningCommentaire = document.getElementById(
+          "datePlanningCommentaire"
+        );
         tableBody.innerHTML = ""; // Clear previous data
+        Ornum.innerHTML = "";
+        datePlanningCommentaire.innerHTML = "";
 
         if (data.length > 0) {
           data.forEach((detail) => {
             console.log(detail);
 
             Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
+            datePlanningCommentaire.innerHTML = `${
+              detail.commentaire
+            } | ${formaterDate(detail.dateplanning)}`;
 
             // Formater la date
             let dateEtaIvato;
