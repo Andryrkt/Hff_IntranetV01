@@ -16,7 +16,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Entity(repositoryClass=PersonnelRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class Personnel 
+class Personnel
 {
     /**
      * @ORM\Id
@@ -100,7 +100,7 @@ class Personnel
      * @ORM\JoinColumn(name="agence_service_irium_id", referencedColumnName="id")
      */
     private $agenceServiceIriumId;
-    
+
 
     public function __construct()
     {
@@ -268,9 +268,9 @@ class Personnel
     }
 
 
-     /**
+    /**
      * @return Collection|User[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -294,7 +294,7 @@ class Personnel
                 $user->setPersonnels(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -305,13 +305,13 @@ class Personnel
         return $this;
     }
 
-  
+
     public function getAgenceServiceIriumId()
     {
         return $this->agenceServiceIriumId;
     }
 
-  
+
     public function setAgenceServiceIriumId($agenceServiceIriumId): self
     {
         $this->agenceServiceIriumId = $agenceServiceIriumId;
@@ -322,10 +322,8 @@ class Personnel
     public function toArray(): array
     {
         return [
-            
+
             'Matricule' => $this->Matricule
         ];
     }
-
-    
 }

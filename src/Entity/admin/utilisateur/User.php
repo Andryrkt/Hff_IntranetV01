@@ -80,11 +80,11 @@ class User
     private ?Societte $societtes;
 
 
-    // /**
-    //  * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
-    //  * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
-    //  */
-    // private $personnels;
+    /**
+     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
+     */
+    private $personnels;
 
 
     // /**
@@ -279,18 +279,18 @@ class User
 
 
 
-    // public function getPersonnels()
-    // {
-    //     return $this->personnels;
-    // }
+    public function getPersonnels()
+    {
+        return $this->personnels;
+    }
 
 
-    // public function setPersonnels($personnel): self
-    // {
-    //     $this->personnels = $personnel;
+    public function setPersonnels($personnel): self
+    {
+        $this->personnels = $personnel;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
     // public function getSuperieurs(): array
     // {

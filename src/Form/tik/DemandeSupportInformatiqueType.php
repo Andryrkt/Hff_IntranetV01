@@ -171,7 +171,7 @@ class DemandeSupportInformatiqueType extends AbstractType
             $data = $event->getData();
             $services = null;
 
-            if ($data instanceof DemandeIntervention && $data->getAgence()) {
+            if ($data->getAgence()) {
                 $services = $data->getAgence()->getServices();
             }
 
@@ -203,6 +203,7 @@ class DemandeSupportInformatiqueType extends AbstractType
 
             $agence = $this->agenceRepository->find($agenceId);
             $services = $agence->getServices();
+
 
             $form->add('service', EntityType::class, [
                 'label' => 'Service Débiteur *',

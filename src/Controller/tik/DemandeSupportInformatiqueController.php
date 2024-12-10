@@ -43,6 +43,7 @@ class DemandeSupportInformatiqueController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $donnerForm = $form->getData();
+            // dd($form->getData());
             $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
@@ -185,7 +186,7 @@ class DemandeSupportInformatiqueController extends Controller
         }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
         $content = [
-            'to'        => $emailValidateurs[0],
+            // 'to'        => $emailValidateurs[0],
             'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'tik/email/emailTik.html.twig',
             'variables' => [
@@ -195,6 +196,6 @@ class DemandeSupportInformatiqueController extends Controller
                 'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]
         ];
-        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }

@@ -46,7 +46,7 @@ class ProfilUser
      */
     private $mail;
 
-      // Ajoutez ici les getters et setters pour chaque propriété
+    // Ajoutez ici les getters et setters pour chaque propriété
     public function getId()
     {
         return $this->id;
