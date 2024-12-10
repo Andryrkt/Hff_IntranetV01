@@ -25,6 +25,7 @@ class PlanningMateriel{
     private $migration;
     private $pos;
     private $numeroOr;
+    private $commentaire;
    
 
     /**
@@ -349,7 +350,7 @@ class PlanningMateriel{
         return $this;
     }
     
-    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration) {
+    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire) {
         $this->moisDetails[] = [
             'mois' => $mois,
             'annee' => $annee,
@@ -358,7 +359,8 @@ class PlanningMateriel{
             'qteLiv' => $qteLiv,
             'qteAll' => $qteAll,
             'numDit' => $numDit,
-            'migration' => $migration
+            'migration' => $migration,
+            'commentaire' => $commentaire
         ];
     }
     

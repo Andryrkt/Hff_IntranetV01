@@ -150,7 +150,7 @@ class PlanningModel extends Model
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
                       trim(ser.atab_lib) as libServ, 
-                      
+                      trim(sitv_comment) as commentaire,
                       mmat_nummat as idMat,
                       trim(mmat_marqmat) as markMat,
                       trim(mmat_typmat) as typeMat ,
@@ -199,7 +199,7 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
 		                order by 1,5  ";      
 
         

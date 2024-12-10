@@ -300,7 +300,7 @@ class PlanningController extends Controller
                     ->setQteAll($item['qteall'])
                     ->setNumDit($numDit)
                     // ->setNumeroOr($item['numeroor'])
-                    ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
+                    ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'])
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
@@ -327,7 +327,8 @@ class PlanningController extends Controller
                         $moisDetail['qteLiv'],
                         $moisDetail['qteAll'],
                         $moisDetail['numDit'],
-                        $moisDetail['migration']
+                        $moisDetail['migration'],
+                        $moisDetail['commentaire']
                     );
                 }
                 
