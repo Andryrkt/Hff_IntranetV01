@@ -77,7 +77,7 @@ trait DitFactureSoumisAValidationtrait
     {   
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
-        $migration = $em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $dataForm->getNumeroOR()])->getMigration();
+        $migration = $em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit])->getMigration();
         $statutFac = [];
         $nombreStatutControle = [
             'nbrNonValideFacture' => 0,
@@ -96,11 +96,12 @@ trait DitFactureSoumisAValidationtrait
                 $statutFac[] = 'Serv deb DIT # Serv deb FAC';
                 $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
             } elseif($montantValide <> $value['montantfactureitv']) {
-                if ($migration == 1) {
-                    $statutFac[] = 'OR MIGRE';
+                if($migration == 1){
+                    $statutFac[] = 'DIT migrée';
                 } else {
                     $statutFac[] = 'Mtt validé # Mtt facturé';
                 }
+                
                 $nombreStatutControle['nbrMttValideDiffMttFac']++;
             } else {
                 $statutFac[] ='OK';
