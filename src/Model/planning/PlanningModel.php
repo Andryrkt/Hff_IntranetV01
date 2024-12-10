@@ -57,6 +57,8 @@ class PlanningModel extends Model
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
                     AND asuc_codsoc = 'HF'
+                    AND asuc_lib <> 'ANTALAHA'
+                    AND asuc_num <> '10'
                     group by 1,2
                     order by 1";
       $result = $this->connect->executeQuery($statement);
