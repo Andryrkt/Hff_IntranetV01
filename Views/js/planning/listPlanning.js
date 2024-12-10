@@ -21,11 +21,14 @@ function selectAgence() {
       console.log(services);
 
       // Si "Tout sélectionner" n'existe pas, l'ajouter
-      if (!document.querySelector("#planning_search_selectAll")) {
+      let selectAllCheckbox = document.querySelector(
+        "#planning_search_selectAll"
+      );
+      if (!selectAllCheckbox) {
         var selectAllDiv = document.createElement("div");
         selectAllDiv.className = "form-check";
 
-        var selectAllCheckbox = document.createElement("input");
+        selectAllCheckbox = document.createElement("input");
         selectAllCheckbox.type = "checkbox";
         selectAllCheckbox.id = "planning_search_selectAll";
         selectAllCheckbox.className = "form-check-input";
@@ -80,6 +83,21 @@ function selectAgence() {
         div.appendChild(label);
 
         serviceDebiteurInput.appendChild(div);
+
+        // Ajouter un gestionnaire d'événements pour déselectionner "Tout sélectionner"
+        checkbox.addEventListener("change", () => {
+          if (!checkbox.checked) {
+            selectAllCheckbox.checked = false;
+          }
+
+          // Vérifier si toutes les cases sont cochées
+          const allChecked = [
+            ...document.querySelectorAll(
+              'input[name="planning_search[serviceDebite][]"]'
+            ),
+          ].every((cb) => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+        });
       }
     })
     .catch((error) => console.error("Error:", error));
@@ -130,13 +148,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
     const Ornum = document.getElementById("orIntv");
-    const datePlanningCommentaire = document.getElementById(
-      "datePlanningCommentaire"
-    );
     const planningTableHead = document.getElementById("planningTableHead");
     tableBody.innerHTML = ""; // Vider le tableau
     Ornum.innerHTML = "";
-    datePlanningCommentaire.innerHTML = "";
     planningTableHead.innerHTML = "";
   });
 
@@ -197,22 +211,55 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
-        const datePlanningCommentaire = document.getElementById(
-          "datePlanningCommentaire"
-        );
         const planningTableHead = document.getElementById("planningTableHead");
 
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
-        datePlanningCommentaire.innerHTML = "";
         planningTableHead.innerHTML = "";
 
         if (data.length > 0) {
+          if (data[0].numor.startsWith("5")) {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° CIS</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+          } else {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+          }
           data.forEach((detail) => {
             console.log(detail);
 
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
-            datePlanningCommentaire.innerHTML = `${
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | ${
               detail.commentaire
             } | ${formaterDate(detail.dateplanning)}`;
 
@@ -312,24 +359,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
             if (detail.numor && detail.numor.startsWith("5")) {
-              let rowHeader = `<th>N° OR</th>
-  <th>Intv</th>
-  <th>N° CIS</th>
-  <th>N° Commande</th>
-  <th>Statut ctrmrq</th>
-  <th>CST</th>
-  <th>Ref</th>
-  <th>Désignation</th>
-  <th>Qté OR</th>
-  <th>Qté ALL</th>
-  <th>QTé RLQ</th>
-  <th>QTé LIV</th>
-  <th>Statut</th>
-  <th>Date Statut</th>
-  <th>ETA Ivato</th>
-  <th>ETA Magasin</th>
-  <th>Message</th>`;
-              planningTableHead.innerHTML += rowHeader;
               // Affichage
               let row = `<tr>
                         <td>${detail.numor}</td> 
@@ -352,23 +381,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
                     </tr>`;
               tableBody.innerHTML += row;
             } else {
-              let rowHeader = `<th>N° OR</th>
-<th>Intv</th>
-<th>N° Commande</th>
-<th>Statut ctrmrq</th>
-<th>CST</th>
-<th>Ref</th>
-<th>Désignation</th>
-<th>Qté OR</th>
-<th>Qté ALL</th>
-<th>QTé RLQ</th>
-<th>QTé LIV</th>
-<th>Statut</th>
-<th>Date Statut</th>
-<th>ETA Ivato</th>
-<th>ETA Magasin</th>
-<th>Message</th>`;
-              planningTableHead.innerHTML += rowHeader;
               // Affichage
               let row = `<tr>
                       <td>${detail.numor}</td> 
@@ -504,25 +516,3 @@ document.addEventListener("DOMContentLoaded", (event) => {
     cellToRowspanService.classList.add("rowspan-cell");
   }
 });
-
-/**
- * case qui selectionne tous pour service debiteur
- */
-// document.addEventListener("DOMContentLoaded", () => {
-//   const selectAllCheckbox = document.querySelector(
-//     "#planning_search_selectAll"
-//   ); // Remplacez par l'ID réel de la case "Tout sélectionner"
-//   const serviceCheckboxes = document.querySelectorAll(
-//     'input[name="planning_search[serviceDebite][]"]'
-//   ); // Remplacez par le nom réel des cases
-
-//   console.log(selectAllCheckbox, serviceCheckboxes);
-
-//   if (selectAllCheckbox) {
-//     selectAllCheckbox.addEventListener("change", (event) => {
-//       serviceCheckboxes.forEach((checkbox) => {
-//         checkbox.checked = event.target.checked;
-//       });
-//     });
-//   }
-// });
