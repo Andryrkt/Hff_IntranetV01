@@ -81,12 +81,10 @@
 
 				{% include 'tik/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
 
-				<p>Vous pouvez voir le détail en cliquant sur le bouton ci-dessous.</p>
 				<p>
-					<span class="fw-bold">NB:</span>
-					Connectez-vous à Hffintranet avant de cliquer sur le bouton (<a href="http://192.168.0.28/Hffintranet/">lien vers Hffintranet</a>)</p>
-				<a href="{{ action_url }}" class="button">Detail de la demande</a>
-				<p class="fw-bold">Cordialement .</p>
+					<a href="{{ action_url }}" class="button">Detail de la demande</a>
+					<span class="fw-bold">NB:</span> Assurez-vous d’être connecté à <a href="http://192.168.0.28/Hffintranet/">Hffintranet</a> avant de cliquer sur le lien.</p>
+				<p class="fw-bold">Cordialement,</p>
 			</div>
 
 			{{ include('tik/email/shared/_footer.html.twig') }}

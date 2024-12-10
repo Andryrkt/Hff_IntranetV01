@@ -210,10 +210,11 @@ class DetailTikType extends AbstractType
                 'required'   => false,
             ])
             ->add('commentaires', TextareaType::class, [
-                'label'    => 'Observation concernant le ticket',
+                'label'    => false,
                 'required' => true,
                 'attr'     => [
-                    'rows'     => 5
+                    'rows'  => 5,
+                    'class' => 'mt-3',
                 ],
                 'mapped'   => false
             ])

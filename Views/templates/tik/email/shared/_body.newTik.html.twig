@@ -1,8 +1,12 @@
 <p>
-    Une nouvelle demande de support informatique a été créé par <b>{{ tab.userConnecter }}</b>.
+    Une nouvelle demande de support informatique a été créée par <b>{{ tab.userConnecter }}</b>.
 </p>
 <p>
-    Numéro du nouveau ticket: <b>{{ tab.numTik }}</b> 
+    <b>Détails du ticket :</b>
+    <ul>
+        <li><b>Numéro du ticket :</b>{{ tab.numTik }}</li>
+        <li><b>Objet de la demande :</b>{{ tab.objet }}</li>
+        <li><b>Détail de la demande :</b>{{ tab.detail }}</li>
+    </ul>
+    Pour consulter les détails complets du ticket, veuillez cliquer sur le bouton ci-dessous:
 </p>
-<p><b>Objet de la demande: </b>{{ tab.objet }}</p>
-<p><b>Détail de la demande: </b>{{ tab.detail }}</p>
