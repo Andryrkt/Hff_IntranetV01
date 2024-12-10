@@ -95,9 +95,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const datePlanningCommentaire = document.getElementById(
       "datePlanningCommentaire"
     );
+    const planningTableHead = document.getElementById("planningTableHead");
     tableBody.innerHTML = ""; // Vider le tableau
     Ornum.innerHTML = "";
     datePlanningCommentaire.innerHTML = "";
+    planningTableHead.innerHTML = "";
   });
 
   function masquerSpinner() {
@@ -160,9 +162,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
         const datePlanningCommentaire = document.getElementById(
           "datePlanningCommentaire"
         );
+        const planningTableHead = document.getElementById("planningTableHead");
+
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
         datePlanningCommentaire.innerHTML = "";
+        planningTableHead.innerHTML = "";
 
         if (data.length > 0) {
           data.forEach((detail) => {
@@ -177,8 +182,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let dateEtaIvato;
             let dateMagasin;
             let dateStatut;
+            let numCis;
             let numCde;
+            let numeroCdeCis;
             let statrmq;
+            let StatutCtrmqCis;
             let statut;
             let message;
             let cmdColorRmq = "";
@@ -232,6 +240,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               message = detail.message;
             }
+
+            if (detail.numcis == "0") {
+              numCis = "";
+            } else {
+              numCis = detail.numcis;
+            }
+            if (detail.numerocdecis == null) {
+              numeroCdeCis = "";
+            } else {
+              numeroCdeCis = detail.numerocdecis;
+            }
+            if (detail.statut_ctrmq_cis == null) {
+              StatutCtrmqCis = "";
+            } else {
+              StatutCtrmqCis = detail.statut_ctrmq_cis;
+            }
+
             //reception partiel
             let qteSolde = parseInt(detail.qteSlode);
             let qteQte = parseInt(detail.qte);
@@ -248,9 +273,66 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else if (Ord == "ORD") {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
-
-            // Affichage
-            let row = `<tr>
+            if (detail.numor && detail.numor.startsWith("5")) {
+              let rowHeader = `<th>N° OR</th>
+  <th>Intv</th>
+  <th>N° CIS</th>
+  <th>N° Commande</th>
+  <th>Statut ctrmrq</th>
+  <th>CST</th>
+  <th>Ref</th>
+  <th>Désignation</th>
+  <th>Qté OR</th>
+  <th>Qté ALL</th>
+  <th>QTé RLQ</th>
+  <th>QTé LIV</th>
+  <th>Statut</th>
+  <th>Date Statut</th>
+  <th>ETA Ivato</th>
+  <th>ETA Magasin</th>
+  <th>Message</th>`;
+              planningTableHead.innerHTML += rowHeader;
+              // Affichage
+              let row = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${parseInt(detail.qteres_or)}</td> 
+                        <td>${parseInt(detail.qteall)}</td> 
+                        <td>${parseInt(detail.qtereliquat)}</td> 
+                        <td>${parseInt(detail.qteliv)}</td> 
+                        <td >${statut}</td> 
+                        <td>${dateStatut}</td> 
+                        <td>${dateEtaIvato}</td> 
+                        <td>${dateMagasin}</td> 
+                        <td>${message}</td> 
+                    </tr>`;
+              tableBody.innerHTML += row;
+            } else {
+              let rowHeader = `<th>N° OR</th>
+<th>Intv</th>
+<th>N° Commande</th>
+<th>Statut ctrmrq</th>
+<th>CST</th>
+<th>Ref</th>
+<th>Désignation</th>
+<th>Qté OR</th>
+<th>Qté ALL</th>
+<th>QTé RLQ</th>
+<th>QTé LIV</th>
+<th>Statut</th>
+<th>Date Statut</th>
+<th>ETA Ivato</th>
+<th>ETA Magasin</th>
+<th>Message</th>`;
+              planningTableHead.innerHTML += rowHeader;
+              // Affichage
+              let row = `<tr>
                       <td>${detail.numor}</td> 
                       <td>${detail.intv}</td> 
                       <td ${cmdColor}>${numCde}</td> 
@@ -268,7 +350,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${dateMagasin}</td> 
                       <td>${message}</td> 
                   </tr>`;
-            tableBody.innerHTML += row;
+              tableBody.innerHTML += row;
+            }
           });
 
           masquerSpinner();

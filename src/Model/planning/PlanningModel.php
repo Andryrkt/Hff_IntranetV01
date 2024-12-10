@@ -311,7 +311,12 @@ class PlanningModel extends Model
         case "LUBRIFIANTS":
             $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
             break;
+        default:
+            $vtypeligne  = "";
+            break;
         }
+    } else {
+      $vtypeligne = "";
     }
       $statement = " SELECT slor_numor as numOr,
                             slor_numcf as numCis,
