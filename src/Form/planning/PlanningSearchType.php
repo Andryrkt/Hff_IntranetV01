@@ -19,6 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PlanningSearchType extends AbstractType
 {
@@ -190,6 +191,7 @@ class PlanningSearchType extends AbstractType
                 ]
 
                 )
+
                 ->add('serviceDebite', ChoiceType::class,[
                     'label' =>'Service Débiteur',
                     'multiple' => true,
@@ -197,14 +199,13 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- Choisir un service--",
                     'expanded' => true,
                 ])
-              
                 
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
                     $data = $event->getData();
 
                     $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningModel->recuperationServiceDebite($data['agenceDebite']));
-                 
+
                     $form->add('serviceDebite', ChoiceType::class,[
                         'label' =>'Service Débiteur : ',
                         'multiple' => true,
@@ -214,8 +215,7 @@ class PlanningSearchType extends AbstractType
                     ]);
                 }) 
                 ;
-       
-              
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

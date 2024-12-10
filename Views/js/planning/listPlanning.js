@@ -14,14 +14,52 @@ function selectAgence() {
 
   const agenceDebiteur = agenceDebiteurInput.value;
   let url = `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`;
+
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
 
-      // Effacer les éléments existants dans le conteneur
-      serviceDebiteurInput.innerHTML = "";
+      // Si "Tout sélectionner" n'existe pas, l'ajouter
+      if (!document.querySelector("#planning_search_selectAll")) {
+        var selectAllDiv = document.createElement("div");
+        selectAllDiv.className = "form-check";
 
+        var selectAllCheckbox = document.createElement("input");
+        selectAllCheckbox.type = "checkbox";
+        selectAllCheckbox.id = "planning_search_selectAll";
+        selectAllCheckbox.className = "form-check-input";
+
+        var selectAllLabel = document.createElement("label");
+        selectAllLabel.htmlFor = selectAllCheckbox.id;
+        selectAllLabel.appendChild(
+          document.createTextNode("Tout sélectionner")
+        );
+        selectAllLabel.className = "form-check-label";
+
+        selectAllDiv.appendChild(selectAllCheckbox);
+        selectAllDiv.appendChild(selectAllLabel);
+
+        serviceDebiteurInput.appendChild(selectAllDiv);
+
+        // Ajouter l'événement pour "Tout sélectionner"
+        selectAllCheckbox.addEventListener("change", (event) => {
+          const serviceCheckboxes = document.querySelectorAll(
+            'input[name="planning_search[serviceDebite][]"]'
+          );
+          serviceCheckboxes.forEach((checkbox) => {
+            checkbox.checked = event.target.checked;
+          });
+        });
+      }
+
+      // Effacer uniquement les cases des services (pas "Tout sélectionner")
+      const serviceCheckboxes = document.querySelectorAll(
+        'input[name="planning_search[serviceDebite][]"]'
+      );
+      serviceCheckboxes.forEach((checkbox) => checkbox.parentElement.remove());
+
+      // Ajouter les cases des services débiteurs
       for (var i = 0; i < services.length; i++) {
         var div = document.createElement("div");
         div.className = "form-check";
@@ -466,3 +504,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
     cellToRowspanService.classList.add("rowspan-cell");
   }
 });
+
+/**
+ * case qui selectionne tous pour service debiteur
+ */
+// document.addEventListener("DOMContentLoaded", () => {
+//   const selectAllCheckbox = document.querySelector(
+//     "#planning_search_selectAll"
+//   ); // Remplacez par l'ID réel de la case "Tout sélectionner"
+//   const serviceCheckboxes = document.querySelectorAll(
+//     'input[name="planning_search[serviceDebite][]"]'
+//   ); // Remplacez par le nom réel des cases
+
+//   console.log(selectAllCheckbox, serviceCheckboxes);
+
+//   if (selectAllCheckbox) {
+//     selectAllCheckbox.addEventListener("change", (event) => {
+//       serviceCheckboxes.forEach((checkbox) => {
+//         checkbox.checked = event.target.checked;
+//       });
+//     });
+//   }
+// });
