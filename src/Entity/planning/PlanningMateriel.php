@@ -349,9 +349,10 @@ class PlanningMateriel{
         return $this;
     }
     
-    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration) {
+    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration) {
         $this->moisDetails[] = [
             'mois' => $mois,
+            'annee' => $annee,
             'orIntv' => $orIntv,
             'qteCdm' => $qteCdm,
             'qteLiv' => $qteLiv,

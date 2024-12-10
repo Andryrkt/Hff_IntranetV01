@@ -9,6 +9,7 @@ use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
+use App\Form\planning\MoisAvantType;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
 use Dotenv\Parser\Entry;
@@ -89,10 +90,24 @@ class PlanningController extends Controller
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
+            $formMoisAvant = self::$validator->createBuilder(MoisAvantType::class,null,
+            [ 
+                'method' =>'GET'
+            ])->getForm();
             
+            $formMoisAvant->handleRequest($request);
+            $monthsBefore = 3;
+            if($formMoisAvant->isSubmitted() && $formMoisAvant->isValid())
+            {
+               $monthsBefore = $formMoisAvant->getdata()['months'];
+            }
+
+            $forDisplay = $this->prepareDataForDisplay($fusionResult, $monthsBefore);
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
-                'data' => $fusionResult
+                'preparedData' => $forDisplay['preparedData'],
+                'uniqueMonths' => $forDisplay['uniqueMonths'],
+                'formMoisAvant' => $formMoisAvant->createView()
             ]);
         }
 
@@ -226,11 +241,10 @@ class PlanningController extends Controller
 
     private function creationTableauObjetExport(array $data):array{
 
-         $objetPlanning = [];
+        $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item ) {
             $planningMateriel = new PlanningMateriel();
-          
             
             //initialisation
                 $planningMateriel
@@ -252,13 +266,12 @@ class PlanningController extends Controller
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
-       
+        
         return $objetPlanning;
     }
 
     private function creationTableauObjetPlanning(array $data): array
     {
-        
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item ) {
@@ -286,8 +299,8 @@ class PlanningController extends Controller
                     ->setQteLiv($item['qtliv'])
                     ->setQteAll($item['qteall'])
                     ->setNumDit($numDit)
-                    ->setNumeroOr($item['numeroor'])
-                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
+                    // ->setNumeroOr($item['numeroor'])
+                    ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
@@ -308,6 +321,7 @@ class PlanningController extends Controller
 
                     $fusionResult[$key]->addMoisDetail(
                         $moisDetail['mois'],
+                        $moisDetail['annee'],
                         $moisDetail['orIntv'],
                         $moisDetail['qteCdm'],
                         $moisDetail['qteLiv'],
@@ -322,4 +336,72 @@ class PlanningController extends Controller
 
         return $fusionResult;
     }
+
+
+    function prepareDataForDisplay(array $data, int $monthsBefore = 3): array {
+        $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
+        $currentYear = (int)date('Y');
+    
+        // Calculer la plage des mois à afficher
+        $totalMonths = 12;
+        $monthsAfter = $totalMonths - $monthsBefore - 1;
+        $selectedMonths = [];
+    
+        for ($i = -$monthsBefore; $i <= $monthsAfter; $i++) {
+            $monthIndex = ($currentMonth + $i) % 12;
+            $yearOffset = intdiv($currentMonth + $i, 12);
+            $year = $currentYear + $yearOffset;
+    
+            $selectedMonths[] = [
+                'month' => $months[$monthIndex],
+                'year' => $year,
+                'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                'index' => $monthIndex,
+            ];
+        }
+    
+        $preparedData = [];
+        foreach ($data as $item) {
+            $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails()) 
+                ? $item->getMoisDetails() 
+                : [];
+    
+            $filteredMonths = [];
+            foreach ($moisDetails as $detail) {
+                if (is_array($detail) && isset($detail['orIntv']) && $detail['orIntv'] !== "-") {
+                    $monthIndex = (int)$detail['mois'] - 1;
+                    $year = $detail['annee'] ?? '';
+    
+                    $monthKey = sprintf('%04d-%02d', $year, $monthIndex + 1);
+                    if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
+                        $filteredMonths[] = [
+                            'month' => $months[$monthIndex] ?? '',
+                            'year' => $year,
+                            'details' => $detail,
+                        ];
+                    }
+                }
+            }
+    
+            $preparedData[] = [
+                'libsuc' => $item->getLibsuc() ?? '',
+                'libserv' => $item->getLibServ() ?? '',
+                'idmat' => $item->getIdMat() ?? '',
+                'marqueMat' => $item->getMarqueMat() ?? '',
+                'typemat' => $item->getTypeMat() ?? '',
+                'numserie' => $item->getNumSerie() ?? '',
+                'numparc' => $item->getNumParc() ?? '',
+                'casier' => $item->getCasier() ?? '',
+                'filteredMonths' => $filteredMonths,
+            ];
+        }
+    
+        return [
+            'preparedData' => $preparedData,
+            'uniqueMonths' => $selectedMonths,
+        ];
+    }
+    
+
 }

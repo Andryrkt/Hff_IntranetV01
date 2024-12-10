@@ -125,13 +125,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
           </tr>`;
             tableBody.innerHTML += row;
           });
-
-          masquerSpinner();
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          masquerSpinner();
         }
       })
       .catch((error) => {
@@ -139,7 +136,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
-        masquerSpinner();
       });
   }
 
