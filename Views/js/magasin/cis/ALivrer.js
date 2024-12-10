@@ -140,7 +140,9 @@ function selectAgence() {
   serviceInput.disabled = false;
 
   const agence = agenceInput.value;
-  let url = `/Hffintranet/service-informix-fetch/${agence}`;
+  console.log(agence.split("-")[0]);
+
+  let url = `/Hffintranet/service-informix-fetch/${agence.split("-")[0]}`;
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
