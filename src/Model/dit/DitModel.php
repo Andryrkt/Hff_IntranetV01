@@ -229,7 +229,7 @@ class DitModel extends Model
       inner join frn_cde on frn_cde.fcde_numcde = slor_numcf
       where
       slor_soc = 'HF'
-      and slor_succ = '01'
+      --and slor_succ = '01'
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
@@ -260,7 +260,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -294,7 +294,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -328,7 +328,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -434,24 +434,10 @@ class DitModel extends Model
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
           AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-          AND sitv_servcrt IN (
-              'ATE',
-              'FOR',
-              'GAR',
-              'MAN',
-              'CSP',
-              'MAS',
-              'LR6',
-              'LST'
-          )
+          AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'
-          group by
-              1,
-              2,
-              3,
-              4,
-              5
+          group by 1, 2, 3, 4, 5
           order by slor_numor, sitv_interv
         ";
 

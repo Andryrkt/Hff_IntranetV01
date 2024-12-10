@@ -108,7 +108,7 @@ class DitListeController extends Controller
         // dd($ditSearch);
         //recupération des données filtrée
         $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-        //dump($paginationData);
+        
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
 
