@@ -327,16 +327,16 @@ class PlanningController extends Controller
     }
 
 
-    function prepareDataForDisplay(array $data, int $monthsBefore = 3): array {
+    function prepareDataForDisplay(array $data, int $monthsAfter = 3): array {
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
         $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
         $currentYear = (int)date('Y');
+        
+        // Calculer le nombre de mois avant
+        $monthsBefore = 12 - $monthsAfter - 1;
     
-        // Calculer la plage des mois à afficher
-        $totalMonths = 12;
-        $monthsAfter = $totalMonths - $monthsBefore - 1;
+        // Générer les 12 mois complets
         $selectedMonths = [];
-    
         for ($i = -$monthsBefore; $i <= $monthsAfter; $i++) {
             $monthIndex = ($currentMonth + $i) % 12;
             $yearOffset = intdiv($currentMonth + $i, 12);
@@ -391,6 +391,5 @@ class PlanningController extends Controller
             'uniqueMonths' => $selectedMonths,
         ];
     }
-    
 
 }
