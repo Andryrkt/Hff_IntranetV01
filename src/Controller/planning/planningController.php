@@ -50,6 +50,7 @@ class PlanningController extends Controller
                 ->setPlan('PLANIFIE')
                 ->setInterneExterne('TOUS')
                 ->setTypeLigne('TOUETS')
+                ->setMonths(3)
             ;
 
             $form = self::$validator->createBuilder(PlanningSearchType::class,$this->planningSearch,
@@ -60,7 +61,7 @@ class PlanningController extends Controller
             $form->handleRequest($request);
             //initialisation criteria
             $criteria = $this->planningSearch;
-            $monthsBefore = 3;
+            
             if($form->isSubmitted() && $form->isValid())
             {
                   // dd($form->getdata());
@@ -90,7 +91,7 @@ class PlanningController extends Controller
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
-            $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths());
+            $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
             
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),

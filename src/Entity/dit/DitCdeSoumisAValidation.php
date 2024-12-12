@@ -14,9 +14,7 @@ use App\Repository\dit\DitCdeSoumisAValidationRepository;
  * @ORM\HasLifecycleCallbacks
  */
 class DitCdeSoumisAValidation
-{
-    use DateTrait;
-    
+{    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -25,9 +23,29 @@ class DitCdeSoumisAValidation
     private $id;
 
     /**
-     * @ORM\Column(type="integer", name="numero_soumission")
+     * @ORM\Column(type="integer", name="numero_cde")
      */
-    private int $numeroSoumission = 0;
+    private int $numeroCde = 0;
+
+    /**
+     * @ORM\Column(type="string", name="utilisateur")
+     */
+    private string $utilisateur;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_version")
+     */
+    private int $numeroVersion;
+
+    /**
+     * @ORM\Column(type="json", name="numero_or")
+     */
+    private $numeroOrs = [];
+
+    /**
+     * @ORM\Column(type="string", name="statut")
+     */
+    private string $statut;
 
     private $pieceJoint01;
 
@@ -48,25 +66,104 @@ class DitCdeSoumisAValidation
 
 
     /**
-     * Get the value of numeroSoumission
+     * Get the value of numeroCde
      */ 
-    public function getNumeroSoumission()
+    public function getNumeroCde()
     {
-        return $this->numeroSoumission;
+        return $this->numeroCde;
     }
 
     /**
-     * Set the value of numeroSoumission
+     * Set the value of numeroCde
      *
      * @return  self
      */ 
-    public function setNumeroSoumission($numeroSoumission)
+    public function setNumeroCde($numeroCde)
     {
-        $this->numeroSoumission = $numeroSoumission;
+        $this->numeroCde = $numeroCde;
 
         return $this;
     }
 
+    /**
+     * Get the value of utilisateur
+     */ 
+    public function getUtilisateur()
+    {
+        return $this->utilisateur;
+    }
+
+    /**
+     * Set the value of utilisateur
+     *
+     * @return  self
+     */ 
+    public function setUtilisateur($utilisateur)
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroOrs
+     */ 
+    public function getNumeroOrs()
+    {
+        return $this->numeroOrs;
+    }
+
+    /**
+     * Set the value of numeroOrs
+     *
+     * @return  self
+     */ 
+    public function setNumeroOrs($numeroOrs)
+    {
+        $this->numeroOrs = $numeroOrs;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
 
     /**
      * Get the value of file
@@ -87,5 +184,4 @@ class DitCdeSoumisAValidation
 
         return $this;
     }
-
 }
