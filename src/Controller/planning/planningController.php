@@ -94,6 +94,7 @@ class PlanningController extends Controller
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
+
         $this->logUserVisit('planning_vue'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('planning/planning.html.twig', [

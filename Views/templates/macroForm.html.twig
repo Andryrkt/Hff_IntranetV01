@@ -183,3 +183,22 @@
 	    {{ form_widget(form_service) }}
     </div>
 {% endmacro %}
+
+{% macro spinner_load(spinner_id) %}
+    <div class="spinner-container">
+        <div class="spinner-load" id="{{spinner_id}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+{% endmacro %}
