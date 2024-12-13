@@ -327,33 +327,89 @@ class PlanningController extends Controller
     }
 
 
-    function prepareDataForDisplay(array $data, int $monthsAfter = 3): array {
+    function prepareDataForDisplay(array $data, int $selectedOption): array {
         $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
         $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
         $currentYear = (int)date('Y');
-        
-        // Calculer le nombre de mois avant
-        $monthsBefore = 12 - $monthsAfter - 1;
     
-        // Générer les 12 mois complets
         $selectedMonths = [];
-        for ($i = -$monthsBefore; $i <= $monthsAfter; $i++) {
-            $monthIndex = ($currentMonth + $i) % 12;
-            $yearOffset = intdiv($currentMonth + $i, 12);
-            $year = $currentYear + $yearOffset;
     
-            $selectedMonths[] = [
-                'month' => $months[$monthIndex],
-                'year' => $year,
-                'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
-                'index' => $monthIndex,
-            ];
+        // Déterminer les mois à afficher selon l'option choisie
+        switch ($selectedOption) {
+            case 3: // 3 mois suivant
+                for ($i = 0; $i < 4; $i++) {
+                    $monthIndex = ($currentMonth + $i) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    $selectedMonths[] = [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ];
+                }
+                // Compléter avec les mois précédents
+                for ($i = -1; count($selectedMonths) < 12; $i--) {
+                    $monthIndex = ($currentMonth + $i + 12) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    array_unshift($selectedMonths, [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ]);
+                }
+                break;
+    
+            case 6: // 6 mois suivant
+                for ($i = 0; $i < 7; $i++) {
+                    $monthIndex = ($currentMonth + $i) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    $selectedMonths[] = [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ];
+                }
+                // Compléter avec les mois précédents
+                for ($i = -1; count($selectedMonths) < 12; $i--) {
+                    $monthIndex = ($currentMonth + $i + 12) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    array_unshift($selectedMonths, [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ]);
+                }
+                break;
+    
+            case 9: // Année en cours
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear,
+                        'key' => sprintf('%04d-%02d', $currentYear, $i + 1),
+                    ];
+                }
+                break;
+    
+            case 11: // Année suivante
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear + 1,
+                        'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
+                    ];
+                }
+                break;
         }
     
+        // Filtrer les données en fonction des mois sélectionnés
         $preparedData = [];
         foreach ($data as $item) {
-            $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails()) 
-                ? $item->getMoisDetails() 
+            $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
+                ? $item->getMoisDetails()
                 : [];
     
             $filteredMonths = [];
@@ -391,5 +447,8 @@ class PlanningController extends Controller
             'uniqueMonths' => $selectedMonths,
         ];
     }
+    
+    
+    
 
 }

@@ -216,10 +216,10 @@ class PlanningSearchType extends AbstractType
                 }) 
                 ->add('months', ChoiceType::class, [
                     'choices' => [
-                        '3 mois avant' => 3,
-                        '6 mois avant' => 6,
-                        '9 mois avant' => 9,
-                        '12 mois glissant' => 11,
+                        '3 mois suivant' => 3,
+                        '6 mois suivant' => 6,
+                        'Année encours' => 9,
+                        'Année suivante' => 11,
                     ],
                     'expanded' => false, // Utiliser une liste déroulante
                     'multiple' => false, // Sélectionner une seule valeur
