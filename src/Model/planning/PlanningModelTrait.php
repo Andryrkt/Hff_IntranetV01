@@ -47,19 +47,20 @@ trait PlanningModelTrait
             $vtypeligne = " ";
             break;
         case "PIECES_MAGASIN":
-            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
+            $vtypeligne = "  AND  slor_constp  not in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_constp not like 'Z%' AND slor_typlig = 'P' ";
             break;
         case "ACHAT_LOCAUX":
-            $vtypeligne = " AND slor_constp  = 'ZST'" ;
+            $vtypeligne = " AND (slor_constp in ('SOM', 'FAT', 'PDV') or slor_constp like 'Z%')" ;
             break;
         case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P'";
+            $vtypeligne = " AND slor_constp in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_typlig = 'P'";
             break;
         default:
             $vtypeligne = " ";
     }
     return $vtypeligne;
     }
+    
     private function sumPieces($criteria){
 
       switch ($criteria->getTypeLigne()) {
@@ -67,13 +68,13 @@ trait PlanningModelTrait
             $vPieces = " ";
             break;
         case "PIECES_MAGASIN":
-            $vPieces = "AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%' AND slor_typlig = 'P'";
+            $vPieces = " AND  slor_constp  not in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_constp not like 'Z%' AND slor_typlig = 'P'";
             break;
         case "ACHAT_LOCAUX":
-            $vPieces = " AND slor_constp  = 'ZST' " ;
+            $vPieces = " AND (slor_constp in ('SOM', 'FAT', 'PDV') or slor_constp like 'Z%')" ;
             break;
         case "LUBRIFIANTS":
-            $vPieces = "AND slor_constp = 'LUB'  AND slor_typlig = 'P'";
+            $vPieces = " AND slor_constp in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_typlig = 'P'";
             break;
         default:
             $vPieces = " ";

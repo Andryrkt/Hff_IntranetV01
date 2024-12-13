@@ -34,6 +34,12 @@ class DitSearchType extends AbstractType
         'EXTERNE' => 'EXTERNE'
     ];
 
+    const ETAT_FACTURE = [
+        'Complètement facturé' => 'Complètement facturé',
+        'Partiellement facturé' => 'Partiellement facturé',
+        'A valider client interne' => 'A valider client interne'
+    ];
+
     private $agenceRepository;
 
     private $ditSearchRepository;
@@ -238,6 +244,14 @@ class DitSearchType extends AbstractType
                 'required' => false,
                 'choices' => $this->sectionSupport3(),
                 
+            ])
+            ->add('etatFacture', 
+            ChoiceType::class, 
+            [
+                'label' => "Statut facture",
+                'choices' => self::ETAT_FACTURE,
+                'placeholder' => '-- Choisir --',
+                'required' => false,
             ])
             ;
 

@@ -9,15 +9,17 @@ listecisModal.addEventListener("show.bs.modal", function (event) {
   const migration = button.getAttribute("data-migration");
   console.log(migration);
 
-  // Mettre à jour le lien avec le numDit dynamique
-  const dossierDitLink = document.getElementById("dossierDitLink");
-  if (migration == "1") {
-    console.log(dossierDitLink);
-    dossierDitLink.style.display = "none";
+  const dossierDitLinks = document.getElementById("dossierDitLink");
+  console.log(dossierDitLinks);
+
+  if (migration === "1" && dossierDitLinks) {
+    dossierDitLinks.style.display = "none";
+    console.log("Le lien est caché.");
   }
+
   //console.log(numDit);
   //console.log(dossierDitLink);
-  dossierDitLink.onclick = (event) => {
+  dossierDitLinks.onclick = (event) => {
     event.preventDefault();
     window.open(
       `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
@@ -123,9 +125,9 @@ function fetchDetailModalCis(id) {
           let dateEtaIvato;
           let dateMagasin;
           let dateStatut;
-          let numCde;
+          let numeroCdeCis;
           var numCis;
-          let statrmq;
+          let StatutCtrmqCis;
           let statut;
           let message;
           let cmdColorRmq = "";
@@ -159,20 +161,20 @@ function fetchDetailModalCis(id) {
           } else {
             numCis = detail.numcis;
           }
-          if (detail.numerocmd == null) {
-            numCde = "";
+          if (detail.numerocdecis == null) {
+            numeroCdeCis = "";
           } else {
-            numCde = detail.numerocmd;
+            numeroCdeCis = detail.numerocdecis;
           }
           if (detail.ref == null) {
             numRef = "";
           } else {
             numRef = detail.ref;
           }
-          if (detail.statut_ctrmq == null) {
-            statrmq = "";
+          if (detail.statut_ctrmq_cis == null) {
+            StatutCtrmqCis = "";
           } else {
-            statrmq = detail.statut_ctrmq;
+            StatutCtrmqCis = detail.statut_ctrmq_cis;
           }
           if (detail.statut == null) {
             statut = "";
@@ -208,8 +210,8 @@ function fetchDetailModalCis(id) {
                       <td>${detail.numor}</td> 
                       <td>${detail.intv}</td> 
                       <td>${numCis}</td> 
-                      <td ${cmdColor}>${numCde}</td> 
-                      <td ${cmdColorRmq}>${statrmq}</td> 
+                      <td ${cmdColor}>${numeroCdeCis}</td> 
+                      <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
                       <td>${detail.cst}</td> 
                       <td>${numRef}</td> 
                       <td>${detail.desi}</td> 

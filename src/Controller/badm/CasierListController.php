@@ -39,6 +39,7 @@ class CasierListController extends Controller
 
         $paginationData = self::$em->getRepository(CasierValider::class)->findPaginatedAndFiltered($page, $limit, $criteria);
 
+        // dd($paginationData['data']);
 
         if (empty($paginationData['data'])) {
             $empty = true;

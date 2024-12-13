@@ -33,17 +33,17 @@ class DitListeController extends Controller
 
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
+        //recuperation agence et service autoriser
         $agenceIds = $user->getAgenceAutoriserIds();
         $serviceIds = $user->getServiceAutoriserIds();
-        //dd($agenceIds, $serviceIds);
 
-        $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
 
         $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
         //FIN AUTORISATION
 
+        $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
@@ -88,27 +88,19 @@ class DitListeController extends Controller
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 50;
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
 
-        $option = [
-            'boolean' => $autoriser,
-            'autorisationRoleEnergie' => $autorisationRoleEnergie,
-            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
-            'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
-            //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
-        ];
+        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
 
 
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
-        // dd($ditSearch);
         //recupération des données filtrée
         $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-        //dump($paginationData);
+
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
 
@@ -136,33 +128,23 @@ class DitListeController extends Controller
             'method' => 'GET',
         ])->getForm();
 
-
-        $formDocDansDW->handleRequest($request);
+        $this->dossierDit($request, $formDocDansDW);
 
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
-
-        if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-            if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
-                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } else if ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
-                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
-                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            }
-        }
 
         $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/list.html.twig', [
             'data' => $paginationData['data'],
-            'empty' => $empty,
-            'form' => $form->createView(),
             'currentPage' => $paginationData['currentPage'],
             'totalPages' => $paginationData['lastPage'],
             'criteria' => $criteria,
             'resultat' => $paginationData['totalItems'],
             'statusCounts' => $paginationData['statusCounts'],
+            'empty' => $empty,
+            'form' => $form->createView(),
+            'criteria' => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
@@ -181,79 +163,14 @@ class DitListeController extends Controller
         //recupère les critères dans la session 
         $options = $this->sessionService->get('dit_search_option', []);
 
-
         //crée une objet à partir du tableau critère reçu par la session
-        $ditSearch = new DitSearch();
-        $ditSearch
-            ->setTypeDocument($criteria["typeDocument"])
-            ->setNiveauUrgence($criteria["niveauUrgence"])
-            ->setStatut($criteria["statut"])
-            ->setInternetExterne($criteria["interneExterne"])
-            ->setDateDebut($criteria["dateDebut"])
-            ->setDateFin($criteria["dateFin"])
-            ->setIdMateriel($criteria["idMateriel"])
-            ->setNumParc($criteria["numParc"])
-            ->setNumSerie($criteria["numSerie"])
-            ->setAgenceEmetteur($criteria["agenceEmetteur"])
-            ->setServiceEmetteur($criteria["serviceEmetteur"])
-            ->setAgenceDebiteur($criteria["agenceDebiteur"])
-            ->setServiceDebiteur($criteria["serviceDebiteur"])
-            ->setNumDit($criteria["numDit"])
-            ->setNumOr($criteria["numOr"])
-            ->setStatutOr($criteria["statutOr"])
-            ->setDitSansOr($criteria["ditSansOr"])
-            ->setCategorie($criteria["categorie"])
-            ->setUtilisateur($criteria["utilisateur"])
-            ->setDitSansOr($criteria["ditSansOr"])
-            ->setSectionAffectee($criteria["sectionAffectee"])
-            ->setSectionSupport1($criteria["sectionSupport1"])
-            ->setSectionSupport2($criteria["sectionSupport2"])
-            ->setSectionSupport3($criteria["sectionSupport3"])
-        ;
+        $ditSearch = $this->transformationEnObjet($criteria);
 
-
-        $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
-
-        $this->ajoutStatutAchatPiece($entities);
-
-        $this->ajoutStatutAchatLocaux($entities);
-
-        $this->ajoutNbrPj($entities, self::$em);
-
-        $this->ajoutNumSerieNumParc($entities);
-
-        $this->ajoutMarqueCasierMateriel($entities);
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, self::$em);
 
         // Convertir les entités en tableau de données
-        $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
-
-        foreach ($entities as $entity) {
-            $data[] = [
-                $entity->getIdStatutDemande()->getDescription(),
-                $entity->getNumeroDemandeIntervention(),
-                $entity->getTypeDocument()->getDescription(),
-                $entity->getIdNiveauUrgence()->getDescription(),
-                $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
-                $entity->getNumSerie(),
-                $entity->getNumParc(),
-                $entity->getDateDemande(),
-                $entity->getInternetExterne(),
-                $entity->getAgenceServiceEmetteur(),
-                $entity->getAgenceServiceDebiteur(),
-                $entity->getObjetDemande(),
-                $entity->getSectionAffectee(),
-                $entity->getNumeroOr(),
-                $entity->getStatutOr(),
-                $entity->getEtatFacturation(),
-                $entity->getRi(),
-                $entity->getNbrPj(),
-                $entity->getUtilisateurDemandeur(),
-                $entity->getMarque(),
-                $entity->getCasier()
-            ];
-        }
-
+        $data = $this->transformationEnTableauAvecEntet($entities);
+        //creation du fichier excel
         $this->excelService->createSpreadsheet($data);
     }
 
@@ -268,14 +185,47 @@ class DitListeController extends Controller
 
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
+
+        $this->changementStatutDit($dit, $statutCloturerAnnuler);
+
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/fichier_cloturer_annuler.csv';
+        $headers = ['numéro DIT', 'statut'];
+        $data = [
+            $dit->getNumeroDemandeIntervention(),
+            $statutCloturerAnnuler
+        ];
+        $this->ajouterDansCsv($filePath, $data, $headers);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
-
         $this->redirectToRoute("dit_index");
+    }
+
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data,  $headers = null)
+    {
+        $fichierExiste = file_exists($filePath);
+
+        // Ouvre le fichier en mode append
+        $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajouter les en-têtes
+        if (!$fichierExiste && $headers !== null) {
+            fputcsv($handle, $headers);
+        }
+
+        // Ajoute les nouvelles données
+        fputcsv($handle, $data);
+        // fwrite($handle, "\n");
+
+        // Ferme le fichier
+        fclose($handle);
     }
 
     /**
@@ -332,11 +282,5 @@ class DitListeController extends Controller
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
             'data' => $data,
         ]);
-    }
-
-    private function notification($message)
-    {
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => $message]);
-        $this->redirectToRoute("dit_index");
     }
 }

@@ -6,7 +6,7 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
-use App\Controller\Traits\DomsTrait;
+use App\Controller\Traits\dom\DomsTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;

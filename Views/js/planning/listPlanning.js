@@ -14,14 +14,55 @@ function selectAgence() {
 
   const agenceDebiteur = agenceDebiteurInput.value;
   let url = `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`;
+
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
 
-      // Effacer les éléments existants dans le conteneur
-      serviceDebiteurInput.innerHTML = "";
+      // Si "Tout sélectionner" n'existe pas, l'ajouter
+      let selectAllCheckbox = document.querySelector(
+        "#planning_search_selectAll"
+      );
+      if (!selectAllCheckbox) {
+        var selectAllDiv = document.createElement("div");
+        selectAllDiv.className = "form-check";
 
+        selectAllCheckbox = document.createElement("input");
+        selectAllCheckbox.type = "checkbox";
+        selectAllCheckbox.id = "planning_search_selectAll";
+        selectAllCheckbox.className = "form-check-input";
+
+        var selectAllLabel = document.createElement("label");
+        selectAllLabel.htmlFor = selectAllCheckbox.id;
+        selectAllLabel.appendChild(
+          document.createTextNode("Tout sélectionner")
+        );
+        selectAllLabel.className = "form-check-label";
+
+        selectAllDiv.appendChild(selectAllCheckbox);
+        selectAllDiv.appendChild(selectAllLabel);
+
+        serviceDebiteurInput.appendChild(selectAllDiv);
+
+        // Ajouter l'événement pour "Tout sélectionner"
+        selectAllCheckbox.addEventListener("change", (event) => {
+          const serviceCheckboxes = document.querySelectorAll(
+            'input[name="planning_search[serviceDebite][]"]'
+          );
+          serviceCheckboxes.forEach((checkbox) => {
+            checkbox.checked = event.target.checked;
+          });
+        });
+      }
+
+      // Effacer uniquement les cases des services (pas "Tout sélectionner")
+      const serviceCheckboxes = document.querySelectorAll(
+        'input[name="planning_search[serviceDebite][]"]'
+      );
+      serviceCheckboxes.forEach((checkbox) => checkbox.parentElement.remove());
+
+      // Ajouter les cases des services débiteurs
       for (var i = 0; i < services.length; i++) {
         var div = document.createElement("div");
         div.className = "form-check";
@@ -42,6 +83,21 @@ function selectAgence() {
         div.appendChild(label);
 
         serviceDebiteurInput.appendChild(div);
+
+        // Ajouter un gestionnaire d'événements pour déselectionner "Tout sélectionner"
+        checkbox.addEventListener("change", () => {
+          if (!checkbox.checked) {
+            selectAllCheckbox.checked = false;
+          }
+
+          // Vérifier si toutes les cases sont cochées
+          const allChecked = [
+            ...document.querySelectorAll(
+              'input[name="planning_search[serviceDebite][]"]'
+            ),
+          ].every((cb) => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+        });
       }
     })
     .catch((error) => console.error("Error:", error));
@@ -83,7 +139,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     const numOr = orIntv.split("-")[0];
     const numItv = orIntv.split("-")[1];
-    //console.log(numOr, numItv);
+    console.log(numOr, numItv);
 
     fetchTechnicienInterv(numOr, numItv);
   });
@@ -91,7 +147,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Gestionnaire pour la fermeture du modal
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
+    const Ornum = document.getElementById("orIntv");
+    const planningTableHead = document.getElementById("planningTableHead");
     tableBody.innerHTML = ""; // Vider le tableau
+    Ornum.innerHTML = "";
+    planningTableHead.innerHTML = "";
   });
 
   function masquerSpinner() {
@@ -125,13 +185,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
           </tr>`;
             tableBody.innerHTML += row;
           });
-
-          masquerSpinner();
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          masquerSpinner();
         }
       })
       .catch((error) => {
@@ -139,7 +196,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
-        masquerSpinner();
       });
   }
 
@@ -155,21 +211,67 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((data) => {
         const tableBody = document.getElementById("commandesTableBody");
         const Ornum = document.getElementById("orIntv");
+        const planningTableHead = document.getElementById("planningTableHead");
 
         tableBody.innerHTML = ""; // Clear previous data
+        Ornum.innerHTML = "";
+        planningTableHead.innerHTML = "";
 
         if (data.length > 0) {
+          if (data[0].numor.startsWith("5")) {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° CIS</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+          } else {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+          }
           data.forEach((detail) => {
             console.log(detail);
 
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | ${
+              detail.commentaire
+            } | ${formaterDate(detail.dateplanning)}`;
 
             // Formater la date
             let dateEtaIvato;
             let dateMagasin;
             let dateStatut;
+            let numCis;
             let numCde;
+            let numeroCdeCis;
             let statrmq;
+            let StatutCtrmqCis;
             let statut;
             let message;
             let cmdColorRmq = "";
@@ -223,6 +325,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               message = detail.message;
             }
+
+            if (detail.numcis == "0") {
+              numCis = "";
+            } else {
+              numCis = detail.numcis;
+            }
+            if (detail.numerocdecis == null) {
+              numeroCdeCis = "";
+            } else {
+              numeroCdeCis = detail.numerocdecis;
+            }
+            if (detail.statut_ctrmq_cis == null) {
+              StatutCtrmqCis = "";
+            } else {
+              StatutCtrmqCis = detail.statut_ctrmq_cis;
+            }
+
             //reception partiel
             let qteSolde = parseInt(detail.qteSlode);
             let qteQte = parseInt(detail.qte);
@@ -239,9 +358,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else if (Ord == "ORD") {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
-
-            // Affichage
-            let row = `<tr>
+            if (detail.numor && detail.numor.startsWith("5")) {
+              // Affichage
+              let row = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${parseInt(detail.qteres_or)}</td> 
+                        <td>${parseInt(detail.qteall)}</td> 
+                        <td>${parseInt(detail.qtereliquat)}</td> 
+                        <td>${parseInt(detail.qteliv)}</td> 
+                        <td >${statut}</td> 
+                        <td>${dateStatut}</td> 
+                        <td>${dateEtaIvato}</td> 
+                        <td>${dateMagasin}</td> 
+                        <td>${message}</td> 
+                    </tr>`;
+              tableBody.innerHTML += row;
+            } else {
+              // Affichage
+              let row = `<tr>
                       <td>${detail.numor}</td> 
                       <td>${detail.intv}</td> 
                       <td ${cmdColor}>${numCde}</td> 
@@ -259,7 +400,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${dateMagasin}</td> 
                       <td>${message}</td> 
                   </tr>`;
-            tableBody.innerHTML += row;
+              tableBody.innerHTML += row;
+            }
           });
 
           masquerSpinner();

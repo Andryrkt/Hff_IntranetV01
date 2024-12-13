@@ -2,6 +2,7 @@
 
 {% block stylesheets%}
 	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/planning/planning.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -44,23 +45,6 @@
 							<i class="fas fa-table"></i>
 							Excel</a>
 					</div>
-
-					<div class="navigation">
-						{% set queryParams = criteria  %}
-
-						{% if currentPage > 1 %}
-							<a class="btn btn-dark my-3" href="{{ path('dit_index', queryParams|merge({'page': currentPage - 1})) }}">
-								<i class="fas fa-angle-left text-warning"></i>
-							</a>
-						{% endif %}
-
-
-						{% if currentPage < totalPages %}
-							<a class="btn btn-dark" href="{{ path('dit_index', queryParams|merge({'page': currentPage + 1})) }}">
-								<i class="fas fa-angle-right text-warning"></i>
-							</a>
-						{% endif %}
-					</div>
 				</div>
 			</div>
 
@@ -68,75 +52,48 @@
 				<thead class="table-dark">
 					<tr>
 						<th>Agence - Service Travaux</th>
-						<th>
-							ID</th>
+						<th>ID</th>
 						<th>Marque</th>
 						<th>Modèle</th>
 						<th>N° Série</th>
-						<th>
-							N° Parc</th>
-						<th>
-							Casier</th>
-						{# % for month in ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'] % #}
-						{% for month in ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'] %}
-							<th>{{ month }}</th>
+						<th>N° Parc</th>
+						<th>Casier</th>
+						{% for month in uniqueMonths %}
+							<th>{{ month.month }}
+								{{ month.year }}</th>
 						{% endfor %}
 					</tr>
 				</thead>
 				<tbody>
-
-					{% for item in data %}
-
+					{% for item in preparedData %}
 						<tr>
-							<td>{{item.libsuc ~ ' - ' ~ item.libserv}}</td>
-							<td>{{item.idmat}}</td>
-							<td>{{item.marqueMat}}</td>
-							<td>{{item.typemat}}</td>
-							<td>{{item.numserie}}</td>
-							<td>{{item.numparc}}</td>
-							<td>{{item.casier}}</td>
-							{% set classe = '' %}
-
-							{% set moisDetails = item.moisDetails %}
-
-
-							{% set moisDetails = moisDetails is defined ? moisDetails : [] %}
-							{% for i in 1..12 %}
-
-								{% set items = moisDetails | filter(mois => mois.mois == i) %}
-
-
-								<td class="">
-									{% if items is not empty %}
-										{% for item in items %}
-											{% if item.qteCdm * 1 == item.qteLiv * 1 and item.qteCdm != '' and item.qteLiv != ''%}
-												{# total livré #}
+							<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
+							<td>{{ item.idmat }}</td>
+							<td>{{ item.marqueMat }}</td>
+							<td>{{ item.typemat }}</td>
+							<td>{{ item.numserie }}</td>
+							<td>{{ item.numparc }}</td>
+							<td>{{ item.casier }}</td>
+							{% for month in uniqueMonths %}
+								<td>
+									{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
+									{% if matchedDetails|length > 0 %}
+										{% for detail in matchedDetails %}
+											{% set classe = '' %}
+											{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
 												{% set classe = 'bg-success text-white' %}
-											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1 != item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
-												{# partiellement livré #}
+											{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
 												{% set classe = 'bg-warning text-white' %}
-											{% elseif item.qteCdm * 1 != item.qteAll * 1 and item.qteLiv * 1 == 0 and item.qteAll * 1 > 0 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+											{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
 												{% set classe = 'bg-info text-white' %}
-												{# partiellement dispo #}
-											{%  elseif item.qteCdm * 1 == item.qteAll * 1 and item.qteLiv * 1 < item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+											{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
 												{% set classe = 'bg-primary text-white' %}
-												{# complet non livré #}
-											{% else %}
-												{% set classe = '' %}
 											{% endif %}
-
-											{% if item.orIntv starts with '1' %}
-												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
-													{{ item.orIntv }}
-												</a><br>
-											{% else %}
-												<a href="#" data-bs-toggle="modal" data-bs-target="#cisPlanning" data-id="{{ item.orIntv }}" data-numdit="{{ item.numDit}}" data-migration="{{item.migration}}" id="numOr" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover {{classe}}">
-													{{ item.orIntv }}
-												</a><br>
-											{% endif %}
+											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
+												{{ detail.details.orIntv }}
+											</a><br>
 										{% endfor %}
 									{% else %}
-										<!-- Contenu pour les mois sans valeur -->
 										-
 									{% endif %}
 								</td>
@@ -145,6 +102,7 @@
 					{% endfor %}
 				</tbody>
 			</table>
+
 		{% endif %}
 	</div>
 
@@ -152,9 +110,10 @@
 	{# body modal #}
 	{% include "/planning/_modal.html.twig"  %}
 	{% include "/planning/_modalCis.html.twig"  %}
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
 	<script src="/Hffintranet/Views/js/planning/cisModal.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
 {% endblock %}

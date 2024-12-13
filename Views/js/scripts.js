@@ -10,30 +10,30 @@ let timeout;
 const totalTime = 3600; // Total en secondes (1 heure)
 let timeRemaining = totalTime;
 
-// const chronoText = document.getElementById("chrono-text");
-// const chronoProgress = document.querySelector(".chrono-progress");
+const chronoText = document.getElementById("chrono-text");
+const chronoProgress = document.querySelector(".chrono-progress");
 
-// Calcul du périmètre du cercle (2 * PI * r)
+//Calcul du périmètre du cercle (2 * PI * r)
 const radius = 45;
 const circumference = 2 * Math.PI * radius;
-// chronoProgress.style.strokeDasharray = circumference;
+chronoProgress.style.strokeDasharray = circumference;
 
 // Fonction pour mettre à jour le chrono
 function updateChrono() {
   timeRemaining--;
 
-  // Calculer le pourcentage de progression
-  // const progressPercentage = timeRemaining / totalTime;
-  // const dashOffset = circumference * (1 - progressPercentage);
-  // chronoProgress.style.strokeDashoffset = dashOffset;
+  //Calculer le pourcentage de progression
+  const progressPercentage = timeRemaining / totalTime;
+  const dashOffset = circumference * (1 - progressPercentage);
+  chronoProgress.style.strokeDashoffset = dashOffset;
 
-  // Mettre à jour le texte
-  // const hours = Math.floor(timeRemaining / 3600);
-  // const minutes = Math.floor((timeRemaining % 3600) / 60);
-  // const seconds = timeRemaining % 60;
-  // chronoText.textContent = `${hours}:${minutes
-  //   .toString()
-  //   .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  //Mettre à jour le texte
+  const hours = Math.floor(timeRemaining / 3600);
+  const minutes = Math.floor((timeRemaining % 3600) / 60);
+  const seconds = timeRemaining % 60;
+  chronoText.textContent = `${hours}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
   // Rediriger à la fin
   if (timeRemaining <= 0) {

@@ -1,0 +1,12 @@
+.dossierDit:disabled {
+    background-color: #ccc; /* Couleur de fond grisée */
+    color: #666; /* Couleur du texte grisée */
+    border: 1px solid #aaa; /* Bordure grisée */
+    cursor: not-allowed; /* Curseur qui indique que l'action est impossible */
+    opacity: 0.7; /* Légèrement transparent pour un effet visuel */
+}
+
+
+.modal-dialog.custom-width {
+    max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
