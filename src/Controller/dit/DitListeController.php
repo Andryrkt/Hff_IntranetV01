@@ -16,6 +16,7 @@ use App\Entity\dit\DitRiSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
+use App\Service\docuware\CopyDocuwareService;
 
 class DitListeController extends Controller
 {
@@ -185,13 +186,17 @@ class DitListeController extends Controller
 
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/fichier_cloturer_annuler.csv';
+        $fileName = 'fichier_cloturer_annuler_'.$dit->getNumeroDemandeIntervention().'.csv';
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/'.$fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
             $statutCloturerAnnuler
         ];
         $this->ajouterDansCsv($filePath, $data, $headers);
+
+        $copyDocuwareService = new CopyDocuwareService();
+        $copyDocuwareService->copyCsvToDw($fileName, $filePath);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);

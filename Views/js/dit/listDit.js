@@ -293,16 +293,20 @@ clotureDit.forEach((el) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "OUI",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Changement de statut!",
-          text: "en CLOTUREE ANNULEE",
-          icon: "success",
-        }).then(() => {
-          window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
-        });
-      }
+    }).then(() => {
+      window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
     });
+    // .then((result) => {
+    //   if (result.isConfirmed) {
+    //     Swal.fire({
+    //       title: "Changement de statut!",
+    //       text: "en CLOTUREE ANNULEE",
+    //       icon: "success",
+    //     })
+    // .then(() => {
+    //       window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+    //     });
+    //   }
+    // });
   });
 });

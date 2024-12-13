@@ -7,7 +7,7 @@
 let timeout;
 
 // Variables pour le chronomètre
-const totalTime = 3600; // Total en secondes (1 heure)
+const totalTime = 900; // Total en secondes (15 minutes)
 let timeRemaining = totalTime;
 
 const chronoText = document.getElementById("chrono-text");
@@ -22,12 +22,12 @@ chronoProgress.style.strokeDasharray = circumference;
 function updateChrono() {
   timeRemaining--;
 
-  //Calculer le pourcentage de progression
+  // Calculer le pourcentage de progression
   const progressPercentage = timeRemaining / totalTime;
   const dashOffset = circumference * (1 - progressPercentage);
   chronoProgress.style.strokeDashoffset = dashOffset;
 
-  //Mettre à jour le texte
+  // Mettre à jour le texte
   const hours = Math.floor(timeRemaining / 3600);
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = timeRemaining % 60;
@@ -60,7 +60,7 @@ function resetTimeout() {
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
     window.location.href = "/Hffintranet/logout"; // URL de déconnexion
-  }, 3600000); // 1 heures
+  }, 900000); // 15 minutes
 }
 
 // Définir les événements pour détecter l'activité utilisateur
