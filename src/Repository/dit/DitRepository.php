@@ -271,6 +271,11 @@ class DitRepository extends EntityRepository
                 ->setParameter('internetExterne', $ditSearch->getInternetExterne());
         }
 
+        if (!empty($ditSearch->getEtatFacture())) {
+            $queryBuilder->andWhere('d.etatFacturation = :etatFac')
+                ->setParameter('etatFac', $ditSearch->getEtatFacture());
+        }
+
         if (!empty($ditSearch->getDateDebut())) {
             $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $ditSearch->getDateDebut());

@@ -88,7 +88,7 @@ class DitListeController extends Controller
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 50;
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
     
@@ -267,14 +267,35 @@ class DitListeController extends Controller
 
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
         $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
+
+        $this->changementStatutDit($dit, $statutCloturerAnnuler);
+
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/fichier_cloturer_annuler.csv';
+        $this->ajouterDansCsv($filePath, [$dit->getNumeroDemandeIntervention(), $statutCloturerAnnuler]);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
-
         $this->redirectToRoute("dit_index");
+    }
+
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data)
+    {
+        // Ouvre le fichier en mode append
+        $handle = fopen($filePath, 'a');
+
+        // Ajoute les nouvelles données
+        fputcsv($handle, $data);
+        // fwrite($handle, "\n");
+
+        // Ferme le fichier
+        fclose($handle);
     }
 
     /**

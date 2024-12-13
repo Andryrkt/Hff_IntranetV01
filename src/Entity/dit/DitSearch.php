@@ -62,12 +62,14 @@ class DitSearch
 
     private ?string $sectionAffectee = null;
 
-   
+    
     private ?string $sectionSupport1;
 
     private ?string $sectionSupport2;
 
     private ?string $sectionSupport3;
+
+    private ?string $etatFacture = '';
 
     //-===============================================================================================================================
     public function getNiveauUrgence()
@@ -556,6 +558,25 @@ class DitSearch
         return $this;
     }
 
+        /**
+     * Get the value of etatFacture
+     */ 
+    public function getEtatFacture()
+    {
+        return $this->etatFacture;
+    }
+
+    /**
+     * Set the value of etatFacture
+     *
+     * @return  self
+     */ 
+    public function setEtatFacture($etatFacture)
+    {
+        $this->etatFacture = $etatFacture;
+
+        return $this;
+    }
 
     public function toArray(): array
     {
@@ -582,10 +603,9 @@ class DitSearch
             'sectionAffectee' => $this->sectionAffectee,
             'sectionSupport1' => $this->sectionSupport1,
             'sectionSupport2' => $this->sectionSupport2,
-            'sectionSupport3' => $this->sectionSupport3
+            'sectionSupport3' => $this->sectionSupport3,
+            'etatFacture' => $this->etatFacture
         ];
     }
-
-
 }
 
