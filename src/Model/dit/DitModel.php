@@ -101,7 +101,7 @@ class DitModel extends Model
             and (seor_servcrt = ser.atab_code and ser.atab_nom = 'SER')
             and (sitv_typitv = sec.atab_code and sec.atab_nom = 'TYI')
             and (seor_ope = ope.atab_code and ope.atab_nom = 'OPE')
-            and sitv_pos in ('FC','FE','CP','ST')
+            and sitv_pos in ('FC','FE','CP','ST', 'EC')
             and sitv_servcrt in ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
             and (seor_nummat = mmat_nummat)
 

@@ -186,7 +186,12 @@ class DitListeController extends Controller
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
         $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/fichier_cloturer_annuler.csv';
-        $this->ajouterDansCsv($filePath, [$dit->getNumeroDemandeIntervention(), $statutCloturerAnnuler]);
+        $headers = ['numéro DIT', 'statut'];
+        $data = [
+            $dit->getNumeroDemandeIntervention(),
+            $statutCloturerAnnuler
+        ];
+        $this->ajouterDansCsv($filePath, $data, $headers);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
@@ -200,10 +205,17 @@ class DitListeController extends Controller
         self::$em->flush();
     }
 
-    private function ajouterDansCsv($filePath, $data)
+    private function ajouterDansCsv($filePath, $data,  $headers = null)
     {
+        $fichierExiste = file_exists($filePath);
+
         // Ouvre le fichier en mode append
         $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajouter les en-têtes
+        if (!$fichierExiste && $headers !== null) {
+            fputcsv($handle, $headers);
+        }
 
         // Ajoute les nouvelles données
         fputcsv($handle, $data);
