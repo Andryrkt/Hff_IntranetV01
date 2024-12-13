@@ -31,9 +31,9 @@ class CasierListTemporaireController extends Controller
 
         $empty = false;
         $criteria = [];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
+        }
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
@@ -41,9 +41,11 @@ class CasierListTemporaireController extends Controller
         $paginationData = self::$em->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
 
 
-        if(empty($paginationData['data'])){
+        if (empty($paginationData['data'])) {
             $empty = true;
         }
+
+        $this->logUserVisit('listeTemporaire_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'badm/casier/listTemporaireCasier.html.twig',
@@ -60,7 +62,7 @@ class CasierListTemporaireController extends Controller
     }
 
 
-    
+
     /**
      * @Route("/btnValide/{id}", name="CasierListTemporaire_btnValide")
      */
@@ -68,7 +70,7 @@ class CasierListTemporaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $casierValide = new CasierValider();
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
@@ -79,18 +81,18 @@ class CasierListTemporaireController extends Controller
         self::$em->flush();
 
         $casierValide
-        ->setCasier($CasierSeul->getCasier())
-        ->setDateCreation($CasierSeul->getDateCreation())
-        ->setNumeroCas($CasierSeul->getNumeroCas())
-        ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
-        ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
-        ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
+            ->setCasier($CasierSeul->getCasier())
+            ->setDateCreation($CasierSeul->getDateCreation())
+            ->setNumeroCas($CasierSeul->getNumeroCas())
+            ->setNomSessionUtilisateur($CasierSeul->getNomSessionUtilisateur())
+            ->setAgenceRattacher($CasierSeul->getAgenceRattacher())
+            ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
         ;
 
         self::$em->persist($casierValide);
         self::$em->flush();
-      
-        
+
+
         $this->redirectToRoute("liste_affichageListeCasier");
     }
 }

@@ -35,47 +35,46 @@ class CasierController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-            $casier = new Casier();
+        $casier = new Casier();
 
-            $agenceService = $this->agenceServiceIpsString();
-    
-            $casier->setAgenceEmetteur($agenceService['agenceIps']  );
-            $casier->setServiceEmetteur($agenceService['serviceIps']);
-            
-            $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
-            
-            $form->handleRequest($request);
-            
-        
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $casierModel = new CasierModel();
-                $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
-                if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
-                    $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
-                    $this->alertRedirection($message);
-                } elseif (empty($data)) {
-                    $message = "Matériel déjà vendu";
-                    $this->alertRedirection($message);
-                } else {
-                    $formData = [
-                        'idMateriel' => $casier->getIdMateriel(),
-                        'numParc' => $casier->getNumParc(),
-                        'numSerie' => $casier->getNumSerie()
-                    ];
-                    $this->sessionService->set('casierform1Data', $formData);
-                    $this->redirectToRoute("casiser_formulaireCasier");
-                }
+        $agenceService = $this->agenceServiceIpsString();
+
+        $casier->setAgenceEmetteur($agenceService['agenceIps']);
+        $casier->setServiceEmetteur($agenceService['serviceIps']);
+
+        $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
+
+        $form->handleRequest($request);
+
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $casierModel = new CasierModel();
+            $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
+            if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
+                $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
+                $this->alertRedirection($message);
+            } elseif (empty($data)) {
+                $message = "Matériel déjà vendu";
+                $this->alertRedirection($message);
+            } else {
+                $formData = [
+                    'idMateriel' => $casier->getIdMateriel(),
+                    'numParc' => $casier->getNumParc(),
+                    'numSerie' => $casier->getNumSerie()
+                ];
+                $this->sessionService->set('casierform1Data', $formData);
+                $this->redirectToRoute("casiser_formulaireCasier");
             }
-            
+        }
 
-            self::$twig->display(
-                'badm/casier/nouveauCasier.html.twig',
-                [
-                    'form' => $form->createView()
-                ]
-            );
-        
+        $this->logUserVisit('casier_nouveau'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'badm/casier/nouveauCasier.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -88,28 +87,28 @@ class CasierController extends Controller
 
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);
-        
+
         //Recupérations de tous les matériel
         $casierModel = new CasierModel();
         $data = $casierModel->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"]);
-    
+
 
         $casier
-        ->setGroupe($data[0]["famille"])
-        ->setAffectation($data[0]["affectation"])
-        ->setConstructeur($data[0]["constructeur"])
-        ->setDesignation($data[0]["designation"])
-        ->setModele($data[0]["modele"])
-        ->setNumParc($data[0]["num_parc"])
-        ->setNumSerie($data[0]["num_serie"])
-        ->setIdMateriel($data[0]["num_matricule"])
-        ->setAnneeDuModele($data[0]["annee"])
-        ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
-        ->setDateCreation(\DateTime::createFromFormat('Y-m-d',$this->getDatesystem()))
+            ->setGroupe($data[0]["famille"])
+            ->setAffectation($data[0]["affectation"])
+            ->setConstructeur($data[0]["constructeur"])
+            ->setDesignation($data[0]["designation"])
+            ->setModele($data[0]["modele"])
+            ->setNumParc($data[0]["num_parc"])
+            ->setNumSerie($data[0]["num_serie"])
+            ->setIdMateriel($data[0]["num_matricule"])
+            ->setAnneeDuModele($data[0]["annee"])
+            ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
+            ->setDateCreation(\DateTime::createFromFormat('Y-m-d', $this->getDatesystem()))
         ;
 
 
-        $form =self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
+        $form = self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
 
 
         $form->handleRequest($request);
@@ -123,45 +122,47 @@ class CasierController extends Controller
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
-      
-           
+
+
             $NumCAS = $casier->getNumeroCas();
             $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
             $casier->setAgenceRattacher($form->getData()->getAgence());
-            $casier->setCasier( $casier->getClient() . ' - ' . $casier->getChantier());
+            $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
             $casier->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(55));
             $casier->setNomSessionUtilisateur($user);
             $agenceEmetteur = $data[0]['agence'];
             $serviceEmetteur = $data[0]['code_service'];
             $MailUser = $user->getMail();
-            $dateDemande = $this->getDatesystem();           
-    
+            $dateDemande = $this->getDatesystem();
+
             $generPdfCasier = $this->generPdfCasier($NumCAS, $dateDemande, $data, $casier, $MailUser, $agenceEmetteur, $serviceEmetteur);
-    
+
             /** CREATION PDF */
             $genererPdfCasier = new GenererPdfCasier();
             $genererPdfCasier->genererPdfCasier($generPdfCasier);
             $genererPdfCasier->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
-          
+
             self::$em->persist($casier);
             self::$em->flush();
 
-             $this->redirectToRoute('listeTemporaire_affichageListeCasier');
+            $this->redirectToRoute('listeTemporaire_affichageListeCasier');
         }
-        
 
-            self::$twig->display('badm/casier/formulaireCasier.html.twig',
-                [
-                    'form' => $form->createView()
-                ]
-            );
+        $this->logUserVisit('casiser_formulaireCasier'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'badm/casier/formulaireCasier.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
 
     private function generPdfCasier($NumCAS, $dateDemande, $data, $casier, $MailUser, $agenceEmetteur, $serviceEmetteur): array
     {
         return [
-    
+
             'Num_CAS' => $NumCAS,
             'Date_Demande' => $this->formatageDate($dateDemande),
             'Designation' => $data[0]['designation'],
@@ -182,7 +183,7 @@ class CasierController extends Controller
             'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
         ];
     }
-    
+
     /**
      * @Route("/casierDestinataire", name="badm_casierDestinataire")
      */
@@ -190,9 +191,9 @@ class CasierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
-         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+        //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();
 
         $casierDestinataireSqlServer = [];
@@ -233,5 +234,4 @@ class CasierController extends Controller
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }
-
 }

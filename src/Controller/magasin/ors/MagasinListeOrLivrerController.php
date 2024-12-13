@@ -18,11 +18,11 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 
 class MagasinListeOrLivrerController extends Controller
-{ 
+{
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrALIvrerTrait;
-    
+
     private $magasinListOrLivrerModel;
 
     public function __construct()
@@ -47,31 +47,32 @@ class MagasinListeOrLivrerController extends Controller
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
-        if($autoriser)
-        {
+        if ($autoriser) {
             $agenceUser = null;
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() . '-' . $agenceServiceUser['agenceIps']->getLibelleAgence();
         }
 
-        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser'=> $autoriser], [
+        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
-        
+
         $form->handleRequest($request);
         $criteria = [
             "agenceUser" => $agenceUser,
             "orCompletNon" => "ORs COMPLET",
             "pieces" => "PIECES MAGASIN"
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
+        }
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
         $data = $this->recupData($criteria);
+
+        $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
@@ -90,37 +91,37 @@ class MagasinListeOrLivrerController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
 
         $entities = $this->recupData($criteria);
 
-    // Convertir les entités en tableau de données
-    $data = [];
-    $data[] = ['N° DIT', 'N° Or', "Date planning", "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence débiteur','Service débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Qté à livrer', 'Qté déjà livrée', 'Utilisateur']; 
-    foreach ($entities as $entity) {
-        
-        $data[] = [
-            $entity['referencedit'],
-            $entity['numeroor'],
-            $entity['datePlanning'],
-            $entity['datecreation'],
-            $entity['agencecrediteur'],
-            $entity['servicecrediteur'],
-            $entity['agencedebiteur'],
-            $entity['servicedebiteur'],
-            $entity['numinterv'],
-            $entity['numeroligne'],
-            $entity['constructeur'],
-            $entity['referencepiece'],
-            $entity['designationi'],
-            $entity['quantitedemander'],
-            $entity['qtealivrer'],
-            $entity['quantitelivree'],
-            $entity['nomPrenom']
-        ];
-    }
+        // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['N° DIT', 'N° Or', "Date planning", "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence débiteur', 'Service débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Qté à livrer', 'Qté déjà livrée', 'Utilisateur'];
+        foreach ($entities as $entity) {
+
+            $data[] = [
+                $entity['referencedit'],
+                $entity['numeroor'],
+                $entity['datePlanning'],
+                $entity['datecreation'],
+                $entity['agencecrediteur'],
+                $entity['servicecrediteur'],
+                $entity['agencedebiteur'],
+                $entity['servicedebiteur'],
+                $entity['numinterv'],
+                $entity['numeroligne'],
+                $entity['constructeur'],
+                $entity['referencepiece'],
+                $entity['designationi'],
+                $entity['quantitedemander'],
+                $entity['qtealivrer'],
+                $entity['quantitelivree'],
+                $entity['nomPrenom']
+            ];
+        }
 
         $this->excelService->createSpreadsheet($data);
     }
@@ -132,22 +133,22 @@ class MagasinListeOrLivrerController extends Controller
         $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
         //ajouter le numero dit dans data
-        for ($i=0; $i < count($data) ; $i++) { 
+        for ($i = 0; $i < count($data); $i++) {
             $numeroOr = $data[$i]['numeroor'];
             $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
             $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-            
-            if(!empty($datePlannig1)){
+
+            if (!empty($datePlannig1)) {
                 $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if(!empty($datePlannig2)){
+            } else if (!empty($datePlannig2)) {
                 $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
             } else {
                 $data[$i]['datePlanning'] = '';
             }
-            
+
             $dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            if( !empty($dit)){
+            if (!empty($dit)) {
                 $data[$i]['numDit'] = $dit[0]['numeroDemandeIntervention'];
                 $data[$i]['niveauUrgence'] = $dit[0]['description'];
             } else {

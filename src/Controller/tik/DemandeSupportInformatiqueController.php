@@ -38,16 +38,15 @@ class DemandeSupportInformatiqueController extends Controller
         $this->initialisationForm($supportInfo, $user);
 
         $form = self::$validator->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $donnerForm = $form->getData();
             $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
-            
+
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
@@ -60,9 +59,11 @@ class DemandeSupportInformatiqueController extends Controller
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
         }
+
+        $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/new.html.twig', [
             'form' => $form->createView()
@@ -79,7 +80,7 @@ class DemandeSupportInformatiqueController extends Controller
     private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)
     {
         $agenceService = $this->agenceServiceIpsObjet();
-        $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence());
+        $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
         $supportInfo->setAgence(self::$em->getRepository(Agence::class)->find('08'));    // agence Administration
         $supportInfo->setService(self::$em->getRepository(Service::class)->find('13'));   // service Informatique
@@ -91,10 +92,10 @@ class DemandeSupportInformatiqueController extends Controller
     {
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
-        
+
         $statut = self::$em->getRepository(StatutDemande::class)->find('79');
-        
-        $supportInfo 
+
+        $supportInfo
             ->setAgenceDebiteurId($donnerForm->getAgence())
             ->setServiceDebiteurId($donnerForm->getService())
             ->setAgenceEmetteurId($agenceEmetteur)
@@ -103,8 +104,8 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUtilisateurDemandeur($user->getNomUtilisateur())
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
-            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() .'-'. $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() .'-'. $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . '-' . $donnerForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
             ->setCodeSociete($user->getSociettes()->getCodeSociete())
@@ -146,19 +147,19 @@ class DemandeSupportInformatiqueController extends Controller
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
-                $prefix = $supportInfo->getNumeroTicket() .'_detail_';
+                $prefix = $supportInfo->getNumeroTicket() . '_detail_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
                 $fileSize = $this->tailleFichier($chemin, $fileName);
-            
-                $fileNames[] = 
+
+                $fileNames[] =
                     [
                         'name' => $fileName,
                         'size' => $fileSize
                     ];
             }
         }
-       // Enregistrez les noms des fichiers dans votre entité
+        // Enregistrez les noms des fichiers dans votre entité
         $supportInfo->setFileNames($fileNames);
     }
 
@@ -173,7 +174,7 @@ class DemandeSupportInformatiqueController extends Controller
         }
         return $fileSize;
     }
-    
+
     /** 
      * Fonctions pour envoyer un mail aux validateurs
      */
@@ -181,7 +182,7 @@ class DemandeSupportInformatiqueController extends Controller
     {
         $email       = new EmailService;
 
-        $emailValidateurs = array_map(function($validateur) {
+        $emailValidateurs = array_map(function ($validateur) {
             return $validateur->getMail();
         }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
@@ -199,4 +200,3 @@ class DemandeSupportInformatiqueController extends Controller
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }
-

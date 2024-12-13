@@ -23,7 +23,7 @@ class DomFirstController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $dom = new Dom();
 
         $userId = $this->sessionService->get('user_id', []);
@@ -33,7 +33,7 @@ class DomFirstController extends Controller
         foreach ($agenceAutoriserId as $value) {
             $codeAgences[] = self::$em->getRepository(Agence::class)->find($value)->getCodeAgence();
         }
-        
+
         $serviceAutoriserId = $user->getServiceAutoriserIds();
         $codeService = [];
         foreach ($serviceAutoriserId as $value) {
@@ -41,9 +41,9 @@ class DomFirstController extends Controller
         }
 
         //INITIALISATION 
-        $agenceServiceIps= $this->agenceServiceIpsString();
+        $agenceServiceIps = $this->agenceServiceIpsString();
         $dom
-            ->setAgenceEmetteur($agenceServiceIps['agenceIps'] )
+            ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
@@ -52,12 +52,12 @@ class DomFirstController extends Controller
         ;
 
 
-        $form =self::$validator->createBuilder(DomForm1Type::class, $dom)->getForm();
+        $form = self::$validator->createBuilder(DomForm1Type::class, $dom)->getForm();
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() ) {
-        
+        if ($form->isSubmitted()) {
+
             $salarier = $form->get('salarie')->getData();
 
             $dom->setSalarier($salarier);
@@ -69,7 +69,9 @@ class DomFirstController extends Controller
             // Redirection vers le second formulaire
             return $this->redirectToRoute('dom_second_form');
         }
-        
+
+        $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('doms/firstForm.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -86,8 +88,7 @@ class DomFirstController extends Controller
 
     private function notification($message)
     {
-        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dom_first_form");
     }
-
 }

@@ -18,11 +18,12 @@ class CalendarPlanningController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             dd($form->getData());
         }
-        
+
+        $this->logUserVisit('tik_calendar_planning'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('tik/planning/calendar.html.twig', [
             'form' => $form->createView()
         ]);

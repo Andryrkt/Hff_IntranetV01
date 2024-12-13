@@ -14,26 +14,25 @@ class UserController extends Controller
 {
     private function transformIdEnObjetEntitySuperieur(array $data): array
     {
-   
+
         $superieurs = [];
         foreach ($data as  $values) {
-            
-                foreach ($values->getSuperieurs() as  $value) {
-                    if(empty($value)){
-                        return $data;
-                    } else {
-                        $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                    }
+
+            foreach ($values->getSuperieurs() as  $value) {
+                if (empty($value)) {
+                    return $data;
+                } else {
+                    $superieurs[] = self::$em->getRepository(user::class)->find($value);
                 }
-                $values->setSuperieurs($superieurs);
-                $superieurs = [];
+            }
+            $values->setSuperieurs($superieurs);
+            $superieurs = [];
         }
         return $data;
-    
     }
-    
 
-     /**
+
+    /**
      * @Route("/admin/utilisateur", name="utilisateur_index")
      *
      * @return void
@@ -43,8 +42,10 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(User::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
         $data = $this->transformIdEnObjetEntitySuperieur($data);
+
+        $this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/utilisateur/list.html.twig', [
             'data' => $data
@@ -62,13 +63,12 @@ class UserController extends Controller
         $user = new User();
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $utilisateur= $form->getData(); 
-        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $utilisateur = $form->getData();
+
             $selectedApplications = $form->get('applications')->getData();
 
             foreach ($selectedApplications as $application) {
@@ -83,20 +83,22 @@ class UserController extends Controller
 
             // Récupérer les IDs des supérieurs depuis le formulaire
             $superieurEntities = $form->get('superieurs')->getData();
-            
-            $superieurIds = array_map(function($superieur) {
+
+            $superieurIds = array_map(function ($superieur) {
                 return $superieur->getId();
             }, $superieurEntities);
-           
+
             // Mettre à jour les supérieurs de l'utilisateur
             $user->setSuperieurs($superieurIds);
             self::$em->persist($utilisateur);
-    
+
             self::$em->flush();
-           
+
 
             $this->redirectToRoute("utilisateur_index");
         }
+
+        $this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
@@ -104,119 +106,127 @@ class UserController extends Controller
     }
 
 
-    
+
     /**
- * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
- *
- * @return void
- */
-public function edit(Request $request, $id)
-{
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
+     * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
+     *
+     * @return void
+     */
+    public function edit(Request $request, $id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-    $user = self::$em->getRepository(User::class)->find($id);
-    // Conversion de l'utilisateur en objet s'il est en tableau
-    $user = $this->arrayToObjet($user);
-    
+        $user = self::$em->getRepository(User::class)->find($id);
+        // Conversion de l'utilisateur en objet s'il est en tableau
+        $user = $this->arrayToObjet($user);
 
-    $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
-    $form->handleRequest($request);
+        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
-    // Vérifier si le formulaire est soumis et valide
-    if ($form->isSubmitted() && $form->isValid()) {
+        $form->handleRequest($request);
 
-        if ($user->getSuperieurs() === null) {
-            $user->setSuperieurs([]);
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            if ($user->getSuperieurs() === null) {
+                $user->setSuperieurs([]);
+            }
+            // Récupérer les IDs des supérieurs depuis le formulaire
+            $superieurEntities = $form->get('superieurs')->getData();
+            $superieurIds = array_map(function ($superieur) {
+                return $superieur->getId();
+            }, $superieurEntities);
+
+            // Mettre à jour les supérieurs de l'utilisateur
+            $user->setSuperieurs($superieurIds);
+
+            self::$em->flush();
+            return $this->redirectToRoute("utilisateur_index");
         }
-        // Récupérer les IDs des supérieurs depuis le formulaire
-        $superieurEntities = $form->get('superieurs')->getData();
-        $superieurIds = array_map(function($superieur) {
-            return $superieur->getId();
-        }, $superieurEntities);
 
-        // Mettre à jour les supérieurs de l'utilisateur
-        $user->setSuperieurs($superieurIds);
+        $this->logUserVisit('utilisateur_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
+
+        self::$twig->display('admin/utilisateur/edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
+     *
+     * @return void
+     */
+    public function delete(Request $request, $id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $user = self::$em->getRepository(User::class)->find($id);
+
+        if ($user === null) {
+            throw new \Exception('Utilisateur non trouvé');
+        }
+
+        // Supprimer les références ManyToMany
+        foreach ($user->getPermissions() as $permission) {
+            $user->removePermission($permission);
+        }
+        foreach ($user->getApplications() as $application) {
+            $user->removeApplication($application);
+        }
+        foreach ($user->getSociettes() as $societte) {
+            $user->removeSociette($societte);
+        }
+        foreach ($user->getRoles() as $role) {
+            $user->removeRole($role);
+        }
+        foreach ($user->getAgencesAutorisees() as $agence) {
+            $user->removeAgenceAutorise($agence);
+        }
+        foreach ($user->getServiceAutoriser() as $service) {
+            $user->removeServiceAutoriser($service);
+        }
+
+        // Supprimer les références OneToMany
+        foreach ($user->getCasiers() as $casier) {
+            $user->removeCasier($casier);
+        }
+
+        // Supprimer les références ManyToOne
+        $user->setPersonnels(null);
+        $user->setFonction(null);
+        $user->setAgenceServiceIrium(null);
 
         self::$em->flush();
+
+        // Supprimer l'utilisateur
+        self::$em->remove($user);
+        self::$em->flush();
+
         return $this->redirectToRoute("utilisateur_index");
     }
 
-    self::$twig->display('admin/utilisateur/edit.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
+    /**
+     * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
+     *
+     * @return void
+     */
+    public function show($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-/**
- * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
- *
- * @return void
- */
-public function delete(Request $request, $id)
-{
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
+        $data = self::$em->getRepository(User::class)->find($id);
 
-    $user = self::$em->getRepository(User::class)->find($id);
+        $this->logUserVisit('utilisateur_show', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
 
-    if ($user === null) {
-        throw new \Exception('Utilisateur non trouvé');
+        self::$twig->display('admin/utilisateur/details.html.twig', [
+            'data' => $data
+        ]);
     }
-
-    // Supprimer les références ManyToMany
-    foreach ($user->getPermissions() as $permission) {
-        $user->removePermission($permission);
-    }
-    foreach ($user->getApplications() as $application) {
-        $user->removeApplication($application);
-    }
-    foreach ($user->getSociettes() as $societte) {
-        $user->removeSociette($societte);
-    }
-    foreach ($user->getRoles() as $role) {
-        $user->removeRole($role);
-    }
-    foreach ($user->getAgencesAutorisees() as $agence) {
-        $user->removeAgenceAutorise($agence);
-    }
-    foreach ($user->getServiceAutoriser() as $service) {
-        $user->removeServiceAutoriser($service);
-    }
-
-    // Supprimer les références OneToMany
-    foreach ($user->getCasiers() as $casier) {
-        $user->removeCasier($casier);
-    }
-
-    // Supprimer les références ManyToOne
-    $user->setPersonnels(null);
-    $user->setFonction(null);
-    $user->setAgenceServiceIrium(null);
-
-    self::$em->flush();
-
-    // Supprimer l'utilisateur
-    self::$em->remove($user);
-    self::$em->flush();
-
-    return $this->redirectToRoute("utilisateur_index");
-}
-
-  /**
- * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
- *
- * @return void
- */
-public function show($id)
-{
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
-    
-    $data = self::$em->getRepository(User::class)->find($id);
-
-    self::$twig->display('admin/utilisateur/details.html.twig', [
-        'data' => $data
-    ]);
-}
 }

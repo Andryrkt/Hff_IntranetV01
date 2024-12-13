@@ -26,7 +26,7 @@ class DitListeController extends Controller
      *
      * @return void
      */
-    public function index( Request $request)
+    public function index(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -40,12 +40,12 @@ class DitListeController extends Controller
         $ditListeModel = new DitListModel();
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
-        
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em); 
+
+        $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
         //FIN AUTORISATION
 
         $ditSearch = new DitSearch();
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
@@ -58,32 +58,32 @@ class DitListeController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-    
-        if($form->isSubmitted() && $form->isValid()) {
-            
-            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-            if(!empty($numParc) || !empty($numSerie)){
-                
+            if (!empty($numParc) || !empty($numSerie)) {
+
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-                if(!empty($idMateriel)){
+                if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif(empty($idMateriel)) {
+                } elseif (empty($idMateriel)) {
                     $empty = true;
                 }
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
-        } 
-        
+        }
+
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
-    
+
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -91,7 +91,7 @@ class DitListeController extends Controller
         $limit = 10;
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-    
+
         $option = [
             'boolean' => $autoriser,
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
@@ -101,7 +101,7 @@ class DitListeController extends Controller
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
 
-        
+
         //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
@@ -124,7 +124,7 @@ class DitListeController extends Controller
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
-    
+
         $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
 
         $this->ajoutMarqueCasierMateriel($paginationData['data']);
@@ -138,27 +138,28 @@ class DitListeController extends Controller
 
 
         $formDocDansDW->handleRequest($request);
-            
+
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;
-    
-        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+
+        if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+            } else if ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
-        } 
+        }
 
+        $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/list.html.twig', [
             'data' => $paginationData['data'],
             'empty' => $empty,
             'form' => $form->createView(),
             'currentPage' => $paginationData['currentPage'],
-            'totalPages' =>$paginationData['lastPage'],
+            'totalPages' => $paginationData['lastPage'],
             'criteria' => $criteria,
             'resultat' => $paginationData['totalItems'],
             'statusCounts' => $paginationData['statusCounts'],
@@ -177,10 +178,10 @@ class DitListeController extends Controller
 
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-          //recupère les critères dans la session 
+        //recupère les critères dans la session 
         $options = $this->sessionService->get('dit_search_option', []);
 
-        
+
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = new DitSearch();
         $ditSearch
@@ -209,28 +210,28 @@ class DitListeController extends Controller
             ->setSectionSupport2($criteria["sectionSupport2"])
             ->setSectionSupport3($criteria["sectionSupport3"])
         ;
-        
+
 
         $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
-        
+
         $this->ajoutStatutAchatPiece($entities);
 
         $this->ajoutStatutAchatLocaux($entities);
 
         $this->ajoutNbrPj($entities, self::$em);
 
-        $this->ajoutNumSerieNumParc($entities); 
+        $this->ajoutNumSerieNumParc($entities);
 
         $this->ajoutMarqueCasierMateriel($entities);
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getIdStatutDemande()->getDescription(),
-                $entity->getNumeroDemandeIntervention(), 
+                $entity->getNumeroDemandeIntervention(),
                 $entity->getTypeDocument()->getDescription(),
                 $entity->getIdNiveauUrgence()->getDescription(),
                 $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
@@ -284,12 +285,12 @@ class DitListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $dwModel = new DossierInterventionAtelierModel();
-    
+
         // Récupérer les données de la demande d'intervention et de l'ordre de réparation
         $dwDit = $dwModel->findDwDit($numDit) ?? [];
-        foreach ($dwDit as $key =>$value) {
+        foreach ($dwDit as $key => $value) {
             $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
         }
         // dump($dwDit);
@@ -305,24 +306,28 @@ class DitListeController extends Controller
             $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
             $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
 
-            foreach ($dwOr as $key =>$value) {
+            foreach ($dwOr as $key => $value) {
                 $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
             }
-            
-            foreach ($dwfac as $key =>$value) {
+
+            foreach ($dwfac as $key => $value) {
                 $dwfac[$key]['nomDoc'] = 'Facture';
             }
-            
-            foreach ($dwRi as $key =>$value) {
+
+            foreach ($dwRi as $key => $value) {
                 $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
             }
-            foreach ($dwCde as $key =>$value) {
+            foreach ($dwCde as $key => $value) {
                 $dwCde[$key]['nomDoc'] = 'Commande';
             }
         }
 
         // Fusionner toutes les données dans un tableau associatif
         $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
+
+        $this->logUserVisit('dw_interv_ate_avec_dit', [
+            'numDit' => $numDit,
+        ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
             'data' => $data,
@@ -331,8 +336,7 @@ class DitListeController extends Controller
 
     private function notification($message)
     {
-        $this->sessionService->set('notification',['type' => 'success', 'message' => $message]);
+        $this->sessionService->set('notification', ['type' => 'success', 'message' => $message]);
         $this->redirectToRoute("dit_index");
     }
-
 }

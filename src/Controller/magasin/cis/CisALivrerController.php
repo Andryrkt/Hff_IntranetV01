@@ -41,15 +41,17 @@ class CisALivrerController extends Controller
             "agenceUser" => $agenceUser,
             "orValide" => true,
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
+        }
 
         $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
         $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
+
+        $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
@@ -64,18 +66,18 @@ class CisALivrerController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $cisATraiterModel = new CisALivrerModel();
 
-         //recupères les critère dans la session 
+        //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
 
         $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
         $entities = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
-         // Convertir les entités en tableau de données
+        // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['num_dit'],
@@ -98,6 +100,4 @@ class CisALivrerController extends Controller
 
         $this->excelService->createSpreadsheet($data);
     }
-
-    
 }

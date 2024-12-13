@@ -38,25 +38,27 @@ class CisATraiterController extends Controller
             "agenceUser" => $agenceUser,
             'orValide' => true
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
-        
+        }
+
         $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
-        
+
         $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
 
-        
+
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
 
+        $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
-            'form' =>$form->createView()
+            'form' => $form->createView()
         ]);
     }
-    
+
     /**
      * @Route("/export-excel-a-traiter-cis", name="export_excel_a_traiter_cis")
      */
@@ -64,7 +66,7 @@ class CisATraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
@@ -75,7 +77,7 @@ class CisATraiterController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['numdit'],
@@ -94,6 +96,6 @@ class CisATraiterController extends Controller
             ];
         }
 
-         $this->excelService->createSpreadsheet($data);
+        $this->excelService->createSpreadsheet($data);
     }
 }
