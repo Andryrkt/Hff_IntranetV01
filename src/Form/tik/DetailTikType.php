@@ -129,7 +129,7 @@ class DetailTikType extends AbstractType
                     $sousCategorieId = $data['sousCategorie'];
                     $sousCategorie = $this->sousCategorieRepository->find($sousCategorieId);
 
-                    if ($categorie) {
+                    if ($sousCategorie) {
                         $autresCategories = $sousCategorie->getAutresCategories();
                     }
                 }
