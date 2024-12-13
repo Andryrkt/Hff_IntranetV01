@@ -413,21 +413,21 @@ class Controller
     }
 
 
-    // protected function arrayToObjet(User $user): User
-    // {
+    protected function arrayToObjet(User $user): User
+    {
 
-    //     $superieurs = [];
-    //     foreach ($user->getSuperieurs() as  $value) {
-    //         if (empty($value)) {
-    //             return $user;
-    //         } else {
-    //             $superieurs[] = self::$em->getRepository(user::class)->find($value);
-    //             $user->setSuperieurs($superieurs);
-    //         }
-    //     }
+        $superieurs = [];
+        foreach ($user->getSuperieurs() as  $value) {
+            if (empty($value)) {
+                return $user;
+            } else {
+                $superieurs[] = self::$em->getRepository(user::class)->find($value);
+                $user->setSuperieurs($superieurs);
+            }
+        }
 
-    //     return $user;
-    // }
+        return $user;
+    }
 
 
     /**
@@ -449,7 +449,6 @@ class Controller
             if (!$user) {
                 throw new \Exception("User not found with ID $userId");
             }
-
 
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);

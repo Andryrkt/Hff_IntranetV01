@@ -51,7 +51,7 @@ class User
      *
      * @var [type]
      */
-    // private $matricule;
+    private $matricule;
 
     /**
      * @ORM\Column(type="string")
@@ -66,12 +66,11 @@ class User
      */
     private $roles;
 
-
-    // /**
-    //  * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
-    //  * @ORM\JoinTable(name="users_applications")
-    //  */
-    // private $applications;
+    /**
+     * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="users", cascade={"remove"})
+     * @ORM\JoinTable(name="users_applications")
+     */
+    private $applications;
 
     /**
      * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
@@ -87,22 +86,22 @@ class User
     private $personnels;
 
 
-    // /**
-    //  * @ORM\Column(type="json", nullable=true)
-    //  */
-    // private $superieurs = [];
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $superieurs = [];
 
 
-    // /**
-    //  * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
-    //  */
-    // private $casiers;
+    /**
+     * @ORM\OneToMany(targetEntity=Casier::class, mappedBy="nomSessionUtilisateur",  cascade={"remove"})
+     */
+    private $casiers;
 
-    // /**
-    //  * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
-    //  * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
-    //  */
-    // private  $fonction ;
+    /**
+     * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
+     */
+    private  $fonction;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
@@ -110,29 +109,29 @@ class User
      */
     private $agenceServiceIrium;
 
-    // /**
-    //  * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
-    //  * @ORM\JoinTable(name="agence_user", 
-    //  *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
-    //  *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
-    //  * )
-    //  */
-    // private $agencesAutorisees;
+    /**
+     * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
+     * @ORM\JoinTable(name="agence_user", 
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")}
+     * )
+     */
+    private $agencesAutorisees;
 
 
-    // /**
-    //  * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
-    //  * @ORM\JoinTable(name="users_service")
-    //  */
-    // private $serviceAutoriser;
+    /**
+     * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
+     * @ORM\JoinTable(name="users_service")
+     */
+    private $serviceAutoriser;
 
 
 
-    // /**
-    //  * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
-    //  * @ORM\JoinTable(name="users_permission")
-    //  */
-    // private $permissions;
+    /**
+     * @ORM\ManyToMany(targetEntity=Permission::class, inversedBy="users",  cascade={"remove"})
+     * @ORM\JoinTable(name="users_permission")
+     */
+    private $permissions;
 
 
     // /**
@@ -140,29 +139,49 @@ class User
     //  */
     // private $commentaireDitOr;
 
-    // /**
-    //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
-    //  */
-    // private $supportInfoUser;
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
+     */
+    private $supportInfoUser;
 
-    // /**
-    //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
-    //  */
-    // private $supportInfoIntervenant;
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="intervenant")
+     */
+    private $supportInfoIntervenant;
 
     // /**
     //  * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="validateur")
     //  */
     // private $supportInfoValidateur;
 
+    /**
+     * @ORM\Column(type="string", name="mot_de_passe")
+     *
+     * @var [type]
+     */
+    private $MotDePasse = '';
 
-    // /**
-    //  * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
-    //  */
-    // private $tikPlanningUser;
 
-    //=================================================================================================================================
 
+    /**
+     * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
+     */
+    private $tikPlanningUser;
+
+    // =================================================================================================================================
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+        $this->roles = new ArrayCollection();
+        // $this->casiers = new ArrayCollection();
+        $this->agencesAutorisees = new ArrayCollection();
+        $this->serviceAutoriser = new ArrayCollection();
+        $this->permissions = new ArrayCollection();
+        // $this->commentaireDitOr = new ArrayCollection();
+        $this->supportInfoUser = new ArrayCollection();
+        $this->supportInfoIntervenant = new ArrayCollection();
+        $this->tikPlanningUser = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -208,18 +227,18 @@ class User
     }
 
 
-    // public function getMatricule(): int
-    // {
-    //     return $this->matricule;
-    // }
+    public function getMatricule(): int
+    {
+        return $this->matricule;
+    }
 
 
-    // public function setMatricule($matricule): self
-    // {
-    //     $this->matricule = $matricule;
+    public function setMatricule($matricule): self
+    {
+        $this->matricule = $matricule;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
     public function getMail()
@@ -238,31 +257,31 @@ class User
 
 
 
-    // /**
-    //  * @return Collection|Application[]
-    //  */
-    // public function getApplications(): Collection
-    // {
-    //     return $this->applications;
-    // }
+    /**
+     * @return Collection|Application[]
+     */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
 
-    // public function addApplication(Application $application): self
-    // {
-    //     if (!$this->applications->contains($application)) {
-    //         $this->applications[] = $application;
-    //     }
+    public function addApplication(Application $application): self
+    {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removeApplication(Application $application): self
-    // {
-    //     if ($this->applications->contains($application)) {
-    //         $this->applications->removeElement($application);
-    //     }
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
 
@@ -292,21 +311,21 @@ class User
         return $this;
     }
 
-    // public function getSuperieurs(): array
-    // {
-    //     if ($this->superieurs !== null) {
-    //         return $this->superieurs;
-    //     } else {
-    //         return [];
-    //     }
-    // }
+    public function getSuperieurs(): array
+    {
+        if ($this->superieurs !== null) {
+            return $this->superieurs;
+        } else {
+            return [];
+        }
+    }
 
-    // public function setSuperieurs(array $superieurs): self
-    // {
-    //     $this->superieurs = $superieurs;
+    public function setSuperieurs(array $superieurs): self
+    {
+        $this->superieurs = $superieurs;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
     // public function addSuperieur(User $superieurId): self
     // {
@@ -373,18 +392,18 @@ class User
     //     return $this;
     // }
 
-    // public function getFonction()
-    // {
-    //     return $this->fonction;
-    // }
+    public function getFonction()
+    {
+        return $this->fonction;
+    }
 
 
-    // public function setFonction($fonction): self
-    // {
-    //     $this->fonction = $fonction;
+    public function setFonction($fonction): self
+    {
+        $this->fonction = $fonction;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
 
@@ -400,75 +419,75 @@ class User
         return $this;
     }
 
-    // public function getAgencesAutorisees(): Collection
-    // {
-    //     return $this->agencesAutorisees;
-    // }
+    public function getAgencesAutorisees(): Collection
+    {
+        return $this->agencesAutorisees;
+    }
 
-    // public function addAgenceAutorise(Agence $agence): self
-    // {
-    //     if (!$this->agencesAutorisees->contains($agence)) {
-    //         $this->agencesAutorisees[] = $agence;
-    //     }
+    public function addAgenceAutorise(Agence $agence): self
+    {
+        if (!$this->agencesAutorisees->contains($agence)) {
+            $this->agencesAutorisees[] = $agence;
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removeAgenceAutorise(Agence $agence): self
-    // {
-    //     if ($this->agencesAutorisees->contains($agence)) {
-    //         $this->agencesAutorisees->removeElement($agence);
-    //     }
+    public function removeAgenceAutorise(Agence $agence): self
+    {
+        if ($this->agencesAutorisees->contains($agence)) {
+            $this->agencesAutorisees->removeElement($agence);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
-    // public function getServiceAutoriser(): Collection
-    // {
-    //     return $this->serviceAutoriser;
-    // }
+    public function getServiceAutoriser(): Collection
+    {
+        return $this->serviceAutoriser;
+    }
 
-    // public function addServiceAutoriser(Service $serviceAutoriser): self
-    // {
-    //     if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
-    //         $this->serviceAutoriser[] = $serviceAutoriser;
-    //     }
+    public function addServiceAutoriser(Service $serviceAutoriser): self
+    {
+        if (!$this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser[] = $serviceAutoriser;
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removeServiceAutoriser(Service $serviceAutoriser): self
-    // {
-    //     if ($this->serviceAutoriser->contains($serviceAutoriser)) {
-    //         $this->serviceAutoriser->removeElement($serviceAutoriser);
-    //     }
+    public function removeServiceAutoriser(Service $serviceAutoriser): self
+    {
+        if ($this->serviceAutoriser->contains($serviceAutoriser)) {
+            $this->serviceAutoriser->removeElement($serviceAutoriser);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function getPermissions(): Collection
-    // {
-    //     return $this->permissions;
-    // }
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
 
-    // public function addPermisssion(Permission $permissions): self
-    // {
-    //     if (!$this->permissions->contains($permissions)) {
-    //         $this->permissions[] = $permissions;
-    //     }
+    public function addPermisssion(Permission $permissions): self
+    {
+        if (!$this->permissions->contains($permissions)) {
+            $this->permissions[] = $permissions;
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removePermission(Permission $permissions): self
-    // {
-    //     if ($this->permissions->contains($permissions)) {
-    //         $this->permissions->removeElement($permissions);
-    //     }
+    public function removePermission(Permission $permissions): self
+    {
+        if ($this->permissions->contains($permissions)) {
+            $this->permissions->removeElement($permissions);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
     // /**
@@ -512,82 +531,82 @@ class User
     // /**
     //  * Get the value of demandeInterventions
     //  */
-    // public function getSupportInfoUser()
-    // {
-    //     return $this->supportInfoUser;
-    // }
+    public function getSupportInfoUser()
+    {
+        return $this->supportInfoUser;
+    }
 
-    // public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    // {
-    //     if (!$this->supportInfoUser->contains($supportInfoUser)) {
-    //         $this->supportInfoUser[] = $supportInfoUser;
-    //         $supportInfoUser->setUserId($this);
-    //     }
+    public function addSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    {
+        if (!$this->supportInfoUser->contains($supportInfoUser)) {
+            $this->supportInfoUser[] = $supportInfoUser;
+            $supportInfoUser->setUserId($this);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
-    // {
-    //     if ($this->supportInfoUser->contains($supportInfoUser)) {
-    //         $this->supportInfoUser->removeElement($supportInfoUser);
-    //         if ($supportInfoUser->getUserId() === $this) {
-    //             $supportInfoUser->setUserId(null);
-    //         }
-    //     }
+    public function removeSupportInfoUser(DemandeSupportInformatique $supportInfoUser): self
+    {
+        if ($this->supportInfoUser->contains($supportInfoUser)) {
+            $this->supportInfoUser->removeElement($supportInfoUser);
+            if ($supportInfoUser->getUserId() === $this) {
+                $supportInfoUser->setUserId(null);
+            }
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // /**
-    //  * Get the value of supportInfoIntervenant
-    //  */
-    // public function getSupportInfoIntervenant()
-    // {
-    //     return $this->supportInfoIntervenant;
-    // }
+    /**
+     * Get the value of supportInfoIntervenant
+     */
+    public function getSupportInfoIntervenant()
+    {
+        return $this->supportInfoIntervenant;
+    }
 
-    // /**
-    //  * Set the value of supportInfoIntervenant
-    //  *
-    //  * @return  self
-    //  */
-    // public function setSupportInfoIntervenant($supportInfoIntervenant)
-    // {
-    //     $this->supportInfoIntervenant = $supportInfoIntervenant;
+    /**
+     * Set the value of supportInfoIntervenant
+     *
+     * @return  self
+     */
+    public function setSupportInfoIntervenant($supportInfoIntervenant)
+    {
+        $this->supportInfoIntervenant = $supportInfoIntervenant;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // /**
-    //  * Get the value of demandeInterventions
-    //  */
-    // public function getTikPlanningUser()
-    // {
-    //     return $this->tikPlanningUser;
-    // }
+    /**
+     * Get the value of demandeInterventions
+     */
+    public function getTikPlanningUser()
+    {
+        return $this->tikPlanningUser;
+    }
 
-    // public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    // {
-    //     if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
-    //         $this->tikPlanningUser[] = $tikPlanningUser;
-    //         $tikPlanningUser->setUserId($this);
-    //     }
+    public function addTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    {
+        if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
+            $this->tikPlanningUser[] = $tikPlanningUser;
+            $tikPlanningUser->setUserId($this);
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
-    // public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
-    // {
-    //     if ($this->tikPlanningUser->contains($tikPlanningUser)) {
-    //         $this->tikPlanningUser->removeElement($tikPlanningUser);
-    //         if ($tikPlanningUser->getUserId() === $this) {
-    //             $tikPlanningUser->setUserId(null);
-    //         }
-    //     }
+    public function removeTikPlanningUser(TkiPlanning $tikPlanningUser): self
+    {
+        if ($this->tikPlanningUser->contains($tikPlanningUser)) {
+            $this->tikPlanningUser->removeElement($tikPlanningUser);
+            if ($tikPlanningUser->getUserId() === $this) {
+                $tikPlanningUser->setUserId(null);
+            }
+        }
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 
     /**
@@ -611,34 +630,34 @@ class User
     }
 
 
-    // /**
-    //  * RECUPERE LES id de l'agence Autoriser
-    //  */
-    // public function getAgenceAutoriserIds(): array
-    // {
-    //     return $this->agencesAutorisees->map(function ($agenceAutorise) {
-    //         return $agenceAutorise->getId();
-    //     })->toArray();
-    // }
+    /**
+     * RECUPERE LES id de l'agence Autoriser
+     */
+    public function getAgenceAutoriserIds(): array
+    {
+        return $this->agencesAutorisees->map(function ($agenceAutorise) {
+            return $agenceAutorise->getId();
+        })->toArray();
+    }
 
 
-    // /**
-    //  * RECUPERE LES id du service Autoriser
-    //  */
-    // public function getServiceAutoriserIds(): array
-    // {
-    //     return $this->serviceAutoriser->map(function ($serviceAutorise) {
-    //         return $serviceAutorise->getId();
-    //     })->toArray();
-    // }
+    /**
+     * RECUPERE LES id du service Autoriser
+     */
+    public function getServiceAutoriserIds(): array
+    {
+        return $this->serviceAutoriser->map(function ($serviceAutorise) {
+            return $serviceAutorise->getId();
+        })->toArray();
+    }
 
 
-    // public function getApplicationsIds(): array
-    // {
-    //     return $this->applications->map(function ($app) {
-    //         return $app->getId();
-    //     })->toArray();
-    // }
+    public function getApplicationsIds(): array
+    {
+        return $this->applications->map(function ($app) {
+            return $app->getId();
+        })->toArray();
+    }
 
 
     public function getPassword() {}
@@ -653,4 +672,24 @@ class User
     public function getUsername() {}
 
     public function getUserIdentifier() {}
+
+    /**
+     * Get the value of MotDePasse
+     */
+    public function getMotDePasse()
+    {
+        return $this->MotDePasse;
+    }
+
+    /**
+     * Set the value of MotDePasse
+     *
+     * @return  self
+     */
+    public function setMotDePasse($MotDePasse)
+    {
+        $this->MotDePasse = $MotDePasse;
+
+        return $this;
+    }
 }

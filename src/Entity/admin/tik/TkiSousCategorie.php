@@ -59,7 +59,7 @@ class TkiSousCategorie
      * GETTERS and SETTERS
      *
     =====================================================================================*/
-    
+
     public function getId()
     {
         return $this->id;

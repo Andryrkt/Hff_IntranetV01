@@ -108,76 +108,75 @@ class ProfilUser
     }
 }
 
-// namespace App\Entity;
+namespace App\Entity;
 
-// class ProfilUserEntity
-// {
-//     // private $ID_Profil;
-//     private $Utilisateur;
-//     private $Profil;
-//     private $App;
-//     private $Matricule;
-//     private $Mail;
+class ProfilUserEntity
+{
+    private $ID_Profil;
+    private $Utilisateur;
+    private $Profil;
+    private $App;
+    private $Matricule;
+    private $Mail;
 
-//     // Ajoutez ici les getters et setters pour chaque propriété
-//     // public function getIdProfil()
-//     // {
-//     //     return $this->ID_Profil;
-//     // }
+    // Ajoutez ici les getters et setters pour chaque propriété
+    public function getIdProfil()
+    {
+        return $this->ID_Profil;
+    }
 
-//     // public function setIdProfil($ID_Profil)
-//     // {
-//     //     $this->ID_Profil = $ID_Profil;
-//     // }
+    public function setIdProfil($ID_Profil)
+    {
+        $this->ID_Profil = $ID_Profil;
+    }
 
-//     public function getUtilisateur()
-//     {
-//         return $this->Utilisateur;
-//     }
+    public function getUtilisateur()
+    {
+        return $this->Utilisateur;
+    }
 
-//     public function setUtilisateur($Utilisateur)
-//     {
-//         $this->Utilisateur = $Utilisateur;
-//     }
+    public function setUtilisateur($Utilisateur)
+    {
+        $this->Utilisateur = $Utilisateur;
+    }
 
-//     public function getProfil()
-//     {
-//         return $this->Profil;
-//     }
+    public function getProfil()
+    {
+        return $this->Profil;
+    }
 
-//     public function setProfil($Profil)
-//     {
-//         $this->Profil = $Profil;
-//     }
+    public function setProfil($Profil)
+    {
+        $this->Profil = $Profil;
+    }
 
-//     public function getApp()
-//     {
-//         return $this->App;
-//     }
+    public function getApp()
+    {
+        return $this->App;
+    }
 
-//     public function setApp($App)
-//     {
-//         $this->App = $App;
-//     }
+    public function setApp($App)
+    {
+        $this->App = $App;
+    }
 
-//     public function getMatricule()
-//     {
-//         return $this->Matricule;
-//     }
+    public function getMatricule()
+    {
+        return $this->Matricule;
+    }
 
-//     public function setMatricule($Matricule)
-//     {
-//         $this->Matricule = $Matricule;
-//     }
+    public function setMatricule($Matricule)
+    {
+        $this->Matricule = $Matricule;
+    }
 
-//     public function getMail()
-//     {
-//         return $this->Mail;
-//     }
+    public function getMail()
+    {
+        return $this->Mail;
+    }
 
-//     public function setMail($Mail)
-//     {
-//         $this->Mail = $Mail;
-//     }
-
-// }
+    public function setMail($Mail)
+    {
+        $this->Mail = $Mail;
+    }
+}

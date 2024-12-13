@@ -52,13 +52,13 @@ class DemandeSupportInformatiqueController extends Controller
             self::$em->persist($supportInfo);
             self::$em->flush();
 
-            $this->envoyerMailAuxValidateurs([
-                'id'            => $donnerForm->getId(),
-                'numTik'        => $donnerForm->getNumeroTicket(),
-                'objet'         => $donnerForm->getObjetDemande(),
-                'detail'        => $donnerForm->getDetailDemande(),
-                'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
-            ]);
+            // $this->envoyerMailAuxValidateurs([
+            //     'id'            => $donnerForm->getId(),
+            //     'numTik'        => $donnerForm->getNumeroTicket(),
+            //     'objet'         => $donnerForm->getObjetDemande(),
+            //     'detail'        => $donnerForm->getDetailDemande(),
+            //     'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
+            // ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
@@ -103,8 +103,8 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUtilisateurDemandeur($user->getNomUtilisateur())
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
-            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() .'-'. $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() .'-'. $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . '-' . $donnerForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
             ->setCodeSociete($user->getSociettes()->getCodeSociete())
@@ -186,7 +186,7 @@ class DemandeSupportInformatiqueController extends Controller
         }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
         $content = [
-            // 'to'        => $emailValidateurs[0],
+            'to'        => $emailValidateurs[0],
             'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'tik/email/emailTik.html.twig',
             'variables' => [
@@ -196,6 +196,6 @@ class DemandeSupportInformatiqueController extends Controller
                 'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]
         ];
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }

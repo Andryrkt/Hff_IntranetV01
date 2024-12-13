@@ -40,8 +40,8 @@ class ListeTikController extends Controller
         ];
         //FIN AUTORISATION
 
-        // $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agenceServiceIps = [];
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        // $agenceServiceIps = [];
 
         $this->initialisationFormRecherche($autorisation, $agenceServiceIps, $tikSearch, $user);
 
