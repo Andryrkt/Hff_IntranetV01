@@ -218,7 +218,7 @@ class PlanningModel extends Model
     }
 
     $vligneType = $this->typeLigne($criteria);  
-    $vPiecesSum = $this->sumPieces($criteria);
+    //$vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);
     $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
     $vMonthStatutPlan = $this->planMonth($criteria);
@@ -337,17 +337,17 @@ class PlanningModel extends Model
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
                             
-                     CASE  WHEN slor_natcm = 'C' THEN 
-                     'COMMANDE'
-                      WHEN slor_natcm = 'L' THEN 
-                      'RECEPTION'
+                      CASE  
+                        WHEN slor_natcm = 'C' THEN 'COMMANDE'
+                        WHEN slor_natcm = 'L' THEN 'RECEPTION'
                       END AS Statut_ctrmq,
-                      CASE WHEN slor_natcm = 'C' THEN 
-                      slor_numcf
-                      WHEN slor_natcm = 'L' THEN 
-                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
-                      AND fllf_ligne = slor_noligncm
-                      AND fllf_refp = slor_refp)
+                      CASE 
+                        WHEN slor_natcm = 'C' THEN 
+                          slor_numcf
+                        WHEN slor_natcm = 'L' THEN 
+                          (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
+                          AND fllf_ligne = slor_noligncm
+                          AND fllf_refp = slor_refp)
                       END  AS numeroCmd,
 
                       CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN

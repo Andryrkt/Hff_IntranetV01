@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-
 class DitController extends Controller
 {
     use DitTrait;
@@ -54,6 +53,7 @@ class DitController extends Controller
         {
             
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
+            
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
             $application->setDerniereId($dits->getNumeroDemandeIntervention());
@@ -80,7 +80,7 @@ class DitController extends Controller
             
             //ENVOYER le PDF DANS DOXCUWARE
         
-                $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             
 
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);

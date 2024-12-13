@@ -190,7 +190,7 @@ class DitOrSoumisAValidationModel extends Model
 
         $data = $this->connect->fetchResults($result);
 
-        return  array_column($this->convertirEnUtf8($data), 'position');
+        return  $this->convertirEnUtf8($data);
     }
 
     public function recupNbPieceMagasin($numOr)

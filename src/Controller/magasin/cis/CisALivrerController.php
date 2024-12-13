@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Entity\dit\DemandeIntervention;
 use App\Model\magasin\cis\CisALivrerModel;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\magasin\cis\ALivrerSearchtype;
@@ -45,8 +46,7 @@ class CisALivrerController extends Controller
             $criteria = $form->getData();
         } 
 
-        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
-        $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
+        $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
@@ -70,12 +70,11 @@ class CisALivrerController extends Controller
          //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
 
-        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
-        $entities = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
+        $entities = $this->recupData($cisATraiterModel, $criteria);
 
          // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv', 'ID Materiel', 'Marque', 'Casier']; 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['num_dit'],
@@ -93,11 +92,31 @@ class CisALivrerController extends Controller
                 $entity['quantitercommander'],
                 $entity['quantiteralivrer'],
                 $entity['quantiterlivrer'],
+                $entity['idMateriel'],
+                $entity['marque'],
+                $entity['casier']
             ];
         }
 
         $this->excelService->createSpreadsheet($data);
     }
 
+    private function recupData($cisATraiterModel, $criteria)
+    {
+        $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
+        $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
+        
+        for ($i=0; $i < count($data) ; $i++) { 
     
+            $numeroOr = $data[$i]['num_or'];
+            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $idMateriel = $ditRepository->getIdMateriel();
+            $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
+            $data[$i]['idMateriel'] = $idMateriel;
+            $data[$i]['marque'] = $marqueCasier[0]['marque'];
+            $data[$i]['casier'] = $marqueCasier[0]['casier'];
+        }
+        return $data;
+    }
 }

@@ -68,7 +68,7 @@ class DitFactureSoumisAValidationController extends Controller
             if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
-            }elseif ($nbFact === 0) {
+            } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->notification($message);
             } elseif ($nbFactSqlServer > 0) {
