@@ -233,7 +233,7 @@ class DitModel extends Model
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
-      group by 1,2,3,4,5,6,7"
+      group by 1,2,3,4,5"
       ;
 
       $result = $this->connect->executeQuery($statement);

@@ -505,7 +505,7 @@ class BadmForm2Type extends AbstractType
         FileType::class, 
         [
             'label' => 'Image (Merci de mettre un fichier image)',
-            'required' => false,
+            'required' => $idTypeMouvement === 5,
             'constraints' => [
                 new File([
                     'maxSize' => '5M',

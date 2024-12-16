@@ -114,7 +114,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
     console.log(migration);
-
+    console.log(migration == "1");
+    
     // Mettre à jour le lien avec le numDit dynamique
     const dossierDitLink = document.getElementById("dossierDitLink");
     if (migration == "1") {
