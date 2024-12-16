@@ -55,11 +55,7 @@ class DitController extends Controller
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($dits->getNumeroDemandeIntervention());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+            $this->modificationDernierIdApp($dits);
 
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
@@ -79,7 +75,6 @@ class DitController extends Controller
             self::$em->flush();
 
             //ENVOYER le PDF DANS DOXCUWARE
-
             $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
 
 
@@ -94,6 +89,14 @@ class DitController extends Controller
         ]);
     }
 
+    private function modificationDernierIdApp($dits)
+    {
+        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dits->getNumeroDemandeIntervention());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
+    }
     private function autorisationApp($user): bool
     {
         //id pour DIT est 4
