@@ -33,8 +33,53 @@ function applyRowspanAndClass(row, rowSpanCount) {
     if (cell) {
       cell.rowSpan = rowSpanCount;
       cell.classList.add("rowspan-cell");
+
+      if (key === "ditNumber") {
+        // Crée le rectangle
+        let rectangle = document.createElement("div");
+        //let matMarqueCasier = row.getElementsByTagName("td")[5]?.textContent.trim() || "N/A"; // Colonne 5, à ajuster
+        rectangle.textContent = "Loading ...";
+        rectangle.classList.add("rectangle");
+
+        // Ajouter le rectangle au début de la cellule
+        cell.insertBefore(rectangle, cell.firstChild);
+
+        // Récupérer la valeur de numOr
+        let numOr = row
+          .getElementsByTagName("td")
+          [cellIndices["orNumber"]]?.textContent.trim(); // Colonne définie par "orNumber" dans cellIndices
+        console.log(numOr);
+
+        // Passer la valeur de numOr et le rectangle à la fonction
+        if (numOr) {
+          NumMatMarqueCasier(numOr, rectangle);
+        } else {
+          console.error("numOr introuvable ou vide pour cette ligne.");
+        }
+      }
     }
   });
+}
+
+function NumMatMarqueCasier(numOr, rectangle) {
+  // Fetch les données dynamiques
+  const url = `/Hffintranet/api/numMat-marq-casier/${numOr}`;
+  fetch(url) // Remplacez avec votre URL d'API
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des données");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      let contenu = `${data.numMat} | ${data.marque} | ${data.casier}`;
+      // Mettre à jour le contenu du rectangle avec les données récupérées
+      rectangle.textContent = contenu || "N/A"; // Exemple avec une propriété
+    })
+    .catch((error) => {
+      console.error("Erreur :", error);
+      rectangle.textContent = "Pas de N° DIT - Erreur de chargement";
+    });
 }
 
 function hideCells(row) {

@@ -5,6 +5,7 @@ namespace App\Controller\Traits\dit;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\dit\DitSearch;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -62,23 +63,22 @@ trait DitListTrait
     private function ajoutDonnerRecherche($form, $ditSearch)
     {
       $ditSearch
-          ->setStatut($form->get('statut')->getData())
-          ->setNiveauUrgence($form->get('niveauUrgence')->getData())
-          ->setTypeDocument($form->get('typeDocument')->getData())
-          ->setInternetExterne($form->get('internetExterne')->getData())
-          ->setDateDebut($form->get('dateDebut')->getData())
-          ->setDateFin($form->get('dateFin')->getData())
-          ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
-          ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
-          ->setNumDit($form->get('numDit')->getData())
-          ->setNumOr($form->get('numOr')->getData())
-          ->setStatutOr($form->get('statutOr')->getData())
-          ->setDitSansOr($form->get('ditSansOr')->getData())
-          ->setCategorie($form->get('categorie')->getData())
-          ->setUtilisateur($form->get('utilisateur')->getData())
-          ;
-          $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
-        
+            ->setStatut($form->get('statut')->getData())
+            ->setNiveauUrgence($form->get('niveauUrgence')->getData())
+            ->setTypeDocument($form->get('typeDocument')->getData())
+            ->setInternetExterne($form->get('internetExterne')->getData())
+            ->setDateDebut($form->get('dateDebut')->getData())
+            ->setDateFin($form->get('dateFin')->getData())
+            ->setAgenceEmetteur($form->get('agenceEmetteur')->getData())
+            ->setServiceEmetteur($form->get('serviceEmetteur')->getData())
+            ->setNumDit($form->get('numDit')->getData())
+            ->setNumOr($form->get('numOr')->getData())
+            ->setStatutOr($form->get('statutOr')->getData())
+            ->setDitSansOr($form->get('ditSansOr')->getData())
+            ->setCategorie($form->get('categorie')->getData())
+            ->setUtilisateur($form->get('utilisateur')->getData())
+            ;
+        $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
     }
 
 
@@ -386,5 +386,152 @@ trait DitListTrait
         }
 
         return $tab;
+    }
+
+
+    private function donnerAAfficher($ditListeModel, $ditSearch, $option, $page, $limit, $em)
+    {
+        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+        
+        //ajout de donner du statut achat piece dans data
+        $this->ajoutStatutAchatPiece($paginationData['data']);
+
+        //ajout de donner du statut achat locaux dans data
+        $this->ajoutStatutAchatLocaux($paginationData['data']);
+
+        //ajout nombre de pièce joint
+        $this->ajoutNbrPj($paginationData['data'], $em);
+
+        //recuperation de numero de serie et parc pour l'affichage
+        $this->ajoutNumSerieNumParc($paginationData['data']);
+
+        $this->ajoutQuatreStatutOr($paginationData['data']);
+
+        $this->ajoutConditionOrEqDit($paginationData['data']);
+    
+        $this->ajoutri($paginationData['data'], $ditListeModel, $em);
+
+        $this->ajoutMarqueCasierMateriel($paginationData['data']);
+
+        return $paginationData;
+    }
+
+    private function dossierDit($request, $formDocDansDW)
+    {
+        
+        $formDocDansDW->handleRequest($request);
+            
+        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
+                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            }
+        } 
+    }
+
+    private function Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds): array
+    {
+        return  [
+            'boolean' => $autoriser,
+            'autorisationRoleEnergie' => $autorisationRoleEnergie,
+            'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
+            'agenceAutoriserIds' => $agenceIds,
+            'serviceAutoriserIds' => $serviceIds
+            //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
+        ];
+    }
+
+    private function transformationEnObjet(array $criteria)
+    {
+        $ditSearch = new DitSearch();
+        $ditSearch
+            ->setTypeDocument($criteria["typeDocument"])
+            ->setNiveauUrgence($criteria["niveauUrgence"])
+            ->setStatut($criteria["statut"])
+            ->setInternetExterne($criteria["interneExterne"])
+            ->setDateDebut($criteria["dateDebut"])
+            ->setDateFin($criteria["dateFin"])
+            ->setIdMateriel($criteria["idMateriel"])
+            ->setNumParc($criteria["numParc"])
+            ->setNumSerie($criteria["numSerie"])
+            ->setAgenceEmetteur($criteria["agenceEmetteur"])
+            ->setServiceEmetteur($criteria["serviceEmetteur"])
+            ->setAgenceDebiteur($criteria["agenceDebiteur"])
+            ->setServiceDebiteur($criteria["serviceDebiteur"])
+            ->setNumDit($criteria["numDit"])
+            ->setNumOr($criteria["numOr"])
+            ->setStatutOr($criteria["statutOr"])
+            ->setDitSansOr($criteria["ditSansOr"])
+            ->setCategorie($criteria["categorie"])
+            ->setUtilisateur($criteria["utilisateur"])
+            ->setDitSansOr($criteria["ditSansOr"])
+            ->setSectionAffectee($criteria["sectionAffectee"])
+            ->setSectionSupport1($criteria["sectionSupport1"])
+            ->setSectionSupport2($criteria["sectionSupport2"])
+            ->setSectionSupport3($criteria["sectionSupport3"])
+        ;
+
+        return $ditSearch;
+    }
+
+    private function DonnerAAjouterExcel($ditSearch, $options, $em): array 
+    {
+        $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
+        
+        $this->ajoutStatutAchatPiece($entities);
+
+        $this->ajoutStatutAchatLocaux($entities);
+
+        $this->ajoutNbrPj($entities, $em);
+
+        $this->ajoutNumSerieNumParc($entities); 
+
+        $this->ajoutMarqueCasierMateriel($entities);
+
+        return $entities;
+    }
+
+    private function transformationEnTableauAvecEntet($entities): array
+    {
+        $data = [];
+        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
+
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity->getIdStatutDemande()->getDescription(),
+                $entity->getNumeroDemandeIntervention(), 
+                $entity->getTypeDocument()->getDescription(),
+                $entity->getIdNiveauUrgence()->getDescription(),
+                $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
+                $entity->getNumSerie(),
+                $entity->getNumParc(),
+                $entity->getDateDemande(),
+                $entity->getInternetExterne(),
+                $entity->getAgenceServiceEmetteur(),
+                $entity->getAgenceServiceDebiteur(),
+                $entity->getObjetDemande(),
+                $entity->getSectionAffectee(),
+                $entity->getNumeroOr(),
+                $entity->getStatutOr(),
+                $entity->getEtatFacturation(),
+                $entity->getRi(),
+                $entity->getNbrPj(),
+                $entity->getUtilisateurDemandeur(),
+                $entity->getMarque(),
+                $entity->getCasier()
+            ];
+        }
+
+        return $data;
+
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'success', 'message' => $message]);
+        $this->redirectToRoute("dit_index");
     }
 }

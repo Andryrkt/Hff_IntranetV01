@@ -3,3 +3,32 @@
     font-weight: bold;
     color: red !important;
 }
+
+
+.rowspan-cell {
+  position: relative; /* Positionner le rectangle par rapport à la cellule */
+  padding-top: 22px !important; /*Ajouter un espace en haut pour le rectangle*/
+}
+
+.rectangle {
+  position: absolute;
+  top: 0 !important; /* Coller en haut */
+  left: 0 !important; /* Coller à gauche */
+  background-color: #FBBB01; /* Couleur du rectangle */
+  color: #000; /* Couleur du texte */
+  padding: 3px;
+  font-size: 0.5rem;
+  font-weight: bold;
+  border-radius: 3px;
+  display: block !important;
+  z-index: 0; /* S'assurer que le rectangle reste visible */
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2); /* Ajouter une ombre pour le style */
+  white-space: nowrap; /* Empêche les retours à la ligne */
+}
+
+
+
+
+  
+  
+  

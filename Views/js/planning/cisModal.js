@@ -10,7 +10,7 @@ listecisModal.addEventListener("show.bs.modal", function (event) {
   console.log(migration);
 
   const dossierDitLinks = document.getElementById("dossierDitLink");
-console.log(dossierDitLinks);
+  console.log(dossierDitLinks);
 
   if (migration === "1" && dossierDitLinks) {
     dossierDitLinks.style.display = "none";

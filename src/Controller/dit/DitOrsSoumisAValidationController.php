@@ -50,6 +50,7 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Le DIT n'a pas encore du numéro OR";
             $this->notification($message);
         }
+
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
             ->setNumeroDit($numDit)
@@ -83,7 +84,7 @@ class DitOrsSoumisAValidationController extends Controller
             
             $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
-            
+
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
              /** FIN CONDITION DE BLOCAGE */
             
@@ -144,7 +145,6 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
                 $this->redirectToRoute("dit_index");
             }
-        
         }
 
 

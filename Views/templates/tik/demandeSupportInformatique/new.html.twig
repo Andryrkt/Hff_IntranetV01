@@ -69,7 +69,12 @@
 									</div>
 
 								</div>
-								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+								<div class=" mt-4 sousTitre">
+									<h3>Pièces Jointes<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
+</h3>
+									<div></div>
+								</div>
+								
 
 
 								<div class="file-upload-wrapper">
@@ -88,7 +93,6 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
 						<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
 							<i class="fas fa-save"></i>
 							Enregistrer
