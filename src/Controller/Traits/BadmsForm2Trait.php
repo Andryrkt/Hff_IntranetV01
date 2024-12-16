@@ -103,8 +103,6 @@ trait BadmsForm2Trait
             $dateMiseLocation = $this->dateMiseEnlocation($data);
        }
 
- 
-  
 
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);

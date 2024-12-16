@@ -21,6 +21,9 @@ const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
   "#resultatExploitation"
 );
+const erreur = document.querySelector("#erreur");
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
+
 document.addEventListener("DOMContentLoaded", (event) => {
   let timeout = null;
 
@@ -91,103 +94,151 @@ function clearAndToggleRequired(excludeInput) {
   }
 }
 
+function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
+  return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
+}
+
+function resetInfoMateriel(message) {
+  containerInfoMateriel.innerHTML = "";
+  idMaterielInput.value = "";
+  numParcInput.value = "";
+  numSerieInput.value = "";
+  erreur.innerHTML = message;
+}
+
+function showSpinner(container) {
+  container.innerHTML = `
+    <div class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  `;
+}
+
+function createMaterielInfoDisplay(container, data) {
+  if (!container) {
+    console.error(`Container not found.`);
+    return;
+  }
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    console.error("Invalid or empty data provided.");
+    container.innerHTML =
+      '<p class="text-danger">Aucune donnée disponible.</p>';
+    return;
+  }
+
+  const fields = [
+    { label: "Constructeur", key: "constructeur" },
+    { label: "Désignation", key: "designation" },
+    { label: "KM", key: "km" },
+    { label: "Modèle", key: "modele" },
+    { label: "Casier", key: "casier_emetteur" },
+    { label: "Heures", key: "heure" },
+  ];
+
+  const createFieldHtml = (label, value) => `
+    <li class="fw-bold">
+      ${label} :
+      <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
+        ${value || ""}
+      </div>
+    </li>
+  `;
+
+  container.innerHTML = `
+    <ul class="list-unstyled">
+      <div class="row">
+        <div class="col-12 col-md-6">
+          ${fields
+            .slice(0, 3)
+            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .join("")}
+        </div>
+        <div class="col-12 col-md-6">
+          ${fields
+            .slice(3)
+            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .join("")}
+        </div>
+      </div>
+    </ul>
+  `;
+}
+
 function InfoMateriel() {
   const idMateriel = idMaterielInput.value;
   const numParc = numParcInput.value;
   const numSerie = numSerieInput.value;
-  const erreur = document.querySelector("#erreur");
-  const condition =
-    (idMateriel !== "" && idMateriel !== null && idMateriel !== undefined) ||
-    (numParc !== "" && numParc !== null && numParc !== undefined) ||
-    (numSerie !== "" && numSerie !== null && numSerie !== undefined);
-  if (condition) {
+
+  const hasValidInput = idMateriel !== "" || numParc !== "" || numSerie !== "";
+
+  if (hasValidInput) {
     erreur.innerHTML = "";
-    let url = "/Hffintranet/fetch-materiel";
+    const url = buildUrl(
+      "/Hffintranet/fetch-materiel",
+      idMateriel,
+      numParc,
+      numSerie
+    );
 
-    if (idMateriel) {
-      url += `/${idMateriel}`;
-    } else {
-      url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
-    }
+    // Afficher le spinner dans le container
+    showSpinner(containerInfoMateriel);
 
-    if (numParc) {
-      url += `/${numParc}`;
-    } else if (!idMateriel) {
-      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
-
-    if (numSerie) {
-      url += `/${numSerie}`;
-    } else if (!numParc && !idMateriel) {
-      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
     fetch(url)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des données.");
+        }
+        return response.json();
+      })
       .then((data) => {
         console.log(data);
 
-        // if (idMaterielInput.value == "") {
-        //   idMaterielInput.value = data[0].num_matricule;
-        // }
-        // if (numParcInput.value == "") {
-        //   numParcInput.value = data[0].num_parc;
-        // }
-        // if (numSerieInput.value == "") {
-        //   numSerieInput.value = data[0].num_serie;
-        // }
         erreur.innerHTML = "";
-        constructeurInput.innerHTML = data[0].constructeur;
-        designationInput.innerHTML = data[0].designation;
-        modelInput.innerHTML = data[0].modele;
-        casierInput.innerHTML = data[0].casier_emetteur;
-        kmInput.innerHTML = data[0].km;
-        heuresInput.innerHTML = data[0].heure;
-        // coutAcquisitionInput.innerHTML = formatNumber(data[0].prix_achat);
-        // amortissementInput.innerHTML = formatNumber(data[0].amortissement);
-        // vncInput.innerHTML = formatNumber(
-        //   data[0].prix_achat - data[0].amortissement
-        // );
-        // caInput.innerHTML = formatNumber(data[0].chiffreaffaires);
-        // chargeLocativeInput.innerHTML = formatNumber(data[0].chargelocative);
-        // chargeEntretienInput.innerHTML = formatNumber(data[0].chargeentretien);
-        // resultatExploitationInput.innerHTML = formatNumber(
-        //   data[0].chiffreaffaires -
-        //     data[0].chargelocative -
-        //     data[0].chargeentretien
-        // );
+        // Populate fields with fetched data
+        idMaterielInput.value ||= data[0].num_matricule;
+        numParcInput.value ||= data[0].num_parc;
+        numSerieInput.value ||= data[0].num_serie;
+
+        // Effacer le spinner et afficher les données
+        containerInfoMateriel.innerHTML = "";
+        createMaterielInfoDisplay(containerInfoMateriel, data);
       })
       .catch((error) => {
         if (error instanceof SyntaxError) {
-          erreur.innerHTML =
-            "Erreur : l'information du matériel n'est pas dans la base de données.";
-          constructeurInput.innerHTML = "";
-          designationInput.innerHTML = "";
-          modelInput.innerHTML = "";
-          casierInput.innerHTML = "";
-          kmInput.innerHTML = "";
-          heuresInput.innerHTML = "";
-          // coutAcquisitionInput.innerHTML = "";
-          // amortissementInput.innerHTML = "";
-          // vncInput.innerHTML = "";
-          // caInput.innerHTML = "";
-          // chargeLocativeInput.innerHTML = "";
-          // chargeEntretienInput.innerHTML = "";
-          // resultatExploitationInput.innerHTML = "";
+          resetInfoMateriel(
+            "Erreur : l'information du matériel n'est pas dans la base de données."
+          );
         } else {
           console.error("Error:", error);
           erreur.innerHTML = "Erreur : " + error.message;
         }
       });
   } else {
-    erreur.innerHTML = "veuillez completer l'un des champs ";
-    constructeurInput.innerHTML = "";
-    designationInput.innerHTML = "";
-    modelInput.innerHTML = "";
-    casierInput.innerHTML = "";
-    kmInput.innerHTML = "";
-    heuresInput.innerHTML = "";
+    resetInfoMateriel("veuillez completer l'un des champs ");
   }
 }
+
+// Gestionnaire pour surveiller les champs d'entrée
+[idMaterielInput, numParcInput, numSerieInput].forEach((input) => {
+  input.addEventListener("input", () => {
+    const idMateriel = idMaterielInput.value.trim();
+    const numParc = numParcInput.value.trim();
+    const numSerie = numSerieInput.value.trim();
+
+    // Si un champ est effacé, réinitialisez tout
+    if (input.value === "") {
+      resetInfoMateriel(
+        "Les informations ont été réinitialisées suite à un changement."
+      );
+    } else {
+      // Sinon, rechargez les informations pour les champs restants
+      InfoMateriel();
+    }
+  });
+});
 
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
