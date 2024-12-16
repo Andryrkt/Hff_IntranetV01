@@ -78,7 +78,7 @@ function NumMatMarqueCasier(numOr, rectangle) {
     })
     .catch((error) => {
       console.error("Erreur :", error);
-      rectangle.textContent = "Erreur de chargement";
+      rectangle.textContent = "Pas de N° DIT - Erreur de chargement";
     });
 }
 
