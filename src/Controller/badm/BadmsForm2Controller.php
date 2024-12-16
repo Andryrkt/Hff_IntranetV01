@@ -79,20 +79,22 @@ class BadmsForm2Controller extends Controller
 
                     $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
                 
+                    //RECUPERATION de la dernière NumeroDemandeIntervention 
+                    $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
+                    $application->setDerniereId($badm->getNumBadm());
+                    // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+                    self::$em->persist($application);
+                    self::$em->flush();
 
                     //recuperation des ordres de réparation
                     $orDb = $this->badm->recupeOr((int)$data[0]['num_matricule']);
                     $OR = $this->ouiNonOr($orDb);
                     $orDb = $this->miseEnformeOrDb($orDb);
-                     
-                    //envoie des pièce jointe dans une dossier et le fusionner
-                    $this->envoiePieceJoint($form, $badm);
                     
-                    $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
 
                     $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
                     $idServiceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
-                   
+                    
                     $badm
                     ->setAgenceEmetteurId($idAgenceEmetteur)
                     ->setServiceEmetteurId($idServiceEmetteur)
@@ -106,16 +108,13 @@ class BadmsForm2Controller extends Controller
 
                     /** CREATION PDF */
                     $createPdf = new GenererPdfBadm();
+                    $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
                     $createPdf->genererPdfBadm($generPdfBadm, $orDb);
+                    //envoie des pièce jointe dans une dossier et le fusionner
+                    $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
+                    //copy du fichier fusionner dan sdocuware
                     $createPdf->copyInterneToDOXCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3));
                 
-                    //RECUPERATION de la dernière NumeroDemandeIntervention 
-                    $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
-                    $application->setDerniereId($badm->getNumBadm());
-                    // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-                    self::$em->persist($application);
-                    self::$em->flush();
-                    
                     $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
                     $this->redirectToRoute("badmListe_AffichageListeBadm");
                 }
