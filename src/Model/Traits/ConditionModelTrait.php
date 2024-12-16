@@ -50,20 +50,20 @@ trait ConditionModelTrait
         if (!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === "PIECES MAGASIN"){
                 $piece = " AND (slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'PDV', 'JOV'))
+                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'JOV'))
                     ";
             } else if($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND slor_constp in ('LUB', 'JOV')";
 
             } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
-                $piece = " AND (slor_constp in ('SOM', 'FAT', 'PDV') or slor_constp like 'Z%') ";
+                $piece = " AND (slor_constp in ('SOM', 'FAT') or slor_constp like 'Z%') ";
 
             }else if($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
             $piece = " AND (slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'PDV', 'JOV'))
+                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'JOV'))
                     ";
         }
 
