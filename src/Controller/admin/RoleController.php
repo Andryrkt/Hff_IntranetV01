@@ -22,49 +22,55 @@ class RoleController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Role::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
 
+        $this->logUserVisit('role_index'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('admin/role/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        self::$twig->display(
+            'admin/role/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
-         * @Route("/admin/role/new", name="role_new")
-         */
-        public function new(Request $request)
-        {
-            //verification si user connecter
+     * @Route("/admin/role/new", name="role_new")
+     */
+    public function new(Request $request)
+    {
+        //verification si user connecter
         $this->verifierSessionUtilisateur();
-    
-            $form = self::$validator->createBuilder(RoleType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $role= $form->getData();
-                
 
-                $selectedPermissions = $form->get('permissions')->getData();
+        $form = self::$validator->createBuilder(RoleType::class)->getForm();
 
-                foreach ($selectedPermissions as $permission) {
-                    $role->addPermission($permission);
-                }
+        $form->handleRequest($request);
 
-                self::$em->persist($role);
-                self::$em->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $role = $form->getData();
 
-                $this->redirectToRoute("role_index");
+
+            $selectedPermissions = $form->get('permissions')->getData();
+
+            foreach ($selectedPermissions as $permission) {
+                $role->addPermission($permission);
             }
-    
-            self::$twig->display('admin/role/new.html.twig', 
+
+            self::$em->persist($role);
+            self::$em->flush();
+
+            $this->redirectToRoute("role_index");
+        }
+
+        $this->logUserVisit('role_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/role/new.html.twig',
             [
                 'form' => $form->createView()
-            ]);
-        }
+            ]
+        );
+    }
 
 
     /**
@@ -79,7 +85,7 @@ class RoleController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(Role::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(RoleType::class, $user)->getForm();
 
         $form->handleRequest($request);
@@ -89,8 +95,11 @@ class RoleController extends Controller
 
             self::$em->flush();
             $this->redirectToRoute("role_index");
-            
         }
+
+        $this->logUserVisit('role_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/role/edit.html.twig', [
             'form' => $form->createView(),
@@ -98,15 +107,15 @@ class RoleController extends Controller
     }
 
     /**
-    * @Route("/admin/role/delete/{id}", name="role_delete")
-    *
-    * @return void
-    */
+     * @Route("/admin/role/delete/{id}", name="role_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $role = self::$em->getRepository(Role::class)->find($id);
 
         if ($role) {
@@ -121,11 +130,11 @@ class RoleController extends Controller
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();
-        
-                self::$em->remove($role);
-                self::$em->flush();
+
+            self::$em->remove($role);
+            self::$em->flush();
         }
-        
+
         $this->redirectToRoute("role_index");
     }
 }

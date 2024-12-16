@@ -25,9 +25,9 @@ class ListeTikController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $tikSearch = new TikSearch();
-        
+
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
 
@@ -40,9 +40,9 @@ class ListeTikController extends Controller
         ];
         //FIN AUTORISATION
 
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
 
-        $this->initialisationFormRecherche( $autorisation, $agenceServiceIps, $tikSearch, $user);
+        $this->initialisationFormRecherche($autorisation, $agenceServiceIps, $tikSearch, $user);
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(TikSearchType::class, $tikSearch, [
@@ -50,13 +50,12 @@ class ListeTikController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        
-        if($form->isSubmitted() && $form->isValid())
-        {
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $tikSearch = $form->getData();
         }
 
-        $criteria=[];
+        $criteria = [];
         // transformer l'objet tikSearch en tableau
         $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
@@ -75,7 +74,9 @@ class ListeTikController extends Controller
         ];
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
-    
+
+        $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data'        => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
@@ -90,12 +91,12 @@ class ListeTikController extends Controller
     {
         // Initialisation des critères depuis la session
         $criteria = $this->sessionService->get('tik_search_criteria', []) ?? [];
-        
+
         // Définition des valeurs par défaut en fonction des autorisations
         $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
         $serviceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['serviceIps'];
-        
-        $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria))? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
+
+        $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria)) ? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
         $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? self::$em->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
 
         // Si des critères existent, les utiliser pour définir les entités associées
@@ -128,7 +129,7 @@ class ListeTikController extends Controller
                 ->setSousCategorie($entities['sousCategorie'])
                 ->setAutresCategories($entities['autreCategorie']);
         }
-        
+
         // Définition des propriétés générales
         $tikSearch
             ->setAgenceEmetteur($agenceIpsEmetteur)
@@ -164,12 +165,12 @@ class ListeTikController extends Controller
     private function hasRole(User $user, int $roleId): bool
     {
         $roleIds = $user->getRoleIds();
-        
+
         // S'assurer que $roleIds est un tableau avant de continuer.
         if (!is_array($roleIds)) {
             throw new InvalidArgumentException('Les rôles retournés doivent être un tableau.');
         }
-        
-        return in_array($roleId, $roleIds); 
+
+        return in_array($roleId, $roleIds);
     }
 }

@@ -31,13 +31,14 @@ class DetailTikType extends AbstractType
     private $sousCategorieRepository;
     private $categoriesRepository;
 
-   
-    public function __construct() {
+
+    public function __construct()
+    {
         $em = Controller::getEntity();
         $sessionService = new SessionManagerService;
         $this->connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
         $this->sousCategorieRepository = $em->getRepository(TkiSousCategorie::class);
-        $this->categoriesRepository =$em->getRepository(TkiCategorie::class);
+        $this->categoriesRepository = $em->getRepository(TkiCategorie::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -46,13 +47,13 @@ class DetailTikType extends AbstractType
         $statutOuvert  = $idStatut == '79';
         $validateur    = in_array("VALIDATEUR", $this->connectedUser->getRoleNames());
         $intervenant   = in_array("INTERVENANT", $this->connectedUser->getRoleNames());
-        $disabled      = ($statutOuvert) ? !$validateur : $intervenant ;
+        $disabled      = ($statutOuvert) ? !$validateur : $intervenant;
         $builder
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
                 'class'        => TkiCategorie::class,
                 'choice_label' => 'description',
-                'query_builder'=> function(TkiCategorieRepository $TkiCategorieRepository) {
+                'query_builder' => function (TkiCategorieRepository $TkiCategorieRepository) {
                     return $TkiCategorieRepository
                         ->createQueryBuilder('t')
                         ->orderBy('t.description', 'ASC');
@@ -67,18 +68,18 @@ class DetailTikType extends AbstractType
                 'expanded'     => false,
                 'required'     => true,
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                
+
                 $sousCategorie = [];
                 if ($data && $data->getCategorie()) {
                     $sousCategorie = $data->getCategorie()->getSousCategories();
                 }
-            
+
                 $autresCategories = [];
-                if($data && $data->getSousCategorie()) {
-                    $autresCategories = $data->getSousCategorie()->getAutresCategorie();
+                if ($data && $data->getSousCategorie()) {
+                    $autresCategories = $data->getSousCategorie()->getAutresCategories();
                 }
 
                 $form->add('sousCategorie', EntityType::class, [
@@ -88,7 +89,7 @@ class DetailTikType extends AbstractType
                     'placeholder' => '-- Choisir une sous categorie--',
                     'required' => false,
                     'choices' => $sousCategorie,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
                     },
                     'attr' => ['class' => 'sous-categorie']
@@ -101,36 +102,36 @@ class DetailTikType extends AbstractType
                     'placeholder' => '-- Choisir une autre categorie--',
                     'required' => false,
                     'choices' => $autresCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
                     },
                     'attr' => ['class' => 'autre-categorie']
                 ]);
             })
 
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 //souscategorie
                 $sousCategories = [];
-                    if (isset($data['categorie']) && $data['categorie']) {
-                        $categorieId = $data['categorie'];
-                        $categorie = $this->categoriesRepository->find($categorieId);
-                
-                        if ($categorie) {
-                            $sousCategories = $categorie->getSousCategories();
-                        } 
-                    }
+                if (isset($data['categorie']) && $data['categorie']) {
+                    $categorieId = $data['categorie'];
+                    $categorie = $this->categoriesRepository->find($categorieId);
 
-                    //autrecategorie
+                    if ($categorie) {
+                        $sousCategories = $categorie->getSousCategories();
+                    }
+                }
+
+                //autrecategorie
                 $autresCategories = [];
                 if (isset($data['sousCategorie']) && $data['sousCategorie']) {
                     $sousCategorieId = $data['sousCategorie'];
                     $sousCategorie = $this->sousCategorieRepository->find($sousCategorieId);
-            
-                    if ($categorie) {
+
+                    if ($sousCategorie) {
                         $autresCategories = $sousCategorie->getAutresCategories();
-                    } 
+                    }
                 }
 
                 $form->add('sousCategorie', EntityType::class, [
@@ -140,7 +141,7 @@ class DetailTikType extends AbstractType
                     'placeholder' => '-- Choisir une sous categorie--',
                     'required' => false,
                     'choices' => $sousCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
                     },
                     'attr' => ['class' => 'sous-categorie']
@@ -153,7 +154,7 @@ class DetailTikType extends AbstractType
                     'placeholder' => '-- Choisir une autre categorie--',
                     'required' => false,
                     'choices' => $autresCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
                     },
                     'attr' => ['class' => 'autres-categories']
@@ -167,7 +168,7 @@ class DetailTikType extends AbstractType
                 ],
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
-                'query_builder'=> function(WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
+                'query_builder' => function (WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
                     return $WorNiveauUrgenceRepository
                         ->createQueryBuilder('w')
                         ->orderBy('w.description', 'DESC');
@@ -180,12 +181,12 @@ class DetailTikType extends AbstractType
                 'placeholder'  => '-- Choisir un intervenant --',
                 'class'        => User::class,
                 'choice_label' => 'nom_utilisateur',
-                'query_builder'=> function(UserRepository $userRepository) {
+                'query_builder' => function (UserRepository $userRepository) {
                     return $userRepository
                         ->createQueryBuilder('u')
                         ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
                         ->where('r.id = :roleId')  // Filtre sur l'id du rôle
-                        ->setParameter('roleId', 8) 
+                        ->setParameter('roleId', 8)
                         ->orderBy('u.nom_utilisateur', 'ASC');;
                 },
                 'multiple'     => false,
@@ -218,13 +219,13 @@ class DetailTikType extends AbstractType
                 ],
                 'mapped'   => false
             ])
-        ;   
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => DemandeSupportInformatique::class
-        ]);        
+        ]);
     }
 }

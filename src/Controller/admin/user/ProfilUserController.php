@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProfilUserController extends Controller
 {
 
-     /**
+    /**
      * Undocumented function
      *  @Route("/admin/user", name="user_index")
      * @param Request $request
@@ -29,7 +29,7 @@ class ProfilUserController extends Controller
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
+        // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $profilUser = $form->getData();
             self::$em->persist($profilUser);
@@ -39,13 +39,17 @@ class ProfilUserController extends Controller
             $this->redirectToRoute("user_list");
 
             //$this->profilUser->insertData($this->nomTable, $profilUser);
-            
+
         }
 
-        self::$twig->display('admin/user/profilUser.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
+        $this->logUserVisit('user_index'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/user/profilUser.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -58,19 +62,23 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id'=>'DESC']);
+        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display('admin/user/listProfilUser.html.twig', 
-        [
-            'data' => $data
-        ]);
+        $this->logUserVisit('user_list'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/user/listProfilUser.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
-/**
- * @Route("/admin/user/edit/{id}", name="user_update")
- *
- * @return void
- */
+    /**
+     * @Route("/admin/user/edit/{id}", name="user_update")
+     *
+     * @return void
+     */
     public function edit(Request $request, $id)
     {
 
@@ -78,7 +86,7 @@ class ProfilUserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
-        
+
 
         //$user = $this->profilUser->find($this->nomTable, "ID_Profil = {$id}", ProfilUser::class);
 
@@ -89,39 +97,44 @@ class ProfilUserController extends Controller
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
+        // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
             self::$em->flush();
             $this->redirectToRoute("user_list");
             // $profilUser = $form->getData();
             //dd($user);
-           // $this->profilUser->update($this->nomTable, $profilUser, "ID_Profil = {$id}");
-            
+            // $this->profilUser->update($this->nomTable, $profilUser, "ID_Profil = {$id}");
+
         }
 
-        self::$twig->display('admin/user/editProfilUser.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
+        $this->logUserVisit('user_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
 
+        self::$twig->display(
+            'admin/user/editProfilUser.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
- * @Route("/admin/user/delete/{id}", name="user_delete")
- *
- * @return void
- */
+     * @Route("/admin/user/delete/{id}", name="user_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
 
         self::$em->remove($user);
         self::$em->flush();
-        
+
         // $condition = "ID_Profil = {$id}";
         // $this->profilUser->delete($this->nomTable, $condition);
         $this->redirectToRoute("user_list");

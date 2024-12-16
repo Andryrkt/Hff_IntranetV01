@@ -24,12 +24,16 @@ class AgenceServiceIriumController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display('admin/AgenceServiceIrium/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        $this->logUserVisit('AgServIrium_index'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
@@ -46,8 +50,7 @@ class AgenceServiceIriumController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $AgenceServiceAutoriser = $form->getData();
             self::$em->persist($AgenceServiceAutoriser);
 
@@ -55,59 +58,67 @@ class AgenceServiceIriumController extends Controller
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        self::$twig->display('admin/AgenceServiceIrium/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        $this->logUserVisit('AgServIrium_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
 
-        /**
- * @Route("/edit/{id}", name="AgServIrium_update")
- *
- * @return void
- */
-public function edit(Request $request, $id)
-{
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
+    /**
+     * @Route("/edit/{id}", name="AgServIrium_update")
+     *
+     * @return void
+     */
+    public function edit(Request $request, $id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-    $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
-    
-    $form = self::$validator->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
+        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
 
-    $form->handleRequest($request);
+        $form = self::$validator->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
 
-     // Vérifier si le formulaire est soumis et valide
-    if ($form->isSubmitted() && $form->isValid()) {
+        $form->handleRequest($request);
 
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            self::$em->flush();
+            $this->redirectToRoute("AgServIrium_index");
+        }
+
+        $this->logUserVisit('AgServIrium_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/delete/{id}", name="AgServIrium_delete")
+     *
+     * @return void
+     */
+    public function delete($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
+
+        self::$em->remove($user);
         self::$em->flush();
+
         $this->redirectToRoute("AgServIrium_index");
-        
     }
-
-    self::$twig->display('admin/AgenceServiceIrium/edit.html.twig', 
-    [
-        'form' => $form->createView(),
-    ]);
-
-}
-
-/**
-* @Route("/delete/{id}", name="AgServIrium_delete")
-*
-* @return void
-*/
-public function delete($id)
-{
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
-    
-    $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
-
-    self::$em->remove($user);
-    self::$em->flush();
-    
-    $this->redirectToRoute("AgServIrium_index");
-}
 }
