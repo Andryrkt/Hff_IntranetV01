@@ -90,7 +90,13 @@ class PlanningController extends Controller
             $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
-
+    //         foreach ($fusionResult as  $values) {
+    //             foreach ($values->getMoisDetails() as $value) {
+    //                 dump($value['annee']);
+    //             }
+                
+    //         }
+    // die('fin');
             $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
             
             self::$twig->display('planning/planning.html.twig', [
