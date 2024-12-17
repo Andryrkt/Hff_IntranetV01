@@ -523,13 +523,15 @@ class Controller
 
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->sessionService->get('user_id');
-        $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
-        $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine       = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
-        $log           = new UserLogger();
-        $log->setUtilisateur($utilisateur->getNomUtilisateur());
+        $log            = new UserLogger();
+
+        $log->setUtilisateur($utilisateurNom ?: '-');
         $log->setNom_page($page->getNom());
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
