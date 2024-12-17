@@ -17,6 +17,13 @@
 </div>
 {% endmacro %}
 
+{% macro sousTitre2(name, option = []) %}
+<div id="{{ option.id }}" class=" mt-4 sousTitre {{ option.class }}">
+    <h3>{{name}}</h3>
+    <div></div>
+</div>
+{% endmacro %}
+
 {% macro readOnly(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
@@ -184,8 +191,9 @@
     </div>
 {% endmacro %}
 
-{% macro spinner_load(spinner_id) %}
+{% macro spinner_load(spinner_id, form_container_id, form_data_id, form_data) %}
     <div class="spinner-container">
+        {{ form_label(form_data) }} <br>
         <div class="spinner-load" id="{{spinner_id}}" style="display: none;">
             <div></div>
             <div></div>
@@ -200,5 +208,8 @@
             <div></div>
             <div></div>
         </div>
+    </div>
+    <div id="{{ form_container_id }}" class="mb-3">
+	    {{ form_widget(form_data) }}
     </div>
 {% endmacro %}
