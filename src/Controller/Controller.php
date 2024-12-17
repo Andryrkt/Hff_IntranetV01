@@ -530,7 +530,7 @@ class Controller
         $log           = new UserLogger();
         $log->setUtilisateur($utilisateur->getNomUtilisateur());
         $log->setNom_page($page->getNom());
-        $log->setParams($params ? json_encode($params) : null);
+        $log->setParams($params ?: null);
         $log->setUser($utilisateur);
         $log->setPage($page);
 
