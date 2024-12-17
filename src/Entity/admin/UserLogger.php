@@ -56,6 +56,10 @@ class UserLogger
      */
     private $page;
 
+    /**
+     * @ORM\Column(type="string", name="machine_utilisateur",length=255, nullable=false)
+     */
+    private string $machineUser;
     //============================================================================================
 
     public function __construct()
@@ -208,6 +212,26 @@ class UserLogger
     public function setPage(PageHff $page): self
     {
         $this->page = $page;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of machineUser
+     */
+    public function getMachineUser()
+    {
+        return $this->machineUser;
+    }
+
+    /**
+     * Set the value of machineUser
+     *
+     * @return  self
+     */
+    public function setMachineUser($machineUser)
+    {
+        $this->machineUser = $machineUser;
 
         return $this;
     }
