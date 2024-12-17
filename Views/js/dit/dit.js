@@ -133,9 +133,13 @@ function createMaterielInfoDisplay(container, data) {
     { label: "Constructeur", key: "constructeur" },
     { label: "Désignation", key: "designation" },
     { label: "KM", key: "km" },
+    { label: "N° Parc", key: "num_parc" },
+
     { label: "Modèle", key: "modele" },
     { label: "Casier", key: "casier_emetteur" },
     { label: "Heures", key: "heure" },
+    { label: "N° Serie", key: "num_serie" },
+    { label: "Id Materiel", key: "num_matricule" },
   ];
 
   const createFieldHtml = (label, value) => `
@@ -152,13 +156,13 @@ function createMaterielInfoDisplay(container, data) {
       <div class="row">
         <div class="col-12 col-md-6">
           ${fields
-            .slice(0, 3)
+            .slice(0, 4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
             .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
-            .slice(3)
+            .slice(4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
             .join("")}
         </div>
@@ -198,9 +202,9 @@ function InfoMateriel() {
 
         erreur.innerHTML = "";
         // Populate fields with fetched data
-        idMaterielInput.value ||= data[0].num_matricule;
-        numParcInput.value ||= data[0].num_parc;
-        numSerieInput.value ||= data[0].num_serie;
+        // idMaterielInput.value ||= data[0].num_matricule;
+        // numParcInput.value ||= data[0].num_parc;
+        // numSerieInput.value ||= data[0].num_serie;
 
         // Effacer le spinner et afficher les données
         containerInfoMateriel.innerHTML = "";
@@ -222,23 +226,23 @@ function InfoMateriel() {
 }
 
 // Gestionnaire pour surveiller les champs d'entrée
-[idMaterielInput, numParcInput, numSerieInput].forEach((input) => {
-  input.addEventListener("input", () => {
-    const idMateriel = idMaterielInput.value.trim();
-    const numParc = numParcInput.value.trim();
-    const numSerie = numSerieInput.value.trim();
+// [idMaterielInput, numParcInput, numSerieInput].forEach((input) => {
+//   input.addEventListener("input", () => {
+//     // const idMateriel = idMaterielInput.value.trim();
+//     // const numParc = numParcInput.value.trim();
+//     // const numSerie = numSerieInput.value.trim();
 
-    // Si un champ est effacé, réinitialisez tout
-    if (input.value === "") {
-      resetInfoMateriel(
-        "Les informations ont été réinitialisées suite à un changement."
-      );
-    } else {
-      // Sinon, rechargez les informations pour les champs restants
-      InfoMateriel();
-    }
-  });
-});
+//     // Si un champ est effacé, réinitialisez tout
+//     if (input.value === "") {
+//       resetInfoMateriel(
+//         "Les informations ont été réinitialisées suite à un changement."
+//       );
+//     } else {
+//       // Sinon, rechargez les informations pour les champs restants
+//       InfoMateriel();
+//     }
+//   });
+// });
 
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
