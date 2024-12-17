@@ -526,6 +526,7 @@ class Controller
         $idUtilisateur = $this->sessionService->get('user_id');
         $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
         $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine       = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $log           = new UserLogger();
         $log->setUtilisateur($utilisateur->getNomUtilisateur());
@@ -533,6 +534,7 @@ class Controller
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
         $log->setPage($page);
+        $log->setMachineUser($machine);
 
         self::$em->persist($log);
         self::$em->flush();
