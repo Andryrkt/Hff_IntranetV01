@@ -112,7 +112,7 @@
 											{% if item.qteCdm * 1 == item.qteLiv * 1 and item.qteCdm != '' and item.qteLiv != ''%}
 												{# total livré #}
 												{% set classe = 'bg-success text-white' %}
-											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1 != item.qteCdm * 1 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
+											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1  != item.qteCdm * 1 and item.qteCdm * 1 > (item.qteLiv * 1 + item.qteAll * 1) and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
 												{# partiellement livré #}
 												{% set classe = 'bg-warning text-white' %}
 											{% elseif item.qteCdm * 1 != item.qteAll * 1 and item.qteLiv * 1 == 0 and item.qteAll * 1 > 0 and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
