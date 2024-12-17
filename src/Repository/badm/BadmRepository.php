@@ -36,34 +36,9 @@ class BadmRepository extends EntityRepository
             ->leftJoin('b.statutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $this->filtredExcludeStatut($queryBuilder);
 
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-        if (!empty($criteria['typeMouvement'])) {
-            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
-                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
-        }
-
-        if (!empty($criteria['idMateriel'])) {
-            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
-                ->setParameter('idMateriel',  $criteria['idMateriel'] );
-        }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
+            $this->filtredCondition($queryBuilder, $criteria);
 
         if ($options['boolean']) {
             //filtre selon l'agence emettteur
@@ -84,17 +59,8 @@ class BadmRepository extends EntityRepository
             ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
-        //filtre selon l'agence debiteur
-        if (!empty($criteria['agenceDebiteur'])) {
-            $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $criteria['agenceDebiteur']->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($criteria['serviceDebiteur'])) {
-            $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
-        }
+        $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
+        
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
@@ -122,34 +88,9 @@ class BadmRepository extends EntityRepository
             ->leftJoin('b.statutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
-                ->setParameter('excludedStatuses', $excludedStatuses);
+            $this->filtredExcludeStatut($queryBuilder);
 
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-        if (!empty($criteria['typeMouvement'])) {
-            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
-                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
-        }
-
-        if (!empty($criteria['idMateriel'])) {
-            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
-                ->setParameter('idMateriel',  $criteria['idMateriel'] );
-        }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
+            $this->filtredCondition($queryBuilder, $criteria);
 
         
         if ($options['boolean']) {
@@ -166,22 +107,12 @@ class BadmRepository extends EntityRepository
         }
 
          //filtre selon le service emetteur
-         if (!empty($criteria['serviceEmetteur'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
             ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
-        //filtre selon l'agence debiteur
-        if (!empty($criteria['agenceDebiteur'])) {
-            $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $criteria['agenceDebiteur']->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($criteria['serviceDebiteur'])) {
-            $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
-        }
+        $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
             
@@ -197,34 +128,9 @@ class BadmRepository extends EntityRepository
             ->leftJoin('b.statutDemande', 's')
             ;
 
-            $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
-            $queryBuilder->andWhere($queryBuilder->expr()->In('s.id', ':includedStatuses'))
-                ->setParameter('includedStatuses', $excludedStatuses);
+            $this->filtredExcludeStatut($queryBuilder);
 
-            if (!empty($criteria['statut'])) {
-                $queryBuilder->andWhere('s.description LIKE :statut')
-                    ->setParameter('statut', '%' . $criteria['statut'] . '%');
-            }
-
-        if (!empty($criteria['typeMouvement'])) {
-            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
-                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
-        }
-
-        if (!empty($criteria['idMateriel'])) {
-            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
-                ->setParameter('idMateriel',  $criteria['idMateriel'] );
-        }
-
-        if (!empty($criteria['dateDebut'])) {
-            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
-                ->setParameter('dateDebut', $criteria['dateDebut']);
-        }
-
-        if (!empty($criteria['dateFin'])) {
-            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
-                ->setParameter('dateFin', $criteria['dateFin']);
-        }
+            $this->filtredCondition($queryBuilder, $criteria);
         
         if ($options['boolean']) {
             //filtre selon l'agence emettteur
@@ -240,22 +146,12 @@ class BadmRepository extends EntityRepository
         }
 
          //filtre selon le service emetteur
-         if (!empty($criteria['serviceEmetteur'])) {
+        if (!empty($criteria['serviceEmetteur'])) {
             $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
             ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
         
-        //filtre selon l'agence debiteur
-        if (!empty($criteria['agenceDebiteur'])) {
-            $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')
-                ->setParameter('agDebit',  $criteria['agenceDebiteur']->getId() );
-        }
-
-        //filtre selon le service debiteur
-        if(!empty($criteria['serviceDebiteur'])) {
-            $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
-            ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
-        }
+        $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
@@ -278,6 +174,56 @@ class BadmRepository extends EntityRepository
         'lastPage' => $lastPage,
     ];
 
+    }
+
+    private function filtredExcludeStatut($queryBuilder)
+    {
+        $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
+            $queryBuilder->andWhere($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
+                ->setParameter('excludedStatuses', $excludedStatuses);
+    }
+
+    private function filtredCondition($queryBuilder, $criteria)
+    {
+        if (!empty($criteria['statut'])) {
+            $queryBuilder->andWhere('s.description LIKE :statut')
+                ->setParameter('statut', '%' . $criteria['statut'] . '%');
+        }
+
+        if (!empty($criteria['typeMouvement'])) {
+            $queryBuilder->andWhere('tm.description LIKE :typeMouvement')
+                ->setParameter('typeMouvement', '%' . $criteria['typeMouvement'] . '%');
+        }
+
+        if (!empty($criteria['idMateriel'])) {
+            $queryBuilder->andWhere('b.idMateriel = :idMateriel')
+                ->setParameter('idMateriel',  $criteria['idMateriel'] );
+        }
+
+        if (!empty($criteria['dateDebut'])) {
+            $queryBuilder->andWhere('b.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $criteria['dateDebut']);
+        }
+
+        if (!empty($criteria['dateFin'])) {
+            $queryBuilder->andWhere('b.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $criteria['dateFin']);
+        }
+    }
+
+    private function filtredAgenceServiceDebiteur($queryBuilder, $criteria)
+    {
+        //filtre selon l'agence debiteur
+        if (!empty($criteria['agenceDebiteur'])) {
+            $queryBuilder->andWhere('b.agenceDebiteurId = :agDebit')
+                ->setParameter('agDebit',  $criteria['agenceDebiteur']->getId() );
+        }
+
+        //filtre selon le service debiteur
+        if(!empty($criteria['serviceDebiteur'])) {
+            $queryBuilder->andWhere('b.serviceDebiteurId = :serviceDebiteur')
+            ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
+        }
     }
 
 }

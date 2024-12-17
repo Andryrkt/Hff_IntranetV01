@@ -35,7 +35,7 @@ class BadmListeController extends Controller
 
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            // 'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
 
         $form->handleRequest($request);
