@@ -14,10 +14,10 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\DomsDupliTrait;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
+use App\Controller\Traits\dom\DomsDupliTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

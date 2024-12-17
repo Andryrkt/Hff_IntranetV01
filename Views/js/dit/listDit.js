@@ -3,55 +3,34 @@
  */
 const agenceEmetteurInput = document.querySelector(".agenceEmetteur");
 const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
+const spinnerServiceEmetteur = document.getElementById(
+  "spinner-service-emetteur"
+);
+const serviceContainerEmetteur = document.getElementById(
+  "service-container-emetteur"
+);
 
 agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
 
 function selectAgenceEmetteur() {
-  const agenceDebiteur = agenceEmetteurInput.value;
+  const agenceEmetteur = agenceEmetteurInput.value;
 
-  if (agenceDebiteur === "") {
-    while (serviceEmetteurInput.options.length > 0) {
-      serviceEmetteurInput.remove(0);
-    }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
-    return; // Sortir de la fonction
+  if (DeleteContentService(agenceEmetteur, serviceEmetteurInput)) {
+    return;
   }
 
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  let url = `/Hffintranet/agence-fetch/${agenceEmetteur}`;
+  toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, true);
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
-
-      // Supprimer toutes les options existantes
-      while (serviceEmetteurInput.options.length > 0) {
-        serviceEmetteurInput.remove(0);
-      }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une service -- ";
-      serviceEmetteurInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
-        option.value = services[i].value;
-        option.text = services[i].text;
-        serviceEmetteurInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceEmetteurInput.options.length; i++) {
-        var option = serviceEmetteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
+      updateServiceOptions(services, serviceEmetteurInput);
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error("Error:", error))
+    .finally(() =>
+      toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, false)
+    );
 }
 
 /**
@@ -59,55 +38,87 @@ function selectAgenceEmetteur() {
  */
 const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerServiceDebiteur = document.getElementById(
+  "spinner-service-debiteur"
+);
+const serviceContainerDebiteur = document.getElementById(
+  "service-container-debiteur"
+);
 
 agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
 
 function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
 
-  if (agenceDebiteur === "") {
-    while (serviceEmetteurInput.options.length > 0) {
-      serviceEmetteurInput.remove(0);
-    }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
-    return; // Sortir de la fonction
+  // Efface les options si nécessaire, et sort si `agenceDebiteur` est vide
+  if (DeleteContentService(agenceDebiteur, serviceDebiteurInput)) {
+    return;
   }
 
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  const url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, true);
+
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
-
-      // Supprimer toutes les options existantes
-      while (serviceDebiteurInput.options.length > 0) {
-        serviceDebiteurInput.remove(0);
-      }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une service -- ";
-      serviceDebiteurInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
-        option.value = services[i].value;
-        option.text = services[i].text;
-        serviceDebiteurInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-        var option = serviceDebiteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
+      updateServiceOptions(services, serviceDebiteurInput);
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error("Error:", error))
+    .finally(() =>
+      toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, false)
+    );
+}
+
+function DeleteContentService(agenceValue, serviceInput) {
+  if (agenceValue === "") {
+    // Supprime toutes les options
+    while (serviceInput.options.length > 0) {
+      serviceInput.remove(0);
+    }
+
+    // Ajoute l'option par défaut
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = " -- Choisir une service -- ";
+    serviceInput.add(defaultOption);
+
+    // Indique qu'il faut sortir de la fonction appelante
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function toggleSpinner(spinnerService, serviceContainer, show) {
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
+}
+
+function updateServiceOptions(services, serviceInput) {
+  // Supprimer toutes les options existantes
+  while (serviceInput.options.length > 0) {
+    serviceInput.remove(0);
+  }
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.text = " -- Choisir une service -- ";
+  serviceInput.add(defaultOption);
+
+  // Ajouter les nouvelles options à partir du tableau services
+  for (var i = 0; i < services.length; i++) {
+    var option = document.createElement("option");
+    option.value = services[i].value;
+    option.text = services[i].text;
+    serviceInput.add(option);
+  }
+
+  //Afficher les nouvelles valeurs et textes des options
+  for (var i = 0; i < serviceInput.options.length; i++) {
+    var option = serviceInput.options[i];
+    console.log("Value: " + option.value + ", Text: " + option.text);
+  }
 }
 
 /**
@@ -282,16 +293,20 @@ clotureDit.forEach((el) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "OUI",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Changement de statut!",
-          text: "en CLOTUREE ANNULEE",
-          icon: "success",
-        }).then(() => {
-          window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
-        });
-      }
+    }).then(() => {
+      window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
     });
+    // .then((result) => {
+    //   if (result.isConfirmed) {
+    //     Swal.fire({
+    //       title: "Changement de statut!",
+    //       text: "en CLOTUREE ANNULEE",
+    //       icon: "success",
+    //     })
+    // .then(() => {
+    //       window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+    //     });
+    //   }
+    // });
   });
 });

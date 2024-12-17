@@ -112,6 +112,7 @@ class UserController extends Controller
  */
 public function edit(Request $request, $id)
 {
+    
     //verification si user connecter
     $this->verifierSessionUtilisateur();
 
@@ -121,7 +122,7 @@ public function edit(Request $request, $id)
     
 
     $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-
+    dd($form);
     $form->handleRequest($request);
 
     // Vérifier si le formulaire est soumis et valide

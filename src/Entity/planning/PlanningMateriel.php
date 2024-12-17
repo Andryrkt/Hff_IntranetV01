@@ -24,6 +24,8 @@ class PlanningMateriel{
     private $numDit;
     private $migration;
     private $pos;
+    private $numeroOr;
+    private $commentaire;
    
 
     /**
@@ -348,15 +350,17 @@ class PlanningMateriel{
         return $this;
     }
     
-    public function addMoisDetail($mois, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration) {
+    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire) {
         $this->moisDetails[] = [
             'mois' => $mois,
+            'annee' => $annee,
             'orIntv' => $orIntv,
             'qteCdm' => $qteCdm,
             'qteLiv' => $qteLiv,
             'qteAll' => $qteAll,
             'numDit' => $numDit,
-            'migration' => $migration
+            'migration' => $migration,
+            'commentaire' => $commentaire
         ];
     }
     
@@ -437,6 +441,26 @@ class PlanningMateriel{
     public function setPos($pos)
     {
         $this->pos = $pos;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroOr
+     */ 
+    public function getNumeroOr()
+    {
+        return $this->numeroOr;
+    }
+
+    /**
+     * Set the value of numeroOr
+     *
+     * @return  self
+     */ 
+    public function setNumeroOr($numeroOr)
+    {
+        $this->numeroOr = $numeroOr;
 
         return $this;
     }

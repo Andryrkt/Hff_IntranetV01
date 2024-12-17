@@ -4,6 +4,7 @@ namespace App\Api\planning;
 
 use App\Controller\Controller;
 use App\Model\planning\PlanningModel;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PlanningApi extends Controller
@@ -43,7 +44,10 @@ class PlanningApi extends Controller
         } else {
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
             
-            //$numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
+            $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
+            $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
+            $migration = $ditRepositoryConditionner->getMigration();
+            
             $detailes = [];
              dd($details);
             $recupPariel = [];
@@ -75,19 +79,20 @@ class PlanningApi extends Controller
                     $details[$i]['qteSlode'] = "";
                     $details[$i]['qte'] = "";
                 }
-                // dump($recupGot);
+
                 if(!empty($recupGot)){
                     $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
                 }else{
                     $details[$i]['Ord'] = "";
                 }
             
-                //$detatils[$i]['numDit'] = $numDit;
+                $details[$i]['numDit'] = $numDit;
+                $details[$i]['migration'] = $migration;
             }
 
         }
 
-        //dd($details);
+
         header("Content-type:application/json");
 
         echo json_encode($details);

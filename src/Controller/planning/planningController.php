@@ -9,6 +9,7 @@ use App\Entity\planning\PlanningSearch;
 use App\Controller\Traits\Transformation;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningMateriel;
+use App\Form\planning\MoisAvantType;
 use App\Form\planning\PlanningSearchType;
 use App\Service\fusionPdf\FusionPdf;
 use Dotenv\Parser\Entry;
@@ -49,6 +50,7 @@ class PlanningController extends Controller
                 ->setPlan('PLANIFIE')
                 ->setInterneExterne('TOUS')
                 ->setTypeLigne('TOUETS')
+                ->setMonths(3)
             ;
 
             $form = self::$validator->createBuilder(PlanningSearchType::class,$this->planningSearch,
@@ -59,7 +61,7 @@ class PlanningController extends Controller
             $form->handleRequest($request);
             //initialisation criteria
             $criteria = $this->planningSearch;
-
+            
             if($form->isSubmitted() && $form->isValid())
             {
                   // dd($form->getdata());
@@ -89,10 +91,12 @@ class PlanningController extends Controller
             // Fusionner les objets en fonction de l'idMat
             $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
+            $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
             
             self::$twig->display('planning/planning.html.twig', [
                 'form' => $form->createView(),
-                'data' => $fusionResult
+                'preparedData' => $forDisplay['preparedData'],
+                'uniqueMonths' => $forDisplay['uniqueMonths'],
             ]);
         }
 
@@ -118,41 +122,40 @@ class PlanningController extends Controller
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
-        
 
-                // Convertir les entités en tableau de données
-                $data = [];
-                $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
-                foreach ($fusionResult as $entity) {
-                    $row = [
-                        $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
-                        $entity->getIdMat(),
-                        $entity->getMarqueMat(),
-                        $entity->getTypeMat(),
-                        $entity->getnumSerie(),
-                        $entity->getnumParc(),
-                        $entity->getCasier(),
-                    ];
-                
-                    // Initialiser les mois avec des valeurs par défaut
-                    $moisData = array_fill(1, 12, '-');
-                
-                    // Ajouter les données des mois disponibles
-                    foreach ($entity->getMoisDetails() as $value) {
-                        if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
-                            if ($moisData[$value['mois']] !== '-') {
-                                $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
-                            } else {
-                                $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
-                            }
-                        }
+        // Convertir les entités en tableau de données
+        $data = [];
+        $data[] = ['Agence\Service', 'ID', 'Marque','Modèle', 'N°Serie', 'N°Parc', 'Casier','Jan', 'Fév', 'Mar',  'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov','Déc']; // En-têtes des colonnes
+        foreach ($fusionResult as $entity) {
+            $row = [
+                $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
+                $entity->getIdMat(),
+                $entity->getMarqueMat(),
+                $entity->getTypeMat(),
+                $entity->getnumSerie(),
+                $entity->getnumParc(),
+                $entity->getCasier(),
+            ];
+        
+            // Initialiser les mois avec des valeurs par défaut
+            $moisData = array_fill(1, 12, '-');
+        
+            // Ajouter les données des mois disponibles
+            foreach ($entity->getMoisDetails() as $value) {
+                if (isset($value['mois'], $value['orIntv']) && $value['mois'] >= 1 && $value['mois'] <= 12) {
+                    if ($moisData[$value['mois']] !== '-') {
+                        $moisData[$value['mois']] .= "  " . $value['orIntv']; // Ajout d'un saut de ligne et de la nouvelle valeur
+                    } else {
+                        $moisData[$value['mois']] = $value['orIntv']; // Nouvelle valeur
                     }
-                
-                    // Fusionner les données générales avec celles des mois
-                    $data[] = array_merge($row, $moisData);
                 }
-                
-                $this->excelService->createSpreadsheet($data);
+            }
+        
+            // Fusionner les données générales avec celles des mois
+            $data[] = array_merge($row, $moisData);
+        }
+        
+        $this->excelService->createSpreadsheet($data);
     }
 
 
@@ -226,11 +229,10 @@ class PlanningController extends Controller
 
     private function creationTableauObjetExport(array $data):array{
 
-         $objetPlanning = [];
+        $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item ) {
             $planningMateriel = new PlanningMateriel();
-          
             
             //initialisation
                 $planningMateriel
@@ -252,13 +254,12 @@ class PlanningController extends Controller
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
-       
+        
         return $objetPlanning;
     }
 
     private function creationTableauObjetPlanning(array $data): array
     {
-        
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item ) {
@@ -286,7 +287,8 @@ class PlanningController extends Controller
                     ->setQteLiv($item['qtliv'])
                     ->setQteAll($item['qteall'])
                     ->setNumDit($numDit)
-                    ->addMoisDetail($item['mois'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration)
+                    // ->setNumeroOr($item['numeroor'])
+                    ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'])
                 ;
                 $objetPlanning[] = $planningMateriel;
         }
@@ -307,12 +309,14 @@ class PlanningController extends Controller
 
                     $fusionResult[$key]->addMoisDetail(
                         $moisDetail['mois'],
+                        $moisDetail['annee'],
                         $moisDetail['orIntv'],
                         $moisDetail['qteCdm'],
                         $moisDetail['qteLiv'],
                         $moisDetail['qteAll'],
                         $moisDetail['numDit'],
-                        $moisDetail['migration']
+                        $moisDetail['migration'],
+                        $moisDetail['commentaire']
                     );
                 }
                 
@@ -321,4 +325,127 @@ class PlanningController extends Controller
 
         return $fusionResult;
     }
+
+
+    function prepareDataForDisplay(array $data, int $selectedOption): array {
+        $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
+        $currentYear = (int)date('Y');
+    
+        $selectedMonths = [];
+    
+        // Déterminer les mois à afficher selon l'option choisie
+        switch ($selectedOption) {
+            case 3: // 3 mois suivant
+                for ($i = 0; $i < 4; $i++) {
+                    $monthIndex = ($currentMonth + $i) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    $selectedMonths[] = [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ];
+                }
+                // Compléter avec les mois précédents
+                for ($i = -1; count($selectedMonths) < 12; $i--) {
+                    $monthIndex = ($currentMonth + $i + 12) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    array_unshift($selectedMonths, [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ]);
+                }
+                break;
+    
+            case 6: // 6 mois suivant
+                for ($i = 0; $i < 7; $i++) {
+                    $monthIndex = ($currentMonth + $i) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    $selectedMonths[] = [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ];
+                }
+                // Compléter avec les mois précédents
+                for ($i = -1; count($selectedMonths) < 12; $i--) {
+                    $monthIndex = ($currentMonth + $i + 12) % 12;
+                    $yearOffset = intdiv($currentMonth + $i, 12);
+                    $year = $currentYear + $yearOffset;
+                    array_unshift($selectedMonths, [
+                        'month' => $months[$monthIndex],
+                        'year' => $year,
+                        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+                    ]);
+                }
+                break;
+    
+            case 9: // Année en cours
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear,
+                        'key' => sprintf('%04d-%02d', $currentYear, $i + 1),
+                    ];
+                }
+                break;
+    
+            case 11: // Année suivante
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear + 1,
+                        'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
+                    ];
+                }
+                break;
+        }
+    
+        // Filtrer les données en fonction des mois sélectionnés
+        $preparedData = [];
+        foreach ($data as $item) {
+            $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
+                ? $item->getMoisDetails()
+                : [];
+    
+            $filteredMonths = [];
+            foreach ($moisDetails as $detail) {
+                if (is_array($detail) && isset($detail['orIntv']) && $detail['orIntv'] !== "-") {
+                    $monthIndex = (int)$detail['mois'] - 1;
+                    $year = $detail['annee'] ?? '';
+    
+                    $monthKey = sprintf('%04d-%02d', $year, $monthIndex + 1);
+                    if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
+                        $filteredMonths[] = [
+                            'month' => $months[$monthIndex] ?? '',
+                            'year' => $year,
+                            'details' => $detail,
+                        ];
+                    }
+                }
+            }
+    
+            $preparedData[] = [
+                'libsuc' => $item->getLibsuc() ?? '',
+                'libserv' => $item->getLibServ() ?? '',
+                'idmat' => $item->getIdMat() ?? '',
+                'marqueMat' => $item->getMarqueMat() ?? '',
+                'typemat' => $item->getTypeMat() ?? '',
+                'numserie' => $item->getNumSerie() ?? '',
+                'numparc' => $item->getNumParc() ?? '',
+                'casier' => $item->getCasier() ?? '',
+                'filteredMonths' => $filteredMonths,
+            ];
+        }
+    
+        return [
+            'preparedData' => $preparedData,
+            'uniqueMonths' => $selectedMonths,
+        ];
+    }
+    
 }

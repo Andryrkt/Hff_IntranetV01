@@ -1,14 +1,15 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-{% endblock%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/magasin/ors/listorTraiter.css">
+{% endblock %}
 
 
 {% block content %}
 	<div class="container">
 		<h3 class="perso-titre">
-			Liste des CIS à traiter = = = = = EN MODE DEMO = = = =
+			Liste des CIS à traiter
 		</h3>
 
 		{% include "/magasin/partials/cis/_formRechATraiter.html.twig" %}

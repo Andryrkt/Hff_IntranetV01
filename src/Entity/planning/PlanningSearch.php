@@ -24,6 +24,7 @@ class PlanningSearch
     private $casier;
     private ?WorNiveauUrgence $niveauUrgence = null;
     private $section;
+    private $months;
 
 
     public function getNiveauUrgence()
@@ -376,6 +377,27 @@ class PlanningSearch
     public function setSection($section)
     {
         $this->section = $section;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of months
+     */ 
+    public function getMonths()
+    {
+        return $this->months;
+    }
+
+    /**
+     * Set the value of months
+     *
+     * @return  self
+     */ 
+    public function setMonths($months)
+    {
+        $this->months = $months;
 
         return $this;
     }

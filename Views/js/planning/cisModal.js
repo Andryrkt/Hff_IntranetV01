@@ -9,15 +9,17 @@ listecisModal.addEventListener("show.bs.modal", function (event) {
   const migration = button.getAttribute("data-migration");
   console.log(migration);
 
-  // Mettre à jour le lien avec le numDit dynamique
-  const dossierDitLink = document.getElementById("dossierDitLink");
-  if (migration == "1") {
-    console.log(dossierDitLink);
-    dossierDitLink.style.display = "none";
+  const dossierDitLinks = document.getElementById("dossierDitLink");
+  console.log(dossierDitLinks);
+
+  if (migration === "1" && dossierDitLinks) {
+    dossierDitLinks.style.display = "none";
+    console.log("Le lien est caché.");
   }
+
   //console.log(numDit);
   //console.log(dossierDitLink);
-  dossierDitLink.onclick = (event) => {
+  dossierDitLinks.onclick = (event) => {
     event.preventDefault();
     window.open(
       `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
@@ -169,10 +171,10 @@ function fetchDetailModalCis(id) {
           } else {
             numRef = detail.ref;
           }
-          if (detail.Statut_ctrmq_cis == null) {
+          if (detail.statut_ctrmq_cis == null) {
             StatutCtrmqCis = "";
           } else {
-            StatutCtrmqCis = detail.Statut_ctrmq_cis;
+            StatutCtrmqCis = detail.statut_ctrmq_cis;
           }
           if (detail.statut == null) {
             statut = "";

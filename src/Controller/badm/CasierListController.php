@@ -31,7 +31,7 @@ class CasierListController extends Controller
         $empty = false;
         $criteria = [];
         if($form->isSubmitted() && $form->isValid()) {
-           $criteria = $form->getData();
+            $criteria = $form->getData();
         } 
 
         $page = max(1, $request->query->getInt('page', 1));
@@ -39,6 +39,7 @@ class CasierListController extends Controller
 
         $paginationData = self::$em->getRepository(CasierValider::class)->findPaginatedAndFiltered($page, $limit, $criteria);
 
+        // dd($paginationData['data']);
 
         if(empty($paginationData['data'])){
             $empty = true;

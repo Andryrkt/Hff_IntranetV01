@@ -50,8 +50,53 @@ document.addEventListener("DOMContentLoaded", function () {
       if (cell) {
         cell.rowSpan = rowSpanCount;
         cell.classList.add("rowspan-cell");
+
+        if (key === "ditNumber") {
+          // Crée le rectangle
+          let rectangle = document.createElement("div");
+          //let matMarqueCasier = row.getElementsByTagName("td")[5]?.textContent.trim() || "N/A"; // Colonne 5, à ajuster
+          rectangle.textContent = "Loading ...";
+          rectangle.classList.add("rectangle");
+
+          // Ajouter le rectangle au début de la cellule
+          cell.insertBefore(rectangle, cell.firstChild);
+
+          // Récupérer la valeur de numOr
+          let numOr = row
+            .getElementsByTagName("td")
+            [cellIndices["orNumber"]]?.textContent.trim(); // Colonne définie par "orNumber" dans cellIndices
+          console.log(numOr);
+
+          // Passer la valeur de numOr et le rectangle à la fonction
+          if (numOr) {
+            NumMatMarqueCasier(numOr, rectangle);
+          } else {
+            console.error("numOr introuvable ou vide pour cette ligne.");
+          }
+        }
       }
     });
+  }
+
+  function NumMatMarqueCasier(numOr, rectangle) {
+    // Fetch les données dynamiques
+    const url = `/Hffintranet/api/numMat-marq-casier/${numOr}`;
+    fetch(url) // Remplacez avec votre URL d'API
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des données");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        let contenu = `${data.numMat} | ${data.marque} | ${data.casier}`;
+        // Mettre à jour le contenu du rectangle avec les données récupérées
+        rectangle.textContent = contenu || "N/A"; // Exemple avec une propriété
+      })
+      .catch((error) => {
+        console.error("Erreur :", error);
+        rectangle.textContent = "Erreur de chargement";
+      });
   }
 
   function hideCells(row) {
@@ -66,20 +111,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   for (let i = 0; i < rows.length; i++) {
     let currentRow = rows[i];
+    let cells = Array.from(currentRow.getElementsByTagName("td"));
 
     let currentValues = {
-      ditNumber: currentRow.getElementsByTagName("td")[1].textContent.trim(),
-      orNumber: currentRow.getElementsByTagName("td")[2].textContent.trim(),
-      planningDate: currentRow.getElementsByTagName("td")[3].textContent.trim(),
-      urgencyLevel: currentRow.getElementsByTagName("td")[4].textContent.trim(),
-      agencyEmet: currentRow.getElementsByTagName("td")[6].textContent.trim(),
-      serviceEmet: currentRow.getElementsByTagName("td")[7].textContent.trim(),
-      agencyDebit: currentRow.getElementsByTagName("td")[8].textContent.trim(),
-      serviceDebit: currentRow.getElementsByTagName("td")[9].textContent.trim(),
-      interventionNumber: currentRow
-        .getElementsByTagName("td")[10]
-        .textContent.trim(),
-      user: currentRow.getElementsByTagName("td")[18].textContent.trim(),
+      ditNumber: cells[1].textContent.trim(),
+      orNumber: cells[2].textContent.trim(),
+      planningDate: cells[3].textContent.trim(),
+      urgencyLevel: cells[4].textContent.trim(),
+      agencyEmet: cells[6].textContent.trim(),
+      serviceEmet: cells[7].textContent.trim(),
+      agencyDebit: cells[8].textContent.trim(),
+      serviceDebit: cells[9].textContent.trim(),
+      interventionNumber: cells[10].textContent.trim(),
+      user: cells[18].textContent.trim(),
     };
 
     // Check if any of the key values differ from the previous row's values
@@ -100,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Ajoute un séparateur
       let separatorRow = document.createElement("tr");
       separatorRow.classList.add("separator-row");
+
       let td = document.createElement("td");
       td.colSpan = currentRow.cells.length;
       td.classList.add("p-0");

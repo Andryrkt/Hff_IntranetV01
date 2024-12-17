@@ -2,7 +2,174 @@
 
 sql (ce sont les requets de creation de table et modification de table)
 
-Public (les images)
+## sql (ce sont les requets de creation de table et modification de table)
+
+## Public (les images)
+
+Public/ └── images/
+
+## src
+
+### Controller
+
+c'est le point d'entrer de l'application | tous les noms de fichiers sont terminer par "Controller.php"
+
+src/Controller/
+├── admin/
+├── badm/
+├── dit/
+├── dom/
+├── dw/
+├── magasin/
+├── planning/
+├── tik/
+└── Traits/
+
+#### admin
+
+    tout ce qui n'est pas utiliser par l'utilisateur
+
+userController.php
+
+- Nom d'utilisateur
+- numero Matricule
+- email
+- role
+- application
+- sociétes
+- code sage
+- nom personnel => matricule
+- agence autoriser
+- service autoriser
+
+#### badm
+
+#### dit
+
+    DitController.php (classe qui herite de la classe Controller)
+
+- chaque methode du controller doivent avoir une route
+
+  ```php
+  /**
+   * @Route("/dit/new", name="dit_new")
+   */
+  ```
+
+- verification et controle d'accés
+
+  ```php
+  //verification si user connecter
+      $this->verifierSessionUtilisateur();
+
+      //recuperation de l'utilisateur connecter
+      $userId = $this->sessionService->get('user_id');
+      $user = self::$em->getRepository(User::class)->find($userId);
+
+      /** Autorisation accées */
+      $this->autorisationAcces($user);
+      /** FIN AUtorisation acées */
+  ```
+
+- instancier l'entité
+
+  ```php
+  $demandeIntervention = new DemandeIntervention();
+  ```
+
+- initialisation de l'entité
+
+  ```php
+  //INITIALISATION DU FORMULAIRE
+      $this->initialisationForm($demandeIntervention, self::$em);
+  ```
+
+- affichage formulaire
+
+  ```php
+  //AFFICHE LE FORMULAIRE
+          $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+  //AFFICHE LE FORMULAIRE
+          $form = self::$validator->createBuilder('App\Form\dit\demandeInterventionType')->getForm();
+  ```
+
+- renvoie la template
+
+```php
+ self::$twig->display('dit/new.html.twig', [
+    'form' => $form->createView()
+]);
+```
+
+- lorsqu'on soumi la formulaire
+
+```php
+    $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+           $dits =  $form->getData();
+        }
+```
+
+- envoie les donnée dans la base de donnée
+
+```php
+    self::$em->persist($insertDemandeInterventions);
+    self::$em->flush();
+```
+
+-modification de la base de donnée
+
+```php
+
+//recuperation de la ligne à modifier
+$application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+//nouveau valeur
+$application->setDerniereId($dits->getNumeroDemandeIntervention());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
+```
+
+-creation pdf
+
+```PHP
+    $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
+    //récupération des historique de materiel (informix)
+    $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+    //genere le PDF
+    $genererPdfDit = new GenererPdfDit();
+    $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+
+    //envoie des pièce jointe dans une dossier et la fusionner
+    $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
+
+    //ENVOYER le PDF DANS DOXCUWARE
+    $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+
+```
+
+- notification et rediretion
+
+```php
+ $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->redirectToRoute("dit_index");
+```
+
+#### dom
+
+#### dw
+
+#### magasin
+
+#### planning
+
+#### tik
+
+#### Traits
+
+### Entity (tous les noms de fichiers sont terminer par ".php")
 
 src
 |API (c'est controller mais transforme les donners en JSON pour qu'on peut l'utiliser en JS)
@@ -122,7 +289,9 @@ src
         |planning
         |tik
         |Traits
-    |Form (tous les noms de fichiers sont terminer par "Type.php")
+
+### Form (tous les noms de fichiers sont terminer par "Type.php")
+
         |admin
         |badm
         |dit
@@ -146,9 +315,6 @@ src
         |planning
         |tik
         |Traits
-    |Model (tous les noms de fichiers sont terminer par "Model.php")
-    |Repository (tous les noms de fichiers sont terminer par "Repository.php")
-    |Service (tous les noms de fichiers sont terminer par "Service.php")
 
 Views
 |css

@@ -19,6 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PlanningSearchType extends AbstractType
 {
@@ -107,13 +108,13 @@ class PlanningSearchType extends AbstractType
                     ]
                 ])
                
-                ->add('annee', ChoiceType::class,[
-                    'label' =>'Année',
-                    'required' =>true,
-                    'choices' => $annee,
-                    'placeholder' => " -- Choisir l'année --",
-                    'data' => date('Y')
-                ])
+                // ->add('annee', ChoiceType::class,[
+                //     'label' =>'Année',
+                //     'required' =>true,
+                //     'choices' => $annee,
+                //     'placeholder' => " -- Choisir l'année --",
+                //     'data' => date('Y')
+                // ])
                 ->add('interneExterne', ChoiceType::class,[
                     'label' => 'Interne / Externe',
                     'required' => true,
@@ -190,6 +191,7 @@ class PlanningSearchType extends AbstractType
                 ]
 
                 )
+
                 ->add('serviceDebite', ChoiceType::class,[
                     'label' =>'Service Débiteur',
                     'multiple' => true,
@@ -197,14 +199,13 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- Choisir un service--",
                     'expanded' => true,
                 ])
-              
                 
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
                     $data = $event->getData();
 
                     $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningModel->recuperationServiceDebite($data['agenceDebite']));
-                 
+
                     $form->add('serviceDebite', ChoiceType::class,[
                         'label' =>'Service Débiteur : ',
                         'multiple' => true,
@@ -213,9 +214,20 @@ class PlanningSearchType extends AbstractType
                         'expanded' => true,
                     ]);
                 }) 
+                ->add('months', ChoiceType::class, [
+                    'choices' => [
+                        '3 mois suivant' => 3,
+                        '6 mois suivant' => 6,
+                        'Année encours' => 9,
+                        'Année suivante' => 11,
+                    ],
+                    'expanded' => false, // Utiliser une liste déroulante
+                    'multiple' => false, // Sélectionner une seule valeur
+                    'label' => 'Nombre de mois', // Label du champ
+                    'data' => 3
+                ]);
                 ;
-       
-              
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

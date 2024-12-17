@@ -41,7 +41,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $statut = ['Validé', 'Livré'];
+        $statut = ['Validé', 'Livré','Livré partiellement'];
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')

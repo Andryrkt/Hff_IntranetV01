@@ -57,6 +57,8 @@ class PlanningModel extends Model
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
                     AND asuc_codsoc = 'HF'
+                    AND asuc_lib <> 'ANTALAHA'
+                    AND asuc_num <> '10'
                     group by 1,2
                     order by 1";
       $result = $this->connect->executeQuery($statement);
@@ -148,7 +150,7 @@ class PlanningModel extends Model
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
                       trim(ser.atab_lib) as libServ, 
-                      
+                      trim(sitv_comment) as commentaire,
                       mmat_nummat as idMat,
                       trim(mmat_marqmat) as markMat,
                       trim(mmat_typmat) as typeMat ,
@@ -177,7 +179,7 @@ class PlanningModel extends Model
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6')
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
                     $vOrvalDw
@@ -197,7 +199,7 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
 		                order by 1,5  ";      
 
         
@@ -216,7 +218,7 @@ class PlanningModel extends Model
     }
 
     $vligneType = $this->typeLigne($criteria);  
-    $vPiecesSum = $this->sumPieces($criteria);
+    //$vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);
     $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
     $vMonthStatutPlan = $this->planMonth($criteria);
@@ -309,11 +311,18 @@ class PlanningModel extends Model
         case "LUBRIFIANTS":
             $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
             break;
+        default:
+            $vtypeligne  = "";
+            break;
         }
+    } else {
+      $vtypeligne = "";
     }
       $statement = " SELECT slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
+                            trim(sitv_comment) as commentaire,
+                            slor_datel as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
@@ -328,17 +337,17 @@ class PlanningModel extends Model
                             slor_qterea AS Qteliv,
                             slor_qteres AS QteAll,
                             
-                     CASE  WHEN slor_natcm = 'C' THEN 
-                     'COMMANDE'
-                      WHEN slor_natcm = 'L' THEN 
-                      'RECEPTION'
+                      CASE  
+                        WHEN slor_natcm = 'C' THEN 'COMMANDE'
+                        WHEN slor_natcm = 'L' THEN 'RECEPTION'
                       END AS Statut_ctrmq,
-                      CASE WHEN slor_natcm = 'C' THEN 
-                      slor_numcf
-                      WHEN slor_natcm = 'L' THEN 
-                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
-                      AND fllf_ligne = slor_noligncm
-                      AND fllf_refp = slor_refp)
+                      CASE 
+                        WHEN slor_natcm = 'C' THEN 
+                          slor_numcf
+                        WHEN slor_natcm = 'L' THEN 
+                          (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
+                          AND fllf_ligne = slor_noligncm
+                          AND fllf_refp = slor_refp)
                       END  AS numeroCmd,
 
                       CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
@@ -415,16 +424,15 @@ class PlanningModel extends Model
                                                       AND Line_Number = slor_noligncm )
 					            	)
 	                    END as Message ,
-                      CASE  WHEN nlig_natcm = 'C' THEN 
-                     'COMMANDE'
-                      WHEN nlig_natcm = 'L' THEN 
-                      'RECEPTION'
-                      END AS Statut_ctrmq_cis,
-nlig_numcf as numerocdecis                        
+                    CASE  
+                      WHEN nlig_natcm = 'C' THEN 'COMMANDE'
+                      WHEN nlig_natcm = 'L' THEN 'RECEPTION'
+                    END AS Statut_ctrmq_cis,
+                    nlig_numcf as numerocdecis                        
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
-                LEFT JOIN neg_lig ON slor_numcf = nlig_numcde
+              LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne
@@ -526,7 +534,7 @@ public function recuperationPartiel($numcde, $refp){
     $statement = "SELECT 
                   numero_or 
                   FROM demande_intervention
-                  WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01')
+                  WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
                   $vconditionNumOr
                   $nivUrg
                   ";
