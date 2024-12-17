@@ -26,18 +26,17 @@ class DitCdeSoumisAValidationController extends Controller
 
         $ditCdeSoumisAValidation = new DitCdeSoumisAValidation();
 
-        
+
         $form = self::$validator->createBuilder(DitCdeSoumisAValidationType::class)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $fileName = $this->enregistrementFichier($form);
             $this->historique($ditCdeSoumisAValidation, $fileName);
 
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'La commande a été soumis avec succès']);
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La commande a été soumis avec succès']);
             $this->redirectToRoute("dit_index");
         }
 
@@ -49,13 +48,13 @@ class DitCdeSoumisAValidationController extends Controller
     private function enregistrementFichier($form)
     {
         $file = $form->get('pieceJoint01')->getData();
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cde';
-            $fileUploader = new FileUploaderService($chemin);
-            if($file) {
-                $prefix = 'cde_';
-                $fileName = $fileUploader->upload($file, $prefix);
-                $this->evoieDw($fileName);
-            }
+        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cde';
+        $fileUploader = new FileUploaderService($chemin);
+        if ($file) {
+            $prefix = 'cde_';
+            $fileName = $fileUploader->upload($file, $prefix);
+            $this->evoieDw($fileName);
+        }
 
         return $fileName;
     }
@@ -69,18 +68,19 @@ class DitCdeSoumisAValidationController extends Controller
     private function historique($ditCdeSoumisAValidation, $fileName)
     {
         $historique = new DitHistoriqueOperationDocument();
-         //HISOTRIQUE
-         $historique
-         ->setNumeroDocument($fileName)
-         ->setUtilisateur($this->nomUtilisateur(self::$em))
-         ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(3))
-         ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-         ;
+        //HISOTRIQUE
+        $historique
+            ->setNumeroDocument($fileName)
+            ->setUtilisateur($this->nomUtilisateur(self::$em))
+            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(3))
+            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
+        ;
         self::$em->persist($historique);
         self::$em->flush();
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return $user->getNomUtilisateur();

@@ -212,3 +212,9 @@ CREATE TABLE or_soumis_validation_historique (
     CONSTRAINT FK_or_soumis_validation_historique_orsSoumisAValidation_id FOREIGN KEY (orsSoumisAValidation_id) REFERENCES ors_soumis_a_validation (id),
     CONSTRAINT FK_or_soumis_validation_historique_historique_Operation_Doc_id FOREIGN KEY (historique_Operation_Doc_id) REFERENCES historique_operation_document (id)
 );
+
+ALTER TABLE historique_operation_document
+ADD statutOperation VARCHAR(255) NULL;
+
+ALTER TABLE historique_operation_document
+ADD libelleOperation VARCHAR(255) NULL;
