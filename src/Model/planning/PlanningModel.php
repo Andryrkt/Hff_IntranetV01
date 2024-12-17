@@ -185,7 +185,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                    AND $vYearsStatutPlan = $annee
+                    AND $vYearsStatutPlan >= '2024'
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne
@@ -271,7 +271,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                    AND $vYearsStatutPlan = $annee
+                    AND $vYearsStatutPlan >= '2024'
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne

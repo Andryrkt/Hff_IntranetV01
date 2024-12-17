@@ -10,15 +10,16 @@
     position: relative;
     width: 10px; /* Taille totale du spinner */
     height: 10px;
+    margin-left: 15px;
 }
 
 .spinner div {
     position: absolute;
-    width: 6px; /* Largeur des barres */
-    height: 10px; /* Hauteur des barres */
+    width: 2px; /* Largeur des barres */
+    height: 5px; /* Hauteur des barres */
     background: #000; /* Couleur par défaut */
     border-radius: 3px; /* Coins arrondis pour les barres */
-    transform-origin: center 20px; /* Point autour duquel les barres tournent */
+    transform-origin: center 10px; /* Point autour duquel les barres tournent */
     animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
 }
 

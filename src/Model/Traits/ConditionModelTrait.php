@@ -49,22 +49,16 @@ trait ConditionModelTrait
     {   
         if (!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === "PIECES MAGASIN"){
-                $piece = " AND (slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'JOV'))
-                    ";
+                $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
             } else if($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND slor_constp in ('LUB', 'JOV')";
-
             } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
-                $piece = " AND (slor_constp in ('SOM', 'FAT') or slor_constp like 'Z%') ";
-
+                $piece = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST') ";
             }else if($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
-            $piece = " AND (slor_constp not like 'Z%'
-                        and slor_constp not in ('LUB', 'SOM', 'FAT', 'JOV'))
-                    ";
+            $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
         }
 
         return $piece;

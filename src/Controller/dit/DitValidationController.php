@@ -39,6 +39,7 @@ class DitValidationController extends Controller
     $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
     $data = $this->ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+
             $dit->setNumParc($data[0]['num_parc']);
             $dit->setNumSerie($data[0]['num_serie']);
             $dit->setIdMateriel($data[0]['num_matricule']);
@@ -66,62 +67,63 @@ class DitValidationController extends Controller
    
     $form = self::$validator->createBuilder(DitValidationType::class, $dit)->getForm();
 
-    $form->handleRequest($request);
+    // $form->handleRequest($request);
 
-    // Vérifier si le formulaire est soumis et valide
-    if ($form->isSubmitted() && $form->isValid()) {
+    // // Vérifier si le formulaire est soumis et valide
+    // if ($form->isSubmitted() && $form->isValid()) {
         
-        $email = new EmailService();
-        $dit = $form->getData();
+    //     $email = new EmailService();
+    //     $dit = $form->getData();
         
-        $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
-        dump($userDemandeur);
-            $userDemandeur = $this->arrayToObjet($userDemandeur);
-            dump($userDemandeur);
-            $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
-            dump($emailSuperieurs);
-            $id = $this->sessionService->get('user_id');
-            dump($id);
-            $userConnecter = self::$em->getRepository(User::class)->find($id);
-            dump($userDemandeur);
-        if ($request->request->has('refuser')) {
+    //     $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
+    //     dump($userDemandeur);
+    //         $userDemandeur = $this->arrayToObjet($userDemandeur);
+    //         dump($userDemandeur);
+    //         $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
+    //         dump($emailSuperieurs);
+    //         $id = $this->sessionService->get('user_id');
+    //         dump($id);
+    //         $userConnecter = self::$em->getRepository(User::class)->find($id);
+    //         dump($userDemandeur);
+    //     if ($request->request->has('refuser')) {
 
-            $variableEmail = $this->donnerRefu($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
+    //         $variableEmail = $this->donnerRefu($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
 
-            $content = $this->emailRefu($variableEmail);
+    //         $content = $this->emailRefu($variableEmail);
     
-            $this->confirmationEmail($email, $content);
+    //         $this->confirmationEmail($email, $content);
             
-        } elseif ($request->request->has('valider')) {
+    //     } elseif ($request->request->has('valider')) {
             
             
-            $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
-            $dit
-            ->setIdStatutDemande($statutDemande)
-            ->setDateValidation(new \DateTime($this->getDatesystem()))
-            ->setHeureValidation($this->getTime())
-            ;
-            self::$em->flush();
+    //         $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
+    //         $dit
+    //         ->setIdStatutDemande($statutDemande)
+    //         ->setDateValidation(new \DateTime($this->getDatesystem()))
+    //         ->setHeureValidation($this->getTime())
+    //         ;
+    //         self::$em->flush();
 
-            dd($dit);
+    //         dd($dit);
 
-            if($dit->getDemandeDevis() === "OUI") {
+    //         if($dit->getDemandeDevis() === "OUI") {
 
-            $variableEmail = $this->donnerValideAvecDevis($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
+    //         $variableEmail = $this->donnerValideAvecDevis($userDemandeur, $emailSuperieurs, $userConnecter, $dit);
 
-            $content = $this->emailValideAvecDevis($variableEmail);
+    //         $content = $this->emailValideAvecDevis($variableEmail);
     
-            $this->confirmationEmail($email, $content);
-            } else {
-            $content = $this->emailValideSansDevis();
+    //         $this->confirmationEmail($email, $content);
+    //         } else {
+    //         $content = $this->emailValideSansDevis();
     
-            $this->confirmationEmail($email, $content);
-            }
-        }
+    //         $this->confirmationEmail($email, $content);
+    //         }
+    //     }
 
-        $this->redirectToRoute("dit_index");
-    }
+    //     $this->redirectToRoute("dit_index");
+    // }
         
+    // dd($dit);
     //RECUPERATION DE LISTE COMMANDE 
     $commandes = $this->ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
