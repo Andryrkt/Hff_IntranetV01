@@ -103,27 +103,41 @@ function selectAgence() {
     .catch((error) => console.error("Error:", error));
 }
 
-/** LIST DETAIL MODAL */
+/** *======================
+ * LIST DETAIL MODAL
+ *  =======================*/
 
 document.addEventListener("DOMContentLoaded", (event) => {
+  let abortController; // AbortController pour annuler les requêtes fetch précédentes
+
   const listeCommandeModal = document.getElementById("listeCommande");
 
+  // Gestionnaire pour l'ouverture du modal
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
-    const button = event.relatedTarget; // Button that triggered the modal
-    const orIntv = button.getAttribute("data-id"); // Extract info from data-* attributes
+    // Annuler les requêtes fetch en cours s'il y en a
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController(); // Créer un nouveau contrôleur
+
+    const button = event.relatedTarget; // Bouton qui a déclenché le modal
+    const orIntv = button.getAttribute("data-id");
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
+<<<<<<< HEAD
     console.log(migration);
     console.log(migration == "1");
     
     // Mettre à jour le lien avec le numDit dynamique
+=======
+
+>>>>>>> aac93644a251416c3b46f8efa54ec4cb4cff76ac
     const dossierDitLink = document.getElementById("dossierDitLink");
     if (migration == "1") {
-      console.log(dossierDitLink);
       dossierDitLink.style.display = "none";
     }
-    //console.log(numDit);
-    //console.log(dossierDitLink);
+
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
@@ -132,17 +146,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
       );
     };
 
-    // Afficher le spinner et masquer le contenu des données
+    // Afficher le spinner
     document.getElementById("loading").style.display = "block";
     document.getElementById("dataContent").style.display = "none";
 
-    fetchDetailModal(orIntv);
-
     const numOr = orIntv.split("-")[0];
     const numItv = orIntv.split("-")[1];
-    console.log(numOr, numItv);
 
-    fetchTechnicienInterv(numOr, numItv);
+    // Utiliser AbortController pour fetchDetailModal
+    fetchDetailModal(orIntv, abortController.signal);
+    fetchTechnicienInterv(numOr, numItv, abortController.signal);
   });
 
   // Gestionnaire pour la fermeture du modal
@@ -150,6 +163,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tableBody = document.getElementById("commandesTableBody");
     const Ornum = document.getElementById("orIntv");
     const planningTableHead = document.getElementById("planningTableHead");
+
     tableBody.innerHTML = ""; // Vider le tableau
     Ornum.innerHTML = "";
     planningTableHead.innerHTML = "";
@@ -161,8 +175,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("dataContent").style.display = "block";
   }
 
-  function fetchTechnicienInterv(numOr, numItv) {
-    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`)
+  function fetchTechnicienInterv(numOr, numItv, signal) {
+    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
+      signal,
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -193,16 +209,20 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("technicienTableBody");
-        tableBody.innerHTML =
-          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error("There was a problem with the fetch operation:", error);
+        if (error.name === "AbortError") {
+          console.log("Requête annulée !");
+        } else {
+          const tableBody = document.getElementById("technicienTableBody");
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          console.error("There was a problem with the fetch operation:", error);
+        }
       });
   }
 
-  function fetchDetailModal(id) {
+  function fetchDetailModal(id, signal) {
     // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`)
+    fetch(`/Hffintranet/detail-modal/${id}`, { signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -414,12 +434,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
-        tableBody.innerHTML =
-          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error("There was a problem with the fetch operation:", error);
-
-        masquerSpinner();
+        if (error.name === "AbortError") {
+          console.log("Requête annulée !");
+        } else {
+          const tableBody = document.getElementById("commandesTableBody");
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          console.error("There was a problem with the fetch operation:", error);
+          masquerSpinner();
+        }
       });
   }
 

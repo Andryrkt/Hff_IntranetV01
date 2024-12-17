@@ -56,10 +56,14 @@ class DetailTikController extends Controller
         /** 
          * @var array $authorizedUsers les utilisateurs autorisés à commenter
          */
-        $authorizedUsers = [ $demandeur->getId(), ];
-        
-        if ($validateur !== null)  { $authorizedUsers[] = $validateur->getId(); }
-        if ($intervenant !== null) { $authorizedUsers[] = $intervenant->getId();}
+        $authorizedUsers = [$demandeur->getId(),];
+
+        if ($validateur !== null) {
+            $authorizedUsers[] = $validateur->getId();
+        }
+        if ($intervenant !== null) {
+            $authorizedUsers[] = $intervenant->getId();
+        }
 
         /** 
          * Vérifie si l'utilisateur connecté peut commenter.
@@ -74,8 +78,8 @@ class DetailTikController extends Controller
             $form = self::$validator->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 
             $form->handleRequest($request);
-            
-            if ($form->isSubmitted() && $form->isValid()) { 
+
+            if ($form->isSubmitted() && $form->isValid()) {
                 /** 
                  * @var DemandeSupportInformatique $dataForm l'entité du DemandeSupportInformatique envoyé par le formualire de validation
                  */
@@ -112,11 +116,11 @@ class DetailTikController extends Controller
 
                         // Envoi email refus
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
-                        
+
                         $this->envoyerEmail($this->emailTikRefuse($variableEmail));
-                        
+
                         $this->sessionService->set('notification', [
-                            'type'    => 'success', 
+                            'type'    => 'success',
                             'message' => "Le ticket $numTik a été refusé."
                         ]);
 
@@ -130,25 +134,25 @@ class DetailTikController extends Controller
                             ->setMailIntervenant($dataForm->getIntervenant()->getMail())
                             ->setIdStatutDemande($button['statut'])    // statut en cours
                         ;
-                        
+
                         //envoi les donnée dans la base de donnée
                         self::$em->persist($supportInfo);
-                        self::$em->flush(); 
+                        self::$em->flush();
 
                         $this->historiqueStatut($supportInfo, $button['statut']);
 
-                        $nomPrenomIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
+                        $nomPrenomIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom() . ' ' . $dataForm->getIntervenant()->getPersonnels()->getPrenoms();
 
                         // Envoi email validation
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomIntervenant);
-                        
+
                         $this->envoyerEmail($this->emailTikValide($variableEmail));
 
                         $this->sessionService->set('notification', [
-                            'type'    => 'success', 
+                            'type'    => 'success',
                             'message' => "Le ticket $numTik a été validé."
                         ]);
-        
+
                         break;
 
                     case 'planifier':
@@ -156,7 +160,7 @@ class DetailTikController extends Controller
                             ->setIdStatutDemande($button['statut'])    // statut planifié
                         ;
 
-                        $planning = self::$em->getRepository(TkiPlanning::class)->findOneBy(['numeroTicket'=>$dataForm->getNumeroTicket()]);
+                        $planning = self::$em->getRepository(TkiPlanning::class)->findOneBy(['numeroTicket' => $dataForm->getNumeroTicket()]);
 
                         $planning = $planning ?? new TkiPlanning;
 
@@ -169,18 +173,18 @@ class DetailTikController extends Controller
                             ->setUserId($connectedUser)
                             ->setDemandeId($dataForm)
                         ;
-                        
+
                         //envoi les donnée dans la base de donnée
                         self::$em->persist($supportInfo);
                         self::$em->persist($planning);
 
-                        self::$em->flush(); 
+                        self::$em->flush();
 
                         $this->historiqueStatut($supportInfo, $button['statut']);
 
                         // Envoi email de planification
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $dataForm->getDateDebutPlanning());
-                        
+
                         $this->envoyerEmail($this->emailTikPlanifie($variableEmail));
 
                         $this->redirectToRoute("tik_calendar_planning");
@@ -194,28 +198,28 @@ class DetailTikController extends Controller
                             ->setMailIntervenant($dataForm->getIntervenant()->getMail())               // mail du nouveau intervenant
                             // ->setIdStatutDemande($button['statut'])                                 ******* QUESTION: statut ????
                         ;
-                        
+
                         //envoi les donnée dans la base de donnée
                         self::$em->persist($supportInfo);
-                        self::$em->flush(); 
+                        self::$em->flush();
 
                         // $this->historiqueStatut($supportInfo, $button['statut']);                   ******* QUESTION: historisation ????      
 
-                        $nomPrenomNouveauIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom().' '.$dataForm->getIntervenant()->getPersonnels()->getPrenoms();
+                        $nomPrenomNouveauIntervenant = $dataForm->getIntervenant()->getPersonnels()->getNom() . ' ' . $dataForm->getIntervenant()->getPersonnels()->getPrenoms();
 
                         // Envoi email de transfert
                         $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $nomPrenomNouveauIntervenant);
-                        
+
                         $this->envoyerEmail($this->emailTikTransfere($variableEmail));
 
                         $this->sessionService->set('notification', [
-                            'type'    => 'success', 
+                            'type'    => 'success',
                             'message' => "Le ticket $numTik a été transféré."
                         ]);
-        
+
                         break;
 
-                        
+
                     case 'resoudre':
                         $commentaires = new TkiCommentaires;
                         $commentaires
@@ -229,7 +233,7 @@ class DetailTikController extends Controller
                         $supportInfo
                             ->setIdStatutDemande($button['statut'])    // statut resolu
                         ;
-                        
+
                         self::$em->persist($commentaires);
                         self::$em->persist($supportInfo);
 
@@ -243,22 +247,22 @@ class DetailTikController extends Controller
                         $this->envoyerEmail($this->emailTikResolu($variableEmail));
 
                         $this->sessionService->set('notification', [
-                            'type'    => 'success', 
+                            'type'    => 'success',
                             'message' => "Le ticket $numTik a été résolu."
                         ]);
 
                         break;
                 }
-                
+
                 $this->redirectToRoute("liste_tik_index");
             }
 
             $commentaire = new TkiCommentaires($supportInfo->getNumeroTicket(), $connectedUser->getNomUtilisateur());
 
             $formCommentaire = self::$validator->createBuilder(TkiCommentairesType::class, $commentaire)->getForm();
-            
+
             $formCommentaire->handleRequest($request);
-            
+
             if ($request->request->has('commenter') && $formCommentaire->isSubmitted() && $formCommentaire->isValid()) {
                 $commentaire
                     ->setUtilisateur($connectedUser)
@@ -273,12 +277,16 @@ class DetailTikController extends Controller
                 $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
 
                 $this->envoyerEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
-                
+
                 $this->redirectToRoute("liste_tik_index");
             }
 
             $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 79;
             $isIntervenant = $supportInfo->getIntervenant() !== null && ($supportInfo->getIntervenant()->getId() == $connectedUser->getId());
+
+            $this->logUserVisit('detail_tik', [
+                'id' => $id
+            ]); // historisation du page visité par l'utilisateur 
 
             self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
                 'tik'               => $supportInfo,
@@ -291,17 +299,17 @@ class DetailTikController extends Controller
                 'intervenant'       => !$statutOuvert && $isIntervenant,                   // statut différent de ouvert et l'utilisateur connecté est l'intervenant
                 'connectedUser'     => $connectedUser,
                 'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
-                                                ->findBy(
-                                                        ['numeroTicket' =>$supportInfo->getNumeroTicket()],
-                                                        ['dateCreation' => 'ASC']
-                                                    ),
+                    ->findBy(
+                        ['numeroTicket' => $supportInfo->getNumeroTicket()],
+                        ['dateCreation' => 'ASC']
+                    ),
                 'historiqueStatut'  => self::$em->getRepository(TkiStatutTicketInformatique::class)
-                                                ->findBy(
-                                                        ['numeroTicket'=>$supportInfo->getNumeroTicket()],
-                                                        ['dateStatut'  => 'DESC']
-                                                    ),
+                    ->findBy(
+                        ['numeroTicket' => $supportInfo->getNumeroTicket()],
+                        ['dateStatut'  => 'DESC']
+                    ),
             ]);
-        } 
+        }
     }
 
     /** 
@@ -314,7 +322,7 @@ class DetailTikController extends Controller
             '81' => 'valider',      // statut en cours
             '82' => 'planifier',    // statut planifié
             '83' => 'resoudre',     // statut planifié
-            '00' => 'transferer',   
+            '00' => 'transferer',
         ];
 
         /** 
@@ -348,14 +356,14 @@ class DetailTikController extends Controller
         self::$em->flush();
     }
 
-    private function donneeEmail(DemandeSupportInformatique $tik, User $userConnecter, $variable = '') : array
+    private function donneeEmail(DemandeSupportInformatique $tik, User $userConnecter, $variable = ''): array
     {
         return [
             'id'                 => $tik->getId(),
             'numTik'             => $tik->getNumeroTicket(),
             'emailValidateur'    => $tik->getValidateur() ? $tik->getValidateur()->getMail() : null,
             'emailUserDemandeur' => $tik->getMailDemandeur(),
-            'emailIntervenant'   => $tik->getMailIntervenant(),   
+            'emailIntervenant'   => $tik->getMailIntervenant(),
             'variable'           => $variable,
             'userConnecter'      => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
             'template'           => 'tik/email/emailTik.html.twig',
@@ -367,7 +375,7 @@ class DetailTikController extends Controller
      */
     private function emailTikRefuse($tab): array
     {
-        return [ 
+        return [
             'to'        => $tab['emailUserDemandeur'],
             'template'  => $tab['template'],
             'variables' => [
@@ -384,11 +392,11 @@ class DetailTikController extends Controller
      */
     private function emailTikValide($tab): array
     {
-        return [ 
+        return [
             'to'        => $tab['emailUserDemandeur'],
             'cc'        => [$tab['emailIntervenant']],
             'template'  => $tab['template'],
-            'variables' => [ 
+            'variables' => [
                 'statut'      => "valide",
                 'subject'     => "{$tab['numTik']} - Ticket validé",
                 'tab'         => $tab,
@@ -408,17 +416,17 @@ class DetailTikController extends Controller
             $to = $cc[0];
             $cc = !empty($cc[1]) ? [$cc[1]] : [];
         } else {
-            $emailValidateurs = array_map(function($validateur) {
+            $emailValidateurs = array_map(function ($validateur) {
                 return $validateur->getMail();
             }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
             $to = $emailValidateurs[0];
             $cc = array_slice($emailValidateurs, 1);
         }
-        return [ 
+        return [
             'to'        => $to,
             'cc'        => $cc,
             'template'  => $tab['template'],
-            'variables' => [ 
+            'variables' => [
                 'statut'      => "comment",
                 'subject'     => "{$tab['numTik']} - Commentaire émis",
                 'tab'         => $tab,
@@ -433,7 +441,7 @@ class DetailTikController extends Controller
     private function emailTikResolu($tab): array
     {
         $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
-        return [ 
+        return [
             'to'        => $tabEmail[0],
             'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
             'template'  => $tab['template'],
@@ -452,7 +460,7 @@ class DetailTikController extends Controller
     private function emailTikPlanifie($tab): array
     {
         $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
-        return [ 
+        return [
             'to'        => $tabEmail[0],
             'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
             'template'  => $tab['template'],
@@ -471,11 +479,11 @@ class DetailTikController extends Controller
     private function emailTikTransfere($tab): array
     {
         $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur'], $tab['emailIntervenant']]));
-        return [ 
+        return [
             'to'        => $tabEmail[0],
             'cc'        => array_slice($tabEmail, 1),
             'template'  => $tab['template'],
-            'variables' => [ 
+            'variables' => [
                 'statut'      => "transfere",
                 'subject'     => "{$tab['numTik']} - Ticket transféré",
                 'tab'         => $tab,
@@ -490,9 +498,9 @@ class DetailTikController extends Controller
     private function envoyerEmail(array $content)
     {
         $email = new EmailService;
-        
+
         $content['cc'] = $content['cc'] ?? [];
-        
+
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 
@@ -510,7 +518,7 @@ class DetailTikController extends Controller
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
-                $prefix   = $commentaire->getNumeroTicket().'_commentaire_';
+                $prefix   = $commentaire->getNumeroTicket() . '_commentaire_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
                 $filePath = $chemin . '/' . $fileName;
@@ -520,7 +528,7 @@ class DetailTikController extends Controller
                 } else {
                     $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
                 }
-                
+
                 $fileNames[] = [
                     'name' => $fileName,
                     'size' => $fileSize
@@ -528,7 +536,7 @@ class DetailTikController extends Controller
             }
         }
 
-       // Enregistrez les noms des fichiers dans votre entité
+        // Enregistrez les noms des fichiers dans votre entité
         $commentaire->setFileNames($fileNames);
     }
 }

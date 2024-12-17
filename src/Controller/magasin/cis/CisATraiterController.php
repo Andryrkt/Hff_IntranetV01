@@ -39,21 +39,23 @@ class CisATraiterController extends Controller
             "agenceUser" => $agenceUser,
             'orValide' => true
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
-        
+        }
+
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
 
+        $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
-            'form' =>$form->createView()
+            'form' => $form->createView()
         ]);
     }
-    
+
     /**
      * @Route("/export-excel-a-traiter-cis", name="export_excel_a_traiter_cis")
      */
@@ -61,7 +63,7 @@ class CisATraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
@@ -71,7 +73,7 @@ class CisATraiterController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'ID Materiel', 'Marque', 'Casier']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'ID Materiel', 'Marque', 'Casier'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['numdit'],
@@ -96,18 +98,19 @@ class CisATraiterController extends Controller
         $this->excelService->createSpreadsheet($data);
     }
 
+
     private function recupData($cisATraiterModel, $criteria)
     {
         $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
-        
+
         $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
 
-        for ($i=0; $i < count($data) ; $i++) { 
-    
+        for ($i = 0; $i < count($data); $i++) {
+
             $numeroOr = $data[$i]['numor'];
             $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-            if($ditRepository != null){
+            if ($ditRepository != null) {
                 $idMateriel = $ditRepository->getIdMateriel();
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
                 $data[$i]['idMateriel'] = $idMateriel;

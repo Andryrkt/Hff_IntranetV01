@@ -10,3 +10,22 @@
 => stiv_pos = 'EC' à verifier pourquoi le donner ne s'affiche pas sur le pdf
 numeroDit : DIT24119994
 numeroOr: 51302404
+
+private function conditionPiece(string $indexCriteria, array $criteria): ?string
+    {   
+        if (!empty($criteria[$indexCriteria])) {
+if($criteria[$indexCriteria] === "PIECES MAGASIN"){
+$piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+            } else if($criteria[$indexCriteria] === "LUB") {
+$piece = " AND slor_constp in ('LUB', 'JOV')";
+            } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
+$piece = " AND (slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST') ";
+            }else if($criteria[$indexCriteria] === "TOUTS PIECES") {
+$piece = null;
+}
+} else {
+$piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+}
+
+        return $piece;
+    }

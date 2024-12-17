@@ -103,8 +103,6 @@ trait BadmsForm2Trait
             $dateMiseLocation = $this->dateMiseEnlocation($data);
        }
 
- 
-  
 
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
@@ -135,7 +133,6 @@ trait BadmsForm2Trait
      */
     private function uplodeFile($form, $badm, $nomFichier)
     {
-        
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
@@ -147,19 +144,52 @@ trait BadmsForm2Trait
         $setPieceJoint = 'set'.ucfirst($nomFichier);
         $badm->$setPieceJoint($fileName);
 
+        // Retourne le chemin complet du fichier pour une éventuelle fusion
+        return $fileDossier . $fileName;
     }
 
-    private function envoiePieceJoint($form, $badm)
+    private function envoiePieceJoint($form, $badm, $fusionPdf)
     {
+        $pdfFiles = [];
+
+        // Ajouter le fichier PDF principal en tête du tableau
+        $mainPdf = sprintf(
+            '%s/Upload/bdm/%s_%s%s.pdf',
+            rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+            $badm->getNumBadm(),
+            $badm->getAgenceEmetteurId()->getCodeAgence(),
+            $badm->getServiceEmetteurId()->getCodeService()
+        );
+
+        // Vérifier que le fichier principal existe avant de l'ajouter
+        if (!file_exists($mainPdf)) {
+            throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+        }
+
+        array_unshift($pdfFiles, $mainPdf);
         
         if($form->get("nomImage")->getData() !== null){
-                $this->uplodeFile($form, $badm, "nomImage");
+            $pdfPath = $this->uplodeFile($form, $badm, "nomImage");
+            if ($pdfPath !== null) {
+                $pdfFiles[] = $pdfPath;
             }
+        }
 
-            if($form->get("nomFichier")->getData() !== null){
-                $this->uplodeFile($form, $badm, "nomFichier");
+        if($form->get("nomFichier")->getData() !== null){
+            $pdfPath = $this->uplodeFile($form, $badm, "nomFichier");
+            if ($pdfPath !== null) {
+                $pdfFiles[] = $pdfPath;
             }
+        }
         
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = $mainPdf;
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf->mergePdfsAndImages($pdfFiles, $mergedPdfFile);
+        }
     }
 
     

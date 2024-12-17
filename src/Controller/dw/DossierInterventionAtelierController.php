@@ -21,26 +21,26 @@ class DossierInterventionAtelierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
-        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, [ 'method' => 'GET'])->getForm();
+
+        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
         $dwModel = new DossierInterventionAtelierModel();
 
         $criteria = [
-                "idMateriel" => null,
-                "typeIntervention" => "INTERNE",
-                "dateDebut" => null,
-                "dateFin" => null,
-                "numParc" => null,
-                "numSerie" => null,
-                "numDit" => null,
-                "numOr" => null,
-                "designation" => null,
+            "idMateriel" => null,
+            "typeIntervention" => "INTERNE",
+            "dateDebut" => null,
+            "dateFin" => null,
+            "numParc" => null,
+            "numSerie" => null,
+            "numDit" => null,
+            "numOr" => null,
+            "designation" => null,
         ];
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
 
@@ -57,6 +57,8 @@ class DossierInterventionAtelierController extends Controller
 
         $date = new DateTime();
 
+        $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
             'form' => $form->createView(),
             'dwDits' => $dwDits,
@@ -71,24 +73,24 @@ class DossierInterventionAtelierController extends Controller
         $dwfac = [];
         $dwRi = [];
         $dwCde = [];
-        
+
         for ($i = 0; $i < count($dwDits); $i++) {
             // Récupérer les données de la demande d'intervention et de l'ordre de réparation
             $dwDit = $dwModel->findDwDit($dwDits[$i]['numero_dit_intervention']) ?? [];
             $dwOr = $dwModel->findDwOr($dwDits[$i]['numero_dit_intervention']) ?? [];
-            
+
             // Si un ordre de réparation est trouvé, récupérer les autres données liées
             if (!empty($dwOr)) {
                 $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
                 $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
                 $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
             }
-        
+
             // Fusionner toutes les données dans un tableau associatif
             $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
-        
+
             // Ajouter le nombre de documents à l'élément actuel de $dwDits
-            $dwDits[$i]['nbDoc'] = count($data) ;
+            $dwDits[$i]['nbDoc'] = count($data);
         }
 
         return $dwDits;
