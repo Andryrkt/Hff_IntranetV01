@@ -45,7 +45,7 @@ class PlanningApi extends Controller
             
             //$numDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $detailes = [];
-            dd($details);
+             dd($details);
             $recupPariel = [];
             $recupGot = [];
             for ($i=0; $i < count($details); $i++) {
