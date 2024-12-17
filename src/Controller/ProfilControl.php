@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class ProfilControl extends Controller
 {
 
-    
+
 
     /**
      * @Route("/Authentification", name="profil_authentification")
@@ -33,32 +33,32 @@ class ProfilControl extends Controller
                     document.location.href = "/Hffintranet";
                 </script>';
             } else {
-                
+
                 try {
-                        //$session->start();
-                        $user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
-                        //$user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => 'lala']);
-                        
-                        if (isset($user)) {
-                            $userId = $user->getId();
-                            $this->sessionService->set('user_id', $userId);
-                            // session_start();
+                    //$session->start();
+                    $user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
+                    //$user = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => 'lala']);
 
-                            $this->sessionService->set('user', $Username);
-                           //$_SESSION['user'] = $Username;
+                    if (isset($user)) {
+                        $userId = $user->getId();
+                        $this->sessionService->set('user_id', $userId);
+                        // session_start();
 
-                            $this->sessionService->set('password', $Password);
-                            //$_SESSION['password'] = $Password;
-                        } else {
-                            // Gérer le cas où l'utilisateur n'existe pas
-                            throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
-                        }
+                        $this->sessionService->set('user', $Username);
+                        //$_SESSION['user'] = $Username;
+
+                        $this->sessionService->set('password', $Password);
+                        //$_SESSION['password'] = $Password;
+                    } else {
+                        // Gérer le cas où l'utilisateur n'existe pas
+                        throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
+                    }
                 } catch (\Exception $e) {
-               
+
                     $this->redirectToRoute('utilisateur_non_touver', ["message" => $e->getMessage()]);
                 }
 
-
+                $this->logUserVisit('profil_authentification'); // historisation du page visité par l'utilisateur
 
                 self::$twig->display(
                     'main/accueil.html.twig'
@@ -72,9 +72,12 @@ class ProfilControl extends Controller
      * @Route("/Acceuil", name="profil_acceuil")
      */
     public function showPageAcceuil()
-    {       
+    {
 
         //$okey = $this->ProfilModel->has_permission($_SESSION['user'], 'CREAT_DOM');
+        $userId = $this->sessionService->get('user_id');
+
+        $this->logUserVisit('profil_acceuil'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'main/accueil.html.twig'

@@ -18,7 +18,7 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 
 class MagasinListeOrTraiterController extends Controller
-{ 
+{
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
@@ -40,27 +40,28 @@ class MagasinListeOrTraiterController extends Controller
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
-        if($autoriser)
-        {
+        if ($autoriser) {
             $agenceUser = null;
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() . '-' . $agenceServiceUser['agenceIps']->getLibelleAgence();
         }
 
-        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser'=> $autoriser], [
+        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
-        
+
         $form->handleRequest($request);
         $criteria = $this->innitialisationCriteria($agenceUser);
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
+        }
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
-        
+
         $data = $this->recupData($criteria, $magasinModel);
+
+        $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
@@ -80,16 +81,16 @@ class MagasinListeOrTraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $magasinModel = new MagasinListeOrATraiterModel;
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
-        
+
         $entities = $this->recupData($criteria, $magasinModel);
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° Or', 'Date planning', "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence Débiteur', 'Service Débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Utilisateur', 'ID Materiel', 'Marque', 'Casier']; 
+        $data[] = ['N° DIT', 'N° Or', 'Date planning', "Date Or", "Agence Emetteur", "Service Emetteur", 'Agence Débiteur', 'Service Débiteur', 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté demandée', 'Utilisateur', 'ID Materiel', 'Marque', 'Casier'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['referencedit'],
@@ -114,7 +115,6 @@ class MagasinListeOrTraiterController extends Controller
         }
 
         $this->excelService->createSpreadsheet($data);
-
     }
 
     private function innitialisationCriteria($agenceUser)
@@ -126,42 +126,41 @@ class MagasinListeOrTraiterController extends Controller
     private function recupData($criteria, $magasinModel)
     {
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, self::$em);
-        
-            $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
-            //enregistrer les critère de recherche dans la session
-            $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
-            
-            //ajouter le numero dit dans data
-            for ($i=0; $i < count($data) ; $i++) { 
-                $numeroOr = $data[$i]['numeroor'];
-                $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
-                $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
-                $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
-                if(!empty($datePlannig1)){
-                    $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-                } else if(!empty($datePlannig2)){
-                    $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
-                } else {
-                    $data[$i]['datePlanning'] = '';
-                }
+        $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
+        //enregistrer les critère de recherche dans la session
+        $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
 
-                $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-                if( !empty($ditRepository)){
-                    $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
-                    $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
-                    $idMateriel = $ditRepository->getIdMateriel();
-                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
-                    $data[$i]['idMateriel'] = $idMateriel;
-                    $data[$i]['marque'] = $marqueCasier[0]['marque'];
-                    $data[$i]['casier'] = $marqueCasier[0]['casier'];
-                } else {
-                    break;
-                }
+        //ajouter le numero dit dans data
+        for ($i = 0; $i < count($data); $i++) {
+            $numeroOr = $data[$i]['numeroor'];
+            $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
+            $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
+            $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
+            if (!empty($datePlannig1)) {
+                $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
+            } else if (!empty($datePlannig2)) {
+                $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
+            } else {
+                $data[$i]['datePlanning'] = '';
             }
 
-            return $data;
-    }
 
+            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            if (!empty($ditRepository)) {
+                $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
+                $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
+                $idMateriel = $ditRepository->getIdMateriel();
+                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
+                $data[$i]['idMateriel'] = $idMateriel;
+                $data[$i]['marque'] = $marqueCasier[0]['marque'];
+                $data[$i]['casier'] = $marqueCasier[0]['casier'];
+            } else {
+                break;
+            }
+        }
+
+        return $data;
+    }
 }

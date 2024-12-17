@@ -186,7 +186,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                    AND $vYearsStatutPlan >='2024'
+                    AND $vYearsStatutPlan >= '2024'
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne

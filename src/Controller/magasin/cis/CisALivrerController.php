@@ -42,14 +42,16 @@ class CisALivrerController extends Controller
             "agenceUser" => $agenceUser,
             "orValide" => true,
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
+        }
 
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
+
+        $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
@@ -64,17 +66,17 @@ class CisALivrerController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $cisATraiterModel = new CisALivrerModel();
 
-         //recupères les critère dans la session 
+        //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
 
-         // Convertir les entités en tableau de données
+        // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv', 'ID Materiel', 'Marque', 'Casier']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° OR', 'Date OR', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté cde', 'Qté à liv', 'Qté liv', 'ID Materiel', 'Marque', 'Casier'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['num_dit'],
@@ -106,9 +108,9 @@ class CisALivrerController extends Controller
         $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
         $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
-        
-        for ($i=0; $i < count($data) ; $i++) { 
-    
+
+        for ($i = 0; $i < count($data); $i++) {
+
             $numeroOr = $data[$i]['num_or'];
             $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
             $idMateriel = $ditRepository->getIdMateriel();

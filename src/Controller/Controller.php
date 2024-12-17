@@ -21,6 +21,8 @@ use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
+use App\Entity\admin\PageHff;
+use App\Entity\admin\UserLogger;
 use App\Model\dom\DomDetailModel;
 
 use App\Model\TransferDonnerModel;
@@ -135,7 +137,6 @@ class Controller
         $this->accessControl = new AccessControlService();
 
         $this->excelService = new ExcelService();
-
     }
 
     public static function setTwig($twig)
@@ -161,7 +162,7 @@ class Controller
     {
         return self::$generator;
     }
-    
+
     public static function setEntity($em)
     {
         self::$em = $em;
@@ -181,7 +182,7 @@ class Controller
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        } 
+        }
         if (empty($_SESSION['user'])) {
             header("Location:/Hffintranet/");
             session_destroy();
@@ -198,19 +199,19 @@ class Controller
 
         // Supprime l'utilisateur de la session
         unset($_SESSION['user']);
-        
+
         // Détruit la session
         session_destroy();
-        
+
         // Réinitialise toutes les variables de session
         session_unset();
-        
+
         // Redirige vers la page d'accueil
         header("Location: /Hffintranet/");
-        
+
         // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
         session_write_close();
-        
+
         // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
         exit();
     }
@@ -236,7 +237,7 @@ class Controller
     }
 
 
-    
+
 
 
     protected function conversionCaratere(string $chaine): string
@@ -255,7 +256,8 @@ class Controller
         return $array;
     }
 
-    protected function redirectTo($url) {
+    protected function redirectTo($url)
+    {
         // Créer une réponse de redirection
         $response = new RedirectResponse($url);
         // Envoyer la réponse de redirection au client
@@ -269,7 +271,8 @@ class Controller
      * @param array $params
      * @return void
      */
-    protected function redirectToRoute(string $routeName, array $params = []) {
+    protected function redirectToRoute(string $routeName, array $params = [])
+    {
         $url = self::$generator->generate($routeName, $params);
         header("Location: $url");
         exit();
@@ -308,7 +311,7 @@ class Controller
             echo $jsonData;
         }
     }
-    
+
     private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
     {
         for ($i = 1; $i < $LongerVoulu; $i++) {
@@ -335,7 +338,7 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-        
+
         $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
 
         //var_dump($Max_Num);
@@ -360,7 +363,7 @@ class Controller
 
         return $Result_Num;
     }
-    
+
     /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
      *
@@ -376,9 +379,9 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-       
-            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-            
+
+        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+
         if ($nomDemande === 'DIT') {
             $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
         } else {
@@ -409,24 +412,24 @@ class Controller
         //dd($Result_Num);
         return $Result_Num;
     }
-    
+
 
     protected function arrayToObjet(User $user): User
     {
-     
+
         $superieurs = [];
         foreach ($user->getSuperieurs() as  $value) {
             if (empty($value)) {
                 return $user;
             } else {
                 $superieurs[] = self::$em->getRepository(user::class)->find($value);
-           $user->setSuperieurs($superieurs);
+                $user->setSuperieurs($superieurs);
             }
-       }
-   
-       return $user;
-    } 
-    
+        }
+
+        return $user;
+    }
+
 
     /**
      * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
@@ -437,30 +440,30 @@ class Controller
     {
         try {
             $userId = $this->sessionService->get('user_id');
-            
+
             if (!$userId) {
                 throw new \Exception("User ID not found in session");
             }
-    
+
             $user = self::$em->getRepository(User::class)->find($userId);
-      
+
             if (!$user) {
                 throw new \Exception("User not found with ID $userId");
             }
-   
+
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-      
+
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
-    
+
             $codeService = $user->getAgenceServiceIrium()->getServiceIps();
             $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (!$serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
-    
+
             return [
                 'agenceIps' => $agenceIps,
                 'serviceIps' => $serviceIps
@@ -506,25 +509,39 @@ class Controller
             }
 
             return [
-                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
+                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(),
                 'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
             ];
         } catch (\Throwable $e) {
             error_log($e->getMessage());
-                return [
-                    'agenceIps' => '',
-                    'serviceIps' => ''
-                ];
+            return [
+                'agenceIps' => '',
+                'serviceIps' => ''
+            ];
         }
     }
 
+    protected function logUserVisit(string $nomRoute, ?array $params = null)
+    {
+        $idUtilisateur = $this->sessionService->get('user_id');
+        $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
+        $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+
+        $log           = new UserLogger();
+        $log->setUtilisateur($utilisateur->getNomUtilisateur());
+        $log->setNom_page($page->getNom());
+        $log->setParams($params ? json_encode($params) : null);
+        $log->setUser($utilisateur);
+        $log->setPage($page);
+
+        self::$em->persist($log);
+        self::$em->flush();
+    }
 
     protected function verifierSessionUtilisateur()
     {
         if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
-        } 
+        }
     }
-
-    
 }

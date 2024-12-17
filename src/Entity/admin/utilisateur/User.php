@@ -8,6 +8,7 @@ use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\tik\TkiPlanning;
+use App\Entity\admin\UserLogger;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
@@ -50,7 +51,7 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      *
      * @var [type]
-     */ 
+     */
     private $matricule;
 
     /**
@@ -59,7 +60,7 @@ class User implements UserInterface
      * @var [type]
      */
     private $mail;
-    
+
     /**
      * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="user_roles")
@@ -72,7 +73,7 @@ class User implements UserInterface
      * @ORM\JoinTable(name="users_applications")
      */
     private $applications;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="societe_id", referencedColumnName="id")
@@ -80,14 +81,14 @@ class User implements UserInterface
     private ?Societte $societtes;
 
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="personnel_id", referencedColumnName="id")
      */
     private $personnels;
 
-    
-   /**
+
+    /**
      * @ORM\Column(type="json", nullable=true)
      */
     private $superieurs = [];
@@ -102,7 +103,7 @@ class User implements UserInterface
      * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="users",  cascade={"remove"})
      * @ORM\JoinColumn(name="fonctions_id", referencedColumnName="id")
      */
-    private  $fonction ;
+    private  $fonction;
 
     /**
      * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="userAgenceService",  cascade={"remove"})
@@ -110,7 +111,7 @@ class User implements UserInterface
      */
     private $agenceServiceIrium;
 
-        /**
+    /**
      * @ORM\ManyToMany(targetEntity=Agence::class, inversedBy="usersAutorises",  cascade={"remove"})
      * @ORM\JoinTable(name="agence_user", 
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
@@ -120,7 +121,7 @@ class User implements UserInterface
     private $agencesAutorisees;
 
 
-      /**
+    /**
      * @ORM\ManyToMany(targetEntity=Service::class, inversedBy="userServiceAutoriser",  cascade={"remove"})
      * @ORM\JoinTable(name="users_service")
      */
@@ -161,6 +162,11 @@ class User implements UserInterface
      */
     private $tikPlanningUser;
 
+    /**
+     * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $userLoggers;
+
     //=================================================================================================================================
 
     public function __construct()
@@ -175,9 +181,10 @@ class User implements UserInterface
         $this->supportInfoUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
+        $this->userLoggers = new ArrayCollection();
     }
 
-    
+
     public function getId()
     {
         return $this->id;
@@ -207,27 +214,27 @@ class User implements UserInterface
         return $this;
     }
 
-    
+
     public function getNomUtilisateur(): string
     {
         return $this->nom_utilisateur;
     }
 
-    
-    public function setNomUtilisateur( string $nom_utilisateur): self
+
+    public function setNomUtilisateur(string $nom_utilisateur): self
     {
         $this->nom_utilisateur = $nom_utilisateur;
 
         return $this;
     }
 
-    
+
     public function getMatricule(): int
     {
         return $this->matricule;
     }
 
-    
+
     public function setMatricule($matricule): self
     {
         $this->matricule = $matricule;
@@ -235,14 +242,14 @@ class User implements UserInterface
         return $this;
     }
 
-    
+
     public function getMail()
     {
         return $this->mail;
     }
 
-    
-    public function setMail( $mail): self
+
+    public function setMail($mail): self
     {
         $this->mail = $mail;
 
@@ -250,9 +257,9 @@ class User implements UserInterface
     }
 
 
-    
-   
-     /**
+
+
+    /**
      * @return Collection|Application[]
      */
     public function getApplications(): Collection
@@ -279,17 +286,17 @@ class User implements UserInterface
     }
 
 
-    
+
     public function getSociettes()
     {
         return $this->societtes;
     }
 
     public function setSociettes(?Societte $societtes): self
-{
-    $this->societtes = $societtes;
-    return $this;
-}
+    {
+        $this->societtes = $societtes;
+        return $this;
+    }
 
 
 
@@ -298,7 +305,7 @@ class User implements UserInterface
         return $this->personnels;
     }
 
-  
+
     public function setPersonnels($personnel): self
     {
         $this->personnels = $personnel;
@@ -308,12 +315,11 @@ class User implements UserInterface
 
     public function getSuperieurs(): array
     {
-        if($this->superieurs !== null){
+        if ($this->superieurs !== null) {
             return $this->superieurs;
         } else {
             return [];
         }
-        
     }
 
     public function setSuperieurs(array $superieurs): self
@@ -323,12 +329,12 @@ class User implements UserInterface
         return $this;
     }
 
-    public function addSuperieur( User $superieurId): self
+    public function addSuperieur(User $superieurId): self
     {
-        
+
         $superieurIds[] = $superieurId->getId();
 
-        if($this->superieurs === null ){
+        if ($this->superieurs === null) {
             $this->superieurs = [];
         }
 
@@ -342,7 +348,7 @@ class User implements UserInterface
     public function removeSuperieur(User $superieurId): self
     {
         $superieurIds[] = $superieurId->getId();
-        
+
         if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
             unset($this->superieurs[$key]);
             $this->superieurs = array_values($this->superieurs);
@@ -351,9 +357,9 @@ class User implements UserInterface
         return $this;
     }
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -377,10 +383,10 @@ class User implements UserInterface
                 $casier->setNomSessionUtilisateur(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
@@ -388,12 +394,12 @@ class User implements UserInterface
         return $this;
     }
 
-   public function getFonction()
+    public function getFonction()
     {
         return $this->fonction;
     }
 
-  
+
     public function setFonction($fonction): self
     {
         $this->fonction = $fonction;
@@ -401,7 +407,7 @@ class User implements UserInterface
         return $this;
     }
 
-    
+
 
     public function getAgenceServiceIrium()
     {
@@ -420,23 +426,23 @@ class User implements UserInterface
         return $this->agencesAutorisees;
     }
 
-public function addAgenceAutorise(Agence $agence): self
-{
-    if (!$this->agencesAutorisees->contains($agence)) {
-        $this->agencesAutorisees[] = $agence;
+    public function addAgenceAutorise(Agence $agence): self
+    {
+        if (!$this->agencesAutorisees->contains($agence)) {
+            $this->agencesAutorisees[] = $agence;
+        }
+
+        return $this;
     }
 
-    return $this;
-}
+    public function removeAgenceAutorise(Agence $agence): self
+    {
+        if ($this->agencesAutorisees->contains($agence)) {
+            $this->agencesAutorisees->removeElement($agence);
+        }
 
-public function removeAgenceAutorise(Agence $agence): self
-{
-    if ($this->agencesAutorisees->contains($agence)) {
-        $this->agencesAutorisees->removeElement($agence);
+        return $this;
     }
-
-    return $this;
-}
 
 
     public function getServiceAutoriser(): Collection
@@ -488,7 +494,7 @@ public function removeAgenceAutorise(Agence $agence): self
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCommentaireDitOrs()
     {
         return $this->commentaireDitOr;
@@ -512,10 +518,10 @@ public function removeAgenceAutorise(Agence $agence): self
                 $commentaireDitOr->setUtilisateurId(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCommentaireDitOrs($commentaireDitOr)
     {
         $this->commentaireDitOr = $commentaireDitOr;
@@ -524,9 +530,9 @@ public function removeAgenceAutorise(Agence $agence): self
     }
 
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getSupportInfoUser()
     {
         return $this->supportInfoUser;
@@ -550,13 +556,13 @@ public function removeAgenceAutorise(Agence $agence): self
                 $supportInfoUser->setUserId(null);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Get the value of supportInfoIntervenant
-     */ 
+     */
     public function getSupportInfoIntervenant()
     {
         return $this->supportInfoIntervenant;
@@ -566,7 +572,7 @@ public function removeAgenceAutorise(Agence $agence): self
      * Set the value of supportInfoIntervenant
      *
      * @return  self
-     */ 
+     */
     public function setSupportInfoIntervenant($supportInfoIntervenant)
     {
         $this->supportInfoIntervenant = $supportInfoIntervenant;
@@ -576,7 +582,7 @@ public function removeAgenceAutorise(Agence $agence): self
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getTikPlanningUser()
     {
         return $this->tikPlanningUser;
@@ -600,7 +606,7 @@ public function removeAgenceAutorise(Agence $agence): self
                 $tikPlanningUser->setUserId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -610,7 +616,7 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getRoleIds(): array
     {
-        return $this->roles->map(function($role) {
+        return $this->roles->map(function ($role) {
             return $role->getId();
         })->toArray();
     }
@@ -620,7 +626,7 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getRoleNames(): array
     {
-        return $this->roles->map(function($role) {
+        return $this->roles->map(function ($role) {
             return $role->getRoleName();
         })->toArray();
     }
@@ -631,7 +637,7 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getAgenceAutoriserIds(): array
     {
-        return $this->agencesAutorisees->map(function($agenceAutorise) {
+        return $this->agencesAutorisees->map(function ($agenceAutorise) {
             return $agenceAutorise->getId();
         })->toArray();
     }
@@ -642,30 +648,62 @@ public function removeAgenceAutorise(Agence $agence): self
      */
     public function getServiceAutoriserIds(): array
     {
-        return $this->serviceAutoriser->map(function($serviceAutorise) {
+        return $this->serviceAutoriser->map(function ($serviceAutorise) {
             return $serviceAutorise->getId();
         })->toArray();
     }
 
-   
+
     public function getApplicationsIds(): array
     {
-        return $this->applications->map(function($app) {
+        return $this->applications->map(function ($app) {
             return $app->getId();
         })->toArray();
     }
 
-    
-    public function getPassword(){}
 
-   
-    public function getSalt(){}
+    public function getPassword() {}
 
- 
-    public function eraseCredentials(){}
 
-    
-    public function getUsername(){}
+    public function getSalt() {}
 
-    public function getUserIdentifier(){}
+
+    public function eraseCredentials() {}
+
+
+    public function getUsername() {}
+
+    public function getUserIdentifier() {}
+
+    /**
+     * Get the value of userLoggers
+     */
+    public function getUserLoggers(): ArrayCollection
+    {
+        return $this->userLoggers;
+    }
+
+    /**
+     * Add value to userLoggers
+     *
+     * @return self
+     */
+    public function addUserLogger(UserLogger $userLogger): self
+    {
+        $this->userLoggers[] = $userLogger;
+        $userLogger->setUser($this); // Synchronisation inverse
+        return $this;
+    }
+
+    /**
+     * Set the value of userLoggers
+     *
+     * @return  self
+     */
+    public function setUserLoggers($userLoggers)
+    {
+        $this->userLoggers = $userLoggers;
+
+        return $this;
+    }
 }

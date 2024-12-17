@@ -9,6 +9,8 @@
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
+	{% set role_ids = App.user.roleIds %}
+	{% set user_connecter = App.user.nom_utilisateur %}
 
 	<div class="container">
 		<h3 class="perso-titre">
@@ -139,7 +141,7 @@
 											<a class="dropdown-item fw-bold" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeIntervention})}}">Dossier DIT</a>
 										</li>
 										<li>
-											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
+											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' or (item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' and (9 in role_ids or item.utilisateurDemandeur == user_connecter)) %}
 												<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
 											{% endif %}
 										</li>

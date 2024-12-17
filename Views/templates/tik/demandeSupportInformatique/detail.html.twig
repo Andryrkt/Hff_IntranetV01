@@ -148,7 +148,9 @@
 											{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 											<div class="col-12 col-md-4">
 												{{ form_row(form.categorie) }}
+												{{ macroForm.spinner_load('spinner-sous-categorie') }}
 												{{ form_row(form.sousCategorie) }}
+												{{ macroForm.spinner_load('spinner-autre-categorie') }}
 												{{ form_row(form.autresCategorie) }}
 											</div>
 											<div class="col-12 col-md-4">
@@ -251,7 +253,6 @@
 	<script>
 		const div = document.getElementById('emailDemandeur');
 const originalText = div.textContent;
-
 // Vérifie si le texte dépasse
 if (div.scrollWidth > div.clientWidth) {
 let truncatedText = originalText;

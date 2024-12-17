@@ -42,7 +42,8 @@ trait PlanningModelTrait
       return $section;
     }
 
-   private function typeLigne($criteria){
+
+    private function typeLigne($criteria){
       
       switch ($criteria->getTypeLigne()) {
         case "TOUTES": 
