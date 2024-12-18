@@ -75,3 +75,7 @@ thead th {
     top: 0;
     z-index: 1; 
   }
+
+.technicien {
+    font-size: 12px !important;
+}
