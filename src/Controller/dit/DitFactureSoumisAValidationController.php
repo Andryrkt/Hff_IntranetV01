@@ -6,16 +6,12 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\dit\DitFactureSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\dit\DitFactureSoumisAValidationType;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
@@ -38,6 +34,9 @@ class DitFactureSoumisAValidationController extends Controller
         $numOrBaseDonner = $ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
+
+            $this->historiqueOperationService->enregistrerFAC('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
             $this->notification($message);
         }
         $ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
@@ -56,6 +55,9 @@ class DitFactureSoumisAValidationController extends Controller
 
             if (strpos($originalName, 'FACTURE CESSION') !== 0) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
+
+                $this->historiqueOperationService->enregistrerFAC('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             }
 
@@ -66,12 +68,21 @@ class DitFactureSoumisAValidationController extends Controller
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
             if ($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+
+                $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
+
+                $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($nbFactSqlServer > 0) {
                 $message = "La facture n° :{$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
+
+                $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } else {
                 $dataForm = $form->getData();
@@ -84,6 +95,9 @@ class DitFactureSoumisAValidationController extends Controller
 
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+
+                    $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                     $this->notification($message);
                 } else {
                     /** CREATION PDF */
@@ -108,9 +122,11 @@ class DitFactureSoumisAValidationController extends Controller
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
                     $this->ajoutDataFactureAValidation($factureSoumisAValidation);
-                    $this->ajoutDataHistoriqueOperation($dataForm);
+
+                    $this->historiqueOperationService->enregistrerFAC($dataForm->getNumeroFact(), 1, 'Succès');
 
                     $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Le document de controle a été généré et soumis pour validation']);
+
                     $this->redirectToRoute("dit_index");
                 }
             }
@@ -130,20 +146,6 @@ class DitFactureSoumisAValidationController extends Controller
         foreach ($factureSoumisAValidation as $entity) {
             self::$em->persist($entity); // Persister chaque entité individuellement
         }
-
-        self::$em->flush();
-    }
-
-    private function ajoutDataHistoriqueOperation($dataForm): void
-    {
-        $historique = new DitHistoriqueOperationDocument();
-        $historique->setNumeroDocument($dataForm->getNumeroFact())
-            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
-            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(2))
-            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-        ;
-        self::$em->persist($historique); // Persist l'historique avec les entités liées
-        // Flushe toutes les entités et l'historique
 
         self::$em->flush();
     }

@@ -3,10 +3,6 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
-use App\Entity\dit\DitCdeSoumisAValidation;
 use App\Service\fichier\FileUploaderService;
 use App\Form\dit\DitCdeSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +18,6 @@ class DitCdeSoumisAValidationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
-        $ditCdeSoumisAValidation = new DitCdeSoumisAValidation();
 
         $form = self::$validator->createBuilder(DitCdeSoumisAValidationType::class)->getForm();
 
