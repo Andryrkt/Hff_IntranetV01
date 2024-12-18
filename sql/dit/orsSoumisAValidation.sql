@@ -167,30 +167,44 @@ INSERT INTO
     )
 VALUES (
         'SOUMISSION',
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
     ),
     (
         'VALIDATION',
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
     ),
     (
         'MODIFICATION',
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
     ),
     (
         'SUPPRESSION',
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
-        '2024-09-25',
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'CREATION',
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'CLOTURE',
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
     );
 

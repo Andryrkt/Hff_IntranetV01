@@ -72,5 +72,13 @@ VALUES
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'CDE', 
+        'COMMANDE', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
     )
 ;
