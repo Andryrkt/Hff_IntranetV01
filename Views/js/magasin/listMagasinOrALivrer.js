@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
           let numOr = row
             .getElementsByTagName("td")
             [cellIndices["orNumber"]]?.textContent.trim(); // Colonne définie par "orNumber" dans cellIndices
-          console.log(numOr);
 
           // Passer la valeur de numOr et le rectangle à la fonction
           if (numOr) {

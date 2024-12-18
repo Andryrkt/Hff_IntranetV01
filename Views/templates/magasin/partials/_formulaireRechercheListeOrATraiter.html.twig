@@ -17,7 +17,8 @@
 						{{form_row(form.service)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{form_row(form.niveauUrgence)}}
+						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+						{{ form_widget(form.niveauUrgence) }}
 						{{form_row(form.constructeur)}}
 					</div>
 					<div class="col-12 col-md-2">
