@@ -48,5 +48,29 @@ VALUES
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'DOM', 
+        'DEMANDE ORDRE DE MISSION', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'BADM', 
+        'MOUVEMENT MATERIEL BADM', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'CAS', 
+        'CASIER', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
     )
 ;
