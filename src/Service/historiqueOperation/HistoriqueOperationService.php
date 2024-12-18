@@ -45,12 +45,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document DIT: DEMANDE D'INTERVENTION
+     * Méthode qui enregistre l'historique de l'opération fait sur le document DIT: DEMANDE D'INTERVENTION
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerDIT(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -58,12 +64,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document OR: ORDRE DE REPARATION
+     * Méthode qui enregistre l'historique de l'opération fait sur le document OR: ORDRE DE REPARATION
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerOR(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -71,12 +83,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document FAC: FACTURE
+     * Méthode qui enregistre l'historique de l'opération fait sur le document FAC: FACTURE
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerFAC(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -84,12 +102,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document RI: RAPPORT INTERVENTION
+     * Méthode qui enregistre l'historique de l'opération fait sur le document RI: RAPPORT INTERVENTION
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerRI(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -97,12 +121,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document TIK: DEMANDE DE SUPPORT INFORMATIQUE
+     * Méthode qui enregistre l'historique de l'opération fait sur le document TIK: DEMANDE DE SUPPORT INFORMATIQUE
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerTIK(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -110,12 +140,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document DA: DEMANDE APPROVISIONNEMENT
+     * Méthode qui enregistre l'historique de l'opération fait sur le document DA: DEMANDE APPROVISIONNEMENT
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerDA(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -123,12 +159,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document DOM: DEMANDE ORDRE DE MISSION
+     * Méthode qui enregistre l'historique de l'opération fait sur le document DOM: DEMANDE ORDRE DE MISSION
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerDOM(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -136,12 +178,18 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document BADM: MOUVEMENT MATERIEL BADM
+     * Méthode qui enregistre l'historique de l'opération fait sur le document BADM: MOUVEMENT MATERIEL BADM
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerBADM(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
@@ -149,15 +197,40 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le type de document CAS: CASIER
+     * Méthode qui enregistre l'historique de l'opération fait sur le document CAS: CASIER
      * 
      * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId id de l'opération effectué
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
      * @param string $statutOperation statut de l'opération 
-     * @param string $libelleOperation libellé de l'opération
+     * @param string|null $libelleOperation libellé de l'opération
      */
     public function enregistrerCAS(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
     {
         $this->enregistrer($numeroDocument, $typeOperationId, 9, $statutOperation, $libelleOperation);
+    }
+
+    /** 
+     * Méthode qui enregistre l'historique de l'opération fait sur le document CDE: COMMANDE
+     * 
+     * @param string $numeroDocument numéro du document
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
+     * @param string $statutOperation statut de l'opération 
+     * @param string|null $libelleOperation libellé de l'opération
+     */
+    public function enregistrerCDE(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    {
+        $this->enregistrer($numeroDocument, $typeOperationId, 10, $statutOperation, $libelleOperation);
     }
 }

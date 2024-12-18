@@ -6,7 +6,6 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
@@ -23,7 +22,7 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-   
+
     private ?string $numeroDit = null;
 
     /**
@@ -36,7 +35,7 @@ class DitOrsSoumisAValidation
      */
     private int $numeroItv = 0;
 
-     /**
+    /**
      * @ORM\Column(type="date")
      */
     private  $dateSoumission;
@@ -86,7 +85,7 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="float", scale="2")
      */
     private ?float $montantLubrifiants = 0.00;
-    
+
     /**
      * @ORM\Column(type="string", length=500)
      */
@@ -97,9 +96,9 @@ class DitOrsSoumisAValidation
     private $pieceJoint01;
 
     private $pieceJoint02;
-    
+
     private $pieceJoint03;
-    
+
     private $pieceJoint04;
 
     /**
@@ -107,12 +106,12 @@ class DitOrsSoumisAValidation
      */
     private $statut;
     //==========================================================================================
-    
 
-    
+
+
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -120,7 +119,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -130,7 +129,7 @@ class DitOrsSoumisAValidation
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -140,7 +139,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -150,7 +149,7 @@ class DitOrsSoumisAValidation
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -161,7 +160,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of numeroItv
-     */ 
+     */
     public function getNumeroItv()
     {
         return $this->numeroItv;
@@ -171,7 +170,7 @@ class DitOrsSoumisAValidation
      * Set the value of numeroItv
      *
      * @return  self
-     */ 
+     */
     public function setNumeroItv($numeroItv)
     {
         $this->numeroItv = $numeroItv;
@@ -181,7 +180,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of dateSoumission
-     */ 
+     */
     public function getDateSoumission()
     {
         return $this->dateSoumission;
@@ -191,7 +190,7 @@ class DitOrsSoumisAValidation
      * Set the value of dateSoumission
      *
      * @return  self
-     */ 
+     */
     public function setDateSoumission($dateSoumission)
     {
         $this->dateSoumission = $dateSoumission;
@@ -200,9 +199,9 @@ class DitOrsSoumisAValidation
     }
 
 
-     /**
+    /**
      * Get the value of heureSoumission
-     */ 
+     */
     public function getHeureSoumission()
     {
         return $this->heureSoumission;
@@ -212,7 +211,7 @@ class DitOrsSoumisAValidation
      * Set the value of heureSoumission
      *
      * @return  self
-     */ 
+     */
     public function setHeureSoumission($heureSoumission)
     {
         $this->heureSoumission = $heureSoumission;
@@ -222,7 +221,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of nombrePieceItv
-     */ 
+     */
     public function getNombreLigneItv()
     {
         return $this->nombreLigneItv;
@@ -232,7 +231,7 @@ class DitOrsSoumisAValidation
      * Set the value of nombrePieceItv
      *
      * @return  self
-     */ 
+     */
     public function setNombreLigneItv($nombreLigneItv)
     {
         $this->nombreLigneItv = $nombreLigneItv;
@@ -242,7 +241,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantItv
-     */ 
+     */
     public function getMontantItv()
     {
         return $this->montantItv;
@@ -252,9 +251,9 @@ class DitOrsSoumisAValidation
      * Set the value of montantItv
      *
      * @return  self
-     */ 
+     */
     public function setMontantItv($montantItv)
-    {  
+    {
         $montantItv = $montantItv === null ? 0.00 : $montantItv;
         $this->montantItv = $montantItv;
 
@@ -265,7 +264,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -275,7 +274,7 @@ class DitOrsSoumisAValidation
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
@@ -285,7 +284,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantPiece
-     */ 
+     */
     public function getMontantPiece()
     {
         return $this->montantPiece;
@@ -295,7 +294,7 @@ class DitOrsSoumisAValidation
      * Set the value of montantPiece
      *
      * @return  self
-     */ 
+     */
     public function setMontantPiece($montantPiece)
     {
         $montantPiece = $montantPiece === null ? 0.00 : $montantPiece;
@@ -306,7 +305,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantMo
-     */ 
+     */
     public function getMontantMo()
     {
         return $this->montantMo;
@@ -316,7 +315,7 @@ class DitOrsSoumisAValidation
      * Set the value of montantMo
      *
      * @return  self
-     */ 
+     */
     public function setMontantMo($montantMo)
     {
         $montantMo = $montantMo === null ? 0.00 : $montantMo;
@@ -327,7 +326,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantAchatLocaux
-     */ 
+     */
     public function getMontantAchatLocaux()
     {
         return $this->montantAchatLocaux;
@@ -337,7 +336,7 @@ class DitOrsSoumisAValidation
      * Set the value of montantAchatLocaux
      *
      * @return  self
-     */ 
+     */
     public function setMontantAchatLocaux($montantAchatLocaux)
     {
         $montantAchatLocaux = $montantAchatLocaux === null ? 0.00 : $montantAchatLocaux;
@@ -348,7 +347,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantFraisDivers
-     */ 
+     */
     public function getMontantFraisDivers()
     {
         return $this->montantFraisDivers;
@@ -358,7 +357,7 @@ class DitOrsSoumisAValidation
      * Set the value of montantFraisDivers
      *
      * @return  self
-     */ 
+     */
     public function setMontantFraisDivers($montantFraisDivers)
     {
         $montantFraisDivers = $montantFraisDivers === null ? 0.00 : $montantFraisDivers;
@@ -369,7 +368,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of montantLubrifiants
-     */ 
+     */
     public function getMontantLubrifiants()
     {
         return $this->montantLubrifiants;
@@ -379,7 +378,7 @@ class DitOrsSoumisAValidation
      * Set the value of montantLubrifiants
      *
      * @return  self
-     */ 
+     */
     public function setMontantLubrifiants($montantLubrifiants)
     {
         $montantLubrifiants = $montantLubrifiants === null ? 0.00 : $montantLubrifiants;
@@ -390,7 +389,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of libellelItv
-     */ 
+     */
     public function getLibellelItv()
     {
         return $this->libellelItv;
@@ -400,7 +399,7 @@ class DitOrsSoumisAValidation
      * Set the value of libellelItv
      *
      * @return  self
-     */ 
+     */
     public function setLibellelItv($libellelItv)
     {
         $this->libellelItv = $libellelItv;
@@ -411,7 +410,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of file
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -421,7 +420,7 @@ class DitOrsSoumisAValidation
      * Set the value of file
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -433,7 +432,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of pieceJoint02
-     */ 
+     */
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
@@ -443,7 +442,7 @@ class DitOrsSoumisAValidation
      * Set the value of pieceJoint02
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint02($pieceJoint02)
     {
         $this->pieceJoint02 = $pieceJoint02;
@@ -453,7 +452,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of pieceJoint03
-     */ 
+     */
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
@@ -463,7 +462,7 @@ class DitOrsSoumisAValidation
      * Set the value of pieceJoint03
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint03($pieceJoint03)
     {
         $this->pieceJoint03 = $pieceJoint03;
@@ -473,7 +472,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of pieceJoint04
-     */ 
+     */
     public function getPieceJoint04()
     {
         return $this->pieceJoint04;
@@ -483,7 +482,7 @@ class DitOrsSoumisAValidation
      * Set the value of pieceJoint04
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint04($pieceJoint04)
     {
         $this->pieceJoint04 = $pieceJoint04;
@@ -494,13 +493,14 @@ class DitOrsSoumisAValidation
 
 
     // Comparaison des objets par leur numero d'intervention
-    public function estEgalParNumero(DitOrsSoumisAValidation $autre) {
+    public function estEgalParNumero(DitOrsSoumisAValidation $autre)
+    {
         return $this->numeroItv === $autre->numeroItv;
     }
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -510,7 +510,7 @@ class DitOrsSoumisAValidation
      * Set the value of statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
