@@ -65,3 +65,12 @@ VALUES
     ('page_admin_detail_utilisateur', 'utilisateur_show', '/admin/utilisateur/show/{id}'),
     ('page_admin_modification_utilisateur', 'utilisateur_update', '/admin/utilisateur/edit/{id}'),
 ;
+
+INSERT INTO TABLE Hff_pages (nom, nom_route, lien)
+VALUES 
+    ('page_soumission_facture_d_un_DIT', 'dit_insertion_facture', '/soumission-facture/{numDit}'),
+    ('page_soumission_OR_d_un_DIT', 'dit_insertion_or', '/soumission-or/{numDit}'),
+    ('page_soumission_RI_d_un_DIT', 'dit_insertion_ri', '/soumission-ri/{numDit}'),
+    ('page_consultation_fiche_detail_DIT', 'dit_validationDit', '/ditValidation/{id<\d+>}/{numDit<\w+>}'),
+    ('page_soumission_commande', 'dit_insertion_cde', '/soumission-cde'),
+;
