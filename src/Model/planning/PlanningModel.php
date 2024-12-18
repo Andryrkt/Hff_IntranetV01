@@ -219,7 +219,7 @@ class PlanningModel extends Model
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
-
+    
     $vligneType = $this->typeLigne($criteria);  
     //$vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);
@@ -252,8 +252,8 @@ class PlanningModel extends Model
                       trim(mmat_numserie) as numSerie,
                       trim(mmat_recalph) as numParc,
                       trim(mmat_numparc) as casier,
-                     -- $vYearsStatutPlan as annee,
                       $vMonthStatutPlan as mois,
+                      $vYearsStatutPlan as annee,
                       seor_numor ||'-'||sitv_interv as orIntv,
                       slor_pos
                       
@@ -274,7 +274,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                   -- AND $vYearsStatutPlan >= '2024'
+                  
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne
@@ -291,9 +291,9 @@ class PlanningModel extends Model
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
 		                order by 1,5  ";      
 
+// dump($statement);
         
         $result = $this->connect->executeQuery($statement);
-                  //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -430,7 +430,8 @@ class PlanningModel extends Model
                                                                AND Parts_CST = slor_constp 
                                                                AND Line_Number = slor_noligncm )
 	                        	       )
-                                 ), '%Y-%m-%d')
+                                 ), 
+                                 '%Y-%m-%d')
                     WHEN slor_typcf = 'CIS' THEN
 		                       TO_CHAR((
                                   ( SELECT date_creation

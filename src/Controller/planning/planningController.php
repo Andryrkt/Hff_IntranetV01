@@ -180,9 +180,9 @@ class PlanningController extends Controller
         $planningSearch = $this->creationObjetCriteria($criteria);
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
-
+        
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
-
+        // dd($data);
 
         $tabObjetPlanning = $this->creationTableauObjetExport($data);
 
@@ -190,7 +190,7 @@ class PlanningController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Agence\Service', 'N°OR-Itv', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
+        $data[] = ['Agence\Service', 'N°OR-Itv', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
         foreach ($tabObjetPlanning as $entity) {
             $data[] = [
                 $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
@@ -202,6 +202,7 @@ class PlanningController extends Controller
                 $entity->getnumParc(),
                 $entity->getCasier(),
                 $entity->getMois(),
+                $entity->getAnnee(),
                 $entity->getPos()
 
             ];
