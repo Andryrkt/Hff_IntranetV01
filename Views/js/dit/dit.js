@@ -25,133 +25,138 @@ const erreur = document.querySelector("#erreur");
 const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 
 document.addEventListener("DOMContentLoaded", (event) => {
-  let timeout = null;
+  let timeouts = {}; // Objets de timeouts pour chaque champ
 
-  idMaterielInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(idMaterielInput);
-    }, 500);
-  });
+  function debounceInput(callback, delay, inputId) {
+    return (...args) => {
+      clearTimeout(timeouts[inputId]); // Réinitialise le timer pour ce champ spécifique
+      timeouts[inputId] = setTimeout(() => {
+        callback(...args); // Appelle la fonction après le délai
+      }, delay);
+    };
+  }
 
-  numParcInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(numParcInput);
-    }, 500); // délai de 500ms
-  });
+  idMaterielInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(idMaterielInput);
+      },
+      2000,
+      "idMateriel"
+    )
+  );
 
-  numSerieInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(numSerieInput);
-    }, 500); // délai de 500ms
-  });
-  // idMaterielInput.addEventListener("blur", InfoMateriel);
-  //numParcInput.addEventListener("blur", InfoMateriel);
-  //numSerieInput.addEventListener("blur", InfoMateriel);
+  numParcInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(numParcInput);
+      },
+      2000,
+      "numParc"
+    )
+  );
 
-  /**
-   * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
-   */
-  const inputNoEntrers = document.querySelectorAll(".noEntrer");
-  inputNoEntrers.forEach((inputNoEntrer) => {
-    inputNoEntrer.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault(); // Empêche le rechargement de la page
-        console.log(
-          "La touche Entrée a été pressée dans le champ :",
-          inputNoEntrer.placeholder
-        );
-      }
-    });
-  });
-});
+  numSerieInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(numSerieInput);
+      },
+      2000,
+      "numSerie"
+    )
+  );
 
-function clearAndToggleRequired(excludeInput) {
-  if (excludeInput !== idMaterielInput) {
+  function handleInputChange(inputElement) {
+    InfoMateriel(); // Appeler votre fonction principale
+    clearAndToggleRequired(inputElement); // Nettoyer et définir les règles requises
+  }
+
+  function clearAndToggleRequired(excludeInput) {
+    if (excludeInput !== idMaterielInput) {
+      idMaterielInput.value = "";
+      idMaterielInput.removeAttribute("required");
+    } else {
+      idMaterielInput.setAttribute("required", "required");
+    }
+
+    if (excludeInput !== numParcInput) {
+      numParcInput.value = "";
+      numParcInput.removeAttribute("required");
+    } else {
+      numParcInput.setAttribute("required", "required");
+    }
+
+    if (excludeInput !== numSerieInput) {
+      numSerieInput.value = "";
+      numSerieInput.removeAttribute("required");
+    } else {
+      numSerieInput.setAttribute("required", "required");
+    }
+  }
+
+  function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
+    return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
+  }
+
+  function resetInfoMateriel(message) {
+    containerInfoMateriel.innerHTML = "";
     idMaterielInput.value = "";
-    idMaterielInput.removeAttribute("required");
-  } else {
-    idMaterielInput.setAttribute("required", "required");
-  }
-
-  if (excludeInput !== numParcInput) {
     numParcInput.value = "";
-    numParcInput.removeAttribute("required");
-  } else {
-    numParcInput.setAttribute("required", "required");
-  }
-
-  if (excludeInput !== numSerieInput) {
     numSerieInput.value = "";
-    numSerieInput.removeAttribute("required");
-  } else {
-    numSerieInput.setAttribute("required", "required");
+
+    erreur.classList.add("text-danger");
+    erreur.innerHTML = message;
   }
-}
 
-function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
-  return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
-}
-
-function resetInfoMateriel(message) {
-  containerInfoMateriel.innerHTML = "";
-  idMaterielInput.value = "";
-  numParcInput.value = "";
-  numSerieInput.value = "";
-  erreur.innerHTML = message;
-}
-
-function showSpinner(container) {
-  container.innerHTML = `
+  function showSpinner(container) {
+    container.innerHTML = `
     <div class="text-center my-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Chargement...</span>
       </div>
     </div>
   `;
-}
-
-function createMaterielInfoDisplay(container, data) {
-  if (!container) {
-    console.error(`Container not found.`);
-    return;
   }
 
-  if (!data || !Array.isArray(data) || data.length === 0) {
-    console.error("Invalid or empty data provided.");
-    container.innerHTML =
-      '<p class="text-danger">Aucune donnée disponible.</p>';
-    return;
-  }
+  function createMaterielInfoDisplay(container, data) {
+    if (!container) {
+      console.error(`Container not found.`);
+      return;
+    }
 
-  const fields = [
-    { label: "Constructeur", key: "constructeur" },
-    { label: "Désignation", key: "designation" },
-    { label: "KM", key: "km" },
-    { label: "N° Parc", key: "num_parc" },
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.error("Invalid or empty data provided.");
+      container.innerHTML =
+        '<p class="text-danger">Aucune donnée disponible.</p>';
+      return;
+    }
 
-    { label: "Modèle", key: "modele" },
-    { label: "Casier", key: "casier_emetteur" },
-    { label: "Heures", key: "heure" },
-    { label: "N° Serie", key: "num_serie" },
-    { label: "Id Materiel", key: "num_matricule" },
-  ];
+    const fields = [
+      { label: "Constructeur", key: "constructeur" },
+      { label: "Désignation", key: "designation" },
+      { label: "KM", key: "km" },
+      { label: "N° Parc", key: "num_parc" },
 
-  const createFieldHtml = (label, value) => `
-    <li class="fw-bold">
-      ${label} :
-      <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
-        ${value || ""}
-      </div>
-    </li>
-  `;
+      { label: "Modèle", key: "modele" },
+      { label: "Casier", key: "casier_emetteur" },
+      { label: "Heures", key: "heure" },
+      { label: "N° Serie", key: "num_serie" },
+      { label: "Id Materiel", key: "num_matricule" },
+    ];
 
-  container.innerHTML = `
+    const createFieldHtml = (label, value) => `
+  <li class="fw-bold">
+    ${label} :
+    <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
+      ${value || "<span class='text-danger'>Non disponible</span>"}
+    </div>
+  </li>
+`;
+
+    container.innerHTML = `
     <ul class="list-unstyled">
       <div class="row">
         <div class="col-12 col-md-6">
@@ -169,80 +174,88 @@ function createMaterielInfoDisplay(container, data) {
       </div>
     </ul>
   `;
-}
-
-function InfoMateriel() {
-  const idMateriel = idMaterielInput.value;
-  const numParc = numParcInput.value;
-  const numSerie = numSerieInput.value;
-
-  const hasValidInput = idMateriel !== "" || numParc !== "" || numSerie !== "";
-
-  if (hasValidInput) {
-    erreur.innerHTML = "";
-    const url = buildUrl(
-      "/Hffintranet/fetch-materiel",
-      idMateriel,
-      numParc,
-      numSerie
-    );
-
-    // Afficher le spinner dans le container
-    showSpinner(containerInfoMateriel);
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des données.");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-
-        erreur.innerHTML = "";
-        // Populate fields with fetched data
-        // idMaterielInput.value ||= data[0].num_matricule;
-        // numParcInput.value ||= data[0].num_parc;
-        // numSerieInput.value ||= data[0].num_serie;
-
-        // Effacer le spinner et afficher les données
-        containerInfoMateriel.innerHTML = "";
-        createMaterielInfoDisplay(containerInfoMateriel, data);
-      })
-      .catch((error) => {
-        if (error instanceof SyntaxError) {
-          resetInfoMateriel(
-            "Erreur : l'information du matériel n'est pas dans la base de données."
-          );
-        } else {
-          console.error("Error:", error);
-          erreur.innerHTML = "Erreur : " + error.message;
-        }
-      });
-  } else {
-    resetInfoMateriel("veuillez completer l'un des champs ");
   }
-}
 
-// Gestionnaire pour surveiller les champs d'entrée
-// [idMaterielInput, numParcInput, numSerieInput].forEach((input) => {
-//   input.addEventListener("input", () => {
-//     // const idMateriel = idMaterielInput.value.trim();
-//     // const numParc = numParcInput.value.trim();
-//     // const numSerie = numSerieInput.value.trim();
+  function isValidInput(value) {
+    return value && value.trim().length > 0;
+  }
 
-//     // Si un champ est effacé, réinitialisez tout
-//     if (input.value === "") {
-//       resetInfoMateriel(
-//         "Les informations ont été réinitialisées suite à un changement."
-//       );
-//     } else {
-//       // Sinon, rechargez les informations pour les champs restants
-//       InfoMateriel();
-//     }
-//   });
-// });
+  function InfoMateriel() {
+    const idMateriel = idMaterielInput.value;
+    const numParc = numParcInput.value;
+    const numSerie = numSerieInput.value;
+
+    if (
+      !isValidInput(idMateriel) &&
+      !isValidInput(numParc) &&
+      !isValidInput(numSerie)
+    ) {
+      resetInfoMateriel("Veuillez compléter l'un des champs.");
+      return;
+    }
+
+    const hasValidInput =
+      idMateriel !== "" || numParc !== "" || numSerie !== "";
+
+    if (hasValidInput) {
+      erreur.innerHTML = "";
+      const url = buildUrl(
+        "/Hffintranet/fetch-materiel",
+        idMateriel,
+        numParc,
+        numSerie
+      );
+
+      // Afficher le spinner dans le container
+      showSpinner(containerInfoMateriel);
+
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des données.");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+
+          erreur.innerHTML = "";
+
+          // Effacer le spinner et afficher les données
+          containerInfoMateriel.innerHTML = "";
+          createMaterielInfoDisplay(containerInfoMateriel, data);
+        })
+        .catch((error) => {
+          if (error instanceof SyntaxError) {
+            resetInfoMateriel(
+              "Erreur : l'information du matériel n'est pas dans la base de données."
+            );
+          } else {
+            console.error("Error:", error);
+            erreur.innerHTML = "Erreur : " + error.message;
+          }
+        });
+    } else {
+      resetInfoMateriel("veuillez completer l'un des champs ");
+    }
+  }
+
+  /**
+   * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
+   */
+  const inputNoEntrers = document.querySelectorAll(".noEntrer");
+  inputNoEntrers.forEach((inputNoEntrer) => {
+    inputNoEntrer.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault(); // Empêche le rechargement de la page
+        console.log(
+          "La touche Entrée a été pressée dans le champ :",
+          inputNoEntrer.placeholder
+        );
+      }
+    });
+  });
+});
 
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
