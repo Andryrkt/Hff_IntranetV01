@@ -59,6 +59,8 @@ class DemandeSupportInformatiqueController extends Controller
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
+            $this->historiqueOperationService->enregistrerTIK($supportInfo->getNumeroTicket(), 5, 'Succès');
+
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
         }
