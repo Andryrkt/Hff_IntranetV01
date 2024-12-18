@@ -50,6 +50,9 @@ class BadmsController extends Controller
 
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } else {
                 //recuperation de l'id du type de mouvement
@@ -60,6 +63,9 @@ class BadmsController extends Controller
 
                 if (empty($data)) {
                     $message = "Matériel déjà vendu ou L'information saisie n'est pas correcte.";
+
+                    $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                     $this->notification($message);
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
@@ -93,21 +99,39 @@ class BadmsController extends Controller
 
             if ($conditionEntreeParc) {
                 $message = 'Ce matériel est déjà en PARC';
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } elseif ($conditionChangementAgServ_1) {
                 $message = "L'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } elseif ($conditionChangementAgServ_2) {
                 $message = " l'affectation matériel ne permet pas cette opération";
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } elseif ($conditionCessionActif) {
                 $message = "Ce matériel ne peut pas mise en cession d'actif ";
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } elseif ($conditionMiseAuRebut) {
                 $message = 'Ce matériel ne peut pas être mis au rebut';
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } elseif ($conditionTypeMouvStatut) {
                 $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
+
+                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                 $this->notification($message);
             } else {
 
@@ -129,6 +153,9 @@ class BadmsController extends Controller
                     $this->redirectToRoute("badms_newForm2");
                 } elseif (!$conditionAgenceServiceAutoriser) {
                     $message = " vous n'êtes pas autoriser à consulter ce matériel";
+
+                    $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
+
                     $this->notification($message);
                 } else {
                     $this->redirectToRoute("badms_newForm2");
