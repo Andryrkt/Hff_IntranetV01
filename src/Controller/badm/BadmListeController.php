@@ -35,75 +35,37 @@ class BadmListeController extends Controller
 
         $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
-            // 'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']
         ])->getForm();
 
         $form->handleRequest($request);
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
-            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-
-            if (!empty($numParc) || !empty($numSerie)) {
-
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-
-                if (!empty($idMateriel)) {
-                    $this->recuperationCriterie($badmSearch, $form);
-                    $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif (empty($idMateriel)) {
-                    $empty = true;
-                }
-            } else {
-                $this->recuperationCriterie($badmSearch, $form);
-                $badmSearch->setIdMateriel($form->get('idMateriel')->getData());
-            }
+            $this->rechercherSurNumSerieParc($form, $badmSearch);
+            $badmSearch->setAgenceEmetteur($agenceServiceIps['agenceIps']);
         }
 
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $badmSearch->toArray();
+        //enregistre le critère dans la session
+        $this->sessionService->set('badm_search_criteria', $criteria);
+        
 
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
-
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
-
-        $option = [
-            'boolean' => $autoriser,
-            'idAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence'],
-            'codeService' => $agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
-        ];
+        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
 
 
 
         $repository = self::$em->getRepository(Badm::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $option);
-
-        //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
-        $this->sessionService->set('badm_search_option', $option);
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 10;
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
 
 
-        for ($i = 0; $i < count($paginationData['data']); $i++) {
-            $badmRechercheModel = new BadmRechercheModel();
-            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
-            if (!empty($badms)) {
-                $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
-                $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
-                if ($badms[0]['num_parc'] == null) {
-                    $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
-                } else {
-                    $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
-                }
-            }
-        }
+        $this->ajoutNumSerieNumParc($paginationData);
 
 
-        if (empty($paginationData['data'])) {
-            $empty = true;
-        }
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
@@ -116,7 +78,8 @@ class BadmListeController extends Controller
                 'criteria' => $criteria,
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems']
+                'resultat' => $paginationData['totalItems'],
+                'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getCodeAgence() .' '. $agenceServiceIps['agenceIps']->getLibelleAgence()
             ]
         );
     }
@@ -204,21 +167,7 @@ class BadmListeController extends Controller
 
         $empty = false;
         if ($form->isSubmitted() && $form->isValid()) {
-            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
-            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-
-            if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-                if (!empty($idMateriel)) {
-                    $this->recuperationCriterie($badmSearch, $form);
-                    $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif (empty($idMateriel)) {
-                    $empty = true;
-                }
-            } else {
-                $this->recuperationCriterie($badmSearch, $form);
-                $badmSearch->setIdMateriel($form->get('idMateriel')->getData());
-            }
+            $this->rechercherSurNumSerieParc($form, $badmSearch);
         }
 
         $criteria = [];
@@ -235,13 +184,14 @@ class BadmListeController extends Controller
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']
         ];
 
+        //enregistre le critère dans la session
+        $this->sessionService->set('badm_search_criteria', $criteria);
+        $this->sessionService->set('badm_search_option', $option);
 
         $repository = self::$em->getRepository(Badm::class);
         $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);
 
-        //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
-        $this->sessionService->set('badm_search_option', $option);
+        
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
             $badmRechercheModel = new BadmRechercheModel();
@@ -252,9 +202,6 @@ class BadmListeController extends Controller
             $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
         }
 
-        if (empty($paginationData['data'])) {
-            $empty = true;
-        }
 
         $this->logUserVisit('badm_list_annuler'); // historisation du page visité par l'utilisateur
 
@@ -270,5 +217,44 @@ class BadmListeController extends Controller
                 'resultat' => $paginationData['totalItems']
             ]
         );
+    }
+
+
+    public function rechercherSurNumSerieParc($form, $badmSearch)
+    {
+        $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
+            $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
+
+            if (!empty($numParc) || !empty($numSerie)) {
+
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+
+                if (!empty($idMateriel)) {
+                    $this->recuperationCriterie($badmSearch, $form);
+                    $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
+                } elseif (empty($idMateriel)) {
+                    $empty = true;
+                }
+            } else {
+                $this->recuperationCriterie($badmSearch, $form);
+                $badmSearch->setIdMateriel($form->get('idMateriel')->getData());
+            }
+    }
+    private function ajoutNumSerieNumParc($paginationData)
+    {
+        for ($i = 0; $i < count($paginationData['data']); $i++) {
+            $badmRechercheModel = new BadmRechercheModel();
+            $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
+            if (!empty($badms)) {
+                $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
+                $paginationData['data'][$i]->setNumSerie($badms[0]['num_serie']);
+                if ($badms[0]['num_parc'] == null) {
+                    $paginationData['data'][$i]->setNumParc($paginationData['data'][$i]->getNumParc());
+                } else {
+                    $paginationData['data'][$i]->setNumParc($badms[0]['num_parc']);
+                }
+            }
+        }
+
     }
 }

@@ -7,21 +7,21 @@ const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
 agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
 
 function selectAgenceEmetteur() {
-  const agenceDebiteur = agenceEmetteurInput.value;
+  const agenceEmetteur = agenceEmetteurInput.value;
 
-  if (agenceDebiteur === "") {
+  if (agenceEmetteur === "") {
     while (serviceEmetteurInput.options.length > 0) {
       serviceEmetteurInput.remove(0);
     }
 
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
-    return; // Sortir de la fonction
+    // const defaultOption = document.createElement("option");
+    // defaultOption.value = "";
+    // defaultOption.text = " -- Choisir une service -- ";
+    // serviceEmetteurInput.add(defaultOption);
+    // return; // Sortir de la fonction
   }
 
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  let url = `/Hffintranet/agence-fetch/${agenceEmetteur}`;
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
@@ -32,10 +32,10 @@ function selectAgenceEmetteur() {
         serviceEmetteurInput.remove(0);
       }
 
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une service -- ";
-      serviceEmetteurInput.add(defaultOption);
+      // const defaultOption = document.createElement("option");
+      // defaultOption.value = "";
+      // defaultOption.text = " -- Choisir une service -- ";
+      // serviceEmetteurInput.add(defaultOption);
 
       // Ajouter les nouvelles options à partir du tableau services
       for (var i = 0; i < services.length; i++) {
@@ -66,14 +66,14 @@ function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
 
   if (agenceDebiteur === "") {
-    while (serviceEmetteurInput.options.length > 0) {
-      serviceEmetteurInput.remove(0);
+    while (serviceDebiteurInput.options.length > 0) {
+      serviceDebiteurInput.remove(0);
     }
 
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
+    serviceDebiteurInput.add(defaultOption);
     return; // Sortir de la fonction
   }
 

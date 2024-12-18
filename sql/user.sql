@@ -48,4 +48,22 @@ where
 
 ALTER TABLE users ADD societe_id INT
 
-UPDATE users set societe_id = 1
+UPDATE users
+set
+    societe_id = 1
+    /** permet de changer le personnel_id dans la table user à partir de l'id de la table personnel */
+UPDATE users
+SET
+    personnel_id = (
+        SELECT Personnel.id
+        FROM Personnel
+        WHERE
+            Personnel.Matricule = users.matricule
+    )
+WHERE
+    EXISTS (
+        SELECT 1
+        FROM Personnel
+        WHERE
+            Personnel.Matricule = users.matricule
+    );
