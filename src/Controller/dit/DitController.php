@@ -92,10 +92,10 @@ class DitController extends Controller
     private function modificationDernierIdApp($dits)
     {
         $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($dits->getNumeroDemandeIntervention());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+        $application->setDerniereId($dits->getNumeroDemandeIntervention());
+        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+        self::$em->persist($application);
+        self::$em->flush();
     }
     private function autorisationApp($user): bool
     {
