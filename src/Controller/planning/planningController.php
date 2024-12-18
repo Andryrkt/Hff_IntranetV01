@@ -455,9 +455,4 @@ class PlanningController extends Controller
             'uniqueMonths' => $selectedMonths,
         ];
     }
-<<<<<<< HEAD
-    
 }
-=======
-}
->>>>>>> aac93644a251416c3b46f8efa54ec4cb4cff76ac

@@ -108,17 +108,6 @@ class UserController extends Controller
 
 
     /**
-<<<<<<< HEAD
- * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
- *
- * @return void
- */
-public function edit(Request $request, $id)
-{
-    
-    //verification si user connecter
-    $this->verifierSessionUtilisateur();
-=======
      * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
      *
      * @return void
@@ -127,20 +116,13 @@ public function edit(Request $request, $id)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
->>>>>>> aac93644a251416c3b46f8efa54ec4cb4cff76ac
 
         $user = self::$em->getRepository(User::class)->find($id);
         // Conversion de l'utilisateur en objet s'il est en tableau
         $user = $this->arrayToObjet($user);
 
-<<<<<<< HEAD
-    $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
-    dd($form);
-    $form->handleRequest($request);
-=======
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
->>>>>>> aac93644a251416c3b46f8efa54ec4cb4cff76ac
 
         $form->handleRequest($request);
 

@@ -125,14 +125,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const orIntv = button.getAttribute("data-id");
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
-<<<<<<< HEAD
-    console.log(migration);
-    console.log(migration == "1");
-    
-    // Mettre à jour le lien avec le numDit dynamique
-=======
-
->>>>>>> aac93644a251416c3b46f8efa54ec4cb4cff76ac
     const dossierDitLink = document.getElementById("dossierDitLink");
     if (migration == "1") {
       dossierDitLink.style.display = "none";
@@ -280,10 +272,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
           data.forEach((detail) => {
             console.log(detail);
 
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | ${
-              detail.commentaire
-            } | ${formaterDate(detail.dateplanning)}`;
-
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${
+              detail.commentaire 
+            } | `;
+            if(detail.plan == "PLANIFIE"){
+                Ornum.innerHTML += `planifié le : ${formaterDate(detail.dateplanning)}`;
+            }else{
+              Ornum.innerHTML += `date début : ${formaterDate(detail.dateplanning)}`;
+            }
             // Formater la date
             let dateEtaIvato;
             let dateMagasin;

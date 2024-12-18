@@ -126,7 +126,7 @@ class PlanningModel extends Model
     }
 
     $vligneType = $this->typeLigne($criteria);  
-    $vPiecesSum = $this->sumPieces($criteria);
+  
     $vYearsStatutPlan =  $this->planAnnee($criteria);
     $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
     $vMonthStatutPlan = $this->planMonth($criteria);
@@ -144,8 +144,10 @@ class PlanningModel extends Model
     $vconditionNumSerie = $this->numSerie($criteria);
     $vconditionCasier = $this->casier($criteria);
     $vsection = $this->section($criteria);
+    $vplan = $criteria->getPlan();
 
                   $statement = " SELECT
+                      
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -161,12 +163,13 @@ class PlanningModel extends Model
                       $vMonthStatutPlan as mois,
                       seor_numor ||'-'||sitv_interv as orIntv,
 
-                      (  SELECT SUM( CASE WHEN slor_typlig = 'P' AND slor_constp NOT like '%ZDI%' THEN
+                      (  SELECT SUM( CASE WHEN slor_typlig = 'P' $vligneType  THEN
                                                 slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
                                           ELSE slor_qterea END )
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vPiecesSum ) as QteCdm,
-                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vPiecesSum ) as QtLiv,
-                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vPiecesSum ) as QteALL
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QteCdm,
+                    	(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
+                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL
+                      
 
                     FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
@@ -200,11 +203,11 @@ class PlanningModel extends Model
                     $vconditionCasier
                     $vsection 
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
-		                order by 1,5  ";      
+		                order by 10  ";      
 
         
         $result = $this->connect->executeQuery($statement);
-                //  dump($statement);
+                  // dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -249,7 +252,7 @@ class PlanningModel extends Model
                       trim(mmat_numserie) as numSerie,
                       trim(mmat_recalph) as numParc,
                       trim(mmat_numparc) as casier,
-                      $vYearsStatutPlan as annee,
+                     -- $vYearsStatutPlan as annee,
                       $vMonthStatutPlan as mois,
                       seor_numor ||'-'||sitv_interv as orIntv,
                       slor_pos
@@ -271,7 +274,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                    AND $vYearsStatutPlan >= '2024'
+                   -- AND $vYearsStatutPlan >= '2024'
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne
@@ -290,13 +293,17 @@ class PlanningModel extends Model
 
         
         $result = $this->connect->executeQuery($statement);
-                  // dump($statement);
+                  //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
 
   }
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
+    $vplan = "'".$criteria['plan']."'";
+    
+
+   
     if(!empty($criteria['typeligne'])){
         switch($criteria['typeligne']){
           case "TOUTES": 
@@ -318,7 +325,9 @@ class PlanningModel extends Model
     } else {
       $vtypeligne = "";
     }
-      $statement = " SELECT slor_numor as numOr,
+   
+      $statement = " SELECT $vplan as plan,
+                            slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(sitv_comment) as commentaire,
@@ -370,6 +379,20 @@ class PlanningModel extends Model
                                                              AND Parts_CST = slor_constp 
                                                              AND Line_Number = slor_noligncm )
 					                    	 )
+                      WHEN slor_typcf = 'CIS' THEN
+		                            ( SELECT libelle_type 
+                                  FROM  gcot_acknow_cat 
+                                  WHERE Numero_PO = nlig_numcf
+                                  AND Parts_Number = slor_refp  
+                                  AND Parts_CST = slor_constp 
+                                  AND Line_Number = slor_nolign 
+	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
+                                                             FROM gcot_acknow_cat 
+                                                             WHERE Numero_PO = nlig_numcf
+                                                             AND Parts_Number = slor_refp  
+                                                             AND Parts_CST = slor_constp 
+                                                             AND Line_Number = slor_nolign)
+				                         )
 	                    END as Statut,
 
                     CASE WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
@@ -408,6 +431,22 @@ class PlanningModel extends Model
                                                                AND Line_Number = slor_noligncm )
 	                        	       )
                                  ), '%Y-%m-%d')
+                    WHEN slor_typcf = 'CIS' THEN
+		                       TO_CHAR((
+                                  ( SELECT date_creation
+                                    FROM  gcot_acknow_cat 
+                                    WHERE Numero_PO = nlig_numcf
+                                    AND Parts_Number = slor_refp  
+                                    AND Parts_CST = slor_constp 
+                                    AND Line_Number = slor_nolign
+                                    AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                               FROM gcot_acknow_cat 
+                                                               WHERE Numero_PO = nlig_numcf
+                                                               AND Parts_Number = slor_refp  
+                                                               AND Parts_CST = slor_constp 
+                                                               AND Line_Number = slor_nolign)
+                                    )
+                                 ), '%Y-%m-%d')
 	                  END AS dateStatut,
 
                       CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
@@ -423,6 +462,19 @@ class PlanningModel extends Model
                                                       AND Parts_CST = slor_constp 
                                                       AND Line_Number = slor_noligncm )
 					            	)
+                        WHEN slor_typcf = 'CIS' THEN
+                                  ( SELECT message FROM  gcot_acknow_cat 
+                                            WHERE Numero_PO = nlig_numcf
+                                            AND Parts_Number = slor_refp  
+                                            AND Parts_CST = slor_constp 
+                                            AND Line_Number = slor_nolign
+                                            AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                                         FROM gcot_acknow_cat 
+                                                                         WHERE Numero_PO = nlig_numcf
+                                                                         AND Parts_Number = slor_refp  
+                                                                         AND Parts_CST = slor_constp 
+                                                                         AND Line_Number = slor_nolign )
+                                  )
 	                    END as Message ,
                     CASE  
                       WHEN nlig_natcm = 'C' THEN 'COMMANDE'
@@ -447,12 +499,18 @@ class PlanningModel extends Model
 /**
  * eta mag
  */
-public function recuperationEtaMag($numOr, $refp){
+public function recuperationEtaMag($numcde, $refp,$cst){
+  if($cst == 'CAT'){
+    $cst = 'K230';
+  }else{
+    $cst = $cst;
+  }
         $squery = " SELECT Eta_ivato,
                     Eta_magasin
                     FROM Ces_magasin
-                    WHERE Po_number = '" .$numOr."'
+                    WHERE Po_number = '" .$numcde."'
                     AND Part_no = '".$refp."'
+                    AND custCode = '".$cst."'
         ";
         $sql = $this->connexion04->query($squery);
         $data = array();

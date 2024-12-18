@@ -82,12 +82,7 @@
 											{% set classe = '' %}
 											{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
 												{% set classe = 'bg-success text-white' %}
-<<<<<<< HEAD
-											{% elseif item.qteLiv * 1 > 0 and item.qteLiv * 1  != item.qteCdm * 1 and item.qteCdm * 1 > (item.qteLiv * 1 + item.qteAll * 1) and item.qteCdm != '' and item.qteLiv != '' and item.qteAll != '' %}
-												{# partiellement livré #}
-=======
 											{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
->>>>>>> e3ff348df7ed8c373c25c661d5d3660fadf850f6
 												{% set classe = 'bg-warning text-white' %}
 											{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
 												{% set classe = 'bg-info text-white' %}
