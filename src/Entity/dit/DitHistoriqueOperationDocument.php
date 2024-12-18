@@ -23,8 +23,6 @@ class DitHistoriqueOperationDocument
      */
     private $id;
 
-
-
     /**
      * @ORM\Column(type="string",  length=50)
      */
@@ -80,7 +78,6 @@ class DitHistoriqueOperationDocument
         $this->heureOperation = (new \DateTime())->format('H:i:s'); // Heure courante
     }
 
-
     /**
      * Get the value of id
      */
@@ -89,12 +86,10 @@ class DitHistoriqueOperationDocument
         return $this->id;
     }
 
-
     public function getNumeroDocument()
     {
         return $this->numeroDocument;
     }
-
 
     public function setNumeroDocument($numeroDocument): self
     {
