@@ -23,7 +23,7 @@ class DitRiSoumisAValidationController extends Controller
     use DitRiSoumisAValidationTrait;
 
     /**
-     * @Route("/insertion-ri/{numDit}", name="dit_insertion_ri")
+     * @Route("/soumission-ri/{numDit}", name="dit_insertion_ri")
      *
      * @return void
      */
@@ -31,17 +31,17 @@ class DitRiSoumisAValidationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
-        if(empty($numOrBaseDonner)){
+        if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
             $this->notification($message);
         }
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
         $ditRiSoumiAValidation->setNumeroDit($numDit);
         $ditRiSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
-        
+
         $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($ditRiSoumiAValidation->getNumeroOR());
         $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($ditRiSoumiAValidation->getNumeroOR(), $itvDejaSoumis);
 
@@ -52,8 +52,7 @@ class DitRiSoumisAValidationController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted())
-        { 
+        if ($form->isSubmitted()) {
             $dataForm = $form->getData();
             $itvCoches = [];
 
@@ -65,30 +64,30 @@ class DitRiSoumisAValidationController extends Controller
                 }
             }
             $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor']);
-            
-            $existe= false;
+
+            $existe = false;
             $estSoumis = false;
             foreach ($itvCoches as $value) {
-                if(in_array($value, $itvDejaSoumis)){
-                    $estSoumis =true;
+                if (in_array($value, $itvDejaSoumis)) {
+                    $estSoumis = true;
                     break;
                 }
-                if(!in_array($value, $toutNumeroItv)){
+                if (!in_array($value, $toutNumeroItv)) {
                     $existe = true;
                 }
             }
 
-            if($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()){
+            if ($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
-            } elseif($estSoumis) {
+            } elseif ($estSoumis) {
                 $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
                 $this->notification($message);
             } elseif ($existe) {
                 $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
                 $this->notification($message);
             } else {
-                
+
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
                 $ditRiSoumiAValidation
                     ->setNumeroDit($numDit)
@@ -100,41 +99,41 @@ class DitRiSoumisAValidationController extends Controller
 
                 $historique = new DitHistoriqueOperationDocument();
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
-                
+
 
                 // ENREGISTRE LE FICHIER
-                    /** @var UploadedFile $file */
-                    $file = $form->get("pieceJoint01")->getData();
+                /** @var UploadedFile $file */
+                $file = $form->get("pieceJoint01")->getData();
 
-                    foreach ($itvCoches as $value) {
-                        if ($file) { // Vérification si le fichier existe
-                            try {
-                                $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
-                                $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/';
-                                
-                                // Créer une copie temporaire du fichier
-                                $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
-                                copy($file->getPathname(), $tempFile);
+                foreach ($itvCoches as $value) {
+                    if ($file) { // Vérification si le fichier existe
+                        try {
+                            $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
+                            $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/';
 
-                                // Déplacer le fichier depuis la copie temporaire
-                                $targetPath = $fileDossier . $fileName;
-                                if (!copy($tempFile, $targetPath)) {
-                                    throw new \Exception('Erreur lors de la copie du fichier.');
-                                }
+                            // Créer une copie temporaire du fichier
+                            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+                            copy($file->getPathname(), $tempFile);
 
-                                // Supprimer la copie temporaire après l'utilisation
-                                unlink($tempFile);
-                            } catch (\Exception $e) {
-                                // Gestion de l'erreur de déplacement
-                                $message = 'Le fichier n\'a pas pu être téléchargé. Veuillez réessayer.';
-                                $this->notification($message);
+                            // Déplacer le fichier depuis la copie temporaire
+                            $targetPath = $fileDossier . $fileName;
+                            if (!copy($tempFile, $targetPath)) {
+                                throw new \Exception('Erreur lors de la copie du fichier.');
                             }
-                        } else {
-                            // Message si aucun fichier n'a été téléchargé
-                            $message = 'Aucun fichier n\'a été sélectionné.';
+
+                            // Supprimer la copie temporaire après l'utilisation
+                            unlink($tempFile);
+                        } catch (\Exception $e) {
+                            // Gestion de l'erreur de déplacement
+                            $message = 'Le fichier n\'a pas pu être téléchargé. Veuillez réessayer.';
                             $this->notification($message);
                         }
+                    } else {
+                        // Message si aucun fichier n'a été téléchargé
+                        $message = 'Aucun fichier n\'a été sélectionné.';
+                        $this->notification($message);
                     }
+                }
 
                 foreach ($itvCoches as $value) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
@@ -151,11 +150,11 @@ class DitRiSoumisAValidationController extends Controller
 
                     //HISOTRIQUE
                     $historique
-                        ->setNumeroDocument('RI_'.$dataForm->getNumeroOR().'-'.$value)
+                        ->setNumeroDocument('RI_' . $dataForm->getNumeroOR() . '-' . $value)
                         ->setUtilisateur($this->nomUtilisateur(self::$em))
                         ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(3))
                         ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                        ;
+                    ;
                     self::$em->persist($historique); // Persist l'historique avec les entités liées
 
 
@@ -167,12 +166,14 @@ class DitRiSoumisAValidationController extends Controller
                 // Flushe toutes les entités et l'historique
                 self::$em->flush();
 
-            
-                $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
+                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
                 $this->redirectToRoute("dit_index");
             }
-        } 
+        }
 
+        $this->logUserVisit('dit_insertion_ri', [
+            'numDit' => $numDit,
+        ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),

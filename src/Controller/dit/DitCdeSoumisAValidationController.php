@@ -17,7 +17,7 @@ use App\Service\genererPdf\GenererPdfCdeSoumisAValidataion;
 class DitCdeSoumisAValidationController extends Controller
 {
     /**
-     * @Route("/insertion-cde", name="dit_insertion_cde")
+     * @Route("/soumission-cde", name="dit_insertion_cde")
      */
     public function cdeSoumisAValidation(Request $request)
     {
@@ -25,7 +25,6 @@ class DitCdeSoumisAValidationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $ditCdeSoumisAValidation = new DitCdeSoumisAValidation();
-
 
         $form = self::$validator->createBuilder(DitCdeSoumisAValidationType::class)->getForm();
 
@@ -35,10 +34,11 @@ class DitCdeSoumisAValidationController extends Controller
             $fileName = $this->enregistrementFichier($form);
             $this->historique($ditCdeSoumisAValidation, $fileName);
 
-
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La commande a été soumis avec succès']);
             $this->redirectToRoute("dit_index");
         }
+
+        $this->logUserVisit('dit_insertion_cde'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/DitCdeSoumisAValidation.html.twig', [
             'form' => $form->createView()
