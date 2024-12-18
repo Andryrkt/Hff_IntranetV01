@@ -182,7 +182,7 @@ class PlanningController extends Controller
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
         
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
-        // dd($data);
+        //  dd($data);
 
         $tabObjetPlanning = $this->creationTableauObjetExport($data);
 
@@ -190,11 +190,13 @@ class PlanningController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Agence\Service', 'N°OR-Itv', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
+        $data[] = ['Agence\Service', 'N°OR-Itv','libellé de l\'Itv','planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
         foreach ($tabObjetPlanning as $entity) {
             $data[] = [
                 $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
                 $entity->getOrIntv(),
+                $entity->getCommentaire(),
+                $entity->getPlan(),
                 $entity->getIdMat(),
                 $entity->getMarqueMat(),
                 $entity->getTypeMat(),
@@ -259,6 +261,8 @@ class PlanningController extends Controller
                 ->setMois($item['mois'])
                 ->setPos($item['slor_pos'])
                 ->setOrIntv($item['orintv'])
+                ->setCommentaire($item['commentaire'])
+                ->setPlan($item['plan'])
 
             ;
             $objetPlanning[] = $planningMateriel;

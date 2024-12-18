@@ -26,6 +26,7 @@ class PlanningMateriel{
     private $pos;
     private $numeroOr;
     private $commentaire;
+    private $plan;
    
 
     /**
@@ -461,6 +462,46 @@ class PlanningMateriel{
     public function setNumeroOr($numeroOr)
     {
         $this->numeroOr = $numeroOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of commentaire
+     */ 
+    public function getCommentaire()
+    {
+        return $this->commentaire;
+    }
+
+    /**
+     * Set the value of commentaire
+     *
+     * @return  self
+     */ 
+    public function setCommentaire($commentaire)
+    {
+        $this->commentaire = $commentaire;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of plan
+     */ 
+    public function getPlan()
+    {
+        return $this->plan;
+    }
+
+    /**
+     * Set the value of plan
+     *
+     * @return  self
+     */ 
+    public function setPlan($plan)
+    {
+        $this->plan = $plan;
 
         return $this;
     }

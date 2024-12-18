@@ -214,12 +214,13 @@ class PlanningModel extends Model
   }
 
   public function exportExcelPlanning($criteria, $lesOrValides){
+   
     if(!empty($lesOrValides)){
       $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
     }else{
       $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
     }
-    
+    $vplanification = "'".$criteria->getPlan()."'";
     $vligneType = $this->typeLigne($criteria);  
     //$vPiecesSum = $this->sumPieces($criteria);
     $vYearsStatutPlan =  $this->planAnnee($criteria);
@@ -255,7 +256,9 @@ class PlanningModel extends Model
                       $vMonthStatutPlan as mois,
                       $vYearsStatutPlan as annee,
                       seor_numor ||'-'||sitv_interv as orIntv,
-                      slor_pos
+                      slor_pos,
+                      $vplanification as plan,
+                      trim(sitv_comment) as commentaire
                       
                     FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
@@ -288,7 +291,7 @@ class PlanningModel extends Model
                     $vconditionNumSerie
                     $vconditionCasier
                     $vsection 
-                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+                    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";      
 
 // dump($statement);
