@@ -50,9 +50,15 @@ class CasierController extends Controller
             $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
             if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
+
+                $this->historiqueOperationService->enregistrerCAS('-', 5, 'Erreur', $message);
+
                 $this->alertRedirection($message);
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
+
+                $this->historiqueOperationService->enregistrerCAS('-', 5, 'Erreur', $message);
+
                 $this->alertRedirection($message);
             } else {
                 $formData = [
@@ -61,6 +67,7 @@ class CasierController extends Controller
                     'numSerie' => $casier->getNumSerie()
                 ];
                 $this->sessionService->set('casierform1Data', $formData);
+
                 $this->redirectToRoute("casiser_formulaireCasier");
             }
         }
@@ -142,6 +149,8 @@ class CasierController extends Controller
 
             self::$em->persist($casier);
             self::$em->flush();
+
+            $this->historiqueOperationService->enregistrerCAS($NumCAS, 5, 'Succès');
 
             $this->redirectToRoute('listeTemporaire_affichageListeCasier');
         }
