@@ -86,18 +86,18 @@ class DomSecondController extends Controller
                 }
             }
 
+            $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Succès'); // historisation de l'opération de l'utilisateur
+
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('doms_liste');
         }
 
-        $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Succès'); // historisation de l'opération de l'utilisateur
-
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('doms/secondForm.html.twig', [
-            'form' => $form->createView(),
+            'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
-            'criteria' => $criteria
+            'criteria'      => $criteria
         ]);
     }
 
