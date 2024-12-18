@@ -8,6 +8,7 @@ use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\dit\DitHistoriqueOperationDocumentRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)

@@ -3,7 +3,7 @@ INSERT INTO TABLE type_document (typeDocument, libelle_document, date_creation, 
 VALUES 
     (
         'DIT', 
-        "DEMANDE D'INTERVENTION", 
+        'DEMANDE INTERVENTION', 
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
@@ -27,7 +27,7 @@ VALUES
     ),
     (
         'RI', 
-        "RAPPORT D'INTERVENTION", 
+        'RAPPORT INTERVENTION', 
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
@@ -43,7 +43,7 @@ VALUES
     ),
     (
         'DA', 
-        "DEMANDE D'APPROVISIONNEMENT", 
+        'DEMANDE APPROVISIONNEMENT', 
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
