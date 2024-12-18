@@ -8,18 +8,14 @@ ini_set('post_max_size', '5M');
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Model\dit\DitModel;
 
 class DitOrsSoumisAValidationController extends Controller
 {
@@ -48,6 +44,9 @@ class DitOrsSoumisAValidationController extends Controller
         $numOrBaseDonner = $ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
+
+            $this->historiqueOperationService->enregistrerOR('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
             $this->notification($message);
         }
 
@@ -65,8 +64,10 @@ class DitOrsSoumisAValidationController extends Controller
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
             if (strpos($originalName, 'Ordre de réparation') !== 0) {
-
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+
+                $this->historiqueOperationService->enregistrerOR('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             }
 
@@ -89,21 +90,39 @@ class DitOrsSoumisAValidationController extends Controller
 
             if ($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()) {
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($datePlanning) {
                 $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif (!in_array($agServDebiteurBDSql, $agServInformix)) {
                 $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif (in_array($pos[0]['position'], $invalidPositions)) {
                 $message = "Echec de la soumission de l'OR";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule']) {
                 $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif (empty($refClient)) {
                 $message = "Echec de la soumission car la référence client est vide.";
+
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
@@ -125,9 +144,7 @@ class DitOrsSoumisAValidationController extends Controller
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis);
 
-                // Persist l'historique avec les entités liées
-                $this->envoieDonnerHistoriqueDocument($ditInsertionOrSoumis);
-
+                $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Succès'); // historisation de l'opération de l'utilisateur
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
@@ -189,18 +206,6 @@ class DitOrsSoumisAValidationController extends Controller
 
 
         // Flushe toutes les entités et l'historique
-        self::$em->flush();
-    }
-
-    private function envoieDonnerHistoriqueDocument($ditInsertionOrSoumis)
-    {
-        $historique = new DitHistoriqueOperationDocument();
-        $historique->setNumeroDocument($ditInsertionOrSoumis->getNumeroOR())
-            ->setUtilisateur($this->nomUtilisateur(self::$em)['nomUtilisateur'])
-            ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(1))
-            ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-        ;
-        self::$em->persist($historique);
         self::$em->flush();
     }
 
