@@ -6,15 +6,11 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitRiSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitRiSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 
@@ -36,6 +32,9 @@ class DitRiSoumisAValidationController extends Controller
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
+
+            $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
             $this->notification($message);
         }
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
@@ -79,12 +78,21 @@ class DitRiSoumisAValidationController extends Controller
 
             if ($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+
+                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($estSoumis) {
                 $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
+
+                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } elseif ($existe) {
                 $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
+
+                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                 $this->notification($message);
             } else {
 
@@ -97,7 +105,6 @@ class DitRiSoumisAValidationController extends Controller
                     ->setNumeroSoumission($numeroSoumission)
                 ;
 
-                $historique = new DitHistoriqueOperationDocument();
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
 
 
@@ -126,11 +133,17 @@ class DitRiSoumisAValidationController extends Controller
                         } catch (\Exception $e) {
                             // Gestion de l'erreur de déplacement
                             $message = 'Le fichier n\'a pas pu être téléchargé. Veuillez réessayer.';
+
+                            $this->historiqueOperationService->enregistrerRI($fileName, 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                             $this->notification($message);
                         }
                     } else {
                         // Message si aucun fichier n'a été téléchargé
                         $message = 'Aucun fichier n\'a été sélectionné.';
+
+                        $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                         $this->notification($message);
                     }
                 }
@@ -148,15 +161,7 @@ class DitRiSoumisAValidationController extends Controller
                     // Persist les entités liées
                     self::$em->persist($riSoumisAValidation);
 
-                    //HISOTRIQUE
-                    $historique
-                        ->setNumeroDocument('RI_' . $dataForm->getNumeroOR() . '-' . $value)
-                        ->setUtilisateur($this->nomUtilisateur(self::$em))
-                        ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(3))
-                        ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(2))
-                    ;
-                    self::$em->persist($historique); // Persist l'historique avec les entités liées
-
+                    $this->historiqueOperationService->enregistrerRI('RI_' . $dataForm->getNumeroOR() . '-' . $value, 1, 'Succès'); // historisation de l'opération de l'utilisateur
 
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
