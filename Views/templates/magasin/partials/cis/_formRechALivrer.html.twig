@@ -1,3 +1,4 @@
+{% import "macroForm.html.twig" as macroForm %}
 <div class="accordion" id="accordionExample">
 	<div class="accordion-item">
 		<h2 class="accordion-header ">
@@ -15,12 +16,12 @@
 						{{form_row(form.numCis)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{form_row(form.agence)}}
-						{{form_row(form.service)}}
-						{{form_row(form.numOr)}}
+						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+						{# {{form_row(form.agence)}} #}
+						{# {{form_row(form.service)}} #}
+					{{form_row(form.numOr)}}
 					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.designation)}}
+						<div class="col-12 col-md-2"> {{form_row(form.designation)}}
 						<ul id="suggestions" class="list-group position-absolute"></ul>
 						{{form_row(form.referencePiece)}}
 						{{form_row(form.numDit)}}
