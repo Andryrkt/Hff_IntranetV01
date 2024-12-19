@@ -49,7 +49,7 @@ trait ConditionModelTrait
     {   
         if (!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === "PIECES MAGASIN"){
-                $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+                $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
             } else if($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND slor_constp in ('LUB', 'JOV')";
             } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
@@ -58,7 +58,7 @@ trait ConditionModelTrait
                 $piece = null;
             }
         } else {
-            $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+            $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
         }
 
         return $piece;
