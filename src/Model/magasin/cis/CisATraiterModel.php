@@ -94,7 +94,7 @@ class CisATraiterModel extends Model
                         AND NVL(nlig_qteliv, 0) = 0 -- Pas encore de quantité livrée
                     )
                     AND nlig_natop = 'CIS'
-                    AND slor_constp NOT IN ('LUB', 'SHE', 'JOV')
+                    --AND slor_constp NOT IN ('LUB', 'SHE', 'JOV')
                     $agenceUser
                     $piece
                     $designation

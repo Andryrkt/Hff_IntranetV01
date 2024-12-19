@@ -2,6 +2,8 @@
 
 namespace App\Model\Traits;
 
+use App\Service\GlobalVariablesService;
+
 trait ConditionModelTrait
 {
     private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
@@ -49,16 +51,16 @@ trait ConditionModelTrait
     {   
         if (!empty($criteria[$indexCriteria])) {
             if($criteria[$indexCriteria] === "PIECES MAGASIN"){
-                $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+                $piece = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').")";
             } else if($criteria[$indexCriteria] === "LUB") {
-                $piece = " AND slor_constp in ('LUB', 'JOV')";
+                $piece = " AND slor_constp in (".GlobalVariablesService::get('lub').")";
             } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
-                $piece = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST') ";
+                $piece = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').") ";
             }else if($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
-            $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO')";
+            $piece = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').")";
         }
 
         return $piece;
