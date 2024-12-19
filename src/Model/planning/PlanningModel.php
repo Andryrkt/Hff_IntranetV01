@@ -117,13 +117,19 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-  public function recuperationMaterielplanifier($criteria, $lesOrValides)
+  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
   {
-    if(!empty($lesOrValides)){
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-    }else{
-      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+    if($criteria['orBackOrder'] == true){
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$back."') ";
+    } else {
+      if(!empty($lesOrValides)){
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+      } 
+      else{
+        $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+      }
     }
+    
 
     $vligneType = $this->typeLigne($criteria);  
   
@@ -549,7 +555,7 @@ public function recuperationEtaMag($numcde, $refp,$cst){
         $squery = " SELECT Eta_ivato,
                     Eta_magasin
                     FROM Ces_magasin
-                    WHERE Po_number = '" .$numcde."'
+                    WHERE Cust_ref = '" .$numcde."'
                     AND Part_no = '".$refp."'
                     AND custCode = '".$cst."'
         ";

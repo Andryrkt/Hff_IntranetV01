@@ -69,6 +69,7 @@ class PlanningController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // dd($form->getdata());
             $criteria =  $form->getdata();
+           
         }
 
         /**
@@ -83,9 +84,10 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-            
+         
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv']);
+            
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $back);
       
     
         } else {

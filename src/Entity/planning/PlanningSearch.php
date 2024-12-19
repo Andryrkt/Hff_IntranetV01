@@ -25,6 +25,7 @@ class PlanningSearch
     private ?WorNiveauUrgence $niveauUrgence = null;
     private $section;
     private $months;
+    private ?bool $orBackOrder;
 
 
     public function getNiveauUrgence()
@@ -336,7 +337,8 @@ class PlanningSearch
             'numParc' => $this->numParc,
             'agenceDebite' => $this->agenceDebite,
             'serviceDebite' => $this->serviceDebite,
-            'typeligne' => $this->typeligne
+            'typeligne' => $this->typeligne,
+            'orBackOrder' => $this->orBackOrder
            
         ];
     }
@@ -398,6 +400,26 @@ class PlanningSearch
     public function setMonths($months)
     {
         $this->months = $months;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orBackOrder
+     */ 
+    public function getOrBackOrder()
+    {
+        return $this->orBackOrder;
+    }
+
+    /**
+     * Set the value of orBackOrder
+     *
+     * @return  self
+     */ 
+    public function setOrBackOrder($orBackOrder)
+    {
+        $this->orBackOrder = $orBackOrder;
 
         return $this;
     }
