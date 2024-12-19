@@ -93,7 +93,7 @@
 						{# FIN Statut #}
 
 						<td>
-							<a href="{{ path("detail_tik", {id: item.id}) }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
+							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
 						<td>{{ item.niveauUrgence.description }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
