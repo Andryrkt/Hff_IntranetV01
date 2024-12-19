@@ -87,7 +87,7 @@ class CisALivrerModel extends Model
                     AND seor_numor = slor_numor
                 WHERE 
                     slor_numcf > 0 
-                    AND slor_constp NOT IN ('LUB') -- Exclure certains types
+                    --AND slor_constp NOT IN ('LUB') -- Exclure certains types
                     $agenceUser
                     $piece
                     $designation

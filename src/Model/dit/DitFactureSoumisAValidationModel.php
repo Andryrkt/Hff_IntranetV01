@@ -2,8 +2,9 @@
 
 namespace App\Model\dit;
 
-use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\ConversionTrait;
 
 class DitFactureSoumisAValidationModel extends Model
 {
@@ -239,6 +240,38 @@ class DitFactureSoumisAValidationModel extends Model
             from sav_eor
             where seor_refdem = '".$numDit."'
             AND seor_serv = 'SAV'
+
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recuperationStatutItv($numOr, $numItv)
+    {
+        $statement = " SELECT 
+                trim(seor_refdem) as referenceDIT,
+                seor_numor as numeroOr,
+                sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
+                sum(slor_qteres) as quantiteReserver,
+                sum(sliv_qteliv) as quantiteLivree,
+                sum(slor_qterel) as quantiteReliquat
+                from sav_lor 
+                inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
+                and seor_numor = slor_numor
+                left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
+                
+                where 
+                slor_soc = 'HF'
+                and slor_succ = '01'
+                --and slor_typlig = 'P'
+                and seor_serv ='SAV'
+                and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                and slor_numor = '".$numOr."'
+                and TRUNC(slor_nogrp/100) in (".$numItv.")
+                group by 1,2
 
         ";
         $result = $this->connect->executeQuery($statement);

@@ -6,14 +6,14 @@ namespace App\Controller\magasin\ors;
 // ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
-use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 class MagasinListeOrTraiterController extends Controller
 {
