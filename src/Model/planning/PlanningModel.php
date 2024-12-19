@@ -188,7 +188,7 @@ class PlanningModel extends Model
                     $vOrvalDw
                     $vligneType
 
-                    AND $vYearsStatutPlan >= '2024'
+                   
                     $vConditionNoPlanning 
                     $agence
                     $vStatutInterneExterne
@@ -207,11 +207,48 @@ class PlanningModel extends Model
 
         
         $result = $this->connect->executeQuery($statement);
-                  // dump($statement);
+                  //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
   }
+public function backOrderPlanning($lesOrValides){
+  
+  if(!empty($lesOrValides)){
+    $vOrvalDw = "AND slor_numor in ('".$lesOrValides."') ";
+  }else{
+    $vOrvalDw = " AND  slor_numor in ('')";
+  }
+  
+
+  $statement = "SELECT distinct 
+                   sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) AS intervention
+                  FROM sav_lor AS sav
+                  INNER JOIN gcot_acknow_cat AS cat
+                  ON sav.slor_numcf = cat.numero_po
+                  AND (sav.slor_nolign = cat.line_number OR  sav.slor_noligncm = cat.line_number)
+                  AND sav.slor_refp = cat.parts_number
+                  WHERE cat.libelle_type = 'Back Order'
+                  AND cat.id_gcot_acknow_cat  = (
+                                              SELECT MAX(sub.id_gcot_acknow_cat )
+                                              FROM gcot_acknow_cat AS sub
+                                              WHERE sub.parts_number = cat.parts_number
+                                                AND sub.numero_po = cat.numero_po
+                                                AND sub.line_number = cat.line_number
+                                          ) 
+                  $vOrvalDw
+                  
+      ";
+  $result = $this->connect->executeQuery($statement);
+  // dump($statement);
+  $data = $this->connect->fetchResults($result);
+  $resultat = $this->convertirEnUtf8($data);
+  
+  return array_map(function($item) {
+    return $item['intervention'];
+  }, $resultat);
+
+}
 
   public function exportExcelPlanning($criteria, $lesOrValides){
    
@@ -388,7 +425,7 @@ class PlanningModel extends Model
                                   WHERE Numero_PO = nlig_numcf
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
-                                  AND Line_Number = slor_nolign 
+                                  AND Line_Number = slor_nolign
 	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
                                                              WHERE Numero_PO = nlig_numcf

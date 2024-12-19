@@ -83,18 +83,23 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides);
+            
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv']);
+      
+    
         } else {
             $data = [];
+            $back = [];
         }
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back);
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
 
+        // dd($forDisplay);
         $this->logUserVisit('planning_vue'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('planning/planning.html.twig', [
@@ -119,11 +124,12 @@ class PlanningController extends Controller
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
 
-        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
+        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
 
 
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back);
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
@@ -181,7 +187,7 @@ class PlanningController extends Controller
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
         
-        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
+        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
         //  dd($data);
 
         $tabObjetPlanning = $this->creationTableauObjetExport($data);
@@ -271,15 +277,31 @@ class PlanningController extends Controller
         return $objetPlanning;
     }
 
-    private function creationTableauObjetPlanning(array $data): array
+    private function creationTableauObjetPlanning(array $data,array $back): array
     {
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item) {
             $planningMateriel = new PlanningMateriel();
+            // dump($item['orintv']);
             $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
-            $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
-            $migration = $ditRepositoryConditionner->getMigration();
+           
+            if ($ditRepositoryConditionner !== null) {
+                $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
+                $migration = $ditRepositoryConditionner->getMigration();
+            } else {
+                // Handle the case where the result is not found, e.g., log a message or set default values
+                $numDit = null;  // or some other default value
+                $migration = null;  // or some other default value
+            }
+
+            
+            
+            if(in_array($item['orintv'], $back)) {
+                $backOrder = 'Okey';
+            } else {
+                $backOrder = '';
+            } 
 
             //initialisation
             $planningMateriel
@@ -301,7 +323,7 @@ class PlanningController extends Controller
                 ->setQteAll($item['qteall'])
                 ->setNumDit($numDit)
                 // ->setNumeroOr($item['numeroor'])
-                ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'])
+                ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'], $backOrder)
             ;
             $objetPlanning[] = $planningMateriel;
         }
@@ -319,7 +341,7 @@ class PlanningController extends Controller
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
                 foreach ($materiel->moisDetails as $moisDetail) {
-
+                    
                     $fusionResult[$key]->addMoisDetail(
                         $moisDetail['mois'],
                         $moisDetail['annee'],
@@ -329,12 +351,12 @@ class PlanningController extends Controller
                         $moisDetail['qteAll'],
                         $moisDetail['numDit'],
                         $moisDetail['migration'],
-                        $moisDetail['commentaire']
+                        $moisDetail['commentaire'],
+                        $moisDetail['back']
                     );
                 }
             }
         }
-
         return $fusionResult;
     }
 

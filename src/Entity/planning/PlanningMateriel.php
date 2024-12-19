@@ -27,6 +27,7 @@ class PlanningMateriel{
     private $numeroOr;
     private $commentaire;
     private $plan;
+    private $back;
    
 
     /**
@@ -351,7 +352,7 @@ class PlanningMateriel{
         return $this;
     }
     
-    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire) {
+    public function addMoisDetail($mois, $annee, $orIntv, $qteCdm, $qteLiv, $qteAll, $numDit, $migration, $commentaire, $back) {
         $this->moisDetails[] = [
             'mois' => $mois,
             'annee' => $annee,
@@ -361,7 +362,8 @@ class PlanningMateriel{
             'qteAll' => $qteAll,
             'numDit' => $numDit,
             'migration' => $migration,
-            'commentaire' => $commentaire
+            'commentaire' => $commentaire,
+            'back' => $back
         ];
     }
     
@@ -502,6 +504,26 @@ class PlanningMateriel{
     public function setPlan($plan)
     {
         $this->plan = $plan;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of back
+     */ 
+    public function getBack()
+    {
+        return $this->back;
+    }
+
+    /**
+     * Set the value of back
+     *
+     * @return  self
+     */ 
+    public function setBack($back)
+    {
+        $this->back = $back;
 
         return $this;
     }

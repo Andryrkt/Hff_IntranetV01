@@ -20,7 +20,19 @@ trait PlanningTraits
         $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
-        return $resNumor;
+        $orSansItv = $this->orEnString($numeroOrs);
+        
+        return [
+            'orAvecItv' => $resNumor,
+            'orSansItv' => $orSansItv
+        ];
+        
+    }
+
+    private function recupNumOrBackValider($criteria){
+        $PlanningModel  = new PlanningModel();
+        $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
+        return $numeroOrs;
     }
 
 /*
