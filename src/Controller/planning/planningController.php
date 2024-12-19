@@ -2,19 +2,20 @@
 
 namespace App\Controller\planning;
 
-use App\Controller\Controller;
-use App\Controller\Traits\PlanningTraits;
-use App\Model\planning\PlanningModel;
-
-use App\Entity\planning\PlanningSearch;
-use App\Controller\Traits\Transformation;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\planning\PlanningMateriel;
-use App\Form\planning\MoisAvantType;
-use App\Form\planning\PlanningSearchType;
-use App\Service\fusionPdf\FusionPdf;
 use Dotenv\Parser\Entry;
 use Illuminate\Support\Arr;
+use App\Controller\Controller;
+
+use App\Form\planning\MoisAvantType;
+use App\Service\fusionPdf\FusionPdf;
+use App\Model\planning\PlanningModel;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\planning\PlanningSearch;
+use App\Service\TableauEnStringService;
+use App\Controller\Traits\PlanningTraits;
+use App\Controller\Traits\Transformation;
+use App\Entity\planning\PlanningMateriel;
+use App\Form\planning\PlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -87,7 +88,12 @@ class PlanningController extends Controller
          
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
             
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $back);
+            if (is_array($back)) {
+                $backString = TableauEnStringService::orEnString($back);
+            } else {
+                $backString = '';
+            }
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
       
     
         } else {

@@ -5,7 +5,7 @@ namespace App\Model\planning;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Controller\Traits\FormatageTrait;
-
+use App\Entity\planning\PlanningSearch;
 
 class PlanningModel extends Model
 {
@@ -117,10 +117,10 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
+  public function recuperationMaterielplanifier(PlanningSearch $criteria, string $lesOrValides, string $back)
   {
-    if($criteria['orBackOrder'] == true){
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$back."') ";
+    if($criteria->getOrBackOrder() == true){
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
     } else {
       if(!empty($lesOrValides)){
         $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";

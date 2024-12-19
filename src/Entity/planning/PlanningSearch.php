@@ -25,7 +25,7 @@ class PlanningSearch
     private ?WorNiveauUrgence $niveauUrgence = null;
     private $section;
     private $months;
-    private ?bool $orBackOrder;
+    private ?bool $orBackOrder = false;
 
 
     public function getNiveauUrgence()
