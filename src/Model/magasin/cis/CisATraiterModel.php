@@ -71,7 +71,7 @@ class CisATraiterModel extends Model
                         WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
                         WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
                     END) AS Qte_dem,
-                    TRUNC(nlig_qtealiv - nlig_qtecde) as Qte_A_TRAITER
+                    TRUNC(nlig_qtecde - nlig_qtealiv) as Qte_A_TRAITER
 
 
                 FROM 
