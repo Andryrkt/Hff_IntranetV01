@@ -58,8 +58,7 @@
 						<td>{{item.ref}}</td>
 						<td>{{item.designations}}</td>
 						<td class="text-center">{{item.qte_dem}}</td>
-						<td class="text-center">{{item.qte_a_traiter}}</td>
-
+						<td class="text-center">{{item.qte_a_traiter < 0 ? '' : item.qte_a_traiter}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

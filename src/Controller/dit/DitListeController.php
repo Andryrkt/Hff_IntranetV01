@@ -129,7 +129,18 @@ class DitListeController extends Controller
             'method' => 'GET',
         ])->getForm();
 
-        $this->dossierDit($request, $formDocDansDW);
+        // $this->dossierDit($request, $formDocDansDW);
+        $formDocDansDW->handleRequest($request);
+            
+        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
+                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            }
+        } 
 
         //variable pour tester s'il n'y pas de donner à afficher
         $empty = false;

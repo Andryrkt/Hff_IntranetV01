@@ -70,7 +70,6 @@ class PlanningController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // dd($form->getdata());
             $criteria =  $form->getdata();
-           
         }
 
         /**
