@@ -37,7 +37,6 @@ trait DitFactureSoumisAValidationtrait
     { 
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
-
         
         $factureSoumisAValidation = [];
             foreach ($infoFacture as $value) {
@@ -46,7 +45,6 @@ trait DitFactureSoumisAValidationtrait
                 
                 // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
-                dd($statutOrsSoumisValidation);
                 $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
             
@@ -77,12 +75,12 @@ trait DitFactureSoumisAValidationtrait
     private function statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $numeroOr, $numeroItv): string
     {
         $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
-        dd($quantiter);
-        if($quantiter['quantiteLivree'] = 0){
+        
+        if($quantiter[0]['quantitelivree'] = 0){
             return "Validé";
-        } elseif ($quantiter['quantiteLivree'] < $quantiter['quantiteDemander']) {
+        } elseif ($quantiter[0]['quantitelivree'] < $quantiter[0]['quantitedemander']) {
             return "Livré partiellement";
-        } elseif ($quantiter['quantiteLivree'] = $quantiter['quantiteDemander']) {
+        } elseif ($quantiter[0]['quantitelivree'] = $quantiter[0]['quantitedemander']) {
             return "Livré";
         }
     }

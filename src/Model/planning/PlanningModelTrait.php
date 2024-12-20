@@ -232,7 +232,7 @@ trait PlanningModelTrait
     }    
     private function idMat($criteria){
         if(!empty($criteria->getIdMat())){
-            $vconditionIdMat = " AND mmat_nummat = " + "'".$criteria->getIdMat()."'";
+            $vconditionIdMat = " AND mmat_nummat = '".$criteria->getIdMat()."'";
           }else{
             $vconditionIdMat = "";
           }

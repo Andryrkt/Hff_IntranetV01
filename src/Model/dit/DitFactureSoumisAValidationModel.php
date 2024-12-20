@@ -268,12 +268,12 @@ class DitFactureSoumisAValidationModel extends Model
                 and slor_succ = '01'
                 --and slor_typlig = 'P'
                 and seor_serv ='SAV'
-                and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                and slor_constp in (".GlobalVariablesService::get('tous').")
                 and slor_numor = '".$numOr."'
                 and TRUNC(slor_nogrp/100) in (".$numItv.")
                 group by 1,2
-
         ";
+        
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

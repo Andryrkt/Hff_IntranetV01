@@ -85,7 +85,7 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-         
+            //dd($lesOrvalides);
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
             
             if (is_array($back)) {
