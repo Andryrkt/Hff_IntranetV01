@@ -110,6 +110,7 @@ class CisATraiterModel extends Model
                 -- Ajouter d'autres conditions si nécessaire pour les pièces magasin et les achats locaux
                 $orValide
                 ORDER BY 
+                    seor_refdem,
                     slor_datel, -- Date planning
                     slor_numor";
 

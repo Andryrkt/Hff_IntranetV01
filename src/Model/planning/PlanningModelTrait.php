@@ -50,7 +50,7 @@ trait PlanningModelTrait
             $vtypeligne = " ";
             break;
         case "PIECES_MAGASIN":
-            $vtypeligne = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P' ";
+            $vtypeligne = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P' ";
             break;
         case "ACHAT_LOCAUX":
             $vtypeligne = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
@@ -64,27 +64,27 @@ trait PlanningModelTrait
     return $vtypeligne;
     }
     
-    private function sumPieces($criteria){
+    // private function sumPieces($criteria){
       
-      switch ($criteria->getTypeLigne()) {
-        case "TOUTES": 
-            $vPieces = " ";
-            break;
-        case "PIECES_MAGASIN":
-            $vPieces = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P'";
-            break;
-        case "ACHAT_LOCAUX":
-            $vPieces = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
-            break;
-        case "LUBRIFIANTS":
-            $vPieces = " AND slor_constp in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_typlig = 'P'";
-            break;
-        default:
-            $vPieces = " ";
-    }
-    return $vPieces;
+    //   switch ($criteria->getTypeLigne()) {
+    //     case "TOUTES": 
+    //         $vPieces = " ";
+    //         break;
+    //     case "PIECES_MAGASIN":
+    //         $vPieces = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P'";
+    //         break;
+    //     case "ACHAT_LOCAUX":
+    //         $vPieces = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
+    //         break;
+    //     case "LUBRIFIANTS":
+    //         $vPieces = " AND slor_constp in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_typlig = 'P'";
+    //         break;
+    //     default:
+    //         $vPieces = " ";
+    // }
+    // return $vPieces;
 
-    }
+    // }
 
     private function planAnnee($criteria){
                     $yearsDatePlanifier = " CASE WHEN 

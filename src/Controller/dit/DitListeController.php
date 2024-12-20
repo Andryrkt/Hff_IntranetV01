@@ -194,7 +194,7 @@ class DitListeController extends Controller
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
-            $statutCloturerAnnuler
+            'Clôturé annulé'
         ];
         $this->ajouterDansCsv($filePath, $data, $headers);
 
