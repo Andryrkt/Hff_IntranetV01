@@ -531,7 +531,7 @@ class Controller
         $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
         $log            = new UserLogger();
 
