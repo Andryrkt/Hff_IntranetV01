@@ -79,7 +79,7 @@ class CisATraiterModel extends Model
                 INNER JOIN 
                     neg_lig ON nlig_soc = slor_soc 
                     AND nlig_numcde = slor_numcf 
-                    AND nlig_nolign = slor_noligncm
+                    AND nlig_nolign = slor_noligncm AND slor_pos = 'EC'
                 INNER JOIN 
                     sav_eor ON seor_soc = slor_soc 
                     AND seor_succ = slor_succ 

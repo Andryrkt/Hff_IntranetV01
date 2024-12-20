@@ -12,6 +12,7 @@ use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,6 +35,7 @@ class DitListeController extends Controller
 
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
+
         //recuperation agence et service autoriser
         $agenceIds = $user->getAgenceAutoriserIds();
         $serviceIds = $user->getServiceAutoriserIds();
@@ -70,9 +72,7 @@ class DitListeController extends Controller
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif (empty($idMateriel)) {
-                    $empty = true;
-                }
+                } 
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
@@ -86,53 +86,18 @@ class DitListeController extends Controller
         $this->sessionService->set('dit_search_criteria', $criteria);
 
 
-        //recupère le numero de page
-        $page = $request->query->getInt('page', 1);
-        //nombre de ligne par page
-        $limit = 50;
-
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-
-
-        //recupère les donnees de option dans la session
         $this->sessionService->set('dit_search_option', $option);
 
-        //recupération des données filtrée
-        $paginationData = self::$em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
-        //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($paginationData['data']);
-
-        //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($paginationData['data']);
-
-        //ajout nombre de pièce joint
-        $this->ajoutNbrPj($paginationData['data'], self::$em);
-
-        //recuperation de numero de serie et parc pour l'affichage
-        $this->ajoutNumSerieNumParc($paginationData['data']);
-
-        $this->ajoutQuatreStatutOr($paginationData['data']);
-
-        $this->ajoutConditionOrEqDit($paginationData['data']);
-
-        $this->ajoutri($paginationData['data'], $ditListeModel, self::$em);
-
-        $this->ajoutMarqueCasierMateriel($paginationData['data']);
-
-        /** 
-         * Docs à intégrer dans DW 
-         * */
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
+        
+        /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $this->dossierDit($request, $formDocDansDW);
 
-        //variable pour tester s'il n'y pas de donner à afficher
-        $empty = false;
 
         $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
 
@@ -143,13 +108,11 @@ class DitListeController extends Controller
             'criteria' => $criteria,
             'resultat' => $paginationData['totalItems'],
             'statusCounts' => $paginationData['statusCounts'],
-            'empty' => $empty,
             'form' => $form->createView(),
             'criteria' => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
-
 
     /**
      * @Route("/export-excel", name="export_excel")

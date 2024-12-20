@@ -7,6 +7,23 @@ use Doctrine\ORM\EntityRepository;
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
 
+    public function existsNumOr($numOr): bool
+    {
+        $qb = $this->createQueryBuilder('osv');
+        $qb->select('1')
+        ->where('osv.numeroOR = :numOr')
+        ->setParameter('numOr', $numOr)
+        ->setMaxResults(1);
+
+        try {
+            $result = $qb->getQuery()->getOneOrNullResult();
+            return $result !== null;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+
     public function findNumOrItvValide()
     {
         $query = $this->createQueryBuilder('osv')

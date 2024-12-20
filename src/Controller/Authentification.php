@@ -21,7 +21,7 @@ class Authentification extends Controller
             $Connexion_Ldap_User = $this->ldap->userConnect($Username, $Password);
 
             if (!$Connexion_Ldap_User) {
-                $error_msg = "Merci de vérifier votre session LDAP";
+                $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
             } else {
                 try {
                     //$session->start();

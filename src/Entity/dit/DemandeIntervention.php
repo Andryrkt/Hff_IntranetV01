@@ -193,12 +193,12 @@ class DemandeIntervention
      */
     private ?datetime $dateDemande = null;
 
-/**
- * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
- * @Groups("intervention")
- *
- * @var string|null
- */
+    /**
+     * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
+     * @Groups("intervention")
+     *
+     * @var string|null
+     */
     private ?string $heureDemande = null;
 
     /**
@@ -491,6 +491,8 @@ class DemandeIntervention
     private $quatreStatutOr;
 
     private $estOrEqDit;
+
+    private bool $estOrASoumi = false;
     
     /** ===================================================================================================================
      * 
@@ -1498,4 +1500,24 @@ class DemandeIntervention
     }
 
     
+
+    /**
+     * Get the value of estOrASoumi
+     */ 
+    public function getEstOrASoumi()
+    {
+        return $this->estOrASoumi;
+    }
+
+    /**
+     * Set the value of estOrASoumi
+     *
+     * @return  self
+     */ 
+    public function setEstOrASoumi($estOrASoumi)
+    {
+        $this->estOrASoumi = $estOrASoumi;
+
+        return $this;
+    }
 }
