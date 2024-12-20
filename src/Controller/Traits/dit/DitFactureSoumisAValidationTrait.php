@@ -37,13 +37,14 @@ trait DitFactureSoumisAValidationtrait
     { 
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
-
+        
         $factureSoumisAValidation = [];
             foreach ($infoFacture as $value) {
                 $factureSoumis = new DitFactureSoumisAValidation();
                 //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
                 
-                $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
+                // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
+                $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
                 $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
                 $factureSoumis
@@ -70,6 +71,18 @@ trait DitFactureSoumisAValidationtrait
         
     }
 
+    private function statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $numeroOr, $numeroItv): string
+    {
+        $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
+        
+        if($quantiter[0]['quantitelivree'] = 0){
+            return "Validé";
+        } elseif ($quantiter[0]['quantitelivree'] < $quantiter[0]['quantitedemander']) {
+            return "Livré partiellement";
+        } elseif ($quantiter[0]['quantitelivree'] = $quantiter[0]['quantitedemander']) {
+            return "Livré";
+        }
+    }
 
     private function affectationStatutFac($em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)
     {   

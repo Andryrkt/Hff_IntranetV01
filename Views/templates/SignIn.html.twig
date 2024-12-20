@@ -10,9 +10,13 @@
 			<div class="container">
 				<div class="row justify-content-center">
 					<div class="col-xl-5 col-md-8">
-						<form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="/Hffintranet/Authentification">
+						<form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="">
 							<img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo"/>
-
+							{% if error_msg %}
+							<div class="alert alert-danger">
+								{{ error_msg }}
+							</div>
+							{% endif %}
 							<div class="form-outline mb-4" data-mdb-input-init>
 								<label class="form-label" for="form1Example1">Utilisateur</label>
 								<input type="text" id="form1Example1" class="form-control" name="Username" required/>

@@ -49,17 +49,29 @@ class PlanningApi extends Controller
             $migration = $ditRepositoryConditionner->getMigration();
             
             $detailes = [];
+            //    dd($details);
             $recupPariel = [];
             $recupGot = [];
             for ($i=0; $i < count($details); $i++) {
+        
+                if($numOr[0] =='5'){
+                    if(empty($details[$i]['numerocdecis']) || $details[$i]['numerocdecis'] == "0" ){
+                        $recupGot = [];
+                    } else {
+                        $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'],$details[$i]['cst']);
+                            $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocdecis'],$details[$i]['ref']);
+                        $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocdecis']);
+                    }
+                }else{
                 if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
                     $recupGot = [];
                 } else {
-                    $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numor'], $details[$i]['ref']);
-                    $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
-                    $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
+                    $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocmd'], $details[$i]['ref'],$details[$i]['cst']);
+                        $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                        $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
+                    
                 }
-                
+            }
                 if(!empty($detailes[0])){
                         $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
                         $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin']; 

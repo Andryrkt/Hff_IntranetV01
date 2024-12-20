@@ -16,7 +16,10 @@ const chronoProgress = document.querySelector(".chrono-progress");
 //Calcul du périmètre du cercle (2 * PI * r)
 const radius = 45;
 const circumference = 2 * Math.PI * radius;
-chronoProgress.style.strokeDasharray = circumference;
+
+if (chronoProgress?.style) {
+  chronoProgress.style.strokeDasharray = circumference;
+}
 
 // Fonction pour mettre à jour le chrono
 function updateChrono() {

@@ -148,14 +148,16 @@
 											{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
 											<div class="col-12 col-md-4">
 												{{ form_row(form.categorie) }}
-												{{ macroForm.spinner_load('spinner-sous-categorie') }}
-												{{ form_row(form.sousCategorie) }}
-												{{ macroForm.spinner_load('spinner-autre-categorie') }}
-												{{ form_row(form.autresCategorie) }}
+
+												{{ macroForm.spinner_load('spinner-sous-categorie', 'sous-categorie-container','detail_tik_sousCategorie', form.sousCategorie) }}
+
+												{{ macroForm.spinner_load('spinner-autre-categorie', 'autre-categorie-container','detail_tik_autresCategorie', form.autresCategorie) }}
+
 											</div>
 											<div class="col-12 col-md-4">
 												{{form_row(form.niveauUrgence)}}
 												{{form_row(form.intervenant)}}
+												{% include "tik/demandeSupportInformatique/shared/_userStat.html.twig" %}
 												<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
 													Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
 												</div>
@@ -176,16 +178,15 @@
 									<div class="col-12 col-md-6">
 										{% if validateur %}
 											{# DEBUT Observation Ticket #}
-											{{ macroForm.sousTitre('Observation Ticket', {class: 'sousTitre'})}}
-
-											{{ form_label(form.commentaires) }}
+											{% set name = 'Observation Ticket' %}
 										{% else %}
 											{# DEBUT Résolution Ticket #}
-											{{ macroForm.sousTitre('Résolution Ticket', {class: 'sousTitre'})}}
-
-											{{ form_label(form.commentaires) }}
+											{% set name = 'Résolution Ticket' %}
 										{% endif %}
 
+										{% set option = {'id':'commentaire'} %}
+										{{ macroForm.sousTitre2(name, option) }}
+										{{ form_label(form.commentaires) }}
 										{{ form_widget(form.commentaires) }}
 									</div>
 									{# FIN COLONNE 2 #}
@@ -249,7 +250,7 @@
 {% block footer %}{% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
+	<script type="module" src="/Hffintranet/Views/js/tik/tikDetail.js"></script>
 	<script>
 		const div = document.getElementById('emailDemandeur');
 const originalText = div.textContent;

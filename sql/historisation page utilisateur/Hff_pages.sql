@@ -9,7 +9,7 @@ CREATE TABLE Hff_pages (
 INSERT INTO TABLE Hff_pages (nom, nom_route, lien)
 VALUES 
     ('page_accueil', 'profil_acceuil', '/Acceuil'),
-    ('page_accueil', 'profil_authentification', '/Authentification'),
+    ('page_authentification', 'security_signin', '/'),
     ('page_nouvelle_DIT', 'dit_new', '/dit/new'),
     ('page_consultation_liste_DIT', 'dit_index', '/dit'),
     ('page_duplication_d_un_DIT', 'dit_duplication', '/ditDuplication/{id<\d+>}/{numDit<\w+>}'),

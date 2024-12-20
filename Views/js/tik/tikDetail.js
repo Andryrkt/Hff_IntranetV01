@@ -1,430 +1,130 @@
-document.addEventListener("DOMContentLoaded", function () {
-  /**
-   * recupérer le catégorie et afficher les sous catégorie et autre categorie correspondant
-   */
-  const categorieInput = document.querySelector(".categorie");
-  const sousCategorieInput = document.querySelector(".sous-categorie");
-  const autreCategorieInput = document.querySelector(".autre-categorie");
+import { handleActionClick } from './formHandler.js';
 
-  if (categorieInput !== null) {
-    //AFFICHAGE SOUS CATEGORIES
-    categorieInput.addEventListener("change", selectCategorieSousCategorie);
+import {
+  validateField,
+  validateFormBeforeSubmit,
+  disableForm,
+} from './utils/formUtils.js';
 
-    function selectCategorieSousCategorie() {
-      const categorie = categorieInput.value;
+import { resetDropdown, populateDropdown } from './utils/dropdownUtils.js';
 
-      if (categorie === "") {
-        while (sousCategorieInput.options.length > 0) {
-          sousCategorieInput.remove(0);
-        }
+import { updateDropdown } from './categoryHandler.js';
 
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.text = " -- Choisir une sous-catégorie -- ";
-        sousCategorieInput.add(defaultOption);
-        return; // Sortir de la fonction
-      }
+document.addEventListener('DOMContentLoaded', function () {
+  // Bouton d'action
+  const validerBtn = document.querySelector('#btn_valider');
+  const refuserBtn = document.querySelector('#btn_refuser');
+  const resoudreBtn = document.querySelector('#btn_resoudre');
+  const transfererBtn = document.querySelector('#btn_transferer');
+  const planifierBtn = document.querySelector('#btn_planifier');
 
-      let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
-      fetch(url)
-        .then((response) => response.json())
-        .then((sousCategories) => {
-          console.log(sousCategories);
+  disableForm('formTik');
 
-          // Supprimer toutes les options existantes
-          while (sousCategorieInput.options.length > 0) {
-            sousCategorieInput.remove(0);
-          }
-
-          const defaultOption = document.createElement("option");
-          defaultOption.value = "";
-          defaultOption.text = " -- Choisir une sous-catégorie -- ";
-          sousCategorieInput.add(defaultOption);
-
-          // Ajouter les nouvelles options à partir du tableau services
-          for (var i = 0; i < sousCategories.length; i++) {
-            var option = document.createElement("option");
-            option.value = sousCategories[i].value;
-            option.text = sousCategories[i].text;
-            sousCategorieInput.add(option);
-          }
-
-          //Afficher les nouvelles valeurs et textes des options
-          for (var i = 0; i < sousCategorieInput.options.length; i++) {
-            var option = sousCategorieInput.options[i];
-            console.log("Value: " + option.value + ", Text: " + option.text);
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-
-      //AFFICHAGE AUTRES CATEGORIE
-      sousCategorieInput.addEventListener(
-        "change",
-        selectSousCategorieAutresCategories
-      );
-
-      function selectSousCategorieAutresCategories() {
-        const sousCategorie = sousCategorieInput.value;
-
-        if (sousCategorie === "") {
-          while (autreCategorieInput.options.length > 0) {
-            autreCategorieInput.remove(0);
-          }
-
-          const defaultOption = document.createElement("option");
-          defaultOption.value = "";
-          defaultOption.text = " -- Choisir une sous catégorie -- ";
-          autreCategorieInput.add(defaultOption);
-          return; // Sortir de la fonction
-        }
-
-        console.log(sousCategorie);
-
-        let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
-        fetch(url)
-          .then((response) => response.json())
-          .then((autresCategories) => {
-            console.log(autresCategories);
-
-            // Supprimer toutes les options existantes
-            while (autreCategorieInput.options.length > 0) {
-              autreCategorieInput.remove(0);
-            }
-
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.text = " -- Choisir une autre categorie-- ";
-            autreCategorieInput.add(defaultOption);
-
-            // Ajouter les nouvelles options à partir du tableau services
-            for (var i = 0; i < autresCategories.length; i++) {
-              var option = document.createElement("option");
-              option.value = autresCategories[i].value;
-              option.text = autresCategories[i].text;
-              autreCategorieInput.add(option);
-            }
-
-            //Afficher les nouvelles valeurs et textes des options
-            for (var i = 0; i < autreCategorieInput.options.length; i++) {
-              var option = autreCategorieInput.options[i];
-              console.log("Value: " + option.value + ", Text: " + option.text);
-            }
-          })
-          .catch((error) => console.error("Error:", error));
-      }
-    }
-
-    //AFFICHAGE AUTRES CATEGORIE
-    sousCategorieInput.addEventListener(
-      "change",
-      selectSousCategorieAutresCategories
-    );
-
-    function selectSousCategorieAutresCategories() {
-      const sousCategorie = sousCategorieInput.value;
-
-      if (sousCategorie === "") {
-        while (autreCategorieInput.options.length > 0) {
-          autreCategorieInput.remove(0);
-        }
-
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.text = " -- Choisir une sous catégorie -- ";
-        autreCategorieInput.add(defaultOption);
-        return; // Sortir de la fonction
-      }
-
-      console.log(sousCategorie);
-
-      let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
-      fetch(url)
-        .then((response) => response.json())
-        .then((autresCategories) => {
-          console.log(autresCategories);
-
-          // Supprimer toutes les options existantes
-          while (autreCategorieInput.options.length > 0) {
-            autreCategorieInput.remove(0);
-          }
-
-          const defaultOption = document.createElement("option");
-          defaultOption.value = "";
-          defaultOption.text = " -- Choisir une autre categorie-- ";
-          autreCategorieInput.add(defaultOption);
-
-          // Ajouter les nouvelles options à partir du tableau services
-          for (var i = 0; i < autresCategories.length; i++) {
-            var option = document.createElement("option");
-            option.value = autresCategories[i].value;
-            option.text = autresCategories[i].text;
-            autreCategorieInput.add(option);
-          }
-
-          //Afficher les nouvelles valeurs et textes des options
-          for (var i = 0; i < autreCategorieInput.options.length; i++) {
-            var option = autreCategorieInput.options[i];
-            console.log("Value: " + option.value + ", Text: " + option.text);
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    }
-  }
-  /**
-   * BOUTON REFUSER ET VALIDER DU VALIDATEUR
-   */
-  const validerBtn = document.querySelector("#btn_valider");
-  const refuserBtn = document.querySelector("#btn_refuser");
-
-  const tikCategorie = document.querySelector("#detail_tik_categorie");
-  const tikNiveauUrgence = document.querySelector("#detail_tik_niveauUrgence");
-  const tikIntervenant = document.querySelector("#detail_tik_intervenant");
-  const tikCommentaires = document.querySelector("#detail_tik_commentaires");
-
-  if (refuserBtn !== null) {
-    refuserBtn.addEventListener("click", function () {
-      tikCategorie.removeAttribute("required");
-      tikNiveauUrgence.removeAttribute("required");
-      tikIntervenant.removeAttribute("required");
-      tikCommentaires.setAttribute("required", "required");
-    });
-  }
-
-  if (validerBtn !== null) {
-    validerBtn.addEventListener("click", function () {
-      tikCategorie.setAttribute("required", "required");
-      tikNiveauUrgence.setAttribute("required", "required");
-      tikIntervenant.setAttribute("required", "required");
-      tikCommentaires.removeAttribute("required");
-    });
-  }
-
-  /**
-   * BOUTON RESOUDRE, PLANIFIER ET TRANSFERER DE L'INTERVENANT
-   */
-  const resoudreBtn = document.querySelector("#btn_resoudre");
-  const transfererBtn = document.querySelector("#btn_transferer");
-  const planifierBtn = document.querySelector("#btn_planifier");
-
-  const dateDebutPlanning = document.querySelector(
-    "#detail_tik_dateDebutPlanning"
+  // Gestion des boutons
+  validerBtn?.addEventListener('click', () => handleActionClick('valider'));
+  refuserBtn?.addEventListener('click', () => handleActionClick('refuser'));
+  resoudreBtn?.addEventListener('click', () => handleActionClick('resoudre'));
+  transfererBtn?.addEventListener('click', () =>
+    handleActionClick('transferer')
   );
-  const dateFinPlanning = document.querySelector("#detail_tik_dateFinPlanning");
+  planifierBtn?.addEventListener('click', () => handleActionClick('planifier'));
 
-  if (resoudreBtn !== null) {
-    resoudreBtn.addEventListener("click", function () {
-      tikCommentaires.setAttribute("required", "required");
-      tikIntervenant.removeAttribute("required");
-      dateDebutPlanning.removeAttribute("required");
-      dateFinPlanning.removeAttribute("required");
-    });
-  }
+  // catégorie, sous-catégorie et autre catégorie
+  const categorieInput = document.querySelector('.categorie');
+  const sousCategorieInput = document.querySelector('.sous-categorie');
+  const sousCategorieSpinner = document.querySelector(
+    '#spinner-sous-categorie'
+  );
+  const sousCategorieContainer = document.querySelector(
+    '#sous-categorie-container'
+  );
+  const autreCategorieInput = document.querySelector('.autre-categorie');
+  const autreCategorieSpinner = document.querySelector(
+    '#spinner-autre-categorie'
+  );
+  const autreCategorieContainer = document.querySelector(
+    '#autre-categorie-container'
+  );
 
-  if (transfererBtn !== null) {
-    transfererBtn.addEventListener("click", function () {
-      tikCommentaires.removeAttribute("required");
-      tikIntervenant.setAttribute("required", "required");
-      dateDebutPlanning.removeAttribute("required");
-      dateFinPlanning.removeAttribute("required");
-    });
-  }
-
-  if (planifierBtn !== null) {
-    planifierBtn.addEventListener("click", function () {
-      const errorMessage = document.querySelector(".error-message-intervenant");
-      errorMessage.style.display = "none";
-      tikCommentaires.removeAttribute("required");
-      tikIntervenant.removeAttribute("required");
-      dateDebutPlanning.setAttribute("required", "required");
-      dateFinPlanning.setAttribute("required", "required");
-    });
-  }
-
-  dateDebutPlanning.addEventListener("change", validateDates);
-  dateFinPlanning.addEventListener("change", validateDates);
-
-  /**
-   * Formulaire
-   */
-  const myForm = document.getElementById("formTik");
-
-  function validateDates() {
-    const errorMessage = document.querySelector(".error-message-date");
-    const startDate = new Date(dateDebutPlanning.value);
-    const endDate = new Date(dateFinPlanning.value);
-
-    // Vérifier si la date de fin est après la date de début
-    if (startDate && endDate && endDate < startDate) {
-      errorMessage.style.display = "block"; // Afficher le message d'erreur
-      return false;
-    } else {
-      errorMessage.style.display = "none";
-      return true;
-    }
-  }
-
-  if (tikIntervenant !== null) {
-    tikIntervenant.addEventListener("change", validateIntervenant);
-  }
-
-  function validateIntervenant() {
-    const errorMessage = document.querySelector(".error-message-intervenant");
-    const intervenant = transfererBtn.getAttribute("data-intervenant");
-
-    // Vérifier si la date de fin est après la date de début
-    if (tikIntervenant.value == intervenant) {
-      errorMessage.style.display = "block"; // Afficher le message d'erreur
-      return false;
-    } else {
-      errorMessage.style.display = "none";
-      return true;
-    }
-  }
-
-  if (myForm !== null) {
-    // Valider la date lors de l'envoi du formulaire
-    myForm.addEventListener("submit", function (event) {
-      const boutonClique = event.submitter.name;
-      let condition = false;
-
-      switch (boutonClique) {
-        case "transferer":
-          condition = !validateIntervenant();
-          break;
-
-        case "planifier":
-          condition = !validateDates();
-          break;
-
-        default:
-          break;
-      }
-      if (condition) {
-        event.preventDefault();
-      }
-    });
-  }
-
-  /**
-   * Fonction pour switcher les champs disabled du formulaire avec id=formId
-   * @param {string} formId
-   */
-  function toggleFormDisabled(formId) {
-    const form = document.getElementById(formId);
-    if (!form) {
-      console.error(`Element with ID "${formId}" not found.`);
-      return;
-    }
-    const isDisabled = form.getAttribute("disabledEdit");
-
-    if (form) {
-      Array.from(form.elements).forEach((element) => {
-        if (isDisabled == "true") {
-          element.disabled = isDisabled;
-        }
-      });
-    }
-  }
-
-  toggleFormDisabled("formTik");
-
-  /**
-   * AJOUT DE FICHIERS DANS LES COMMENTAIRES
-   */
-  const fileInput = document.querySelector(".file-input");
-  const fileList = document.getElementById("file-list");
-  const paperclipIcon = document.getElementById("paperclip-icon");
-  const fileUploadWrapper = document.getElementById("file-upload-wrapper");
-
-  let filesArray = [];
-  const existingFiles = Array.from(document.querySelectorAll(".file-item"));
-
-  // Ajouter les fichiers existants à filesArray
-  existingFiles.forEach((fileItem) => {
-    filesArray.push({
-      id: fileItem.getAttribute("data-id"),
-      name: fileItem.querySelector(".file-name").textContent,
-      size: parseInt(fileItem.querySelector(".file-size").textContent),
-      existing: true, // Marque comme fichier existant en base
-    });
-
-    const removeButton = fileItem.querySelector(".remove-file");
-    removeButton.addEventListener("click", () => {
-      // Supprimer visuellement et logiquement le fichier
-      filesArray = filesArray.filter(
-        (f) => f.id !== removeButton.getAttribute("data-id")
+  // Mise à jour des sous-catégories
+  categorieInput?.addEventListener('change', function () {
+    if (categorieInput.value !== '') {
+      const url = `/Hffintranet/api/sous-categorie-fetch/${categorieInput.value}`;
+      updateDropdown(
+        sousCategorieInput,
+        url,
+        ' -- Choisir une sous-catégorie -- ',
+        sousCategorieSpinner,
+        sousCategorieContainer
       );
-      fileList.removeChild(fileItem);
-    });
+    }
+    if (autreCategorieInput.value !== '') {
+      resetDropdown(autreCategorieInput, ' -- Choisir une autre catégorie -- ');
+    }
   });
 
-  function displayFiles(files) {
-    fileUploadWrapper.style.display = "block";
-    files.forEach((file) => {
-      if (
-        !filesArray.some((f) => f.name === file.name && f.size === file.size)
-      ) {
-        filesArray.push(file);
+  // Mise à jour des autres catégories
+  sousCategorieInput?.addEventListener('change', function () {
+    if (sousCategorieInput.value !== '') {
+      const url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorieInput.value}`;
+      updateDropdown(
+        autreCategorieInput,
+        url,
+        ' -- Choisir une autre catégorie -- ',
+        autreCategorieSpinner,
+        autreCategorieContainer
+      );
+    }
+  });
 
-        const listItem = document.createElement("li");
-        listItem.classList.add("file-item");
+  // champs Intervenant et Date de planning
+  const tikIntervenant = document.querySelector('#detail_tik_intervenant');
+  const dateDebutPlanning = document.querySelector(
+    '#detail_tik_dateDebutPlanning'
+  );
+  const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
 
-        const fileName = document.createElement("span");
-        fileName.classList.add("file-name");
-        fileName.textContent = file.name;
+  // gestion du cas où l'intervenant n'est pas valide
+  tikIntervenant.addEventListener('change', () =>
+    validateField(
+      tikIntervenant.value,
+      (val) => val !== transfererBtn.getAttribute('data-intervenant'),
+      document.querySelector('.error-message-intervenant')
+    )
+  );
 
-        const fileSize = document.createElement("span");
-        fileSize.classList.add("file-size");
-        fileSize.textContent = `(${(file.size / 1024).toFixed(1)} Ko)`;
+  // gestion de cas où la date de planning est invalide
+  [dateDebutPlanning, dateFinPlanning].forEach((date) => {
+    date.addEventListener('change', () =>
+      validateField(
+        dateDebutPlanning.value,
+        (val) => new Date(val) <= new Date(dateFinPlanning.value),
+        document.querySelector('.error-message-date')
+      )
+    );
+  });
 
-        const removeButton = document.createElement("span");
-        removeButton.textContent = "×";
-        removeButton.classList.add("remove-file");
-        removeButton.addEventListener("click", () => {
-          filesArray = filesArray.filter((f) => f !== file);
-          fileList.removeChild(listItem);
-          updateFileInput();
-        });
+  // Formulaire avant submit
+  const myForm = document.getElementById('formTik');
 
-        const spinner = document.createElement("div");
-        spinner.classList.add("spinner");
-
-        listItem.appendChild(fileName);
-        listItem.appendChild(fileSize);
-        listItem.appendChild(removeButton);
-        listItem.appendChild(spinner);
-        fileList.appendChild(listItem);
-
-        startLoading(spinner);
-      }
-    });
-    updateFileInput();
-  }
-
-  function updateFileInput() {
-    const dataTransfer = new DataTransfer();
-    filesArray
-      .filter((file) => !file.existing) // Inclut uniquement les nouveaux fichiers dans l'input
-      .forEach((file) => dataTransfer.items.add(file));
-    fileInput.files = dataTransfer.files;
-  }
-
-  if (fileInput !== null) {
-    fileInput.addEventListener("change", function (event) {
-      const files = Array.from(event.target.files);
-      displayFiles(files);
-    });
-  }
-
-  if (paperclipIcon) {
-    paperclipIcon.addEventListener("click", function () {
-      fileInput.click();
-    });
-  }
-
-  function startLoading(spinner) {
-    setTimeout(() => {
-      spinner.remove();
-    }, 2000);
-  }
+  // Bloquer le formulaire si champ invalide
+  myForm.addEventListener('submit', (event) => {
+    let buttonName = event.submitter.name;
+    validateFormBeforeSubmit(event, [
+      () =>
+        validateField(
+          buttonName === 'transferer',
+          tikIntervenant.value,
+          (val) => val !== transfererBtn.getAttribute('data-intervenant'),
+          document.querySelector('.error-message-intervenant')
+        ),
+      () =>
+        validateField(
+          buttonName === 'planifier',
+          dateDebutPlanning.value,
+          (val) => new Date(val) <= new Date(dateFinPlanning.value),
+          document.querySelector('.error-message-date')
+        ),
+    ]);
+  });
 });

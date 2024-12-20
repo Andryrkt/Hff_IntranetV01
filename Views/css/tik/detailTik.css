@@ -127,8 +127,17 @@ label[for='historiqueStatut'] {
   align-items: center;
 }
 .talk .msg {
+  position: relative;
   padding: 7px 10px 3px;
   border-radius: 10px;
+}
+
+.talk .msg::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
 }
 
 .talk .msg p {
@@ -145,6 +154,12 @@ label[for='historiqueStatut'] {
 }
 .right .file-comment {
   background-color: #ffc10880;
+}
+.left .msg::after {
+  border-width: 0px 10px 10px 0;
+  border-color: transparent #d8d8d8 transparent transparent;
+  top: 0;
+  left: -10px;
 }
 .left .msg {
   margin-left: 10px;
@@ -168,6 +183,7 @@ label[for='historiqueStatut'] {
 
 .icon-user {
   margin: auto;
+  margin-bottom: 5px !important;
   width: 25px;
   height: 25px;
   color: #000;
@@ -339,6 +355,8 @@ label[for='historiqueStatut'] {
 * pour le spiner
 */
 .spinner-load {
+  margin-bottom: 2rem !important;
+  margin-left: 15px;
   position: relative;
   width: 10px; /* Taille totale du spinner */
   height: 10px;
@@ -346,11 +364,11 @@ label[for='historiqueStatut'] {
 
 .spinner-load div {
   position: absolute;
-  width: 6px; /* Largeur des barres */
-  height: 10px; /* Hauteur des barres */
+  width: 3px; /* Largeur des barres */
+  height: 8px; /* Hauteur des barres */
   background: #000; /* Couleur par défaut */
   border-radius: 3px; /* Coins arrondis pour les barres */
-  transform-origin: center 20px; /* Point autour duquel les barres tournent */
+  transform-origin: center 15px; /* Point autour duquel les barres tournent */
   animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
 }
 

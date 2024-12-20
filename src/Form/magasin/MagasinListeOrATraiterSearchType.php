@@ -103,7 +103,7 @@ class MagasinListeOrATraiterSearchType extends AbstractType
             'label' => 'Pièces',
             'required' => false,
             'choices' => self::PIECE_MAGASIN_ACHATS_LOCAUX,
-            'placeholder' => ' -- Choisir un type de ligne --',
+            'placeholder' => false,
             'data' => 'PIECES MAGASIN'
         ])
         ->add('agence',

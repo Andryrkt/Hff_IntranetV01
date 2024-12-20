@@ -2,19 +2,20 @@
 
 namespace App\Controller\planning;
 
-use App\Controller\Controller;
-use App\Controller\Traits\PlanningTraits;
-use App\Model\planning\PlanningModel;
-
-use App\Entity\planning\PlanningSearch;
-use App\Controller\Traits\Transformation;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\planning\PlanningMateriel;
-use App\Form\planning\MoisAvantType;
-use App\Form\planning\PlanningSearchType;
-use App\Service\fusionPdf\FusionPdf;
 use Dotenv\Parser\Entry;
 use Illuminate\Support\Arr;
+use App\Controller\Controller;
+
+use App\Form\planning\MoisAvantType;
+use App\Service\fusionPdf\FusionPdf;
+use App\Model\planning\PlanningModel;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\planning\PlanningSearch;
+use App\Service\TableauEnStringService;
+use App\Controller\Traits\PlanningTraits;
+use App\Controller\Traits\Transformation;
+use App\Entity\planning\PlanningMateriel;
+use App\Form\planning\PlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -69,6 +70,7 @@ class PlanningController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // dd($form->getdata());
             $criteria =  $form->getdata();
+           
         }
 
         /**
@@ -83,18 +85,29 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides);
+            //dd($lesOrvalides);
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+            
+            if (is_array($back)) {
+                $backString = TableauEnStringService::orEnString($back);
+            } else {
+                $backString = '';
+            }
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
+      
+    
         } else {
             $data = [];
+            $back = [];
         }
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back);
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
         $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
 
+        // dd($forDisplay);
         $this->logUserVisit('planning_vue'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('planning/planning.html.twig', [
@@ -119,11 +132,12 @@ class PlanningController extends Controller
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
 
-        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
+        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
 
 
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back);
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
@@ -180,9 +194,9 @@ class PlanningController extends Controller
         $planningSearch = $this->creationObjetCriteria($criteria);
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
-
-        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides);
-
+        
+        $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
+        //  dd($data);
 
         $tabObjetPlanning = $this->creationTableauObjetExport($data);
 
@@ -190,11 +204,13 @@ class PlanningController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Agence\Service', 'N°OR-Itv', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
+        $data[] = ['Agence\Service', 'N°OR-Itv','libellé de l\'Itv','planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
         foreach ($tabObjetPlanning as $entity) {
             $data[] = [
                 $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
                 $entity->getOrIntv(),
+                $entity->getCommentaire(),
+                $entity->getPlan(),
                 $entity->getIdMat(),
                 $entity->getMarqueMat(),
                 $entity->getTypeMat(),
@@ -202,6 +218,7 @@ class PlanningController extends Controller
                 $entity->getnumParc(),
                 $entity->getCasier(),
                 $entity->getMois(),
+                $entity->getAnnee(),
                 $entity->getPos()
 
             ];
@@ -258,6 +275,8 @@ class PlanningController extends Controller
                 ->setMois($item['mois'])
                 ->setPos($item['slor_pos'])
                 ->setOrIntv($item['orintv'])
+                ->setCommentaire($item['commentaire'])
+                ->setPlan($item['plan'])
 
             ;
             $objetPlanning[] = $planningMateriel;
@@ -266,15 +285,31 @@ class PlanningController extends Controller
         return $objetPlanning;
     }
 
-    private function creationTableauObjetPlanning(array $data): array
+    private function creationTableauObjetPlanning(array $data,array $back): array
     {
         $objetPlanning = [];
         //Recuperation de idmat et les truc
         foreach ($data as $item) {
             $planningMateriel = new PlanningMateriel();
+            // dump($item['orintv']);
             $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
-            $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
-            $migration = $ditRepositoryConditionner->getMigration();
+           
+            if ($ditRepositoryConditionner !== null) {
+                $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
+                $migration = $ditRepositoryConditionner->getMigration();
+            } else {
+                // Handle the case where the result is not found, e.g., log a message or set default values
+                $numDit = null;  // or some other default value
+                $migration = null;  // or some other default value
+            }
+
+            
+            
+            if(in_array($item['orintv'], $back)) {
+                $backOrder = 'Okey';
+            } else {
+                $backOrder = '';
+            } 
 
             //initialisation
             $planningMateriel
@@ -296,7 +331,7 @@ class PlanningController extends Controller
                 ->setQteAll($item['qteall'])
                 ->setNumDit($numDit)
                 // ->setNumeroOr($item['numeroor'])
-                ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'])
+                ->addMoisDetail($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $numDit, $migration, $item['commentaire'], $backOrder)
             ;
             $objetPlanning[] = $planningMateriel;
         }
@@ -314,7 +349,7 @@ class PlanningController extends Controller
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
                 foreach ($materiel->moisDetails as $moisDetail) {
-
+                    
                     $fusionResult[$key]->addMoisDetail(
                         $moisDetail['mois'],
                         $moisDetail['annee'],
@@ -324,12 +359,12 @@ class PlanningController extends Controller
                         $moisDetail['qteAll'],
                         $moisDetail['numDit'],
                         $moisDetail['migration'],
-                        $moisDetail['commentaire']
+                        $moisDetail['commentaire'],
+                        $moisDetail['back']
                     );
                 }
             }
         }
-
         return $fusionResult;
     }
 

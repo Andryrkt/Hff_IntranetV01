@@ -71,13 +71,13 @@ trait PlanningModelTrait
     //         $vPieces = " ";
     //         break;
     //     case "PIECES_MAGASIN":
-    //         $vPieces = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','LUB','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P'";
+    //         $vPieces = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P'";
     //         break;
     //     case "ACHAT_LOCAUX":
     //         $vPieces = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
     //         break;
     //     case "LUBRIFIANTS":
-    //         $vPieces = " AND slor_constp in ('LUB', 'SOM', 'FAT', 'PDV')  AND slor_typlig = 'P'";
+    //         $vPieces = "AND slor_constp in ('LUB', 'JOV')  AND slor_typlig = 'P'";
     //         break;
     //     default:
     //         $vPieces = " ";
@@ -232,7 +232,7 @@ trait PlanningModelTrait
     }    
     private function idMat($criteria){
         if(!empty($criteria->getIdMat())){
-            $vconditionIdMat = " AND mmat_nummat = " + "'".$criteria->getIdMat()."'";
+            $vconditionIdMat = " AND mmat_nummat = '".$criteria->getIdMat()."'";
           }else{
             $vconditionIdMat = "";
           }
