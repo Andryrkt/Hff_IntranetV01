@@ -8,15 +8,14 @@ use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
-use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\dit\DitRiSoumisAValidation;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitListTrait;
+use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
-use App\Service\docuware\CopyDocuwareService;
 
 class DitListeController extends Controller
 {
@@ -29,6 +28,7 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
+
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -194,7 +194,7 @@ class DitListeController extends Controller
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
-            $statutCloturerAnnuler
+            'Clôturé annulé'
         ];
         $this->ajouterDansCsv($filePath, $data, $headers);
 

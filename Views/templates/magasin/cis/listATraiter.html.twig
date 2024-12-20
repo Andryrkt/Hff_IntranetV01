@@ -9,7 +9,7 @@
 {% block content %}
 	<div class="container">
 		<h3 class="perso-titre">
-			Liste des CIS à traiter = = = = = EN MODE DEMO = = = =
+			Liste des CIS à traiter
 		</h3>
 
 		{% include "/magasin/partials/cis/_formRechATraiter.html.twig" %}
@@ -36,6 +36,7 @@
 					<th>Réf</th>
 					<th>Désignation</th>
 					<th class="text-center">Qté demandée</th>
+					<th class="text-center">Qté à traiter</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -57,6 +58,8 @@
 						<td>{{item.ref}}</td>
 						<td>{{item.designations}}</td>
 						<td class="text-center">{{item.qte_dem}}</td>
+						<td class="text-center">{{item.qte_a_traiter}}</td>
+
 					</tr>
 				{% endfor %}
 			</tbody>

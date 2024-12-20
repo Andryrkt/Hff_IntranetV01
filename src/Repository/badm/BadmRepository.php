@@ -29,7 +29,7 @@ class BadmRepository extends EntityRepository
             return $idMateriels;
     }
 
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], array $options)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -40,24 +40,7 @@ class BadmRepository extends EntityRepository
 
             $this->filtredCondition($queryBuilder, $criteria);
 
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($criteria['agenceEmetteur'])) {
-                $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
-            }
-        } else {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-         //filtre selon le service emetteur
-         if (!empty($criteria['serviceEmetteur'])) {
-            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-        }
+            $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
         
@@ -81,7 +64,7 @@ class BadmRepository extends EntityRepository
     }
 
     
-    public function findAndFilteredExcel( array $criteria = [], array $options)
+    public function findAndFilteredExcel( array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -93,24 +76,7 @@ class BadmRepository extends EntityRepository
             $this->filtredCondition($queryBuilder, $criteria);
 
         
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($criteria['agenceEmetteur'])) {
-                $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
-            }
-        } else {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-         //filtre selon le service emetteur
-        if (!empty($criteria['serviceEmetteur'])) {
-            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-        }
+            $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
 
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
@@ -121,7 +87,7 @@ class BadmRepository extends EntityRepository
     }
 
 
-    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [], array $options)
+    public function findPaginatedAndFilteredListAnnuler(int $page = 1, int $limit = 10, array $criteria = [])
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -132,24 +98,8 @@ class BadmRepository extends EntityRepository
 
             $this->filtredCondition($queryBuilder, $criteria);
         
-        if ($options['boolean']) {
-            //filtre selon l'agence emettteur
-            if (!empty($criteria['agenceEmetteur'])) {
-                $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
-                ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
-            }
-        } else {
-            //ceci est figer pour les utilisateur autre que l'administrateur
-            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-            $queryBuilder->andWhere('b.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        }
-
-         //filtre selon le service emetteur
-        if (!empty($criteria['serviceEmetteur'])) {
-            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
-        }
+        
+            $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
         
         $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
@@ -176,6 +126,21 @@ class BadmRepository extends EntityRepository
 
     }
 
+
+    private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
+    {
+         //filtre selon l'agence emettteur
+         if (!empty($criteria['agenceEmetteur'])) {
+            $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
+            ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
+        }
+
+     //filtre selon le service emetteur
+    if (!empty($criteria['serviceEmetteur'])) {
+        $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
+        ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+    }
+    }
     private function filtredExcludeStatut($queryBuilder)
     {
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];

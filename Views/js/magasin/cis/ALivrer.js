@@ -178,16 +178,20 @@ numOrInput.addEventListener("input", () => {
  * ==================================================*/
 const agenceInput = document.querySelector("#a_livrer_search_agence");
 const serviceInput = document.querySelector("#a_livrer_search_service");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
 
 agenceInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   serviceInput.disabled = false;
 
-  const agence = agenceInput.value;
-  console.log(agence.split("-")[0]);
+  const agence = agenceInput.value.split("-")[0];
+  console.log(agence);
 
-  let url = `/Hffintranet/service-informix-fetch/${agence.split("-")[0]}`;
+  let url = `/Hffintranet/service-informix-fetch/${agence}`;
+  toggleSpinner(spinnerService, serviceContainer, true);
+
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
@@ -217,5 +221,11 @@ function selectAgence() {
         console.log("Value: " + option.value + ", Text: " + option.text);
       }
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error("Error:", error))
+    .finally(() => toggleSpinner(spinnerService, serviceContainer, false));
+}
+
+function toggleSpinner(spinnerService, serviceContainer, show) {
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
 }

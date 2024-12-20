@@ -82,14 +82,16 @@ private function initialisation($badmSearch, $em, $agenceServiceIps, $autoriser)
     if($criteria !== null){
         $typeMouvement = $criteria['typeMouvement'] === null ? null : $em->getRepository(TypeMouvement::class)->find($criteria['typeMouvement']->getId());
         $statut = $criteria['statut'] === null ? null : $em->getRepository(StatutDemande::class)->find($criteria['statut']->getId());
-        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIpsEmetteur['serviceIpsEmetteur'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+        // $serviceEmetteur = $criteria['serviceEmetteur'] === null ? $agenceServiceIpsEmetteur['serviceIpsEmetteur'] : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
+        $serviceEmetteur = $criteria['serviceEmetteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceEmetteur']->getId());
         $serviceDebiteur = $criteria['serviceDebiteur'] === null ? null : $em->getRepository(Service::class)->find($criteria['serviceDebiteur']->getId());
         $agenceEmetteur = $criteria['agenceEmetteur'] === null ? $agenceServiceIpsEmetteur['agenceIpsEmetteur'] : $em->getRepository(Agence::class)->find($criteria['agenceEmetteur']->getId());
         $agenceDebiteur = $criteria['agenceDebiteur'] === null ? null : $em->getRepository(Agence::class)->find($criteria['agenceDebiteur']->getId());
     } else {
         $typeMouvement = null;
         $statut = null;
-        $serviceEmetteur = $agenceServiceIpsEmetteur['serviceIpsEmetteur'];
+        // $serviceEmetteur = $agenceServiceIpsEmetteur['serviceIpsEmetteur'];
+        $serviceEmetteur = null;
         $serviceDebiteur = null;
         $agenceEmetteur = $agenceServiceIpsEmetteur['agenceIpsEmetteur'];
         $agenceDebiteur = null;

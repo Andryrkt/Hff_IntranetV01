@@ -191,7 +191,12 @@ class PlanningSearchType extends AbstractType
                 ]
 
                 )
-
+                ->add('orBackOrder',
+                    CheckboxType::class,[
+                        'label' => 'OR avec Back Order',
+                        'required' => false
+                    ]
+                )
                 ->add('serviceDebite', ChoiceType::class,[
                     'label' =>'Service Débiteur',
                     'multiple' => true,

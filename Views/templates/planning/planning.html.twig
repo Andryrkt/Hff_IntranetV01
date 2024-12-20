@@ -81,16 +81,38 @@
 										{% for detail in matchedDetails %}
 											{% set classe = '' %}
 											{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
-												{% set classe = 'bg-success text-white' %}
+												{% if detail.details.back == "" %}
+													{% set classe = 'bg-success text-white' %}
+												{% else %}
+													{% set classe = 'bg-success text-white border-end border-danger border-3' %}
+												{% endif %}
 											{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
-												{% set classe = 'bg-warning text-white' %}
+												{% if detail.details.back == "" %}
+													{% set classe = 'bg-warning text-white' %}
+												{% else %}
+													{% set classe = 'bg-warning  text-white border-end border-danger border-3' %}
+												{% endif %}
 											{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
-												{% set classe = 'bg-info text-white' %}
+												{% if detail.details.back == "" %}
+													{% set classe = 'bg-info text-white' %}
+												{% else %}
+													{% set classe = 'bg-info text-white border-end border-danger border-3' %}
+												{% endif %}
 											{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
-												{% set classe = 'bg-primary text-white' %}
+												{% if detail.details.back == "" %}
+													{% set classe = 'bg-primary text-white' %}
+												{% else %}
+													{% set classe = 'bg-primary text-white border-end border-danger border-3' %}
+												{% endif %}
+											{% else %}
+												{% if detail.details.back == "" %}
+													{% set classe = '' %}
+												{% else %}
+													{% set classe = 'border-end border-danger border-3' %}
+												{% endif %}
 											{% endif %}
 											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
-												{{ detail.details.orIntv }}
+													{{ detail.details.orIntv }}												
 											</a><br>
 										{% endfor %}
 									{% else %}
