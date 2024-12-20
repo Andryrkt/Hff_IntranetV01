@@ -6,16 +6,16 @@ use App\Service\GlobalVariablesService;
 
 trait PlanningModelTrait
 {
-    // private function criterAnnee($criteria)
-    // {
-    //     if(!empty($criteria->getAnnee())){
-    //         $annee = " '".$criteria->getAnnee()."' ";
-    //       }else{
-    //         $annee = null;
-    //       }
+    private function criterAnnee($criteria)
+    {
+        if(!empty($criteria->getAnnee())){
+            $annee = " '".$criteria->getAnnee()."' ";
+          }else{
+            $annee = null;
+          }
 
-    //       return $annee;
-    // }
+          return $annee;
+    }
 
     private function facture($criteria)
     {
