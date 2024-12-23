@@ -30,7 +30,7 @@ class PlanningApi extends Controller
     }
     
     /**
-     * @Route("/detail-modal/{numOr}", name="liste_detailModal")
+     * @Route("/git add .", name="liste_detailModal")
      *
      * @return void
      */
