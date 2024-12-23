@@ -52,83 +52,84 @@
 				</div>
 			</div>
 
-			<table class="table rounded table-plein-ecran">
-				<thead class="table-dark">
-					<tr>
-						<th>Agence - Service Travaux</th>
-						<th>ID</th>
-						<th>Marque</th>
-						<th>Modèle</th>
-						<th>N° Série</th>
-						<th>N° Parc</th>
-						<th>Casier</th>
-						{% for month in uniqueMonths %}
-							<th>{{ month.month }}
-								{{ month.year }}</th>
-						{% endfor %}
-					</tr>
-				</thead>
-				<tbody>
-					{% for item in preparedData %}
+			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark sticky-top">
 						<tr>
-							<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
-							<td>{{ item.idmat }}</td>
-							<td>{{ item.marqueMat }}</td>
-							<td>{{ item.typemat }}</td>
-							<td>{{ item.numserie }}</td>
-							<td>{{ item.numparc }}</td>
-							<td>{{ item.casier }}</td>
+							<th>Agence - Service Travaux</th>
+							<th>ID</th>
+							<th>Marque</th>
+							<th>Modèle</th>
+							<th>N° Série</th>
+							<th>N° Parc</th>
+							<th>Casier</th>
 							{% for month in uniqueMonths %}
-								<td>
-									{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
-									{% if matchedDetails|length > 0 %}
-										{% for detail in matchedDetails %}
-											{% set classe = '' %}
-											{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-success text-white' %}
-												{% else %}
-													{% set classe = 'bg-success text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-warning text-white' %}
-												{% else %}
-													{% set classe = 'bg-warning  text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-info text-white' %}
-												{% else %}
-													{% set classe = 'bg-info text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-primary text-white' %}
-												{% else %}
-													{% set classe = 'bg-primary text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% else %}
-												{% if detail.details.back == "" %}
-													{% set classe = '' %}
-												{% else %}
-													{% set classe = 'border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% endif %}
-											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
-												{{ detail.details.orIntv }}
-											</a><br>
-										{% endfor %}
-									{% else %}
-										-
-									{% endif %}
-								</td>
+								<th>{{ month.month }}
+									{{ month.year }}</th>
 							{% endfor %}
 						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-
+					</thead>
+					<tbody>
+						{% for item in preparedData %}
+							<tr>
+								<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
+								<td>{{ item.idmat }}</td>
+								<td>{{ item.marqueMat }}</td>
+								<td>{{ item.typemat }}</td>
+								<td>{{ item.numserie }}</td>
+								<td>{{ item.numparc }}</td>
+								<td>{{ item.casier }}</td>
+								{% for month in uniqueMonths %}
+									<td>
+										{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
+										{% if matchedDetails|length > 0 %}
+											{% for detail in matchedDetails %}
+												{% set classe = '' %}
+												{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
+													{% if detail.details.back == "" %}
+														{% set classe = 'bg-success text-white' %}
+													{% else %}
+														{% set classe = 'bg-success text-white border-end border-start border-danger border-3' %}
+													{% endif %}
+												{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
+													{% if detail.details.back == "" %}
+														{% set classe = 'bg-warning text-white' %}
+													{% else %}
+														{% set classe = 'bg-warning  text-white border-end border-start border-danger border-3' %}
+													{% endif %}
+												{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
+													{% if detail.details.back == "" %}
+														{% set classe = 'bg-info text-white' %}
+													{% else %}
+														{% set classe = 'bg-info text-white border-end border-start border-danger border-3' %}
+													{% endif %}
+												{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
+													{% if detail.details.back == "" %}
+														{% set classe = 'bg-primary text-white' %}
+													{% else %}
+														{% set classe = 'bg-primary text-white border-end border-start border-danger border-3' %}
+													{% endif %}
+												{% else %}
+													{% if detail.details.back == "" %}
+														{% set classe = '' %}
+													{% else %}
+														{% set classe = 'border-end border-start border-danger border-3' %}
+													{% endif %}
+												{% endif %}
+												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
+													{{ detail.details.orIntv }}
+												</a><br>
+											{% endfor %}
+										{% else %}
+											-
+										{% endif %}
+									</td>
+								{% endfor %}
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 		{% endif %}
 	</div>
 
