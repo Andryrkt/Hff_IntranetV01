@@ -7,67 +7,69 @@
 
 
 {% block content %}
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste des CIS à traiter
-		</h3>
+	<div id="conteneur" data-page-type="cis_a_traiter">
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste des CIS à traiter
+			</h3>
 
-		{% include "/magasin/partials/cis/_formRechATraiter.html.twig" %}
-		{% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "export_excel_a_traiter_cis" } %}
-	</div>
+			{% include "/magasin/partials/cis/_formRechATraiter.html.twig" %}
+			{% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "export_excel_a_traiter_cis" } %}
+		</div>
 
-	<div class="container-fluid">
-		<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
-			<table class="table rounded table-plein-ecran">
-				<thead class="table-dark sticky-top">
-					<tr>
-						<th>
-							<i class="fas fa-ellipsis-vertical"></i>
-						</th>
-						<th class="text-center">N° DIT</th>
-						<th class="text-center">N° CIS</th>
-						<th class="text-center">Date CIS</th>
-						<th class="text-center">Ag/Serv Travaux</th>
-						<th class="text-center">N° OR</th>
-						<th class="text-center">Date OR</th>
-						<th class="text-center">Ag/Serv Débiteur / Client</th>
-						<th class="text-center">N° ITV</th>
-						<th class="text-center">N° lig</th>
-						<th class="text-center">CST</th>
-						<th>Réf</th>
-						<th>Désignation</th>
-						<th class="text-center">Qté demandée</th>
-						<th class="text-center">Qté à traiter</th>
-					</tr>
-				</thead>
-				<tbody id="tableBody">
-					{% for item in data %}
+		<div class="container-fluid">
+			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark sticky-top">
 						<tr>
-							<td>
+							<th>
 								<i class="fas fa-ellipsis-vertical"></i>
-							</td>
-							<td class="text-center">{{item.numdit == null ? '-' : item.numdit}}</td>
-							<td class="text-center">{{item.numcis}}</td>
-							<td class="text-center">{{item.datecis | date('d/m/Y')}}</td>
-							<td class="text-center">{{item.agenceservicetravaux}}</td>
-							<td class="text-center">{{item.numor}}</td>
-							<td class="text-center">{{item.dateor | date('d/m/Y')}}</td>
-							<td class="text-center">{{item.agenceservicedebiteur}}</td>
-							<td class="text-center">{{item.nitv}}</td>
-							<td class="text-center">{{item.numligne}}</td>
-							<td class="text-center">{{item.cst}}</td>
-							<td>{{item.ref}}</td>
-							<td>{{item.designations}}</td>
-							<td class="text-center">{{item.qte_dem}}</td>
-							<td class="text-center">{{item.qte_a_traiter < 0 ? '' : item.qte_a_traiter}}</td>
+							</th>
+							<th class="text-center">N° DIT</th>
+							<th class="text-center">N° CIS</th>
+							<th class="text-center">Date CIS</th>
+							<th class="text-center">Ag/Serv Travaux</th>
+							<th class="text-center">N° OR</th>
+							<th class="text-center">Date OR</th>
+							<th class="text-center">Ag/Serv Débiteur / Client</th>
+							<th class="text-center">N° ITV</th>
+							<th class="text-center">N° lig</th>
+							<th class="text-center">CST</th>
+							<th>Réf</th>
+							<th>Désignation</th>
+							<th class="text-center">Qté demandée</th>
+							<th class="text-center">Qté à traiter</th>
 						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
+					</thead>
+					<tbody id="tableBody">
+						{% for item in data %}
+							<tr>
+								<td>
+									<i class="fas fa-ellipsis-vertical"></i>
+								</td>
+								<td class="text-center">{{item.numdit == null ? '-' : item.numdit}}</td>
+								<td class="text-center">{{item.numcis}}</td>
+								<td class="text-center">{{item.datecis | date('d/m/Y')}}</td>
+								<td class="text-center">{{item.agenceservicetravaux}}</td>
+								<td class="text-center">{{item.numor}}</td>
+								<td class="text-center">{{item.dateor | date('d/m/Y')}}</td>
+								<td class="text-center">{{item.agenceservicedebiteur}}</td>
+								<td class="text-center">{{item.nitv}}</td>
+								<td class="text-center">{{item.numligne}}</td>
+								<td class="text-center">{{item.cst}}</td>
+								<td>{{item.ref}}</td>
+								<td>{{item.designations}}</td>
+								<td class="text-center">{{item.qte_dem}}</td>
+								<td class="text-center">{{item.qte_a_traiter < 0 ? '' : item.qte_a_traiter}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/magasin/cis/ATraiter.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/magasin/main.js" type="module"></script>
 {% endblock %}
