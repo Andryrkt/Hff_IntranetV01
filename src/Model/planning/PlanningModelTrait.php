@@ -2,6 +2,8 @@
 
 namespace App\Model\planning;
 
+use App\Service\GlobalVariablesService;
+
 trait PlanningModelTrait
 {
     private function criterAnnee($criteria)
@@ -50,13 +52,13 @@ trait PlanningModelTrait
             $vtypeligne = " ";
             break;
         case "PIECES_MAGASIN":
-            $vtypeligne = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P' ";
+            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
             break;
         case "ACHAT_LOCAUX":
-            $vtypeligne = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
+            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
             break;
         case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp in ('LUB', 'JOV')  AND slor_typlig = 'P'";
+            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
             break;
         default:
             $vtypeligne = " ";

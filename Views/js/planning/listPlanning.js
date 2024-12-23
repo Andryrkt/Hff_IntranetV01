@@ -272,13 +272,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
           data.forEach((detail) => {
             console.log(detail);
 
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${
-              detail.commentaire 
-            } | `;
-            if(detail.plan == "PLANIFIE"){
-                Ornum.innerHTML += `planifié le : ${formaterDate(detail.dateplanning)}`;
-            }else{
-              Ornum.innerHTML += `date début : ${formaterDate(detail.dateplanning)}`;
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
+            if (detail.plan == "PLANIFIE") {
+              Ornum.innerHTML += `planifié le : ${formaterDate(
+                detail.dateplanning
+              )}`;
+            } else {
+              Ornum.innerHTML += `date début : ${formaterDate(
+                detail.dateplanning
+              )}`;
             }
             // Formater la date
             let dateEtaIvato;

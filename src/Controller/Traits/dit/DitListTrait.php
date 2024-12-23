@@ -13,6 +13,7 @@ use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\dit\DitRiSoumisAValidation;
+use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait DitListTrait
 {
@@ -477,7 +478,7 @@ trait DitListTrait
         return $ditSearch;
     }
 
-    private function DonnerAAjouterExcel($ditSearch, $options, $em): array
+    private function DonnerAAjouterExcel(DitSearch $ditSearch, $options, $em): array
     {
         $entities = $em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
 
@@ -532,5 +533,58 @@ trait DitListTrait
     {
         $this->sessionService->set('notification', ['type' => 'success', 'message' => $message]);
         $this->redirectToRoute("dit_index");
+    }
+
+    private function data($request, $ditListeModel, $ditSearch, $option, $em)
+    {
+        //recupère le numero de page
+        $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
+        $limit = 10;
+
+        //recupération des données filtrée
+        $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
+
+        //ajout de donner du statut achat piece dans data
+        $this->ajoutStatutAchatPiece($paginationData['data']);
+
+        //ajout de donner du statut achat locaux dans data
+        $this->ajoutStatutAchatLocaux($paginationData['data']);
+
+        //ajout nombre de pièce joint
+        $this->ajoutNbrPj($paginationData['data'], $em);
+
+        //recuperation de numero de serie et parc pour l'affichage
+        $this->ajoutNumSerieNumParc($paginationData['data']);
+
+        $this->ajoutQuatreStatutOr($paginationData['data']);
+
+        $this->ajoutConditionOrEqDit($paginationData['data']);
+
+        $this->ajoutri($paginationData['data'], $ditListeModel, $em);
+
+        $this->ajoutMarqueCasierMateriel($paginationData['data']);
+
+        $this->ajoutEstOrASoumis($paginationData['data'], $em);
+
+        return $paginationData;
+    }
+
+    private function ajoutEstOrASoumis($paginationData, $em)
+    {
+        foreach ($paginationData as $value) {
+            // Votre logique ici
+            $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
+
+            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) {
+                $value->setEstOrASoumi(true);
+            } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+                $value->setEstOrASoumi(false);
+            } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
+                $value->setEstOrASoumi(true);
+            } else {
+                $value->setEstOrASoumi(false);
+            }
+        }
     }
 }

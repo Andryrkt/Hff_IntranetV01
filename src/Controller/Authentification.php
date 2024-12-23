@@ -16,7 +16,6 @@ class Authentification extends Controller
     public function affichageSingnin(Request $request)
     {
         $error_msg = null;
-
         if ($request->isMethod('POST')) {
             $Username = $request->request->get('Username', '');
             $Password = $request->request->get('Pswd', '');
@@ -31,7 +30,7 @@ class Authentification extends Controller
 
                 if (!$this->ldap->userConnect($Username, $Password)) {
                     $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
-                    $error_msg = "Merci de vérifier votre session LDAP";
+                    $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
                     $this->sessionService->set('user', $Username);
                     $this->sessionService->set('password', $Password);

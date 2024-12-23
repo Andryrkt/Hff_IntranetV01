@@ -35,30 +35,33 @@ function applyRowspanAndClass(row, rowSpanCount) {
       cell.classList.add("rowspan-cell");
 
       if (key === "ditNumber") {
-        // Crée le rectangle
-        let rectangle = document.createElement("div");
-        //let matMarqueCasier = row.getElementsByTagName("td")[5]?.textContent.trim() || "N/A"; // Colonne 5, à ajuster
-        rectangle.textContent = "Loading ...";
-        rectangle.classList.add("rectangle");
-
-        // Ajouter le rectangle au début de la cellule
-        cell.insertBefore(rectangle, cell.firstChild);
-
-        // Récupérer la valeur de numOr
-        let numOr = row
-          .getElementsByTagName("td")
-          [cellIndices["orNumber"]]?.textContent.trim(); // Colonne définie par "orNumber" dans cellIndices
-        console.log(numOr);
-
-        // Passer la valeur de numOr et le rectangle à la fonction
-        if (numOr) {
-          NumMatMarqueCasier(numOr, rectangle);
-        } else {
-          console.error("numOr introuvable ou vide pour cette ligne.");
-        }
+        // miseEnPlaceRectangle(cell, row, cellIndices);
       }
     }
   });
+}
+
+function miseEnPlaceRectangle(cell, row, cellIndices) {
+  // Crée le rectangle
+  let rectangle = document.createElement("div");
+  //let matMarqueCasier = row.getElementsByTagName("td")[5]?.textContent.trim() || "N/A"; // Colonne 5, à ajuster
+  rectangle.textContent = "Loading ...";
+  rectangle.classList.add("rectangle");
+
+  // Ajouter le rectangle au début de la cellule
+  cell.insertBefore(rectangle, cell.firstChild);
+
+  // Récupérer la valeur de numOr
+  let numOr = row
+    .getElementsByTagName("td")
+    [cellIndices["orNumber"]]?.textContent.trim(); // Colonne définie par "orNumber" dans cellIndices
+
+  // Passer la valeur de numOr et le rectangle à la fonction
+  if (numOr) {
+    NumMatMarqueCasier(numOr, rectangle);
+  } else {
+    console.error("numOr introuvable ou vide pour cette ligne.");
+  }
 }
 
 function NumMatMarqueCasier(numOr, rectangle) {

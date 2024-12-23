@@ -492,6 +492,8 @@ class DemandeIntervention
 
     private $estOrEqDit;
 
+    private bool $estOrASoumi = false;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1494,6 +1496,28 @@ class DemandeIntervention
     public function setEstOrEqDit($estOrEqDit)
     {
         $this->estOrEqDit = $estOrEqDit;
+        return $this;
+    }
+
+
+
+    /**
+     * Get the value of estOrASoumi
+     */
+    public function getEstOrASoumi()
+    {
+        return $this->estOrASoumi;
+    }
+
+    /**
+     * Set the value of estOrASoumi
+     *
+     * @return  self
+     */
+    public function setEstOrASoumi($estOrASoumi)
+    {
+        $this->estOrASoumi = $estOrASoumi;
+
         return $this;
     }
 }
