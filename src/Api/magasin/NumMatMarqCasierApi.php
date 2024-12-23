@@ -20,11 +20,22 @@ class NumMatMarqCasierApi extends Controller
 
             $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
 
-            $numMatMarqCasier = [
-                'numMat' => $idMateriel,
-                'marque' => $marqueCasier[0]['marque'],
-                'casier' => $marqueCasier[0]['casier']
-            ];
+            //changer les elements du tableau
+            $numMatMarqCasier = array_map(function ($item) use ($idMateriel) {
+                return [
+                    'numMat' => $idMateriel,
+                    'numSerie' => $item['num_serie'],
+                    'numParc' => $item['num_parc'],
+                    'marque' => $item['marque'],
+                    'model' => $item['modele'],
+                    'designation' => $item['designation'],
+                    'casier' => $item['casier']
+                ];
+            }, $marqueCasier);
+
+            // Fusionner les résultats dans un seul tableau
+            $numMatMarqCasier = array_merge(...$numMatMarqCasier);
+
             header("Content-type:application/json");
 
             echo json_encode($numMatMarqCasier);

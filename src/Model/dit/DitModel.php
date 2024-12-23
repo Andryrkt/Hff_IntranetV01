@@ -495,14 +495,18 @@ class DitModel extends Model
     public function recupMarqueCasierMateriel($matricule)
     {
         $statement = "SELECT
-        mmat_nummat as num_matricule,
-        trim(mmat_marqmat) as marque,
-        trim(mmat_numparc) as casier
+          mmat_nummat as num_matricule,
+          trim(mmat_numserie) as num_serie,
+          trim(mmat_recalph) as num_parc ,
+          trim(mmat_marqmat) as marque,
+          trim(mmat_desi) as designation,
+          trim(mmat_typmat) as modele,
+          trim(mmat_numparc) as casier
 
-        from mat_mat
-        where mmat_nummat ='".$matricule."'
-        and MMAT_ETSTOCK in ('ST','AT', '--')
-        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+          from mat_mat
+          where mmat_nummat ='".$matricule."'
+          and MMAT_ETSTOCK in ('ST','AT', '--')
+          and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
         $result = $this->connect->executeQuery($statement);

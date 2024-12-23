@@ -7,7 +7,7 @@
 
 .rowspan-cell {
   position: relative; /* Positionner le rectangle par rapport à la cellule */
-  padding-top: 22px !important; /*Ajouter un espace en haut pour le rectangle*/
+  padding-top: 50px !important; /*Ajouter un espace en haut pour le rectangle*/
 }
 
 .rectangle {
@@ -17,13 +17,14 @@
   background-color: #FBBB01; /* Couleur du rectangle */
   color: #000; /* Couleur du texte */
   padding: 3px;
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   font-weight: bold;
   border-radius: 3px;
   display: block !important;
-  z-index: 0; /* S'assurer que le rectangle reste visible */
+  z-index: 1000; /* S'assurer que le rectangle reste visible */
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2); /* Ajouter une ombre pour le style */
   white-space: nowrap; /* Empêche les retours à la ligne */
+  text-align: left;
 }
 
 /* Augmenter la largeur de la modale */

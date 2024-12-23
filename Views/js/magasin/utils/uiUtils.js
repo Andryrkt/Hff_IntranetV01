@@ -87,3 +87,13 @@ export function populateServiceOptions(services, serviceInput) {
     console.log("Value:", option.value, "Text:", option.text);
   }
 }
+
+export function contenuInfoMateriel(data, rectangle) {
+  // Ajouter le contenu au rectangle
+  const contenu = `
+   ID mat : ${data.numMat} | Parc : ${data.numParc} | S/N : ${data.numSerie}<br/>
+   ${data.marque} | ${data.model} | ${data.designation}<br/>
+   Casier : ${data.casier}<br/>
+ `;
+  rectangle.innerHTML = contenu || "N/A";
+}

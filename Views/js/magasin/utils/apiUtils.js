@@ -1,5 +1,5 @@
 import { toggleSpinner } from "./spinnerUtils.js";
-import { populateServiceOptions } from "./uiUtils.js";
+import { populateServiceOptions, contenuInfoMateriel } from "./uiUtils.js";
 
 export function fetchNumMatMarqueCasier(numOr, rectangle) {
   const url = `/Hffintranet/api/numMat-marq-casier/${numOr}`;
@@ -11,8 +11,8 @@ export function fetchNumMatMarqueCasier(numOr, rectangle) {
       return response.json();
     })
     .then((data) => {
-      const contenu = `${data.numMat} | ${data.marque} | ${data.casier}`;
-      rectangle.textContent = contenu || "N/A";
+      // Ajouter le contenu au rectangle
+      contenuInfoMateriel(data, rectangle);
     })
     .catch((error) => {
       console.error("Erreur :", error);
