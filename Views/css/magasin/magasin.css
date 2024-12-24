@@ -1,0 +1,81 @@
+/* Variables globales */
+:root {
+    --rectangle-bg: #FBBB01;
+    --rectangle-text-color: #000;
+    --spinner-color: #000;
+    --spinner-width: 2px;
+    --spinner-height: 5px;
+    --spinner-opacity-low: 0.2;
+    --spinner-opacity-high: 1;
+  }
+  
+  /* Texte en gras et rouge */
+  .textColor {
+    font-weight: bold;
+    color: red !important;
+  }
+  
+  /* Cellule avec rectangle */
+  .rowspan-cell {
+    position: relative; /* Positionner le rectangle par rapport à la cellule */
+    padding-top: 50px !important; /* Ajouter un espace en haut pour le rectangle */
+  }
+  
+  .rectangle {
+    position: absolute;
+    top: 0 !important;
+    left: 0 !important;
+    background-color: var(--rectangle-bg);
+    color: var(--rectangle-text-color);
+    padding: 3px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    border-radius: 3px;
+    display: block !important;
+    z-index: 1000; /* Garder le rectangle visible */
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    text-align: left;
+  }
+  
+  /* Largeur personnalisée pour la modale */
+  .modal-dialog.custom-width {
+    max-width: 60%;
+  }
+  
+  /* Spinner */
+  .spinner {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    margin-left: 15px;
+  }
+  
+  .spinner div {
+    position: absolute;
+    width: var(--spinner-width);
+    height: var(--spinner-height);
+    background: var(--spinner-color);
+    border-radius: 3px;
+    transform-origin: center 10px;
+    animation: fade 1.2s linear infinite;
+  }
+  
+  /* Générer les positions des barres avec un préprocesseur CSS */
+  @for $i from 1 through 12 {
+    .spinner div:nth-child(#{$i}) {
+      transform: rotate(calc((#{$i} - 1) * 30deg));
+      animation-delay: calc(-1.2s + ((#{$i} - 1) * 0.1s));
+    }
+  }
+  
+  /* Animation pour les barres */
+  @keyframes fade {
+    0%, 100% {
+      opacity: var(--spinner-opacity-low);
+    }
+    50% {
+      opacity: var(--spinner-opacity-high);
+    }
+  }
+  
