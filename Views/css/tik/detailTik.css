@@ -185,7 +185,7 @@ label[for='historiqueStatut'] {
 }
 .user {
   display: block;
-  width: 50px;
+  width: 60px;
   align-self: flex-start;
   text-align: center;
 }
