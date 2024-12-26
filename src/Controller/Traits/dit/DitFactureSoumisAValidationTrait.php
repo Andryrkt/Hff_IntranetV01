@@ -76,13 +76,13 @@ trait DitFactureSoumisAValidationtrait
     {
         $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
         
-        if($quantiter[0]['quantitelivree'] = 0){
+        if((int)$quantiter[0]['quantitelivree'] == 0){
             return "Validé";
-        } elseif ($quantiter[0]['quantitelivree'] < $quantiter[0]['quantitedemander']) {
-            return "Livré partiellement";
-        } elseif ($quantiter[0]['quantitelivree'] = $quantiter[0]['quantitedemander']) {
+        } elseif ((int)$quantiter[0]['quantitelivree'] == (int)$quantiter[0]['quantitedemander']) {
             return "Livré";
-        }
+        } elseif ((int)$quantiter[0]['quantitelivree'] < (int)$quantiter[0]['quantitedemander']) {
+            return "Livré partiellement";
+        } 
     }
 
     private function affectationStatutFac($em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)

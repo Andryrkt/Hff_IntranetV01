@@ -265,7 +265,7 @@ class DitFactureSoumisAValidationModel extends Model
                 
                 where 
                 slor_soc = 'HF'
-                and slor_succ = '01'
+                --and slor_succ = '01'
                 --and slor_typlig = 'P'
                 and seor_serv ='SAV'
                 and slor_constp in (".GlobalVariablesService::get('tous').")
