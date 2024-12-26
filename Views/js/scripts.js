@@ -10,8 +10,8 @@ let timeout;
 const totalTime = 900; // Total en secondes (15 minutes)
 let timeRemaining = totalTime;
 
-const chronoText = document.getElementById("chrono-text");
-const chronoProgress = document.querySelector(".chrono-progress");
+const chronoText = document.getElementById('chrono-text');
+const chronoProgress = document.querySelector('.chrono-progress');
 
 //Calcul du périmètre du cercle (2 * PI * r)
 const radius = 45;
@@ -28,20 +28,23 @@ function updateChrono() {
   // Calculer le pourcentage de progression
   const progressPercentage = timeRemaining / totalTime;
   const dashOffset = circumference * (1 - progressPercentage);
-  chronoProgress.style.strokeDashoffset = dashOffset;
+  if (chronoProgress?.style) {
+    chronoProgress.style.strokeDashoffset = dashOffset;
+  }
 
   // Mettre à jour le texte
   const hours = Math.floor(timeRemaining / 3600);
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = timeRemaining % 60;
-  chronoText.textContent = `${hours}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-
+  if (chronoText?.textContent) {
+    chronoText.textContent = `${hours}:${minutes
+      .toString()
+      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
   // Rediriger à la fin
   if (timeRemaining <= 0) {
     clearInterval(timer);
-    window.location.href = "/Hffintranet/logout";
+    window.location.href = '/Hffintranet/logout';
   }
 }
 
@@ -62,18 +65,18 @@ function resetTimeout() {
 
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
-    window.location.href = "/Hffintranet/logout"; // URL de déconnexion
+    window.location.href = '/Hffintranet/logout'; // URL de déconnexion
   }, 900000); // 15 minutes
 }
 
 // Définir les événements pour détecter l'activité utilisateur
 const events = [
-  "load",
-  "mousemove",
-  "keypress",
-  "touchstart",
-  "click",
-  "scroll",
+  'load',
+  'mousemove',
+  'keypress',
+  'touchstart',
+  'click',
+  'scroll',
 ];
 events.forEach((event) => window.addEventListener(event, resetTimeout));
 
@@ -83,7 +86,7 @@ resetTimeout();
 /**
  * POUR LE TOOLTIP
  */
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   var tooltipTriggerList = [].slice.call(
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
