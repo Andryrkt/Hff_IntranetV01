@@ -499,6 +499,8 @@ class DetailTikController extends Controller
     {
         $email = new EmailService;
 
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
+
         $content['cc'] = $content['cc'] ?? [];
 
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
