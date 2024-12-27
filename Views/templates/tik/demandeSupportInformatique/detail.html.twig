@@ -154,24 +154,29 @@
 
 										</div>
 										<div class="col-12 col-md-4">
-											{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+											<div class="mb-3">
+												{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
 												{{ form_widget(form.niveauUrgence) }}
-												{{form_row(form.intervenant)}}
-												{% include "tik/demandeSupportInformatique/shared/_userStat.html.twig" %}
-												<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
-													Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
-												</div>
 											</div>
-											<div class="col-12 col-md-4">
-												{{form_row(form.dateDebutPlanning)}}
-												{{form_row(form.dateFinPlanning)}}
-												<div class="error-message error-message-date text-bg-danger rounded p-2">
-													La date de fin pour le planning doit être supérieur à celui de la date de début.
-												</div>
+											
+											{{form_row(form.intervenant)}}
+											
+											{% include "tik/demandeSupportInformatique/shared/_userStat.html.twig" %}
+											
+											<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
+												Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
 											</div>
-											{# FIN Intervention #}
 										</div>
+										<div class="col-12 col-md-4">
+											{{form_row(form.dateDebutPlanning)}}
+											{{form_row(form.dateFinPlanning)}}
+											<div class="error-message error-message-date text-bg-danger rounded p-2">
+												La date de fin pour le planning doit être supérieur à celui de la date de début.
+											</div>
+										</div>
+										{# FIN Intervention #}
 									</div>
+								</div>
 									{# FIN COLONNE 1 #}
 
 									{# DEBUT COLONNE 2 #}

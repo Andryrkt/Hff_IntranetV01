@@ -47,6 +47,9 @@ class DemandeSupportInformatiqueController extends Controller
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
 
+            $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
+            $supportInfo->setDetailDemande($text);
+
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
