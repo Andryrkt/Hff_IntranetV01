@@ -29,7 +29,6 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -93,10 +92,26 @@ class DitListeController extends Controller
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
+
         $this->dossierDit($request, $formDocDansDW);
 
+        $criteriaTab = $criteria;
+
+        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+
         // Filtrer les critères pour supprimer les valeurs "falsy"
-        $filteredCriteria = array_filter($criteria);
+        $filteredCriteria = array_filter($criteriaTab);
+
+        dump($ditSearch, $criteria, $filteredCriteria);
 
         // Déterminer le type de log
         $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
