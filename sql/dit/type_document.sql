@@ -80,5 +80,13 @@ VALUES
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'DEV', 
+        'DEVIS', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
     )
 ;
