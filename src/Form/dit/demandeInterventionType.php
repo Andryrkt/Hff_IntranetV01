@@ -28,6 +28,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
@@ -41,8 +42,12 @@ class demandeInterventionType extends AbstractType
     ];
 
     const REPARATION_REALISE = [
-        'ATELIER' => 'ATELIER',
-        'ENERGIE' => 'ENERGIE'
+        'ATE TANA' => 'ATE TANA',
+        'ATE STAR' => 'ATE STAR',
+        'ATE MAS' => 'ATE MAS',
+        'ATE TMV' => 'ATE TMV',
+        'ATE FTU' => 'ATE FTU',
+        'ATE ABV' => 'ATE ABV',
     ];
 
     const INTERNE_EXTERNE = [
@@ -146,7 +151,7 @@ class demandeInterventionType extends AbstractType
             [
                 'label' => "Type de réparation *",
                 'choices' => self::TYPE_REPARATION,
-                'placeholder' => '-- Choisir un type de réparation --',
+                'placeholder' => false,
                 'required' => true,
                 'data' => 'A REALISER',
                 'constraints' => [
@@ -161,7 +166,6 @@ class demandeInterventionType extends AbstractType
                 'choices' => self::REPARATION_REALISE,
                 'placeholder' => '-- Choisir le répartion réalisé --',
                 'required' => true,
-                'data' => 'ATELIER',
                 'constraints' => [
                         new Assert\NotBlank(['message'=>'le réparation réalisé par doit être sélectionné'])
                     ]
@@ -182,7 +186,7 @@ class demandeInterventionType extends AbstractType
             [
                 'label' => "Interne et Externe *",
                 'choices' => self::INTERNE_EXTERNE,
-                'placeholder' => '-- Choisir --',
+                'placeholder' => false,
                 'data' => 'INTERNE',
             'required' => false,
             'attr' => [ 'class' => 'interneExterne']
@@ -260,7 +264,16 @@ class demandeInterventionType extends AbstractType
                     'class' => 'numTel noEntrer'
                 ]
             ])
-            
+            ->add('mailClient', 
+            EmailType::class, 
+            [
+                'label' => "E-mail du client (*EXTERNE)",
+                'required' => false,
+                'attr' => [ 'class' => 'clientSousContrat'],
+                'constraints' => [
+                        new Assert\NotBlank(['message'=>'l\'email du client ne doit pas être vide'])
+                    ]
+            ])
 
             ->add('datePrevueTravaux', DateType::class, [
                 'widget' => 'single_text',
@@ -276,7 +289,7 @@ class demandeInterventionType extends AbstractType
             [
                 'label' => "Demande de devis *",
                 'choices' => self::OUI_NON,
-                'placeholder' => '-- Choisir --',
+                'placeholder' => false,
                 'required' => false,
                 'data' => 'NON',
                 'attr' => [
@@ -287,7 +300,7 @@ class demandeInterventionType extends AbstractType
             EntityType::class, [
                 'label' => 'Niveau d\'urgence *',
                 'label_html' => true,
-                'placeholder' => '-- Choisir un niveau --',
+                'placeholder' => false,
                 'class' => WorNiveauUrgence::class,
                 'choice_label' =>'description',
                 'required' => false,
@@ -301,18 +314,11 @@ class demandeInterventionType extends AbstractType
             [
                 'label' => "Avis de recouvrement *",
                 'choices' => self::OUI_NON,
+                'placeholder' => false,
             'required' => false,
             'data' => 'NON'
             ])
-            ->add('clientSousContrat', 
-            ChoiceType::class, 
-            [
-                'label' => "Client sous contrat (*EXTERNE)",
-                'choices' => self::OUI_NON,
-            'required' => false,
-            'data' => 'NON',
-            'attr' => [ 'class' => 'clientSousContrat']
-            ])
+            
             ->add('objetDemande',
             TextType::class,
             [
@@ -345,8 +351,9 @@ class demandeInterventionType extends AbstractType
             [
                 'label' => "Livraison Partielle *",
                 'choices' => self::OUI_NON,
-            'required' => false,
-            'data' => 'NON'
+                'placeholder' => false,
+                'required' => false,
+                'data' => 'NON'
             ])
         ->add('idMateriel', 
         TextType::class, [

@@ -74,7 +74,7 @@ class DemandeSupportInformatiqueController extends Controller
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
      * @param DemandeIntervention $demandeIntervention
-     * @param [type] $em
+     * @param User $user
      * @return void
      */
     private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)

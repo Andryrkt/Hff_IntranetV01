@@ -62,6 +62,7 @@ class DitController extends Controller
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
             //récupération des historique de materiel (informix)
             $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
