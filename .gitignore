@@ -13,3 +13,4 @@ configuration_prod.txt
 src/Controller/pdf/
 Dossiers ORs
 react-app
+.vscode
