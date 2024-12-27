@@ -30,7 +30,7 @@
 									<div class="msg-file align-items-end">
 									{% endif %}
 									<div class="msg">
-										<p>{{ item.commentaires }}</p>
+										<p>{{ item.commentaires | raw }}</p>
 										<span class="time">{{ item.dateCreation|date('H:i') }}</span>
 									</div>
 									{% for fileName in item.fileNames %}
