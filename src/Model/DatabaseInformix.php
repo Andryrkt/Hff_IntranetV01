@@ -20,7 +20,7 @@ class DatabaseInformix
             $this->user = $_ENV['DB_USERNAME_INFORMIX'];
             $this->password = $_ENV['DB_PASSWORD_INFORMIX'];
             
-            if (empty($this->DB) || empty($this->User) || empty($this->pswd)) {
+            if (empty($this->dsn) || empty($this->user) || empty($this->password)) {
                 throw new \Exception("Les informations de connexion à la base de données sont incomplètes.");
             }
 

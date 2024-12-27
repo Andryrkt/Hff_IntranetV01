@@ -9,8 +9,8 @@ class LdapModel
     private $ldapconn;
     private $Domain = "@fraise.hff.mg";
     private $ldap_dn = "OU=HFF Users,DC=fraise,DC=hff,DC=mg";
-    private $Users = 'lanto';
-    private $Password = '@Andryrkt0719*';
+    private $Users;
+    private $Password;
 
     public function __construct()
     {
@@ -49,20 +49,18 @@ class LdapModel
     }
 
 
-public function infoUser($user, $password): array
-{
-     ldap_bind($this->ldapconn, $user . $this->Domain, $password);
-            // Recherche dans l'annuaire LDAP
-        $search_filter = "(objectClass=*)";
-        $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
+    public function infoUser($user, $password): array
+    {
+        ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+                // Recherche dans l'annuaire LDAP
+            $search_filter = "(objectClass=*)";
+            $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
 
-   
-            
-    if (!$search_result) {
-        echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
-        return [];
-    }
-       
+        if (!$search_result) {
+            echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
+            return [];
+        }
+    
 
         // Récupération des entrées
         $entries = ldap_get_entries($this->ldapconn, $search_result);
@@ -77,19 +75,19 @@ public function infoUser($user, $password): array
             //if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
                 if(isset($entries[$i]["userprincipalname"][0]) ){
                     
-                $data[$entries[$i]["samaccountname"][0]] = [
-                    "nom" => $entries[$i]["sn"][0] ?? '',
-                    "prenom" => $entries[$i]["givenname"][0] ?? '',
-                    "nomPrenom" => $entries[$i]["name"][0],
-                    "fonction" => $entries[$i]["description"][0] ?? '',
-                    "numeroTelephone" => $entries[$i]["telephonenumber"][0] ?? '',
-                    "nomUtilisateur"=> $entries[$i]["samaccountname"][0],
-                    "email" => $entries[$i]["mail"][0] ?? '',
-                    "nameUserMain" => $entries[$i]["userprincipalname"][0]
-                ];
+                    $data[$entries[$i]["samaccountname"][0]] = [
+                        "nom" => $entries[$i]["sn"][0] ?? '',
+                        "prenom" => $entries[$i]["givenname"][0] ?? '',
+                        "nomPrenom" => $entries[$i]["name"][0],
+                        "fonction" => $entries[$i]["description"][0] ?? '',
+                        "numeroTelephone" => $entries[$i]["telephonenumber"][0] ?? '',
+                        "nomUtilisateur"=> $entries[$i]["samaccountname"][0],
+                        "email" => $entries[$i]["mail"][0] ?? '',
+                        "nameUserMain" => $entries[$i]["userprincipalname"][0]
+                    ];
+                }
             }
-            }
-       } else {
+        } else {
             echo "Aucune entrée trouvée.\n";
         }
 
@@ -98,7 +96,7 @@ public function infoUser($user, $password): array
         // ldap_unbind($this->ldapconn);
 
         return $data;
-}
+    }
     // public function searchLdapUser()
     // {
     //     // Requête LDAP pour récupérer tous les utilisateurs
