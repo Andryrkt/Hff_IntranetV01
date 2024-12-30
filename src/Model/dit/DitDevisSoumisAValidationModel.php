@@ -27,9 +27,10 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupDevisSoumisValidation($numDevis)
     {
       $statement = "SELECT
+          sitv_succdeb as SERV_DEBITEUR,  
           slor_numor,
           sitv_datdeb,
-          trim(seor_refdem) as NUMERo_DIT,
+          trim(seor_refdem) as NUMERO_DIT,
           sitv_interv as NUMERO_ITV,
           trim(sitv_comment) as LIBELLE_ITV,
           count(slor_constp) as NOMBRE_LIGNE,
@@ -117,7 +118,7 @@ class DitDevisSoumisAValidationModel extends Model
           --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '".$numDevis."'
           --AND SEOR_SUCC = '01'
-          group by 1, 2, 3, 4, 5
+          group by 1, 2, 3, 4, 5, 6
           order by slor_numor, sitv_interv
         ";
 

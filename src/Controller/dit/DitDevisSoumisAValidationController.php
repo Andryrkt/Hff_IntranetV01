@@ -24,6 +24,10 @@ class DitDevisSoumisAValidationController extends Controller
     
     public function __construct()
     {
+        // Appeler le constructeur parent
+        parent::__construct();
+
+        // Initialisation des propriétés
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
     }
@@ -46,23 +50,46 @@ class DitDevisSoumisAValidationController extends Controller
         { 
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
-            $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
-            
-            /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            $this->envoieDonnerDansBd($devisSoumisValidataion);
-            
-            $fileName = $this->enregistrementFichier($form);
-            $this->evoieDansDw($fileName); // copier le fichier dan sdocuware
-            $this->historique($fileName); //remplir la table historique
+            if(empty($devisSoumisAValidationInformix )) {
+                $message = "l'information de la devis n'est pas recupérer";
+                $this->notification($message);
+            }
 
+            $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
+            $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] <> '';
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le devis a été soumis avec succès']);
-            $this->redirectToRoute("dit_index");
+            if($conditionDitIpsDiffDitSqlServ) {
+                $message = "Echec lors de la soumission, le numero DIT dans IPS ne correspond pas à la DIT";
+                $this->notification($message);
+            } elseif ($conditionServDebiteurvide) {
+                $message = "Echec lors de la soumission, le service débiteur n'est pas vide";
+                $this->notification($message);
+            } else {
+                $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
+                
+                /** ENVOIE des DONNEE dans BASE DE DONNEE */
+                $this->envoieDonnerDansBd($devisSoumisValidataion);
+                
+                $fileName = $this->enregistrementFichier($form);
+                $this->evoieDansDw($fileName); // copier le fichier dans docuware
+                $this->historique($fileName); //remplir la table historique
+                
+                
+                $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le devis a été soumis avec succès']);
+                $this->redirectToRoute("dit_index");
+            }
         }
 
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function notification($message)
+    {
+        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->redirectToRoute("dit_index");
+        exit();
     }
 
     private function envoieDonnerDansBd($devisSoumisValidataion) 
