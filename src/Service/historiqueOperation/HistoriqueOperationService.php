@@ -253,4 +253,25 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     {
         $this->enregistrer($numeroDocument, $typeOperationId, 10, $statutOperation, $libelleOperation);
     }
+
+    /** 
+     * Méthode qui enregistre l'historique de l'opération fait sur le document DEV: DEVIS
+     * 
+     * @param string $numeroDocument numéro du document
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *        - 1 : SOUMISSION
+     *        - 2 : VALIDATION
+     *        - 3 : MODIFICATION
+     *        - 4 : SUPPRESSION
+     *        - 5 : CREATION
+     *        - 6 : CLOTURE
+     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
+     *        - Succès
+     *        - Erreur
+     * @param string|null $libelleOperation libellé de l'opération
+     */
+    public function enregistrerDEV(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    {
+        $this->enregistrer($numeroDocument, $typeOperationId, 11, $statutOperation, $libelleOperation);
+    }
 }

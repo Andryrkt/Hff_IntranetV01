@@ -111,8 +111,6 @@ class DitListeController extends Controller
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
 
-        dump($ditSearch, $criteria, $filteredCriteria);
-
         // Déterminer le type de log
         $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
 
@@ -121,14 +119,14 @@ class DitListeController extends Controller
 
 
         self::$twig->display('dit/list.html.twig', [
-            'data' => $paginationData['data'],
-            'currentPage' => $paginationData['currentPage'],
-            'totalPages' => $paginationData['lastPage'],
-            'criteria' => $criteria,
-            'resultat' => $paginationData['totalItems'],
-            'statusCounts' => $paginationData['statusCounts'],
-            'form' => $form->createView(),
-            'criteria' => $criteria,
+            'data'          => $paginationData['data'],
+            'currentPage'   => $paginationData['currentPage'],
+            'totalPages'    => $paginationData['lastPage'],
+            'criteria'      => $criteria,
+            'resultat'      => $paginationData['totalItems'],
+            'statusCounts'  => $paginationData['statusCounts'],
+            'form'          => $form->createView(),
+            'criteria'      => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
