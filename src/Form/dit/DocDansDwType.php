@@ -26,7 +26,7 @@ class  DocDansDwType extends AbstractType
             ChoiceType::class,
             [
                 'label' => 'Docs à intégrer dans DW',
-                'choices' => self::DOC_DANS_DW,
+                'choices' => [],
                 'placeholder' => '--',
             ])
             ->add('numeroDit',

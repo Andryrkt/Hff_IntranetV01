@@ -49,6 +49,7 @@ agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
 
 function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
+  console.log(agenceDebiteur);
 
   // Efface les options si nécessaire, et sort si `agenceDebiteur` est vide
   if (DeleteContentService(agenceDebiteur, serviceDebiteurInput)) {
@@ -70,18 +71,45 @@ function selectAgenceDebiteur() {
     );
 }
 
+/**
+ * supprimer les options à une liste déroulante.
+ * @param {HTMLElement} selectElement - Élément HTML de type <select> où on supprime les options.
+ */
+function supprimLesOptions(selectElement) {
+  while (selectElement.options.length > 0) {
+    selectElement.remove(0);
+  }
+}
+
+/**
+ * Ajoute une option par défaut à un élément <select>.
+ * @param {HTMLSelectElement} selectElement - L'élément <select> cible.
+ * @param {string} placeholder - Le texte affiché pour l'option par défaut.
+ */
+function optionParDefaut(selectElement, placeholder = "") {
+  if (!(selectElement instanceof HTMLSelectElement)) {
+    throw new Error("Le premier argument doit être un élément <select>.");
+  }
+
+  // Vérifier si une option par défaut existe déjà
+  if (
+    selectElement.options.length === 0 ||
+    selectElement.options[0].value !== ""
+  ) {
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = placeholder || " -- Choisir une option -- ";
+    selectElement.add(defaultOption, 0); // Ajouter en première position
+  }
+}
+
 function DeleteContentService(agenceValue, serviceInput) {
   if (agenceValue === "") {
     // Supprime toutes les options
-    while (serviceInput.options.length > 0) {
-      serviceInput.remove(0);
-    }
+    supprimLesOptions(serviceInput);
 
     // Ajoute l'option par défaut
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceInput.add(defaultOption);
+    optionParDefaut(serviceInput, " -- Choisir une option -- ");
 
     // Indique qu'il faut sortir de la fonction appelante
     return true;
@@ -95,30 +123,40 @@ function toggleSpinner(spinnerService, serviceContainer, show) {
   serviceContainer.style.display = show ? "none" : "block";
 }
 
-function updateServiceOptions(services, serviceInput) {
-  // Supprimer toutes les options existantes
-  while (serviceInput.options.length > 0) {
-    serviceInput.remove(0);
-  }
-
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.text = " -- Choisir une service -- ";
-  serviceInput.add(defaultOption);
-
-  // Ajouter les nouvelles options à partir du tableau services
-  for (var i = 0; i < services.length; i++) {
+/**
+ * Ajoute des options à une liste déroulante.
+ * @param {Array} optionsArray - Tableau contenant les objets avec les propriétés `value` et `text`.
+ * @param {HTMLElement} selectElement - Élément HTML de type <select> où ajouter les options.
+ */
+function populateSelect(optionsArray, selectElement) {
+  // Ajouter les nouvelles options
+  for (var i = 0; i < optionsArray.length; i++) {
     var option = document.createElement("option");
-    option.value = services[i].value;
-    option.text = services[i].text;
-    serviceInput.add(option);
+    option.value = optionsArray[i].value;
+    option.text = optionsArray[i].text;
+    selectElement.add(option);
   }
+}
 
-  //Afficher les nouvelles valeurs et textes des options
-  for (var i = 0; i < serviceInput.options.length; i++) {
-    var option = serviceInput.options[i];
+function affichageValeurConsoleLog(selectElement) {
+  for (var i = 0; i < selectElement.options.length; i++) {
+    var option = selectElement.options[i];
     console.log("Value: " + option.value + ", Text: " + option.text);
   }
+}
+
+function updateServiceOptions(services, serviceInput) {
+  // Supprimer toutes les options existantes
+  supprimLesOptions(serviceInput);
+
+  // Ajoute l'option par défaut
+  optionParDefaut(serviceInput, " -- Choisir une option -- ");
+
+  // Ajouter les nouvelles options
+  populateSelect(services, serviceInput);
+
+  //Afficher les nouvelles valeurs et textes des options
+  affichageValeurConsoleLog(serviceInput);
 }
 
 /**
@@ -260,28 +298,59 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const docDansDwModal = document.getElementById("docDansDw");
   const numeroDitInput = document.querySelector("#numeroDit");
   const numDitHiddenInput = document.querySelector("#doc_dans_dw_numeroDit");
+  const selecteInput = document.querySelector("#doc_dans_dw_docDansDW");
+  const spinnerSelect = document.getElementById("spinner-doc-soumis");
+  const selectContainer = document.getElementById("container-doc-soumis");
 
   docDansDwModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget;
     const numDit = button.getAttribute("data-id");
+    recupDonnerDevis(numDit);
     numeroDitInput.innerHTML = numDit;
     numDitHiddenInput.value = numDit;
   });
 
   // Gestionnaire pour la fermeture du modal
   docDansDwModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("doc_dans_dw_docDansDW");
-    tableBody.innerHTML = ""; // Vider le tableau
+    supprimLesOptions(selecteInput);
   });
 
   function recupDonnerDevis(numDit) {
-    const url = `Hffintranet/constraint-soumission/${numDit}`;
+    const url = `/Hffintranet/constraint-soumission/${numDit}`;
+    toggleSpinner(spinnerSelect, selectContainer, true);
     fetch(url)
       .then((response) => response.json())
       .then((docDansDw) => {
-        console.log(docDansDw);
+        console.log(docDansDw[0]);
+        let docASoumettre = valeurDocASoumettre(docDansDw[0]);
+        updateServiceOptions(docASoumettre, selecteInput);
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error("Error:", error))
+      .finally(() => toggleSpinner(spinnerSelect, selectContainer, false));
+  }
+
+  /**
+   * Détermine les documents à soumettre en fonction des conditions.
+   * @param {Object} docDansDw - L'objet contenant les informations nécessaires.
+   * @returns {Array} - Un tableau d'objets avec `value` et `text`.
+   */
+  function valeurDocASoumettre(docDansDw) {
+    let docASoumettre = [];
+
+    if (
+      docDansDw.client === "EXTERNE" &&
+      docDansDw.statut === "AFFECTEE SECTION"
+    ) {
+      docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
+    } else {
+      docASoumettre = [
+        { value: "OR", text: "OR" },
+        { value: "RI", text: "RI" },
+        { value: "FACTURE", text: "FACTURE" },
+      ];
+    }
+
+    return docASoumettre; // Retourne le tableau
   }
 });
 
