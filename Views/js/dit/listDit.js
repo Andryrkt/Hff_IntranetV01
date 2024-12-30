@@ -321,8 +321,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     fetch(url)
       .then((response) => response.json())
       .then((docDansDw) => {
-        console.log(docDansDw[0]);
-        let docASoumettre = valeurDocASoumettre(docDansDw[0]);
+        console.log(docDansDw);
+        let docASoumettre = valeurDocASoumettre(docDansDw);
         updateServiceOptions(docASoumettre, selecteInput);
       })
       .catch((error) => console.error("Error:", error))
@@ -339,9 +339,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     if (
       docDansDw.client === "EXTERNE" &&
-      docDansDw.statut === "AFFECTEE SECTION"
+      docDansDw.statutDit === "AFFECTEE SECTION" &&
+      docDansDw.statutDevis !== "Validé"
     ) {
       docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
+    } else if (
+      docDansDw.client === "EXTERNE" &&
+      docDansDw.statutDevis === "Validé"
+    ) {
+      docASoumettre = [
+        { value: "DEVIS", text: "DEVIS" },
+        { value: "BC", text: "BC" },
+      ];
     } else {
       docASoumettre = [
         { value: "OR", text: "OR" },
