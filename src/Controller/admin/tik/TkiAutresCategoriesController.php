@@ -11,21 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class TkiAutresCategoriesController extends Controller
 {
     /**
-     * @Route("/admin/tki-autres-categories-liste", name="tki_autres_categories_index")
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $data = self::$em->getRepository(TkiAutresCategorie::class)->findBy([], ['id'=>'DESC']);
-
-        self::$twig->display('admin/tik/autresCategories/list.html.twig', 
-        [
-            'data' => $data
-        ]);
-    }
-
-    /**
      * @Route("/admin/tki-autres-categories-new", name="tki_autres_categories_new")
      *
      * @return void
@@ -33,11 +18,10 @@ class TkiAutresCategoriesController extends Controller
     public function new(Request $request)
     {
         $form = self::$validator->createBuilder(TkiAutresCategorieType::class)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $autresCategorie = $form->getData();
 
             self::$em->persist($autresCategorie);
@@ -46,10 +30,12 @@ class TkiAutresCategoriesController extends Controller
             $this->redirectToRoute("tki_autres_categories_index");
         }
 
-        self::$twig->display('admin/tik/autresCategories/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        self::$twig->display(
+            'admin/tik/autresCategories/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -62,7 +48,7 @@ class TkiAutresCategoriesController extends Controller
     public function edit(Request $request, int $id)
     {
         $autresCategorie = self::$em->getRepository(TkiAutresCategorie::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(TkiAutresCategorieType::class, $autresCategorie)->getForm();
 
         $form->handleRequest($request);
@@ -79,17 +65,17 @@ class TkiAutresCategoriesController extends Controller
     }
 
     /**
-    * @Route("/admin/tki-autres-categories-delete/{id}", name="tki_autres_categories_delete")
-    *
-    * @return void
-    */
+     * @Route("/admin/tki-autres-categories-delete/{id}", name="tki_autres_categories_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
         $categorie = self::$em->getRepository(TkiAutresCategorie::class)->find($id);
-        
-                self::$em->remove($categorie);
-                self::$em->flush();
-        
+
+        self::$em->remove($categorie);
+        self::$em->flush();
+
         $this->redirectToRoute("tki_autres_categories_index");
     }
 }
