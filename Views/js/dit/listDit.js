@@ -270,9 +270,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // Gestionnaire pour la fermeture du modal
   docDansDwModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
+    const tableBody = document.getElementById("doc_dans_dw_docDansDW");
     tableBody.innerHTML = ""; // Vider le tableau
   });
+
+  function recupDonnerDevis(numDit) {
+    const url = `Hffintranet/constraint-soumission/${numDit}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((docDansDw) => {
+        console.log(docDansDw);
+      })
+      .catch((error) => console.error("Error:", error));
+  }
 });
 
 /**

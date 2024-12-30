@@ -125,7 +125,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationStatutOr($numDit);
                 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                $this->envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis);
+                $this->envoieDonnerDansBd($orSoumisValidataion);
 
                 // Persist l'historique avec les entités liées
                 $this->envoieDonnerHistoriqueDocument($ditInsertionOrSoumis);

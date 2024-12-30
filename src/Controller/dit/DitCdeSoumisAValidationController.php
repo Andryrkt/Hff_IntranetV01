@@ -34,7 +34,7 @@ class DitCdeSoumisAValidationController extends Controller
         if($form->isSubmitted() && $form->isValid())
         {
             $fileName = $this->enregistrementFichier($form);
-            $this->historique($ditCdeSoumisAValidation, $fileName);
+            $this->historique($fileName);
 
 
             $this->sessionService->set('notification',['type' => 'success', 'message' => 'La commande a été soumis avec succès']);
@@ -66,7 +66,7 @@ class DitCdeSoumisAValidationController extends Controller
         $generePdfCde->copyToDWCdeSoumis($fileName);
     }
 
-    private function historique($ditCdeSoumisAValidation, $fileName)
+    private function historique($fileName)
     {
         $historique = new DitHistoriqueOperationDocument();
          //HISOTRIQUE

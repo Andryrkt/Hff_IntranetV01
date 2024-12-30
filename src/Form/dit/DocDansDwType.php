@@ -15,17 +15,19 @@ class  DocDansDwType extends AbstractType
         'OR' => 'OR',
         'RI' => 'RI',
         'FACTURE' => 'FACTURE',
+        'DEVIS' => 'DEVIS'
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder
             ->add('docDansDW', 
             ChoiceType::class,
             [
                 'label' => 'Docs à intégrer dans DW',
                 'choices' => self::DOC_DANS_DW,
-                'placeholder' => '--'
+                'placeholder' => '--',
             ])
             ->add('numeroDit',
             HiddenType::class)

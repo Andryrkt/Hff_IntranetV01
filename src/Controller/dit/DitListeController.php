@@ -91,7 +91,7 @@ class DitListeController extends Controller
         $this->sessionService->set('dit_search_option', $option);
 
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-        
+        // dd($paginationData['data']);
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',

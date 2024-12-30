@@ -1,6 +1,6 @@
 function initializeFileHandlers(idSuffix) {
   const fileInput = document.querySelector(
-    `#dit_ors_soumis_a_validation_pieceJoint${idSuffix}`
+    `#dit_devis_soumis_a_validation_pieceJoint0${idSuffix}`
   );
   const fileName = document.querySelector(`.file-name-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
@@ -79,30 +79,8 @@ function formatFileSize(size) {
   return `${adjustedSize.toFixed(2)} ${units[unitIndex]}`;
 }
 
-// Utilisation pour plusieurs fichiers
-["01", "02", "03", "04"].forEach((idSuffix) => {
-  initializeFileHandlers(idSuffix);
-});
-
-/**
- * LIMITATION CARACTER ET OBLIGATION DE CARACTER EN CHIFFRE SUR LE CHAMP NUMERO OR
- */
-const numOrInput = document.querySelector(
-  "#dit_ors_soumis_a_validation_numeroOR"
-);
-
-numOrInput.addEventListener("input", function () {
-  let value = numOrInput.value;
-
-  // Retirer tous les caractères qui ne sont pas des chiffres
-  value = value.replace(/[^0-9]/g, "");
-
-  // Limiter la longueur à 8 caractères maximum
-  value = value.slice(0, 8);
-
-  // Appliquer la valeur filtrée au champ d'entrée
-  numOrInput.value = value;
-});
+// Utilisation pour plusieurs fichier
+initializeFileHandlers("1");
 
 // Fonction pour formater la taille des fichiers en Ko ou Mo
 function formatFileSize(bytes) {
