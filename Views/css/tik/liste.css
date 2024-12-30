@@ -1,43 +1,41 @@
-.ouvert
-{
-    background-color: red ! important;
-    font-weight: bold;
+.ouvert {
+  background-color: red !important;
+  font-weight: bold;
 }
 
-.refuse
-{
-    background-color: orangered ! important;
-    color: white;
-        font-weight: bold;
+.refuse {
+  background-color: orangered !important;
+  color: white;
+  font-weight: bold;
 }
 
-.encours
-{
-    background-color: cyan ! important;
-    color: #000 !important;
+.encours {
+  background-color: cyan !important;
+  color: #000 !important;
 }
 
-.planifie
-{
-    background-color: violet ! important;
-    font-weight: bold;
+.planifie {
+  background-color: violet !important;
+  font-weight: bold;
 }
 
-.resolu
-{
-    background-color: greenyellow ! important;
-    font-weight: bold;
+.resolu {
+  background-color: greenyellow !important;
+  font-weight: bold;
 }
 
-.reouvert
-{
-    background-color: yellow ! important;
-    font-weight: bold;
+.reouvert {
+  background-color: yellow !important;
+  font-weight: bold;
 }
 
-.cloture
-{
-    background-color: green ! important;
-    color: white;
-    font-weight: bold;
+.cloture {
+  background-color: green !important;
+  color: white;
+  font-weight: bold;
+}
+
+/* Augmenter la largeur de la modale */
+.modal-dialog.custom-width {
+  max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
 }

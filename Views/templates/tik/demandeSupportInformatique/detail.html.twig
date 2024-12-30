@@ -10,168 +10,173 @@
 	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/detailTik.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
-	<style>
-		.card-body input:checked ~ .statut {
-			height: calc({{ historiqueStatut|length }} * 45px);
-		}
-	</style>
+
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class=" container-fluid mt-4">
-		<nav>
-			<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
-				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
-				<button class="nav-link" id="nav-statutComm-tab" data-bs-toggle="tab" data-bs-target="#nav-statutComm" type="button" role="tab" aria-controls="nav-statutComm" aria-selected="false">Statut et commentaires
-					<span class="onglet-badge">N</span>
-				</button>
-			</div>
-		</nav>
-		<div class="card mb-3 mx-2 border-top-left-radius-0">
-			<div class="card-body">
-				<div class="tab-content p-3 border bg-light" id="nav-tabContent">
-					<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
-						<div class="row">
-							<div class="col-12 col-md-11">
-								<h3 class="perso-titre">
-									Détail du ticket
-								</h3>
-							</div>
-
-							<div class=" col-12 col-md-1">
-								<a href="{{ path("liste_tik_index")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
-							</div>
+<div class=" container-fluid mt-4">
+	<nav>
+		<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
+			<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
+			<button class="nav-link" id="nav-statutComm-tab" data-bs-toggle="tab" data-bs-target="#nav-statutComm" type="button" role="tab" aria-controls="nav-statutComm" aria-selected="false">Statut et commentaires
+				{# <span class="onglet-badge">N</span> #}
+			</button>
+		</div>
+	</nav>
+	<div class="card mb-3 mx-2 border-top-left-radius-0">
+		<div class="card-body">
+			<div class="tab-content p-3 border bg-light" id="nav-tabContent">
+				<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								Détail du ticket
+							</h3>
 						</div>
 
-						{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("liste_tik_index")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+
+					{# DEBUT PARTIE POUR DETAILS SEULEMENT #}
+					<div
+						class="row">
+						{# DEBUT COLONNE 1 #}
 						<div
-							class="row">
-							{# DEBUT COLONNE 1 #}
-							<div
-								class="col-12 col-md-6">
-								{# DEBUT TKI #}
-								{{ macroForm.sousTitre('TKI', {class: 'sousTitre'})}}
-								<div class="row">
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
-									</div>
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('Date de création', tik.dateCreation|date('d/m/Y')) }}
-									</div>
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('Date de fin souhaitée', tik.dateFinSouhaitee|date('d/m/Y')) }}
-									</div>
+							class="col-12 col-md-6">
+							{# DEBUT TKI #}
+							{{ macroForm.sousTitre('TKI', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
 								</div>
-								{# FIN TKI #}
-
-								{# DEBUT DEMANDE #}
-								{{ macroForm.sousTitre('Demande', {class: 'sousTitre'})}}
-								<div class="row">
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
-									</div>
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur, 'emailDemandeur') }}
-									</div>
-									<div class="col-12 col-md-4">
-										{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
-									</div>
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Statut du ticket', tik.idStatutDemande.description) }}
 								</div>
-								<div class="col-12 col-md-12">
-									{{ macroForm.affichage('Objet de la demande', tik.objetDemande) }}
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Date de création', tik.dateCreation|date('d/m/Y')) }}
 								</div>
-								<div class="col-12 col-md-12">
-									{{ macroForm.affichageHTML('Détail de la demande', tik.detailDemande) }}
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Date de fin souhaitée', tik.dateFinSouhaitee|date('d/m/Y')) }}
 								</div>
-								{# FIN DEMANDE #}
 							</div>
-							{# FIN COLONNE 1 #}
+							{# FIN TKI #}
 
-							{# DEBUT COLONNE 2 #}
-							<div class="col-12 col-md-6">
-								<div class="row">
-									<div class="col-12 col-md-3">
-										{{ macroForm.sousTitre('Société', {class: 'sousTitre'})}}
+							{# DEBUT DEMANDE #}
+							{{ macroForm.sousTitre('Demande', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur, 'emailDemandeur') }}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
+								</div>
+							</div>
+							<div class="col-12 col-md-12">
+								{{ macroForm.affichage('Objet de la demande', tik.objetDemande) }}
+							</div>
+							<div class="col-12 col-md-12">
+								{{ macroForm.affichageHTML('Détail de la demande', tik.detailDemande) }}
+							</div>
+							{# FIN DEMANDE #}
+						</div>
+						{# FIN COLONNE 1 #}
 
-										{{ macroForm.affichage('Code société', tik.codeSociete)}}
-									</div>
-									<div
-										class="col-12 col-md-9">
-										{# DEBUT Agence et service #}
-										{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
-										<div class="row">
-											<div class="col-12 col-md-6">
-												{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
-											</div>
-											<div class="col-12 col-md-6">
-												{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
-											</div>
+						{# DEBUT COLONNE 2 #}
+						<div class="col-12 col-md-6">
+							<div class="row">
+								<div class="col-12 col-md-3">
+									{{ macroForm.sousTitre('Société', {class: 'sousTitre'})}}
+
+									{{ macroForm.affichage('Code société', tik.codeSociete)}}
+								</div>
+								<div
+									class="col-12 col-md-9">
+									{# DEBUT Agence et service #}
+									{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+									<div class="row">
+										<div class="col-12 col-md-6">
+											{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
 										</div>
-										{# FIN Agence et service #}
-									</div>
-								</div>
-
-								{# DEBUT Pièces Jointes #}
-								{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
-
-								{% if tik.fileNames is empty %}
-									<div class="mt-2 d-flex align-items-center pt-1 fw-bold" style="min-height: 22px;">
-										Pas de pièces jointes
-									</div>
-								{% else %}
-									{% for fileName in tik.fileNames %}
-										{{ macroForm.affichageFileDownload('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
-									{% endfor %}
-								{% endif %}
-
-								{# FIN Pièces Jointes #}
-							</div>
-							{# FIN COLONNE 2 #}
-
-							{# FIN PARTIE POUR DETAILS SEULEMENT #}
-
-							{# DEBUT PARTIE POUR VALIDATEUR OU INTERVENANT #}
-								{% if autoriser %}
-								{# DEBUT FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
-								{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': (statutOuvert and validateur) or intervenant ? 'false' : 'true'}}
-								) }}
-
-								{{ form_errors(form)}}
-									<div
-									class="row"> {# DEBUT COLONNE 1 #}
-									<div class="col-12 col-md-6">
-										<div
-											class="row">
-											{# DEBUT Intervention #}
-											{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
-											<div class="col-12 col-md-4">
-												{{ form_row(form.categorie) }}
-
-												{{ macroForm.spinner_load('spinner-sous-categorie', 'sous-categorie-container','detail_tik_sousCategorie', form.sousCategorie) }}
-
-												{{ macroForm.spinner_load('spinner-autre-categorie', 'autre-categorie-container','detail_tik_autresCategorie', form.autresCategorie) }}
-
-											</div>
-											<div class="col-12 col-md-4">
-												{{form_row(form.niveauUrgence)}}
-												{{form_row(form.intervenant)}}
-												{% include "tik/demandeSupportInformatique/shared/_userStat.html.twig" %}
-												<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
-													Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
-												</div>
-											</div>
-											<div class="col-12 col-md-4">
-												{{form_row(form.dateDebutPlanning)}}
-												{{form_row(form.dateFinPlanning)}}
-												<div class="error-message error-message-date text-bg-danger rounded p-2">
-													La date de fin pour le planning doit être supérieur à celui de la date de début.
-												</div>
-											</div>
-											{# FIN Intervention #}
+										<div class="col-12 col-md-6">
+											{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
 										</div>
 									</div>
+									{# FIN Agence et service #}
+								</div>
+							</div>
+
+							{# DEBUT Pièces Jointes #}
+							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+							{% if tik.fileNames is empty %}
+								<div class="mt-2 d-flex align-items-center pt-1 fw-bold" style="min-height: 22px;">
+									Pas de pièces jointes
+								</div>
+							{% else %}
+								{% for fileName in tik.fileNames %}
+									{{ macroForm.affichageFileDownload('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
+								{% endfor %}
+							{% endif %}
+
+							{# FIN Pièces Jointes #}
+						</div>
+						{# FIN COLONNE 2 #}
+
+						{# FIN PARTIE POUR DETAILS SEULEMENT #}
+
+						{# DEBUT PARTIE POUR VALIDATEUR OU INTERVENANT #}
+							{% if autoriser %}
+							{# DEBUT FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
+							{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': (statutOuvert and validateur) or intervenant ? 'false' : 'true'}}
+							) }}
+
+							{{ form_errors(form)}}
+								<div
+								class="row"> {# DEBUT COLONNE 1 #}
+								<div class="col-12 col-md-6">
+									<div
+										class="row">
+										{# DEBUT Intervention #}
+										{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+										<div class="col-12 col-md-4">
+											{{ form_row(form.categorie) }}
+
+											{{ macroForm.spinner_load('spinner-sous-categorie', 'sous-categorie-container','detail_tik_sousCategorie', form.sousCategorie) }}
+
+											{{ macroForm.spinner_load('spinner-autre-categorie', 'autre-categorie-container','detail_tik_autresCategorie', form.autresCategorie) }}
+
+										</div>
+										<div class="col-12 col-md-4">
+											<div class="mb-3">
+												{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+												{{ form_widget(form.niveauUrgence) }}
+											</div>
+											
+											{{form_row(form.intervenant)}}
+											
+											{% include "tik/demandeSupportInformatique/shared/_userStat.html.twig" %}
+											
+											<div class="error-message error-message-intervenant text-bg-danger rounded p-2">
+												Vous ne pouvez transférer le ticket à vous-même. Veuillez changer.
+											</div>
+										</div>
+										<div class="col-12 col-md-4">
+											{{form_row(form.dateDebutPlanning)}}
+											{{form_row(form.dateFinPlanning)}}
+											<div class="error-message error-message-date text-bg-danger rounded p-2">
+												La date de fin pour le planning doit être supérieur à celui de la date de début.
+											</div>
+										</div>
+										{# FIN Intervention #}
+									</div>
+								</div>
 									{# FIN COLONNE 1 #}
 
 									{# DEBUT COLONNE 2 #}
@@ -232,10 +237,10 @@
 					</div>
 					<div class="tab-pane fade" id="nav-statutComm" role="tabpanel" aria-labelledby="nav-statutComm-tab">
 						<div class="row">
-							<div class="col-3">
+							<div class="col-4">
 								{{ include('tik/demandeSupportInformatique/shared/_statutTicket.html.twig', { items: historiqueStatut }) }}
 							</div>
-							<div class="col-9">
+							<div class="col-8">
 								{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser, form: formCommentaire, canComment: canComment }) }}
 							</div>
 						</div>
@@ -244,6 +249,7 @@
 			</div>
 		</div>
 	</div>
+	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
 
 {% endblock %}
 

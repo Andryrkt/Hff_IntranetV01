@@ -270,6 +270,9 @@ class DetailTikController extends Controller
                 ;
                 $this->traitementEtEnvoiDeFichier($formCommentaire, $commentaire);
 
+                $text = str_replace(["\r\n", "\n", "\r"], "<br>", $commentaire->getCommentaires());
+                $commentaire->setCommentaires($text);
+
                 //envoi les donnée dans la base de donnée
                 self::$em->persist($commentaire);
                 self::$em->flush();
@@ -498,6 +501,8 @@ class DetailTikController extends Controller
     private function envoyerEmail(array $content)
     {
         $email = new EmailService;
+
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
 
         $content['cc'] = $content['cc'] ?? [];
 

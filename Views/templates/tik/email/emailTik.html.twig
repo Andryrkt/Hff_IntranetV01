@@ -70,6 +70,9 @@
 			.fw-bold {
 				font-weight: bold;
 			}
+			.espace {
+				margin-left: 5rem;
+			}
 		</style>
 	</head>
 	<body>
@@ -82,8 +85,16 @@
 				{% include 'tik/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
 
 				<p>
+					Pour consulter les détails complets du ticket, veuillez cliquer sur le bouton ci-dessous:
+					<br>
 					<a href="{{ action_url }}" class="button">Detail de la demande</a>
-					<span class="fw-bold">NB:</span> Assurez-vous d’être connecté à <a href="http://192.168.0.28/Hffintranet/">Hffintranet</a> avant de cliquer sur le lien.</p>
+				</p>
+				<p>
+					<span class="fw-bold">NB:</span>
+					Assurez-vous d’être connecté à
+					<a href="http://192.168.0.28/Hffintranet/">Hffintranet</a>
+					avant de cliquer sur le lien.
+				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
 

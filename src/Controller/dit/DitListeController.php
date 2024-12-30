@@ -29,7 +29,6 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -52,7 +51,6 @@ class DitListeController extends Controller
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
-
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
@@ -63,16 +61,14 @@ class DitListeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } 
+                }
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
@@ -91,25 +87,46 @@ class DitListeController extends Controller
         $this->sessionService->set('dit_search_option', $option);
 
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-        // dd($paginationData['data']);
+
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
+
         $this->dossierDit($request, $formDocDansDW);
 
+        $criteriaTab = $criteria;
 
-        $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
+        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        $filteredCriteria = array_filter($criteriaTab);
+
+        // Déterminer le type de log
+        $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
+
+        // Appeler la méthode logUserVisit avec les arguments définis
+        $this->logUserVisit(...$logType);
+
 
         self::$twig->display('dit/list.html.twig', [
-            'data' => $paginationData['data'],
-            'currentPage' => $paginationData['currentPage'],
-            'totalPages' => $paginationData['lastPage'],
-            'criteria' => $criteria,
-            'resultat' => $paginationData['totalItems'],
-            'statusCounts' => $paginationData['statusCounts'],
-            'form' => $form->createView(),
-            'criteria' => $criteria,
+            'data'          => $paginationData['data'],
+            'currentPage'   => $paginationData['currentPage'],
+            'totalPages'    => $paginationData['lastPage'],
+            'criteria'      => $criteria,
+            'resultat'      => $paginationData['totalItems'],
+            'statusCounts'  => $paginationData['statusCounts'],
+            'form'          => $form->createView(),
+            'criteria'      => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
@@ -152,8 +169,8 @@ class DitListeController extends Controller
 
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
-        $fileName = 'fichier_cloturer_annuler_'.$dit->getNumeroDemandeIntervention().'.csv';
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/'.$fileName;
+        $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),

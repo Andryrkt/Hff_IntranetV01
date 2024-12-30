@@ -54,28 +54,39 @@ class DomSecondController extends Controller
             if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT') {
                 if ($verificationDateExistant) {
                     $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
+
+                    $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                     $this->notification($message);
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
                         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                     }
-                    
-                    
-                    if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '',$dom->getTotalGeneralPayer()) <= 500000) {
+
+
+                    if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
                         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                     } else {
                         $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                        $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                         $this->notification($message);
                     }
                 }
             } else {
-                if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '',$dom->getTotalGeneralPayer()) <= 500000) {
+                if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
                     $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                 } else {
                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+
+                    $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+
                     $this->notification($message);
                 }
             }
+
+            $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Succès'); // historisation de l'opération de l'utilisateur
 
             // Redirection ou affichage de confirmation
             return $this->redirectToRoute('doms_liste');
@@ -84,9 +95,9 @@ class DomSecondController extends Controller
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('doms/secondForm.html.twig', [
-            'form' => $form->createView(),
+            'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
-            'criteria' => $criteria
+            'criteria'      => $criteria
         ]);
     }
 

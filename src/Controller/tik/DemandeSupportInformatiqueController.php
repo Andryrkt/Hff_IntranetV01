@@ -47,6 +47,9 @@ class DemandeSupportInformatiqueController extends Controller
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
 
+            $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
+            $supportInfo->setDetailDemande($text);
+
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
@@ -58,6 +61,8 @@ class DemandeSupportInformatiqueController extends Controller
                 'detail'        => $donnerForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
+
+            $this->historiqueOperationService->enregistrerTIK($supportInfo->getNumeroTicket(), 5, 'Succès');
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");

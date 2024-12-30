@@ -38,7 +38,7 @@ use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
 //use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
-
+use App\Service\historiqueOperation\HistoriqueOperationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -94,49 +94,53 @@ class Controller
 
     protected $excelService;
 
+    protected $historiqueOperationService;
+
     public function __construct()
     {
 
-        $this->fusionPdf = new FusionPdf();
-        $this->genererPdf = new GenererPdf();
+        $this->fusionPdf        = new FusionPdf();
+        $this->genererPdf       = new GenererPdf();
 
-        $this->ldap = new LdapModel();
+        $this->ldap             = new LdapModel();
 
-        $this->profilModel = new ProfilModel();
-
-
-        $this->badm = new BadmModel();
-
-        $this->Person = new PersonnelModel();
-
-        $this->DomModel = new DomModel();
-        $this->detailModel = new DomDetailModel();
-        $this->duplicata = new DomDuplicationModel();
-        $this->domList = new DomListModel();
-
-        $this->ProfilModel = new ProfilModel();
-
-        $this->request = Request::createFromGlobals();
-
-        $this->response = new Response();
-
-        $this->excelExport = new ExcelExporterService();
-        $this->flashManager = new FlashManagerService();
-
-        $this->parsedown = new Parsedown();
-
-        //$this->profilUser = new ProfilUserModel();
-
-        $this->ditModel = new DitModel();
-
-        $this->transfer04 = new TransferDonnerModel();
+        $this->profilModel      = new ProfilModel();
 
 
-        $this->sessionService = new SessionManagerService();
+        $this->badm             = new BadmModel();
 
-        $this->accessControl = new AccessControlService();
+        $this->Person           = new PersonnelModel();
 
-        $this->excelService = new ExcelService();
+        $this->DomModel         = new DomModel();
+        $this->detailModel      = new DomDetailModel();
+        $this->duplicata        = new DomDuplicationModel();
+        $this->domList          = new DomListModel();
+
+        $this->ProfilModel      = new ProfilModel();
+
+        $this->request          = Request::createFromGlobals();
+
+        $this->response         = new Response();
+
+        $this->excelExport      = new ExcelExporterService();
+        $this->flashManager     = new FlashManagerService();
+
+        $this->parsedown        = new Parsedown();
+
+        //$this->profilUser     = new ProfilUserModel();
+
+        $this->ditModel         = new DitModel();
+
+        $this->transfer04       = new TransferDonnerModel();
+
+
+        $this->sessionService   = new SessionManagerService();
+
+        $this->accessControl    = new AccessControlService();
+
+        $this->excelService     = new ExcelService();
+
+        $this->historiqueOperationService = new HistoriqueOperationService();
     }
 
     public static function setTwig($twig)
@@ -523,13 +527,15 @@ class Controller
 
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->sessionService->get('user_id');
-        $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
-        $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine       = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
-        $log           = new UserLogger();
-        $log->setUtilisateur($utilisateur->getNomUtilisateur());
+        $log            = new UserLogger();
+
+        $log->setUtilisateur($utilisateurNom ?: '-');
         $log->setNom_page($page->getNom());
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);

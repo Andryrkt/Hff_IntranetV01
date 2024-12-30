@@ -78,6 +78,7 @@ class DitController extends Controller
             //ENVOYER le PDF DANS DOXCUWARE
             $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
 
+            $this->historiqueOperationService->enregistrerDIT($pdfDemandeInterventions->getNumeroDemandeIntervention(), 5, 'Succès');
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("dit_index");
@@ -93,10 +94,10 @@ class DitController extends Controller
     private function modificationDernierIdApp($dits)
     {
         $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($dits->getNumeroDemandeIntervention());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+        $application->setDerniereId($dits->getNumeroDemandeIntervention());
+        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+        self::$em->persist($application);
+        self::$em->flush();
     }
     private function autorisationApp($user): bool
     {
@@ -109,6 +110,9 @@ class DitController extends Controller
     {
         if (!$this->autorisationApp($user)) {
             $message = "vous n'avez pas l'autorisation";
+
+            $this->historiqueOperationService->enregistrerDIT('-', 5, 'Erreur', $message);
+
             $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
             $this->redirectToRoute("profil_acceuil");
             exit();

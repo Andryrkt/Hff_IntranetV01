@@ -33,7 +33,7 @@ class DitTypeOperation
      */
     private $heureCreation;
 
-     /**
+    /**
      * @ORM\Column(type="string", length=10, name="heure_modification")
      */
     private $heureModification;
@@ -43,27 +43,27 @@ class DitTypeOperation
      */
     private $ditHistoriqueOperationDoc;
 
-    
+
     //==========================================================================================
-    
+
     public function __construct()
     {
         $this->ditHistoriqueOperationDoc = new ArrayCollection();
     }
-  
+
     public function getId()
     {
         return $this->id;
     }
 
-  
+
     public function getTypeOperation()
     {
         return $this->typeOperation;
     }
 
- 
-    public function setTypeOperation( $typeOperation): self
+
+    public function setTypeOperation($typeOperation): self
     {
         $this->typeOperation = $typeOperation;
 
@@ -72,7 +72,7 @@ class DitTypeOperation
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -82,7 +82,7 @@ class DitTypeOperation
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -92,7 +92,7 @@ class DitTypeOperation
 
     /**
      * Get the value of heureModification
-     */ 
+     */
     public function getHeureModification()
     {
         return $this->heureModification;
@@ -102,7 +102,7 @@ class DitTypeOperation
      * Set the value of heureModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureModification($heureModification)
     {
         $this->heureModification = $heureModification;
@@ -110,9 +110,9 @@ class DitTypeOperation
         return $this;
     }
 
-       /**
+    /**
      * Get the value of demandeIntervention
-     */ 
+     */
     public function getDitHistoriqueOperationDoc()
     {
         return $this->ditHistoriqueOperationDoc;
@@ -136,7 +136,7 @@ class DitTypeOperation
                 $ditHistoriqueOperationDoc->setIdTypeOperation(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -146,6 +146,4 @@ class DitTypeOperation
 
         return $this;
     }
-
-    
 }

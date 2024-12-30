@@ -8,6 +8,7 @@ use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\dit\DitHistoriqueOperationDocumentRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)
@@ -22,8 +23,6 @@ class DitHistoriqueOperationDocument
      * @ORM\Column(type="integer")
      */
     private $id;
-
-
 
     /**
      * @ORM\Column(type="string",  length=50)
@@ -62,30 +61,37 @@ class DitHistoriqueOperationDocument
      */
     private $heureOperation;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $statutOperation;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $libelleOperation;
+
     //========================================================================================================================================================
-    
+
     public function __construct()
     {
         $this->dateOperation = new \DateTime(); // Date courante
         $this->heureOperation = (new \DateTime())->format('H:i:s'); // Heure courante
     }
 
-    
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
     }
-
 
     public function getNumeroDocument()
     {
         return $this->numeroDocument;
     }
 
-    
     public function setNumeroDocument($numeroDocument): self
     {
         $this->numeroDocument = $numeroDocument;
@@ -95,7 +101,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of dateOperation
-     */ 
+     */
     public function getDateOperation()
     {
         return $this->dateOperation;
@@ -105,7 +111,7 @@ class DitHistoriqueOperationDocument
      * Set the value of dateOperation
      *
      * @return  self
-     */ 
+     */
     public function setDateOperation($dateOperation)
     {
         $this->dateOperation = $dateOperation;
@@ -115,7 +121,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of utilisateur
-     */ 
+     */
     public function getUtilisateur()
     {
         return $this->utilisateur;
@@ -125,7 +131,7 @@ class DitHistoriqueOperationDocument
      * Set the value of utilisateur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
@@ -135,7 +141,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of idTypeOperation
-     */ 
+     */
     public function getIdTypeOperation()
     {
         return $this->idTypeOperation;
@@ -145,7 +151,7 @@ class DitHistoriqueOperationDocument
      * Set the value of idTypeOperation
      *
      * @return  self
-     */ 
+     */
     public function setIdTypeOperation($idTypeOperation)
     {
         $this->idTypeOperation = $idTypeOperation;
@@ -155,7 +161,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of idTypeDocument
-     */ 
+     */
     public function getIdTypeDocument()
     {
         return $this->idTypeDocument;
@@ -165,7 +171,7 @@ class DitHistoriqueOperationDocument
      * Set the value of idTypeDocument
      *
      * @return  self
-     */ 
+     */
     public function setIdTypeDocument($idTypeDocument)
     {
         $this->idTypeDocument = $idTypeDocument;
@@ -175,7 +181,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of pathPieceJointe
-     */ 
+     */
     public function getPathPieceJointe()
     {
         return $this->pathPieceJointe;
@@ -185,7 +191,7 @@ class DitHistoriqueOperationDocument
      * Set the value of pathPieceJointe
      *
      * @return  self
-     */ 
+     */
     public function setPathPieceJointe($pathPieceJointe)
     {
         $this->pathPieceJointe = $pathPieceJointe;
@@ -195,7 +201,7 @@ class DitHistoriqueOperationDocument
 
     /**
      * Get the value of heureOperation
-     */ 
+     */
     public function getHeureOperation()
     {
         return $this->heureOperation;
@@ -205,10 +211,50 @@ class DitHistoriqueOperationDocument
      * Set the value of heureOperation
      *
      * @return  self
-     */ 
+     */
     public function setHeureOperation($heureOperation)
     {
         $this->heureOperation = $heureOperation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutOperation
+     */
+    public function getStatutOperation()
+    {
+        return $this->statutOperation;
+    }
+
+    /**
+     * Set the value of statutOperation
+     *
+     * @return  self
+     */
+    public function setStatutOperation($statutOperation)
+    {
+        $this->statutOperation = $statutOperation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of libelleOperation
+     */
+    public function getLibelleOperation()
+    {
+        return $this->libelleOperation;
+    }
+
+    /**
+     * Set the value of libelleOperation
+     *
+     * @return  self
+     */
+    public function setLibelleOperation($libelleOperation)
+    {
+        $this->libelleOperation = $libelleOperation;
 
         return $this;
     }
