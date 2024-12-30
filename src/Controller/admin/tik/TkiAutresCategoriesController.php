@@ -27,7 +27,7 @@ class TkiAutresCategoriesController extends Controller
             self::$em->persist($autresCategorie);
             self::$em->flush();
 
-            $this->redirectToRoute("tki_autres_categories_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
 
         self::$twig->display(
@@ -56,7 +56,7 @@ class TkiAutresCategoriesController extends Controller
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             self::$em->flush();
-            $this->redirectToRoute("tki_autres_categories_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
 
         self::$twig->display('admin/tik/autresCategories/edit.html.twig', [
@@ -76,6 +76,6 @@ class TkiAutresCategoriesController extends Controller
         self::$em->remove($categorie);
         self::$em->flush();
 
-        $this->redirectToRoute("tki_autres_categories_index");
+        $this->redirectToRoute("tki_all_categorie_index");
     }
 }

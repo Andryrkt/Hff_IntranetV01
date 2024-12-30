@@ -35,7 +35,7 @@ class TkiSousCategorieController extends Controller
             self::$em->persist($sousCategorie);
             self::$em->flush();
 
-            $this->redirectToRoute("tki_sous_categorie_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
 
         self::$twig->display(
@@ -79,7 +79,7 @@ class TkiSousCategorieController extends Controller
             }
 
             self::$em->flush();
-            $this->redirectToRoute("tki_sous_categorie_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
 
         self::$twig->display('admin/tik/sousCategorie/edit.html.twig', [
@@ -113,6 +113,6 @@ class TkiSousCategorieController extends Controller
             self::$em->flush();
         }
 
-        $this->redirectToRoute("tki_sous_categorie_index");
+        $this->redirectToRoute("tki_all_categorie_index");
     }
 }
