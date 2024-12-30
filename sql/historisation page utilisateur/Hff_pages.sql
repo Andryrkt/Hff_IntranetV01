@@ -57,5 +57,6 @@ VALUES
     ('Soumission de l''OR d''un DIT', 'dit_insertion_or', '/soumission-or/{numDit}'),
     ('Soumission de la RI d''un DIT', 'dit_insertion_ri', '/soumission-ri/{numDit}'),
     ('Fiche détail d''un DIT', 'dit_validationDit', '/ditValidation/{id<\d+>}/{numDit<\w+>}'),
+    ('Soumission d''une commande', 'dit_insertion_cde', '/soumission-cde'),
     ('Recherche sur la liste DOM (annulées)', 'dom_list_annuler_search', '/dom-list-annuler'),
 ;
