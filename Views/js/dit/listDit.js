@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 
 /**
- * sweetalert pur le bouron cloturer dit
+ * sweetalert pour le bouton cloturer dit
  */
 const clotureDit = document.querySelectorAll(".clotureDit");
 
@@ -311,28 +311,54 @@ clotureDit.forEach((el) => {
     let id = el.getAttribute("data-id");
 
     Swal.fire({
-      title: "êtes-vous sur?",
-      text: "cette action est irreversible",
+      title: "Êtes-vous sûr ?",
+      text: "Cette action est irréversible",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "OUI",
-    }).then(() => {
-      window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Afficher un overlay de chargement
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        overlay.style.zIndex = "9999";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        overlay.innerHTML = `
+          <div class="spinner"></div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Ajouter un spinner CSS
+        const style = document.createElement("style");
+        style.innerHTML = `
+          .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid rgb(219, 188, 52);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `;
+        document.head.appendChild(style);
+
+        // Redirection après confirmation
+        window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+      }
     });
-    // .then((result) => {
-    //   if (result.isConfirmed) {
-    //     Swal.fire({
-    //       title: "Changement de statut!",
-    //       text: "en CLOTUREE ANNULEE",
-    //       icon: "success",
-    //     })
-    // .then(() => {
-    //       window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
-    //     });
-    //   }
-    // });
   });
 });
 

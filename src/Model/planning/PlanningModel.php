@@ -347,30 +347,7 @@ public function backOrderPlanning($lesOrValides){
   }
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
     $vplan = "'".$criteria['plan']."'";
-    
-
-   
-    if(!empty($criteria['typeligne'])){
-        switch($criteria['typeligne']){
-          case "TOUTES": 
-            $vtypeligne = " ";
-            break;
-        case "PIECES_MAGASIN":
-            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
-            break;
-        case "ACHAT_LOCAUX":
-            $vtypeligne = " AND slor_constp  = 'ZST'" ;
-            break;
-        case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
-            break;
-        default:
-            $vtypeligne  = "";
-            break;
-        }
-    } else {
-      $vtypeligne = "";
-    }
+    $vligneType = $this->typeLigne($criteria); 
    
       $statement = " SELECT $vplan as plan,
                             slor_numor as numOr,
@@ -534,7 +511,7 @@ public function backOrderPlanning($lesOrValides){
               LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
-                $vtypeligne
+                $vligneType
                 AND slor_constp NOT LIKE '%ZDI%'
       ";
         // dump($statement);

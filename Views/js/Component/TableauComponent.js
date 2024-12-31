@@ -33,16 +33,19 @@ export class TableauComponent {
     table.className =
       "table table-bordered table-hover table-striped rounded table-plein-ecran"; // Classes Bootstrap
 
-    // Ajouter l'en-tête avec classe `table-dark`
+    // Définir la classe de l'en-tête (par défaut à 'table-dark' si non spécifiée)
+    const theadClass = this.props.theadClass || "table-dark";
+
+    // Ajouter l'en-tête avec classe personnalisée
     const thead = document.createElement("thead");
-    thead.className = "table-dark";
+    thead.className = theadClass;
     const headerRow = document.createElement("tr");
     this.props.columns.forEach((column) => {
       const th = document.createElement("th");
       th.textContent = column.label;
       th.style.cursor = "pointer";
 
-      // Centrer l'en-tête si align est défini
+      // Appliquer l'alignement si défini
       if (column.align) {
         th.style.textAlign = column.align;
       }
@@ -61,7 +64,7 @@ export class TableauComponent {
         const td = document.createElement("td");
         td.textContent = row[column.key];
 
-        // Centrer les cellules si align est défini
+        // Appliquer l'alignement si défini
         if (column.align) {
           td.style.textAlign = column.align;
         }

@@ -51,7 +51,7 @@ class DitDevisSoumisAValidationController extends Controller
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
             if(empty($devisSoumisAValidationInformix )) {
-                $message = "l'information de la devis n'est pas recupérer";
+                $message = "Echec lors de la soumission, l'information de la devis n'est pas recupérer";
                 $this->notification($message);
             }
 
@@ -153,12 +153,14 @@ class DitDevisSoumisAValidationController extends Controller
         }
         return $num + 1;
     }
+
     private function numeroDevis(string $numDit): string
     {
         $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
         if(empty($numeroDevis))
         {
-            return '';
+            $message = "Echec , le numero de devis n'existe pas";
+            $this->notification($message);
         } else {
             return $numeroDevis[0]['numdevis'];
         }

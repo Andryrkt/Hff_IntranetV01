@@ -194,19 +194,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
       abortController.abort();
     }
 
-    abortController = new AbortController(); // Créer un nouveau contrôleur
+    // Initialiser un nouveau AbortController
+    abortController = new AbortController();
 
+    // Récupérer les attributs du bouton déclencheur
     const button = event.relatedTarget; // Bouton qui a déclenché le modal
     const orIntv = button.getAttribute("data-id");
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
+
     const dossierDitLink = document.getElementById("dossierDitLink");
     const loading = document.getElementById("loading");
     const dataContent = document.getElementById("dataContent");
-    if (migration == "1") {
-      dossierDitLink.style.display = "none";
-    }
 
+    // Gérer l'affichage du lien selon la migration
+    dossierDitLink.style.display = migration === "1" ? "none" : "block";
+
+    // Ajouter un gestionnaire d'événement pour le lien
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
@@ -218,8 +222,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // Afficher le spinner
     toggleSpinner(loading, dataContent, true);
 
-    const numOr = orIntv.split("-")[0];
-    const numItv = orIntv.split("-")[1];
+    // Extraire numOr et numItv de orIntv
+    const [numOr, numItv] = orIntv.split("-");
 
     // Utiliser AbortController pour fetchDetailModal
     fetchDetailModal(orIntv, abortController.signal, loading, dataContent);
@@ -246,12 +250,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
       signal,
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
+      .then(handleFetchResponse)
       .then((data) => {
         const tableBody = document.getElementById("technicienTableBody");
 
