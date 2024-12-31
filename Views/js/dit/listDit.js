@@ -1,75 +1,55 @@
+import { TableauComponent } from "../Component/TableauComponent.js";
+/**===========================================================================
+ * Configuration des agences et services
+ *===========================================================================*/
+const config = {
+  emetteur: {
+    agenceInput: document.querySelector(".agenceEmetteur"),
+    serviceInput: document.querySelector(".serviceEmetteur"),
+    spinner: document.getElementById("spinner-service-emetteur"),
+    container: document.getElementById("service-container-emetteur"),
+  },
+  debiteur: {
+    agenceInput: document.querySelector(".agenceDebiteur"),
+    serviceInput: document.querySelector(".serviceDebiteur"),
+    spinner: document.getElementById("spinner-service-debiteur"),
+    container: document.getElementById("service-container-debiteur"),
+  },
+};
+
 /**
- * recuperer l'agence emetteur et changer le service emetteur selon l'agence
- */
-const agenceEmetteurInput = document.querySelector(".agenceEmetteur");
-const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
-const spinnerServiceEmetteur = document.getElementById(
-  "spinner-service-emetteur"
-);
-const serviceContainerEmetteur = document.getElementById(
-  "service-container-emetteur"
-);
+ * Fonction pour gérer le changement d'agence (émetteur ou débiteur)
+ **/
+function handleAgenceChange(configKey) {
+  const { agenceInput, serviceInput, spinner, container } = config[configKey];
+  const agence = agenceInput.value;
 
-agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
-
-function selectAgenceEmetteur() {
-  const agenceEmetteur = agenceEmetteurInput.value;
-
-  if (DeleteContentService(agenceEmetteur, serviceEmetteurInput)) {
+  // Efface les options si nécessaire, et sort si `agence` est vide
+  if (DeleteContentService(agence, serviceInput)) {
     return;
   }
 
-  let url = `/Hffintranet/agence-fetch/${agenceEmetteur}`;
-  toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, true);
-  fetch(url)
-    .then((response) => response.json())
-    .then((services) => {
-      console.log(services);
-      updateServiceOptions(services, serviceEmetteurInput);
-    })
-    .catch((error) => console.error("Error:", error))
-    .finally(() =>
-      toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, false)
-    );
-}
-
-/**
- * recuperer l'agence debiteur et changer le service debiteur selon l'agence
- */
-const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
-const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
-const spinnerServiceDebiteur = document.getElementById(
-  "spinner-service-debiteur"
-);
-const serviceContainerDebiteur = document.getElementById(
-  "service-container-debiteur"
-);
-
-agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
-
-function selectAgenceDebiteur() {
-  const agenceDebiteur = agenceDebiteurInput.value;
-  console.log(agenceDebiteur);
-
-  // Efface les options si nécessaire, et sort si `agenceDebiteur` est vide
-  if (DeleteContentService(agenceDebiteur, serviceDebiteurInput)) {
-    return;
-  }
-
-  const url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
-  toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, true);
+  const url = `/Hffintranet/agence-fetch/${agence}`;
+  toggleSpinner(spinner, container, true);
 
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
-      updateServiceOptions(services, serviceDebiteurInput);
+      updateServiceOptions(services, serviceInput);
     })
     .catch((error) => console.error("Error:", error))
-    .finally(() =>
-      toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, false)
-    );
+    .finally(() => toggleSpinner(spinner, container, false));
 }
+
+// Attachement des événements pour les agences
+config.emetteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("emetteur")
+);
+
+config.debiteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("debiteur")
+);
 
 /**
  * supprimer les options à une liste déroulante.
@@ -118,6 +98,12 @@ function DeleteContentService(agenceValue, serviceInput) {
   }
 }
 
+/**
+ * permet d'afficher  et de cacher le spinner
+ * @param {HTMLElement} spinnerService
+ * @param {HTMLElement} serviceContainer
+ * @param {boolean} show
+ */
 function toggleSpinner(spinnerService, serviceContainer, show) {
   spinnerService.style.display = show ? "inline-block" : "none";
   serviceContainer.style.display = show ? "none" : "block";
@@ -145,6 +131,11 @@ function affichageValeurConsoleLog(selectElement) {
   }
 }
 
+/**
+ * permet de changer l'option du select
+ * @param {array} services
+ * @param {HTMLElement} serviceInput
+ */
 function updateServiceOptions(services, serviceInput) {
   // Supprimer toutes les options existantes
   supprimLesOptions(serviceInput);
@@ -159,67 +150,20 @@ function updateServiceOptions(services, serviceInput) {
   affichageValeurConsoleLog(serviceInput);
 }
 
-/**
- * CREATION D'EXCEL
- */
-const typeDocumentInput = document.querySelector("#dit_search_typeDocument");
-const niveauUrgenceInput = document.querySelector("#dit_search_niveauUrgence");
-const statutInput = document.querySelector("#dit_search_statut");
-const idMaterielInput = document.querySelector("#dit_search_idMateriel");
-const interExternInput = document.querySelector("#dit_search_internetExterne");
-const dateDemandeDebutInput = document.querySelector("#dit_search_dateDebut");
-const dateDemandeFinInput = document.querySelector("#dit_search_dateFin");
-const buttonExcelInput = document.querySelector("#excelDit");
-buttonExcelInput.addEventListener("click", recherche);
-
-function recherche() {
-  const typeDocument = typeDocumentInput.value;
-  const niveauUrgence = niveauUrgenceInput.value;
-  const statut = statutInput.value;
-  const idMateriel = idMaterielInput.value;
-  const interExtern = interExternInput.value;
-  const dateDemandeDebut = dateDemandeDebutInput.value;
-  const dateDemandeFin = dateDemandeFinInput.value;
-
-  let url = "/Hffintranet/dit-excel";
-
-  const data = {
-    idMateriel: idMateriel || null,
-    typeDocument: typeDocument || null,
-    niveauUrgence: niveauUrgence || null,
-    statut: statut || null,
-    interExtern: interExtern || null,
-    dateDebut: dateDemandeDebut || null,
-    dateFin: dateDemandeFin || null,
-  };
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-}
-
 document.addEventListener("DOMContentLoaded", (event) => {
-  /** LIST COMMANDE MODAL */
+  /**======================
+   * LIST COMMANDE MODAL
+   * ======================*/
   const listeCommandeModal = document.getElementById("listeCommande");
+  const loading = document.getElementById("loading");
+  const dataContent = document.getElementById("dataContent");
 
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
     const id = button.getAttribute("data-id"); // Extract info from data-* attributes
 
     // Afficher le spinner et masquer le contenu des données
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("dataContent").style.display = "none";
+    toggleSpinner(loading, dataContent, true);
 
     // Fetch request to get the data
     fetch(`/Hffintranet/command-modal/${id}`)
@@ -263,16 +207,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                   </tr>`;
             tableBody.innerHTML += row;
           });
-
-          // Masquer le spinner et afficher les données
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
         }
       })
       .catch((error) => {
@@ -280,11 +218,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
         console.error("There was a problem with the fetch operation:", error);
-
-        // Masquer le spinner même en cas d'erreur
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dataContent").style.display = "block";
-      });
+      })
+      .finally(() => toggleSpinner(loading, dataContent, false));
   });
 
   // Gestionnaire pour la fermeture du modal
@@ -293,7 +228,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tableBody.innerHTML = ""; // Vider le tableau
   });
 
-  /** Docs à intégrer dans DW MODAL */
+  /**=======================================
+   * Docs à intégrer dans DW MODAL
+   * ======================================*/
 
   const docDansDwModal = document.getElementById("docDansDw");
   const numeroDitInput = document.querySelector("#numeroDit");
@@ -398,3 +335,53 @@ clotureDit.forEach((el) => {
     // });
   });
 });
+
+/**
+ * CREATION D'EXCEL
+ */
+// const typeDocumentInput = document.querySelector("#dit_search_typeDocument");
+// const niveauUrgenceInput = document.querySelector("#dit_search_niveauUrgence");
+// const statutInput = document.querySelector("#dit_search_statut");
+// const idMaterielInput = document.querySelector("#dit_search_idMateriel");
+// const interExternInput = document.querySelector("#dit_search_internetExterne");
+// const dateDemandeDebutInput = document.querySelector("#dit_search_dateDebut");
+// const dateDemandeFinInput = document.querySelector("#dit_search_dateFin");
+// const buttonExcelInput = document.querySelector("#excelDit");
+// buttonExcelInput.addEventListener("click", recherche);
+
+// function recherche() {
+//   const typeDocument = typeDocumentInput.value;
+//   const niveauUrgence = niveauUrgenceInput.value;
+//   const statut = statutInput.value;
+//   const idMateriel = idMaterielInput.value;
+//   const interExtern = interExternInput.value;
+//   const dateDemandeDebut = dateDemandeDebutInput.value;
+//   const dateDemandeFin = dateDemandeFinInput.value;
+
+//   let url = "/Hffintranet/dit-excel";
+
+//   const data = {
+//     idMateriel: idMateriel || null,
+//     typeDocument: typeDocument || null,
+//     niveauUrgence: niveauUrgence || null,
+//     statut: statut || null,
+//     interExtern: interExtern || null,
+//     dateDebut: dateDemandeDebut || null,
+//     dateFin: dateDemandeFin || null,
+//   };
+
+//   fetch(url, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(data),
+//   })
+//     .then((response) => response.json())
+//     .then((data) => {
+//       console.log(data);
+//     })
+//     .catch((error) => {
+//       console.error("Error:", error);
+//     });
+// }
