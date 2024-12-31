@@ -8,13 +8,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class PageConsultationController extends Controller
 {
     /**
-     * @Route("/admin/consultation-page/dashboard", name="consultation_page_dashboard")
+     * @Route("/admin/consultation-page", name="consultation_page_index")
      */
     public function index()
     {
-
         self::$twig->display(
-            'admin/historisation/page-consultation-dashboard.html.twig'
+            'admin/historisation/consultation-page/index.html.twig'
         );
     }
 }
