@@ -35,7 +35,6 @@ CREATE TABLE type_operation (
 
 CREATE TABLE historique_operation_document (
     id INT IDENTITY (1, 1),
-    idOrSoumisAValidation INT,
     numeroDocument VARCHAR(50),
     dateOperation DATETIME DEFAULT GETDATE (),
     utilisateur VARCHAR(50),
