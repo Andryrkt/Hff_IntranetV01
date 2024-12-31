@@ -1,0 +1,28 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Détail d'utilisateur
+{% endblock %}
+
+{% block stylesheets %}{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h2 class="mb-4">Détails pour
+			{{ userName }}</h2>
+
+		<!-- Chronologie -->
+		<ul class="timeline">
+			{% for consultation in userConsultations %}
+				<li>
+					<strong>{{ consultation.date }}</strong>: Page
+					<em>{{ consultation.page }}</em>
+					consultée sur la machine
+					<em>{{ consultation.machine }}</em>.
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}

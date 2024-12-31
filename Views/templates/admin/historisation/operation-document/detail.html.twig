@@ -1,0 +1,30 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Détail d'utilisateur
+{% endblock %}
+
+{% block stylesheets %}{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h2 class="mb-4">Détails des opérations pour le document
+			{{ documentNumber }}</h2>
+
+		<!-- Chronologie -->
+		<ul class="timeline">
+			{% for operation in documentOperations %}
+				<li>
+					<strong>{{ operation.date }}</strong>:
+					<em>{{ operation.operationType }}</em>
+					effectuée par
+					{{ operation.user }}. Statut:
+					<em>{{ operation.status }}</em>.
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+{% endblock %}
+
+{% block javascript %}{% endblock %}
