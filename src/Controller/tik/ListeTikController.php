@@ -64,7 +64,7 @@ class ListeTikController extends Controller
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 50;
 
         $option = [
             'autorisation' => $autorisation,
