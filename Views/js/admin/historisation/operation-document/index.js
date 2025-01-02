@@ -1,4 +1,8 @@
-const operations = []; // Données JSON injectées par le back-end
+import { fetchData } from '../../../tik/utils/fetchUtils';
+
+const operations = await fetchData(
+  '/Hffintranet/api/operation-document-fetch-all'
+); // Données JSON injectées par le back-end
 
 function renderOperationsTable(data) {
   const tableBody = document.getElementById('operationTable');
@@ -7,12 +11,13 @@ function renderOperationsTable(data) {
   data.forEach((op) => {
     const row = `
                 <tr>
-                    <td>${op.documentNumber}</td>
+                    <td>${op.numeroDocument}</td>
                     <td>${op.date}</td>
-                    <td>${op.user}</td>
+                    <td>${op.username}</td>
                     <td>${op.operationType}</td>
                     <td>${op.documentType}</td>
-                    <td>${op.status}</td>
+                    <td>${op.statut}</td>
+                    <td>${op.libelle}</td>
                 </tr>
             `;
     tableBody.innerHTML += row;
