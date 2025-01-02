@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\dit;
+namespace App\Entity\admin\historisation\documentOperation;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dit\DitTypeDocument;
@@ -8,14 +8,14 @@ use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use App\Repository\dit\DitHistoriqueOperationDocumentRepository;
+use App\Repository\admin\historisation\documentOperation\HistoriqueOperationDocumentRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DitHistoriqueOperationDocumentRepository::class)
+ * @ORM\Entity(repositoryClass=HistoriqueOperationDocumentRepository::class)
  * @ORM\Table(name="historique_operation_document")
  * @ORM\HasLifecycleCallbacks
  */
-class DitHistoriqueOperationDocument
+class HistoriqueOperationDocument
 {
     /**
      * @ORM\Id
