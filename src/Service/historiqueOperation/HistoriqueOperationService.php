@@ -6,8 +6,8 @@ use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
 use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use App\Entity\admin\historisation\documentOperation\TypeOperation;
 
 class HistoriqueOperationService implements HistoriqueOperationInterface
 {
@@ -21,7 +21,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     {
         $this->em                      = Controller::getEntity();
         $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(DitTypeOperation::class);
+        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
         $this->typeDocumentRepository  = $this->em->getRepository(DitTypeDocument::class);
         $this->sessionService = new SessionManagerService();
     }
