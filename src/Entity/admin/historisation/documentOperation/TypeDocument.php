@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Entity\admin\dit;
+namespace App\Entity\admin\historisation\documentOperation;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\admin\dit\DitTypeDocumentRepository;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\historisation\documentOperation\TypeDocumentRepository;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
 
 /**
- * @ORM\Entity(repositoryClass=DitTypeDocumentRepository::class)
+ * @ORM\Entity(repositoryClass=TypeDocumentRepository::class)
  * @ORM\Table(name="type_document")
  * @ORM\HasLifecycleCallbacks
  */
-class DitTypeDocument
+class TypeDocument
 {
     /**
      * @ORM\Id

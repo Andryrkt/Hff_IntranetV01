@@ -3,10 +3,7 @@
 namespace App\Entity\admin\historisation\documentOperation;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
 use App\Repository\admin\historisation\documentOperation\HistoriqueOperationDocumentRepository;
 
@@ -46,7 +43,7 @@ class HistoriqueOperationDocument
     private $idTypeOperation;
 
     /**
-     * @ORM\ManyToOne(targetEntity=DitTypeDocument::class, inversedBy="historiqueOperationDoc")
+     * @ORM\ManyToOne(targetEntity=TypeDocument::class, inversedBy="historiqueOperationDoc")
      * @ORM\JoinColumn(name="idTypeDocument", referencedColumnName="id")
      */
     private $idTypeDocument;
