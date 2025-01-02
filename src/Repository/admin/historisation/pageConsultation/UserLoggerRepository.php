@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\admin;
+namespace App\Repository\admin\historisation\pageConsultation;
 
 use Doctrine\ORM\EntityRepository;
 

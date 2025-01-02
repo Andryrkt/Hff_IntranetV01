@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Entity\admin;
+namespace App\Entity\admin\historisation\pageConsultation;
 
 use DateTime;
 use DateTimeZone;
-use App\Entity\admin\PageHff;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
-use App\Repository\admin\UserLoggerRepository;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Repository\admin\historisation\pageConsultation\UserLoggerRepository;
 
 /** 
  * @ORM\Entity(repositoryClass=UserLoggerRepository::class)

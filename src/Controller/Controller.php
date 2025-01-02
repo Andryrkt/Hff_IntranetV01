@@ -21,8 +21,6 @@ use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
-use App\Entity\admin\PageHff;
-use App\Entity\admin\UserLogger;
 use App\Model\dom\DomDetailModel;
 
 use App\Model\TransferDonnerModel;
@@ -38,11 +36,13 @@ use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
 //use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
-use App\Service\historiqueOperation\HistoriqueOperationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
+
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Service\historiqueOperation\HistoriqueOperationService;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 
 include dirname(__DIR__) . '/Service/GenererPdf.php';
