@@ -348,7 +348,11 @@ public function backOrderPlanning($lesOrValides){
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
     $vplan = "'".$criteria['plan']."'";
     $vligneType = $this->typeLigne($criteria); 
-   
+    if (strpos($numOrIntv, '-') !== false) { //la chaine contient des tirer
+      $numOr = " AND slor_numor || '-' || sitv_interv = '".$numOrIntv."'";
+    } else {
+      $numOr = " AND slor_numor = '".$numOrIntv."'";
+    }
       $statement = " SELECT $vplan as plan,
                             slor_numor as numOr,
                             slor_numcf as numCis,
@@ -509,10 +513,10 @@ public function backOrderPlanning($lesOrValides){
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
               LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
-                WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
+                WHERE slor_constp NOT LIKE '%ZDI%'
                 --AND slor_typlig = 'P'
+                $numOr
                 $vligneType
-                AND slor_constp NOT LIKE '%ZDI%'
       ";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);
