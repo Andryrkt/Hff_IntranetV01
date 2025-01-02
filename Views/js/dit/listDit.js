@@ -1,50 +1,102 @@
 import { TableauComponent } from "../Component/TableauComponent.js";
-import { fetchDataAgenceService } from "../api/agenceServiceFetch.js";
-import { configAgenceService } from "./config/listDitConfig.js";
+import {
+  configAgenceService,
+  configDocSoumisDwModal,
+  configCloturDit,
+} from "./config/listDitConfig.js";
+import {
+  handleAgenceChange,
+  docSoumisModalHidden,
+  docSoumisModalShow,
+} from "./fonctionUtils/fonctionListDit.js";
 import {
   toUppercase,
   allowOnlyNumbers,
   limitInputLength,
 } from "../utils/inputUtils.js";
 import {
-  supprimLesOptions,
-  DeleteContentService,
-  updateServiceOptions,
-} from "../utils/ui/uiAgenceServiceUtils.js";
-import { toggleSpinner } from "../utils/ui/uiSpinnerUtils.js";
-
-/**===========================================================================
- * Configuration des agences et services
- *===========================================================================*/
-
-// Attachement des événements pour les agences
-configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("emetteur")
-);
-
-configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("debiteur")
-);
-
-/**
- * Fonction pour gérer le changement d'agence (émetteur ou débiteur)
- * @param {string} configKey - La clé de configuration utilisée.
- */
-function handleAgenceChange(configKey) {
-  const { agenceInput, serviceInput, spinner, container } =
-    configAgenceService[configKey];
-  const agence = agenceInput.value;
-
-  // Efface les options si nécessaire, et sort si `agence` est vide
-  if (DeleteContentService(agence, serviceInput)) {
-    return;
-  }
-
-  // Appel à la fonction pour récupérer les données de l'agence
-  fetchDataAgenceService(agence, serviceInput, spinner, container);
-}
-
+  toggleSpinner,
+  affichageOverlay,
+  affichageSpinner,
+} from "../utils/ui/uiSpinnerUtils.js";
 document.addEventListener("DOMContentLoaded", (event) => {
+  /**===========================================================================
+   * Configuration des agences et services
+   *===========================================================================*/
+
+  // Attachement des événements pour les agences
+  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("emetteur")
+  );
+
+  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("debiteur")
+  );
+
+  /**=======================================
+   * Docs à intégrer dans DW MODAL
+   * ======================================*/
+
+  configDocSoumisDwModal.docDansDwModal.addEventListener(
+    "show.bs.modal",
+    docSoumisModalShow
+  );
+
+  // Gestionnaire pour la fermeture du modal
+  configDocSoumisDwModal.docDansDwModal.addEventListener(
+    "hidden.bs.modal",
+    docSoumisModalHidden
+  );
+
+  /**====================================================
+   * MISE EN MAJUSCULE
+   *=================================================*/
+  const numDitSearchInput = document.querySelector("#dit_search_numDit");
+  numDitSearchInput.addEventListener("input", () => {
+    toUppercase(numDitSearchInput);
+    limitInputLength(numDitSearchInput, 11);
+  });
+
+  /**===========================================
+   * SEULMENT DES CHIFFRES
+   *============================================*/
+  const numOrSearchInput = document.querySelector("#dit_search_numOr");
+  const numDevisSearchInput = document.querySelector("#dit_search_numDevis");
+  numOrSearchInput.addEventListener("input", () => {
+    allowOnlyNumbers(numOrSearchInput);
+    limitInputLength(numOrSearchInput, 8);
+  });
+  numDevisSearchInput.addEventListener("input", () => {
+    allowOnlyNumbers(numDevisSearchInput);
+    limitInputLength(numDevisSearchInput, 8);
+  });
+
+  allowOnlyNumbers(numDevisSearchInput);
+
+  /**==================================================
+   * sweetalert pour le bouton cloturer dit
+   *==================================================*/
+
+  configCloturDit.clotureDit.forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      let id = el.getAttribute("data-id");
+
+      Swal.fire(configCloturDit.text).then((result) => {
+        if (result.isConfirmed) {
+          // Afficher un overlay de chargement
+          affichageOverlay();
+
+          // Ajouter un spinner CSS
+          affichageSpinner();
+
+          // Redirection après confirmation
+          window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+        }
+      });
+    });
+  });
+
   /**======================
    * LIST COMMANDE MODAL
    * ======================*/
@@ -93,12 +145,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
             // Affichage
             let row = `<tr>
-                      <td>${command.slor_numcf}</td> 
-                      <td>${formattedDate}</td>
-                      <td> ${typeCommand}</td>
-                      <td> ${command.fcde_posc}</td>
-                      <td> ${command.fcde_posl}</td>
-                  </tr>`;
+                    <td>${command.slor_numcf}</td> 
+                    <td>${formattedDate}</td>
+                    <td> ${typeCommand}</td>
+                    <td> ${command.fcde_posc}</td>
+                    <td> ${command.fcde_posl}</td>
+                </tr>`;
             tableBody.innerHTML += row;
           });
         } else {
@@ -121,166 +173,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tableBody = document.getElementById("commandesTableBody");
     tableBody.innerHTML = ""; // Vider le tableau
   });
-
-  /**=======================================
-   * Docs à intégrer dans DW MODAL
-   * ======================================*/
-
-  const docDansDwModal = document.getElementById("docDansDw");
-  const numeroDitInput = document.querySelector("#numeroDit");
-  const numDitHiddenInput = document.querySelector("#doc_dans_dw_numeroDit");
-  const selecteInput = document.querySelector("#doc_dans_dw_docDansDW");
-  const spinnerSelect = document.getElementById("spinner-doc-soumis");
-  const selectContainer = document.getElementById("container-doc-soumis");
-
-  docDansDwModal.addEventListener("show.bs.modal", function (event) {
-    const button = event.relatedTarget;
-    const numDit = button.getAttribute("data-id");
-    recupDonnerDevis(numDit);
-    numeroDitInput.innerHTML = numDit;
-    numDitHiddenInput.value = numDit;
-  });
-
-  // Gestionnaire pour la fermeture du modal
-  docDansDwModal.addEventListener("hidden.bs.modal", function () {
-    supprimLesOptions(selecteInput);
-  });
-
-  function recupDonnerDevis(numDit) {
-    const url = `/Hffintranet/constraint-soumission/${numDit}`;
-    toggleSpinner(spinnerSelect, selectContainer, true);
-    fetch(url)
-      .then((response) => response.json())
-      .then((docDansDw) => {
-        console.log(docDansDw);
-        let docASoumettre = valeurDocASoumettre(docDansDw);
-        updateServiceOptions(docASoumettre, selecteInput);
-      })
-      .catch((error) => console.error("Error:", error))
-      .finally(() => toggleSpinner(spinnerSelect, selectContainer, false));
-  }
-
-  /**
-   * Détermine les documents à soumettre en fonction des conditions.
-   * @param {Object} docDansDw - L'objet contenant les informations nécessaires.
-   * @returns {Array} - Un tableau d'objets avec `value` et `text`.
-   */
-  function valeurDocASoumettre(docDansDw) {
-    let docASoumettre = [];
-
-    if (
-      docDansDw.client === "EXTERNE" &&
-      docDansDw.statutDit === "AFFECTEE SECTION" &&
-      docDansDw.statutDevis !== "Validé"
-    ) {
-      docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
-    } else if (
-      docDansDw.client === "EXTERNE" &&
-      docDansDw.statutDevis === "Validé"
-    ) {
-      docASoumettre = [
-        { value: "DEVIS", text: "DEVIS" },
-        { value: "BC", text: "BC" },
-      ];
-    } else {
-      docASoumettre = [
-        { value: "OR", text: "OR" },
-        { value: "RI", text: "RI" },
-        { value: "FACTURE", text: "FACTURE" },
-      ];
-    }
-
-    return docASoumettre; // Retourne le tableau
-  }
 });
-
-/**====================================================
- * MISE EN MAJUSCULE
- *=================================================*/
-const numDitSearchInput = document.querySelector("#dit_search_numDit");
-numDitSearchInput.addEventListener("input", () => {
-  toUppercase(numDitSearchInput);
-  limitInputLength(numDitSearchInput, 11);
-});
-
-/**===========================================
- * SEULMENT DES CHIFFRES
- *============================================*/
-const numOrSearchInput = document.querySelector("#dit_search_numOr");
-const numDevisSearchInput = document.querySelector("#dit_search_numDevis");
-numOrSearchInput.addEventListener("input", () => {
-  allowOnlyNumbers(numOrSearchInput);
-  limitInputLength(numOrSearchInput, 8);
-});
-numDevisSearchInput.addEventListener("input", () => {
-  allowOnlyNumbers(numDevisSearchInput);
-  limitInputLength(numDevisSearchInput, 8);
-});
-
-allowOnlyNumbers(numDevisSearchInput);
-
-/**==================================================
- * sweetalert pour le bouton cloturer dit
- *==================================================*/
-const clotureDit = document.querySelectorAll(".clotureDit");
-
-clotureDit.forEach((el) => {
-  el.addEventListener("click", (e) => {
-    e.preventDefault();
-    let id = el.getAttribute("data-id");
-
-    Swal.fire({
-      title: "Êtes-vous sûr ?",
-      text: "Cette action est irréversible",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "OUI",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Afficher un overlay de chargement
-        const overlay = document.createElement("div");
-        overlay.style.position = "fixed";
-        overlay.style.top = "0";
-        overlay.style.left = "0";
-        overlay.style.width = "100%";
-        overlay.style.height = "100%";
-        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-        overlay.style.zIndex = "9999";
-        overlay.style.display = "flex";
-        overlay.style.alignItems = "center";
-        overlay.style.justifyContent = "center";
-        overlay.innerHTML = `
-          <div class="spinner"></div>
-        `;
-        document.body.appendChild(overlay);
-
-        // Ajouter un spinner CSS
-        const style = document.createElement("style");
-        style.innerHTML = `
-          .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid rgb(219, 188, 52);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `;
-        document.head.appendChild(style);
-
-        // Redirection après confirmation
-        window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
-      }
-    });
-  });
-});
-
 /**
  * CREATION D'EXCEL
  */
