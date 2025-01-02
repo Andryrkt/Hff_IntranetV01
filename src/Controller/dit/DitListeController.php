@@ -89,8 +89,7 @@ class DitListeController extends Controller
 
         //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-        
-        
+        //ajout de numero devis
         $paginationData = $this->updateNumeroDevis($paginationData, $ditListeModel);
         
         /**  Docs à intégrer dans DW * */
@@ -124,22 +123,25 @@ class DitListeController extends Controller
     }
 
     private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
-{
-    foreach ($paginationData['data'] as $item) {
-        if ($item->getInternetExterne() === 'EXTERNE') {
-            // Récupération du numéro de devis
-            $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
+    {
+        foreach ($paginationData['data'] as $item) {
+            if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
+                // Récupération du numéro de devis
+                $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
 
-            // Vérification de la récupération du numéro de devis
-            $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
+                // Vérification de la récupération du numéro de devis
+                $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
 
-            // Mise à jour de l'élément avec le numéro de devis
-            $item->setNumeroDevisRattache($numeroDevis);
+                // Mise à jour de l'élément avec le numéro de devis
+                $item->setNumeroDevisRattache($numeroDevis);
+
+                self::$em->persist($item);
+            }
         }
-    }
+        self::$em->flush();
 
-    return $paginationData;
-}
+        return $paginationData;
+    }
 
     /**
      * @Route("/export-excel", name="export_excel")
@@ -281,23 +283,34 @@ class DitListeController extends Controller
         self::$em->flush();
     }
 
-    private function ajouterDansCsv($filePath, $data,  $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+{
+    $fichierExiste = file_exists($filePath);
 
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
+    // Ouvre le fichier en mode append
+    $handle = fopen($filePath, 'a');
 
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            fputcsv($handle, $headers);
-        }
-
-        // Ajoute les nouvelles données
-        fputcsv($handle, $data);
-        // fwrite($handle, "\n");
-
-        // Ferme le fichier
-        fclose($handle);
+    // Si le fichier est nouveau, ajoute un BOM UTF-8
+    if (!$fichierExiste) {
+        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
     }
+
+    // Si le fichier est nouveau, ajouter les en-têtes
+    if (!$fichierExiste && $headers !== null) {
+        // Force l'encodage UTF-8 pour les en-têtes
+        fputcsv($handle, array_map(function ($header) {
+            return mb_convert_encoding($header, 'UTF-8');
+        }, $headers));
+    }
+
+    // Force l'encodage UTF-8 pour les données
+    fputcsv($handle, array_map(function ($field) {
+        return mb_convert_encoding($field, 'UTF-8');
+    }, $data));
+
+    // Ferme le fichier
+    fclose($handle);
+}
+
+
 }

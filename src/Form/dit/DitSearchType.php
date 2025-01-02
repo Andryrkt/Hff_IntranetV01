@@ -277,6 +277,14 @@ class DitSearchType extends AbstractType
                     'required' => false,
                 ]
             )
+            ->add(
+                'numDevis',
+                TextType::class,
+                [
+                    'label' => 'N° devis',
+                    'required' => false
+                ]
+            )
         ;
 
         if ($autorisationRoleEnergie) {

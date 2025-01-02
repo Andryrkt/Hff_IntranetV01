@@ -1,27 +1,38 @@
 import { TableauComponent } from "../Component/TableauComponent.js";
+import { fetchDataAgenceService } from "../api/agenceServiceFetch.js";
+import { configAgenceService } from "./config/listDitConfig.js";
+import {
+  toUppercase,
+  allowOnlyNumbers,
+  limitInputLength,
+} from "../utils/inputUtils.js";
+import {
+  supprimLesOptions,
+  DeleteContentService,
+  updateServiceOptions,
+} from "../utils/ui/uiAgenceServiceUtils.js";
+import { toggleSpinner } from "../utils/ui/uiSpinnerUtils.js";
+
 /**===========================================================================
  * Configuration des agences et services
  *===========================================================================*/
-const config = {
-  emetteur: {
-    agenceInput: document.querySelector(".agenceEmetteur"),
-    serviceInput: document.querySelector(".serviceEmetteur"),
-    spinner: document.getElementById("spinner-service-emetteur"),
-    container: document.getElementById("service-container-emetteur"),
-  },
-  debiteur: {
-    agenceInput: document.querySelector(".agenceDebiteur"),
-    serviceInput: document.querySelector(".serviceDebiteur"),
-    spinner: document.getElementById("spinner-service-debiteur"),
-    container: document.getElementById("service-container-debiteur"),
-  },
-};
+
+// Attachement des événements pour les agences
+configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("emetteur")
+);
+
+configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("debiteur")
+);
 
 /**
  * Fonction pour gérer le changement d'agence (émetteur ou débiteur)
- **/
+ * @param {string} configKey - La clé de configuration utilisée.
+ */
 function handleAgenceChange(configKey) {
-  const { agenceInput, serviceInput, spinner, container } = config[configKey];
+  const { agenceInput, serviceInput, spinner, container } =
+    configAgenceService[configKey];
   const agence = agenceInput.value;
 
   // Efface les options si nécessaire, et sort si `agence` est vide
@@ -29,125 +40,8 @@ function handleAgenceChange(configKey) {
     return;
   }
 
-  const url = `/Hffintranet/agence-fetch/${agence}`;
-  toggleSpinner(spinner, container, true);
-
-  fetch(url)
-    .then((response) => response.json())
-    .then((services) => {
-      console.log(services);
-      updateServiceOptions(services, serviceInput);
-    })
-    .catch((error) => console.error("Error:", error))
-    .finally(() => toggleSpinner(spinner, container, false));
-}
-
-// Attachement des événements pour les agences
-config.emetteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("emetteur")
-);
-
-config.debiteur.agenceInput.addEventListener("change", () =>
-  handleAgenceChange("debiteur")
-);
-
-/**
- * supprimer les options à une liste déroulante.
- * @param {HTMLElement} selectElement - Élément HTML de type <select> où on supprime les options.
- */
-function supprimLesOptions(selectElement) {
-  while (selectElement.options.length > 0) {
-    selectElement.remove(0);
-  }
-}
-
-/**
- * Ajoute une option par défaut à un élément <select>.
- * @param {HTMLSelectElement} selectElement - L'élément <select> cible.
- * @param {string} placeholder - Le texte affiché pour l'option par défaut.
- */
-function optionParDefaut(selectElement, placeholder = "") {
-  if (!(selectElement instanceof HTMLSelectElement)) {
-    throw new Error("Le premier argument doit être un élément <select>.");
-  }
-
-  // Vérifier si une option par défaut existe déjà
-  if (
-    selectElement.options.length === 0 ||
-    selectElement.options[0].value !== ""
-  ) {
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = placeholder || " -- Choisir une option -- ";
-    selectElement.add(defaultOption, 0); // Ajouter en première position
-  }
-}
-
-function DeleteContentService(agenceValue, serviceInput) {
-  if (agenceValue === "") {
-    // Supprime toutes les options
-    supprimLesOptions(serviceInput);
-
-    // Ajoute l'option par défaut
-    optionParDefaut(serviceInput, " -- Choisir une option -- ");
-
-    // Indique qu'il faut sortir de la fonction appelante
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
- * permet d'afficher  et de cacher le spinner
- * @param {HTMLElement} spinnerService
- * @param {HTMLElement} serviceContainer
- * @param {boolean} show
- */
-function toggleSpinner(spinnerService, serviceContainer, show) {
-  spinnerService.style.display = show ? "inline-block" : "none";
-  serviceContainer.style.display = show ? "none" : "block";
-}
-
-/**
- * Ajoute des options à une liste déroulante.
- * @param {Array} optionsArray - Tableau contenant les objets avec les propriétés `value` et `text`.
- * @param {HTMLElement} selectElement - Élément HTML de type <select> où ajouter les options.
- */
-function populateSelect(optionsArray, selectElement) {
-  // Ajouter les nouvelles options
-  for (var i = 0; i < optionsArray.length; i++) {
-    var option = document.createElement("option");
-    option.value = optionsArray[i].value;
-    option.text = optionsArray[i].text;
-    selectElement.add(option);
-  }
-}
-
-function affichageValeurConsoleLog(selectElement) {
-  for (var i = 0; i < selectElement.options.length; i++) {
-    var option = selectElement.options[i];
-    console.log("Value: " + option.value + ", Text: " + option.text);
-  }
-}
-
-/**
- * permet de changer l'option du select
- * @param {array} services
- * @param {HTMLElement} serviceInput
- */
-function updateServiceOptions(services, serviceInput) {
-  // Supprimer toutes les options existantes
-  supprimLesOptions(serviceInput);
-
-  // Ajoute l'option par défaut
-  optionParDefaut(serviceInput, " -- Choisir une option -- ");
-
-  // Ajouter les nouvelles options
-  populateSelect(services, serviceInput);
-
-  //Afficher les nouvelles valeurs et textes des options
-  affichageValeurConsoleLog(serviceInput);
+  // Appel à la fonction pour récupérer les données de l'agence
+  fetchDataAgenceService(agence, serviceInput, spinner, container);
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -300,9 +194,34 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 });
 
-/**
+/**====================================================
+ * MISE EN MAJUSCULE
+ *=================================================*/
+const numDitSearchInput = document.querySelector("#dit_search_numDit");
+numDitSearchInput.addEventListener("input", () => {
+  toUppercase(numDitSearchInput);
+  limitInputLength(numDitSearchInput, 11);
+});
+
+/**===========================================
+ * SEULMENT DES CHIFFRES
+ *============================================*/
+const numOrSearchInput = document.querySelector("#dit_search_numOr");
+const numDevisSearchInput = document.querySelector("#dit_search_numDevis");
+numOrSearchInput.addEventListener("input", () => {
+  allowOnlyNumbers(numOrSearchInput);
+  limitInputLength(numOrSearchInput, 8);
+});
+numDevisSearchInput.addEventListener("input", () => {
+  allowOnlyNumbers(numDevisSearchInput);
+  limitInputLength(numDevisSearchInput, 8);
+});
+
+allowOnlyNumbers(numDevisSearchInput);
+
+/**==================================================
  * sweetalert pour le bouton cloturer dit
- */
+ *==================================================*/
 const clotureDit = document.querySelectorAll(".clotureDit");
 
 clotureDit.forEach((el) => {

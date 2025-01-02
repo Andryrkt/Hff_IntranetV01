@@ -301,6 +301,13 @@ class DitRepository extends EntityRepository
                 ->setParameter('numDit', $ditSearch->getNumDit());
         }
 
+        //filtrer selon le numero dit
+        if (!empty($ditSearch->getNumDevis())) {
+
+            $queryBuilder->andWhere('d.numeroDevisRattache = :numDevis')
+                ->setParameter('numDevis', $ditSearch->getNumDevis());
+        }
+
         //filtre selon le numero Or
         if (!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
             $queryBuilder->andWhere('d.numeroOR = :numOr')
