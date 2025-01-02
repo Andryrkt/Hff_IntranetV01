@@ -28,7 +28,7 @@
 				<input type="date" class="form-control" id="filterDate">
 			</div>
 			<div class="col-md-3 d-flex align-items-end">
-				<button type="button" class="btn btn-primary w-100" onclick="applyFilters()">Appliquer les filtres</button>
+				<button type="button" class="btn btn-primary w-100" id="filter">Appliquer les filtres</button>
 			</div>
 		</form>
 
@@ -53,5 +53,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/admin/historisation/consultation-page/index.js"></script>
+	<script src="/Hffintranet/Views/js/admin/historisation/consultation-page/index.js" type="module"></script>
 {% endblock %}
