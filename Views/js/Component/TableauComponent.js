@@ -65,7 +65,8 @@ export class TableauComponent {
         const tableRow = document.createElement("tr");
         this.props.columns.forEach((column) => {
           const td = document.createElement("td");
-          td.textContent = row[column.key] || "-";
+          // Utiliser defaultValue si la donnée est vide ou inexistante
+          td.textContent = row[column.key] || this.props.defaultValue || "-";
 
           // Appliquer une classe spécifique
           if (column.className) {

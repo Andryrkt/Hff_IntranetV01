@@ -270,9 +270,6 @@ class demandeInterventionType extends AbstractType
                 'label' => "E-mail du client (*EXTERNE)",
                 'required' => false,
                 'attr' => [ 'class' => 'clientSousContrat'],
-                'constraints' => [
-                        new Assert\NotBlank(['message'=>'l\'email du client ne doit pas être vide'])
-                    ]
             ])
 
             ->add('datePrevueTravaux', DateType::class, [

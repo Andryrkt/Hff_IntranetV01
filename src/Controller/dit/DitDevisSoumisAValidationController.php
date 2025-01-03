@@ -72,8 +72,8 @@ class DitDevisSoumisAValidationController extends Controller
                 
                 $fileName = $this->enregistrementFichier($form);
                 $this->evoieDansDw($fileName); // copier le fichier dans docuware
-                $this->historique($fileName); //remplir la table historique
-                
+                // $this->historique($fileName); //remplir la table historique
+                $this->historiqueOperationService->enregistrerDEV($fileName, 1, "Succès");
                 
                 $this->sessionService->set('notification',['type' => 'success', 'message' => 'Le devis a été soumis avec succès']);
                 $this->redirectToRoute("dit_index");
@@ -187,23 +187,4 @@ class DitDevisSoumisAValidationController extends Controller
         return $fileName;
     }
 
-    private function historique($fileName)
-    {
-        $historique = new DitHistoriqueOperationDocument();
-         //HISOTRIQUE
-         $historique
-         ->setNumeroDocument($fileName)
-         ->setUtilisateur($this->nomUtilisateur(self::$em))
-         ->setIdTypeDocument(self::$em->getRepository(DitTypeDocument::class)->find(11))
-         ->setIdTypeOperation(self::$em->getRepository(DitTypeOperation::class)->find(1))
-         ;
-        self::$em->persist($historique);
-        self::$em->flush();
-    }
-
-    private function nomUtilisateur($em){
-        $userId = $this->sessionService->get('user_id', []);
-        $user = $em->getRepository(User::class)->find($userId);
-        return $user->getNomUtilisateur();
-    }
 }

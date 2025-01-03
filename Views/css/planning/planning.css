@@ -11,3 +11,13 @@
     max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
 }
 
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+    margin: 10px auto;
+    display: block;
+  }
+  
+  .spinner-border.text-primary {
+    color: #ffee00;
+  }
