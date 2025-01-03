@@ -20,8 +20,8 @@ class DatabaseInformix
             $this->user = $_ENV['DB_USERNAME_INFORMIX'];
             $this->password = $_ENV['DB_PASSWORD_INFORMIX'];
             
-            if (!$this->dsn || !$this->user || !$this->password) {
-                throw new \Exception("Les variables d'environnement DB_DNS_INFORMIX, DB_USERNAME_INFORMIX ou DB_PASSWORD_INFORMIX ne sont pas définies. \n");
+            if (empty($this->dsn) || empty($this->user) || empty($this->password)) {
+                throw new \Exception("Les informations de connexion à la base de données sont incomplètes.");
             }
 
             // Établissement de la connexion
@@ -88,7 +88,8 @@ class DatabaseInformix
 
     private function logError($message)
     {
-        error_log($message, 3, "C:\wamp64\www\Hffintranet/var/log/app_errors.log");
+        $formattedMessage = sprintf("[%s] %s\n", date("Y-m-d H:i:s"), $message);
+        error_log($formattedMessage, 3, "C:\wamp64\www\Hffintranet/var/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

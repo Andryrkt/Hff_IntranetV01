@@ -429,6 +429,8 @@ trait DitListTrait
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
         }
     }

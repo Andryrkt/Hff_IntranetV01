@@ -107,7 +107,7 @@ trait DitTrait
         //INFO CLIENT
         $demandeIntervention->setNomClient($dits->getNomClient());
         $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-        $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+        $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
 

@@ -85,6 +85,16 @@ class DitRepository extends EntityRepository
         ];
     }
 
+    public function recupConstraitSoumission($numDit)
+    {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->select('d.internetExterne AS client, s.description AS statut')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit);
+        
+        return $queryBuilder->getQuery()->getResult();
+    }
 
 
     /** =====================================================
@@ -289,6 +299,13 @@ class DitRepository extends EntityRepository
 
             $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
                 ->setParameter('numDit', $ditSearch->getNumDit());
+        }
+
+        //filtrer selon le numero dit
+        if (!empty($ditSearch->getNumDevis())) {
+
+            $queryBuilder->andWhere('d.numeroDevisRattache = :numDevis')
+                ->setParameter('numDevis', $ditSearch->getNumDevis());
         }
 
         //filtre selon le numero Or

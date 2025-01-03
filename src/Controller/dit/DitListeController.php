@@ -13,6 +13,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -86,30 +87,20 @@ class DitListeController extends Controller
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
 
+        //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-
+        //ajout de numero devis
+        $paginationData = $this->updateNumeroDevis($paginationData, $ditListeModel);
+        
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $this->dossierDit($request, $formDocDansDW);
 
-        $criteriaTab = $criteria;
-
-        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
-        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
-        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
-        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
-        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
-        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
-        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
-
+        /** HISTORIQUE DES OPERATION */
         // Filtrer les critères pour supprimer les valeurs "falsy"
-        $filteredCriteria = array_filter($criteriaTab);
+        $filteredCriteria = $this->criteriaTab($criteria);
 
         // Déterminer le type de log
         $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
@@ -129,6 +120,27 @@ class DitListeController extends Controller
             'criteria'      => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
+    }
+
+    private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
+    {
+        foreach ($paginationData['data'] as $item) {
+            if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
+                // Récupération du numéro de devis
+                $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
+
+                // Vérification de la récupération du numéro de devis
+                $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
+
+                // Mise à jour de l'élément avec le numéro de devis
+                $item->setNumeroDevisRattache($numeroDevis);
+
+                self::$em->persist($item);
+            }
+        }
+        self::$em->flush();
+
+        return $paginationData;
     }
 
     /**
@@ -186,32 +198,7 @@ class DitListeController extends Controller
         $this->redirectToRoute("dit_index");
     }
 
-    private function changementStatutDit($dit, $statutCloturerAnnuler)
-    {
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
-    }
-
-    private function ajouterDansCsv($filePath, $data,  $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
-
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
-
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            fputcsv($handle, $headers);
-        }
-
-        // Ajoute les nouvelles données
-        fputcsv($handle, $data);
-        // fwrite($handle, "\n");
-
-        // Ferme le fichier
-        fclose($handle);
-    }
+   
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -268,4 +255,62 @@ class DitListeController extends Controller
             'data' => $data,
         ]);
     }
+
+    private function criteriaTab(array $criteria): array
+    {
+        $criteriaTab = $criteria;
+
+        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        return  array_filter($criteriaTab);
+
+    }
+    
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+{
+    $fichierExiste = file_exists($filePath);
+
+    // Ouvre le fichier en mode append
+    $handle = fopen($filePath, 'a');
+
+    // Si le fichier est nouveau, ajoute un BOM UTF-8
+    if (!$fichierExiste) {
+        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+    }
+
+    // Si le fichier est nouveau, ajouter les en-têtes
+    if (!$fichierExiste && $headers !== null) {
+        // Force l'encodage UTF-8 pour les en-têtes
+        fputcsv($handle, array_map(function ($header) {
+            return mb_convert_encoding($header, 'UTF-8');
+        }, $headers));
+    }
+
+    // Force l'encodage UTF-8 pour les données
+    fputcsv($handle, array_map(function ($field) {
+        return mb_convert_encoding($field, 'UTF-8');
+    }, $data));
+
+    // Ferme le fichier
+    fclose($handle);
+}
+
+
 }

@@ -48,4 +48,14 @@ class GeneratePdf
             echo "sorry";
         }
     }
+
+    public function copyToDWDevisSoumis($fileName){
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' .$fileName;
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/dev/' .$fileName;
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "okey";
+        } else {
+            echo "sorry";
+        }
+    }
 }

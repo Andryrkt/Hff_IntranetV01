@@ -324,6 +324,7 @@ const clientSousContratInput = document.querySelector(".clientSousContrat");
 const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
+const erreurClient = document.querySelector("#erreurClient");
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
@@ -351,6 +352,24 @@ function interneExterne() {
     serviceDebiteurInput.removeAttribute("disabled");
   }
 }
+
+/** LIMITATION DE CARACTERE DU TELEPHONE */
+function limitInputCharacters(inputElement, maxLength) {
+  inputElement.addEventListener("input", () => {
+    if (inputElement.value.length > maxLength) {
+      inputElement.value = inputElement.value.substring(0, maxLength);
+    }
+  });
+}
+limitInputCharacters(numTelInput, 10);
+
+/** LES CARACTES CHIFFRE SEULEMENT */
+function allowOnlyNumbers(inputElement) {
+  inputElement.addEventListener("input", () => {
+    inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
+  });
+}
+allowOnlyNumbers(numTelInput);
 
 /** FORM */
 const myForm = document.querySelector("#myForm");

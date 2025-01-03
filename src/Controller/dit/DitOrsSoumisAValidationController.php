@@ -142,7 +142,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationStatutOr($numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                $this->envoieDonnerDansBd($orSoumisValidataion, $ditInsertionOrSoumis);
+                $this->envoieDonnerDansBd($orSoumisValidataion);
 
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Succès'); // historisation de l'opération de l'utilisateur
 

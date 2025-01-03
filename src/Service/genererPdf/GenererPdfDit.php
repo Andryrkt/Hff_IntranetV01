@@ -155,13 +155,13 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->MultiCell(25, 6, "Nom :", 0, 'L', false, 0);
-        $pdf->cell(45, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(85);
-        $pdf->MultiCell(27, 6, "Sous contrat :", 0, 'L', false, 0);
-        $pdf->cell(20, 6, $dit->getClientSousContrat(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(135);
-        $pdf->cell(25, 6, 'N° téléphone :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(90);
+        $pdf->MultiCell(15, 6, "N° tel :", 0, 'L', false, 0);
+        $pdf->cell(25, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(130);
+        $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 
