@@ -16,3 +16,5 @@ toggleContainer.addEventListener('click', function () {
     toggleContainer.title = 'Afficher le mot de passe';
   }
 });
+
+localStorage.clear(); // Vider le localStorage

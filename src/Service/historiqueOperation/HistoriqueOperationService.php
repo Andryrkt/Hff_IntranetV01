@@ -5,9 +5,9 @@ namespace App\Service\historiqueOperation;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
-use App\Entity\admin\dit\DitTypeDocument;
-use App\Entity\admin\dit\DitTypeOperation;
-use App\Entity\dit\DitHistoriqueOperationDocument;
+use App\Entity\admin\historisation\documentOperation\TypeDocument;
+use App\Entity\admin\historisation\documentOperation\TypeOperation;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
 
 class HistoriqueOperationService implements HistoriqueOperationInterface
 {
@@ -21,14 +21,14 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     {
         $this->em                      = Controller::getEntity();
         $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(DitTypeOperation::class);
-        $this->typeDocumentRepository  = $this->em->getRepository(DitTypeDocument::class);
+        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
+        $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
         $this->sessionService = new SessionManagerService();
     }
 
     public function enregistrer(string $numeroDocument, int $typeOperationId, int $typeDocumentId, string $statutOperation, ?string $libelleOperation = null): void
     {
-        $historique    = new DitHistoriqueOperationDocument();
+        $historique    = new HistoriqueOperationDocument();
         $utilisateurId = $this->sessionService->get('user_id');
         $historique
             ->setNumeroDocument($numeroDocument)

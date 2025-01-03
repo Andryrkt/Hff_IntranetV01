@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Entity\admin\dit;
+namespace App\Entity\admin\historisation\documentOperation;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use App\Entity\dit\DitHistoriqueOperationDocument;
-use App\Repository\admin\dit\DitTypeOperationRepository;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use App\Repository\admin\historisation\documentOperation\TypeOperationRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DitTypeOperationRepository::class)
+ * @ORM\Entity(repositoryClass=TypeOperationRepository::class)
  * @ORM\Table(name="type_operation")
  * @ORM\HasLifecycleCallbacks
  */
-class DitTypeOperation
+class TypeOperation
 {
     /**
      * @ORM\Id
@@ -39,16 +39,16 @@ class DitTypeOperation
     private $heureModification;
 
     /**
-     * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idTypeOperation")
+     * @ORM\OneToMany(targetEntity=HistoriqueOperationDocument::class, mappedBy="idTypeOperation")
      */
-    private $ditHistoriqueOperationDoc;
+    private $historiqueOperationDoc;
 
 
     //==========================================================================================
 
     public function __construct()
     {
-        $this->ditHistoriqueOperationDoc = new ArrayCollection();
+        $this->historiqueOperationDoc = new ArrayCollection();
     }
 
     public function getId()
@@ -113,36 +113,36 @@ class DitTypeOperation
     /**
      * Get the value of demandeIntervention
      */
-    public function getDitHistoriqueOperationDoc()
+    public function getHistoriqueOperationDoc()
     {
-        return $this->ditHistoriqueOperationDoc;
+        return $this->historiqueOperationDoc;
     }
 
-    public function addDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
+    public function addHistoriqueOperationDoc(HistoriqueOperationDocument $historiqueOperationDoc): self
     {
-        if (!$this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc[] = $ditHistoriqueOperationDoc;
-            $ditHistoriqueOperationDoc->setIdTypeOperation($this);
+        if (!$this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
+            $this->historiqueOperationDoc[] = $historiqueOperationDoc;
+            $historiqueOperationDoc->setIdTypeOperation($this);
         }
 
         return $this;
     }
 
-    public function removeDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
+    public function removeHistoriqueOperationDoc(HistoriqueOperationDocument $historiqueOperationDoc): self
     {
-        if ($this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc->removeElement($ditHistoriqueOperationDoc);
-            if ($ditHistoriqueOperationDoc->getIdTypeOperation() === $this) {
-                $ditHistoriqueOperationDoc->setIdTypeOperation(null);
+        if ($this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
+            $this->historiqueOperationDoc->removeElement($historiqueOperationDoc);
+            if ($historiqueOperationDoc->getIdTypeOperation() === $this) {
+                $historiqueOperationDoc->setIdTypeOperation(null);
             }
         }
 
         return $this;
     }
 
-    public function setDitHistoriqueOperationDoc($ditHistoriqueOperationDoc)
+    public function setHistoriqueOperationDoc($historiqueOperationDoc)
     {
-        $this->ditHistoriqueOperationDoc = $ditHistoriqueOperationDoc;
+        $this->historiqueOperationDoc = $historiqueOperationDoc;
 
         return $this;
     }

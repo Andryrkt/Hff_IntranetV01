@@ -285,16 +285,19 @@
 								<a class="dropdown-item" href="#">Statut App</a>
 							</li>
 							<li class="dropdown-header">
+								Historique
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+							</li>
+							<li class="dropdown-header">
 								Ticket
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("tki_categorie_index")}}">Catégories</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_sous_categorie_index")}}">Sous-catégories</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_autres_categories_index")}}">Autres catégories</a>
+								<a class="dropdown-item" href="{{ path("tki_all_categorie_index")}}">Tous les catégories</a>
 							</li>
 						</ul>
 					</li>

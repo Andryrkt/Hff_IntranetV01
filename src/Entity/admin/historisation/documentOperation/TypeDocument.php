@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Entity\admin\dit;
+namespace App\Entity\admin\historisation\documentOperation;
 
-use App\Entity\dit\DitHistoriqueOperationDocument;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\admin\dit\DitTypeDocumentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\historisation\documentOperation\TypeDocumentRepository;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
 
 /**
- * @ORM\Entity(repositoryClass=DitTypeDocumentRepository::class)
+ * @ORM\Entity(repositoryClass=TypeDocumentRepository::class)
  * @ORM\Table(name="type_document")
  * @ORM\HasLifecycleCallbacks
  */
-class DitTypeDocument
+class TypeDocument
 {
     /**
      * @ORM\Id
@@ -40,21 +40,21 @@ class DitTypeDocument
      */
     private $heureCreation;
 
-     /**
+    /**
      * @ORM\Column(type="string", length=10, name="heure_modification")
      */
     private $heureModification;
 
-     /**
-     * @ORM\OneToMany(targetEntity=DitHistoriqueOperationDocument::class, mappedBy="idTypeDocument")
+    /**
+     * @ORM\OneToMany(targetEntity=HistoriqueOperationDocument::class, mappedBy="idTypeDocument")
      */
-    private $ditHistoriqueOperationDoc;
+    private $historiqueOperationDoc;
     //==========================================================================================
-    
+
 
     public function __construct()
     {
-        $this->ditHistoriqueOperationDoc = new ArrayCollection();
+        $this->historiqueOperationDoc = new ArrayCollection();
     }
 
     public function getId()
@@ -66,7 +66,7 @@ class DitTypeDocument
      * Get the value of typeDocument
      *
      * @return  string
-     */ 
+     */
     public function getTypeDocument()
     {
         return $this->typeDocument;
@@ -78,7 +78,7 @@ class DitTypeDocument
      * @param  string  $typeDocument
      *
      * @return  self
-     */ 
+     */
     public function setTypeDocument(string $typeDocument)
     {
         $this->typeDocument = $typeDocument;
@@ -86,11 +86,11 @@ class DitTypeDocument
         return $this;
     }
 
-     /**
+    /**
      * Get the value of libelleDocument
      *
      * @return  string
-     */ 
+     */
     public function getLibelleDocument()
     {
         return $this->libelleDocument;
@@ -102,7 +102,7 @@ class DitTypeDocument
      * @param  string  $libelleDocument
      *
      * @return  self
-     */ 
+     */
     public function setLibelleDocument(string $libelleDocument)
     {
         $this->libelleDocument = $libelleDocument;
@@ -110,9 +110,9 @@ class DitTypeDocument
         return $this;
     }
 
-     /**
+    /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -122,7 +122,7 @@ class DitTypeDocument
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -132,7 +132,7 @@ class DitTypeDocument
 
     /**
      * Get the value of heureModification
-     */ 
+     */
     public function getHeureModification()
     {
         return $this->heureModification;
@@ -142,7 +142,7 @@ class DitTypeDocument
      * Set the value of heureModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureModification($heureModification)
     {
         $this->heureModification = $heureModification;
@@ -150,42 +150,40 @@ class DitTypeDocument
         return $this;
     }
 
-     /**
+    /**
      * Get the value of demandeIntervention
-     */ 
-    public function getDitHistoriqueOperationDoc()
+     */
+    public function getHistoriqueOperationDoc()
     {
-        return $this->ditHistoriqueOperationDoc;
+        return $this->historiqueOperationDoc;
     }
 
-    public function addDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
+    public function addHistoriqueOperationDoc(HistoriqueOperationDocument $historiqueOperationDoc): self
     {
-        if (!$this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc[] = $ditHistoriqueOperationDoc;
-            $ditHistoriqueOperationDoc->setIdTypeDocument($this);
+        if (!$this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
+            $this->historiqueOperationDoc[] = $historiqueOperationDoc;
+            $historiqueOperationDoc->setIdTypeDocument($this);
         }
 
         return $this;
     }
 
-    public function removeDitHistoriqueOperationDoc(DitHistoriqueOperationDocument $ditHistoriqueOperationDoc): self
+    public function removeHistoriqueOperationDoc(HistoriqueOperationDocument $historiqueOperationDoc): self
     {
-        if ($this->ditHistoriqueOperationDoc->contains($ditHistoriqueOperationDoc)) {
-            $this->ditHistoriqueOperationDoc->removeElement($ditHistoriqueOperationDoc);
-            if ($ditHistoriqueOperationDoc->getIdTypeDocument() === $this) {
-                $ditHistoriqueOperationDoc->setIdTypeDocument(null);
+        if ($this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
+            $this->historiqueOperationDoc->removeElement($historiqueOperationDoc);
+            if ($historiqueOperationDoc->getIdTypeDocument() === $this) {
+                $historiqueOperationDoc->setIdTypeDocument(null);
             }
         }
-        
+
         return $this;
     }
 
-    public function setDitHistoriqueOperationDoc($ditHistoriqueOperationDoc)
+    public function setHistoriqueOperationDoc($historiqueOperationDoc)
     {
-        $this->ditHistoriqueOperationDoc = $ditHistoriqueOperationDoc;
+        $this->historiqueOperationDoc = $historiqueOperationDoc;
 
         return $this;
     }
-
-   
 }

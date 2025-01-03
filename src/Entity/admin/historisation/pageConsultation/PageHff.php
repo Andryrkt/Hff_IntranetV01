@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity\admin;
+namespace App\Entity\admin\historisation\pageConsultation;
 
-use App\Entity\admin\UserLogger;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\admin\PageHffRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Repository\admin\historisation\pageConsultation\PageHffRepository;
 
 /** 
  * @ORM\Entity(repositoryClass=PageHffRepository::class)

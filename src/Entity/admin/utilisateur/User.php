@@ -8,7 +8,6 @@ use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\UserLogger;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
@@ -22,6 +21,7 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)

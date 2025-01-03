@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repository\admin;
+namespace App\Repository\admin\historisation\pageConsultation;
 
-use App\Entity\admin\PageHff;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
 
 class PageHffRepository extends EntityRepository
 {

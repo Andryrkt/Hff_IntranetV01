@@ -10,7 +10,6 @@
 	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/detailTik.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
-
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -137,6 +136,9 @@
 							{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': (statutOuvert and validateur) or intervenant ? 'false' : 'true'}}
 							) }}
 
+							{{ form_row(form._token) }}
+
+
 							{{ form_errors(form)}}
 								<div
 								class="row"> {# DEBUT COLONNE 1 #}
@@ -183,7 +185,7 @@
 									<div class="col-12 col-md-6">
 										{% if validateur %}
 											{# DEBUT Observation Ticket #}
-											{% set name = 'Observation Ticket' %}
+											{% set name = 'Commentaire Ticket' %}
 										{% else %}
 											{# DEBUT Résolution Ticket #}
 											{% set name = 'Résolution Ticket' %}
