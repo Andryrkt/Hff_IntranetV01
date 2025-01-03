@@ -126,6 +126,40 @@ class DetailTikController extends Controller
 
                         break;
 
+                    case 'commenter':
+                        $commentaires = new TkiCommentaires;
+                        $commentaires
+                            ->setNumeroTicket($dataForm->getNumeroTicket())
+                            ->setNomUtilisateur($connectedUser->getNomUtilisateur())
+                            ->setCommentaires($form->get('commentaires')->getData())
+                            ->setUtilisateur($connectedUser)
+                            ->setDemandeSupportInformatique($supportInfo)
+                        ;
+
+                        $supportInfo
+                            ->setValidateur($connectedUser)
+                            ->setIdStatutDemande($button['statut'])    // statut suspendu
+                        ;
+
+                        self::$em->persist($commentaires);
+                        self::$em->persist($supportInfo);
+
+                        self::$em->flush();
+
+                        $this->historiqueStatut($supportInfo, $button['statut']); // historisation du statut
+
+                        // Envoi email refus
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
+
+                        $this->envoyerEmail($this->emailTikSuspendu($variableEmail));
+
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success',
+                            'message' => "Le ticket $numTik a été suspendu."
+                        ]);
+
+                        break;
+
                     case 'valider':
                         $supportInfo
                             ->setIntervenant($dataForm->getIntervenant())
@@ -321,10 +355,11 @@ class DetailTikController extends Controller
     private function getButton(Request $request)
     {
         $actions = [
-            'REF' => 'refuser',      // statut Refusé
+            'REF' => 'refuser',      // statut refusé
             'ENC' => 'valider',      // statut en cours
             'PLA' => 'planifier',    // statut planifié
-            'RES' => 'resoudre',     // statut planifié
+            'RES' => 'resoudre',     // statut résolu
+            'SUS' => 'commenter',    // statut suspendu
             '00'  => 'transferer',
         ];
 
@@ -384,6 +419,23 @@ class DetailTikController extends Controller
             'variables' => [
                 'statut'      => "refuse",
                 'subject'     => "{$tab['numTik']} - Ticket refusé",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket suspendu
+     */
+    private function emailTikSuspendu($tab): array
+    {
+        return [
+            'to'        => $tab['emailUserDemandeur'],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "suspendu",
+                'subject'     => "{$tab['numTik']} - Ticket suspendu",
                 'tab'         => $tab,
                 'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]
