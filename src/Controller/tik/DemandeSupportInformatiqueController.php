@@ -98,7 +98,7 @@ class DemandeSupportInformatiqueController extends Controller
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
 
-        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
+        $statut = self::$em->getRepository(StatutDemande::class)->find('58');
 
         $supportInfo
             ->setAgenceDebiteurId($donnerForm->getAgence())
