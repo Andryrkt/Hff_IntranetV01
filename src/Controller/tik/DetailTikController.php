@@ -284,7 +284,7 @@ class DetailTikController extends Controller
                 $this->redirectToRoute("liste_tik_index");
             }
 
-            $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 79;
+            $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 58;
             $isIntervenant = $supportInfo->getIntervenant() !== null && ($supportInfo->getIntervenant()->getId() == $connectedUser->getId());
 
             $this->logUserVisit('detail_tik', [
@@ -321,11 +321,11 @@ class DetailTikController extends Controller
     private function getButton(Request $request)
     {
         $actions = [
-            '80' => 'refuser',      // statut Refusé
-            '81' => 'valider',      // statut en cours
-            '82' => 'planifier',    // statut planifié
-            '83' => 'resoudre',     // statut planifié
-            '00' => 'transferer',
+            'REF' => 'refuser',      // statut Refusé
+            'ENC' => 'valider',      // statut en cours
+            'PLA' => 'planifier',    // statut planifié
+            'RES' => 'resoudre',     // statut planifié
+            '00'  => 'transferer',
         ];
 
         /** 
@@ -337,7 +337,7 @@ class DetailTikController extends Controller
         foreach ($actions as $code => $action) {
             if ($request->request->has($action)) {
                 return [
-                    'statut' => $statutDemande->find($code), // l'entité StatutDemande ayant un id=$code
+                    'statut' => $statutDemande->findByCodeStatut($code), // l'entité StatutDemande ayant un id=$code
                     'action' => $action
                 ];
             }

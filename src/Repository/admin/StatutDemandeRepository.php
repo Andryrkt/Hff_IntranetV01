@@ -11,14 +11,15 @@ class StatutDemandeRepository extends EntityRepository
 {
 
     // Ajoutez des méthodes personnalisées ici
-    public function findByExampleField($value)
+    public function findByCodeStatut($value)
     {
         return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('m.id', 'ASC')
+            ->andWhere('m.codeStatut = :val1')
+            ->andWhere('m.codeApp = :val2')
+            ->setParameter('val1', $value)
+            ->setParameter('val2', 'TKI')
             ->getQuery()
-            ->getResult()
+            ->getOneOrNullResult() // Retourne un seul résultat ou null
         ;
     }
 }
