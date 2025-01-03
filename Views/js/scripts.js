@@ -60,6 +60,9 @@ function resetTimeout() {
   timeRemaining = totalTime;
   updateChrono(); // Mise à jour immédiate de l'affichage du chrono
 
+  // Mettre à jour l'état dans localStorage
+  localStorage.setItem('session-active', Date.now());
+
   // Redémarrer le timer du chrono
   timer = setInterval(updateChrono, 1000);
 
@@ -79,6 +82,26 @@ const events = [
   'scroll',
 ];
 events.forEach((event) => window.addEventListener(event, resetTimeout));
+
+// Surveiller les changements dans localStorage pour synchroniser les onglets
+window.addEventListener('storage', function (event) {
+  if (event.key === 'session-active') {
+    resetTimeout();
+  }
+});
+
+// Vérification régulière de l'expiration de la session
+function checkSessionExpiration() {
+  const lastActive = localStorage.getItem('session-active');
+  const now = Date.now();
+
+  if (lastActive && now - lastActive > 900000) {
+    window.location.href = '/Hffintranet/logout'; // Rediriger vers la déconnexion
+  }
+}
+
+// Vérifiez l'expiration à intervalles réguliers (toutes les 10 secondes)
+setInterval(checkSessionExpiration, 10000);
 
 // Démarrer le timeout et le chrono au chargement de la page
 resetTimeout();
