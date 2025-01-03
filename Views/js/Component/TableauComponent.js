@@ -30,8 +30,7 @@ export class TableauComponent {
 
     // Créer l'élément table avec classes Bootstrap
     const table = document.createElement("table");
-    table.className =
-      "table table-bordered table-hover table-striped rounded table-plein-ecran"; // Classes Bootstrap
+    table.className = "table rounded table-plein-ecran"; // Classes Bootstrap
 
     // Définir la classe de l'en-tête (par défaut à 'table-dark' si non spécifiée)
     const theadClass = this.props.theadClass || "table-dark";
@@ -58,21 +57,62 @@ export class TableauComponent {
 
     // Ajouter le corps
     const tbody = document.createElement("tbody");
-    this.props.data.forEach((row) => {
-      const tableRow = document.createElement("tr");
-      this.props.columns.forEach((column) => {
-        const td = document.createElement("td");
-        td.textContent = row[column.key];
 
-        // Appliquer l'alignement si défini
-        if (column.align) {
-          td.style.textAlign = column.align;
-        }
+    // Vérifier si les données sont présentes
+    if (this.props.data && this.props.data.length > 0) {
+      // Si des données existent, les afficher
+      this.props.data.forEach((row) => {
+        const tableRow = document.createElement("tr");
+        this.props.columns.forEach((column) => {
+          const td = document.createElement("td");
+          td.textContent = row[column.key] || "-";
 
-        tableRow.appendChild(td);
+          // Appliquer une classe spécifique
+          if (column.className) {
+            td.className = column.className;
+          }
+
+          // Ajouter plusieurs attributs si définis
+          if (column.attributes) {
+            Object.entries(column.attributes).forEach(
+              ([attrName, attrValue]) => {
+                td.setAttribute(attrName, attrValue);
+              }
+            );
+          }
+
+          // Appliquer les styles dynamiques via des fonctions
+          if (column.styles && typeof column.styles === "function") {
+            const dynamicStyles = column.styles(row);
+            if (dynamicStyles) {
+              Object.entries(dynamicStyles).forEach(
+                ([styleName, styleValue]) => {
+                  td.style[styleName] = styleValue;
+                }
+              );
+            }
+          }
+
+          // Appliquer l'alignement si défini
+          if (column.align) {
+            td.style.textAlign = column.align;
+          }
+
+          tableRow.appendChild(td);
+        });
+        tbody.appendChild(tableRow);
       });
-      tbody.appendChild(tableRow);
-    });
+    } else {
+      // Si aucune donnée, afficher une ligne spéciale
+      const noDataRow = document.createElement("tr");
+      const noDataCell = document.createElement("td");
+      noDataCell.colSpan = this.props.columns.length; // Fusionner toutes les colonnes
+      noDataCell.textContent = "Aucune donnée disponible.";
+      noDataCell.style.textAlign = "center"; // Centrer le texte
+      noDataRow.appendChild(noDataCell);
+      tbody.appendChild(noDataRow);
+    }
+
     table.appendChild(tbody);
 
     this.container.appendChild(table);

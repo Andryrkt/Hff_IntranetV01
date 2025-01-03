@@ -29,16 +29,16 @@ class ModalPlanningModel extends Model
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
-                            slor_qterel AS QteReliquat,
-                            CASE 
+                            TRUNC(slor_qterel) AS QteReliquat,
+                            TRUNC(CASE 
                               WHEN slor_typlig = 'P' 
                                 THEN
                                   (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
 		                          ELSE 
                                 slor_qterea 
-	                          	END AS QteRes_Or,
-                            slor_qterea AS Qteliv,
-                            slor_qteres AS QteAll,
+	                          	END) AS QteRes_Or,
+                            TRUNC(slor_qterea) AS Qteliv,
+                            TRUNC(slor_qteres) AS QteAll,
                             
                       CASE  
                         WHEN slor_natcm = 'C' THEN 'COMMANDE'
@@ -218,8 +218,8 @@ public function recuperationEtaMag($numcde, $refp,$cst){
  * Etat partiel piece
  */
 public function recuperationPartiel($numcde, $refp){
-    $statement = " SELECT fcdl_solde as solde,
-                          fcdl_qte as qte
+    $statement = " SELECT NVL(TRUNC(fcdl_solde), 0) as solde,
+                          NVL(TRUNC(fcdl_solde), 0) as qte
                   FROM FRN_CDL 
                   WHERE  fcdl_numcde = '$numcde' 
                   AND  fcdl_refp = '$refp'

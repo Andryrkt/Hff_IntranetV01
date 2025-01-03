@@ -4,7 +4,7 @@
 			<div class="modal-header">
 				<h5 class="modal-title">
 					Listes lignes de l'intervention
-					<small class="text-success d-block mt-auto" id="orIntv" style = "font-size: 0.7em; font-weight: bold;"></small>
+					<small class="text-success d-block mt-auto" id="orIntv" style="font-size: 0.7em; font-weight: bold;"></small>
 				</h5>
 
 				<div class="ms-auto d-flex align-items-center">
@@ -32,50 +32,17 @@
 
 				<!-- Contenu des données -->
 				<div id="dataContent" style="display: none;">
-
-					<table class="table rounded mt-1">
-						<thead class="table">
-							<tr
-								id="planningTableHead">{# <th>N° OR</th>
-																																			<th>Intv</th>
-																																			<th>N° Commande</th>
-																																			<th>Statut ctrmrq</th>
-																																			<th>CST</th>
-																																			<th>Ref</th>
-																																			<th>Désignation</th>
-																																			<th>Qté OR</th>
-																																			<th>Qté ALL</th>
-																																			<th>QTé RLQ</th>
-																																			<th>QTé LIV</th>
-																																			<th>Statut</th>
-																																			<th>Date Statut</th>
-																																			<th>ETA Ivato</th>
-																																			<th>ETA Magasin</th>
-																																			<th>Message</th> #}
-							</tr>
-						</thead>
-						<tbody id="commandesTableBody">{# {% for command in commandes %} #}
-							{# <tr> #}
-							{# <td>{{ command.slor_numcf}}</td> #}
-							{# <td>{{ command.fcde_date}}</td> #}
-							{# <td>--</td> #}
-
-							{# </tr> #}
-							{# {% endfor %} #}
-						</tbody>
-					</table>
+					<div id="table-container-detail"></div>
+					{# <table class="table rounded mt-1"> #}
+					{# <thead class="table"> #}
+					{# <tr id="planningTableHead"></tr> #}
+					{# </thead> #}
+					{# <tbody id="commandesTableBody"></tbody> #}
+					{# </table> #}
 
 					{# AFFICHAGE Technicients Intervenant #}
-					<h3 class="fw-bold bg-warning p-2 technicien">Technicien(s) interventant(s)</h3>
-					<table class="table rounded mt-1">
-						<thead class="table">
-							<tr>
-								<th>Matricule</th>
-								<th>Nom et prenom(s)</th>
-							</tr>
-						</thead>
-						<tbody id="technicienTableBody"></tbody>
-					</table>
+						<h3 class="fw-bold bg-warning p-2 technicien"> Technicien(s) interventant(s)</h3>
+					<div id="table-container"></div>
 				</div>
 			</div>
 		</div>

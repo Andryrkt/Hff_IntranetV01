@@ -1,3 +1,4 @@
+import { TableauComponent } from "../Component/TableauComponent.js";
 /**
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
@@ -247,60 +248,159 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function fetchTechnicienInterv(numOr, numItv, signal) {
-    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
-      signal,
-    })
+    const tableContainer = document.querySelector("#table-container");
+    const url = `/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`;
+    fetch(url, { signal })
       .then(handleFetchResponse)
       .then((data) => {
-        const tableBody = document.getElementById("technicienTableBody");
-
-        tableBody.innerHTML = ""; // Clear previous data
-
-        if (data.length > 0) {
-          data.forEach((technicien) => {
-            let nomPrenom = technicien.matriculenomprenom.split("-")[1];
-            // Affichage
-            let row = `<tr>
-              <td>${technicien.matricule}</td> 
-              <td>${nomPrenom}</td> 
-          </tr>`;
-            tableBody.innerHTML += row;
-          });
-        } else {
-          // Si les données sont vides, afficher un message vide
-          tableBody.innerHTML =
-            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-        }
+        affichageDataTechnicienDansUnTableau(data);
       })
       .catch((error) => {
         if (error.name === "AbortError") {
           console.log("Requête annulée !");
         } else {
-          const tableBody = document.getElementById("technicienTableBody");
-          tableBody.innerHTML =
-            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          tableContainer.innerHTML = "Could not retrieve data";
           console.error("There was a problem with the fetch operation:", error);
         }
       });
   }
 
+  /**
+   * fonction n qui permet d'afficher le matricule et le nom et prenom du technicient dan sun tableau
+   * @param {array} data
+   */
+  function affichageDataTechnicienDansUnTableau(data) {
+    // Colonnes à afficher dans le tableau
+    const columns = [
+      { key: "matricule", label: "Matricule", align: "center" },
+      { key: "nomPrenom", label: "Nom et prenom(s)" },
+    ];
+
+    // Effacer le contenu précédent
+    document.getElementById("table-container").innerHTML = "";
+    // Initialiser le tableau
+    const tableau = new TableauComponent({
+      columns: columns,
+      data: data,
+      theadClass: "table", // Optionnel : classe personnalisée pour l'en-tête
+    });
+
+    // Monter le tableau dans le conteneur
+    tableau.mount("table-container");
+  }
+
+  // function ancienDataTechnicient() {
+  //   const tableBody = document.getElementById("technicienTableBody");
+
+  //   tableBody.innerHTML = ""; // Clear previous data
+
+  //   if (data.length > 0) {
+  //     data.forEach((technicien) => {
+  //       let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+  //       // Affichage
+  //       let row = `<tr>
+  //             <td>${technicien.matricule}</td>
+  //             <td>${nomPrenom}</td>
+  //         </tr>`;
+  //       tableBody.innerHTML += row;
+  //     });
+  //   } else {
+  //     // Si les données sont vides, afficher un message vide
+  //     tableBody.innerHTML =
+  //       '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+  //   }
+  // }
   function fetchDetailModal(id, signal, loading, dataContent) {
+    const url = `/Hffintranet/detail-modal/${id}`;
     // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`, { signal })
+    fetch(url, { signal })
       .then(handleFetchResponse)
       .then((data) => {
-        clearTableContents();
         if (data.length > 0) {
           const isTypeCis = data[0].numor.startsWith("5");
-          updateTableHeader(isTypeCis);
+          console.log("isTypeCis:", isTypeCis);
 
           data.forEach((detail) => {
             updateOrDetails(detail);
-            const formattedDetail = formatDetail(detail);
-            const isTypeCis = detail.numor && detail.numor.startsWith("5");
-            document.getElementById("commandesTableBody").innerHTML +=
-              createRow(detail, formattedDetail, isTypeCis);
           });
+
+          // Définir les colonnes dynamiquement
+          const columns = [
+            { key: "numor", label: "N° OR", align: "center" },
+            { key: "intv", label: "Intv", align: "left" },
+            ...(isTypeCis
+              ? [{ key: "numcis", label: "N° CIS", align: "center" }]
+              : []),
+            {
+              key: "numCde",
+              label: "N° Commande",
+              styles: (row) => {
+                const style = getCmdColor(row);
+                console.log(`Style for numCde (${row.numCde}):`, style);
+                return style;
+              },
+              align: "center",
+            },
+            {
+              key: "statrmq",
+              label: "Statut ctrmrq",
+              styles: (row) => {
+                const style = getCmdColorRmq(row);
+                console.log(`Style for statrmq (${row.statrmq}):`, style);
+                return style;
+              },
+              align: "center",
+            },
+            { key: "cst", label: "CST", align: "center" },
+            { key: "ref", label: "Ref", align: "left" },
+            { key: "qteres_or", label: "Qté OR", align: "center" },
+            { key: "qteall", label: "Qté ALL", align: "center" },
+            { key: "qtereliquat", label: "Qté RLQ", align: "center" },
+            { key: "qteliv", label: "Qté LIV", align: "center" },
+            { key: "statut", label: "Statut", align: "center" },
+            { key: "datestatut", label: "Date Statut", align: "center" },
+            { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
+            { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
+            { key: "message", label: "Message", align: "left" },
+          ];
+
+          console.log("Columns defined:", columns);
+
+          // Formater les données
+          const formattedData = data.map((detail) => ({
+            numcis: detail.numcis || "",
+            numor: detail.numor,
+            intv: detail.intv,
+            numCde: detail.numerocmd,
+            statrmq: isTypeCis
+              ? valueOrEmpty(detail.statut_ctrmq_cis)
+              : valueOrEmpty(detail.statut_ctrmq),
+            cst: detail.cst,
+            ref: detail.ref,
+            qteres_or: parseInt(detail.qteres_or),
+            qteall: parseInt(detail.qteall),
+            qtereliquat: parseInt(detail.qtereliquat),
+            qteliv: parseInt(detail.qteliv),
+            statut: detail.statut,
+            datestatut: formatDateOrEmpty(detail.datestatut),
+            Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
+            Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
+            message: detail.message,
+            Ord: detail.Ord, // Inclure Ord pour les styles dynamiques
+            qteSolde: parseInt(detail.qteSolde), // Inclure qteSolde
+            qteQte: parseInt(detail.qteQte), // Inclure qteQte
+          }));
+
+          // Effacer le contenu précédent
+          document.getElementById("table-container-detail").innerHTML = "";
+
+          // Initialiser ou mettre à jour le tableau
+          const tableau = new TableauComponent({
+            columns: columns,
+            data: formattedData,
+            theadClass: "table",
+          });
+          tableau.mount("table-container-detail");
 
           toggleSpinner(loading, dataContent, false);
         } else {
@@ -311,6 +411,41 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .catch(handleFetchError);
   }
 
+  function displayEmptyMessage() {
+    tableau.props.data = [
+      { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
+    ];
+    tableau.render();
+  }
+
+  // function fetchDetailModal(id, signal, loading, dataContent) {
+  //   const url = `/Hffintranet/detail-modal/${id}`;
+  //   // Fetch request to get the data
+  //   fetch(url, { signal })
+  //     .then(handleFetchResponse)
+  //     .then((data) => {
+  //       clearTableContents();
+  //       if (data.length > 0) {
+  //         const isTypeCis = data[0].numor.startsWith("5");
+  //         updateTableHeader(isTypeCis);
+
+  //         data.forEach((detail) => {
+  //           updateOrDetails(detail);
+  //           const formattedDetail = formatDetail(detail);
+  //           const isTypeCis = detail.numor && detail.numor.startsWith("5");
+  //           document.getElementById("commandesTableBody").innerHTML +=
+  //             createRow(detail, formattedDetail, isTypeCis);
+  //         });
+
+  //         toggleSpinner(loading, dataContent, false);
+  //       } else {
+  //         displayEmptyMessage();
+  //         toggleSpinner(loading, dataContent, false);
+  //       }
+  //     })
+  //     .catch(handleFetchError);
+  // }
+
   function handleFetchResponse(response) {
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -319,15 +454,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function clearTableContents() {
-    document.getElementById("commandesTableBody").innerHTML = "";
+    // document.getElementById("commandesTableBody").innerHTML = "";
     document.getElementById("orIntv").innerHTML = "";
-    document.getElementById("planningTableHead").innerHTML = "";
+    // document.getElementById("planningTableHead").innerHTML = "";
   }
 
-  function updateTableHeader(isTypeCis) {
-    const planningTableHead = document.getElementById("planningTableHead");
-    planningTableHead.innerHTML += generateRowHeader(isTypeCis);
-  }
+  // function updateTableHeader(isTypeCis) {
+  //   const planningTableHead = document.getElementById("planningTableHead");
+  //   planningTableHead.innerHTML += generateRowHeader(isTypeCis);
+  // }
 
   function updateOrDetails(detail) {
     const Ornum = document.getElementById("orIntv");
@@ -339,32 +474,29 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   }
 
-  function formatDetail(detail) {
-    return {
-      dateStatut: formatDateOrEmpty(detail.datestatut),
-      dateEtaIvato: formatDateOrEmpty(detail.Eta_ivato),
-      dateMagasin: formatDateOrEmpty(detail.Eta_magasin),
-      numCde: valueOrEmpty(detail.numerocmd),
-      numRef: valueOrEmpty(detail.ref),
-      statrmq: valueOrEmpty(detail.statut_ctrmq),
-      statut: valueOrEmpty(detail.statut),
-      message: valueOrEmpty(detail.message),
-      numCis: valueOrEmpty(detail.numcis),
-      numeroCdeCis: valueOrEmpty(detail.numerocdecis),
-      StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
-      cmdColorRmq: getCmdColorRmq(
-        parseInt(detail.qteSlode),
-        parseInt(detail.qte)
-      ),
-      cmdColor: getCmdColor(detail),
-    };
-  }
+  // function formatDetail(detail) {
+  //   return {
+  //     dateStatut: formatDateOrEmpty(detail.datestatut),
+  //     dateEtaIvato: formatDateOrEmpty(detail.Eta_ivato),
+  //     dateMagasin: formatDateOrEmpty(detail.Eta_magasin),
+  //     numCde: valueOrEmpty(detail.numerocmd),
+  //     numRef: valueOrEmpty(detail.ref),
+  //     statrmq: valueOrEmpty(detail.statut_ctrmq),
+  //     statut: valueOrEmpty(detail.statut),
+  //     message: valueOrEmpty(detail.message),
+  //     numCis: valueOrEmpty(detail.numcis),
+  //     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+  //     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+  //     cmdColorRmq: getCmdColorRmq(detail),
+  //     cmdColor: getCmdColor(detail),
+  //   };
+  // }
 
-  function displayEmptyMessage() {
-    const tableBody = document.getElementById("commandesTableBody");
-    tableBody.innerHTML =
-      '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-  }
+  // function displayEmptyMessage() {
+  //   const tableBody = document.getElementById("commandesTableBody");
+  //   tableBody.innerHTML =
+  //     '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+  // }
 
   function handleFetchError(error) {
     if (error.name === "AbortError") {
@@ -387,56 +519,56 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .padStart(2, "0")}/${date.getFullYear()}`;
   }
 
-  function generateRowHeader(includeCIS = false) {
-    let commonHeaders = `
-        <th>N° OR</th>
-        <th>Intv</th>
-        <th>N° Commande</th>
-        <th>Statut ctrmrq</th>
-        <th>CST</th>
-        <th>Ref</th>
-        <th>Désignation</th>
-        <th>Qté OR</th>
-        <th>Qté ALL</th>
-        <th>QTé RLQ</th>
-        <th>QTé LIV</th>
-        <th>Statut</th>
-        <th>Date Statut</th>
-        <th>ETA Ivato</th>
-        <th>ETA Magasin</th>
-        <th>Message</th>
-    `;
+  // function generateRowHeader(includeCIS = false) {
+  //   let commonHeaders = `
+  //       <th>N° OR</th>
+  //       <th>Intv</th>
+  //       <th>N° Commande</th>
+  //       <th>Statut ctrmrq</th>
+  //       <th>CST</th>
+  //       <th>Ref</th>
+  //       <th>Désignation</th>
+  //       <th>Qté OR</th>
+  //       <th>Qté ALL</th>
+  //       <th>QTé RLQ</th>
+  //       <th>QTé LIV</th>
+  //       <th>Statut</th>
+  //       <th>Date Statut</th>
+  //       <th>ETA Ivato</th>
+  //       <th>ETA Magasin</th>
+  //       <th>Message</th>
+  //   `;
 
-    let cisHeader = `<th>N° CIS</th>`;
+  //   let cisHeader = `<th>N° CIS</th>`;
 
-    return includeCIS ? cisHeader + commonHeaders : commonHeaders;
-  }
+  //   return includeCIS ? cisHeader + commonHeaders : commonHeaders;
+  // }
 
-  function createRow(detail, formattedDetail, useCis) {
-    return `<tr>
-                <td>${detail.numor}</td> 
-                <td>${detail.intv}</td> 
-                ${useCis ? `<td>${formattedDetail.numCis}</td>` : ""}
-                <td ${formattedDetail.cmdColor}>${
-      useCis ? formattedDetail.numeroCdeCis : formattedDetail.numCde
-    }</td> 
-                <td ${formattedDetail.cmdColorRmq}>${
-      useCis ? formattedDetail.StatutCtrmqCis : formattedDetail.statrmq
-    }</td> 
-                <td>${detail.cst}</td> 
-                <td>${formattedDetail.numRef}</td> 
-                <td>${detail.desi}</td> 
-                <td>${parseInt(detail.qteres_or)}</td> 
-                <td>${parseInt(detail.qteall)}</td> 
-                <td>${parseInt(detail.qtereliquat)}</td> 
-                <td>${parseInt(detail.qteliv)}</td> 
-                <td>${formattedDetail.statut}</td> 
-                <td>${formattedDetail.dateStatut}</td> 
-                <td>${formattedDetail.dateEtaIvato}</td> 
-                <td>${formattedDetail.dateMagasin}</td> 
-                <td>${formattedDetail.message}</td> 
-            </tr>`;
-  }
+  // function createRow(detail, formattedDetail, useCis) {
+  //   return `<tr>
+  //               <td>${detail.numor}</td>
+  //               <td>${detail.intv}</td>
+  //               ${useCis ? `<td>${formattedDetail.numCis}</td>` : ""}
+  //               <td ${formattedDetail.cmdColor}>${
+  //     useCis ? formattedDetail.numeroCdeCis : formattedDetail.numCde
+  //   }</td>
+  //               <td ${formattedDetail.cmdColorRmq}>${
+  //     useCis ? formattedDetail.StatutCtrmqCis : formattedDetail.statrmq
+  //   }</td>
+  //               <td>${detail.cst}</td>
+  //               <td>${formattedDetail.numRef}</td>
+  //               <td>${detail.desi}</td>
+  //               <td>${parseInt(detail.qteres_or)}</td>
+  //               <td>${parseInt(detail.qteall)}</td>
+  //               <td>${parseInt(detail.qtereliquat)}</td>
+  //               <td>${parseInt(detail.qteliv)}</td>
+  //               <td>${formattedDetail.statut}</td>
+  //               <td>${formattedDetail.dateStatut}</td>
+  //               <td>${formattedDetail.dateEtaIvato}</td>
+  //               <td>${formattedDetail.dateMagasin}</td>
+  //               <td>${formattedDetail.message}</td>
+  //           </tr>`;
+  // }
 
   // Fonction pour formater une date ou retourner une chaîne vide pour des valeurs spécifiques
   function formatDateOrEmpty(date) {
@@ -458,21 +590,28 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Fonction pour calculer la couleur de la commande
   function getCmdColor(detail) {
     if (detail.statut === "DISPO STOCK") {
-      return 'style="background-color: #c8ad7f; color: white;"';
+      // return 'style="background-color: #c8ad7f; color: white;"';
+      return { backgroundColor: "#c8ad7f", color: "white" };
     }
     if (["Error", "Back Order"].includes(detail.statut)) {
-      return 'style="background-color: red; color: white;"';
+      // return 'style="background-color: red; color: white;"';
+      return { backgroundColor: "red", color: "white" };
     }
     if (detail.Ord === "ORD") {
-      return 'style="background-color:#9ACD32; color: white;"';
+      // return 'style="background-color:#9ACD32; color: white;"';
+      return { backgroundColor: "#9ACD32", color: "white" };
     }
-    return ""; // Default case
+    return {}; // Default case
   }
 
   // Fonction pour vérifier la réception partielle
-  function getCmdColorRmq(qteSolde, qteQte) {
-    return qteSolde > 0 && qteSolde !== qteQte
-      ? 'style="background-color: yellow;"'
-      : "";
+  function getCmdColorRmq(detail) {
+    // parseInt(detail.qteSolde) > 0 &&
+    //parseInt(detail.qteSolde) !== parseInt(detail.qteQte)
+    //   ? 'style="background-color: yellow;"'
+    //   : "";
+    return detail.qteSolde > 0 && detail.qteSolde !== detail.qteQte
+      ? { backgroundColor: "yellow" }
+      : {};
   }
 });

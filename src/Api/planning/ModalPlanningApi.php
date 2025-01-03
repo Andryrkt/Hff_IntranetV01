@@ -39,7 +39,6 @@ class ModalPlanningApi extends Controller
 
         echo json_encode($groupedDetails);
     }
-
    
     /**
      * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
@@ -91,8 +90,8 @@ class ModalPlanningApi extends Controller
             $details[$i]['Eta_magasin'] = !empty($etaMag[0]['Eta_magasin']) ? $etaMag[0]['Eta_magasin'] : "";
             
             $recupParielCurrent = $recupPariel[$i] ?? null;
-            $details[$i]['qteSlode'] = $recupParielCurrent['0']['solde'] ?? "";
-            $details[$i]['qte'] = $recupParielCurrent['0']['qte'] ?? "";
+            $details[$i]['qteSlode'] = $recupParielCurrent['0']['solde'] ?? 0;
+            $details[$i]['qte'] = $recupParielCurrent['0']['qte'] ?? 0;
 
             $details[$i]['Ord'] = $recupGot['ord']['Ord'] ?? "";
 
