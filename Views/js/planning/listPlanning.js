@@ -46,7 +46,9 @@ agenceDebiteurInput.addEventListener("change", handleAgenceChange);
 
 function handleAgenceChange() {
   serviceDebiteurInput.disabled = false;
-  const agenceDebiteur = agenceDebiteurInput.value;
+  const agenceDebiteur =
+    agenceDebiteurInput.value === "" ? 100 : agenceDebiteurInput.value;
+
   const url = config.urls.serviceFetch(agenceDebiteur);
 
   fetch(url)

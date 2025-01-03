@@ -22,8 +22,12 @@ class PlanningApi extends Controller
      * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
      */
     public function serviceDebiteur($agenceId)
-    {
-        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+    { 
+        if($agenceId == 100){
+            $serviceDebiteur = [];
+        } else {
+            $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+        }
         
         header("Content-type:application/json");
 

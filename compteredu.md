@@ -11,3 +11,4 @@
 # Back-end
 
 - amelioration du code javascript liste dit
+- separation de code pour le planningModel et modalPlanningModel
