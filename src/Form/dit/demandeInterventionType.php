@@ -41,8 +41,12 @@ class demandeInterventionType extends AbstractType
     ];
 
     const REPARATION_REALISE = [
-        'ATELIER' => 'ATELIER',
-        'ENERGIE' => 'ENERGIE'
+        'ATE TANA' => 'ATE TANA',
+        'ATE STAR' => 'ATE STAR',
+        'ATE MAS' => 'ATE MAS',
+        'ATE TMV' => 'ATE TMV',
+        'ATE FTU' => 'ATE FTU',
+        'ATE ABV' => 'ATE ABV',
     ];
 
     const INTERNE_EXTERNE = [
