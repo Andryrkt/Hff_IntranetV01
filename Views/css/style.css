@@ -1,146 +1,141 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap');
 html {
-    height: 100%;
+  height: 100%;
 }
 
-body
-{
-    background-color: #f8f9fa;
-    font-family: 'Noto Sans Nandinagari', sans-serif;
-    font-size: 0.6875rem;
-    height: 100%;
+body {
+  background-color: #f8f9fa;
+  font-family: 'Noto Sans Nandinagari', sans-serif;
+  font-size: 0.6875rem;
+  height: 100%;
 }
 
-a, select, input, button, textarea, span
-{
-    font-size: 0.6875rem ! important;
+a,
+select,
+input,
+button,
+textarea,
+span {
+  font-size: 0.6875rem !important;
 }
 
-nav 
-{
-    font-size: 0.6975rem!important;
+nav {
+  font-size: 0.6975rem !important;
 }
-h2 
-{
-    font-size: 1.5rem ! important;
+h2 {
+  font-size: 1.5rem !important;
 }
 
-h3
-{
-    font-size: 1rem ! important;
+h3 {
+  font-size: 1rem !important;
 }
-
 
 label {
-    font-weight: bold;
-    margin-top: 5px;
-    /* font-style: italic; */
+  font-weight: bold;
+  margin-top: 5px;
+  /* font-style: italic; */
 }
-
 
 .main-content {
-    min-height: 90%;
-    display: flex;
-    flex-direction: column;
+  min-height: 90%;
+  display: flex;
+  flex-direction: column;
 }
 .content {
-    flex: 1;
+  flex: 1;
 }
 
 .color {
-    background-color: #FBBB01;
+  background-color: #fbbb01;
 }
 
 .perso-titre {
-    /* color: #FBBB01; */
-    color: white;
-    background-color: #212529;
-    font-size: 1rem;
-    text-align: center;
-    padding: 10px;
-    font-weight: bold;
-    border-radius: 5px;
+  /* color: #FBBB01; */
+  color: white;
+  background-color: #212529;
+  font-size: 1rem;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  border-radius: 5px;
 }
-
 
 /* CHONOMETTRE */
 .chrono-container {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    margin: 20px auto;
-  }
-  
-  .chrono-svg {
-    transform: rotate(-90deg); /* Faire commencer le cercle en haut */
-  }
-  
-  .chrono-bg {
-    fill: none;
-    stroke: #e0e0e0; /* Couleur de fond */
-    stroke-width: 10;
-  }
-  
-  .chrono-progress {
-    fill: none;
-    stroke: #4caf50; /* Couleur du cercle actif */
-    stroke-width: 10;
-    stroke-linecap: round;
-    stroke-dasharray: 283; /* Périmètre du cercle (2 * PI * r) */
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 0.5s linear;
-  }
-  
-  .chrono-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 16px;
-    font-weight: bold;
-    color: #f7f1f1;
-  }
-  
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 20px auto;
+}
 
- /* Overlay */
+.chrono-svg {
+  transform: rotate(-90deg); /* Faire commencer le cercle en haut */
+}
+
+.chrono-bg {
+  fill: none;
+  stroke: #e0e0e0; /* Couleur de fond */
+  stroke-width: 10;
+}
+
+.chrono-progress {
+  fill: none;
+  stroke: #4caf50; /* Couleur du cercle actif */
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 283; /* Périmètre du cercle (2 * PI * r) */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s linear;
+}
+
+.chrono-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: bold;
+  color: #f7f1f1;
+}
+
+/* Overlay */
 #loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    visibility: visible; /* Overlay visible par défaut */
-    opacity: 1;
-    transition: visibility 0s, opacity 0.5s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  visibility: visible; /* Overlay visible par défaut */
+  opacity: 1;
+  transition: visibility 0s, opacity 0.5s ease;
+}
+
+/* Caché : avec une transition */
+#loading-overlay.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Spinner */
+.spinner-overlay {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #dbc234;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  /* Caché : avec une transition */
-  #loading-overlay.hidden {
-    visibility: hidden;
-    opacity: 0;
+  100% {
+    transform: rotate(360deg);
   }
-  
-  /* Spinner */
-  .spinner-overlay {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #dbc234;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  
+}
