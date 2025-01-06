@@ -19,5 +19,5 @@ INSERT INTO STATUT_DEMANDE (Code_Application, Code_Statut, Description, Date_cre
         ('TKI', 'RES', 'RESOLU',  GETDATE (),  GETDATE ()),
         ('TKI', 'ROV', 'REOUVERT',  GETDATE (),  GETDATE ()),
         ('TKI', 'CLO', 'CLÔTURE',  GETDATE (),  GETDATE ()),
-        ('TKI', 'SUS', 'SUSPENDU',  GETDATE (),  GETDATE ())
+        ('TKI', 'ENA', 'EN ATTENTE',  GETDATE (),  GETDATE ())
 	;
