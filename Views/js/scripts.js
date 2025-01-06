@@ -105,6 +105,34 @@ setInterval(checkSessionExpiration, 10000);
 
 // Démarrer le timeout et le chrono au chargement de la page
 resetTimeout();
+/**
+ * modal pour la déconnexion
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  // Sélectionner le lien de déconnexion et le modal
+  const logoutLink = document.getElementById('logoutLink');
+  const logoutModal = new bootstrap.Modal(
+    document.getElementById('logoutModal')
+  );
+  const confirmLogout = document.getElementById('confirmLogout');
+
+  // Variable pour stocker l'URL de déconnexion (ou la logique)
+  let logoutUrl = logoutLink.getAttribute('href');
+
+  // Lorsque l'utilisateur clique sur le lien de déconnexion
+  logoutLink.addEventListener('click', function (event) {
+    // Empêcher la redirection initiale (si nécessaire)
+    event.preventDefault();
+    // Afficher le modal de confirmation
+    logoutModal.show();
+  });
+
+  // Lorsque l'utilisateur clique sur le bouton "Confirmer"
+  confirmLogout.addEventListener('click', function () {
+    // Effectuer la déconnexion (rediriger vers l'URL de déconnexion)
+    window.location.href = logoutUrl; // Effectuer la déconnexion
+  });
+});
 
 /**
  * POUR LE TOOLTIP
