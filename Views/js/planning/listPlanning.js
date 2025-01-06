@@ -412,112 +412,114 @@ document.addEventListener("DOMContentLoaded", (event) => {
   //       '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
   //   }
   // }
-  function fetchDetailModal(id, signal, loading, dataContent) {
-    const url = `/Hffintranet/detail-modal/${id}`;
-    // Fetch request to get the data
-    fetch(url, { signal })
-      .then(handleFetchResponse)
-      .then((data) => {
-        if (data.length > 0) {
-          const isTypeCis = data[0].numor.startsWith("5");
-          console.log("isTypeCis:", isTypeCis);
+  // function fetchDetailModal(id, signal, loading, dataContent) {
+  //   const url = `/Hffintranet/detail-modal/${id}`;
+  //   // Fetch request to get the data
+  //   fetch(url, { signal })
+  //     .then(handleFetchResponse)
+  //     .then((data) => {
+  //       if (data.length > 0) {
+  //         const isTypeCis = data[0].numor.startsWith("5");
+  //         console.log("isTypeCis:", isTypeCis);
 
-          data.forEach((detail) => {
-            updateOrDetails(detail);
-          });
+  //         data.forEach((detail) => {
+  //           updateOrDetails(detail);
+  //         });
 
-          const columns = defineColumns(isTypeCis);
+  //         const columns = defineColumns(isTypeCis);
 
-          const formattedData = data.map((detail) =>
-            formatDetailData(detail, isTypeCis)
-          );
+  //         const formattedData = data.map((detail) =>
+  //           formatDetailData(detail, isTypeCis)
+  //         );
 
-          // Effacer le contenu précédent
-          document.getElementById("table-container-detail").innerHTML = "";
+  //         // Effacer le contenu précédent
+  //         document.getElementById("table-container-detail").innerHTML = "";
 
-          // Initialiser ou mettre à jour le tableau
-          const tableau = new TableauComponent({
-            columns: columns,
-            data: formattedData,
-            theadClass: "table",
-            defaultValue: "",
-          });
-          tableau.mount("table-container-detail");
+  //         // Initialiser ou mettre à jour le tableau
+  //         const tableau = new TableauComponent({
+  //           columns: columns,
+  //           data: formattedData,
+  //           theadClass: "table",
+  //           defaultValue: "",
+  //         });
+  //         tableau.mount("table-container-detail");
 
-          toggleSpinner(loading, dataContent, false);
-        } else {
-          displayEmptyMessage();
-          toggleSpinner(loading, dataContent, false);
-        }
-      })
-      .catch(handleFetchError);
-  }
+  //         toggleSpinner(loading, dataContent, false);
+  //       } else {
+  //         displayEmptyMessage();
+  //         toggleSpinner(loading, dataContent, false);
+  //       }
+  //     })
+  //     .catch(handleFetchError);
+  // }
 
-  function defineColumns(isTypeCis) {
-    return [
-      { key: "numor", label: "N° OR", align: "center" },
-      { key: "intv", label: "Intv", align: "left" },
-      ...(isTypeCis
-        ? [{ key: "numcis", label: "N° CIS", align: "center" }]
-        : []),
-      {
-        key: "numCde",
-        label: "N° Commande",
-        styles: (row) => getCmdColor(row),
-        align: "center",
-      },
-      {
-        key: "statrmq",
-        label: "Statut ctrmrq",
-        styles: (row) => getCmdColorRmq(row),
-        align: "center",
-      },
-      { key: "cst", label: "CST", align: "center" },
-      { key: "ref", label: "Ref", align: "left" },
-      { key: "qteres_or", label: "Qté OR", align: "center" },
-      { key: "qteall", label: "Qté ALL", align: "center" },
-      { key: "qtereliquat", label: "Qté RLQ", align: "center" },
-      { key: "qteliv", label: "Qté LIV", align: "center" },
-      { key: "statut", label: "Statut", align: "center" },
-      { key: "datestatut", label: "Date Statut", align: "center" },
-      { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
-      { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
-      { key: "message", label: "Message", align: "left" },
-    ];
-  }
+  // function defineColumns(isTypeCis) {
+  //   return [
+  //     { key: "numor", label: "N° OR", align: "center" },
+  //     { key: "intv", label: "Intv", align: "left" },
+  //     ...(isTypeCis
+  //       ? [{ key: "numcis", label: "N° CIS", align: "center" }]
+  //       : []),
+  //     {
+  //       key: "numCde",
+  //       label: "N° Commande",
+  //       styles: (row) => getCmdColor(row),
+  //       align: "center",
+  //     },
+  //     {
+  //       key: "statrmq",
+  //       label: "Statut ctrmrq",
+  //       styles: (row) => getCmdColorRmq(row),
+  //       align: "center",
+  //     },
+  //     { key: "cst", label: "CST", align: "center" },
+  //     { key: "ref", label: "Ref", align: "left" },
+  //     { key: "qteres_or", label: "Qté OR", align: "center" },
+  //     { key: "qteall", label: "Qté ALL", align: "center" },
+  //     { key: "qtereliquat", label: "Qté RLQ", align: "center" },
+  //     { key: "qteliv", label: "Qté LIV", align: "center" },
+  //     { key: "statut", label: "Statut", align: "center" },
+  //     { key: "datestatut", label: "Date Statut", align: "center" },
+  //     { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
+  //     { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
+  //     { key: "message", label: "Message", align: "left" },
+  //   ];
+  // }
 
-  function formatDetailData(detail, isTypeCis) {
-    return {
-      numcis: detail.numcis || "",
-      numor: detail.numor || "",
-      intv: detail.intv || "",
-      numCde: detail.numerocmd || "",
-      statrmq: isTypeCis
-        ? valueOrEmpty(detail.statut_ctrmq_cis)
-        : valueOrEmpty(detail.statut_ctrmq),
-      cst: detail.cst,
-      ref: detail.ref,
-      qteres_or: valueOrEmpty(parseInt(detail.qteres_or)),
-      qteall: valueOrEmpty(parseInt(detail.qteall)),
-      qtereliquat: valueOrEmpty(parseInt(detail.qtereliquat)),
-      qteliv: valueOrEmpty(parseInt(detail.qteliv)),
-      statut: detail.statut,
-      datestatut: formatDateOrEmpty(detail.datestatut),
-      Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
-      Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
-      message: detail.message,
-      Ord: detail.Ord,
-      qteSolde: parseInt(detail.qteSolde),
-      qteQte: parseInt(detail.qteQte),
-    };
-  }
+  // function formatDetailData(detail, isTypeCis) {
+  //   return {
+  //     numcis: detail.numcis,
+  //     numor: detail.numor,
+  //     intv: detail.intv,
+  //     numCde: detail.numerocmd || valueOrEmpty(detail.numerocdecis),
+  //     statrmq: isTypeCis
+  //       ? valueOrEmpty(detail.statut_ctrmq_cis)
+  //       : valueOrEmpty(detail.statut_ctrmq),
+  //     cst: detail.cst,
+  //     ref: detail.ref,
+  //     qteres_or: valueOrEmpty(parseInt(detail.qteres_or)),
+  //     qteall: valueOrEmpty(parseInt(detail.qteall)),
+  //     qtereliquat: valueOrEmpty(parseInt(detail.qtereliquat)),
+  //     qteliv: valueOrEmpty(parseInt(detail.qteliv)),
+  //     statut: detail.statut,
+  //     datestatut: formatDateOrEmpty(detail.datestatut),
+  //     Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
+  //     Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
+  //     message: detail.message,
+  //     Ord: detail.Ord,
+  //     qteSolde: parseInt(detail.qteSolde),
+  //     qteQte: parseInt(detail.qteQte),
+  //     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+  //     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+  //   };
+  // }
 
-  function displayEmptyMessage() {
-    tableau.props.data = [
-      { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
-    ];
-    tableau.render();
-  }
+  // function displayEmptyMessage() {
+  //   tableau.props.data = [
+  //     { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
+  //   ];
+  //   tableau.render();
+  // }
 
   function handleFetchResponse(response) {
     if (!response.ok) {
@@ -527,9 +529,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   function clearTableContents() {
-    // document.getElementById("commandesTableBody").innerHTML = "";
+    document.getElementById("commandesTableBody").innerHTML = "";
     document.getElementById("orIntv").innerHTML = "";
-    // document.getElementById("planningTableHead").innerHTML = "";
+    document.getElementById("planningTableHead").innerHTML = "";
   }
 
   function updateOrDetails(detail) {
@@ -583,136 +585,137 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Fonction pour calculer la couleur de la commande
   function getCmdColor(detail) {
     if (detail.statut === "DISPO STOCK") {
-      // return 'style="background-color: #c8ad7f; color: white;"';
-      return { backgroundColor: "#c8ad7f", color: "white" };
+      return 'style="background-color: #c8ad7f; color: white;"';
+      // return { backgroundColor: "#c8ad7f", color: "white" };
     }
     if (["Error", "Back Order"].includes(detail.statut)) {
-      // return 'style="background-color: red; color: white;"';
-      return { backgroundColor: "red", color: "white" };
+      return 'style="background-color: red; color: white;"';
+      // return { backgroundColor: "red", color: "white" };
     }
     if (detail.Ord === "ORD") {
-      // return 'style="background-color:#9ACD32; color: white;"';
-      return { backgroundColor: "#9ACD32", color: "white" };
+      return 'style="background-color:#9ACD32; color: white;"';
+      // return { backgroundColor: "#9ACD32", color: "white" };
     }
-    return {}; // Default case
+    return "";
+    //return {}; // Default case
   }
 
   // Fonction pour vérifier la réception partielle
   function getCmdColorRmq(detail) {
-    // parseInt(detail.qteSolde) > 0 &&
-    //parseInt(detail.qteSolde) !== parseInt(detail.qteQte)
-    //   ? 'style="background-color: yellow;"'
-    //   : "";
-    return detail.qteSolde > 0 && detail.qteSolde !== detail.qteQte
-      ? { backgroundColor: "yellow" }
-      : {};
+    return parseInt(detail.qteSolde) > 0 &&
+      parseInt(detail.qteSolde) !== parseInt(detail.qteQte)
+      ? 'style="background-color: yellow;"'
+      : "";
+    // return detail.qteSolde > 0 && detail.qteSolde !== detail.qteQte
+    //   ? { backgroundColor: "yellow" }
+    //   : {};
   }
 
-  // function fetchDetailModal(id, signal, loading, dataContent) {
-  //   const url = `/Hffintranet/detail-modal/${id}`;
-  //   // Fetch request to get the data
-  //   fetch(url, { signal })
-  //     .then(handleFetchResponse)
-  //     .then((data) => {
-  //       clearTableContents();
-  //       if (data.length > 0) {
-  //         const isTypeCis = data[0].numor.startsWith("5");
-  //         updateTableHeader(isTypeCis);
+  function fetchDetailModal(id, signal, loading, dataContent) {
+    const url = `/Hffintranet/detail-modal/${id}`;
+    // Fetch request to get the data
+    fetch(url, { signal })
+      .then(handleFetchResponse)
+      .then((data) => {
+        clearTableContents();
+        if (data.length > 0) {
+          const isTypeCis = data[0].numor.startsWith("5");
+          updateTableHeader(isTypeCis);
 
-  //         data.forEach((detail) => {
-  //           updateOrDetails(detail);
-  //           const formattedDetail = formatDetail(detail);
-  //           const isTypeCis = detail.numor && detail.numor.startsWith("5");
-  //           document.getElementById("commandesTableBody").innerHTML +=
-  //             createRow(detail, formattedDetail, isTypeCis);
-  //         });
+          data.forEach((detail) => {
+            updateOrDetails(detail);
+            const formattedDetail = formatDetail(detail);
+            const isTypeCis = detail.numor && detail.numor.startsWith("5");
+            document.getElementById("commandesTableBody").innerHTML +=
+              createRow(detail, formattedDetail, isTypeCis);
+          });
 
-  //         toggleSpinner(loading, dataContent, false);
-  //       } else {
-  //         displayEmptyMessage();
-  //         toggleSpinner(loading, dataContent, false);
-  //       }
-  //     })
-  //     .catch(handleFetchError);
-  // }
+          toggleSpinner(loading, dataContent, false);
+        } else {
+          displayEmptyMessage();
+          toggleSpinner(loading, dataContent, false);
+        }
+      })
+      .catch(handleFetchError);
+  }
 
-  // function updateTableHeader(isTypeCis) {
-  //   const planningTableHead = document.getElementById("planningTableHead");
-  //   planningTableHead.innerHTML += generateRowHeader(isTypeCis);
-  // }
+  function updateTableHeader(isTypeCis) {
+    const planningTableHead = document.getElementById("planningTableHead");
+    planningTableHead.innerHTML += generateRowHeader(isTypeCis);
+  }
 
-  // function formatDetail(detail) {
-  //   return {
-  //     dateStatut: formatDateOrEmpty(detail.datestatut),
-  //     dateEtaIvato: formatDateOrEmpty(detail.Eta_ivato),
-  //     dateMagasin: formatDateOrEmpty(detail.Eta_magasin),
-  //     numCde: valueOrEmpty(detail.numerocmd),
-  //     numRef: valueOrEmpty(detail.ref),
-  //     statrmq: valueOrEmpty(detail.statut_ctrmq),
-  //     statut: valueOrEmpty(detail.statut),
-  //     message: valueOrEmpty(detail.message),
-  //     numCis: valueOrEmpty(detail.numcis),
-  //     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
-  //     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
-  //     cmdColorRmq: getCmdColorRmq(detail),
-  //     cmdColor: getCmdColor(detail),
-  //   };
-  // }
+  function formatDetail(detail) {
+    return {
+      dateStatut: formatDateOrEmpty(detail.datestatut),
+      dateEtaIvato: formatDateOrEmpty(detail.Eta_ivato),
+      dateMagasin: formatDateOrEmpty(detail.Eta_magasin),
+      numCde: valueOrEmpty(detail.numerocmd),
+      numRef: valueOrEmpty(detail.ref),
+      statrmq: valueOrEmpty(detail.statut_ctrmq),
+      statut: valueOrEmpty(detail.statut),
+      message: valueOrEmpty(detail.message),
+      numCis: valueOrEmpty(detail.numcis),
+      numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+      StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+      cmdColorRmq: getCmdColorRmq(detail),
+      cmdColor: getCmdColor(detail),
+    };
+  }
 
-  // function displayEmptyMessage() {
-  //   const tableBody = document.getElementById("commandesTableBody");
-  //   tableBody.innerHTML =
-  //     '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-  // }
+  function displayEmptyMessage() {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML =
+      '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+  }
 
-  // function generateRowHeader(includeCIS = false) {
-  //   let commonHeaders = `
-  //       <th>N° OR</th>
-  //       <th>Intv</th>
-  //       <th>N° Commande</th>
-  //       <th>Statut ctrmrq</th>
-  //       <th>CST</th>
-  //       <th>Ref</th>
-  //       <th>Désignation</th>
-  //       <th>Qté OR</th>
-  //       <th>Qté ALL</th>
-  //       <th>QTé RLQ</th>
-  //       <th>QTé LIV</th>
-  //       <th>Statut</th>
-  //       <th>Date Statut</th>
-  //       <th>ETA Ivato</th>
-  //       <th>ETA Magasin</th>
-  //       <th>Message</th>
-  //   `;
+  function generateRowHeader(includeCIS = false) {
+    let commonHeaders = `
+        <th>N° OR</th>
+        <th>Intv</th>
+        <th>N° Commande</th>
+        <th>Statut ctrmrq</th>
+        <th>CST</th>
+        <th>Ref</th>
+        <th>Désignation</th>
+        <th>Qté OR</th>
+        <th>Qté ALL</th>
+        <th>QTé RLQ</th>
+        <th>QTé LIV</th>
+        <th>Statut</th>
+        <th>Date Statut</th>
+        <th>ETA Ivato</th>
+        <th>ETA Magasin</th>
+        <th>Message</th>
+    `;
 
-  //   let cisHeader = `<th>N° CIS</th>`;
+    let cisHeader = `<th>N° CIS</th>`;
 
-  //   return includeCIS ? cisHeader + commonHeaders : commonHeaders;
-  // }
+    return includeCIS ? cisHeader + commonHeaders : commonHeaders;
+  }
 
-  // function createRow(detail, formattedDetail, useCis) {
-  //   return `<tr>
-  //               <td>${detail.numor}</td>
-  //               <td>${detail.intv}</td>
-  //               ${useCis ? `<td>${formattedDetail.numCis}</td>` : ""}
-  //               <td ${formattedDetail.cmdColor}>${
-  //     useCis ? formattedDetail.numeroCdeCis : formattedDetail.numCde
-  //   }</td>
-  //               <td ${formattedDetail.cmdColorRmq}>${
-  //     useCis ? formattedDetail.StatutCtrmqCis : formattedDetail.statrmq
-  //   }</td>
-  //               <td>${detail.cst}</td>
-  //               <td>${formattedDetail.numRef}</td>
-  //               <td>${detail.desi}</td>
-  //               <td>${parseInt(detail.qteres_or)}</td>
-  //               <td>${parseInt(detail.qteall)}</td>
-  //               <td>${parseInt(detail.qtereliquat)}</td>
-  //               <td>${parseInt(detail.qteliv)}</td>
-  //               <td>${formattedDetail.statut}</td>
-  //               <td>${formattedDetail.dateStatut}</td>
-  //               <td>${formattedDetail.dateEtaIvato}</td>
-  //               <td>${formattedDetail.dateMagasin}</td>
-  //               <td>${formattedDetail.message}</td>
-  //           </tr>`;
-  // }
+  function createRow(detail, formattedDetail, useCis) {
+    return `<tr>
+                <td>${detail.numor}</td>
+                <td>${detail.intv}</td>
+                ${useCis ? `<td>${formattedDetail.numCis}</td>` : ""}
+                <td ${formattedDetail.cmdColor}>${
+      useCis ? formattedDetail.numeroCdeCis : formattedDetail.numCde
+    }</td>
+                <td ${formattedDetail.cmdColorRmq}>${
+      useCis ? formattedDetail.StatutCtrmqCis : formattedDetail.statrmq
+    }</td>
+                <td>${detail.cst}</td>
+                <td>${formattedDetail.numRef}</td>
+                <td>${detail.desi}</td>
+                <td>${parseInt(detail.qteres_or)}</td>
+                <td>${parseInt(detail.qteall)}</td>
+                <td>${parseInt(detail.qtereliquat)}</td>
+                <td>${parseInt(detail.qteliv)}</td>
+                <td>${formattedDetail.statut}</td>
+                <td>${formattedDetail.dateStatut}</td>
+                <td>${formattedDetail.dateEtaIvato}</td>
+                <td>${formattedDetail.dateMagasin}</td>
+                <td>${formattedDetail.message}</td>
+            </tr>`;
+  }
 });
