@@ -13,3 +13,9 @@ CREATE TABLE bc_soumis (
 
 INSERT INTO type_document(typeDocument, date_creation, date_modification, heure_creation, heure_modification, libelle_document)
 VALUES ('BC', '2025-01-06', '2025-01-06', '10:48', '10:48', 'BON DE COMMANDE')
+
+ALTER TABLE users
+ADD num_tel INT
+
+ALTER TABLE users
+ADD poste VARCHAR(50)

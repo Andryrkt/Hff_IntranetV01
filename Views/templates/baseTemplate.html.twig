@@ -14,21 +14,20 @@
 			<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet">
 
 			<link rel="stylesheet" href="/Hffintranet/Views/css/style.css">
-			<link
-			rel="shortcut icon" href="/Hffintranet/Views/assets/favicon-2.png	" type="image/x-icon">
+			<link rel="shortcut icon" href="/Hffintranet/Views/assets/favicon-2.png	" type="image/x-icon">
 			{# <link rel="stylesheet" href="{{asset("build/global.css")}}"> #}
-			{% block stylesheets %}{% endblock %}
-			<title>
-				{% block title %}
-					Hff Intranet
-				{% endblock %}
-			</title>
+			{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css"> #}{% block stylesheets %}
+			{% endblock %}
+				<title>
+					{% block title %}
+				Hff Intranet
+			{% endblock %}
+		</title>
 
-		{% endblock %}
+	{% endblock %}
 	</head>
-	<body>
-		<div id="loading-overlay">
-			<div class="spinner-overlay"></div>
+		<body>
+			<div id="loading-overlay"> <div class="spinner-overlay"></div>
 		</div>
 
 		<div class="main-content">
@@ -56,6 +55,8 @@
 		<!-- ckeditor pour wyswing -->
 		<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
+		<!-- autocomplete -->
+		<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
 
 		<script type="module" src="{{asset("build/app.js")}}"></script>
 		<!-- <script type="module" src="/Hffintranet/Views/dist/bundle.js"></script> -->
