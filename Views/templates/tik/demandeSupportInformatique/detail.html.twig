@@ -133,7 +133,7 @@
 						{# DEBUT PARTIE POUR VALIDATEUR OU INTERVENANT #}
 							{% if autoriser %}
 							{# DEBUT FORMULAIRE POUR VALIDATEUR OU INTERVENANT #}
-							{{ form_start(form, {'attr':{'id':'formTik', 'disabledEdit': (statutOuvert and validateur) or intervenant ? 'false' : 'true'}}
+							{{ form_start(form, {'attr':{'id':'formTik', 'edit': statutOuvert ? 'true' : 'false'}}
 							) }}
 
 							{{ form_row(form._token) }}

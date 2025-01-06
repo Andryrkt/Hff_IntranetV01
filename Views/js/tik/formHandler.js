@@ -26,6 +26,11 @@ export function handleActionClick(buttonName) {
       requiredFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
       optionalFields: [tikCommentaires],
     },
+    commenter: {
+      enableFields: [tikCommentaires],
+      requiredFields: [tikCommentaires],
+      optionalFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
+    },
     refuser: {
       enableFields: [tikCommentaires],
       requiredFields: [tikCommentaires],
