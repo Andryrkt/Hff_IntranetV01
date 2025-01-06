@@ -255,6 +255,15 @@ class demandeInterventionType extends AbstractType
                     'class' => 'nomClient noEntrer'
                 ]
             ])
+            ->add('numeroClient',
+            TextType::class,
+            [
+                'label' => 'Numéro du client (*EXTERNE)',
+                'required' => true,
+                'attr' => [
+                    'class' => 'numClient noEntrer'
+                ]
+            ])
             ->add('numeroTel',
             TelType::class,
             [

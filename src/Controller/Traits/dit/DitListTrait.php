@@ -575,7 +575,7 @@ trait DitListTrait
     private function ajoutEstOrASoumis($paginationData, $em)
     {
         foreach ($paginationData as $value) {
-            // Votre logique ici
+            // efa nisy noumission or ve?
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
 
             if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) {

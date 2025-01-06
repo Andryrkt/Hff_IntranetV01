@@ -325,9 +325,11 @@ const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
 const erreurClient = document.querySelector("#erreurClient");
+const numClientInput = document.querySelector(".numClient");
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
+  numClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
   clientSousContratInput.setAttribute("disabled", true);
 }
@@ -338,6 +340,7 @@ function interneExterne() {
   console.log(interneExterneInput.value);
   if (interneExterneInput.value === "EXTERNE") {
     nomClientInput.removeAttribute("disabled");
+    numClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");
     demandeDevisInput.removeAttribute("disabled");
@@ -345,6 +348,7 @@ function interneExterne() {
     serviceDebiteurInput.setAttribute("disabled", true);
   } else {
     nomClientInput.setAttribute("disabled", true);
+    numClientInput.setAttribute("disabled", true);
     numTelInput.setAttribute("disabled", true);
     demandeDevisInput.setAttribute("disabled", true);
     clientSousContratInput.setAttribute("disabled", true);
