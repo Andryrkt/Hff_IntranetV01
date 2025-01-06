@@ -1,4 +1,4 @@
-import { toggleRequiredFields, disableForm } from './utils/formUtils.js';
+import { toggleRequiredFields, disableForm } from '../utils/formUtils.js';
 
 const tikCategorie = document.querySelector('#detail_tik_categorie');
 const tikSousCategorie = document.querySelector('#detail_tik_sousCategorie');

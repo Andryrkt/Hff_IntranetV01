@@ -4,9 +4,9 @@ import {
   validateField,
   validateFormBeforeSubmit,
   disableForm,
-} from './utils/formUtils.js';
+} from '../utils/formUtils.js';
 
-import { resetDropdown, populateDropdown } from './utils/dropdownUtils.js';
+import { resetDropdown } from '../utils/dropdownUtils.js';
 
 import { updateDropdown } from './categoryHandler.js';
 

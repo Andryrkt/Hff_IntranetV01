@@ -1,6 +1,6 @@
-import { fetchData } from './utils/fetchUtils.js';
-import { resetDropdown, populateDropdown } from './utils/dropdownUtils.js';
-import { toggleSpinner } from './utils/spinnerUtils.js';
+import { fetchData } from '../utils/fetchUtils.js';
+import { resetDropdown, populateDropdown } from '../utils/dropdownUtils.js';
+import { toggleSpinner } from '../utils/spinnerUtils.js';
 
 export async function updateDropdown(
   dropdown,
