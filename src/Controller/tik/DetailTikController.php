@@ -138,7 +138,7 @@ class DetailTikController extends Controller
 
                         $supportInfo
                             ->setValidateur($connectedUser)
-                            ->setIdStatutDemande($button['statut'])    // statut suspendu
+                            ->setIdStatutDemande($button['statut'])    // statut en attente
                         ;
 
                         self::$em->persist($commentaires);
@@ -359,7 +359,7 @@ class DetailTikController extends Controller
             'ENC' => 'valider',      // statut en cours
             'PLA' => 'planifier',    // statut planifié
             'RES' => 'resoudre',     // statut résolu
-            'SUS' => 'commenter',    // statut suspendu
+            'ENA' => 'commenter',    // statut en attente
             '00'  => 'transferer',
         ];
 
