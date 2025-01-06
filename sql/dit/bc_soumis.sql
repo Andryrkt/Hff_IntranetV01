@@ -15,7 +15,7 @@ INSERT INTO type_document(typeDocument, date_creation, date_modification, heure_
 VALUES ('BC', '2025-01-06', '2025-01-06', '10:48', '10:48', 'BON DE COMMANDE')
 
 ALTER TABLE users
-ADD num_tel INT
+ADD num_tel VARCHAR(10)
 
 ALTER TABLE users
 ADD poste VARCHAR(50)
