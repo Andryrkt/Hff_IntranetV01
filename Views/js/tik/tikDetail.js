@@ -13,15 +13,21 @@ import { updateDropdown } from './categoryHandler.js';
 document.addEventListener('DOMContentLoaded', function () {
   // Bouton d'action
   const validerBtn = document.querySelector('#btn_valider');
+  const commenterBtn = document.querySelector('#btn_commenter');
   const refuserBtn = document.querySelector('#btn_refuser');
   const resoudreBtn = document.querySelector('#btn_resoudre');
   const transfererBtn = document.querySelector('#btn_transferer');
   const planifierBtn = document.querySelector('#btn_planifier');
 
-  disableForm('formTik');
+  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
+    disableForm('formTik');
+  } else {
+    handleActionClick('valider');
+  }
 
   // Gestion des boutons
   validerBtn?.addEventListener('click', () => handleActionClick('valider'));
+  commenterBtn?.addEventListener('click', () => handleActionClick('commenter'));
   refuserBtn?.addEventListener('click', () => handleActionClick('refuser'));
   resoudreBtn?.addEventListener('click', () => handleActionClick('resoudre'));
   transfererBtn?.addEventListener('click', () =>
