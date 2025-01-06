@@ -32,6 +32,7 @@ CREATE TABLE Demande_Support_Informatique(
 	service_debiteur_id int NULL,
 	date_modification datetime2(7) NULL,
 	ID_Statut_Demande int NULL,
+	commentaire text NULL,
 	file_names text NULL
 CONSTRAINT PRIMARY KEY (ID_Demande_Support_Informatique));
 

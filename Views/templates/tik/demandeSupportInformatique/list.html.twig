@@ -41,6 +41,7 @@
 					<th>N° parc PC</th>
 					<th>Objet du demande</th>
 					<th>Date de demande</th>
+					<th>Dernier commentaire</th>
 					<th>Intervenant</th>
 				</tr>
 			</thead>
@@ -95,12 +96,13 @@
 						<td>
 							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td>{{ item.niveauUrgence.description }}</td>
+						<td>{{ item.niveauUrgence.description | default('-')  }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.parcInformatique }}</td>
+						<td>{{ item.parcInformatique | default('-') }}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ item.nomIntervenant }}</td>
+						<td>{{ item.commentaire | default('-') }}</td>
+						<td>{{ item.nomIntervenant | default('-') }}</td>
 
 					</tr>
 				{% endfor %}
