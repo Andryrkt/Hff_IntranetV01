@@ -5,11 +5,12 @@ namespace App\Controller\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
-
+use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 
 class ModificationTikController extends Controller
 {
@@ -20,7 +21,15 @@ class ModificationTikController extends Controller
      */
     public function edit(Request $request, $id)
     {
+        /** 
+         * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
+         */
         $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+
+        // Vérifier si l'utilisateur peut modifier le ticket
+        if (!$this->canEdit($supportInfo->getNumeroTicket())) {
+            $this->redirectToRoute('liste_tik_index');
+        }
 
         //agence et service
         $agenceRepository = self::$em->getRepository(Agence::class);
@@ -57,5 +66,26 @@ class ModificationTikController extends Controller
             'fichiers' => $fichiers,
             'form' => $form->createView()
         ]);
+    }
+
+    /** 
+     * Fonction pour vérifier si l'utilisateur peut éditer le ticket
+     */
+    private function canEdit(string $numTik): bool
+    {
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+
+        $allTik = $utilisateur->getSupportInfoUser();
+
+        foreach ($allTik as $tik) {
+            // si le numéro du ticket appartient à l'utilisateur connecté et le statut du ticket est ouvert ou en attente
+            if ($numTik === $tik->getNumeroTicket() && ($tik->getIdStatutDemande()->getId() === 58 || $tik->getIdStatutDemande()->getId() === 65)) {
+                return true;
+                break;
+            }
+        }
+
+        return false;
     }
 }
