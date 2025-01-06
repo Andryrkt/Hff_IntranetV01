@@ -79,7 +79,7 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("tik_modification_edit", {id: item.id})}}">Modifier</a>
+										<a class="dropdown-item fw-bold" id="modifierLink" href="{{ path("tik_modification_edit", {id: item.id})}}">Modifier</a>
 									</li>
 
 								</ul>
@@ -115,6 +115,7 @@
 
 	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
 	{% include "/tik/demandeSupportInformatique/shared/_modalCommentaire.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalConfirmationModal.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
