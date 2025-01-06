@@ -96,13 +96,15 @@
 						<td>
 							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td>{{ item.niveauUrgence.description | default('-')  }}</td>
+						<td>{{ item.niveauUrgence.description | default('--')  }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.parcInformatique | default('-') }}</td>
+						<td>{{ item.parcInformatique | default('--') }}</td>
 						<td>{{ item.objetDemande }}</td>
 						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ item.commentaire | default('-') }}</td>
-						<td>{{ item.nomIntervenant | default('-') }}</td>
+						<td>
+							<a href="#" data-bs-toggle="modal" data-bs-target="#commentaire" data-id="{{ item.numeroTicket }}">{{ item.commentaire | default('--') }}</a>
+						</td>
+						<td>{{ item.nomIntervenant | default('--') }}</td>
 
 					</tr>
 				{% endfor %}
@@ -112,8 +114,10 @@
 	<!-- FIN tableau -->
 
 	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalCommentaire.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="/Hffintranet/Views/js/tik/tikListe.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/tik/tikListeModal.js" type="module"></script>
 {% endblock %}
