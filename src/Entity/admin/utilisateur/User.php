@@ -172,14 +172,14 @@ class User implements UserInterface
      *
      * @var string 
      */
-    private string $numTel;
+    private ?string $numTel;
 
     /**
      * @ORM\Column(type="string", length=50, name="poste")
      *
      * @var string
      */
-    private string $poste;
+    private ?string $poste;
     //=================================================================================================================================
 
     public function __construct()

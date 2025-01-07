@@ -39,6 +39,9 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function insertionDevis(Request $request, $numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($numDit, $numDevis);
 
