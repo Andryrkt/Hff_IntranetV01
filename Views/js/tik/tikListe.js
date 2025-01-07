@@ -1,3 +1,7 @@
+import { resetDropdown } from '../utils/dropdownUtils.js';
+
+import { updateDropdown } from '../utils/selectionHandlerUtils.js';
+
 /**
  * recuperer l'agence emetteur et changer le service emetteur selon l'agence
  */
@@ -115,114 +119,50 @@ function selectAgenceDebiteur() {
  */
 const categorieInput = document.querySelector('.categorie');
 const sousCategorieInput = document.querySelector('.sous-categorie');
+const sousCategorieSpinner = document.querySelector('#spinner-sous-categorie');
+const sousCategorieContainer = document.querySelector(
+  '#sous-categorie-container'
+);
 const autreCategorieInput = document.querySelector('.autres-categories');
+const autreCategorieSpinner = document.querySelector(
+  '#spinner-autres-categories'
+);
+const autreCategorieContainer = document.querySelector(
+  '#autres-categories-container'
+);
 
-//AFFICHAGE SOUS CATEGORIES
-categorieInput.addEventListener('change', selectCategorieSousCategorie);
+// Mise à jour des sous-catégories
+categorieInput?.addEventListener('change', function () {
+  if (categorieInput.value !== '') {
+    const url = `/Hffintranet/api/sous-categorie-fetch/${categorieInput.value}`;
+    console.log(url);
 
-function selectCategorieSousCategorie() {
-  const categorie = categorieInput.value;
-
-  if (categorie === '') {
-    while (sousCategorieInput.options.length > 0) {
-      sousCategorieInput.remove(0);
-    }
-
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.text = ' -- Choisir une sous catégorie -- ';
-    sousCategorieInput.add(defaultOption);
-    return; // Sortir de la fonction
+    updateDropdown(
+      sousCategorieInput,
+      url,
+      ' -- Choisir une sous-catégorie -- ',
+      sousCategorieSpinner,
+      sousCategorieContainer
+    );
   }
-
-  let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((sousCategories) => {
-      console.log(sousCategories);
-
-      // Supprimer toutes les options existantes
-      while (sousCategorieInput.options.length > 0) {
-        sousCategorieInput.remove(0);
-      }
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.text = ' -- Choisir une sous catégorie -- ';
-      sousCategorieInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < sousCategories.length; i++) {
-        var option = document.createElement('option');
-        option.value = sousCategories[i].value;
-        option.text = sousCategories[i].text;
-        sousCategorieInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < sousCategorieInput.options.length; i++) {
-        var option = sousCategorieInput.options[i];
-        console.log('Value: ' + option.value + ', Text: ' + option.text);
-      }
-    })
-    .catch((error) => console.error('Error:', error));
-
-  //AFFICHAGE AUTRES CATEGORIE
-  sousCategorieInput.addEventListener(
-    'change',
-    selectSousCategorieAutresCategories
-  );
-
-  function selectSousCategorieAutresCategories() {
-    const sousCategorie = sousCategorieInput.value;
-
-    if (sousCategorie === '') {
-      while (autreCategorieInput.options.length > 0) {
-        autreCategorieInput.remove(0);
-      }
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.text = ' -- Choisir une sous catégorie -- ';
-      autreCategorieInput.add(defaultOption);
-      return; // Sortir de la fonction
-    }
-
-    console.log(sousCategorie);
-
-    let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((autresCategories) => {
-        console.log(autresCategories);
-
-        // Supprimer toutes les options existantes
-        while (autreCategorieInput.options.length > 0) {
-          autreCategorieInput.remove(0);
-        }
-
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.text = ' -- Choisir une autre categorie-- ';
-        autreCategorieInput.add(defaultOption);
-
-        // Ajouter les nouvelles options à partir du tableau services
-        for (var i = 0; i < autresCategories.length; i++) {
-          var option = document.createElement('option');
-          option.value = autresCategories[i].value;
-          option.text = autresCategories[i].text;
-          autreCategorieInput.add(option);
-        }
-
-        //Afficher les nouvelles valeurs et textes des options
-        for (var i = 0; i < autreCategorieInput.options.length; i++) {
-          var option = autreCategorieInput.options[i];
-          console.log('Value: ' + option.value + ', Text: ' + option.text);
-        }
-      })
-      .catch((error) => console.error('Error:', error));
+  if (autreCategorieInput.value !== '') {
+    resetDropdown(autreCategorieInput, ' -- Choisir une autre catégorie -- ');
   }
-}
+});
+
+// Mise à jour des autres catégories
+sousCategorieInput?.addEventListener('change', function () {
+  if (sousCategorieInput.value !== '') {
+    const url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorieInput.value}`;
+    updateDropdown(
+      autreCategorieInput,
+      url,
+      ' -- Choisir une autre catégorie -- ',
+      autreCategorieSpinner,
+      autreCategorieContainer
+    );
+  }
+});
 
 /**
  * modal pour la modification d'un ticket

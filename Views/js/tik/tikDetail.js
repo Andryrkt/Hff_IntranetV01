@@ -8,7 +8,7 @@ import {
 
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
-import { updateDropdown } from './categoryHandler.js';
+import { updateDropdown } from '../utils/selectionHandlerUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   // Bouton d'action
