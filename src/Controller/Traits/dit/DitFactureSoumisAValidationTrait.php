@@ -47,7 +47,6 @@ trait DitFactureSoumisAValidationtrait
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
                 $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
-            
                 $factureSoumis
                         ->setNumeroDit($numDit)
                         ->setNumeroOR($dataForm->getNumeroOR())
@@ -101,7 +100,6 @@ trait DitFactureSoumisAValidationtrait
             $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
             $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv']);
-
             if(empty($statutOrsSoumisValidation) || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
                 $statutFac[] = 'Itv non validée';
                 $nombreStatutControle['nbrNonValideFacture']++;

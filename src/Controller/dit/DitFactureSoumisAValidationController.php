@@ -65,6 +65,10 @@ class DitFactureSoumisAValidationController extends Controller
             $nbFact = $this->nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
+
+            // dump($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR());
+            // dump($nbFact === 0);
+            // dump($nbFactSqlServer > 0);
             if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->notification($message);
@@ -78,6 +82,7 @@ class DitFactureSoumisAValidationController extends Controller
             else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+                
                 $this->ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
@@ -87,7 +92,8 @@ class DitFactureSoumisAValidationController extends Controller
                 if($estRi){
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
                     $this->notification($message);
-                } else {                    
+                } else { 
+
                         /** CREATION PDF */
                     $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
                     
@@ -164,8 +170,10 @@ class DitFactureSoumisAValidationController extends Controller
                 $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
                 
                 if(empty($riSoumis)){
-                    $estRi = true;                
+                    $estRi = true; 
+                                
                 } else {
+                  
                     for ($i=0; $i < count($infoFacture); $i++) { 
                         if( !in_array($infoFacture[$i]['numeroitv'], $riSoumis)){
                             $estRi = true;

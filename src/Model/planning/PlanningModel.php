@@ -191,6 +191,7 @@ class PlanningModel extends Model
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                     AND slor_constp NOT like '%ZDI%'
+                    
                     $vOrvalDw
                     $vligneType
 
@@ -643,7 +644,7 @@ public function recuperationPartiel($numcde, $refp){
                   $vconditionNumOr
                   $nivUrg
                   ";
-    //  dump($statement);
+   
     $execQueryNumOr = $this->connexion->query($statement);
     $numOr = array();
 
