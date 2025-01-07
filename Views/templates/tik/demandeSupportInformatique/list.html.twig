@@ -52,19 +52,19 @@
 					{% set classeStatutTik = '' %}
 					{% set styleStatutTik = '' %}
 
-					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+					{% if item.idStatutDemande.description|trim == 'OUVERT' %}
 						{% set classeStatutTik ='ouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+					{% elseif item.idStatutDemande.description|trim == 'REFUSE'  %}
 						{% set classeStatutTik ='refuse' %}
-					{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+					{% elseif  item.idStatutDemande.description|trim == 'ENCOURS' %}
 						{% set classeStatutTik ='encours' %}
-					{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+					{% elseif item.idStatutDemande.description|trim == 'PLANIFIE' %}
 						{% set classeStatutTik ='planifie' %}
-					{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+					{% elseif item.idStatutDemande.description|trim == 'RESOLU' %}
 						{% set classeStatutTik ='resolu' %}
-					{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+					{% elseif item.idStatutDemande.description|trim == 'REOUVERT' %}
 						{% set classeStatutTik ='reouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+					{% elseif item.idStatutDemande.description|trim == 'CLÔTURE' %}
 						{% set classeStatutTik ='cloture' %}
 					{% else %}
 						{% set classeStatutTik = '' %}
@@ -89,23 +89,24 @@
 
 						{# DEBUT Statut #}
 
-						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description|trim}}</td>
 
 						{# FIN Statut #}
 
 						<td>
 							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td>{{ item.niveauUrgence.description | default('--')  }}</td>
+						<td>{{ item.niveauUrgence.description|default('--')  }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.parcInformatique | default('--') }}</td>
+						<td>{{ item.parcInformatique|default('--') }}</td>
 						<td>{{ item.objetDemande }}</td>
-						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
+						<td>{{ item.dateCreation|date('d/m/Y')}}</td>
 						<td>
-							<a href="#" data-bs-toggle="modal" data-bs-target="#commentaire" data-id="{{ item.numeroTicket }}">{{ item.commentaire | default('--') }}</a>
+							<a class="comment-link" href="#" data-bs-toggle="modal" data-bs-target="#commentaire" data-commentaire-user="{{ item.commentaires|last ? item.commentaires|last.nomUtilisateur : '--' }}" data-commentaire-day="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('d') : '--' }}" data-commentaire-month="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('m') : '--' }}" data-commentaire-year="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('Y') : '--' }}" data-commentaire-time="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('H:i') : '--' }}" data-original-text="{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}">
+								{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}
+							</a>
 						</td>
-						<td>{{ item.nomIntervenant | default('--') }}</td>
-
+						<td>{{ item.nomIntervenant|default('--') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
