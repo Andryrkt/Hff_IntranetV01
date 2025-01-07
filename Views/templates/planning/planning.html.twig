@@ -9,25 +9,19 @@
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
+	<div class="sticky-header-titre">
+		<div class="container">
+			<h3 class="perso-titre">
+				Planning
+			</h3>
 
-	<div class="container">
-		<h3 class="perso-titre">
-			Planning
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-
-		{% include "/planning/_formulaire.html.twig" %}
+			{% include "/planning/_formulaire.html.twig" %}
+		</div>
 	</div>
-
-	<div
-		class="container-fluid">
+	<div class="container-fluid">
 		<!-- DEBUT tableau -->
-		{% if empty == true %}
-			<div class="container">
-				{% include "/partials/_noResultList.html.twig" %}
-			</div>
-		{% else %}
-			<div class="container">
+		<!-- Bloc fixe en haut -->
+			<div class="sticky-header-statut"> <div class="container">
 				<div class="my-3 d-flex flex-row">
 					<div role="button" tabindex="0" id="tout-livre">
 						<i class="fa-solid fa-circle text-success"></i>
@@ -63,80 +57,78 @@
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
-				<table class="table rounded table-plein-ecran">
-					<thead class="table-dark sticky-top">
-						<tr>
-							<th>Agence - Service Travaux</th>
-							<th>ID</th>
-							<th>Marque</th>
-							<th>Modèle</th>
-							<th>N° Série</th>
-							<th>N° Parc</th>
-							<th>Casier</th>
-							{% for month in uniqueMonths %}
-								<th>{{ month.month }}
-									{{ month.year }}</th>
-							{% endfor %}
-						</tr>
-					</thead>
-					<tbody>
-						{% for item in preparedData %}
-							<tr>
-								<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
-								<td>{{ item.idmat }}</td>
-								<td>{{ item.marqueMat }}</td>
-								<td>{{ item.typemat }}</td>
-								<td>{{ item.numserie }}</td>
-								<td>{{ item.numparc }}</td>
-								<td>{{ item.casier }}</td>
-								{% for month in uniqueMonths %}
-									<td>
-										{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
-										{% if matchedDetails|length > 0 %}
-											{% for detail in matchedDetails %}
-												{% set classe = '' %}
-												{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
-												{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
-												{% set qteAll = detail.details.qteAll | default(0) * 1 %}
-												{% set back = detail.details.back | default('') %}
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>Agence - Service Travaux</th>
+					<th>ID</th>
+					<th>Marque</th>
+					<th>Modèle</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Casier</th>
+					{% for month in uniqueMonths %}
+						<th>{{ month.month }}
+							{{ month.year }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in preparedData %}
+					<tr>
+						<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
+						<td>{{ item.idmat }}</td>
+						<td>{{ item.marqueMat }}</td>
+						<td>{{ item.typemat }}</td>
+						<td>{{ item.numserie }}</td>
+						<td>{{ item.numparc }}</td>
+						<td>{{ item.casier }}</td>
+						{% for month in uniqueMonths %}
+							<td>
+								{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
+								{% if matchedDetails|length > 0 %}
+									{% for detail in matchedDetails %}
+										{% set classe = '' %}
+										{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
+										{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
+										{% set qteAll = detail.details.qteAll | default(0) * 1 %}
+										{% set back = detail.details.back | default('') %}
 
-												{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
-													{# Tout livré #}
-													{% set classe = 'tout-livre bg-success text-white' %}
-												{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
-													{# Partiellement livré #}
-													{% set classe = 'partiellement-livre bg-warning text-white' %}
-												{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
-													{# Partiellement dispo #}
-													{% set classe = 'partiellement-dispo bg-info text-white' %}
-												{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
-													{# complet non livré #}
-													{% set classe = 'complet-non-livre bg-primary text-white' %}
-												{% endif %}
-
-												{% if back != '' %}
-													{# Back Order #}
-													{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
-												{% endif %}
-
-												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
-													{{ detail.details.orIntv }}
-												</a><br>
-											{% endfor %}
-										{% else %}
-											-
+										{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+											{# Tout livré #}
+											{% set classe = 'tout-livre bg-success text-white' %}
+										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+											{# Partiellement livré #}
+											{% set classe = 'partiellement-livre bg-warning text-white' %}
+										{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+											{# Partiellement dispo #}
+											{% set classe = 'partiellement-dispo bg-info text-white' %}
+										{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+											{# complet non livré #}
+											{% set classe = 'complet-non-livre bg-primary text-white' %}
 										{% endif %}
 
-									</td>
-								{% endfor %}
-							</tr>
+										{% if back != '' %}
+											{# Back Order #}
+											{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
+										{% endif %}
+
+										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
+											{{ detail.details.orIntv }}
+										</a><br>
+									{% endfor %}
+								{% else %}
+									-
+								{% endif %}
+
+							</td>
 						{% endfor %}
-					</tbody>
-				</table>
-			</div>
-		{% endif %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 
 	<!-- FIN tableau -->
