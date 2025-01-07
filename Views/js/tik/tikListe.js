@@ -2,8 +2,6 @@ import { resetDropdown } from '../utils/dropdownUtils.js';
 
 import { updateDropdown } from '../utils/selectionHandlerUtils.js';
 
-import { setupModal } from '../utils/modalHandlerUtils.js';
-
 document.addEventListener('DOMContentLoaded', function () {
   const elements = [
     {
@@ -79,6 +77,4 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   );
-
-  setupModal('confirmationModal', 'modifierLink', 'confirmModification'); // modal pour la modification d'un ticket
 });

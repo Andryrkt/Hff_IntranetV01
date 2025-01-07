@@ -7,13 +7,13 @@ export function setupModal(modalId, triggerLinkId, confirmButtonId) {
   let redirectUrl = '';
 
   // Ajouter les écouteurs d'événements
-  triggerLink.addEventListener('click', (event) => {
+  triggerLink?.addEventListener('click', (event) => {
     event.preventDefault();
     redirectUrl = event.target.getAttribute('href');
     modal.show();
   });
 
-  confirmButton.addEventListener('click', () => {
+  confirmButton?.addEventListener('click', () => {
     if (redirectUrl) {
       window.location.href = redirectUrl;
     }
