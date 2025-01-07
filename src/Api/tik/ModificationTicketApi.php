@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ModificationTicketApi extends Controller
 {
     /**
-     * @Route("/api/modification-ticket-fetch/{numTik}", name="sous_categorie_fetch")
+     * @Route("/api/modification-ticket-fetch/{numTik}", name="modification_ticket_fetch")
      *
      * @return void
      */
