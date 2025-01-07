@@ -323,16 +323,20 @@ private function getSelectedMonths(array $months, int $currentMonth, int $curren
     return $selectedMonths;
 }
 
-private function generateMonthData(array $months, int $currentMonth, int $currentYear, int $offset): array
-{
-    $monthIndex = ($currentMonth + $offset + 12) % 12;
-    $yearOffset = intdiv($currentMonth + $offset, 12);
-    $year = $currentYear + $yearOffset;
+    private function generateMonthData(array $months, int $currentMonth, int $currentYear, int $offset): array
+    {
+        $totalMonths = $currentMonth + $offset;
+        $monthIndex = ($totalMonths % 12 + 12) % 12; // Assure un index valide entre 0-11
+        $year = $currentYear + intdiv($totalMonths, 12);
 
-    return [
-        'month' => $months[$monthIndex],
-        'year' => $year,
-        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
-    ];
-}
+        if ($totalMonths < 0 && $monthIndex > $currentMonth) {
+            $year--; // Si l'offset est négatif et que le mois calculé est après le mois courant, ajuste l'année.
+        }
+
+        return [
+            'month' => $months[$monthIndex],
+            'year' => $year,
+            'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+        ];
+    }
 }
