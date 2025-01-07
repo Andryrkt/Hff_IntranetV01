@@ -11,7 +11,12 @@ const totalTime = 900; // Total en secondes (15 minutes)
 let timeRemaining = totalTime;
 
 const chronoText = document.getElementById('chrono-text');
+const chronoContainer = document.querySelector('.chrono-container');
 const chronoProgress = document.querySelector('.chrono-progress');
+
+if (location.pathname === '/Hffintranet/') {
+  chronoContainer.classList.add('d-none');
+}
 
 //Calcul du périmètre du cercle (2 * PI * r)
 const radius = 45;
