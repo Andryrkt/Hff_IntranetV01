@@ -28,21 +28,33 @@
 			</div>
 		{% else %}
 			<div class="container">
-				<div class="mb-3">
-
-					<i class="fa-solid fa-circle text-success"></i>
-					<small class="text-success">Tout livré |</small>
-					<i class="fa-solid fa-circle text-warning"></i>
-					<small class="text-warning">Partiellement livré |</small>
-					<i class="fa-solid fa-circle text-info"></i>
-					<small class="text-info">Partiellement dispo |</small>
-					<i class="fa-solid fa-circle text-primary"></i>
-					<small class="text-primary">Complet non livré |
-					</small>
-					<small class=" border-end border-start border-danger border-3">
-						Back Order
-					</small>
+				<div class="my-3 d-flex flex-row">
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order
+						</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-afficher">
+						| TOUT AFFICHER
+					</div>
 				</div>
+
 				<div class="d-flex justify-content-between">
 					<div>
 						<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
@@ -85,44 +97,38 @@
 										{% if matchedDetails|length > 0 %}
 											{% for detail in matchedDetails %}
 												{% set classe = '' %}
-												{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
-													{% if detail.details.back == "" %}
-														{% set classe = 'bg-success text-white' %}
-													{% else %}
-														{% set classe = 'bg-success text-white border-end border-start border-danger border-3' %}
-													{% endif %}
-												{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
-													{% if detail.details.back == "" %}
-														{% set classe = 'bg-warning text-white' %}
-													{% else %}
-														{% set classe = 'bg-warning  text-white border-end border-start border-danger border-3' %}
-													{% endif %}
-												{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
-													{% if detail.details.back == "" %}
-														{% set classe = 'bg-info text-white' %}
-													{% else %}
-														{% set classe = 'bg-info text-white border-end border-start border-danger border-3' %}
-													{% endif %}
-												{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
-													{% if detail.details.back == "" %}
-														{% set classe = 'bg-primary text-white' %}
-													{% else %}
-														{% set classe = 'bg-primary text-white border-end border-start border-danger border-3' %}
-													{% endif %}
-												{% else %}
-													{% if detail.details.back == "" %}
-														{% set classe = '' %}
-													{% else %}
-														{% set classe = 'border-end border-start border-danger border-3' %}
-													{% endif %}
+												{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
+												{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
+												{% set qteAll = detail.details.qteAll | default(0) * 1 %}
+												{% set back = detail.details.back | default('') %}
+
+												{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+													{# Tout livré #}
+													{% set classe = 'tout-livre bg-success text-white' %}
+												{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+													{# Partiellement livré #}
+													{% set classe = 'partiellement-livre bg-warning text-white' %}
+												{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+													{# Partiellement dispo #}
+													{% set classe = 'partiellement-dispo bg-info text-white' %}
+												{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+													{# complet non livré #}
+													{% set classe = 'complet-non-livre bg-primary text-white' %}
 												{% endif %}
-												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
+
+												{% if back != '' %}
+													{# Back Order #}
+													{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
+												{% endif %}
+
+												<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
 													{{ detail.details.orIntv }}
 												</a><br>
 											{% endfor %}
 										{% else %}
 											-
 										{% endif %}
+
 									</td>
 								{% endfor %}
 							</tr>
@@ -136,11 +142,11 @@
 	<!-- FIN tableau -->
 	{# body modal #}
 	{% include "/planning/_modal.html.twig"  %}
-	{% include "/planning/_modalCis.html.twig"  %}
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
 	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
 	{#<script src="/Hffintranet/Views/js/planning/main.js" type="module"></script>#}
 {% endblock %}

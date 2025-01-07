@@ -1,103 +1,69 @@
+// document.addEventListener("DOMContentLoaded", function () {
+//   const toutLivrerBtn = document.querySelector("#tout-livre");
+//   const partiellementLivreBtn = document.querySelector("#partiellement-livre");
+//   const partiellementDispoBtn = document.querySelector("#partiellement-dispo");
+//   const completNonLivreBtn = document.querySelector("#complet-non-livre");
+//   const backOrderBtn = document.querySelector("#back-order");
+//   const toutAfficherBtn = document.querySelector("#tout-afficher");
+
+//   toutLivrerBtn.addEventListener("click", () => {
+
+//   });
+// });
+
 document.addEventListener("DOMContentLoaded", function () {
-  fetch("/planning")
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        console.log(data.data);
-        generateTable(data.data);
-      } else {
-        console.error(
-          "Erreur lors de la récupération des données de planning."
-        );
-      }
-    })
-    .catch((error) => console.error("Erreur:", error));
-});
+  const buttons = {
+    "tout-livre": "tout-livre",
+    "partiellement-livre": "partiellement-livre",
+    "partiellement-dispo": "partiellement-dispo",
+    "complet-non-livre": "complet-non-livre",
+    "back-order": "back-order",
+    "tout-afficher": null, // Tout afficher n'a pas de classe spécifique
+  };
 
-function generateTable(planningData) {
-  const tableBody = document.getElementById("planningTableBody");
-  tableBody.innerHTML = ""; // Réinitialiser le tableau avant de le remplir
-
-  planningData.forEach((item) => {
-    const row = document.createElement("tr");
-
-    // Agence - Service
-    const agenceServiceCell = document.createElement("td");
-    agenceServiceCell.textContent = `${item.libsuc} - ${item.libserv}`;
-    row.appendChild(agenceServiceCell);
-
-    // idMat
-    const idMatCell = document.createElement("td");
-    idMatCell.textContent = item.idmat;
-    row.appendChild(idMatCell);
-
-    // Marque (CST)
-    const marqueCell = document.createElement("td");
-    marqueCell.textContent = item.marqueMat;
-    row.appendChild(marqueCell);
-
-    // Type
-    const typeCell = document.createElement("td");
-    typeCell.textContent = item.typemat;
-    row.appendChild(typeCell);
-
-    // Numéro de série
-    const numSerieCell = document.createElement("td");
-    numSerieCell.textContent = item.numserie;
-    row.appendChild(numSerieCell);
-
-    // Numéro de parc
-    const numParcCell = document.createElement("td");
-    numParcCell.textContent = item.numparc;
-    row.appendChild(numParcCell);
-
-    // Casier
-    const casierCell = document.createElement("td");
-    casierCell.textContent = item.casier;
-    row.appendChild(casierCell);
-
-    // Mois (Janv à Déc)
-    const moisDetails = item.moisDetails || [];
-    for (let i = 1; i <= 12; i++) {
-      const moisCell = document.createElement("td");
-      const moisItems = moisDetails.filter((mois) => mois.mois === i);
-
-      if (moisItems.length > 0) {
-        // Appliquer une classe CSS en fonction des quantités (logique à adapter)
-        let classe = "";
-        if (item.qtecdm === item.qteliv) {
-          classe = "bg-success text-white"; // total livré
-        } else if (
-          item.qteliv > 0 &&
-          item.qteliv + item.qteall !== item.qtecdm
-        ) {
-          classe = "bg-warning text-white"; // partiellement livré
-        } else if (item.qtecdm !== item.qteall && item.qteliv === 0) {
-          classe = "bg-info text-white"; // partiellement complet
-        } else if (item.qtecdm === item.qteall && item.qteliv < item.qtecdm) {
-          classe = "bg-primary text-white"; // complet non livré
-        }
-        moisCell.className = classe;
-
-        // Ajouter les liens d'intervention
-        moisItems.forEach((mois) => {
-          const link = document.createElement("a");
-          link.href = "#";
-          link.setAttribute("data-bs-toggle", "modal");
-          link.setAttribute("data-bs-target", "#listeCommande");
-          link.setAttribute("data-id", mois.orIntv);
-          link.className =
-            "link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover";
-          link.textContent = mois.orIntv;
-          moisCell.appendChild(link);
-          moisCell.appendChild(document.createElement("br"));
-        });
-      } else {
-        moisCell.textContent = "-"; // Si pas de données pour le mois
-      }
-      row.appendChild(moisCell);
+  // Ajoute un gestionnaire d'événement pour chaque bouton
+  for (const [buttonId, filterClass] of Object.entries(buttons)) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+      button.addEventListener("click", () => filterRowsByColumn(filterClass));
     }
+  }
 
-    tableBody.appendChild(row);
-  });
-}
+  function filterRowsByColumn(filterClass) {
+    const rows = document.querySelectorAll("table tbody tr");
+
+    rows.forEach((row) => {
+      let hasMatchingCell = false;
+
+      // Parcourt toutes les cellules de la ligne
+      const cells = row.querySelectorAll("td");
+      cells.forEach((cell) => {
+        const links = cell.querySelectorAll("a"); // Tous les liens dans la cellule
+
+        if (!filterClass) {
+          // Si "Tout afficher", montre toutes les lignes et cellules
+          links.forEach((link) => (link.style.display = ""));
+          hasMatchingCell = true; // La ligne reste visible
+        } else {
+          // Filtre par classe
+          let cellMatches = false;
+          links.forEach((link) => {
+            if (link.classList.contains(filterClass)) {
+              link.style.display = ""; // Affiche les liens correspondant
+              cellMatches = true;
+            } else {
+              link.style.display = "none"; // Cache les liens non correspondants
+            }
+          });
+
+          if (cellMatches) {
+            hasMatchingCell = true; // Marque la ligne comme ayant une correspondance
+          }
+        }
+      });
+
+      // Masque ou affiche la ligne entière
+      row.style.display = hasMatchingCell ? "" : "none";
+    });
+  }
+});
