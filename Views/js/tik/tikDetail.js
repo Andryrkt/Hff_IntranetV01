@@ -11,29 +11,26 @@ import { resetDropdown } from '../utils/dropdownUtils.js';
 import { updateDropdown } from '../utils/selectionHandlerUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Bouton d'action
-  const validerBtn = document.querySelector('#btn_valider');
-  const commenterBtn = document.querySelector('#btn_commenter');
-  const refuserBtn = document.querySelector('#btn_refuser');
-  const resoudreBtn = document.querySelector('#btn_resoudre');
-  const transfererBtn = document.querySelector('#btn_transferer');
-  const planifierBtn = document.querySelector('#btn_planifier');
-
   if (document.getElementById('formTik').getAttribute('edit') === 'false') {
     disableForm('formTik');
   } else {
     handleActionClick('valider');
   }
 
-  // Gestion des boutons
-  validerBtn?.addEventListener('click', () => handleActionClick('valider'));
-  commenterBtn?.addEventListener('click', () => handleActionClick('commenter'));
-  refuserBtn?.addEventListener('click', () => handleActionClick('refuser'));
-  resoudreBtn?.addEventListener('click', () => handleActionClick('resoudre'));
-  transfererBtn?.addEventListener('click', () =>
-    handleActionClick('transferer')
-  );
-  planifierBtn?.addEventListener('click', () => handleActionClick('planifier'));
+  // Boutons d'action
+  const buttons = [
+    { id: '#btn_valider', action: 'valider' },
+    { id: '#btn_commenter', action: 'commenter' },
+    { id: '#btn_refuser', action: 'refuser' },
+    { id: '#btn_resoudre', action: 'resoudre' },
+    { id: '#btn_transferer', action: 'transferer' },
+    { id: '#btn_planifier', action: 'planifier' },
+  ];
+
+  buttons.forEach(({ id, action }) => {
+    const btn = document.querySelector(id);
+    btn?.addEventListener('click', () => handleActionClick(action));
+  });
 
   // catégorie, sous-catégorie et autre catégorie
   const categorieInput = document.querySelector('.categorie');
