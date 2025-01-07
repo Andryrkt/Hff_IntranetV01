@@ -61,17 +61,16 @@ class DomSecondController extends Controller
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
                         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-                    }
-
-
-                    if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                     } else {
-                        $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-
-                        $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                        $this->notification($message);
+                        if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
+                        } else {
+                            $message = "Assurez vous que le Montant Total est inférieur à 500.000";
+    
+                            $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
+    
+                            $this->notification($message);
+                        }
                     }
                 }
             } else {

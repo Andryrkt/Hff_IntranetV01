@@ -19,3 +19,11 @@ ADD num_tel VARCHAR(10)
 
 ALTER TABLE users
 ADD poste VARCHAR(50)
+
+
+CREATE TABLE contact_agence_ate (
+    id INT IDENTITY (1, 1),
+    agence VARCHAR(2),
+    matricule VARCHAR(5)
+    CONSTRAINT PK_contact_agence_ate PRIMARY KEY (id)
+);
