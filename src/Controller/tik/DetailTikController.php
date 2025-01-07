@@ -314,8 +314,6 @@ class DetailTikController extends Controller
                 $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
 
                 $this->envoyerEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
-
-                $this->redirectToRoute("liste_tik_index");
             }
 
             $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 58;

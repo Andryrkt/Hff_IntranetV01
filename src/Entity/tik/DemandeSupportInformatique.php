@@ -15,6 +15,7 @@ use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\admin\tik\TkiCommentaires;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
@@ -173,11 +174,6 @@ class DemandeSupportInformatique
     private $fileNames = [];
 
     /**
-     * @ORM\Column(type="text", nullable=true, name="commentaire")
-     */
-    private $lastCommentaire;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      *
@@ -217,6 +213,11 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
      */
     private $idStatutDemande = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiCommentaires::class, mappedBy="demandeSupportInformatique")
+     */
+    private $commentaires;
 
     /**
      * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
@@ -900,21 +901,21 @@ class DemandeSupportInformatique
     }
 
     /**
-     * Get the value of lastCommentaire
+     * Get the value of commentaires
      */
-    public function getLastCommentaire()
+    public function getCommentaires()
     {
-        return $this->lastCommentaire;
+        return $this->commentaires;
     }
 
     /**
-     * Set the value of lastCommentaire
+     * Set the value of commentaires
      *
      * @return  self
      */
-    public function setLastCommentaire($lastCommentaire)
+    public function setCommentaires($commentaires)
     {
-        $this->lastCommentaire = $lastCommentaire;
+        $this->commentaires = $commentaires;
 
         return $this;
     }
