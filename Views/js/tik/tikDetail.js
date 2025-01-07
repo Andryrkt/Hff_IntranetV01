@@ -1,4 +1,4 @@
-import { handleActionClick } from './formHandler.js';
+import { handleActionClick } from './tikFormHandler.js';
 
 import {
   validateField,
