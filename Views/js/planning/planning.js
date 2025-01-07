@@ -67,3 +67,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+/**===============================
+ * ACCORDION STYCKI
+ *================================*/
+
+function adjustStickyPositions() {
+  const accordion = document.getElementById("formAccordion");
+  const stickyStatut = document.querySelector(".sticky-header-statut");
+  const tableHeader = document.querySelector(".table-plein-ecran thead tr");
+
+  // Vérifiez la hauteur totale de l'accordéon ouvert
+  const accordionHeight = accordion ? accordion.offsetHeight : 0;
+
+  if (stickyStatut) {
+    stickyStatut.style.top = `${accordionHeight + 53}px`;
+  }
+
+  if (tableHeader) {
+    tableHeader.style.top = `${
+      accordionHeight + stickyStatut.offsetHeight + 49
+    }px`;
+  }
+}
+
+// Ajoutez un écouteur d'événements pour surveiller l'ouverture/fermeture de l'accordéon
+document
+  .querySelectorAll("#formAccordion .accordion-button")
+  .forEach((button) => {
+    button.addEventListener("click", () => {
+      setTimeout(adjustStickyPositions, 300); // Délai pour permettre l'animation de l'accordéon
+    });
+  });
+
+// Exécutez le script une fois au chargement de la page
+window.addEventListener("DOMContentLoaded", adjustStickyPositions);
+window.addEventListener("resize", adjustStickyPositions);
