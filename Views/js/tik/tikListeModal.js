@@ -1,7 +1,5 @@
-import { setupModal } from '../utils/modalHandlerUtils.js';
 import { getFrenchMonth } from '../utils/dateUtils.js';
-import { fetchData } from '../utils/fetchUtils.js';
-import { toggleSpinner } from '../utils/spinnerUtils.js';
+import { updateMessage } from '../utils/messageHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   /** COMMENTAIRE MODAL */
@@ -32,50 +30,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  const confirmationModal = document.getElementById('confirmationModal');
+  const confirmationModal = new bootstrap.Modal(
+    document.getElementById('confirmationModal')
+  );
 
-  confirmationModal.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget; // Button that triggered the modal
-    const condition = button.getAttribute('data-bool'); // boolean
-    const numTik = button.getAttribute('data-id'); // numéro du ticket
-    const modalBodyContent = document.getElementById('modal-modif-content');
-    const modalConfirmationSpinner = document.querySelector(
-      '#spinner-confirmation-modal'
-    );
-    const modalConfirmationContainer = document.querySelector(
-      '#confirmation-modal-container'
-    );
+  const confirmationModalButtons = document.querySelectorAll(
+    'a[data-bs-target="#confirmationModal"]'
+  );
 
-    if (condition === '1') {
-      // Si l'utilisateur peut modifier le ticket, on empêche l'affichage de la modale
-      event.preventDefault();
-      window.location.href = button.getAttribute('href');
-    }
-
-    try {
-      // Affiche le spinner avant de lancer le fetch
-      toggleSpinner(modalConfirmationSpinner, modalConfirmationContainer, true);
-      const data = fetchData(
-        `/Hffintranet/api/modification-ticket-fetch/${numTik}`
+  confirmationModalButtons.forEach((element) => {
+    element.addEventListener('click', (event) => {
+      const condition = event.target.getAttribute('data-bool'); // boolean
+      const numTik = event.target.getAttribute('data-id'); // numéro du ticket
+      const modalBodyContent = document.getElementById('modal-modif-content');
+      const modalConfirmationSpinner = document.querySelector(
+        '#spinner-confirmation-modal'
+      );
+      const modalConfirmationContainer = document.querySelector(
+        '#confirmation-modal-container'
       );
 
-      modalBodyContent.textContent = data.edit;
-      if (!data.edit) {
-        if (!data.ouvert) {
-          modalBodyContent.textContent = `Impossible de modifier le ticket \"${numTik}\" car il a été déjà validé (refusé).`;
-        } else {
-          modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier le ticket \"${numTik}\".`;
-        }
+      modalBodyContent.textContent = '';
+
+      console.log(condition);
+      console.log(modalBodyContent.textContent);
+
+      if (condition === '1') {
+        // Si l'utilisateur peut modifier le ticket, on empêche l'affichage de la modale
+        event.preventDefault();
+        window.location.href = button.getAttribute('href');
+      } else {
+        updateMessage(
+          confirmationModal,
+          `/Hffintranet/api/modification-ticket-fetch/${numTik}`,
+          modalBodyContent,
+          modalConfirmationSpinner,
+          modalConfirmationContainer
+        );
       }
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des données:', error);
-    } finally {
-      // Désactive le spinner une fois le traitement terminé
-      toggleSpinner(
-        modalConfirmationSpinner,
-        modalConfirmationContainer,
-        false
-      );
-    }
+    });
   });
 });
