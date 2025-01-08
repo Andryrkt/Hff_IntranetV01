@@ -1,4 +1,5 @@
 import { TableauComponent } from "../Component/TableauComponent.js";
+import { TableauComponent } from "../Component/TableauComponent.js";
 /**
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
@@ -59,6 +60,19 @@ function handleAgenceChange() {
   }
 
   // URL pour fetch
+  // Récupération de l'agence sélectionnée
+  const agenceDebiteur =
+    agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
+
+  clearServiceCheckboxes();
+  removeSelectAllCheckbox();
+
+  if (!agenceDebiteur) {
+    // Si aucune agence n'est sélectionnée, on arrête ici
+    return;
+  }
+
+  // URL pour fetch
   const url = config.urls.serviceFetch(agenceDebiteur);
 
   // Création et affichage du spinner
@@ -73,6 +87,63 @@ function handleAgenceChange() {
       attachCheckboxEventListeners();
       selectAllCheckboxByDefault(); // Ensure default selection after updating checkboxes
     })
+    .catch((error) => console.error("Error:", error))
+    .finally(() => {
+      // Suppression du spinner
+      spinner.remove();
+    });
+}
+
+// Fonction pour retirer le bouton "Tout sélectionner"
+function removeSelectAllCheckbox() {
+  const selectAllCheckbox = document.querySelector(
+    config.elements.selectAllCheckbox
+  );
+  if (selectAllCheckbox) {
+    selectAllCheckbox.parentElement.remove();
+  }
+}
+
+/// Fonction pour créer le spinner HTML avec CSS intégré
+function createSpinner() {
+  // Conteneur du spinner
+  const spinnerContainer = document.createElement("div");
+  spinnerContainer.id = "serviceSpinner";
+  spinnerContainer.style.display = "flex";
+  spinnerContainer.style.justifyContent = "center";
+  spinnerContainer.style.alignItems = "center";
+  spinnerContainer.style.margin = "20px 0";
+
+  // Spinner
+  const spinner = document.createElement("div");
+  spinner.className = "spinner-border";
+  spinner.role = "status";
+  spinner.style.width = "3rem";
+  spinner.style.height = "3rem";
+  spinner.style.border = "0.25em solid #ccc";
+  spinner.style.borderTop = "0.25em solid #000";
+  spinner.style.borderRadius = "50%";
+  spinner.style.animation = "spin 0.8s linear infinite";
+
+  // Texte pour les lecteurs d'écran (optionnel)
+  const spinnerText = document.createElement("span");
+  spinnerText.className = "sr-only";
+  spinnerText.textContent = "Chargement...";
+
+  spinner.appendChild(spinnerText);
+  spinnerContainer.appendChild(spinner);
+
+  // Ajout des styles d'animation au document (si nécessaire)
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  return spinnerContainer;
     .catch((error) => console.error("Error:", error))
     .finally(() => {
       // Suppression du spinner
@@ -262,9 +333,47 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const dossierDitLink = document.getElementById("dossierDitLink");
   const loading = document.getElementById("loading");
   const dataContent = document.getElementById("dataContent");
+  const dossierDitLink = document.getElementById("dossierDitLink");
+  const loading = document.getElementById("loading");
+  const dataContent = document.getElementById("dataContent");
 
   // Gestionnaire pour l'ouverture du modal
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
+    affichageContentModal(event);
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    clearTableContents();
+  });
+
+  function affichageContentModal(event) {
+    // Initialiser le modal et annuler les requêtes précédentes
+    abortController = initializeModal(loading, dataContent);
+
+    // Récupérer les attributs du bouton déclencheur
+    const button = event.relatedTarget; // Bouton qui a déclenché le modal
+    const { orIntv, numDit, migration } = getButtonAttributes(button);
+
+    // bouton dossier dit
+    configureModalLink(dossierDitLink, migration, numDit);
+
+    // Extraire numOr et numItv de orIntv
+    const [numOr, numItv] = orIntv.split("-");
+
+    // Utiliser AbortController pour fetchDetailModal
+    fetchDetailModal(orIntv, abortController.signal, loading, dataContent);
+    fetchTechnicienInterv(numOr, numItv, abortController.signal);
+  }
+
+  function configureModalLink(linkElement, migration, numDit) {
+    // Gérer l'affichage du lien selon la migration
+    handleLinkDisplay(linkElement, migration);
+    // Ajouter un gestionnaire d'événement pour le lien
+    addLinkEventHandler(linkElement, numDit);
+  }
+
+  function initializeModal(loadingElement, dataContentElement) {
     affichageContentModal(event);
   });
 
@@ -322,12 +431,38 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Fonction pour ajouter un gestionnaire d'événement au lien
   function addLinkEventHandler(linkElement, numDit) {
     linkElement.onclick = (event) => {
+    // Initialiser un nouveau AbortController
+    abortController = new AbortController();
+
+    // Afficher le spinner
+    toggleSpinner(loadingElement, dataContentElement, true);
+
+    return abortController;
+  }
+
+  // Fonction pour gérer l'affichage du lien
+  function handleLinkDisplay(linkElement, migration) {
+    linkElement.style.display = migration === "1" ? "none" : "block";
+  }
+
+  // Fonction pour ajouter un gestionnaire d'événement au lien
+  function addLinkEventHandler(linkElement, numDit) {
+    linkElement.onclick = (event) => {
       event.preventDefault();
       window.open(
         `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
         "_blank"
       );
     };
+  }
+
+  function getButtonAttributes(button) {
+    return {
+      orIntv: button.getAttribute("data-id"),
+      numDit: button.getAttribute("data-numDit"),
+      migration: button.getAttribute("data-migration"),
+    };
+  }
   }
 
   function getButtonAttributes(button) {
@@ -354,13 +489,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const url = `/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`;
     fetch(url, { signal })
       .then(handleFetchResponse)
+    const tableContainer = document.querySelector("#table-container");
+    const url = `/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`;
+    fetch(url, { signal })
+      .then(handleFetchResponse)
       .then((data) => {
+        affichageDataTechnicienDansUnTableau(data);
         affichageDataTechnicienDansUnTableau(data);
       })
       .catch((error) => {
         if (error.name === "AbortError") {
           console.log("Requête annulée !");
         } else {
+          tableContainer.innerHTML = "Could not retrieve data";
           tableContainer.innerHTML = "Could not retrieve data";
           console.error("There was a problem with the fetch operation:", error);
         }
@@ -390,136 +531,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // Monter le tableau dans le conteneur
     tableau.mount("table-container");
   }
-
-  // function ancienDataTechnicient() {
-  //   const tableBody = document.getElementById("technicienTableBody");
-
-  //   tableBody.innerHTML = ""; // Clear previous data
-
-  //   if (data.length > 0) {
-  //     data.forEach((technicien) => {
-  //       let nomPrenom = technicien.matriculenomprenom.split("-")[1];
-  //       // Affichage
-  //       let row = `<tr>
-  //             <td>${technicien.matricule}</td>
-  //             <td>${nomPrenom}</td>
-  //         </tr>`;
-  //       tableBody.innerHTML += row;
-  //     });
-  //   } else {
-  //     // Si les données sont vides, afficher un message vide
-  //     tableBody.innerHTML =
-  //       '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-  //   }
-  // }
-  // function fetchDetailModal(id, signal, loading, dataContent) {
-  //   const url = `/Hffintranet/detail-modal/${id}`;
-  //   // Fetch request to get the data
-  //   fetch(url, { signal })
-  //     .then(handleFetchResponse)
-  //     .then((data) => {
-  //       if (data.length > 0) {
-  //         const isTypeCis = data[0].numor.startsWith("5");
-  //         console.log("isTypeCis:", isTypeCis);
-
-  //         data.forEach((detail) => {
-  //           updateOrDetails(detail);
-  //         });
-
-  //         const columns = defineColumns(isTypeCis);
-
-  //         const formattedData = data.map((detail) =>
-  //           formatDetailData(detail, isTypeCis)
-  //         );
-
-  //         // Effacer le contenu précédent
-  //         document.getElementById("table-container-detail").innerHTML = "";
-
-  //         // Initialiser ou mettre à jour le tableau
-  //         const tableau = new TableauComponent({
-  //           columns: columns,
-  //           data: formattedData,
-  //           theadClass: "table",
-  //           defaultValue: "",
-  //         });
-  //         tableau.mount("table-container-detail");
-
-  //         toggleSpinner(loading, dataContent, false);
-  //       } else {
-  //         displayEmptyMessage();
-  //         toggleSpinner(loading, dataContent, false);
-  //       }
-  //     })
-  //     .catch(handleFetchError);
-  // }
-
-  // function defineColumns(isTypeCis) {
-  //   return [
-  //     { key: "numor", label: "N° OR", align: "center" },
-  //     { key: "intv", label: "Intv", align: "left" },
-  //     ...(isTypeCis
-  //       ? [{ key: "numcis", label: "N° CIS", align: "center" }]
-  //       : []),
-  //     {
-  //       key: "numCde",
-  //       label: "N° Commande",
-  //       styles: (row) => getCmdColor(row),
-  //       align: "center",
-  //     },
-  //     {
-  //       key: "statrmq",
-  //       label: "Statut ctrmrq",
-  //       styles: (row) => getCmdColorRmq(row),
-  //       align: "center",
-  //     },
-  //     { key: "cst", label: "CST", align: "center" },
-  //     { key: "ref", label: "Ref", align: "left" },
-  //     { key: "qteres_or", label: "Qté OR", align: "center" },
-  //     { key: "qteall", label: "Qté ALL", align: "center" },
-  //     { key: "qtereliquat", label: "Qté RLQ", align: "center" },
-  //     { key: "qteliv", label: "Qté LIV", align: "center" },
-  //     { key: "statut", label: "Statut", align: "center" },
-  //     { key: "datestatut", label: "Date Statut", align: "center" },
-  //     { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
-  //     { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
-  //     { key: "message", label: "Message", align: "left" },
-  //   ];
-  // }
-
-  // function formatDetailData(detail, isTypeCis) {
-  //   return {
-  //     numcis: detail.numcis,
-  //     numor: detail.numor,
-  //     intv: detail.intv,
-  //     numCde: detail.numerocmd || valueOrEmpty(detail.numerocdecis),
-  //     statrmq: isTypeCis
-  //       ? valueOrEmpty(detail.statut_ctrmq_cis)
-  //       : valueOrEmpty(detail.statut_ctrmq),
-  //     cst: detail.cst,
-  //     ref: detail.ref,
-  //     qteres_or: valueOrEmpty(parseInt(detail.qteres_or)),
-  //     qteall: valueOrEmpty(parseInt(detail.qteall)),
-  //     qtereliquat: valueOrEmpty(parseInt(detail.qtereliquat)),
-  //     qteliv: valueOrEmpty(parseInt(detail.qteliv)),
-  //     statut: detail.statut,
-  //     datestatut: formatDateOrEmpty(detail.datestatut),
-  //     Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
-  //     Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
-  //     message: detail.message,
-  //     Ord: detail.Ord,
-  //     qteSolde: parseInt(detail.qteSolde),
-  //     qteQte: parseInt(detail.qteQte),
-  //     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
-  //     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
-  //   };
-  // }
-
-  // function displayEmptyMessage() {
-  //   tableau.props.data = [
-  //     { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
-  //   ];
-  //   tableau.render();
-  // }
 
   function handleFetchResponse(response) {
     if (!response.ok) {
@@ -613,7 +624,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function fetchDetailModal(id, signal, loading, dataContent) {
     const url = `/Hffintranet/detail-modal/${id}`;
+    const url = `/Hffintranet/detail-modal/${id}`;
     // Fetch request to get the data
+    fetch(url, { signal })
     fetch(url, { signal })
       .then(handleFetchResponse)
       .then((data) => {
@@ -657,6 +670,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       numCis: valueOrEmpty(detail.numcis),
       numeroCdeCis: valueOrEmpty(detail.numerocdecis),
       StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+      cmdColorRmq: getCmdColorRmq(detail),
       cmdColorRmq: getCmdColorRmq(detail),
       cmdColor: getCmdColor(detail),
     };
@@ -719,3 +733,133 @@ document.addEventListener("DOMContentLoaded", (event) => {
             </tr>`;
   }
 });
+
+// function ancienDataTechnicient() {
+//   const tableBody = document.getElementById("technicienTableBody");
+
+//   tableBody.innerHTML = ""; // Clear previous data
+
+//   if (data.length > 0) {
+//     data.forEach((technicien) => {
+//       let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+//       // Affichage
+//       let row = `<tr>
+//             <td>${technicien.matricule}</td>
+//             <td>${nomPrenom}</td>
+//         </tr>`;
+//       tableBody.innerHTML += row;
+//     });
+//   } else {
+//     // Si les données sont vides, afficher un message vide
+//     tableBody.innerHTML =
+//       '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+//   }
+// }
+// function fetchDetailModal(id, signal, loading, dataContent) {
+//   const url = `/Hffintranet/detail-modal/${id}`;
+//   // Fetch request to get the data
+//   fetch(url, { signal })
+//     .then(handleFetchResponse)
+//     .then((data) => {
+//       if (data.length > 0) {
+//         const isTypeCis = data[0].numor.startsWith("5");
+//         console.log("isTypeCis:", isTypeCis);
+
+//         data.forEach((detail) => {
+//           updateOrDetails(detail);
+//         });
+
+//         const columns = defineColumns(isTypeCis);
+
+//         const formattedData = data.map((detail) =>
+//           formatDetailData(detail, isTypeCis)
+//         );
+
+//         // Effacer le contenu précédent
+//         document.getElementById("table-container-detail").innerHTML = "";
+
+//         // Initialiser ou mettre à jour le tableau
+//         const tableau = new TableauComponent({
+//           columns: columns,
+//           data: formattedData,
+//           theadClass: "table",
+//           defaultValue: "",
+//         });
+//         tableau.mount("table-container-detail");
+
+//         toggleSpinner(loading, dataContent, false);
+//       } else {
+//         displayEmptyMessage();
+//         toggleSpinner(loading, dataContent, false);
+//       }
+//     })
+//     .catch(handleFetchError);
+// }
+
+// function defineColumns(isTypeCis) {
+//   return [
+//     { key: "numor", label: "N° OR", align: "center" },
+//     { key: "intv", label: "Intv", align: "left" },
+//     ...(isTypeCis
+//       ? [{ key: "numcis", label: "N° CIS", align: "center" }]
+//       : []),
+//     {
+//       key: "numCde",
+//       label: "N° Commande",
+//       styles: (row) => getCmdColor(row),
+//       align: "center",
+//     },
+//     {
+//       key: "statrmq",
+//       label: "Statut ctrmrq",
+//       styles: (row) => getCmdColorRmq(row),
+//       align: "center",
+//     },
+//     { key: "cst", label: "CST", align: "center" },
+//     { key: "ref", label: "Ref", align: "left" },
+//     { key: "qteres_or", label: "Qté OR", align: "center" },
+//     { key: "qteall", label: "Qté ALL", align: "center" },
+//     { key: "qtereliquat", label: "Qté RLQ", align: "center" },
+//     { key: "qteliv", label: "Qté LIV", align: "center" },
+//     { key: "statut", label: "Statut", align: "center" },
+//     { key: "datestatut", label: "Date Statut", align: "center" },
+//     { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
+//     { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
+//     { key: "message", label: "Message", align: "left" },
+//   ];
+// }
+
+// function formatDetailData(detail, isTypeCis) {
+//   return {
+//     numcis: detail.numcis,
+//     numor: detail.numor,
+//     intv: detail.intv,
+//     numCde: detail.numerocmd || valueOrEmpty(detail.numerocdecis),
+//     statrmq: isTypeCis
+//       ? valueOrEmpty(detail.statut_ctrmq_cis)
+//       : valueOrEmpty(detail.statut_ctrmq),
+//     cst: detail.cst,
+//     ref: detail.ref,
+//     qteres_or: valueOrEmpty(parseInt(detail.qteres_or)),
+//     qteall: valueOrEmpty(parseInt(detail.qteall)),
+//     qtereliquat: valueOrEmpty(parseInt(detail.qtereliquat)),
+//     qteliv: valueOrEmpty(parseInt(detail.qteliv)),
+//     statut: detail.statut,
+//     datestatut: formatDateOrEmpty(detail.datestatut),
+//     Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
+//     Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
+//     message: detail.message,
+//     Ord: detail.Ord,
+//     qteSolde: parseInt(detail.qteSolde),
+//     qteQte: parseInt(detail.qteQte),
+//     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+//     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+//   };
+// }
+
+// function displayEmptyMessage() {
+//   tableau.props.data = [
+//     { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
+//   ];
+//   tableau.render();
+// }
