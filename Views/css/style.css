@@ -62,40 +62,34 @@ label {
 
 /* CHONOMETTRE */
 .chrono-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.chrono-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #ccc; /* Couleur de fond de la barre */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
   position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 20px auto;
-}
-
-.chrono-svg {
-  transform: rotate(-90deg); /* Faire commencer le cercle en haut */
-}
-
-.chrono-bg {
-  fill: none;
-  stroke: #e0e0e0; /* Couleur de fond */
-  stroke-width: 10;
 }
 
 .chrono-progress {
-  fill: none;
-  stroke: #4caf50; /* Couleur du cercle actif */
-  stroke-width: 10;
-  stroke-linecap: round;
-  stroke-dasharray: 283; /* Périmètre du cercle (2 * PI * r) */
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s linear;
+  height: 100%;
+  width: 100%; /* Départ à 100% */
+  background-color: #4caf50; /* Couleur de progression */
+  transition: width 0.5s linear;
 }
 
 .chrono-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: #f7f1f1;
 }
 
 /* Overlay */

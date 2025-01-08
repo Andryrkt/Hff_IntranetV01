@@ -3,7 +3,6 @@
 // window.addEventListener("load", () => {
 //   loader.classList.add("fondu-out");
 // });
-
 let timeout;
 
 // Variables pour le chronomètre
@@ -18,23 +17,23 @@ if (location.pathname === '/Hffintranet/') {
   chronoContainer.classList.add('d-none');
 }
 
-//Calcul du périmètre du cercle (2 * PI * r)
-const radius = 45;
-const circumference = 2 * Math.PI * radius;
-
-if (chronoProgress?.style) {
-  chronoProgress.style.strokeDasharray = circumference;
-}
-
 // Fonction pour mettre à jour le chrono
 function updateChrono() {
   timeRemaining--;
 
   // Calculer le pourcentage de progression
-  const progressPercentage = timeRemaining / totalTime;
-  const dashOffset = circumference * (1 - progressPercentage);
+  const progressPercentage = (timeRemaining / totalTime) * 100; // Pourcentage
   if (chronoProgress?.style) {
-    chronoProgress.style.strokeDashoffset = dashOffset;
+    chronoProgress.style.width = `${progressPercentage}%`;
+
+    // Logique des couleurs
+    if (progressPercentage > 50) {
+      chronoProgress.style.backgroundColor = '#4caf50'; // Vert
+    } else if (progressPercentage > 20) {
+      chronoProgress.style.backgroundColor = '#ff9800'; // Orange
+    } else {
+      chronoProgress.style.backgroundColor = '#f44336'; // Rouge
+    }
   }
 
   // Mettre à jour le texte
@@ -42,10 +41,11 @@ function updateChrono() {
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = timeRemaining % 60;
   if (chronoText?.textContent) {
-    chronoText.textContent = `${hours}:${minutes
+    chronoText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds
       .toString()
-      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      .padStart(2, '0')}`;
   }
+
   // Rediriger à la fin
   if (timeRemaining <= 0) {
     clearInterval(timer);
@@ -110,6 +110,7 @@ setInterval(checkSessionExpiration, 10000);
 
 // Démarrer le timeout et le chrono au chargement de la page
 resetTimeout();
+
 /**
  * modal pour la déconnexion
  */
