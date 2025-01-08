@@ -17,7 +17,7 @@ class ModificationTicketApi extends Controller
     {
         $result = [
             'edit'   => false,
-            'ouvert' => '',
+            'ouvert' => true,
         ];
 
         $idUtilisateur  = $this->sessionService->get('user_id');
