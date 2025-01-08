@@ -62,40 +62,34 @@ label {
 
 /* CHONOMETTRE */
 .chrono-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.chrono-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #ccc; /* Couleur de fond de la barre */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
   position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 20px auto;
-}
-
-.chrono-svg {
-  transform: rotate(-90deg); /* Faire commencer le cercle en haut */
-}
-
-.chrono-bg {
-  fill: none;
-  stroke: #e0e0e0; /* Couleur de fond */
-  stroke-width: 10;
 }
 
 .chrono-progress {
-  fill: none;
-  stroke: #4caf50; /* Couleur du cercle actif */
-  stroke-width: 10;
-  stroke-linecap: round;
-  stroke-dasharray: 283; /* Périmètre du cercle (2 * PI * r) */
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s linear;
+  height: 100%;
+  width: 100%; /* Départ à 100% */
+  background-color: #4caf50; /* Couleur de progression */
+  transition: width 0.5s linear;
 }
 
 .chrono-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: #f7f1f1;
 }
 
 /* Overlay */
@@ -107,6 +101,8 @@ label {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
+  flex-direction: column;
+  row-gap: 20px;
   align-items: center;
   justify-content: center;
   z-index: 9999;
@@ -122,7 +118,7 @@ label {
 }
 
 /* Spinner */
-.spinner-overlay {
+/* .spinner-overlay {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #dbc234;
   border-radius: 50%;
@@ -132,6 +128,41 @@ label {
 }
 
 @keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} */
+.text-overlay {
+  font-size: large;
+}
+
+.spinner-overlay {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 4px solid #fff;
+  border-right: 4px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.spinner-overlay::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border-left: 4px solid #d6a105;
+  border-bottom: 4px solid transparent;
+  animation: rotation 0.5s linear infinite reverse;
+}
+@keyframes rotation {
   0% {
     transform: rotate(0deg);
   }

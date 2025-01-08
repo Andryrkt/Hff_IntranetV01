@@ -13,11 +13,11 @@ CREATE TABLE STATUT_DEMANDE(
 INSERT INTO STATUT_DEMANDE (Code_Application, Code_Statut, Description, Date_creation, date_modification)
     VALUES
         ('TKI', 'OUV', 'OUVERT',  GETDATE (),  GETDATE ()),
-        ('TKI', 'REF', 'REFUDE',  GETDATE (),  GETDATE ()),
+        ('TKI', 'REF', 'REFUSE',  GETDATE (),  GETDATE ()),
         ('TKI', 'ENC', 'ENCOURS',  GETDATE (),  GETDATE ()),
         ('TKI', 'PLA', 'PLANIFIE',  GETDATE (),  GETDATE ()),
         ('TKI', 'RES', 'RESOLU',  GETDATE (),  GETDATE ()),
         ('TKI', 'ROV', 'REOUVERT',  GETDATE (),  GETDATE ()),
         ('TKI', 'CLO', 'CLÔTURE',  GETDATE (),  GETDATE ()),
-        ('TKI', 'SUS', 'SUSPENDU',  GETDATE (),  GETDATE ())
+        ('TKI', 'ENA', 'EN ATTENTE',  GETDATE (),  GETDATE ())
 	;

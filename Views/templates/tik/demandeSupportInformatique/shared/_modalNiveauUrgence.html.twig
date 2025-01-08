@@ -18,53 +18,34 @@
 								<th class="text-center">Ordre de priorité</th>
 								<th>Définition</th>
 								<th class="text-center">Perte d'exploitation</th>
-								<th class="text-center">Pénalités</th>
 								<th>Délai d'intervention</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
 								<td class="text-center">P0</td>
-								<td>Machine à l'arrêt, backup non dispo</td>
-								<td class="text-center">Oui</td>
+								<td>Tous ou une bonne partie des utilisateurs ne peuvent pas travailler</td>
 								<td class="text-center">Oui</td>
 								<td>Intervention immédiate</td>
 							</tr>
 							<tr>
 								<td class="text-center">P1</td>
-								<td>Machine à l'arrêt, bakup dispo</td>
-								<td class="text-center">Non</td>
-								<td class="text-center">Non</td>
-								<td>Intervention < 1 semaine / fonction de la dispo de PDR
+								<td>Le demandeur ne peut pas travailler</td>
+								<td class="text-center">Oui</td>
+								<td>Intervention dans la demi-journée
 								</td>
 							</tr>
 							<tr>
 								<td class="text-center">P2</td>
-								<td>Maintenance Planifiée
-									<br>
-									- Maintenance périodique
-									<br>
-									- Nettoyages radiateur
-									<br>
-									- Réglage soupape
-									<br>
-									- Etc…
-								</td>
+								<td>Demande normale à résoudre dans 48h</td>
 								<td class="text-center">Non</td>
-								<td class="text-center">Non</td>
-								<td>Intervention < 1 mois</td>
+								<td>Intervention dans les 48h</td>
 							</tr>
 							<tr>
 								<td class="text-center">P3</td>
-								<td>Révision générale
-									<br>
-									- Top END
-									<br>
-									- Major Overhaul
-								</td>
+								<td>Demande à planifier ou nécessitant intervention autres services</td>
 								<td class="text-center">Non</td>
-								<td class="text-center">Non</td>
-								<td>Intervention > 6 mois</td>
+								<td>Intervention plus de 48h</td>
 							</tr>
 						</tbody>
 					</table>

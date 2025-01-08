@@ -18,7 +18,7 @@ class DitDevisSoumisAValidationController extends Controller
 
     private $ditDevisSoumisAValidation;
     private $ditDevisSoumisAValidationModel;
-    
+
     public function __construct()
     {
         // Appeler le constructeur parent
@@ -46,8 +46,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        { 
+        if ($form->isSubmitted() && $form->isValid()) {
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
             if(empty($devisSoumisAValidationInformix )) {
@@ -66,7 +65,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->notification($message, $numDevis, "dit_index" ,false);
             } else {
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
-                
+
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
                 
@@ -102,16 +101,16 @@ class DitDevisSoumisAValidationController extends Controller
     private function envoieDonnerDansBd(array $devisSoumisValidataion) 
     {
         // Persist les entités liées
-        if(count($devisSoumisValidataion) > 1){
+        if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
-               // Persist l'entité et l'historique
-               self::$em->persist($entity); // Persister chaque entité individuellement
+                // Persist l'entité et l'historique
+                self::$em->persist($entity); // Persister chaque entité individuellement
             }
-        } elseif(count($devisSoumisValidataion) === 1) {
+        } elseif (count($devisSoumisValidataion) === 1) {
             self::$em->persist($devisSoumisValidataion[0]);
         }
-        
-        
+
+
         // Flushe toutes les entités et l'historique
         self::$em->flush();
     }
@@ -128,25 +127,25 @@ class DitDevisSoumisAValidationController extends Controller
 
         foreach ($devisSoumisAValidationInformix as $devisSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
-            $ditInsertionDevis = new DitDevisSoumisAValidation(); 
-            
+            $ditInsertionDevis = new DitDevisSoumisAValidation();
+
             $ditInsertionDevis
-                        ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                        ->setDateHeureSoumission(new \DateTime())
-                        ->setNumeroDevis($numDevis)
-                        ->setNumeroDit($numDit)
-                        ->setNumeroItv($devisSoumis['numero_itv'])
-                        ->setNombreLigneItv($devisSoumis['nombre_ligne'])
-                        ->setMontantItv($devisSoumis['montant_itv'])
-                        ->setMontantPiece($devisSoumis['montant_piece'])
-                        ->setMontantMo($devisSoumis['montant_mo'])
-                        ->setMontantAchatLocaux($devisSoumis['montant_achats_locaux'])
-                        ->setMontantFraisDivers($devisSoumis['montant_divers'])
-                        ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
-                        ->setLibellelItv($devisSoumis['libelle_itv'])
-                        ->setStatut('Soumis à validation')
-                        ;
-            
+                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ->setDateHeureSoumission(new \DateTime())
+                ->setNumeroDevis($numDevis)
+                ->setNumeroDit($numDit)
+                ->setNumeroItv($devisSoumis['numero_itv'])
+                ->setNombreLigneItv($devisSoumis['nombre_ligne'])
+                ->setMontantItv($devisSoumis['montant_itv'])
+                ->setMontantPiece($devisSoumis['montant_piece'])
+                ->setMontantMo($devisSoumis['montant_mo'])
+                ->setMontantAchatLocaux($devisSoumis['montant_achats_locaux'])
+                ->setMontantFraisDivers($devisSoumis['montant_divers'])
+                ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
+                ->setLibellelItv($devisSoumis['libelle_itv'])
+                ->setStatut('Soumis à validation')
+            ;
+
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
         }
 
@@ -155,7 +154,7 @@ class DitDevisSoumisAValidationController extends Controller
 
     private function autoIncrement($num)
     {
-        if($num === null){
+        if ($num === null) {
             $num = 0;
         }
         return $num + 1;

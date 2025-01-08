@@ -126,6 +126,40 @@ class DetailTikController extends Controller
 
                         break;
 
+                    case 'commenter':
+                        $commentaires = new TkiCommentaires;
+                        $commentaires
+                            ->setNumeroTicket($dataForm->getNumeroTicket())
+                            ->setNomUtilisateur($connectedUser->getNomUtilisateur())
+                            ->setCommentaires($form->get('commentaires')->getData())
+                            ->setUtilisateur($connectedUser)
+                            ->setDemandeSupportInformatique($supportInfo)
+                        ;
+
+                        $supportInfo
+                            ->setValidateur($connectedUser)
+                            ->setIdStatutDemande($button['statut'])    // statut en attente
+                        ;
+
+                        self::$em->persist($commentaires);
+                        self::$em->persist($supportInfo);
+
+                        self::$em->flush();
+
+                        $this->historiqueStatut($supportInfo, $button['statut']); // historisation du statut
+
+                        // Envoi email refus
+                        $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $form->get('commentaires')->getData());
+
+                        $this->envoyerEmail($this->emailTikSuspendu($variableEmail));
+
+                        $this->sessionService->set('notification', [
+                            'type'    => 'success',
+                            'message' => "Le ticket $numTik a été suspendu."
+                        ]);
+
+                        break;
+
                     case 'valider':
                         $supportInfo
                             ->setIntervenant($dataForm->getIntervenant())
@@ -280,11 +314,9 @@ class DetailTikController extends Controller
                 $variableEmail = $this->donneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
 
                 $this->envoyerEmail($this->emailTikCommente($variableEmail, $connectedUser->getMail()));
-
-                $this->redirectToRoute("liste_tik_index");
             }
 
-            $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 79;
+            $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 58;
             $isIntervenant = $supportInfo->getIntervenant() !== null && ($supportInfo->getIntervenant()->getId() == $connectedUser->getId());
 
             $this->logUserVisit('detail_tik', [
@@ -321,11 +353,12 @@ class DetailTikController extends Controller
     private function getButton(Request $request)
     {
         $actions = [
-            '80' => 'refuser',      // statut Refusé
-            '81' => 'valider',      // statut en cours
-            '82' => 'planifier',    // statut planifié
-            '83' => 'resoudre',     // statut planifié
-            '00' => 'transferer',
+            'REF' => 'refuser',      // statut refusé
+            'ENC' => 'valider',      // statut en cours
+            'PLA' => 'planifier',    // statut planifié
+            'RES' => 'resoudre',     // statut résolu
+            'ENA' => 'commenter',    // statut en attente
+            '00'  => 'transferer',
         ];
 
         /** 
@@ -337,7 +370,7 @@ class DetailTikController extends Controller
         foreach ($actions as $code => $action) {
             if ($request->request->has($action)) {
                 return [
-                    'statut' => $statutDemande->find($code), // l'entité StatutDemande ayant un id=$code
+                    'statut' => $statutDemande->findByCodeStatut($code), // l'entité StatutDemande ayant un id=$code
                     'action' => $action
                 ];
             }
@@ -384,6 +417,23 @@ class DetailTikController extends Controller
             'variables' => [
                 'statut'      => "refuse",
                 'subject'     => "{$tab['numTik']} - Ticket refusé",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket suspendu
+     */
+    private function emailTikSuspendu($tab): array
+    {
+        return [
+            'to'        => $tab['emailUserDemandeur'],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "suspendu",
+                'subject'     => "{$tab['numTik']} - Ticket suspendu",
                 'tab'         => $tab,
                 'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]

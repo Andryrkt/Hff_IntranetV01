@@ -1,3 +1,5 @@
+{% import "macroForm.html.twig" as macroForm %}
+
 <!-- DEBUT recherche -->
 {% set role_ids = App.user.roleIds %}
 <div class="accordion" id="accordionExample">
@@ -29,17 +31,21 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.agenceEmetteur)}}
-						{{form_row(form.serviceEmetteur)}}
+
+						{{ macroForm.spinner_load('spinner-service-emetteur', 'service-emetteur-container', form.serviceEmetteur) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.agenceDebiteur)}}
-						{{form_row(form.serviceDebiteur)}}
+
+						{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
 					</div>
 
 					<div class="col-12 col-md-2">
 						{{ form_row(form.categorie) }}
-						{{ form_row(form.sousCategorie) }}
-						{{ form_row(form.autresCategories) }}
+
+						{{ macroForm.spinner_load('spinner-sous-categorie', 'sous-categorie-container', form.sousCategorie) }}
+
+						{{ macroForm.spinner_load('spinner-autres-categories', 'autres-categories-container', form.autresCategories) }}
 					</div>
 				</div>
 

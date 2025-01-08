@@ -1,5 +1,5 @@
 <!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%; z-index: 1030;">
 	<div
 		class="container">
 		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
@@ -233,7 +233,7 @@
 							<hr class="dropdown-divider"/>
 						</li>
 						<li>
-							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}">Déconnexion</a>
+							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}" id="logoutLink">Déconnexion</a>
 						</li>
 					</ul>
 				</li>

@@ -1,4 +1,4 @@
-import { toggleRequiredFields, disableForm } from './utils/formUtils.js';
+import { toggleRequiredFields, disableForm } from '../utils/formUtils.js';
 
 const tikCategorie = document.querySelector('#detail_tik_categorie');
 const tikSousCategorie = document.querySelector('#detail_tik_sousCategorie');
@@ -25,6 +25,11 @@ export function handleActionClick(buttonName) {
       ],
       requiredFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
       optionalFields: [tikCommentaires],
+    },
+    commenter: {
+      enableFields: [tikCommentaires],
+      requiredFields: [tikCommentaires],
+      optionalFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
     },
     refuser: {
       enableFields: [tikCommentaires],

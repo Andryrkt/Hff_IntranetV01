@@ -35,7 +35,7 @@ export function disableForm(formId) {
   const form = document.getElementById(formId);
   if (form) {
     Array.from(form.elements).forEach((element) => {
-      if (element.type !== 'submit') {
+      if (element.type !== 'submit' && element.type !== 'hidden') {
         element.disabled = true;
       }
     });

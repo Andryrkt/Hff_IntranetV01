@@ -1,4 +1,4 @@
-import { fetchData } from '../../../tik/utils/fetchUtils';
+import { fetchData } from '../../../utils/fetchUtils';
 
 const buttonFilter = document.getElementById('filter');
 const spinner = document.getElementById('spinner');

@@ -245,8 +245,9 @@ class Controller
     /**
      * redirigé l'utilisateur vers la route donnée en paramètre
      *
-     * @param string $routeName
-     * @param array $params
+     * @param string $routeName nom de la route en question 
+     *      Exemple: $routeName = "profil_acceuil"
+     * @param array $params tableau de paramètres à ajouter dans la route
      * @return void
      */
     protected function redirectToRoute(string $routeName, array $params = [])
