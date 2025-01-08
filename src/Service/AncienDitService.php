@@ -182,38 +182,36 @@ class AncienDitService
    private function prepareFunsion($ancienDit)
    {
    
-    if( $ancienDit->getPieceJoint01() != "" || $ancienDit->getPieceJoint02() != "" || $ancienDit->getPieceJoint03() != ""){
-    
-        $pdfFiles = [];
-        if($ancienDit->getPieceJoint01() != null || $ancienDit->getPieceJoint01() != ""){
-            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint01());
-            dump(str_replace(' ', '_', $ancienDit->getPieceJoint01()));
+        if( $ancienDit->getPieceJoint01() != "" || $ancienDit->getPieceJoint02() != "" || $ancienDit->getPieceJoint03() != ""){
+        
+            $pdfFiles = [];
+            if($ancienDit->getPieceJoint01() != null || $ancienDit->getPieceJoint01() != ""){
+                $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint01());
+                dump(str_replace(' ', '_', $ancienDit->getPieceJoint01()));
+            }
+
+            if($ancienDit->getPieceJoint02() != null || $ancienDit->getPieceJoint02() != ""){
+                $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint02());
+
+            }
+
+            if($ancienDit->getPieceJoint03() != null || $ancienDit->getPieceJoint03() != ""){
+                $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint03()) ;
+
+            }
+
+            //ajouter le nom du pdf crée par dit en avant du tableau
+            array_unshift($pdfFiles, 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
+
+
+            // Nom du fichier PDF fusionné
+            $mergedPdfFile = 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
+
+            // Appeler la fonction pour fusionner les fichiers PDF
+            if (!empty($pdfFiles)) {
+                $fusionPdf = new FusionPdf();
+                $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+            }
         }
-
-        if($ancienDit->getPieceJoint02() != null || $ancienDit->getPieceJoint02() != ""){
-            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint02());
-
-        }
-
-        if($ancienDit->getPieceJoint03() != null || $ancienDit->getPieceJoint03() != ""){
-            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint03()) ;
-
-        }
-
-        //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
-
-
-        // Nom du fichier PDF fusionné
-        $mergedPdfFile = 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
-
-        // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
-            $fusionPdf = new FusionPdf();
-            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-        }
-   
     }
-
-   }
 }

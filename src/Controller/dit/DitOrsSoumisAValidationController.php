@@ -90,39 +90,27 @@ class DitOrsSoumisAValidationController extends Controller
 
             if ($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()) {
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } elseif ($datePlanning) {
                 $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } elseif (!in_array($agServDebiteurBDSql, $agServInformix)) {
                 $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } elseif (in_array($pos[0]['position'], $invalidPositions)) {
                 $message = "Echec de la soumission de l'OR";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } elseif ($demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule']) {
                 $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } elseif (empty($refClient)) {
                 $message = "Echec de la soumission car la référence client est vide.";
-
                 $this->historiqueOperationService->enregistrerOR($ditInsertionOrSoumis->getNumeroOR(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
                 $this->notification($message);
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());

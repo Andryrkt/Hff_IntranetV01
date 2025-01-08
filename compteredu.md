@@ -7,6 +7,7 @@
 - overlay dans tous les pages
 - changement du contenu du modal sur le numero OR de la liste DIT (pas encore fini mais à revoire)
 - des changmenet vient de la branch ticketing (historique des pages, affichage et cache de mot de passe)
+- page de garde devis
 
 # Back-end
 

@@ -31,7 +31,7 @@ class DitDevisSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroDevis;
+    private ?string $numeroDevis = "";
 
     /**
      * @ORM\Column(type="integer")
