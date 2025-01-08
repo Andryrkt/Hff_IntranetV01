@@ -1,10 +1,6 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import {
-  validateField,
-  validateFormBeforeSubmit,
-  disableForm,
-} from '../utils/formUtils.js';
+import { disableForm } from '../utils/formUtils.js';
 
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
@@ -22,9 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
     { id: '#btn_valider', action: 'valider' },
     { id: '#btn_commenter', action: 'commenter' },
     { id: '#btn_refuser', action: 'refuser' },
-    { id: '#btn_resoudre', action: 'resoudre' },
-    { id: '#btn_transferer', action: 'transferer' },
-    { id: '#btn_planifier', action: 'planifier' },
   ];
 
   buttons.forEach(({ id, action }) => {
@@ -78,56 +71,5 @@ document.addEventListener('DOMContentLoaded', function () {
         autreCategorieContainer
       );
     }
-  });
-
-  // champs Intervenant et Date de planning
-  const tikIntervenant = document.querySelector('#detail_tik_intervenant');
-  const dateDebutPlanning = document.querySelector(
-    '#detail_tik_dateDebutPlanning'
-  );
-  const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
-
-  // gestion du cas où l'intervenant n'est pas valide
-  tikIntervenant.addEventListener('change', () =>
-    validateField(
-      tikIntervenant.value,
-      (val) => val !== transfererBtn.getAttribute('data-intervenant'),
-      document.querySelector('.error-message-intervenant')
-    )
-  );
-
-  // gestion de cas où la date de planning est invalide
-  [dateDebutPlanning, dateFinPlanning].forEach((date) => {
-    date.addEventListener('change', () =>
-      validateField(
-        dateDebutPlanning.value,
-        (val) => new Date(val) <= new Date(dateFinPlanning.value),
-        document.querySelector('.error-message-date')
-      )
-    );
-  });
-
-  // Formulaire avant submit
-  const myForm = document.getElementById('formTik');
-
-  // Bloquer le formulaire si champ invalide
-  myForm.addEventListener('submit', (event) => {
-    let buttonName = event.submitter.name;
-    validateFormBeforeSubmit(event, [
-      () =>
-        validateField(
-          buttonName === 'transferer',
-          tikIntervenant.value,
-          (val) => val !== transfererBtn.getAttribute('data-intervenant'),
-          document.querySelector('.error-message-intervenant')
-        ),
-      () =>
-        validateField(
-          buttonName === 'planifier',
-          dateDebutPlanning.value,
-          (val) => new Date(val) <= new Date(dateFinPlanning.value),
-          document.querySelector('.error-message-date')
-        ),
-    ]);
   });
 });

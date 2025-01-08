@@ -61,9 +61,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       modalBodyContent.textContent = data.edit;
       if (!data.edit) {
-        modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier le ticket \"${numTik}\".`;
-      } else if (data.ouvert) {
-        modalBodyContent.textContent = `Impossible de modifier le ticket \"${numTik}\" car il a été déjà validé.`;
+        if (!data.ouvert) {
+          modalBodyContent.textContent = `Impossible de modifier le ticket \"${numTik}\" car il a été déjà validé (refusé).`;
+        } else {
+          modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier le ticket \"${numTik}\".`;
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour des données:', error);
