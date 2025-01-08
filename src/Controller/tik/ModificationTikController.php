@@ -73,8 +73,16 @@ class ModificationTikController extends Controller
      */
     private function canEdit(string $numTik): bool
     {
+        $this->verifierSessionUtilisateur();
+
         $idUtilisateur  = $this->sessionService->get('user_id');
+
         $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+
+        if (is_null($utilisateur)) {
+            $this->SessionDestroy();
+            $this->redirectToRoute("security_signin");
+        }
 
         $allTik = $utilisateur->getSupportInfoUser();
 
