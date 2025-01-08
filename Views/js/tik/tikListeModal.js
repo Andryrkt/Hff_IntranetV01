@@ -1,5 +1,7 @@
 import { setupModal } from '../utils/modalHandlerUtils.js';
 import { getFrenchMonth } from '../utils/dateUtils.js';
+import { fetchData } from '../utils/fetchUtils.js';
+import { toggleSpinner } from '../utils/spinnerUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   /** COMMENTAIRE MODAL */
@@ -34,16 +36,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
   confirmationModal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
-    const id = button.getAttribute('data-id'); // Extract info from data-* attributes
-
+    const condition = button.getAttribute('data-bool'); // boolean
+    const numTik = button.getAttribute('data-id'); // numéro du ticket
     const modalBodyContent = document.getElementById('modal-modif-content');
+    const modalConfirmationSpinner = document.querySelector(
+      '#spinner-confirmation-modal'
+    );
+    const modalConfirmationContainer = document.querySelector(
+      '#confirmation-modal-container'
+    );
 
-    if (text === '--') {
-      modalBodyContent.textContent = 'Pas de commentaire';
-    } else {
-      modalBodyContent.textContent = text;
+    if (condition === '1') {
+      // Si l'utilisateur peut modifier le ticket, on empêche l'affichage de la modale
+      event.preventDefault();
+      window.location.href = button.getAttribute('href');
+    }
+
+    try {
+      // Affiche le spinner avant de lancer le fetch
+      toggleSpinner(modalConfirmationSpinner, modalConfirmationContainer, true);
+      const data = fetchData(
+        `/Hffintranet/api/modification-ticket-fetch/${numTik}`
+      );
+
+      modalBodyContent.textContent = data.edit;
+      if (!data.edit) {
+        modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier le ticket \"${numTik}\".`;
+      } else if (data.ouvert) {
+        modalBodyContent.textContent = `Impossible de modifier le ticket \"${numTik}\" car il a été déjà validé.`;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des données:', error);
+    } finally {
+      // Désactive le spinner une fois le traitement terminé
+      toggleSpinner(
+        modalConfirmationSpinner,
+        modalConfirmationContainer,
+        false
+      );
     }
   });
 });
-
-setupModal('confirmationModal', 'modifierLink', 'confirmModification'); // modal pour la modification d'un ticket
