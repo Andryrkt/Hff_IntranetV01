@@ -92,12 +92,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       link.innerHTML = truncatedText;
     } else {
-      text = originalText.substring(0, maxChars);
-      const lineBreakIndex = text.indexOf('<br>');
+      const lineBreakIndex = originalText.indexOf('<br>');
 
       // Si un retour à la ligne est trouvé, tronquer à ce point
       if (lineBreakIndex !== -1) {
-        link.innerHTML = text.substring(0, lineBreakIndex) + '...';
+        link.innerHTML = originalText.substring(0, lineBreakIndex) + '...';
       }
     }
   });

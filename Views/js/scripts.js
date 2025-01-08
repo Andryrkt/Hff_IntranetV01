@@ -122,10 +122,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const confirmLogout = document.getElementById('confirmLogout');
 
   // Variable pour stocker l'URL de déconnexion (ou la logique)
-  let logoutUrl = logoutLink.getAttribute('href');
+  let logoutUrl = logoutLink?.getAttribute('href');
 
   // Lorsque l'utilisateur clique sur le lien de déconnexion
-  logoutLink.addEventListener('click', function (event) {
+  logoutLink?.addEventListener('click', function (event) {
     // Empêcher la redirection initiale (si nécessaire)
     event.preventDefault();
     // Afficher le modal de confirmation
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Lorsque l'utilisateur clique sur le bouton "Confirmer"
-  confirmLogout.addEventListener('click', function () {
+  confirmLogout?.addEventListener('click', function () {
     // Effectuer la déconnexion (rediriger vers l'URL de déconnexion)
     window.location.href = logoutUrl; // Effectuer la déconnexion
   });
