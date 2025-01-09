@@ -25,6 +25,7 @@
 							{{ form_row(form.nom_utilisateur, {'attr': {'class': 'selectUser form-control'}}) }}
 							{{ form_row(form.matricule) }}
 							{{ form_row(form.mail) }}
+							{{ form_row(form.numTel) }}
 							{{ form_row(form.permissions)}}
 							{{ form_row(form.roles)}}
 							<div class="row">
@@ -60,5 +61,5 @@
 	{% endblock %}
 
 	{% block javascript %}
-		<script src="/Hffintranet/Views/js/admin/users.js"></script>
+		<script type="module" src="/Hffintranet/Views/js/admin/users.js"></script>
 	{% endblock %}

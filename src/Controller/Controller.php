@@ -13,25 +13,16 @@ use App\Model\ProfilModel;
 use App\Service\FusionPdf;
 use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
-use App\Service\GenererPdf;
 use App\Entity\admin\Agence;
-use App\Model\OdbcCrudModel;
 use App\Entity\admin\Service;
 use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
 use App\Model\dom\DomDetailModel;
-
 use App\Model\TransferDonnerModel;
-
-use App\Service\FlashManagerService;
-
-use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
-use App\Service\ExcelExporterService;
 use App\Entity\admin\utilisateur\User;
-
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
 //use App\Model\admin\user\ProfilUserModel;
@@ -39,20 +30,14 @@ use App\Model\admin\personnel\PersonnelModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 
-include dirname(__DIR__) . '/Service/GenererPdf.php';
 
 class Controller
 {
-
-
     protected $fusionPdf;
-    protected $genererPdf;
 
     protected $ldap;
     protected $profilModel;
@@ -71,9 +56,6 @@ class Controller
 
     protected $request;
     protected $response;
-
-    protected $excelExport;
-    protected $flashManager;
 
     protected static $validator;
 
@@ -100,7 +82,6 @@ class Controller
     {
 
         $this->fusionPdf        = new FusionPdf();
-        $this->genererPdf       = new GenererPdf();
 
         $this->ldap             = new LdapModel();
 
@@ -121,9 +102,6 @@ class Controller
         $this->request          = Request::createFromGlobals();
 
         $this->response         = new Response();
-
-        $this->excelExport      = new ExcelExporterService();
-        $this->flashManager     = new FlashManagerService();
 
         $this->parsedown        = new Parsedown();
 
@@ -239,10 +217,6 @@ class Controller
         $Date_system = date("Y-m-d", $d);
         return $Date_system;
     }
-
-
-
-
 
     protected function conversionCaratere(string $chaine): string
     {

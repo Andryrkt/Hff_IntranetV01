@@ -309,7 +309,9 @@ function updateServiceOptions(services) {
 /**
  * CHAMP CLIENT MISE EN MAJUSCULE
  */
-const nomClientInput = document.querySelector(".nomClient");
+const nomClientInput = document.querySelector(
+  "#demande_intervention_nomClient"
+);
 nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
@@ -325,9 +327,13 @@ const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
 const erreurClient = document.querySelector("#erreurClient");
+const numClientInput = document.querySelector(
+  "#demande_intervention_numeroClient"
+);
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
+  numClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
   clientSousContratInput.setAttribute("disabled", true);
 }
@@ -338,6 +344,7 @@ function interneExterne() {
   console.log(interneExterneInput.value);
   if (interneExterneInput.value === "EXTERNE") {
     nomClientInput.removeAttribute("disabled");
+    numClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");
     demandeDevisInput.removeAttribute("disabled");
@@ -345,6 +352,7 @@ function interneExterne() {
     serviceDebiteurInput.setAttribute("disabled", true);
   } else {
     nomClientInput.setAttribute("disabled", true);
+    numClientInput.setAttribute("disabled", true);
     numTelInput.setAttribute("disabled", true);
     demandeDevisInput.setAttribute("disabled", true);
     clientSousContratInput.setAttribute("disabled", true);
@@ -418,6 +426,66 @@ textarea.addEventListener("input", function () {
   } else {
     textarea.value = lines.join("\n");
   }
+});
+
+/**
+ * AUTOCOMPLETE NOM et NUMERO CLient
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  // Fonction pour afficher les suggestions
+  function showSuggestions(input, suggestionsContainer, data) {
+    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
+    data.forEach((item) => {
+      const suggestion = document.createElement("div");
+      suggestion.textContent = item.label; // Affiche le label
+      suggestion.addEventListener("click", () => {
+        input.value = item.label; // Remplit le champ avec la sélection
+        suggestionsContainer.innerHTML = ""; // Efface les suggestions
+      });
+      suggestionsContainer.appendChild(suggestion);
+    });
+  }
+
+  // Fonction pour gérer l'autocomplétion
+  function setupAutocomplete(input) {
+    const url = input.getAttribute("data-autocomplete-url");
+    const suggestionsContainer = document.getElementById(
+      `${input.id}_suggestions`
+    );
+
+    input.addEventListener("input", async function () {
+      const query = input.value.trim();
+      if (query.length > 2) {
+        try {
+          const response = await fetch(
+            `${url}?term=${encodeURIComponent(query)}`
+          );
+          const data = await response.json();
+          showSuggestions(input, suggestionsContainer, data);
+        } catch (error) {
+          console.error(
+            "Erreur lors de la récupération des suggestions :",
+            error
+          );
+        }
+      } else {
+        suggestionsContainer.innerHTML = ""; // Efface les suggestions si la saisie est trop courte
+      }
+    });
+
+    // Cacher les suggestions si on clique ailleurs
+    document.addEventListener("click", (e) => {
+      if (
+        !input.contains(e.target) &&
+        !suggestionsContainer.contains(e.target)
+      ) {
+        suggestionsContainer.innerHTML = "";
+      }
+    });
+  }
+
+  // Appliquer l'autocomplétion à tous les champs avec la classe "autocomplete"
+  document.querySelectorAll(".autocomplete").forEach(setupAutocomplete);
 });
 
 /**

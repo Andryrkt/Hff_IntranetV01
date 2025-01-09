@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tableBody.innerHTML = ""; // Vider le tableau
   });
 });
+
 /**
  * CREATION D'EXCEL
  */

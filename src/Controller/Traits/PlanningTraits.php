@@ -19,7 +19,7 @@ trait PlanningTraits
     private function recupNumOrValider($criteria, $em){
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-        // dump($numeroOrs);
+    
         $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
@@ -323,21 +323,20 @@ private function getSelectedMonths(array $months, int $currentMonth, int $curren
     return $selectedMonths;
 }
 
-private function generateMonthData(array $months, int $currentMonth, int $currentYear, int $offset): array
-{
-    $totalMonths = $currentMonth + $offset;
-    $monthIndex = ($totalMonths % 12 + 12) % 12; // Assure un index valide entre 0-11
-    $year = $currentYear + intdiv($totalMonths, 12);
+    private function generateMonthData(array $months, int $currentMonth, int $currentYear, int $offset): array
+    {
+        $totalMonths = $currentMonth + $offset;
+        $monthIndex = ($totalMonths % 12 + 12) % 12; // Assure un index valide entre 0-11
+        $year = $currentYear + intdiv($totalMonths, 12);
 
-    if ($totalMonths < 0 && $monthIndex > $currentMonth) {
-        $year--; // Si l'offset est négatif et que le mois calculé est après le mois courant, ajuste l'année.
+        if ($totalMonths < 0 && $monthIndex > $currentMonth) {
+            $year--; // Si l'offset est négatif et que le mois calculé est après le mois courant, ajuste l'année.
+        }
+
+        return [
+            'month' => $months[$monthIndex],
+            'year' => $year,
+            'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
+        ];
     }
-
-    return [
-        'month' => $months[$monthIndex],
-        'year' => $year,
-        'key' => sprintf('%04d-%02d', $year, $monthIndex + 1),
-    ];
-}
-
 }

@@ -247,14 +247,27 @@ class demandeInterventionType extends AbstractType
                 
             // ])
             ->add('nomClient',
-            TextType::class,
-            [
-                'label' => 'Nom du client (*EXTERNE)',
-                'required' => true,
-                'attr' => [
-                    'class' => 'nomClient noEntrer'
-                ]
-            ])
+    TextType::class,
+    [
+        'label' => 'Nom du client (*EXTERNE)',
+        'required' => true,
+        'attr' => [
+            'class' => 'nomClient noEntrer autocomplete',
+            'autocomplete' => 'off',
+            'data-autocomplete-url' => '/Hffintranet/autocomplete/nom-client' // Mettez ici la route de l'autocomplétion
+        ]
+    ])
+            ->add('numeroClient',
+                TextType::class,
+                [
+                    'label' => 'Numéro du client (*EXTERNE)',
+                    'required' => true,
+                    'attr' => [
+                        'class' => 'numClient noEntrer autocomplete',
+                        'autocomplete' => 'off',
+                        'data-autocomplete-url' => '/Hffintranet/autocomplete/numero-client' // Mettez ici la route de l'autocomplétion
+                    ]
+                ])
             ->add('numeroTel',
             TelType::class,
             [
@@ -270,9 +283,6 @@ class demandeInterventionType extends AbstractType
                 'label' => "E-mail du client (*EXTERNE)",
                 'required' => false,
                 'attr' => [ 'class' => 'clientSousContrat'],
-                'constraints' => [
-                        new Assert\NotBlank(['message'=>'l\'email du client ne doit pas être vide'])
-                    ]
             ])
 
             ->add('datePrevueTravaux', DateType::class, [

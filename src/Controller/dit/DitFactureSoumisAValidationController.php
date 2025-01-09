@@ -66,7 +66,11 @@ class DitFactureSoumisAValidationController extends Controller
             $nbFact = $this->nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
-            if ($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()) {
+
+            // dump($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR());
+            // dump($nbFact === 0);
+            // dump($nbFactSqlServer > 0);
+            if($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()){
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
 
                 $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
@@ -87,6 +91,7 @@ class DitFactureSoumisAValidationController extends Controller
             } else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+                
                 $this->ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
@@ -99,8 +104,9 @@ class DitFactureSoumisAValidationController extends Controller
                     $this->historiqueOperationService->enregistrerFAC($ditFactureSoumiAValidation->getNumeroFact(), 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
 
                     $this->notification($message);
-                } else {
-                    /** CREATION PDF */
+                } else { 
+
+                        /** CREATION PDF */
                     $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
 
                     $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
@@ -163,19 +169,21 @@ class DitFactureSoumisAValidationController extends Controller
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
 
 
-        $estRi = false;
-        $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
-
-        if (empty($riSoumis)) {
-            $estRi = true;
-        } else {
-            for ($i = 0; $i < count($infoFacture); $i++) {
-                if (!in_array($infoFacture[$i]['numeroitv'], $riSoumis)) {
-                    $estRi = true;
-                    break;
+                $estRi = false;
+                $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+                
+                if(empty($riSoumis)){
+                    $estRi = true; 
+                                
+                } else {
+                  
+                    for ($i=0; $i < count($infoFacture); $i++) { 
+                        if( !in_array($infoFacture[$i]['numeroitv'], $riSoumis)){
+                            $estRi = true;
+                            break;
+                        }
+                    }
                 }
-            }
-        }
         return $estRi;
     }
 
