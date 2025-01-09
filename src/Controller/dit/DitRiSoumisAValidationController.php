@@ -13,10 +13,18 @@ use App\Model\dit\DitRiSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
+use App\Service\historiqueOperation\HistoriqueOperationRIService;
 
 class DitRiSoumisAValidationController extends Controller
 {
     use DitRiSoumisAValidationTrait;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationRIService;
+    }
 
     /**
      * @Route("/soumission-ri/{numDit}", name="dit_insertion_ri")
@@ -31,11 +39,9 @@ class DitRiSoumisAValidationController extends Controller
         $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
-            $message = "Le DIT n'a pas encore du numéro OR";
+            $message = "Le DIT n'a pas encore de numéro OR";
 
-            $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-            $this->notification($message);
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
         $ditRiSoumiAValidation->setNumeroDit($numDit);
@@ -79,21 +85,15 @@ class DitRiSoumisAValidationController extends Controller
             if ($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
 
-                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } elseif ($estSoumis) {
                 $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
 
-                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } elseif ($existe) {
                 $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
 
-                $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } else {
 
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
@@ -134,17 +134,13 @@ class DitRiSoumisAValidationController extends Controller
                             // Gestion de l'erreur de déplacement
                             $message = 'Le fichier n\'a pas pu être téléchargé. Veuillez réessayer.';
 
-                            $this->historiqueOperationService->enregistrerRI($fileName, 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                            $this->notification($message);
+                            $this->historiqueOperation->sendNotificationSoumission($message, $fileName, 'dit_index');
                         }
                     } else {
                         // Message si aucun fichier n'a été téléchargé
                         $message = 'Aucun fichier n\'a été sélectionné.';
 
-                        $this->historiqueOperationService->enregistrerRI('-', 1, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                        $this->notification($message);
+                        $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
                     }
                 }
 
@@ -161,8 +157,6 @@ class DitRiSoumisAValidationController extends Controller
                     // Persist les entités liées
                     self::$em->persist($riSoumisAValidation);
 
-                    $this->historiqueOperationService->enregistrerRI('RI_' . $dataForm->getNumeroOR() . '-' . $value, 1, 'Succès'); // historisation de l'opération de l'utilisateur
-
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
                 }
@@ -171,8 +165,7 @@ class DitRiSoumisAValidationController extends Controller
                 // Flushe toutes les entités et l'historique
                 self::$em->flush();
 
-                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Le rapport d\'intervention a été soumis avec succès']);
-                $this->redirectToRoute("dit_index");
+                $this->historiqueOperation->sendNotificationSoumission('Le rapport d\'intervention a été soumis avec succès', 'RI_' . $dataForm->getNumeroOR(), 'dit_index', true);
             }
         }
 
