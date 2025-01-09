@@ -168,6 +168,18 @@ window.addEventListener('beforeunload', function () {
   }
 }); */
 
+// Afficher l'overlay
+const allButtonAfficher = document.querySelectorAll('.ajout-overlay');
+
+allButtonAfficher.forEach((button) => {
+  button.addEventListener('click', () => {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+      overlay.classList.remove('hidden'); // Affiche l'overlay
+    }
+  });
+});
+
 // Masquer l'overlay après le chargement de la page
 window.addEventListener('load', () => {
   const overlay = document.getElementById('loading-overlay');
