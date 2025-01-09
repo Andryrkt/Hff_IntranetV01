@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /** OVERLAY */
 // Afficher l'overlay dès que la page commence à charger
-document.addEventListener('DOMContentLoaded', () => {
+/* document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
     overlay.classList.remove('hidden'); // S'assurer que l'overlay est visible au début
@@ -166,7 +166,7 @@ window.addEventListener('beforeunload', function () {
   if (overlay) {
     overlay.classList.remove('hidden'); // Affiche l'overlay juste avant la redirection
   }
-});
+}); */
 
 // Masquer l'overlay après le chargement de la page
 window.addEventListener('load', () => {
