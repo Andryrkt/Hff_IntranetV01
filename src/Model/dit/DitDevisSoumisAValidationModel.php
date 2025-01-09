@@ -24,6 +24,24 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupNbAchatLocaux(string $numDevis)
+    {
+        dd($numDevis);
+        $statement = " SELECT
+            count(slor.slor_constp) as nbr_achat_locaux 
+            from sav_lor slor
+            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
+            where slor.slor_constp like 'Z%'
+            and seor.seor_numor = '".$numDevis."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupDevisSoumisValidation($numDevis)
     {
       $statement = "SELECT
