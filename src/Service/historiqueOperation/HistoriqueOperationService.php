@@ -48,7 +48,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     /** 
      * Méthode pour enregistrer l'historique de l'opération
      * 
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
      *  - 1 : SOUMISSION
      *  - 2 : VALIDATION
@@ -105,7 +105,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la SOUMISSION dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la soumission, valeurs possibles:
      *  - true : Succès de la soumission
@@ -120,7 +120,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la VALIDATION dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la validation, valeurs possibles:
      *  - true : Succès de la validation
@@ -135,7 +135,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la MODIFICATION dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la modification, valeurs possibles:
      *  - true : Succès de la modification
@@ -150,7 +150,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la SUPPRESSION dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la suppression, valeurs possibles:
      *  - true : Succès de la suppression
@@ -165,7 +165,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la CREATION dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la création, valeurs possibles:
      *  - true : Succès de la création
@@ -180,7 +180,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * Méthode pour envoyer une notification et enregistrer l'historique de la CLOTURE dU document
      * 
      * @param string $message message pour la notification
-     * @param string $numeroDocument numéro du document
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
      * @param bool $success statut de la clôture, valeurs possibles:
      *  - true : Succès de la clôture
