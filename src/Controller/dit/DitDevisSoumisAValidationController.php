@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\autres\MontantPdfService;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
+use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class DitDevisSoumisAValidationController extends Controller
 {
@@ -22,6 +23,7 @@ class DitDevisSoumisAValidationController extends Controller
     private $ditDevisSoumisAValidation;
     private $ditDevisSoumisAValidationModel;
     private $montantPdfService;
+    private $historiqueOperation;
 
     public function __construct()
     {
@@ -32,6 +34,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation(); // entity
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
+        $this->historiqueOperation = new HistoriqueOperationDEVService;
     }
 
     /**
@@ -43,7 +46,7 @@ class DitDevisSoumisAValidationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($numDit, $numDevis);
 
@@ -54,39 +57,39 @@ class DitDevisSoumisAValidationController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
-            if(empty($devisSoumisAValidationInformix )) {
-                $message = "Erreur lors de la soumission, veuillez réessayer . . . l'information de la devis n'est pas recupérer"; 
-                $this->notification($message, $numDevis, "dit_index" ,false);
+            if (empty($devisSoumisAValidationInformix)) {
+                $message = "Erreur lors de la soumission, veuillez réessayer . . . l'information de la devis n'est pas recupérer";
+
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             }
 
             $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
             /** 
              * TODO : A RECTIFIER le == par <>
-             * */ 
+             * */
             $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] == '';
 
-            if($conditionDitIpsDiffDitSqlServ) {
+            if ($conditionDitIpsDiffDitSqlServ) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le numero DIT dans IPS ne correspond pas à la DIT";
-                $this->notification($message, $numDevis, "dit_index" ,false);
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } elseif ($conditionServDebiteurvide) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le service débiteur n'est pas vide";
-                $this->notification($message, $numDevis, "dit_index" ,false);
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } else {
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
-                
+
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $generePdfDevis = new GenererPdfDevisSoumisAValidataion();
                 $this->creationPdf($this->ditDevisSoumisAValidation, $devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $generePdfDevis);
-                $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
-                $generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
+                $fileName = $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
+                $generePdfDevis->copyToDWDevisSoumis($fileName); // copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
-                $this->historiqueOperationService->enregistrerDEV($fileName, 1, "Succès");
-                
+
                 $message = 'Le devis a été soumis avec succès';
-                $this->notification($message, $numDevis, "dit_index" ,true);
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
             }
         }
 
@@ -109,7 +112,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         $generePdfDevis->GenererPdfDevisSoumisAValidataion($ditInsertionDevis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
-    
+
     private function quelqueAffichage($ditOrsoumisAValidationModel, $numDevis)
     {
         dd($numDevis);
@@ -127,7 +130,8 @@ class DitDevisSoumisAValidationController extends Controller
         ];
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
@@ -135,23 +139,8 @@ class DitDevisSoumisAValidationController extends Controller
             'mailUtilisateur' => $user->getMail()
         ];
     }
-    
-    
-    private function notification(string $message, string $numeroDoc, string $redirection , bool $succes = false)
-    {
-        if($succes){
-            $this->sessionService->set('notification',['type' => 'success', 'message' => $message]);
-            $this->historiqueOperationService->enregistrerDEV($numeroDoc, 1, 'Succès'); 
-        } else {
-            $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
-            $this->historiqueOperationService->enregistrerDEV($numeroDoc, 1, 'Erreur', $message); 
-        }
 
-        $this->redirectToRoute($redirection);
-        exit();
-    }
-
-    private function envoieDonnerDansBd(array $devisSoumisValidataion) 
+    private function envoieDonnerDansBd(array $devisSoumisValidataion)
     {
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
@@ -168,7 +157,7 @@ class DitDevisSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
- 
+
 
     private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit): array
     {
@@ -212,10 +201,9 @@ class DitDevisSoumisAValidationController extends Controller
     private function numeroDevis(string $numDit): string
     {
         $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
-        if(empty($numeroDevis))
-        {
+        if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->notification($message, $numeroDevis, "dit_index" ,false);
+            $this->historiqueOperation->sendNotificationCreation($message, $numeroDevis, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }
@@ -229,13 +217,13 @@ class DitDevisSoumisAValidationController extends Controller
             ->setDateHeureSoumission(new DateTime());
         return $this->ditDevisSoumisAValidation;
     }
-    
+
     private function enregistrementEtFusionFichier(FormInterface $form, string $numDevis, string $numeroVersion)
     {
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/dev';
-            $fileUploader = new FileUploaderService($chemin);
-            $prefix = 'devis_ctrl';
-            $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, true, $numeroVersion);
+        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/dev';
+        $fileUploader = new FileUploaderService($chemin);
+        $prefix = 'devis_ctrl';
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, true, $numeroVersion);
 
         return $fileName;
     }
