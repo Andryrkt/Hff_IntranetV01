@@ -9,6 +9,7 @@ use App\Form\dom\DomForm2Type;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
+use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,7 +18,13 @@ class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
+    private $historiqueOperation;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDOMService;
+    }
     /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
@@ -55,9 +62,7 @@ class DomSecondController extends Controller
                 if ($verificationDateExistant) {
                     $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
 
-                    $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                    $this->notification($message);
+                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
                         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
@@ -66,10 +71,8 @@ class DomSecondController extends Controller
                             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
                         } else {
                             $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-    
-                            $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-    
-                            $this->notification($message);
+
+                            $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                         }
                     }
                 }
@@ -79,16 +82,11 @@ class DomSecondController extends Controller
                 } else {
                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
-                    $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Erreur', $message); // historisation de l'opération de l'utilisateur
-
-                    $this->notification($message);
+                    $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 }
             }
 
-            $this->historiqueOperationService->enregistrerDOM($dom->getNumeroOrdreMission(), 5, 'Succès'); // historisation de l'opération de l'utilisateur
-
-            // Redirection ou affichage de confirmation
-            return $this->redirectToRoute('doms_liste');
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
         }
 
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
@@ -98,12 +96,5 @@ class DomSecondController extends Controller
             'is_temporaire' => $is_temporaire,
             'criteria'      => $criteria
         ]);
-    }
-
-
-    private function notification($message)
-    {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-        $this->redirectToRoute("dom_first_form");
     }
 }
