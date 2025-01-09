@@ -273,7 +273,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/nom-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -286,7 +286,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/numero-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
