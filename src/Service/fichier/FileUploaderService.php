@@ -66,11 +66,11 @@ class FileUploaderService
     }
 
 
-    private function genererateCheminMainFichier(string $numeroDoc, string $numeroVersion = ''): string
+    private function genererateCheminMainFichier(string $numeroDoc, string $prefix, string $numeroVersion = ''): string
     {
         return sprintf(
             '%s_%s%s.pdf',
-            $this->targetDirectory,
+            $prefix,
             $numeroDoc,
             $numeroVersion
         );
@@ -173,24 +173,25 @@ private function getUploadedFiles(
     ): string 
     {
         $uploadedFiles = [];
-        $mainFilePath = $this->genererateCheminMainFichier($numeroDoc, $numeroVersion);
+        $mainFileName = $this->genererateCheminMainFichier($numeroDoc, $numeroVersion);
+        $mainFilePathName = $this->targetDirectory. '_'. $mainFileName;
         // Ajouter le fichier principal en tête du tableau, s'il existe
-        if (!file_exists($mainFilePath)) {
+        if (!file_exists($mainFilePathName)) {
             throw new \RuntimeException('Le fichier principal n\'existe pas.');
         }
-        $uploadedFiles[] = $mainFilePath;
+        $uploadedFiles[] = $mainFilePathName;
     
          // Récupérer les fichiers téléchargés
         $uploadedFiles = array_merge($uploadedFiles, $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion));
     
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $mainFilePath;
+        $mergedPdfFile = $mainFilePathName;
 
         // Fusionner les fichiers si demandé
         if ($mergeFiles && !empty($uploadedFiles)) {
             $this->fusionPdf->mergePdfs($uploadedFiles, $mergedPdfFile);
         }
 
-        return $mergedPdfFile;
+        return $mainFileName;
     }
 }
