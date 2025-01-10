@@ -64,7 +64,7 @@ class DitDevisSoumisAValidationController extends Controller
             }
 
             $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
-            
+
             $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] <> '';
 
             if ($conditionDitIpsDiffDitSqlServ) {
@@ -82,8 +82,8 @@ class DitDevisSoumisAValidationController extends Controller
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $this->creationPdf($devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $this->generePdfDevis);
-                $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
-                $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
+                $fileName = $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
+                $this->generePdfDevis->copyToDWDevisSoumis($fileName); // copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
 
                 $message = 'Le devis a été soumis avec succès';
@@ -97,10 +97,10 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
 
-    private function creationPdf( $devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
-    {   
+    private function creationPdf($devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
+    {
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
-        
+
         $OrSoumisAvant = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis);
         // dump($OrSoumisAvant);
         $OrSoumisAvantMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis);
@@ -109,9 +109,9 @@ class DitDevisSoumisAValidationController extends Controller
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis);
 
-        $generePdfDevis->GenererPdfDevisSoumisAValidation($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+        $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
-    
+
     private function quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis)
     {
         return [
