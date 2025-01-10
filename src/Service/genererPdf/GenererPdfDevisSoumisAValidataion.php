@@ -13,272 +13,77 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
      * generer pdf changement de Casier
      */
 
-    function GenererPdfOrSoumisAValidation($devisSoumis, $montantPdf, $quelqueaffichage, $email)
+    function GenererPdfDevisSoumisAValidation($devisSoumis, $montantPdf, $quelqueaffichage, $email)
     {
         $pdf = new TCPDF();
 
-
         $pdf->AddPage();
-
 
         $pdf->setFont('helvetica', 'B', 17);
         $pdf->Cell(0, 6, 'Validation DEVIS', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-       // Début du bloc
-        $pdf->setFont('helvetica', '', 10);
-        $startX = $pdf->GetX();
-        $startY = $pdf->GetY();
-
-        $pdf->setFont('helvetica', 'B', 10);
-        // Date de soumission
-        $pdf->Cell(45, 6, 'Date soumission : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(50, 6, $devisSoumis->getDateHeureSoumission()->format('d/m/Y'), 0, 1, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(130);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->cell(20, 6, 'N° Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(0, 6,$quelqueaffichage['numDevis'][0]['seor_numdev'] === '' ? 0 : $quelqueaffichage['numDevis'][0]['seor_numdev'] , 0, 0, '', false, '', 0, false, 'T', 'M');
-
-        // Numéro Demande d'intervention DIT
-        $pdf->SetXY($startX, $pdf->GetY()+ 2);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(45, 6, 'Numéro DIT : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(50, 6, $devisSoumis->getNumeroDit(), 0, 1, '', false, '', 0, false, 'T', 'M');
-
-        // Numéro Devis
-        $pdf->SetXY($startX, $pdf->GetY()+ 2);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(45, 6, 'Numéro DEVIS : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(50, 6, $devisSoumis->getNumeroDevis(), 0, 1, '', false, '', 0, false, 'T', 'M');
-
-        // Version à valider
-        $pdf->SetXY($startX, $pdf->GetY() + 2);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(45, 6, 'Version à valider : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(50, 6, $devisSoumis->getNumeroVersion(), 0, 1, '', false, '', 0, false, 'T', 'M');
-
-        // sortie magasin
-        // $pdf->SetXY($startX, $pdf->GetY() + 2);
-        // $pdf->setFont('helvetica', 'B', 10);
-        // $pdf->Cell(45, 6, 'Sortie magasin : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        // $pdf->setFont('helvetica', '', 10);
-        // $pdf->cell(50, 6, $quelqueaffichage['sortieMagasin'], 0, 1, '', false, '', 0, false, 'T', 'M');
-
-        // Achat locaux
-        $pdf->SetXY($startX, $pdf->GetY() + 2);
-        $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(45, 6, 'Achat locaux : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->setFont('helvetica', '', 10);
-        $pdf->cell(50, 6, $quelqueaffichage['achatLocaux'], 0, 1, '', false, '', 0, false, 'T', 'M');
+        $detailsBloc = [
+            'Date soumission' => $devisSoumis->getDateHeureSoumission()->format('d/m/Y'),
+            'Numéro DIT' => $devisSoumis->getNumeroDit(),
+            'Numéro DEVIS' => $devisSoumis->getNumeroDevis(),
+            'Version à valider' => $devisSoumis->getNumeroVersion(),
+            'Sortie magasin' => $quelqueaffichage['sortieMagasin'] ?? 'N/A',
+            'Achat locaux' => $quelqueaffichage['achatLocaux'] ?? 'N/A',
+        ];
         
-        // Fin du bloc
-        $pdf->Ln(10, true);
+        $this->addDetailsBlock($pdf, $detailsBloc);
+        
 
         // ================================================================================================
-        $header1 = ['ITV', 'Libellé ITV', 'Nb Lig av','Nb Lig ap', 'Mtt Total av', 'Mtt total ap', 'Statut'];
-
-            $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
-
-            $html .= '<thead>';
-            $html .= '<tr style="background-color: #D3D3D3;">';
-            foreach ($header1 as $key => $value) {
-                if ($key === 0) {
-                    $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
-                } elseif ($key === 1) {
-                    $html .= '<th style="width: 200px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 2) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 3) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 6) {
-                    $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } else {
-                    $html .= '<th >' . $value . '</th>';
-                }
-            }
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-            // Ajouter les lignes du tableau
-            foreach ($montantPdf['avantApres'] as $row) {
-                $html .= '<tr>';
-                foreach ($row as $key => $cell) {
-              
-                    if ($key === 'itv') {
-                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'libelleItv') {
-                        $html .= '<td style="width: 200px; text-align: left;"  >' . $cell . '</td>';
-                    } elseif ($key === 'nbLigAv') {
-                        $html .= '<td style="width: 50px; "  >' . $cell . '</td>';
-                    } elseif ($key === 'nbLigAp') {
-                        $html .= '<td style="width: 50px;"  >' . $cell . '</td>';
-                    } elseif ($key === 'mttTotalAv') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttTotalAp') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'statut') {
-                        if($cell === 'Supp'){
-                                $html .= '<td style="width: 40px; text-align: left; background-color: #FF0000;"  >  ' . $cell . '</td>';
-                        } elseif($cell === 'Modif') {
-                                $html .= '<td style="width: 40px; text-align: left; background-color: #FFFF00;"  >  ' . $cell . '</td>';
-                        } elseif ($cell === 'Nouv') {
-                                $html .= '<td style="width: 40px; text-align: left; background-color: #00FF00;"  >  ' . $cell . '</td>';
-                        } else {
-                            $html .= '<td style="width: 40px; text-align: left; "  >  ' . $cell . '</td>';
-                        }
-                    } 
-                    
-                }
-                $html .= '</tr>';
-            }
-            $html .= '</tbody>';
-            $html .= '<tfoot>';
-            $html .= '<tr style="background-color: #D3D3D3;">';
-            foreach ($montantPdf['totalAvantApres'] as $key => $value) {
-                if ($key === 'premierLigne') {
-                    $html .= '<th style="width: 40px; font-weight: 900;" ></th>';
-                } elseif ($key === 'total') {
-                    $html .= '<th style="width: 200px; font-weight: bold;" > TOTAL</th>';
-                } elseif ($key === 'totalNbLigAv') {
-                    $html .= '<th style="width: 50px; font-weight: bold; " >' . $value . '</th>';
-                } elseif ($key === 'totalNbLigAp') {
-                    $html .= '<th style="width: 50px; font-weight: bold; " >' . $value . '</th>';
-                } elseif ($key === 'totalMttTotalAv') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'totalMttTotalAp') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'dernierLigne') {
-                    $html .= '<th style="width: 40px; font-weight: bold; text-align: center;" ></th>';
-                }
-            }
-            $html .= '</tr>';
-            $html .= '</tfoot>';
-            $html .= '</table>';
-
-            $pdf->writeHTML($html, true, false, true, false, '');
+        $headerConfig1 = [
+            ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
+            ['key' => 'libelleItv', 'label' => 'Libellé ITV', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
+            ['key' => 'nbLigAv', 'label' => 'Nb Lig av', 'width' => 50, 'style' => 'font-weight: bold;'],
+            ['key' => 'nbLigAp', 'label' => 'Nb Lig ap', 'width' => 50, 'style' => 'font-weight: bold;'],
+            ['key' => 'mttTotalAv', 'label' => 'Mtt Total av', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttTotalAp', 'label' => 'Mtt Total ap', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'statut', 'label' => 'Statut', 'width' => 40, 'style' => 'font-weight: bold; text-align: center;'],
+        ];
+        
+        $generator = new PdfTableGenerator();
+        $html1 = $generator->generateTable($headerConfig1, $montantPdf['avantApres'], $montantPdf['totalAvantApres']);
+        $pdf->writeHTML($html1, true, false, true, false, '');
+        
 
             //$pdf->Ln(10, true);
 //===========================================================================================
             //Titre: Controle à faire
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 6, 'Contrôle à faire (par rapport dernière version) : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(10, true);
+        $this->addTitle($pdf, 'Contrôle à faire (par rapport dernière version) :');
 
-        $pdf->setFont('helvetica', '', 10);
-        //Nouvelle intervention
-        $pdf->Cell(45, 6, ' - Nouvelle intervention : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'], 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(5, true);
-
-        //intervention supprimer
-
-        $pdf->Cell(45, 6, ' - Intervention supprimée : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'], 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(5, true);
-
-        //nombre ligne modifiée
-        $pdf->Cell(45, 6, ' - Nombre ligne modifiée :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 5, $montantPdf['nombreStatutNouvEtSupp']['nbrModif'], 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(5, true);
-
-        //montant total modifié
-        $pdf->Cell(45, 6, ' - Montant total modifié :', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 5, $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']), 0, 0, '', false, '', 0, false, 'T', 'M');
-
-        $pdf->Ln(10, true);
+        $details = [
+            'Nouvelle intervention' => $montantPdf['nombreStatutNouvEtSupp']['nbrNouv'],
+            'Intervention supprimée' => $montantPdf['nombreStatutNouvEtSupp']['nbrSupp'],
+            'Nombre ligne modifiée' => $montantPdf['nombreStatutNouvEtSupp']['nbrModif'],
+            'Montant total modifié' => $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']),
+        ];
+        
+        $this->addSummaryDetails($pdf, $details);
 
 //==========================================================================================================
  //Titre: Récapitulation de l'OR
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 6, 'Récapitulation de l\'OR ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(10, true); 
+ $this->addTitle($pdf, 'Récapitulation de l\'OR');
         
         $pdf->setFont('helvetica', '', 12);
-        $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
+        $headerConfig2 = [
+            ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
+            ['key' => 'mttTotal', 'label' => 'Mtt Total', 'width' => 70, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttPieces', 'label' => 'Mtt Pièces', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttMo', 'label' => 'Mtt MO', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttSt', 'label' => 'Mtt ST', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttLub', 'label' => 'Mtt LUB', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttAutres', 'label' => 'Mtt Autres', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+        ];
         
-
-            $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
-
-            $html .= '<thead>';
-            $html .= '<tr style="background-color: #D3D3D3;">';
-            foreach ($header1 as $key => $value) {
-                if ($key === 0) {
-                    $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
-                } elseif ($key === 1) {
-                    $html .= '<th style="width: 70px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 2) {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 3) {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 4) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 5) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 6) {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                }
-            }
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-            // Ajouter les lignes du tableau
-            foreach ($montantPdf['recapOr'] as $row) {
-            
-                $html .= '<tr>';
-                foreach ($row as $key => $cell) {
-                    if ($key === 'itv') {
-                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'mttTotal') {
-                        $html .= '<td style="width: 70px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttPieces') {
-                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttMo') {
-                        $html .= '<td style="width: 60px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttSt') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttLub') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } elseif ($key === 'mttAutres') {
-                        $html .= '<td style="width: 80px; text-align: right;"  >' . $this->formatNumberDecimal($cell) . '</td>';
-                    } 
-                }
-                $html .= '</tr>';
-            }
-            $html .= '</tbody>';
-            $html .= '<tfoot>';
-            $html .= '<tr style="background-color: #D3D3D3;">';
-            foreach ($montantPdf['totalRecapOr']as $key => $value) {
-            
-                if ($key === 'total') {
-                    $html .= '<th style="width: 40px; font-weight: 900;" >TOTAL</th>';
-                } elseif ($key === 'montant_itv') {
-                    $html .= '<th style="width: 70px; font-weight: bold; text-align: right;" > ' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'montant_piece') {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'montant_mo') {
-                    $html .= '<th style="width: 60px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'montant_achats_locaux') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'montant_lubrifiants') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
-                } elseif ($key === 'montant_frais_divers') {
-                    $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value). '</th>';
-                } 
-            }
-            $html .= '</tr>';
-            $html .= '</tfoot>';
-            $html .= '</table>';
-
-            $pdf->writeHTML($html, true, false, true, false, '');
+        
+        $html2 = $generator->generateTable($headerConfig2, $montantPdf['recapOr'], $montantPdf['totalRecapOr']);
+        $pdf->writeHTML($html2, true, false, true, false, '');
+        
 
             $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('helvetica', '', 10);
@@ -286,7 +91,50 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dev/';
-        $pdf->Output($Dossier.'devis_ctrl_' .$devisSoumis->getNumeroDevis().'_'.$devisSoumis->getNumeroVersion(). '.pdf', 'F');
+            $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+            $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
+            $pdf->Output($filePath, 'F');
     }
+    
+    private function addTitle($pdf, $title, $font = 'helvetica', $style = 'B', $size = 12, $align = 'L', $lineBreak = 10)
+    {
+        $pdf->setFont($font, $style, $size);
+        $pdf->Cell(0, 6, $title, 0, 0, $align, false, '', 0, false, 'T', 'M');
+        $pdf->Ln($lineBreak, true);
+    }
+
+    private function addSummaryDetails($pdf, array $details, $font = 'helvetica', $fontSize = 10, $labelWidth = 45, $valueWidth = 50, $lineHeight = 5, $spacingAfter = 10)
+    {
+        $pdf->setFont($font, '', $fontSize);
+
+        foreach ($details as $label => $value) {
+            $pdf->Cell($labelWidth, 6, ' - ' . $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+            $pdf->Cell($valueWidth, 5, ': '.$value, 0, 0, '', false, '', 0, false, 'T', 'M');
+            $pdf->Ln($lineHeight, true);
+        }
+
+        $pdf->Ln($spacingAfter, true);
+    }
+
+    private function addDetailsBlock($pdf, array $details, $font = 'helvetica', $labelWidth = 45, $valueWidth = 50, $lineHeight = 6, $spacing = 2)
+    {
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+
+        foreach ($details as $label => $value) {
+            // Positionnement du label
+            $pdf->SetXY($startX, $pdf->GetY() + $spacing);
+            $pdf->setFont($font, 'B', 10);
+            $pdf->Cell($labelWidth, $lineHeight, $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+            // Positionnement de la valeur
+            $pdf->setFont($font, '', 10);
+            $pdf->Cell($valueWidth, $lineHeight, ': ' . $value, 0, 1, '', false, '', 0, false, 'T', 'M');
+        }
+
+        // Ajout d'un espace après le bloc
+        $pdf->Ln(10, true);
+    }
+
+
 }
