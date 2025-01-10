@@ -59,7 +59,7 @@ class FileUploaderService
             '%s_%s%s_%02d.%s',
             $prefix,
             $numeroDoc,
-            $numeroVersion,
+            $numeroVersion !== '' ? "_{$numeroVersion}" : '',
             $index,
             $file->guessExtension()
         );
@@ -67,12 +67,13 @@ class FileUploaderService
 
 
     private function genererateCheminMainFichier(string $numeroDoc, string $prefix, string $numeroVersion = ''): string
-    {
+    { 
+        
         return sprintf(
             '%s_%s%s.pdf',
             $prefix,
             $numeroDoc,
-            $numeroVersion
+            $numeroVersion !== '' ? "_{$numeroVersion}" : ''
         );
     }
 
@@ -97,18 +98,18 @@ class FileUploaderService
         }
 
         $fileName = $this->generateNomDeFichier( $file,  $numeroDoc, $index, $prefix, $numeroVersion);
+        $destination = $this->targetDirectory . 'fichiers/';
 
         try {
-            $file->move($this->targetDirectory, $fileName);
+            $file->move($destination, $fileName);
         } catch (\Exception $e) {
             throw new RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
         }
 
-        return $this->targetDirectory . $fileName;
+        return $destination . $fileName;
     }
-
-    /**
- * Méthode pour récupérer les fichiers téléchargés correspondant à un motif spécifique
+/**
+ * Méthode pour récupérer les fichiers téléchargés correspondant à un motif spécifique.
  *
  * @param FormInterface $form
  * @param string $fieldPattern
@@ -127,18 +128,18 @@ private function getUploadedFiles(
     $uploadedFiles = [];
 
     foreach ($form->all() as $fieldName => $field) {
-        if (preg_match($fieldPattern, $fieldName)) {
+        if (preg_match($fieldPattern, $fieldName, $matches)) {
             /** @var UploadedFile|null $file */
             $file = $field->getData();
             if ($file !== null) {
-                // Extraire l'index ou identifiant si nécessaire
-                if (preg_match($fieldPattern, $fieldName, $matches)) {
-                    $index = isset($matches[1]) ? (int)$matches[1] : null;
-                    $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefix, $numeroVersion);
+                // Récupérer l'index ou identifiant depuis les correspondances
+                $index = isset($matches[1]) ? (int)$matches[1] : null;
 
-                    if ($uploadedFilePath !== null) {
-                        $uploadedFiles[] = $uploadedFilePath;
-                    }
+                // Appeler la méthode uploadFile
+                $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefix, $numeroVersion);
+
+                if ($uploadedFilePath !== null) {
+                    $uploadedFiles[] = $uploadedFilePath;
                 }
             }
         }
@@ -146,6 +147,7 @@ private function getUploadedFiles(
 
     return $uploadedFiles;
 }
+
 
     /**
      * Méthode qui permet d'enregistrer les fichiers telecharger ou le fusionner puis l'enregistrer après
@@ -157,7 +159,6 @@ private function getUploadedFiles(
      *           - true : valeur par defaut, on fusionne le fichier
      *           - false : si on ne fusionne pas le fichier
      * @param string $numeroVersion  
-     *          - format : "_<numero>" //n'oublier pas le endercore
      *          - ce n'est pas obligatoire de le mettre
      *          - par defaut vide 
      * @param string $fieldPattern
@@ -169,18 +170,17 @@ private function getUploadedFiles(
         string $numeroDoc, 
         bool $mergeFiles = true,
         string $numeroVersion = '',
-        string $fieldPattern = '/^pieceJoint\d{2}$/'
+        string $fieldPattern = '/^pieceJoint(\d{2})$/'
     ): string 
     {
         $uploadedFiles = [];
-        $mainFileName = $this->genererateCheminMainFichier($numeroDoc, $numeroVersion);
-        $mainFilePathName = $this->targetDirectory. '_'. $mainFileName;
-        // Ajouter le fichier principal en tête du tableau, s'il existe
-        if (!file_exists($mainFilePathName)) {
-            throw new \RuntimeException('Le fichier principal n\'existe pas.');
-        }
+        $mainFileName = $this->genererateCheminMainFichier( $numeroDoc, $prefix, $numeroVersion);
+        $mainFilePathName = $this->targetDirectory. $mainFileName;
+        // dump($mainFilePathName);
+        // dd(file_exists($mainFilePathName));
+        
         $uploadedFiles[] = $mainFilePathName;
-    
+        
          // Récupérer les fichiers téléchargés
         $uploadedFiles = array_merge($uploadedFiles, $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion));
     

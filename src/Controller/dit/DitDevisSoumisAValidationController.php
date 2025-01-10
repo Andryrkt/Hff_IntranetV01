@@ -18,10 +18,10 @@ use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
 
 class DitDevisSoumisAValidationController extends Controller
 {
-
     private $ditDevisSoumisAValidation;
     private $ditDevisSoumisAValidationModel;
     private $montantPdfService;
+    private $generePdfDevis;
 
     public function __construct()
     {
@@ -29,9 +29,10 @@ class DitDevisSoumisAValidationController extends Controller
         parent::__construct();
 
         // Initialisation des propriétés
-        $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation(); // entity
+        $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
+        $this->generePdfDevis = new GenererPdfDevisSoumisAValidataion();
     }
 
     /**
@@ -45,13 +46,13 @@ class DitDevisSoumisAValidationController extends Controller
         $this->verifierSessionUtilisateur();
         
         $numDevis = $this->numeroDevis($numDit);
-        $ditDevisSoumisAValidation = $this->initialistaion($numDit, $numDevis);
+        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
 
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
+
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
             if(empty($devisSoumisAValidationInformix )) {
@@ -60,10 +61,8 @@ class DitDevisSoumisAValidationController extends Controller
             }
 
             $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
-            /** 
-             * TODO : A RECTIFIER le == par <>
-             * */ 
-            $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] == '';
+            
+            $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] <> '';
 
             if($conditionDitIpsDiffDitSqlServ) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le numero DIT dans IPS ne correspond pas à la DIT";
@@ -72,16 +71,16 @@ class DitDevisSoumisAValidationController extends Controller
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le service débiteur n'est pas vide";
                 $this->notification($message, $numDevis, "dit_index" ,false);
             } else {
+
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
                 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $generePdfDevis = new GenererPdfDevisSoumisAValidataion();
-                $this->creationPdf($this->ditDevisSoumisAValidation, $devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $generePdfDevis);
+                $this->creationPdf($devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $this->generePdfDevis);
                 $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
-                $generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
+                $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
                 $this->historiqueOperationService->enregistrerDEV($fileName, 1, "Succès");
                 
@@ -96,35 +95,52 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
 
-    private function creationPdf($ditInsertionDevis, $devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
-    {
-        dd($ditInsertionDevis);
-        $OrSoumisAvant = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($ditInsertionDevis->getNumeroDevis());
+    private function creationPdf( $devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
+    {   
+        $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
+        
+        $OrSoumisAvant = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis);
         // dump($OrSoumisAvant);
-        $OrSoumisAvantMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($ditInsertionDevis->getNumeroDevis());
+        $OrSoumisAvantMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis);
         // dump($OrSoumisAvantMax);
         $montantPdf = $this->montantPdfService->montantpdf($devisSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
-        dd($ditInsertionDevis->getNumeroDevis());
-        $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $ditInsertionDevis->getNumeroDevis());
+        // dd($montantPdf);
+        $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis);
 
-        $generePdfDevis->GenererPdfDevisSoumisAValidataion($ditInsertionDevis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+        $generePdfDevis->GenererPdfDevisSoumisAValidation($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
     
-    private function quelqueAffichage($ditOrsoumisAValidationModel, $numDevis)
+    private function quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis)
     {
-        dd($numDevis);
-        $numDevis = $this->ditModel->recupererNumdevis($numDevis);
-        $nbAchatLocaux = $ditOrsoumisAValidationModel->recupNbAchatLocaux($numDevis);
+        return [
+            "numDevis" => $numDevis,
+            "sortieMagasin" => $this->estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis),
+            "achatLocaux" => $this->estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis)
+        ];
+    }
+
+    private function estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis): bool
+    {
+        $nbSotrieMagasin = $ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+        if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
+            $sortieMagasin = 'OUI';
+        } else {
+            $sortieMagasin = 'NON';
+        }
+
+        return $sortieMagasin;
+    }
+
+    private function estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis): bool
+    {
+        $nbAchatLocaux = $ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
         if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
             $achatLocaux = 'NON';
         }
 
-        return [
-            "numDevis" => $numDevis,
-            "achatLocaux" => $achatLocaux
-        ];
+        return $achatLocaux;
     }
 
     private function nomUtilisateur($em){
@@ -156,7 +172,6 @@ class DitDevisSoumisAValidationController extends Controller
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
-                // Persist l'entité et l'historique
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
@@ -221,21 +236,20 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    private function initialistaion(string $numDit, string $numDevis): DitDevisSoumisAValidation
+    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis)
     {
-        $this->ditDevisSoumisAValidation
+        return $ditDevisSoumisAValidation
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
             ->setDateHeureSoumission(new DateTime());
-        return $this->ditDevisSoumisAValidation;
     }
     
     private function enregistrementEtFusionFichier(FormInterface $form, string $numDevis, string $numeroVersion)
     {
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/dev';
-            $fileUploader = new FileUploaderService($chemin);
-            $prefix = 'devis_ctrl';
-            $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, true, $numeroVersion);
+        $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+        $fileUploader = new FileUploaderService($chemin);
+        $prefix = 'devis_ctrl';
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, false, $numeroVersion);
 
         return $fileName;
     }

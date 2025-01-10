@@ -67,6 +67,7 @@ class GeneratePdf
     }
 
     public function copyToDWDevisSoumis($fileName){
+
         $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' .$fileName;
         $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/' .$fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);

@@ -18,25 +18,32 @@ class MontantPdfService
                 ];
     }
 
-    private function calculeSommeMontant($orSoumisValidataion)
+    /**
+     * La methode calcule la somme de chaque colonne de tableau pour la recapitulation de l'or
+     * ceci se met sur le footer du tableau 
+     *
+     * @param array $orSoumisValidataion
+     * @return arrary
+     */
+    private function calculeSommeMontant(array $orSoumisValidataion): array
     {
         $totalRecapOr = [
-            'total' => 'TOTAL',
-            'montant_itv' => 0,
-            'montant_piece' => 0,
-            'montant_mo' => 0,
-            'montant_achats_locaux' => 0,
-            'montant_lubrifiants' => 0,
-            'montant_frais_divers' => 0,
+            'itv' => 'TOTAL', // c'est pour le footer
+            'mttTotal' => 0, // montant_itv
+            'mttPieces' => 0,
+            'mttMo' => 0,
+            'mttSt' => 0,
+            'mttLub' => 0,
+            'mttAutres' => 0,
         ];
         foreach ($orSoumisValidataion as $orSoumis) {
             // Faire la somme des montants et les stocker dans le tableau
-            $totalRecapOr['montant_itv'] += $orSoumis->getMontantItv();
-            $totalRecapOr['montant_piece'] += $orSoumis->getMontantPiece();
-            $totalRecapOr['montant_mo'] += $orSoumis->getMontantMo();
-            $totalRecapOr['montant_achats_locaux'] += $orSoumis->getMontantAchatLocaux();
-            $totalRecapOr['montant_lubrifiants'] += $orSoumis->getMontantLubrifiants();
-            $totalRecapOr['montant_frais_divers'] += $orSoumis->getMontantFraisDivers();
+            $totalRecapOr['mttTotal'] += $orSoumis->getMontantItv();
+            $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
+            $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();
+            $totalRecapOr['mttSt'] += $orSoumis->getMontantAchatLocaux();
+            $totalRecapOr['mttLub'] += $orSoumis->getMontantLubrifiants();
+            $totalRecapOr['mttAutres'] += $orSoumis->getMontantFraisDivers();
         }
 
         return $totalRecapOr;
@@ -147,23 +154,29 @@ private function trierTableauParNumero(&$tableau) {
         ];
     }
 
-
-    private function calculeSommeAvantApres($recapAvantApres)
+    /**
+     * Methode qui permet de calculer le total de chaque colonne 
+     * ceci se mettre sur le footer du tableau
+     *
+     * @param array $recapAvantApres
+     * @return void
+     */
+    private function calculeSommeAvantApres(array $recapAvantApres)
     {
         $totalRecepAvantApres = [
-            'premierLigne' => '',
-            'total' => 'TOTAL',
-            'totalNbLigAv' => 0,
-            'totalNbLigAp' => 0,
-            'totalMttTotalAv' => 0,
-            'totalMttTotalAp' => 0,
-            'dernierLigne' => ''
+            'itv' => '', //pour le premier ligne
+            'libelleItv' => 'TOTAL', // affichage du 'TOTAL' sur le footrer
+            'nbLigAv' => 0,
+            'nbLigAp' => 0,
+            'mttTotalAv' => 0,
+            'mttTotalAp' => 0,
+            'statut' => ''
         ];
         foreach ($recapAvantApres as  $value) {
-            $totalRecepAvantApres['totalNbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
-            $totalRecepAvantApres['totalNbLigAp'] += $value['nbLigAp'];
-            $totalRecepAvantApres['totalMttTotalAv'] += $value['mttTotalAv'] === '' ? 0 : $value['mttTotalAv'];
-            $totalRecepAvantApres['totalMttTotalAp'] += $value['mttTotalAp'];
+            $totalRecepAvantApres['nbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
+            $totalRecepAvantApres['nbLigAp'] += $value['nbLigAp'];
+            $totalRecepAvantApres['mttTotalAv'] += $value['mttTotalAv'] === '' ? 0 : $value['mttTotalAv'];
+            $totalRecepAvantApres['mttTotalAp'] += $value['mttTotalAp'];
         }
 
         return $totalRecepAvantApres;
