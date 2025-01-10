@@ -84,7 +84,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Cell(30, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(32, 75);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 0, 3, 'F');
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 168, 3, 'F');
         $pdf->Ln(10, true);
 
         $pdf->SetTextColor(0, 0, 0);
@@ -155,7 +155,8 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->MultiCell(12, 6, "Nom :", 0, 'L', false, 0);
-        $pdf->cell(70, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $nomClient = strlen($dit->getNomClient()) <= 30 ? $dit->getNomClient() : substr($dit->getNomClient(), 0, 30) . '...';
+        $pdf->cell(70, 6, $nomClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(93);
         $pdf->MultiCell(15, 6, "N° tel :", 0, 'L', false, 0);
         $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -247,9 +248,9 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->MultiCell(37, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->MultiCell(33, 6, "Amort :", 0, 'L', false, 0);
+        $pdf->MultiCell(33, 6, "Amort :", 0, 'R', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(145);
+        $pdf->setAbsX(150);
         $pdf->cell(15, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
@@ -258,7 +259,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->MultiCell(33, 6, "Charge Locative :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(145);
+        $pdf->setAbsX(150);
         $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
