@@ -54,11 +54,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(165, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->MultiCell(165, 10, $dit->getDetailDemande() . "\n", 1, 'J', 0, 2, '', '', true);
+        $pdf->MultiCell(0, 10, $dit->getDetailDemande() . "\n", 1, 'J', 0, 2, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -68,11 +68,11 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $libelleCategorie = ''; // Ou toute autre valeur par défaut appropriée
         }
-        $pdf->cell(30, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(85);
+        $pdf->cell(60, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(95);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
-        $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(150);
+        $pdf->cell(15, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(155);
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
@@ -80,6 +80,7 @@ class GenererPdfDit extends GeneratePdf
         /** INTERVENTION */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
+        $pdf->setAbsY(75);
         $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
         $pdf->setAbsXY(50, 75);
@@ -137,7 +138,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(23, 6, 'Réparation :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(35, 6, $dit->getTypeReparation(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
-        $pdf->cell(30, 6, 'Réaliser par :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Réalisé par :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -153,11 +154,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(25, 6, "Nom :", 0, 'L', false, 0);
-        $pdf->cell(50, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(90);
+        $pdf->MultiCell(15, 6, "Nom :", 0, 'L', false, 0);
+        $pdf->cell(62, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(92);
         $pdf->MultiCell(15, 6, "N° tel :", 0, 'L', false, 0);
-        $pdf->cell(25, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(23, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -244,23 +245,19 @@ class GenererPdfDit extends GeneratePdf
 
 
 
-        $pdf->MultiCell(27, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
-        $pdf->cell(40, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(80);
-        $pdf->MultiCell(20, 6, "Amort :", 0, 'L', false, 0);
-        $pdf->cell(40, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(140);
-        $pdf->cell(20, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(40, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(30, 6, "Amort :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(15, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
-        $pdf->MultiCell(27, 6, "Charge d'entretien :", 0, 'L', false, 0);
-        $pdf->cell(40, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(80);
-        $pdf->MultiCell(20, 6, "Charge Locative :", 0, 'L', false, 0);
-        $pdf->cell(40, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(140);
-        $pdf->cell(20, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(40, 6, "Charge d'entretien :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(30, 6, "Charge Locative :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
@@ -294,7 +291,7 @@ class GenererPdfDit extends GeneratePdf
             exit;
         }
 
-        $pdf->Output($filePath, 'F');
+        $pdf->Output($filePath, 'I');
 
         // Vérification de la création du fichier
         if (file_exists($filePath)) {
