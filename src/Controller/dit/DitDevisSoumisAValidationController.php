@@ -97,7 +97,7 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
 
-    private function creationPdf($devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
+    private function creationPdf($devisSoumisValidataion, $ditDevisSoumisAValidationModel, GenererPdfDevisSoumisAValidation $generePdfDevis)
     {
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
@@ -109,7 +109,7 @@ class DitDevisSoumisAValidationController extends Controller
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis);
 
-        $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+        $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
 
     private function quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis)
