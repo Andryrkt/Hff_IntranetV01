@@ -152,7 +152,7 @@ class CasierController extends Controller
             /** CREATION PDF */
             $genererPdfCasier = new GenererPdfCasier();
             $genererPdfCasier->genererPdfCasier($generPdfCasier);
-            $genererPdfCasier->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+            $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
 
             self::$em->persist($casier);
             self::$em->flush();
