@@ -44,22 +44,22 @@ class PdfTableGenerator
     }
 
     private function generateFooter(array $headerConfig, array $totals)
-{
-    $html = '<tfoot><tr style="background-color: #D3D3D3;">';
-    foreach ($headerConfig as $config) {
-        $key = $config['key'];
-        $style = $config['style'];
-        $value = $totals[$key] ?? '';
-        
-        // Vérifier si la clé correspond à "total"
-            $value = $this->formatValue($key, $value);
-        
+    {
+        $html = '<tfoot><tr style="background-color: #D3D3D3;">';
+        foreach ($headerConfig as $config) {
+            $key = $config['key'];
+            $style = $config['style'];
+            $value = $totals[$key] ?? '';
 
-        $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
+            // Vérifier si la clé correspond à "total"
+            $value = $this->formatValue($key, $value);
+
+
+            $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
+        }
+        $html .= '</tr></tfoot>';
+        return $html;
     }
-    $html .= '</tr></tfoot>';
-    return $html;
-}
 
 
     private function getDynamicStyle($key, $value)
@@ -93,6 +93,4 @@ class PdfTableGenerator
         }
         return $value;
     }
-
 }
-

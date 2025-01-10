@@ -8,7 +8,7 @@ use TCPDF;
 class GenererPdfDevisSoumisAValidataion extends GeneratePdf
 {
     use FormatageTrait;
-    
+
     /**
      * generer pdf changement de Casier
      */
@@ -31,9 +31,9 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             'Sortie magasin' => $quelqueaffichage['sortieMagasin'] ?? 'N/A',
             'Achat locaux' => $quelqueaffichage['achatLocaux'] ?? 'N/A',
         ];
-        
+
         $this->addDetailsBlock($pdf, $detailsBloc);
-        
+
 
         // ================================================================================================
         $headerConfig1 = [
@@ -45,15 +45,15 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             ['key' => 'mttTotalAp', 'label' => 'Mtt Total ap', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'statut', 'label' => 'Statut', 'width' => 40, 'style' => 'font-weight: bold; text-align: center;'],
         ];
-        
+
         $generator = new PdfTableGenerator();
         $html1 = $generator->generateTable($headerConfig1, $montantPdf['avantApres'], $montantPdf['totalAvantApres']);
         $pdf->writeHTML($html1, true, false, true, false, '');
-        
 
-            //$pdf->Ln(10, true);
-//===========================================================================================
-            //Titre: Controle à faire
+
+        //$pdf->Ln(10, true);
+        //===========================================================================================
+        //Titre: Controle à faire
         $this->addTitle($pdf, 'Contrôle à faire (par rapport dernière version) :');
 
         $details = [
@@ -62,13 +62,13 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             'Nombre ligne modifiée' => $montantPdf['nombreStatutNouvEtSupp']['nbrModif'],
             'Montant total modifié' => $this->formatNumber($montantPdf['nombreStatutNouvEtSupp']['mttModif']),
         ];
-        
+
         $this->addSummaryDetails($pdf, $details);
 
-//==========================================================================================================
- //Titre: Récapitulation de l'OR
- $this->addTitle($pdf, 'Récapitulation de l\'OR');
-        
+        //==========================================================================================================
+        //Titre: Récapitulation de l'OR
+        $this->addTitle($pdf, 'Récapitulation de l\'OR');
+
         $pdf->setFont('helvetica', '', 12);
         $headerConfig2 = [
             ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
@@ -79,23 +79,23 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             ['key' => 'mttLub', 'label' => 'Mtt LUB', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'mttAutres', 'label' => 'Mtt Autres', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
         ];
-        
-        
+
+
         $html2 = $generator->generateTable($headerConfig2, $montantPdf['recapOr'], $montantPdf['totalRecapOr']);
         $pdf->writeHTML($html2, true, false, true, false, '');
-        
-
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->SetXY(118, 2);
-            $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-            $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-            $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
-            $pdf->Output($filePath, 'F');
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetXY(118, 2);
+        $pdf->Cell(35, 6, $email, 0, 0, 'L');
+
+
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+        $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
+        $pdf->Output($filePath, 'F');
     }
-    
+
     private function addTitle($pdf, $title, $font = 'helvetica', $style = 'B', $size = 12, $align = 'L', $lineBreak = 10)
     {
         $pdf->setFont($font, $style, $size);
@@ -109,7 +109,7 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
 
         foreach ($details as $label => $value) {
             $pdf->Cell($labelWidth, 6, ' - ' . $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
-            $pdf->Cell($valueWidth, 5, ': '.$value, 0, 0, '', false, '', 0, false, 'T', 'M');
+            $pdf->Cell($valueWidth, 5, ': ' . $value, 0, 0, '', false, '', 0, false, 'T', 'M');
             $pdf->Ln($lineHeight, true);
         }
 
@@ -135,6 +135,4 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
         // Ajout d'un espace après le bloc
         $pdf->Ln(10, true);
     }
-
-
 }
