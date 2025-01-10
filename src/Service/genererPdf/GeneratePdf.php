@@ -150,4 +150,31 @@ class GeneratePdf
         // Ajout d'un espace après le bloc
         $pdf->Ln(10, true);
     }
+
+    /** 
+     * Méthode pour générer une ligne de caractères (ligne de séparation)
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param string $char le caractère pour faire la séparation
+     * @param string $font le style de la police pour le caractère
+     */
+    protected function generateSeparateLine(TCPDF $pdf, string $char = '*', string $font = 'helvetica')
+    {
+        // Définir la largeur disponible
+        $pageWidth = $pdf->GetPageWidth(); // Largeur totale de la page
+        $leftMargin = $pdf->getOriginalMargins()['left']; // Marge gauche
+        $rightMargin = $pdf->getOriginalMargins()['right']; // Marge droite
+        $usableWidth = $pageWidth - $leftMargin - $rightMargin; // Largeur utilisable
+
+        // Définir la police
+        $pdf->SetFont($font, '', 12);
+
+        $charWidth = $pdf->GetStringWidth($char); // Largeur d'un seul caractère
+        $numChars = floor($usableWidth / $charWidth); // Nombre total de caractères pour remplir la largeur
+        $line = str_repeat($char, $numChars); // Répéter le caractère
+
+        // Afficher la ligne de séparation
+        $pdf->Cell(0, 10, $line, 0, 1, 'C'); // Une cellule contenant la ligne
+        $pdf->Ln(5); // Ajouter un espacement en dessous de la ligne
+    }
 }
