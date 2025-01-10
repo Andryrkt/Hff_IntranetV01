@@ -32,7 +32,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Service\historiqueOperation\HistoriqueOperationService;
 
 
 class Controller
@@ -76,8 +75,6 @@ class Controller
 
     protected $excelService;
 
-    protected $historiqueOperationService;
-
     public function __construct()
     {
 
@@ -117,8 +114,6 @@ class Controller
         $this->accessControl    = new AccessControlService();
 
         $this->excelService     = new ExcelService();
-
-        $this->historiqueOperationService = new HistoriqueOperationService();
     }
 
     public static function setTwig($twig)

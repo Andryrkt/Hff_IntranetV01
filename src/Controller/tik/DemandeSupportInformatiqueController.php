@@ -17,10 +17,18 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationTIKService;
+    }
 
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
@@ -62,10 +70,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
-            $this->historiqueOperationService->enregistrerTIK($supportInfo->getNumeroTicket(), 5, 'Succès');
-
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("liste_tik_index");
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
         }
 
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur

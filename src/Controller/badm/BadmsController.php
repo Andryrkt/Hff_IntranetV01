@@ -8,11 +8,19 @@ use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\badm\BadmForm1Type;
 use App\Entity\admin\utilisateur\User;
+use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class BadmsController extends Controller
 {
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationBADMService;
+    }
 
     /**
      * @Route("/badm-form1", name="badms_newForm1")
@@ -51,9 +59,7 @@ class BadmsController extends Controller
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
                 //recuperation de l'id du type de mouvement
                 $idTypeMouvement = $badm->getTypeMouvement()->getId();
@@ -64,9 +70,7 @@ class BadmsController extends Controller
                 if (empty($data)) {
                     $message = "Matériel déjà vendu ou L'information saisie n'est pas correcte.";
 
-                    $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                    $this->notification($message);
+                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
                     $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
@@ -100,39 +104,27 @@ class BadmsController extends Controller
             if ($conditionEntreeParc) {
                 $message = 'Ce matériel est déjà en PARC';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionChangementAgServ_1) {
                 $message = "L'agence et le service associés à ce matériel ne peuvent pas être modifiés.";
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionChangementAgServ_2) {
                 $message = " l'affectation matériel ne permet pas cette opération";
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionCessionActif) {
                 $message = "Ce matériel ne peut pas mise en cession d'actif ";
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionMiseAuRebut) {
                 $message = 'Ce matériel ne peut pas être mis au rebut';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($conditionTypeMouvStatut) {
                 $message = 'ce matériel est encours de traitement pour ce type de mouvement ';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
 
                 $badm
@@ -154,9 +146,7 @@ class BadmsController extends Controller
                 } elseif (!$conditionAgenceServiceAutoriser) {
                     $message = " vous n'êtes pas autoriser à consulter ce matériel";
 
-                    $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                    $this->notification($message);
+                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     $this->redirectToRoute("badms_newForm2");
                 }
@@ -171,11 +161,5 @@ class BadmsController extends Controller
                 'form' => $form->createView()
             ]
         );
-    }
-
-    private function notification($message)
-    {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-        $this->redirectToRoute("badms_newForm1");
     }
 }

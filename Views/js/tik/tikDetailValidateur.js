@@ -4,7 +4,7 @@ import { disableForm } from '../utils/formUtils.js';
 
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
-import { updateDropdown } from '../utils/selectionHandlerUtils.js';
+import { updateDropdown } from '../utils/selectionHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   if (document.getElementById('formTik').getAttribute('edit') === 'false') {

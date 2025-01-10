@@ -1,6 +1,6 @@
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
-import { updateDropdown } from '../utils/selectionHandlerUtils.js';
+import { updateDropdown } from '../utils/selectionHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   const elements = [

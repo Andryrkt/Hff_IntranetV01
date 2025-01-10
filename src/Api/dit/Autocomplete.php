@@ -9,13 +9,35 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class Autocomplete extends Controller
 {
-    
+
     private DitAutocompleteModel $ditAutocompleteModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->ditAutocompleteModel = new DitAutocompleteModel();
+    }
+
+    /**
+     * @Route("/autocomplete/all-client", name="autocomplete_all_client")
+     */
+    public function autocompleteAllClient()
+    {
+        $results = [];
+
+        // Recherchez les clients par nom dans votre base de données
+        $clients = $this->ditAutocompleteModel->recupAllClientExterne();
+
+        $results = array_map(function ($client) {
+            return [
+                'label' => $client['cbse_numcli'],
+                'value' => $client['cbse_nomcli'],
+            ];
+        }, $clients);
+
+        header("Content-type:application/json");
+
+        echo json_encode($results);
     }
 
     /**
@@ -38,7 +60,6 @@ class Autocomplete extends Controller
                     'label' => $client['cbse_nomcli']
                 ];
             }, $nomClients);
-            
         }
 
         header("Content-type:application/json");
@@ -73,5 +94,4 @@ class Autocomplete extends Controller
 
         echo json_encode($results);
     }
-
 }

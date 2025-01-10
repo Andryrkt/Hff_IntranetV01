@@ -8,8 +8,8 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait DitOrSoumisAValidationTrait
 {
-    
-/**
+
+    /**
      * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
      *
      * @param UploadedFile $file
@@ -22,7 +22,7 @@ trait DitOrSoumisAValidationTrait
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function uploadFile( $file,  $ditfacture, string $fieldName, int $index): ?string
+    public function uploadFile($file,  $ditfacture, string $fieldName, int $index): ?string
     {
         // Validation des extensions et types MIME
         $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
@@ -47,7 +47,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_SERVER['DOCUMENT_ROOT']. 'Upload/vor/fichier/';
+        $destination = $_SERVER['DOCUMENT_ROOT'] . 'Upload/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -92,15 +92,15 @@ trait DitOrSoumisAValidationTrait
 
         array_unshift($pdfFiles, $mainPdf);
 
-       // Récupérer tous les champs de fichiers du formulaire
+        // Récupérer tous les champs de fichiers du formulaire
         $fileFields = $form->all();
 
         foreach ($fileFields as $fieldName => $field) {
             if (preg_match('/^pieceJoint\d{2}$/', $fieldName)) {
-               /** @var UploadedFile|null $file */
+                /** @var UploadedFile|null $file */
                 $file = $field->getData();
                 if ($file !== null) {
-                   // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
+                    // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
                     if (preg_match('/^pieceJoint(\d{2})$/', $fieldName, $matches)) {
                         $index = (int)$matches[1];
                         $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index);
@@ -121,16 +121,9 @@ trait DitOrSoumisAValidationTrait
         }
     }
 
-    private function notification($message)
-    {
-        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
-        $this->redirectToRoute("dit_index");
-        exit();
-    }
-
     private function autoIncrement($num)
     {
-        if($num === null){
+        if ($num === null) {
             $num = 0;
         }
         return $num + 1;
@@ -162,8 +155,8 @@ trait DitOrSoumisAValidationTrait
 
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
-    
-        if(!empty($OrSoumisAvantMax)){
+
+        if (!empty($OrSoumisAvantMax)) {
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
             $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
@@ -176,18 +169,18 @@ trait DitOrSoumisAValidationTrait
             $this->trierTableauParNumero($OrSoumisAvantMax);
             $this->trierTableauParNumero($OrSoumisAvant);
         }
-        
+
 
         $recapAvantApres = [];
 
         for ($i = 0; $i < count($OrSoumisAvant); $i++) {
-            
-                $itv = $OrSoumisAvant[$i]->getNumeroItv();
-                $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
-                $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
-                $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
-                $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
-                $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
+
+            $itv = $OrSoumisAvant[$i]->getNumeroItv();
+            $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
+            $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
+            $mttTotalAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0;
+            $nbLigAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+            $mttTotalAv = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0;
 
             $recapAvantApres[] = [
                 'itv' => $itv,
@@ -212,15 +205,15 @@ trait DitOrSoumisAValidationTrait
             'nbrModif' => 0,
             'mttModif' => 0
         ];
-//dump($recapAvantApres);
+        //dump($recapAvantApres);
         foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
             } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0.0 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0.0) {
-               //dump($value);
+                //dump($value);
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
-            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.0 || $value['mttTotalAv'] === 0) {
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '') && $value['mttTotalAv'] === 0.0 || $value['mttTotalAv'] === 0) {
                 $value['statut'] = 'Nouv';
                 $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || $value['mttTotalAv'] !== $value['mttTotalAp']) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
@@ -230,7 +223,7 @@ trait DitOrSoumisAValidationTrait
                 $nombreStatutNouvEtSupp['mttModif'] = $nombreStatutNouvEtSupp['mttModif'] + ($value['mttTotalAp'] - $value['mttTotalAv']);
             }
         }
-//dd($recapAvantApres);
+        //dd($recapAvantApres);
         // Retourner le tableau modifié et les statistiques de nouveaux et supprimés
         return [
             'recapAvantApres' => $recapAvantApres,
@@ -276,18 +269,18 @@ trait DitOrSoumisAValidationTrait
         }
         return $recapOr;
     }
-    
+
 
     private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax)
     {
-        $recapAvantApres =$this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
-                return [
-                    'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
-                    'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
-                    'recapOr' => $this->recapitulationOr($orSoumisValidataion),
-                    'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion),
-                    'nombreStatutNouvEtSupp' => $this->affectationStatut($recapAvantApres)['nombreStatutNouvEtSupp']
-                ];
+        $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
+        return [
+            'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
+            'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
+            'recapOr' => $this->recapitulationOr($orSoumisValidataion),
+            'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion),
+            'nombreStatutNouvEtSupp' => $this->affectationStatut($recapAvantApres)['nombreStatutNouvEtSupp']
+        ];
     }
 
     private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
@@ -296,25 +289,25 @@ trait DitOrSoumisAValidationTrait
 
         foreach ($orSoumisValidationModel as $orSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
-            $ditInsertionOr = new DitOrsSoumisAValidation(); 
-            
+            $ditInsertionOr = new DitOrsSoumisAValidation();
+
             $ditInsertionOr
-                        ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                        ->setHeureSoumission($this->getTime())
-                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                        ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
-                        ->setNumeroItv($orSoumis['numero_itv'])
-                        ->setNombreLigneItv($orSoumis['nombre_ligne'])
-                        ->setMontantItv($orSoumis['montant_itv'])
-                        ->setMontantPiece($orSoumis['montant_piece'])
-                        ->setMontantMo($orSoumis['montant_mo'])
-                        ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
-                        ->setMontantFraisDivers($orSoumis['montant_divers'])
-                        ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
-                        ->setLibellelItv($orSoumis['libelle_itv'])
-                        ->setStatut('Soumis à validation')
-                        ;
-            
+                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ->setHeureSoumission($this->getTime())
+                ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                ->setNumeroOR($ditInsertionOrSoumis->getNumeroOR())
+                ->setNumeroItv($orSoumis['numero_itv'])
+                ->setNombreLigneItv($orSoumis['nombre_ligne'])
+                ->setMontantItv($orSoumis['montant_itv'])
+                ->setMontantPiece($orSoumis['montant_piece'])
+                ->setMontantMo($orSoumis['montant_mo'])
+                ->setMontantAchatLocaux($orSoumis['montant_achats_locaux'])
+                ->setMontantFraisDivers($orSoumis['montant_divers'])
+                ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
+                ->setLibellelItv($orSoumis['libelle_itv'])
+                ->setStatut('Soumis à validation')
+            ;
+
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
         }
 
@@ -322,7 +315,8 @@ trait DitOrSoumisAValidationTrait
     }
 
     // Fonction pour trouver les numéros d'intervention manquants
-    private function objetsManquantsParNumero($tableauA, $tableauB) {
+    private function objetsManquantsParNumero($tableauA, $tableauB)
+    {
         $manquants = [];
         foreach ($tableauB as $objetB) {
             $trouve = false;
@@ -344,8 +338,9 @@ trait DitOrSoumisAValidationTrait
     }
 
     // Fonction pour trier les tableaux par numero d'intervention
-    private function trierTableauParNumero(&$tableau) {
-        usort($tableau, function($a, $b) {
+    private function trierTableauParNumero(&$tableau)
+    {
+        usort($tableau, function ($a, $b) {
             return strcmp($a->getNumeroItv(), $b->getNumeroItv());
         });
     }
@@ -353,19 +348,20 @@ trait DitOrSoumisAValidationTrait
     private function verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel): bool
     {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($ditInsertionOrSoumis->getNumeroOR());
-        $datePlannig2 =$ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
+        $datePlannig2 = $ditOrsoumisAValidationModel->recupNbDatePlanningVide($ditInsertionOrSoumis->getNumeroOR());
 
-                $aBlocker = false;
-                if(empty($datePlannig1)){
-                    if((int)$datePlannig2[0]['nbplanning'] > 0){
-                        $aBlocker = true;
-                    }
-                }
-            
+        $aBlocker = false;
+        if (empty($datePlannig1)) {
+            if ((int)$datePlannig2[0]['nbplanning'] > 0) {
+                $aBlocker = true;
+            }
+        }
+
         return $aBlocker;
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
@@ -373,6 +369,4 @@ trait DitOrSoumisAValidationTrait
             'mailUtilisateur' => $user->getMail()
         ];
     }
-
-
 }
