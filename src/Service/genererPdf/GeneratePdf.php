@@ -130,8 +130,9 @@ class GeneratePdf
      * @param int $valueWidth la largeur du value du tableau de détails
      * @param int $lineHeight le retour à la ligne après chaque détail
      * @param int $spacing espace
+     * @param int $spacingAfter le retour à la ligne après le bloc de détails
      */
-    protected function addDetailsBlock(TCPDF $pdf, array $details, string $font = 'helvetica', int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 6, int $spacing = 2)
+    protected function addDetailsBlock(TCPDF $pdf, array $details, string $font = 'helvetica', int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 6, int $spacing = 2, int $spacingAfter = 10)
     {
         $startX = $pdf->GetX();
         $startY = $pdf->GetY();
@@ -148,7 +149,7 @@ class GeneratePdf
         }
 
         // Ajout d'un espace après le bloc
-        $pdf->Ln(10, true);
+        $pdf->Ln($spacingAfter, true);
     }
 
     /** 
