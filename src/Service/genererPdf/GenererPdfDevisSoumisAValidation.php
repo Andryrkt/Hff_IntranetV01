@@ -6,7 +6,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use TCPDF;
 
-class GenererPdfDevisSoumisAValidataion extends GeneratePdf
+class GenererPdfDevisSoumisAValidation extends GeneratePdf
 {
     use FormatageTrait;
 

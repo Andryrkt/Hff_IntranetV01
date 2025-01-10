@@ -13,7 +13,7 @@ use App\Form\dit\DitDevisSoumisAValidationType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\autres\MontantPdfService;
-use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
+use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class DitDevisSoumisAValidationController extends Controller
@@ -33,7 +33,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
-        $this->generePdfDevis = new GenererPdfDevisSoumisAValidataion();
+        $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
         $this->historiqueOperation = new HistoriqueOperationDEVService;
     }
 
