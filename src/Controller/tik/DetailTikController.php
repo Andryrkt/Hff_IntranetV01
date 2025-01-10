@@ -13,7 +13,6 @@ use App\Entity\tik\TkiPlanning;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
-use App\Repository\tik\TkiPlanningRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
