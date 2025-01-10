@@ -2,6 +2,8 @@
 
 namespace App\Service\genererPdf;
 
+use TCPDF;
+
 class GeneratePdf
 {
     const  BASE_CHEMIN_DU_FICHIER = 'C:/wamp64/www/Upload/';
@@ -73,5 +75,79 @@ class GeneratePdf
         $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    /** 
+     * Méthode pour ajouter un titre au PDF
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param string $title le titre du pdf
+     * @param string $font le style de la police pour le titre
+     * @param string $style le font-weight du titre
+     * @param int $size le font-size du titre
+     * @param string $align l'alignement
+     * @param int $lineBreak le retour à la ligne
+     */
+    protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 12, string $align = 'L', int $lineBreak = 10)
+    {
+        $pdf->setFont($font, $style, $size);
+        $pdf->Cell(0, 6, $title, 0, 0, $align, false, '', 0, false, 'T', 'M');
+        $pdf->Ln($lineBreak, true);
+    }
+
+    /** 
+     * Méthode pour ajouter des détails (sommaire) au PDF
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param array $details tableau des détails à insérer dans le PDF
+     * @param string $font le style de la police pour les détails
+     * @param int $fontSize le font-size du détail 
+     * @param int $labelWidth la largeur du label du tableau de détails
+     * @param int $valueWidth la largeur du value du tableau de détails
+     * @param int $lineHeight le retour à la ligne après chaque détail
+     * @param int $spacingAfter le retour à la ligne après les détails
+     */
+    protected function addSummaryDetails(TCPDF $pdf, array $details, string $font = 'helvetica', int $fontSize = 10, int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 5, int $spacingAfter = 10)
+    {
+        $pdf->setFont($font, '', $fontSize);
+
+        foreach ($details as $label => $value) {
+            $pdf->Cell($labelWidth, 6, ' - ' . $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+            $pdf->Cell($valueWidth, 5, ': ' . $value, 0, 0, '', false, '', 0, false, 'T', 'M');
+            $pdf->Ln($lineHeight, true);
+        }
+
+        $pdf->Ln($spacingAfter, true);
+    }
+
+    /** 
+     * Méthode pour ajouter des détails (en gras) au PDF
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param array $details tableau des détails à insérer dans le PDF
+     * @param string $font le style de la police pour les détails
+     * @param int $labelWidth la largeur du label du tableau de détails
+     * @param int $valueWidth la largeur du value du tableau de détails
+     * @param int $lineHeight le retour à la ligne après chaque détail
+     * @param int $spacing espace
+     */
+    protected function addDetailsBlock(TCPDF $pdf, array $details, string $font = 'helvetica', int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 6, int $spacing = 2)
+    {
+        $startX = $pdf->GetX();
+        $startY = $pdf->GetY();
+
+        foreach ($details as $label => $value) {
+            // Positionnement du label
+            $pdf->SetXY($startX, $pdf->GetY() + $spacing);
+            $pdf->setFont($font, 'B', 10);
+            $pdf->Cell($labelWidth, $lineHeight, $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
+
+            // Positionnement de la valeur
+            $pdf->setFont($font, '', 10);
+            $pdf->Cell($valueWidth, $lineHeight, ': ' . $value, 0, 1, '', false, '', 0, false, 'T', 'M');
+        }
+
+        // Ajout d'un espace après le bloc
+        $pdf->Ln(10, true);
     }
 }

@@ -92,44 +92,4 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
         $pdf->Output($filePath, 'F');
     }
-
-    private function addTitle($pdf, $title, $font = 'helvetica', $style = 'B', $size = 12, $align = 'L', $lineBreak = 10)
-    {
-        $pdf->setFont($font, $style, $size);
-        $pdf->Cell(0, 6, $title, 0, 0, $align, false, '', 0, false, 'T', 'M');
-        $pdf->Ln($lineBreak, true);
-    }
-
-    private function addSummaryDetails($pdf, array $details, $font = 'helvetica', $fontSize = 10, $labelWidth = 45, $valueWidth = 50, $lineHeight = 5, $spacingAfter = 10)
-    {
-        $pdf->setFont($font, '', $fontSize);
-
-        foreach ($details as $label => $value) {
-            $pdf->Cell($labelWidth, 6, ' - ' . $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
-            $pdf->Cell($valueWidth, 5, ': ' . $value, 0, 0, '', false, '', 0, false, 'T', 'M');
-            $pdf->Ln($lineHeight, true);
-        }
-
-        $pdf->Ln($spacingAfter, true);
-    }
-
-    private function addDetailsBlock($pdf, array $details, $font = 'helvetica', $labelWidth = 45, $valueWidth = 50, $lineHeight = 6, $spacing = 2)
-    {
-        $startX = $pdf->GetX();
-        $startY = $pdf->GetY();
-
-        foreach ($details as $label => $value) {
-            // Positionnement du label
-            $pdf->SetXY($startX, $pdf->GetY() + $spacing);
-            $pdf->setFont($font, 'B', 10);
-            $pdf->Cell($labelWidth, $lineHeight, $label, 0, 0, 'L', false, '', 0, false, 'T', 'M');
-
-            // Positionnement de la valeur
-            $pdf->setFont($font, '', 10);
-            $pdf->Cell($valueWidth, $lineHeight, ': ' . $value, 0, 1, '', false, '', 0, false, 'T', 'M');
-        }
-
-        // Ajout d'un espace après le bloc
-        $pdf->Ln(10, true);
-    }
 }
