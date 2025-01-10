@@ -68,7 +68,7 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $libelleCategorie = ''; // Ou toute autre valeur par défaut appropriée
         }
-        $pdf->cell(60, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(55, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(95);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
         $pdf->cell(15, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -83,8 +83,8 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setAbsY(73);
         $pdf->Cell(30, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(32, 75);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 168, 3, 'F');
+        $pdf->setAbsXY(40, 75);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
 
         $pdf->SetTextColor(0, 0, 0);
@@ -155,14 +155,15 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->MultiCell(12, 6, "Nom :", 0, 'L', false, 0);
-        $nomClient = strlen($dit->getNomClient()) <= 30 ? $dit->getNomClient() : substr($dit->getNomClient(), 0, 30) . '...';
+        $nomClient = strlen($dit->getNomClient()) <= 30 ? $dit->getNomClient() : substr($dit->getNomClient(), 0, 30);
         $pdf->cell(70, 6, $nomClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(93);
-        $pdf->MultiCell(15, 6, "N° tel :", 0, 'L', false, 0);
+        $pdf->MultiCell(17, 6, "N° tel :", 0, 'R', false, 0);
         $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(130);
+        $pdf->setAbsX(132);
         $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $mailClient = strlen($dit->getMailClient()) <= 26 ? $dit->getMailClient() : substr($dit->getMailClient(), 0, 26);
+        $pdf->cell(0, 6, $mailClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 
@@ -248,24 +249,24 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->MultiCell(37, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->MultiCell(33, 6, "Amort :", 0, 'R', false, 0);
+        $pdf->MultiCell(40, 6, "Amort :", 0, 'R', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(150);
+        $pdf->setAbsX(155);
         $pdf->cell(15, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(37, 6, "Charge d'entretien :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->MultiCell(33, 6, "Charge Locative :", 0, 'L', false, 0);
+        $pdf->MultiCell(40, 6, "Charge Locative :", 0, 'R', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(150);
+        $pdf->setAbsX(155);
         $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(15, true);
 
         $pdf->MultiCell(45, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
-        $pdf->cell(40, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
 
 
 
