@@ -2,18 +2,19 @@
 
 namespace App\Controller\admin\user;
 
+
 use App\Controller\Controller;
-use App\Entity\ProfilUser;
 use App\Entity\ProfilUserEntity;
-use App\Form\ProfilUserType;
+use App\Entity\admin\utilisateur\ProfilUser;
 use Symfony\Component\HttpFoundation\Request;
+use App\Form\admin\utilisateur\ProfilUserType;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class ProfilUserController extends Controller
 {
 
-     /**
+    /**
      * Undocumented function
      *  @Route("/admin/user", name="user_index")
      * @param Request $request
@@ -21,19 +22,14 @@ class ProfilUserController extends Controller
      */
     public function index(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
-        
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(ProfilUserType::class)->getForm();
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
+        // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $profilUser = $form->getData();
             self::$em->persist($profilUser);
@@ -43,14 +39,17 @@ class ProfilUserController extends Controller
             $this->redirectToRoute("user_list");
 
             //$this->profilUser->insertData($this->nomTable, $profilUser);
-            
+
         }
 
-        self::$twig->display('admin/user/profilUser.html.twig', [
-            'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
-        ]);
+        $this->logUserVisit('user_index'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/user/profilUser.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -60,37 +59,34 @@ class ProfilUserController extends Controller
      */
     public function list()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id'=>'DESC']);
+        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display('admin/user/listProfilUser.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
-            'data' => $data
-        ]);
+        $this->logUserVisit('user_list'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/user/listProfilUser.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
-/**
- * @Route("/admin/user/edit/{id}", name="user_update")
- *
- * @return void
- */
+    /**
+     * @Route("/admin/user/edit/{id}", name="user_update")
+     *
+     * @return void
+     */
     public function edit(Request $request, $id)
     {
 
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
-        
+
 
         //$user = $this->profilUser->find($this->nomTable, "ID_Profil = {$id}", ProfilUser::class);
 
@@ -101,37 +97,44 @@ class ProfilUserController extends Controller
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
+        // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
             self::$em->flush();
             $this->redirectToRoute("user_list");
             // $profilUser = $form->getData();
             //dd($user);
-           // $this->profilUser->update($this->nomTable, $profilUser, "ID_Profil = {$id}");
-            
+            // $this->profilUser->update($this->nomTable, $profilUser, "ID_Profil = {$id}");
+
         }
 
-        self::$twig->display('admin/user/editProfilUser.html.twig', [
-            'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
-        ]);
+        $this->logUserVisit('user_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
 
+        self::$twig->display(
+            'admin/user/editProfilUser.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
- * @Route("/admin/user/delete/{id}", name="user_delete")
- *
- * @return void
- */
+     * @Route("/admin/user/delete/{id}", name="user_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $user = self::$em->getRepository(ProfilUser::class)->find($id);
 
         self::$em->remove($user);
         self::$em->flush();
-        
+
         // $condition = "ID_Profil = {$id}";
         // $this->profilUser->delete($this->nomTable, $condition);
         $this->redirectToRoute("user_list");

@@ -1,0 +1,25 @@
+<div class="modal fade" tabindex="-1" id="docDansDw" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Soumission document à valider
+					<br>
+					<small class="text-success fs-6" id="numeroDit"></small>
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+
+			{# body du modal#}
+			<div class="modal-body">
+				{{ form_start(formDocDansDW) }}
+				{{ form_widget(formDocDansDW.docDansDW) }}
+				{{ form_row(formDocDansDW.numeroDit)}}
+				<div class="d-flex justify-content-end my-2">
+					<button class="btn btn-warning fw-bold fst-italic" type="submit">
+						Suivant</button>
+				</div>
+				{{ form_end(formDocDansDW) }}
+			</div>
+		</div>
+	</div>
+</div></div>

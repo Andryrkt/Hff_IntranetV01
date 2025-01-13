@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Controller\Controller;
-use App\Entity\User;
+use App\Entity\admin\utilisateur\User;
 
 use Symfony\Component\HttpFoundation\Request;
 

@@ -5,9 +5,9 @@ namespace App\Controller\admin;
 
 
 use App\Controller\Controller;
-use App\Entity\Permission;
-use App\Form\PermissionType;
+use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\HttpFoundation\Request;
+use App\Form\admin\utilisateur\PermissionType;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PermissionController extends Controller
@@ -19,54 +19,53 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-    $data = self::$em->getRepository(Permission::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Permission::class)->findBy([], ['id' => 'DESC']);
 
+        $this->logUserVisit('permission_index'); // historisation du page visité par l'utilisateur
 
-    self::$twig->display('admin/permission/list.html.twig', [
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean,
-        'data' => $data
-    ]);
+        self::$twig->display(
+            'admin/permission/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
-         * @Route("/admin/permission/new", name="permission_new")
-         */
-        public function new(Request $request)
-        {
-            $this->SessionStart();
-            $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-            $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-            $text = file_get_contents($fichier);
-            $boolean = strpos($text, $_SESSION['user']);
-    
-            $form = self::$validator->createBuilder(PermissionType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $permission= $form->getData();
-                    
-                self::$em->persist($permission);
-                self::$em->flush();
-                $this->redirectToRoute("permission_index");
-            }
-    
-            self::$twig->display('admin/permission/new.html.twig', [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
-                'form' => $form->createView()
-            ]);
+     * @Route("/admin/permission/new", name="permission_new")
+     */
+    public function new(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+
+        $form = self::$validator->createBuilder(PermissionType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $permission = $form->getData();
+
+            self::$em->persist($permission);
+            self::$em->flush();
+            $this->redirectToRoute("permission_index");
         }
 
-                   /**
+        $this->logUserVisit('permission_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/permission/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
+    }
+
+    /**
      * @Route("/admin/permission/edit/{id}", name="permission_update")
      *
      * @return void
@@ -74,14 +73,11 @@ class PermissionController extends Controller
     public function edit(Request $request, $id)
     {
 
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $permission = self::$em->getRepository(Permission::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(PermissionType::class, $permission)->getForm();
 
         $form->handleRequest($request);
@@ -91,24 +87,30 @@ class PermissionController extends Controller
 
             self::$em->flush();
             $this->redirectToRoute("permission_index");
-            
         }
 
-        self::$twig->display('admin/permission/edit.html.twig', [
-            'form' => $form->createView(),
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean
-        ]);
+        $this->logUserVisit('permission_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
 
+        self::$twig->display(
+            'admin/permission/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
-    * @Route("/admin/permission/delete/{id}", name="permission_delete")
-    *
-    * @return void
-    */
+     * @Route("/admin/permission/delete/{id}", name="permission_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $permission = self::$em->getRepository(Permission::class)->find($id);
 
         if ($permission) {
@@ -123,11 +125,11 @@ class PermissionController extends Controller
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();
-        
-                self::$em->remove($permission);
-                self::$em->flush();
+
+            self::$em->remove($permission);
+            self::$em->flush();
         }
-        
+
         $this->redirectToRoute("permission_index");
     }
 }

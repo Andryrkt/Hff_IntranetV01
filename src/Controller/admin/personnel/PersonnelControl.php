@@ -4,14 +4,12 @@ namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
 
-use Symfony\Component\Form\Forms;
+
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -27,7 +25,10 @@ class PersonnelControl extends Controller
     /**
      * @Route("/index")
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder()
         ->add('firstName', TextType::class, array(
@@ -70,11 +71,8 @@ class PersonnelControl extends Controller
 
     public function showPersonnelForm()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo 'okey';
@@ -87,8 +85,6 @@ class PersonnelControl extends Controller
             self::$twig->display(
                 'admin/personnel/addPersonnel.html.twig',
                 [
-                    'infoUserCours' => $infoUserCours,
-                    'boolean' => $boolean,
                     'codeSage' => $codeSage,
                     'codeIrium' => $codeIrium,
                     'serviceIrium' => $serviceIrium
@@ -99,11 +95,8 @@ class PersonnelControl extends Controller
 
     public function showListePersonnel()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $infoPersonnel = $this->Person->recupInfoPersonnel();
 
@@ -115,8 +108,6 @@ class PersonnelControl extends Controller
         self::$twig->display(
             'admin/personnel/listPersonnel.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'infoPersonnel' => $infoPersonnel
             ]
         );
@@ -124,12 +115,9 @@ class PersonnelControl extends Controller
 
     public function updatePersonnel()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        
         $codeSage = $this->transformEnSeulTableau($this->Person->recupAgenceServiceSage());
         $codeIrium = $this->transformEnSeulTableau($this->Person->recupAgenceServiceIrium());
 
@@ -138,8 +126,6 @@ class PersonnelControl extends Controller
         self::$twig->display(
             'admin/personnel/addPersonnel.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'codeSage' => $codeSage,
                 'codeIrium' => $codeIrium,
                 'infoPersonnelId' => $infoPersonnelId

@@ -5,12 +5,10 @@ namespace App\Service;
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\AncienDit;
+
 use App\Model\dit\DitModel;
-use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
+use App\Entity\dit\AncienDit;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfDit;
@@ -44,11 +42,12 @@ class AncienDitService
         $genererPdfDit = new GenererPdfDit();
         //générer le pdf de dit
         $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+        $this->prepareFunsion($ancienDit);
         //envoyer le pdf dans docuware
-        $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
-        $insertDemandeInterventions = $this->insertDemandeIntervention($ancienDit, $demandeIntervention);
-        $this->em->persist($insertDemandeInterventions);
-        $this->em->flush();
+        //$genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+        // $insertDemandeInterventions = $this->insertDemandeIntervention($ancienDit, $demandeIntervention);
+        // $this->em->persist($insertDemandeInterventions);
+        // $this->em->flush();
     }
 
     private function pdfDemandeIntervention($ancienDit, DemandeIntervention $demandeIntervention) : DemandeIntervention
@@ -180,33 +179,41 @@ class AncienDitService
         return $demandeIntervention;
     }
 
-    private function prepareFunsion($ancienDit)
-    {
- 
-     $pdfFiles = [];
-     if($ancienDit->getPieceJoint01() !== null || $ancienDit->getPieceJoint01() !== ""){
- 
-         $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint01();
-     }
- 
-     if($ancienDit->getPieceJoint02() !== null || $ancienDit->getPieceJoint02() !== ""){
-     $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint02();
-     }
- 
-     if($ancienDit->getPieceJoint03() !== null || $ancienDit->getPieceJoint03() !== ""){
-     $pdfFiles[] = 'C:/wamp64/www/Hffintranet/Upload/dit/fichier' . $ancienDit->getPieceJoint03();
-     }
- 
-     //ajouter le nom du pdf crée par dit en avant du tableau
-     array_unshift($pdfFiles, 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
- 
-     // Nom du fichier PDF fusionné
-     $mergedPdfFile = 'C:/wamp64/www/Hffintranet/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
- 
-     // Appeler la fonction pour fusionner les fichiers PDF
-     if (!empty($pdfFiles)) {
-         $fusionPdf = new FusionPdf();
-         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-     }
+   private function prepareFunsion($ancienDit)
+   {
+   
+    if( $ancienDit->getPieceJoint01() != "" || $ancienDit->getPieceJoint02() != "" || $ancienDit->getPieceJoint03() != ""){
+    
+        $pdfFiles = [];
+        if($ancienDit->getPieceJoint01() != null || $ancienDit->getPieceJoint01() != ""){
+            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint01());
+            dump(str_replace(' ', '_', $ancienDit->getPieceJoint01()));
+        }
+
+        if($ancienDit->getPieceJoint02() != null || $ancienDit->getPieceJoint02() != ""){
+            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint02());
+
+        }
+
+        if($ancienDit->getPieceJoint03() != null || $ancienDit->getPieceJoint03() != ""){
+            $pdfFiles[] = 'C:/wamp64/www/Upload/dit/fichier/' . str_replace(' ', '_', $ancienDit->getPieceJoint03()) ;
+
+        }
+
+        //ajouter le nom du pdf crée par dit en avant du tableau
+        array_unshift($pdfFiles, 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf');
+
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()). '.pdf';
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf = new FusionPdf();
+            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+        }
+   
     }
+
+   }
 }

@@ -3,52 +3,43 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\AgenceServiceAutoriser;
-use App\Form\AgenceServiceAutoriserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\admin\utilisateur\AgenceServiceAutoriser;
+use App\Form\admin\utilisateur\AgenceServiceAutoriserType;
 
 class AgenceServiceAutoriserController extends Controller
 {
-     /**
-         * @Route("/admin/autoriser", name="autoriser_index")
-         */
+    /**
+     * @Route("/admin/autoriser", name="autoriser_index")
+     */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
 
-  
+        $this->logUserVisit('autoriser_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
             'data' => $data
         ]);
     }
 
-     /**
-         * @Route("/admin/autoriser/new", name="autoriser_new")
-         */
+    /**
+     * @Route("/admin/autoriser/new", name="autoriser_new")
+     */
     public function new(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class)->getForm();
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $AgenceServiceAutoriser = $form->getData();
             self::$em->persist($AgenceServiceAutoriser);
 
@@ -56,61 +47,64 @@ class AgenceServiceAutoriserController extends Controller
             $this->redirectToRoute("autoriser_index");
         }
 
+        $this->logUserVisit('autoriser_new'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('admin/AgenceServiceAutoriser/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
+
             'form' => $form->createView()
         ]);
     }
 
     /**
- * @Route("/admin/autoriser/edit/{id}", name="autoriser_update")
- *
- * @return void
- */
-public function edit(Request $request, $id)
-{
+     * @Route("/admin/autoriser/edit/{id}", name="autoriser_update")
+     *
+     * @return void
+     */
+    public function edit(Request $request, $id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+        $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
 
-    $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
-    
-    $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class, $user)->getForm();
+        $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class, $user)->getForm();
 
-    $form->handleRequest($request);
+        $form->handleRequest($request);
 
-     // Vérifier si le formulaire est soumis et valide
-    if ($form->isSubmitted() && $form->isValid()) {
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        self::$em->flush();
-        $this->redirectToRoute("autoriser_index");
-        
+            self::$em->flush();
+            $this->redirectToRoute("autoriser_index");
+        }
+
+        $this->logUserVisit('autoriser_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
+
+        self::$twig->display(
+            'admin/AgenceServiceAutoriser/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
-    self::$twig->display('admin/AgenceServiceAutoriser/edit.html.twig', [
-        'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
-    ]);
+    /**
+     * @Route("/admin/autoriser/delete/{id}", name="autoriser_delete")
+     *
+     * @return void
+     */
+    public function delete($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-}
+        $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
 
-/**
-* @Route("/admin/autoriser/delete/{id}", name="autoriser_delete")
-*
-* @return void
-*/
-public function delete($id)
-{
-    $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
+        self::$em->remove($user);
+        self::$em->flush();
 
-    self::$em->remove($user);
-    self::$em->flush();
-    
-    $this->redirectToRoute("autoriser_index");
-}
+        $this->redirectToRoute("autoriser_index");
+    }
 }

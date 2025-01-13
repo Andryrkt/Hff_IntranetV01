@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\AgenceServiceIrium;
-use App\Form\AgenceServiceIriumType;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\admin\utilisateur\AgenceServiceIriumType;
 
 
 /**
@@ -21,19 +21,19 @@ class AgenceServiceIriumController extends Controller
      */
     public function index()
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display('admin/AgenceServiceIrium/list.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
-            'data' => $data
-        ]);
+        $this->logUserVisit('AgServIrium_index'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
@@ -43,18 +43,14 @@ class AgenceServiceIriumController extends Controller
      */
     public function new(Request $request)
     {
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(AgenceServiceIriumType::class)->getForm();
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $AgenceServiceAutoriser = $form->getData();
             self::$em->persist($AgenceServiceAutoriser);
 
@@ -62,62 +58,67 @@ class AgenceServiceIriumController extends Controller
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        self::$twig->display('admin/AgenceServiceIrium/new.html.twig', [
-            'infoUserCours' => $infoUserCours,
-            'boolean' => $boolean,
-            'form' => $form->createView()
-        ]);
+        $this->logUserVisit('AgServIrium_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
 
-        /**
- * @Route("/edit/{id}", name="AgServIrium_update")
- *
- * @return void
- */
-public function edit(Request $request, $id)
-{
+    /**
+     * @Route("/edit/{id}", name="AgServIrium_update")
+     *
+     * @return void
+     */
+    public function edit(Request $request, $id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-    $this->SessionStart();
-    $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-    $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-    $text = file_get_contents($fichier);
-    $boolean = strpos($text, $_SESSION['user']);
+        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
 
-    $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
-    
-    $form = self::$validator->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
+        $form = self::$validator->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
 
-    $form->handleRequest($request);
+        $form->handleRequest($request);
 
-     // Vérifier si le formulaire est soumis et valide
-    if ($form->isSubmitted() && $form->isValid()) {
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
 
+            self::$em->flush();
+            $this->redirectToRoute("AgServIrium_index");
+        }
+
+        $this->logUserVisit('AgServIrium_update', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur 
+
+        self::$twig->display(
+            'admin/AgenceServiceIrium/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/delete/{id}", name="AgServIrium_delete")
+     *
+     * @return void
+     */
+    public function delete($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
+
+        self::$em->remove($user);
         self::$em->flush();
+
         $this->redirectToRoute("AgServIrium_index");
-        
     }
-
-    self::$twig->display('admin/AgenceServiceIrium/edit.html.twig', [
-        'form' => $form->createView(),
-        'infoUserCours' => $infoUserCours,
-        'boolean' => $boolean
-    ]);
-
-}
-
-/**
-* @Route("/delete/{id}", name="AgServIrium_delete")
-*
-* @return void
-*/
-public function delete($id)
-{
-    $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
-
-    self::$em->remove($user);
-    self::$em->flush();
-    
-    $this->redirectToRoute("AgServIrium_index");
-}
 }

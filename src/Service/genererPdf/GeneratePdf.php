@@ -9,23 +9,39 @@ class GeneratePdf
      */
     public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
     {
-
-        // if (substr($NumDom, 0, 3) === 'DOM') {
-        //     $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\ORDERE DE MISSION\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        //     // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        // } else if (substr($NumDom, 0, 3) === 'BDM') {
-        //     $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\MOUVEMENT MATERIEL\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        //     // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        // } else if (substr($NumDom, 0, 3) === 'CAS') {
-        //     $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\CASIER\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        //     // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        // }  else if (substr($NumDom, 0, 3) === 'DIT') {
-        //     $cheminFichierDistant = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\DEVELOPPEMENT\\DIT\\' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        //     // $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        // }
-
         $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Hffintranet/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
+            echo "okey";
+        } else {
+            echo "sorry";
+        }
+    }
+
+    public function copyToDw($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/oRValidation_' .$numeroOR.'_'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
+       copy($cheminDestinationLocal, $cheminFichierDistant);
+    }  
+
+    public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/factureValidation_' .$numeroOR.'_'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vfac/factureValidation_' .$numeroOR.'_'.$numeroVersion . '.pdf';
+       copy($cheminDestinationLocal, $cheminFichierDistant);
+    } 
+        
+    public function copyToDwRiSoumis($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = 'C:/DOCUWARE/RAPPORT_INTERVENTION/RI_' .$numeroOR.'-'. $numeroVersion. '.pdf';
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vri/RI_' .$numeroOR.'-'.$numeroVersion . '.pdf'; // avec tiret 6
+        copy($cheminDestinationLocal, $cheminFichierDistant);
+    } 
+
+    public function copyToDWCdeSoumis($fileName){
+        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' .$fileName;
+        $cheminDestinationLocal = 'C:/wamp64/www/Upload/cde/' .$fileName;
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {

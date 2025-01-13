@@ -2,8 +2,9 @@
 
 namespace App\security;
 
-use App\Entity\User;
+
 use app\security\PermissionDebugger;
+use App\Entity\admin\utilisateur\User;
 
 final class Permission
 {

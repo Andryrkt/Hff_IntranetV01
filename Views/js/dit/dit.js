@@ -21,35 +21,224 @@ const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
   "#resultatExploitation"
 );
+const erreur = document.querySelector("#erreur");
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
+
 document.addEventListener("DOMContentLoaded", (event) => {
-  let timeout = null;
+  let timeouts = {}; // Objets de timeouts pour chaque champ
 
-  idMaterielInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(idMaterielInput);
-    }, 500);
-  });
+  function debounceInput(callback, delay, inputId) {
+    return (...args) => {
+      clearTimeout(timeouts[inputId]); // Réinitialise le timer pour ce champ spécifique
+      timeouts[inputId] = setTimeout(() => {
+        callback(...args); // Appelle la fonction après le délai
+      }, delay);
+    };
+  }
 
-  numParcInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(numParcInput);
-    }, 500); // délai de 500ms
-  });
+  idMaterielInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(idMaterielInput);
+      },
+      2000,
+      "idMateriel"
+    )
+  );
 
-  numSerieInput.addEventListener("input", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      InfoMateriel();
-      clearAndToggleRequired(numSerieInput);
-    }, 500); // délai de 500ms
-  });
-  // idMaterielInput.addEventListener("blur", InfoMateriel);
-  //numParcInput.addEventListener("blur", InfoMateriel);
-  //numSerieInput.addEventListener("blur", InfoMateriel);
+  numParcInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(numParcInput);
+      },
+      2000,
+      "numParc"
+    )
+  );
+
+  numSerieInput.addEventListener(
+    "input",
+    debounceInput(
+      () => {
+        handleInputChange(numSerieInput);
+      },
+      2000,
+      "numSerie"
+    )
+  );
+
+  function handleInputChange(inputElement) {
+    InfoMateriel(); // Appeler votre fonction principale
+    clearAndToggleRequired(inputElement); // Nettoyer et définir les règles requises
+  }
+
+  function clearAndToggleRequired(excludeInput) {
+    if (excludeInput !== idMaterielInput) {
+      idMaterielInput.value = "";
+      idMaterielInput.removeAttribute("required");
+    } else {
+      idMaterielInput.setAttribute("required", "required");
+    }
+
+    if (excludeInput !== numParcInput) {
+      numParcInput.value = "";
+      numParcInput.removeAttribute("required");
+    } else {
+      numParcInput.setAttribute("required", "required");
+    }
+
+    if (excludeInput !== numSerieInput) {
+      numSerieInput.value = "";
+      numSerieInput.removeAttribute("required");
+    } else {
+      numSerieInput.setAttribute("required", "required");
+    }
+  }
+
+  function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
+    return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
+  }
+
+  function resetInfoMateriel(message) {
+    containerInfoMateriel.innerHTML = "";
+    idMaterielInput.value = "";
+    numParcInput.value = "";
+    numSerieInput.value = "";
+
+    erreur.classList.add("text-danger");
+    erreur.innerHTML = message;
+  }
+
+  function showSpinner(container) {
+    container.innerHTML = `
+    <div class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  `;
+  }
+
+  function createMaterielInfoDisplay(container, data) {
+    if (!container) {
+      console.error(`Container not found.`);
+      return;
+    }
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.error("Invalid or empty data provided.");
+      container.innerHTML =
+        '<p class="text-danger">Aucune donnée disponible.</p>';
+      return;
+    }
+
+    const fields = [
+      { label: "Constructeur", key: "constructeur" },
+      { label: "Désignation", key: "designation" },
+      { label: "KM", key: "km" },
+      { label: "N° Parc", key: "num_parc" },
+
+      { label: "Modèle", key: "modele" },
+      { label: "Casier", key: "casier_emetteur" },
+      { label: "Heures", key: "heure" },
+      { label: "N° Serie", key: "num_serie" },
+      { label: "Id Materiel", key: "num_matricule" },
+    ];
+
+    const createFieldHtml = (label, value) => `
+  <li class="fw-bold">
+    ${label} :
+    <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
+      ${value || "<span class='text-danger'>Non disponible</span>"}
+    </div>
+  </li>
+`;
+
+    container.innerHTML = `
+    <ul class="list-unstyled">
+      <div class="row">
+        <div class="col-12 col-md-6">
+          ${fields
+            .slice(0, 4)
+            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .join("")}
+        </div>
+        <div class="col-12 col-md-6">
+          ${fields
+            .slice(4)
+            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .join("")}
+        </div>
+      </div>
+    </ul>
+  `;
+  }
+
+  function isValidInput(value) {
+    return value && value.trim().length > 0;
+  }
+
+  function InfoMateriel() {
+    const idMateriel = idMaterielInput.value;
+    const numParc = numParcInput.value;
+    const numSerie = numSerieInput.value;
+
+    if (
+      !isValidInput(idMateriel) &&
+      !isValidInput(numParc) &&
+      !isValidInput(numSerie)
+    ) {
+      resetInfoMateriel("Veuillez compléter l'un des champs.");
+      return;
+    }
+
+    const hasValidInput =
+      idMateriel !== "" || numParc !== "" || numSerie !== "";
+
+    if (hasValidInput) {
+      erreur.innerHTML = "";
+      const url = buildUrl(
+        "/Hffintranet/fetch-materiel",
+        idMateriel,
+        numParc,
+        numSerie
+      );
+
+      // Afficher le spinner dans le container
+      showSpinner(containerInfoMateriel);
+
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des données.");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+
+          erreur.innerHTML = "";
+
+          // Effacer le spinner et afficher les données
+          containerInfoMateriel.innerHTML = "";
+          createMaterielInfoDisplay(containerInfoMateriel, data);
+        })
+        .catch((error) => {
+          if (error instanceof SyntaxError) {
+            resetInfoMateriel(
+              "Erreur : l'information du matériel n'est pas dans la base de données."
+            );
+          } else {
+            console.error("Error:", error);
+            erreur.innerHTML = "Erreur : " + error.message;
+          }
+        });
+    } else {
+      resetInfoMateriel("veuillez completer l'un des champs ");
+    }
+  }
 
   /**
    * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
@@ -68,171 +257,60 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 });
 
-function clearAndToggleRequired(excludeInput) {
-  if (excludeInput !== idMaterielInput) {
-    idMaterielInput.value = "";
-    idMaterielInput.removeAttribute("required");
-  } else {
-    idMaterielInput.setAttribute("required", "required");
-  }
-
-  if (excludeInput !== numParcInput) {
-    numParcInput.value = "";
-    numParcInput.removeAttribute("required");
-  } else {
-    numParcInput.setAttribute("required", "required");
-  }
-
-  if (excludeInput !== numSerieInput) {
-    numSerieInput.value = "";
-    numSerieInput.removeAttribute("required");
-  } else {
-    numSerieInput.setAttribute("required", "required");
-  }
-}
-
-function InfoMateriel() {
-  const idMateriel = idMaterielInput.value;
-  const numParc = numParcInput.value;
-  const numSerie = numSerieInput.value;
-  const erreur = document.querySelector("#erreur");
-  const condition =
-    (idMateriel !== "" && idMateriel !== null && idMateriel !== undefined) ||
-    (numParc !== "" && numParc !== null && numParc !== undefined) ||
-    (numSerie !== "" && numSerie !== null && numSerie !== undefined);
-  if (condition) {
-    erreur.innerHTML = "";
-    let url = "/Hffintranet/fetch-materiel";
-
-    if (idMateriel) {
-      url += `/${idMateriel}`;
-    } else {
-      url += "/0"; // Ajoutez un slash pour éviter les erreurs de format d'URL
-    }
-
-    if (numParc) {
-      url += `/${numParc}`;
-    } else if (!idMateriel) {
-      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
-
-    if (numSerie) {
-      url += `/${numSerie}`;
-    } else if (!numParc && !idMateriel) {
-      url += "/0"; // Ajoutez un slash si aucun idMateriel et numParc n'est fourni
-    }
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-
-        // if (idMaterielInput.value == "") {
-        //   idMaterielInput.value = data[0].num_matricule;
-        // }
-        // if (numParcInput.value == "") {
-        //   numParcInput.value = data[0].num_parc;
-        // }
-        // if (numSerieInput.value == "") {
-        //   numSerieInput.value = data[0].num_serie;
-        // }
-        erreur.innerHTML = "";
-        constructeurInput.innerHTML = data[0].constructeur;
-        designationInput.innerHTML = data[0].designation;
-        modelInput.innerHTML = data[0].modele;
-        casierInput.innerHTML = data[0].casier_emetteur;
-        kmInput.innerHTML = data[0].km;
-        heuresInput.innerHTML = data[0].heure;
-        // coutAcquisitionInput.innerHTML = formatNumber(data[0].prix_achat);
-        // amortissementInput.innerHTML = formatNumber(data[0].amortissement);
-        // vncInput.innerHTML = formatNumber(
-        //   data[0].prix_achat - data[0].amortissement
-        // );
-        // caInput.innerHTML = formatNumber(data[0].chiffreaffaires);
-        // chargeLocativeInput.innerHTML = formatNumber(data[0].chargelocative);
-        // chargeEntretienInput.innerHTML = formatNumber(data[0].chargeentretien);
-        // resultatExploitationInput.innerHTML = formatNumber(
-        //   data[0].chiffreaffaires -
-        //     data[0].chargelocative -
-        //     data[0].chargeentretien
-        // );
-      })
-      .catch((error) => {
-        if (error instanceof SyntaxError) {
-          erreur.innerHTML =
-            "Erreur : l'information du matériel n'est pas dans la base de données.";
-          constructeurInput.innerHTML = "";
-          designationInput.innerHTML = "";
-          modelInput.innerHTML = "";
-          casierInput.innerHTML = "";
-          kmInput.innerHTML = "";
-          heuresInput.innerHTML = "";
-          // coutAcquisitionInput.innerHTML = "";
-          // amortissementInput.innerHTML = "";
-          // vncInput.innerHTML = "";
-          // caInput.innerHTML = "";
-          // chargeLocativeInput.innerHTML = "";
-          // chargeEntretienInput.innerHTML = "";
-          // resultatExploitationInput.innerHTML = "";
-        } else {
-          console.error("Error:", error);
-          erreur.innerHTML = "Erreur : " + error.message;
-        }
-      });
-  } else {
-    erreur.innerHTML = "veuillez completer l'un des champs ";
-    constructeurInput.innerHTML = "";
-    designationInput.innerHTML = "";
-    modelInput.innerHTML = "";
-    casierInput.innerHTML = "";
-    kmInput.innerHTML = "";
-    heuresInput.innerHTML = "";
-  }
-}
-
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
 const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
 const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
 agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
   let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  toggleSpinner(true);
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
       console.log(services);
-
-      // Supprimer toutes les options existantes
-      while (serviceDebiteurInput.options.length > 0) {
-        serviceDebiteurInput.remove(0);
-      }
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
-        option.value = services[i].value;
-        option.text = services[i].text;
-        serviceDebiteurInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-        var option = serviceDebiteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
+      updateServiceOptions(services);
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error("Error:", error))
+    .finally(() => toggleSpinner(false));
+}
+
+function toggleSpinner(show) {
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
+}
+
+function updateServiceOptions(services) {
+  // Supprimer toutes les options existantes
+  while (serviceDebiteurInput.options.length > 0) {
+    serviceDebiteurInput.remove(0);
+  }
+
+  // Ajouter les nouvelles options à partir du tableau services
+  for (var i = 0; i < services.length; i++) {
+    var option = document.createElement("option");
+    option.value = services[i].value;
+    option.text = services[i].text;
+    serviceDebiteurInput.add(option);
+  }
+
+  //Afficher les nouvelles valeurs et textes des options
+  for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
+    var option = serviceDebiteurInput.options[i];
+    console.log("Value: " + option.value + ", Text: " + option.text);
+  }
 }
 
 /**
  * CHAMP CLIENT MISE EN MAJUSCULE
  */
 const nomClientInput = document.querySelector(".nomClient");
-
 nomClientInput.addEventListener("input", MiseMajuscule);
-
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
@@ -243,8 +321,9 @@ function MiseMajuscule() {
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
-
-console.log(numTelInput, clientSousContratInput);
+const demandeDevisInput = document.querySelector(
+  "#demande_intervention_demandeDevis"
+);
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
@@ -260,11 +339,13 @@ function interneExterne() {
     nomClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");
+    demandeDevisInput.removeAttribute("disabled");
     agenceDebiteurInput.setAttribute("disabled", true);
     serviceDebiteurInput.setAttribute("disabled", true);
   } else {
     nomClientInput.setAttribute("disabled", true);
     numTelInput.setAttribute("disabled", true);
+    demandeDevisInput.setAttribute("disabled", true);
     clientSousContratInput.setAttribute("disabled", true);
     agenceDebiteurInput.removeAttribute("disabled");
     serviceDebiteurInput.removeAttribute("disabled");
@@ -323,10 +404,10 @@ textarea.addEventListener("input", function () {
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
-const boutonInput = document.querySelector("#formDit");
+// const boutonInput = document.querySelector("#formDit");
 
-boutonInput.addEventListener("click", griserBoutton);
+// boutonInput.addEventListener("click", griserBoutton);
 
-function griserBoutton() {
-  boutonInput.style.display = "none";
-}
+// function griserBoutton() {
+//   boutonInput.style.display = "none";
+// }

@@ -5,14 +5,14 @@
 			Excel
 		</a>
 
-		<a href="{{path("badmListe_AffichageListeBadm")}}?envoyer=listAnnuler" class="btn btn-sm bg-danger text-white my-3 fw-bold">Listes Annulés</a>
+		<a href="{{path("badm_list_annuler")}}" class="btn btn-sm bg-danger text-white my-3 fw-bold">Listes Annulés</a>
 	</div>
 	<div>
 		<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
 			Résultats</p>
 	</div>
 	<div>
-		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (totalPages)}}
+		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
 			pages</p>
 	</div>
 	<div class="navigation">
@@ -25,7 +25,7 @@
 		{% endif %}
 
 
-		{% if currentPage < totalPages %}
+		{% if currentPage < lastPage %}
 			<a class="btn btn-dark" href="{{ path('badmListe_AffichageListeBadm', queryParams|merge({'page': currentPage + 1})) }}">
 				<i class="fas fa-angle-right text-warning"></i>
 			</a>

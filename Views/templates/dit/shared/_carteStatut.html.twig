@@ -1,0 +1,5 @@
+{% for statut in statusCounts %}
+	<small class="nbrStatut {{ statut.statut | lower | replace({' ': '_'}) }}">{{statut.count}}</small>
+	<small>{{statut.statut}}
+		|</small>
+{% endfor %}

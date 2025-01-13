@@ -2,52 +2,35 @@
 
 namespace App\Controller\badm;
 
+use App\Entity\badm\Badm;
 use App\Controller\Controller;
-use App\Entity\Badm;
+use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 
 class BadmDetailController extends Controller
 {
 
-
-    private function rendreSeultableau(array $tabs): array
-    {
-        $tab = [];
-        foreach ($tabs as $values) {
-            foreach ($values as $value) {
-                $tab[] = $value;
-            }
-        }
-        return $tab;
-    }
-
     /**
-     * @Route("/detailBadm/{numBadm}/{id}", name="BadmDetail_detailBadm")
+     * @Route("/detailBadm/{id}", name="BadmDetail_detailBadm")
      */
-    public function detailBadm($numBadm, $id)
+    public function detailBadm($id)
     {
-
-        $this->SessionStart();
-        $infoUserCours = $this->profilModel->getINfoAllUserCours($_SESSION['user']);
-        $fichier = "../Hffintranet/Views/assets/AccessUserProfil_Param.txt";
-        $text = file_get_contents($fichier);
-        $boolean = strpos($text, $_SESSION['user']);
-      
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
-        
 
-        $data = $this->badmDetail->findAll($badm->getIdMateriel());
-    
-       
- 
-      
+        $badmDetailModel = new BadmDetailModel();
+        $data = $badmDetailModel->findAll($badm->getIdMateriel());
+
+        $this->logUserVisit('BadmDetail_detailBadm', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur
+
         self::$twig->display(
             'badm/detail.html.twig',
             [
-                'infoUserCours' => $infoUserCours,
-                'boolean' => $boolean,
                 'badm' => $badm,
                 'data' => $data
             ]

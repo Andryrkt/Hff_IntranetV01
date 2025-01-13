@@ -13,9 +13,10 @@ use Doctrine\ORM\EntityManager;
 use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
-use Knp\Component\Pager\Paginator;
+
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
+use Illuminate\Pagination\Paginator;
 use Symfony\Component\Asset\Packages;
 
 use Symfony\Component\Asset\PathPackage;
@@ -23,7 +24,7 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
-
+use App\Twig\CarbonExtension;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
@@ -33,6 +34,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Form\FormFactoryBuilder;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Bridge\Twig\Extension\CsrfExtension;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
@@ -87,30 +89,42 @@ define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
 $request = Request::createFromGlobals();
 $response = new Response();
 
-// Configure the URL matcher
+/** ROUTE */
+// Charger les routes du dossier 'Controller'
 $loader = new AnnotationDirectoryLoader(
     new FileLocator(dirname(__DIR__) . '/src/Controller/'),
     new CustomAnnotationClassLoader(new AnnotationReader())
 );
-$collection = $loader->load(dirname(__DIR__) . '/src/Controller/');
+$controllerCollection = $loader->load(dirname(__DIR__) . '/src/Controller/');
+
+// Charger les routes du dossier 'Api'
+$apiLoader = new AnnotationDirectoryLoader(
+    new FileLocator(dirname(__DIR__) . '/src/Api/'),
+    new CustomAnnotationClassLoader(new AnnotationReader())
+);
+$apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
+
+// Fusionner les deux collections
+$collection = new RouteCollection();
+$collection->addCollection($controllerCollection);
+$collection->addCollection($apiCollection);
+
+// Configurer le UrlMatcher
 $matcher = new UrlMatcher($collection, new RequestContext(''));
 
 // Resolver and argument resolver
 $controllerResolver = new ControllerResolver();
 $argumentResolver = new ArgumentResolver();
 
+/** TWIG */
 // URL Generator for use in Twig
 $generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
-
 
 //secuiter csrf
 $csrfTokenManager = new CsrfTokenManager();
 
 // Form Validator
 $validator = Validation::createValidator();
-
-
-
 
 
 // Translator
@@ -153,6 +167,7 @@ $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
+$twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
 $publicPath = '/Hffintranet/public';
@@ -203,6 +218,7 @@ $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new DoctrineOrmExtension($managerRegistry))
     ->getFormFactory();
 
+Paginator::useBootstrap();
 
 //envoyer twig au controller
 Controller::setTwig($twig);

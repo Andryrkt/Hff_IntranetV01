@@ -11,3 +11,26 @@
 .navbar .nav-link {
     color: #fff !important;
 }
+
+.notice {
+    background-color: #FBBB01; /* Couleur de fond douce */
+    border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
+    padding: 10px 15px; /* Espacement à l'intérieur de la boîte */
+    margin: 20px 0; /* Marges autour de la boîte */
+    font-family: Arial, sans-serif; /* Police d'écriture */
+    color: #000000; /* Couleur du texte */
+    border-radius: 4px; /* Coins arrondis */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    display: flex; /* Permet d'ajouter une icône avec flexbox */
+    align-items: center; /* Centre l'icône verticalement */
+  }
+  
+  .notice-icon {
+    margin-right: 10px; /* Espace entre l'icône et le texte */
+    color: #000000; /* Couleur de l'icône */
+    font-size: 24px; /* Taille de l'icône */
+  }
+  
+  .notice-content {
+    flex: 1; /* Le texte prend tout l'espace disponible */
+  }

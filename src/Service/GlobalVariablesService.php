@@ -2,36 +2,23 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GlobalVariablesService
 {
-    private $session;
-    private $profilModel;
-    private $accessFilePath;
+    private static array $data = [];
 
-    public function __construct(SessionInterface $session, $profilModel, string $accessFilePath)
+    public static function set(string $key, $value): void
     {
-        $this->session = $session;
-        $this->profilModel = $profilModel;
-        $this->accessFilePath = $accessFilePath;
+        self::$data[$key] = $value;
     }
 
-    public function getUserConnect()
+    public static function get(string $key)
     {
-        return $this->session->get('user');
+        return self::$data[$key] ?? null;
     }
 
-    public function getInfoUserCours()
+    public static function getAll(): array
     {
-        $userConnect = $this->getUserConnect();
-        return $this->profilModel->getInfoAllUserCours($userConnect);
-    }
-
-    public function getBoolean()
-    {
-        $user = $this->getUserConnect();
-        $text = file_get_contents($this->accessFilePath);
-        return strpos($text, $user) !== false;
+        return self::$data;
     }
 }

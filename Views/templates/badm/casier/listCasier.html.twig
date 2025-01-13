@@ -1,9 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
-<link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
-{% endblock%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
+{% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
 
@@ -14,7 +14,7 @@
 
 		<div class="row ">
 
-			<h3 class="text-center fw-bold  py-2 rounded color-perso-titre">
+			<h3 class="perso-titre">
 				Liste des casiers definitives
 			</h3>
 
@@ -47,46 +47,39 @@
 			<!-- FIN Pagination -->
 		</div>
 		<!-- FIN bouton -->
-
-
 	</div>
 
 	<!-- DEBUT tableau -->
 	<div class="container ">
-		<div class="row">
-			<div class="col-12 col-md-6 col-lg-4">
-				<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
-				<a href="{{ path("listeTemporaire_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
-				<a href="#" class="btn btn-success mb-3">Export Excel</a>
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
 			</div>
-			<div class="col-12 col-md-6 col-lg-2  mt-1">
-				<p class="fw-bold" id="nombreResultat">0 Résultats</p>
+		{% else %}
+			<div class="row">
+				{% include "/badm/casier/_pagination.html.twig" %}
 			</div>
-			<div class="col-12 col-md-6 col-lg-2">
-				<p class="fw-bold" id="nombreResultat">0/0 pages</p>
-			</div>
-		</div>
-		<table class="table  table-shadow shadow  rounded " style="text-align: center;">
-			<thead class="table-dark">
-				<tr>
-					<th>Agence rattaché</th>
-					<th>Casier</th>
-					<th>Date de création</th>
-					<th>Numero Casier</th>
-				</tr>
-			</thead>
-			<tbody id="table-container">
-				{% for item in casier %}
+			<table class="table  table-shadow shadow  rounded " style="text-align: center;">
+				<thead class="table-dark">
 					<tr>
-						<td>{{item.AgenceRattacher.codeAgence}}</td>
-						<td style="text-align:left">{{item.Casier}}</td>
-						<td>{{item.Date_Creation|date("d/m/Y")}}</td>
-						<td>{{item.NumeroCAS}}</td>
+						<th>Agence rattaché</th>
+						<th>Casier</th>
+						<th>Date de création</th>
+						<th>Numero Casier</th>
 					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-
+				</thead>
+				<tbody id="table-container">
+					{% for item in casier %}
+						<tr>
+							<td>{{item.AgenceRattacher.codeAgence}}</td>
+							<td style="text-align:left">{{item.Casier}}</td>
+							<td>{{item.dateCreation|date("d/m/Y")}}</td>
+							<td>{{item.NumeroCAS}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
 	</div>
 	<!-- FIN tableau -->
 

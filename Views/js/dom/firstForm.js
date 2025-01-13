@@ -14,14 +14,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
       nom.parentElement.style.display = "block";
       prenom.parentElement.style.display = "block";
       cin.parentElement.style.display = "block";
+      nom.disabled = false;
+      prenom.disabled = false;
+      cin.disabled = false;
       matriculeNomInput.parentElement.style.display = "none";
       matriculeInput.parentElement.style.display = "none";
+      matriculeNomInput.disabled = true;
+      matriculeInput.disabled = true;
     } else {
       nom.parentElement.style.display = "none";
       prenom.parentElement.style.display = "none";
       cin.parentElement.style.display = "none";
+      nom.disabled = true;
+      prenom.disabled = true;
+      cin.disabled = true;
       matriculeNomInput.parentElement.style.display = "block";
       matriculeInput.parentElement.style.display = "block";
+      matriculeNomInput.disabled = false;
+      matriculeInput.disabled = false;
     }
   }
 
@@ -51,7 +61,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       codeAgence !== "50"
     ) {
       categorie.parentElement.style.display = "none";
-    } else if (sousTypeDocumentValue === "5" && codeAgence === "50") {
+    } else if (sousTypeDocumentValue !== "2" && codeAgence === "50") {
       categorie.parentElement.style.display = "none";
     } else {
       categorie.parentElement.style.display = "block";
@@ -101,18 +111,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // Ajouter un écouteur d'événement pour Select2
   $("#dom_form1_matriculeNom").on("select2:select", function (e) {
-    changeMatricule(e.params.data.id); // Passer l'id sélectionné à la fonction
+    console.log("Okey");
+    let matriculeNom = $("#dom_form1_matriculeNom option:selected").text();
+    let matricule = matriculeNom.slice(0, 4);
+    console.log(matricule);
+    matriculeInput.value = matricule;
+    //changeMatricule(e.params.data.id); // Passer l'id sélectionné à la fonction
   });
 
-  function changeMatricule(matriculeNom) {
-    console.log(matriculeNom);
-    let url = `/Hffintranet/matricule-fetch/${matriculeNom}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((matricule) => {
-        console.log(matricule.Matricule);
-        matriculeInput.value = matricule.Matricule;
-      })
-      .catch((error) => console.error("Error:", error));
-  }
+  /** CHANGER LE CHAMP CATEGORIE SELON LES CRITERES */
 });

@@ -24,3 +24,18 @@ SELECT \* INTO NouvelleTable FROM AncienneTable WHERE 1 = 0;
 
 -- Étape 2 : Copier les données
 INSERT INTO NouvelleTable SELECT \* FROM AncienneTable;
+
+--change le nom dans la base de donée
+-- Renommez la colonne dans la table
+EXEC sp_rename 'historique_operation_ditors.votreAncienneNomColonne',
+'nouveaunomColonne',
+'COLUMN';
+
+-- supprimer un clé etrangère
+SELECT CONSTRAINT_NAME
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE
+    TABLE_NAME = '<nom_du_table>'
+    AND CONSTRAINT_TYPE = 'FOREIGN KEY';
+
+ALTER TABLE < nom_du_table > DROP CONSTRAINT < nom_constraint >;

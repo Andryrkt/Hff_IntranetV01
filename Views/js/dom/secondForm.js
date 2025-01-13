@@ -172,17 +172,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
     "#dom_form2_indemniteForfaitaire"
   );
   const siteInput = document.querySelector("#dom_form2_site");
+  const sousTypeDocInput = document.querySelector("#sousTypeDoc");
+  const categorieInput = document.querySelector("#categorie");
+  const rmqInput = document.querySelector("#rmq");
 
-  siteInput.addEventListener("change", indemnitySite);
+  if (siteInput) {
+    siteInput.addEventListener("change", indemnitySite);
+  }
 
   function indemnitySite() {
     const siteValue = siteInput.value;
-    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}`;
+    const docValue = sousTypeDocInput.value;
+    const catgValue = categorieInput.value;
+    const rmqValue = rmqInput.value;
+    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
     fetch(url)
       .then((response) => response.json())
       .then((indemnite) => {
         console.log(indemnite);
         indemniteForfaitaireJournaliereInput.value = indemnite.montant;
+        calculTotalForfaitaire();
       })
       .catch((error) => console.error("Error:", error));
   }
@@ -198,15 +207,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
   nombreDeJourInput.addEventListener("valueAdded", calculTotalForfaitaire);
 
   function calculTotalForfaitaire() {
-    if (supplementJournalierInput.value === "") {
+    if (
+      supplementJournalierInput.value === "" &&
+      indemniteForfaitaireJournaliereInput.value !== ""
+    ) {
       const nombreDeJour = parseInt(nombreDeJourInput.value);
       const indemniteForfaitaireJournaliere = parseInt(
         indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
       );
+
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * indemniteForfaitaireJournaliere
       );
-    } else {
+    } else if (
+      supplementJournalierInput.value !== "" &&
+      indemniteForfaitaireJournaliereInput.value !== ""
+    ) {
       const supplementJournalier = parseInt(
         supplementJournalierInput.value.replace(/[^\d]/g, "")
       );
@@ -218,19 +234,43 @@ document.addEventListener("DOMContentLoaded", (event) => {
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * (indemniteForfaitaireJournaliere + supplementJournalier)
       );
+    } else if (supplementJournalierInput.value !== "") {
+      const supplementJournalier = parseInt(
+        supplementJournalierInput.value.replace(/[^\d]/g, "")
+      );
+      const nombreDeJour = parseInt(nombreDeJourInput.value);
+
+      totalindemniteForfaitaireInput.value = formatNumberInt(
+        nombreDeJour * supplementJournalier
+      );
     }
 
     const event = new Event("valueAdded");
     totalindemniteForfaitaireInput.dispatchEvent(event);
   }
-  //si l'utilisateur saisie une suplement journalier
+
+  /** si l'utilisateur saisie une suplement journalier */
   supplementJournalierInput.addEventListener(
     "input",
     calculTotalForfaitaireAvecSupplement
   );
+
   function calculTotalForfaitaireAvecSupplement() {
     supplementJournalierInput.value = formatNumberInt(
       supplementJournalierInput.value
+    );
+    calculTotalForfaitaire();
+  }
+
+  /** si l'utilisateur saisie l'indemnite forfatitaire Journaliere */
+  indemniteForfaitaireJournaliereInput.addEventListener(
+    "input",
+    calculTotalForfaitaireIdemniteSaisie
+  );
+
+  function calculTotalForfaitaireIdemniteSaisie() {
+    indemniteForfaitaireJournaliereInput.value = formatNumberInt(
+      indemniteForfaitaireJournaliereInput.value
     );
     calculTotalForfaitaire();
   }
@@ -316,8 +356,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const labelMode = modeInput.previousElementSibling;
   const matriculeInput_2 = document.querySelector("#dom_form2_matricule");
   modePayementInput.addEventListener("change", infoPersonnel);
-
-  function infoPersonnel($data) {
+  modeInput.addEventListener("input", () => {
+    modeInput.setAttribute("maxlength", 10);
+  });
+  function infoPersonnel() {
     const matricule = matriculeInput_2.value;
     let url = `/Hffintranet/personnel-fetch/${matricule}`;
     fetch(url)
@@ -335,4 +377,65 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .catch((error) => console.error("Error:", error));
   }
+
+  /**
+   * CHAMP MISE EN MAJUSCULE
+   */
+  //MOTIF DE DEPLACEMNET
+  const motifDeplacementInput = document.querySelector(
+    "#dom_form2_motifDeplacement"
+  );
+  motifDeplacementInput.addEventListener("input", () => {
+    motifDeplacementInput.value = motifDeplacementInput.value
+      .toUpperCase()
+      .slice(0, 60);
+  });
+
+  //NOM CLIENT
+  const nomClientInput = document.querySelector("#dom_form2_client");
+  nomClientInput.addEventListener("input", () => {
+    nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 33);
+  });
+
+  //LIEU D'INTERVENTION
+  const lieuInterventionInput = document.querySelector(
+    "#dom_form2_lieuIntervention"
+  );
+
+  lieuInterventionInput.addEventListener("input", () => {
+    lieuInterventionInput.value = lieuInterventionInput.value
+      .toUpperCase()
+      .slice(0, 60);
+  });
+
+  //MOTIF AUTRE DEPENSE
+  //1
+  const motifAutreDepense1Input = document.querySelector(
+    "#dom_form2_motifAutresDepense1"
+  );
+  motifAutreDepense1Input.addEventListener("input", () => {
+    motifAutreDepense1Input.value = motifAutreDepense1Input.value
+      .toUpperCase()
+      .slice(0, 30);
+  });
+
+  //2
+  const motifAutreDepense2Input = document.querySelector(
+    "#dom_form2_motifAutresDepense2"
+  );
+  motifAutreDepense2Input.addEventListener("input", () => {
+    motifAutreDepense2Input.value = motifAutreDepense2Input.value
+      .toUpperCase()
+      .slice(0, 30);
+  });
+
+  //3
+  const motifAutreDepense3Input = document.querySelector(
+    "#dom_form2_motifAutresDepense3"
+  );
+  motifAutreDepense3Input.addEventListener("input", () => {
+    motifAutreDepense3Input.value = motifAutreDepense3Input.value
+      .toUpperCase()
+      .slice(0, 30);
+  });
 });

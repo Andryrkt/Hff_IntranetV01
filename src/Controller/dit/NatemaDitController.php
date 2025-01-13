@@ -3,15 +3,14 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Entity\DemandeIntervention;
-use App\Form\NatemaDitType;
+use App\Form\dit\NatemaDitType;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class NatemaDitController extends Controller
 {
     public function index(){
-           
         $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
@@ -28,6 +27,8 @@ class NatemaDitController extends Controller
      */
     public function new(Request $request){
         
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(NatemaDitType::class)->getForm();
 

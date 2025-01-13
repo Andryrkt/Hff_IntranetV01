@@ -2,238 +2,265 @@
 
 namespace App\Controller\dit;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\DitSearch;
-use App\Form\DitSearchType;
-use App\Entity\StatutDemande;
+
+use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use App\Entity\WorTypeDocument;
-use App\Entity\WorNiveauUrgence;
-use App\Entity\DemandeIntervention;
-use App\Controller\Traits\DitListTrait;
-use App\Service\AncienDitService;
+use App\Form\dit\DitSearchType;
+use App\Form\dit\DocDansDwType;
+use App\Model\dit\DitListModel;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitListTrait;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\DossierInterventionAtelierModel;
 
 class DitListeController extends Controller
 {
     use DitListTrait;
-
 
     /**
      * @Route("/dit", name="dit_index")
      *
      * @return void
      */
-    public function index( Request $request)
+    public function index(Request $request)
     {
-        
-        /** CREATION D'AUTORISATION */
+
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $userId = $this->sessionService->get('user_id');
-        $userConnecter = self::$em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        $autoriser = in_array(1, $roleIds);
+        $user = self::$em->getRepository(User::class)->find($userId);
+
+        //recuperation agence et service autoriser
+        $agenceIds = $user->getAgenceAutoriserIds();
+        $serviceIds = $user->getServiceAutoriserIds();
+
+        /** CREATION D'AUTORISATION */
+        $autoriser = $this->autorisationRole(self::$em);
+
+        $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
         //FIN AUTORISATION
 
+        $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
-        $agenceServiceIps= $this->agenceServiceIpsObjet();
-        //initialisation agence et service
-        if($autoriser){
-            $agence = null;
-            $service = null;
-        } else {
-            $agence = $agenceServiceIps['agenceIps'];
-            $service = $agenceServiceIps['serviceIps'];
-        }
-        
-        $this->initialisationRechercheDit($ditSearch, self::$em, $request, $agence, $service);
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+
+        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
+
 
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
+            'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
         $form->handleRequest($request);
-        //recupération du repository demande d'intervention
-        $ditRepository= self::$em->getRepository(DemandeIntervention::class);
-        //variable pour tester s'il n'y pas de donner à afficher
-        $empty = false;
-        
-        if($form->isSubmitted() && $form->isValid()) {
-            
-            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData() ;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-            if(!empty($numParc) || !empty($numSerie)){
+            if (!empty($numParc) || !empty($numSerie)) {
+
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-                if(!empty($idMateriel)){
+                if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
-                    $ditSearch ->setIdMateriel($idMateriel[0]['num_matricule']);
-                } elseif(empty($idMateriel)) {
-                    $empty = true;
-                }
+                    $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
+                } 
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
             }
-        } 
-       
+        }
+
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
-      
 
-        //recupère le numero de page
-       
-        $page = $request->query->getInt('page', 1);
-        //nombre de ligne par page
-        $limit = 10;
-     
-        $option = [
-            'boolean' => $autoriser,
-            'codeAgence' => $agence === null ? null : $agence->getCodeAgence(),
-            'codeService' =>$service === null ? null : $service->getCodeService()
-        ];
-        //recupère les donnees de option dans la session
+
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
+        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
 
-        //nombre total de ligne
-        $totalBadms = $ditRepository->countFiltered($ditSearch, $option);
-        //nombre total de page
-        $totalPages = ceil($totalBadms / $limit);
-       
- 
-        //recupération des données filtrée
-        $data = $ditRepository->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
-        //ajout de donner du statut achat piece dans data
-        $this->ajoutStatutAchatPiece($data);
-
-        //ajout de donner du statut achat locaux dans data
-        $this->ajoutStatutAchatLocaux($data);
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
         
-        //recuperation de numero de serie et parc pour l'affichage
-        $idMat = [];
-        $numSerieParc = [];
-        if (!empty($data)) {
-            $idMateriels = $this->recupIdMaterielEnChaine($data);
-            $numSerieParc = $this->ditModel->recuperationNumSerieNumParc($idMateriels);
-            
-            foreach ($numSerieParc as  $value) {
-                $idMat[] = $value['num_matricule'];
-            }
-        } else {
-            $empty = true;
-        }
+        /**  Docs à intégrer dans DW * */
+        $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
 
+        // $this->dossierDit($request, $formDocDansDW);
+        $formDocDansDW->handleRequest($request);
+            
+        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
+                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            }
+        } 
+
+
+        $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/list.html.twig', [
-            'data' => $data,
-            'numSerieParc' => $numSerieParc,
-            'idMat' => $idMat,
-            'empty' => $empty,
-            'form' => $form->createView(),
-            'currentPage' => $page,
-            'totalPages' =>$totalPages,
+            'data' => $paginationData['data'],
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages' => $paginationData['lastPage'],
             'criteria' => $criteria,
-            'resultat' => $totalBadms,
+            'resultat' => $paginationData['totalItems'],
+            'statusCounts' => $paginationData['statusCounts'],
+            'form' => $form->createView(),
+            'criteria' => $criteria,
+            'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }
 
-    
     /**
      * @Route("/export-excel", name="export_excel")
      */
     public function exportExcel()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
-        //crée une objet à partir du tableau critère reçu par la session
-        $ditSearch = new DitSearch();
-        $ditSearch
-        ->setTypeDocument($criteria["typeDocument"])
-        ->setNiveauUrgence($criteria["niveauUrgence"])
-        ->setStatut($criteria["statut"])
-        ->setInternetExterne($criteria["interneExterne"])
-        ->setDateDebut($criteria["dateDebut"])
-        ->setDateFin($criteria["dateFin"])
-        ->setIdMateriel($criteria["idMateriel"])
-        ->setNumParc($criteria["numParc"])
-        ->setNumSerie($criteria["numSerie"])
-        ->setAgenceEmetteur($criteria["agenceEmetteur"])
-        ->setServiceEmetteur($criteria["serviceEmetteur"])
-        ->setAgenceDebiteur($criteria["agenceDebiteur"])
-        ->setServiceDebiteur($criteria["serviceDebiteur"])
-        ->setNumDit($criteria["numDit"])
-        ->setNumOr($criteria["numOr"])
-        ->setStatutOr($criteria["statutOr"])
-        ->setDitRattacherOr($criteria["ditRattacherOr"])
-        ->setCategorie($criteria["categorie"])
-        ->setUtilisateur($criteria["utilisateur"])
-        ;
-        
         //recupère les critères dans la session 
         $options = $this->sessionService->get('dit_search_option', []);
 
-        $entities = self::$em->getrepository(DemandeIntervention::class)->findAndFilteredExcel($ditSearch, $options);
-       
-    // Convertir les entités en tableau de données
-    $data = [];
-    $data[] = ['N° DIT', 'Type Document', 'type de Réparation', 'Réalisé par', 'Catégorie de Demande', 'I/E', 'Débiteur', 'Emetteur', 'nom Client', 'N° Tel', 'Date de travaux', 'Devis', 'Niveau d\'urgence', 'Avis de recouvrement', 'Client sous contrat', 'Objet', 'Detail', 'Livraison Partiel', 'Id matériel', 'mail demandeur', 'date demande', 'statut Demande']; // En-têtes des colonnes
-    foreach ($entities as $entity) {
-        $data[] = [
-            $entity->getNumeroDemandeIntervention(), 
-            $entity->getTypeDocument()->getDescription(),
-            $entity->getTypeReparation(),
-            $entity->getReparationRealise(),
-            $entity->getCategorieDemande()->getLibelleCategorieAteApp(),
-            $entity->getInternetExterne(),
-            $entity->getAgenceServiceDebiteur(),
-            $entity->getAgenceServiceEmetteur(),
-            $entity->getNomClient(),
-            $entity->getNumeroTel(),
-            $entity->getDatePrevueTravaux(),
-            $entity->getDemandeDevis(),
-            $entity->getIdNiveauUrgence()->getDescription(),
-            $entity->getAvisRecouvrement(),
-            $entity->getClientSousContrat(),
-            $entity->getObjetDemande(),
-            $entity->getDetailDemande(),
-            $entity->getLivraisonPartiel(),
-            $entity->getIdMateriel(),
-            $entity->getMailDemandeur(),
-            $entity->getDateDemande(),
-            $entity->getIdStatutDemande()->getDescription()
-        ];
+        //crée une objet à partir du tableau critère reçu par la session
+        $ditSearch = $this->transformationEnObjet($criteria);
+
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, self::$em);
+
+        // Convertir les entités en tableau de données
+        $data = $this->transformationEnTableauAvecEntet($entities);
+        //creation du fichier excel
+        $this->excelService->createSpreadsheet($data);
     }
 
-         $this->excelService->createSpreadsheet($data);
-    }
-
-   
 
     /**
-     * @Route("/command-modal/{numOr}", name="liste_commandModal")
-     *
-     * @return void
+     * @Route("/cloturer-annuler/{id}", name="cloturer_annuler_dit_liste")
      */
-    public function commandModal($numOr)
+    public function clotureStatut($id)
     {
-        //RECUPERATION DE LISTE COMMANDE 
-        if ($numOr === '') {
-            $commandes = [];
-        } else {
-            $commandes = $this->ditModel->RecupereCommandeOr($numOr);
-        }
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        header("Content-type:application/json");
+        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
 
-        echo json_encode($commandes);
+        $this->changementStatutDit($dit, $statutCloturerAnnuler);
+
+        $fileName = 'fichier_cloturer_annuler_'.$dit->getNumeroDemandeIntervention().'.csv';
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/'.$fileName;
+        $headers = ['numéro DIT', 'statut'];
+        $data = [
+            $dit->getNumeroDemandeIntervention(),
+            'Clôturé annulé'
+        ];
+        $this->ajouterDansCsv($filePath, $data, $headers);
+
+        $copyDocuwareService = new CopyDocuwareService();
+        $copyDocuwareService->copyCsvToDw($fileName, $filePath);
+
+        $message = "La DIT a été clôturé avec succès.";
+        $this->notification($message);
+        $this->redirectToRoute("dit_index");
     }
 
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data,  $headers = null)
+    {
+        $fichierExiste = file_exists($filePath);
+
+        // Ouvre le fichier en mode append
+        $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajouter les en-têtes
+        if (!$fichierExiste && $headers !== null) {
+            fputcsv($handle, $headers);
+        }
+
+        // Ajoute les nouvelles données
+        fputcsv($handle, $data);
+        // fwrite($handle, "\n");
+
+        // Ferme le fichier
+        fclose($handle);
+    }
+
+    /**
+     * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
+     */
+    public function dwintervAteAvecDit($numDit)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $dwModel = new DossierInterventionAtelierModel();
+
+        // Récupérer les données de la demande d'intervention et de l'ordre de réparation
+        $dwDit = $dwModel->findDwDit($numDit) ?? [];
+        foreach ($dwDit as $key => $value) {
+            $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
+        }
+        // dump($dwDit);
+        $dwOr = $dwModel->findDwOr($numDit) ?? [];
+        // dump($dwOr);
+        $dwfac = [];
+        $dwRi = [];
+        $dwCde = [];
+
+        // Si un ordre de réparation est trouvé, récupérer les autres données liées
+        if (!empty($dwOr)) {
+            $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
+            $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
+            $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
+
+            foreach ($dwOr as $key => $value) {
+                $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
+            }
+
+            foreach ($dwfac as $key => $value) {
+                $dwfac[$key]['nomDoc'] = 'Facture';
+            }
+
+            foreach ($dwRi as $key => $value) {
+                $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
+            }
+            foreach ($dwCde as $key => $value) {
+                $dwCde[$key]['nomDoc'] = 'Commande';
+            }
+        }
+
+        // Fusionner toutes les données dans un tableau associatif
+        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
+
+        $this->logUserVisit('dw_interv_ate_avec_dit', [
+            'numDit' => $numDit,
+        ]); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
+            'data' => $data,
+        ]);
+    }
 }

@@ -2,8 +2,9 @@
 
 namespace App\security;
 
-use App\Entity\User;
+
 use App\security\Voter;
+use App\Entity\admin\utilisateur\User;
 
 
 class AdminVoter implements Voter

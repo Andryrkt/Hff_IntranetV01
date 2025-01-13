@@ -48,7 +48,7 @@
 										</button>
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											<li>
-												<a class="dropdown-item fw-bold" href="#">Détails</a>
+												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_show", {id: item.id})}}">Détails</a>
 											</li>
 											<li>
 												<a class="dropdown-item fw-bold" href="{{ path("utilisateur_update", {id: item.id})}}">Modifier</a>

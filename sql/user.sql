@@ -29,3 +29,41 @@ CREATE TABLE users_permission (
     CONSTRAINT FK_users_permission_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT FK_users_permission_permission_id FOREIGN KEY (permission_id) REFERENCES permissions (id)
 );
+
+UPDATE users
+SET
+    users.personnel_id = (
+        select id
+        from Personnel
+        where
+            matricule = users.matricule
+    )
+where
+    users.matricule = (
+        select matricule
+        from Personnel
+        where
+            matricule = users.matricule
+    )
+
+ALTER TABLE users ADD societe_id INT
+
+UPDATE users
+set
+    societe_id = 1
+    /** permet de changer le personnel_id dans la table user à partir de l'id de la table personnel */
+UPDATE users
+SET
+    personnel_id = (
+        SELECT Personnel.id
+        FROM Personnel
+        WHERE
+            Personnel.Matricule = users.matricule
+    )
+WHERE
+    EXISTS (
+        SELECT 1
+        FROM Personnel
+        WHERE
+            Personnel.Matricule = users.matricule
+    );

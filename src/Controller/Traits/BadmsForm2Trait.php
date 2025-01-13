@@ -2,14 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\Badm;
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\CasierValider;
-use App\Entity\StatutDemande;
-use App\Entity\TypeMouvement;
-use App\Service\fusionPdf\FusionPdf;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\cas\CasierValider;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
 
 trait BadmsForm2Trait
 {
@@ -105,12 +103,6 @@ trait BadmsForm2Trait
             $dateMiseLocation = $this->dateMiseEnlocation($data);
        }
 
-    //    if ($data[0]['code_affect'] === 'LCD') {
-    //     $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
-    // } else {
-    //     $dateMiseLocation = '';
-    // }
-  
 
        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
@@ -141,7 +133,6 @@ trait BadmsForm2Trait
      */
     private function uplodeFile($form, $badm, $nomFichier)
     {
-        
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
@@ -153,19 +144,52 @@ trait BadmsForm2Trait
         $setPieceJoint = 'set'.ucfirst($nomFichier);
         $badm->$setPieceJoint($fileName);
 
+        // Retourne le chemin complet du fichier pour une éventuelle fusion
+        return $fileDossier . $fileName;
     }
 
-    private function envoiePieceJoint($form, $badm)
+    private function envoiePieceJoint($form, $badm, $fusionPdf)
     {
+        $pdfFiles = [];
+
+        // Ajouter le fichier PDF principal en tête du tableau
+        $mainPdf = sprintf(
+            '%s/Upload/bdm/%s_%s%s.pdf',
+            rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+            $badm->getNumBadm(),
+            $badm->getAgenceEmetteurId()->getCodeAgence(),
+            $badm->getServiceEmetteurId()->getCodeService()
+        );
+
+        // Vérifier que le fichier principal existe avant de l'ajouter
+        if (!file_exists($mainPdf)) {
+            throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+        }
+
+        array_unshift($pdfFiles, $mainPdf);
         
         if($form->get("nomImage")->getData() !== null){
-                $this->uplodeFile($form, $badm, "nomImage");
+            $pdfPath = $this->uplodeFile($form, $badm, "nomImage");
+            if ($pdfPath !== null) {
+                $pdfFiles[] = $pdfPath;
             }
+        }
 
-            if($form->get("nomFichier")->getData() !== null){
-                $this->uplodeFile($form, $badm, "nomFichier");
+        if($form->get("nomFichier")->getData() !== null){
+            $pdfPath = $this->uplodeFile($form, $badm, "nomFichier");
+            if ($pdfPath !== null) {
+                $pdfFiles[] = $pdfPath;
             }
+        }
         
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = $mainPdf;
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf->mergePdfsAndImages($pdfFiles, $mergedPdfFile);
+        }
     }
 
     
@@ -217,16 +241,19 @@ trait BadmsForm2Trait
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $form->getData()->getDateMiseLocation();
             $serviceEmetteur = $em->getRepository(Service::class)->find(2);
+            $numParc = $form->getData()->getNumParc();
         } elseif ($idTypeMouvement === 2) {
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $form->getData()->getCasierDestinataire();
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif ($idTypeMouvement === 4) {
             if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
@@ -237,11 +264,13 @@ trait BadmsForm2Trait
             }
             $casierDestinataire = null;
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         } elseif($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
+            $numParc = $data[0]["num_parc"];
         }
            
         // if ($data[0]['code_affect'] === 'LCD') {
@@ -251,7 +280,7 @@ trait BadmsForm2Trait
         // }
 
         $badm
-        ->setNumParc($data[0]["num_parc"])
+        ->setNumParc($numParc)
         ->setHeureMachine((int)$data[0]['heure'])
         ->setKmMachine((int)$data[0]['km'])
         ->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]))
@@ -280,7 +309,7 @@ trait BadmsForm2Trait
             $image = '';
             $extension = '';
         } elseif($idTypeMouvement === 5) {
-            $image = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 

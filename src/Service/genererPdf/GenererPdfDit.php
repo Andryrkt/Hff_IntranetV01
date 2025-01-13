@@ -2,9 +2,9 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Traits\FormatageTrait;
 use TCPDF;
-use App\Entity\DemandeIntervention;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfDit extends GeneratePdf
 {
@@ -284,7 +284,7 @@ class GenererPdfDit extends GeneratePdf
     //$pdf->Output('exemple.pdf', 'I');
      // Obtention du chemin absolu du répertoire de travail
         //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
-        $documentRoot = 'C:/wamp64/www/Hffintranet/Upload/dit/';
+        $documentRoot = 'C:/wamp64/www/Upload/dit';//faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';

@@ -14,13 +14,12 @@ class CasierModel extends Model
     public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
     {
 
-        if($matricule === '' || $matricule === '0' || $matricule === null){
+          if($matricule === '' || $matricule === '0' || $matricule === null){
             $conditionNummat = "";
            } else {
              $conditionNummat = "and mmat_nummat = '" . $matricule."'";
            }
-     
-     
+
            if($numParc === '' || $numParc === '0' || $numParc === null){
              $conditionNumParc = "";
            } else {
@@ -74,7 +73,7 @@ class CasierModel extends Model
         (select  mimm_dateserv from mmo_imm where mimm_nummat = mmat_nummat) as date_location
         
         from mat_mat, agr_succ, outer mat_bil
-        WHERE (MMAT_SUCC in ('01', '40', '50','90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01', '40', '50','90','91','92') ))
+        WHERE (MMAT_SUCC in ('01', '02', '20', '30', '40', '50', '60', '80', '90','91','92') or MMAT_SUCC IN (SELECT ASUC_PARC FROM AGR_SUCC WHERE ASUC_NUM IN ('01','02', '20', '30', '40', '50', '60', '80', '90','91','92') ))
         
         
          and trim(MMAT_ETSTOCK) in ('ST','AT')
@@ -85,7 +84,6 @@ class CasierModel extends Model
         and mmat_nummat = mbil_nummat
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
-        and mmat_affect in ('LCD','IMM','VTE','SDO')
         and (MMAT_ETACHAT = 'FA' and MMAT_ETVENTE = '--')
         ".$conditionNummat."
       ".$conditionNumParc."
@@ -100,58 +98,5 @@ class CasierModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    /**
-     * informix
-     */
-    public function recupAgence(): array
-    {
-        $statement = "SELECT DISTINCT 
-        trim(trim(asuc_num)||' '|| trim(asuc_lib)) as agence 
-        from
-        agr_succ , agr_tab a
-        where asuc_numsoc = 'HF' and a.atab_nom = 'SER'
-        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%')
-        and asuc_num in ('01', '20', '30', '40', '50', '60', '80','90','91','92') 
-        order by 1";
-
-        $result = $this->connect->executeQuery($statement);
-
-
-        $services = $this->connect->fetchResults($result);
-
-
-        return $this->convertirEnUtf8($services);
-    }
-
-
-    public function insererDansBaseDeDonnees($tab)
-    {
-        $sql = "INSERT INTO Casier_Materiels_Temporaire (
-            Agence_Rattacher,
-            Casier,
-            Nom_Session_Utilisateur,
-            Date_Creation,
-            Numero_CAS
-            
-        ) VALUES (?, ?, ?, ?, ?)";
-
-        // Exécution de la requête
-        $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
-        if (!$stmt) {
-            echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
-            return;
-        }
-
-        $success = odbc_execute($stmt, array_values($tab));
-    }
-
-    public function RecupereNumCAS()
-    {
-        $sql = "SELECT DISTINCT MAX(Numero_CAS)as numCas FROM Casier_Materiels_Temporaire";
-
-        $result = $this->connexion->query($sql);
-
-
-        return odbc_fetch_array($result);
-    }
+    
 }

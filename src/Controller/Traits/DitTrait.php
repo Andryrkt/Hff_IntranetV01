@@ -2,12 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\User;
-use App\Entity\Agence;
-use App\Entity\Service;
-use App\Entity\StatutDemande;
-use App\Entity\WorNiveauUrgence;
-use App\Entity\DemandeIntervention;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\dit\WorNiveauUrgence;
 
 
 
@@ -18,14 +18,18 @@ trait DitTrait
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     } 
 
+    private function demandeDevis($dits){
+        return $dits->getDemandeDevis() === null ? 'NON' : $dits->getDemandeDevis();
+    }
     private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em) : DemandeIntervention
     {
+
             $demandeIntervention->setObjetDemande($dits->getObjetDemande());
             $demandeIntervention->setDetailDemande($dits->getDetailDemande());
             $demandeIntervention->setTypeDocument($dits->getTypeDocument());
             $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
             $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-            $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
+            $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
             $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
@@ -78,15 +82,14 @@ trait DitTrait
 
     private function pdfDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
     {
-            
-        
+
         //Objet - Detail
         $demandeIntervention->setObjetDemande($dits->getObjetDemande());
         $demandeIntervention->setDetailDemande($dits->getDetailDemande());
         //Categorie - avis recouvrement - devis demandé
         $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
         $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
-        $demandeIntervention->setDemandeDevis($dits->getDemandeDevis());
+        $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
 
         //Intervention
         $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
@@ -175,7 +178,7 @@ trait DitTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
        
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/fichier/';
+        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/fichier/';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
 
@@ -201,10 +204,10 @@ trait DitTrait
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
@@ -221,41 +224,39 @@ trait DitTrait
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em) : DemandeIntervention
+    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
     {
         $dits = $form->getData();
         
-            $dits->setUtilisateurDemandeur($_SESSION['user']);
+            $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
             $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
             $dits->setIdStatutDemande($statutDemande);
             $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
-            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $_SESSION['user']])->getMail();
+            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
             $dits->setMailDemandeur($email);
 
         return $dits;
     }
 
-/**
- * INITIALISER LA VALEUR DE LA FORMULAIRE
- *
- * @param DemandeIntervention $demandeIntervention
- * @param [type] $em
- * @return void
- */
-private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
-{
-    $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-    $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
-    
-    $demandeIntervention->setAgenceEmetteur($CodeServiceofCours[0]['agence_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']) );
-    $demandeIntervention->setServiceEmetteur($CodeServiceofCours[0]['service_ips'] . ' ' . strtoupper($CodeServiceofCours[0]['nom_agence_i100']));
-    $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
-    $idAgence = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $CodeServiceofCours[0]['agence_ips'] ])->getId();
-    $demandeIntervention->setAgence($em->getRepository(Agence::class)->find($idAgence));
-    $demandeIntervention->setService($em->getRepository(Service::class)->findOneBy(['codeService' => $CodeServiceofCours[0]['service_ips'] ]));
-}
+    /**
+     * INITIALISER LA VALEUR DE LA FORMULAIRE
+     *
+     * @param DemandeIntervention $demandeIntervention
+     * @param [type] $em
+     * @return void
+     */
+    private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
+    {
+        $agenceService = $this->agenceServiceIpsObjet();
+        
+        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence() );
+        $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
+        $demandeIntervention->setAgence($agenceService['agenceIps']);
+        $demandeIntervention->setService($agenceService['serviceIps']);
+        $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
+    }
 
 
 }
