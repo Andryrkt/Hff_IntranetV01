@@ -432,13 +432,13 @@ public function backOrderPlanning($lesOrValides){
                                   WHERE Numero_PO = nlig_numcf
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
-                                  AND Line_Number = slor_nolign
+                                  AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
 	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
                                                              WHERE Numero_PO = nlig_numcf
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
-                                                             AND Line_Number = slor_nolign)
+                                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
 				                         )
 	                    END as Statut,
 
@@ -486,13 +486,13 @@ public function backOrderPlanning($lesOrValides){
                                     WHERE Numero_PO = nlig_numcf
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
-                                    AND Line_Number = slor_nolign
+                                    AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
                                                                WHERE Numero_PO = nlig_numcf
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
-                                                               AND Line_Number = slor_nolign)
+                                                               AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
                                     )
                                  ), '%Y-%m-%d')
 	                  END AS dateStatut,
@@ -515,13 +515,13 @@ public function backOrderPlanning($lesOrValides){
                                             WHERE Numero_PO = nlig_numcf
                                             AND Parts_Number = slor_refp  
                                             AND Parts_CST = slor_constp 
-                                            AND Line_Number = slor_nolign
+                                            AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                             AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                          FROM gcot_acknow_cat 
                                                                          WHERE Numero_PO = nlig_numcf
                                                                          AND Parts_Number = slor_refp  
                                                                          AND Parts_CST = slor_constp 
-                                                                         AND Line_Number = slor_nolign )
+                                                                         AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
                                   )
 	                    END as Message ,
                     CASE  

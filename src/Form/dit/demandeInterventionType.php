@@ -41,8 +41,12 @@ class demandeInterventionType extends AbstractType
     ];
 
     const REPARATION_REALISE = [
-        'ATELIER' => 'ATELIER',
-        'ENERGIE' => 'ENERGIE'
+        'ATE TANA' => 'ATE TANA',
+        'ATE STAR' => 'ATE STAR',
+        'ATE MAS' => 'ATE MAS',
+        'ATE TMV' => 'ATE TMV',
+        'ATE FTU' => 'ATE FTU',
+        'ATE ABV' => 'ATE ABV',
     ];
 
     const INTERNE_EXTERNE = [
@@ -161,7 +165,6 @@ class demandeInterventionType extends AbstractType
                 'choices' => self::REPARATION_REALISE,
                 'placeholder' => '-- Choisir le répartion réalisé --',
                 'required' => true,
-                'data' => 'ATELIER',
                 'constraints' => [
                         new Assert\NotBlank(['message'=>'le réparation réalisé par doit être sélectionné'])
                     ]
