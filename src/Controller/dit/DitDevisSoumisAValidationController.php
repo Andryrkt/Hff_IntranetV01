@@ -60,7 +60,7 @@ class DitDevisSoumisAValidationController extends Controller
             if (empty($devisSoumisAValidationInformix)) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . l'information de la devis n'est pas recupérer";
 
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             }
 
             $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
@@ -69,10 +69,10 @@ class DitDevisSoumisAValidationController extends Controller
 
             if ($conditionDitIpsDiffDitSqlServ) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le numero DIT dans IPS ne correspond pas à la DIT";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } elseif ($conditionServDebiteurvide) {
                 $message = "Erreur lors de la soumission, veuillez réessayer . . . le service débiteur n'est pas vide";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } else {
 
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
@@ -87,7 +87,7 @@ class DitDevisSoumisAValidationController extends Controller
                 // $this->historique($fileName); //remplir la table historique
 
                 $message = 'Le devis a été soumis avec succès';
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index', true);
             }
         }
 
@@ -217,7 +217,7 @@ class DitDevisSoumisAValidationController extends Controller
         $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->historiqueOperation->sendNotificationCreation($message, $numeroDevis, 'dit_index');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numeroDevis, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }
