@@ -165,7 +165,6 @@ class demandeInterventionType extends AbstractType
                 'choices' => self::REPARATION_REALISE,
                 'placeholder' => '-- Choisir le répartion réalisé --',
                 'required' => true,
-                'data' => 'ATELIER',
                 'constraints' => [
                         new Assert\NotBlank(['message'=>'le réparation réalisé par doit être sélectionné'])
                     ]

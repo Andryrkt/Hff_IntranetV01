@@ -254,10 +254,10 @@ class DitFactureSoumisAValidationModel extends Model
         $statement = " SELECT 
                 trim(seor_refdem) as referenceDIT,
                 seor_numor as numeroOr,
-                sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
-                sum(slor_qteres) as quantiteReserver,
-                sum(sliv_qteliv) as quantiteLivree,
-                sum(slor_qterel) as quantiteReliquat
+                TRUNC(sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END)) AS quantiteDemander,
+                TRUNC(sum(slor_qteres)) as quantiteReserver,
+                TRUNC(sum(sliv_qteliv)) as quantiteLivree,
+                TRUNC(sum(slor_qterel)) as quantiteReliquat
                 from sav_lor 
                 inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
                 and seor_numor = slor_numor
@@ -273,7 +273,7 @@ class DitFactureSoumisAValidationModel extends Model
                 and TRUNC(slor_nogrp/100) in (".$numItv.")
                 group by 1,2
         ";
-        
+    
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
