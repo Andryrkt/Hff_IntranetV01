@@ -111,7 +111,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=10, name="numero_telephone",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $numeroTel= null;
+    private ?string $numeroTel = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="mail_client",nullable=true)
@@ -664,7 +664,7 @@ class DemandeIntervention
 
     /**
      * Get the value of mailClient
-     */ 
+     */
     public function getMailClient()
     {
         return $this->mailClient;
@@ -674,14 +674,14 @@ class DemandeIntervention
      * Set the value of mailClient
      *
      * @return  self
-     */ 
+     */
     public function setMailClient($mailClient)
     {
         $this->mailClient = $mailClient;
 
         return $this;
     }
-   
+
     public function getDateOr()
     {
         return $this->dateOr;
@@ -1545,6 +1545,4 @@ class DemandeIntervention
 
         return $this;
     }
-
-    
 }
