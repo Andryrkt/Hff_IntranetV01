@@ -6,6 +6,28 @@ use Doctrine\ORM\EntityRepository;
 
 class DitDevisSoumisAValidationRepository extends EntityRepository
 {
+
+    public function findDernierStatutDevis($numDevis)
+    {
+        // Étape 1 et 2 combinées : Récupérer directement le statut correspondant au numeroVersion maximum
+        $queryBuilder = $this->createQueryBuilder('dev');
+        
+        $dernierStatut = $queryBuilder
+            ->select('dev.statut')
+            ->where('dev.numeroDevis = :numDevis')
+            ->andWhere('dev.numeroVersion = (
+                SELECT MAX(dev2.numeroVersion) 
+                FROM App\Entity\dit\DitDevisSoumisAValidation dev2 
+                WHERE dev2.numeroDevis = :numDevis
+            )')
+            ->setParameter('numDevis', $numDevis)
+            ->getQuery()
+            ->getOneOrNullResult(); // Retourne null si aucun résultat
+
+        // Retourne le statut ou null si rien n'est trouvé
+        return $dernierStatut ? $dernierStatut['statut'] : null;
+    }
+
     public function findDevisSoumiAvant($numDevis)
     {
         $qb = $this->createQueryBuilder('dev');
@@ -57,7 +79,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $numeroVersionMax = $this->createQueryBuilder('dsv')
             ->select('MAX(dsv.numeroVersion)')
             ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.statut <> :statut')
             ->setParameter('numDevis', $numDevis)
+            ->setParameter('statut', 'erreur client interne')
             ->getQuery()
             ->getSingleScalarResult(); 
     

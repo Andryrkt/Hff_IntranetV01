@@ -3,17 +3,16 @@
 namespace App\Service\genererPdf;
 
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\dit\DitDevisSoumisAValidation;
 use TCPDF;
 
 class GenererPdfDevisSoumisAValidataion extends GeneratePdf
 {
     use FormatageTrait;
     
-    /**
-     * generer pdf changement de Casier
-     */
+   
 
-    function GenererPdfDevisSoumisAValidation($devisSoumis, $montantPdf, $quelqueaffichage, $email)
+    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, string $email)
     {
         $pdf = new TCPDF();
 

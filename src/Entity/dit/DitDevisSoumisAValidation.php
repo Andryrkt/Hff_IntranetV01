@@ -85,6 +85,11 @@ class DitDevisSoumisAValidation
     private ?float $montantLubrifiants = 0.00;
 
     /**
+     * @ORM\Column(type="float", scale="2")
+     */
+    private ?float $montantForfait = 0.00;
+
+    /**
      * @ORM\Column(type="string", length=500)
      */
     private ?string $libellelItv = '';
@@ -93,6 +98,11 @@ class DitDevisSoumisAValidation
      * @ORM\Column(type="string", length=50)
      */
     private $statut;
+
+    /**
+     * @ORM\Column(type="string", length=3)
+     */
+    private $natureOperation;
 
     private $pieceJoint01;
 
@@ -366,6 +376,26 @@ class DitDevisSoumisAValidation
     }
 
     /**
+     * Get the value of montantForfait
+     */ 
+    public function getMontantForfait()
+    {
+        return $this->montantForfait;
+    }
+
+    /**
+     * Set the value of montantForfait
+     *
+     * @return  self
+     */ 
+    public function setMontantForfait($montantForfait)
+    {
+        $this->montantForfait = $montantForfait;
+
+        return $this;
+    }
+
+    /**
      * Get the value of libellelItv
      */
     public function getLibellelItv()
@@ -385,7 +415,46 @@ class DitDevisSoumisAValidation
         return $this;
     }
 
+    /**
+     * Get the value of statut
+     */
+    public function getStatut()
+    {
+        return $this->statut;
+    }
 
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of natureOperation
+     */ 
+    public function getNatureOperation()
+    {
+        return $this->natureOperation;
+    }
+
+    /**
+     * Set the value of natureOperation
+     *
+     * @return  self
+     */ 
+    public function setNatureOperation($natureOperation)
+    {
+        $this->natureOperation = $natureOperation;
+
+        return $this;
+    }
+    
     /**
      * Get the value of file
      */
@@ -468,31 +537,4 @@ class DitDevisSoumisAValidation
         return $this;
     }
 
-
-
-    // Comparaison des objets par leur numero d'intervention
-    public function estEgalParNumero(DitDevisSoumisAValidation $autre)
-    {
-        return $this->numeroItv === $autre->numeroItv;
-    }
-
-    /**
-     * Get the value of statut
-     */
-    public function getStatut()
-    {
-        return $this->statut;
-    }
-
-    /**
-     * Set the value of statut
-     *
-     * @return  self
-     */
-    public function setStatut($statut)
-    {
-        $this->statut = $statut;
-
-        return $this;
-    }
 }

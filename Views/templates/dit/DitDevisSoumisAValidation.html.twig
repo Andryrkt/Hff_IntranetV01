@@ -76,7 +76,7 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton mt-2 ajout-overlay">
+						<button type="submit" class="btn bouton mt-2 ajout-overlay" id="btn-enregistre-devis" data-devis="{{numDevis}}" data-dit="{{numDit}}">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
@@ -90,5 +90,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dit/ditDevisSoumisAValidation.js"></script>
+	<script type="module" src="/Hffintranet/Views/js/dit/ditDevisSoumisAValidation.js"></script>
 {% endblock %}

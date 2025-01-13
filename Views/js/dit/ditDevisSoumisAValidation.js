@@ -1,3 +1,9 @@
+import { configDevis } from "./config/devisDitConfig";
+import {
+  affichageOverlay,
+  affichageSpinner,
+} from "../utils/ui/uiSpinnerUtils.js";
+
 function initializeFileHandlers(idSuffix) {
   const fileInput = document.querySelector(
     `#dit_devis_soumis_a_validation_pieceJoint0${idSuffix}`
@@ -83,10 +89,51 @@ function formatFileSize(size) {
 initializeFileHandlers("1");
 
 // Fonction pour formater la taille des fichiers en Ko ou Mo
-function formatFileSize(bytes) {
-  if (bytes >= 1048576) {
-    return (bytes / 1048576).toFixed(2) + " MB";
-  } else {
-    return (bytes / 1024).toFixed(2) + " KB";
-  }
-}
+// function formatFileSize(bytes) {
+//   if (bytes >= 1048576) {
+//     return (bytes / 1048576).toFixed(2) + " MB";
+//   } else {
+//     return (bytes / 1024).toFixed(2) + " KB";
+//   }
+// }
+
+/**==================================================
+ * sweetalert pour le bouton cloturer dit
+ *==================================================*/
+
+configDevis.btnEnregistre.addEventListener("click", (e) => {
+  e.preventDefault();
+  let numDevis = configDevis.btnEnregistre.getAttribute("data-devis");
+  let numDit = configDevis.btnEnregistre.getAttribute("data-dit");
+  console.log(numDevis, numDit);
+
+  Swal.fire({
+    title: "Êtes-vous sûr ?",
+    text: `Vous êtes en train de soumettre le devis N° ${numDevis} à validation dans DocuWare `,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#fbbb01",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "OUI",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Soumission!",
+        text: "Veuillez de ne pas fermer l’onglet durant le traitement.",
+        icon: "success",
+      }).then((res) => {
+        // Afficher un overlay de chargement
+        affichageOverlay();
+
+        // Ajouter un spinner CSS
+        affichageSpinner();
+        // Soumettre le formulaire
+        const form = document.querySelector("#upload-form");
+        form.submit();
+      });
+    }
+  });
+});
+
+// Redirection après confirmation
+//  window.location.href = `/Hffintranet/insertion-devis/${numDit}`;

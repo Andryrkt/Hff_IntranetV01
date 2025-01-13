@@ -9,12 +9,12 @@ let timeout;
 const totalTime = 900; // Total en secondes (15 minutes)
 let timeRemaining = totalTime;
 
-const chronoText = document.getElementById('chrono-text');
-const chronoContainer = document.querySelector('.chrono-container');
-const chronoProgress = document.querySelector('.chrono-progress');
+const chronoText = document.getElementById("chrono-text");
+const chronoContainer = document.querySelector(".chrono-container");
+const chronoProgress = document.querySelector(".chrono-progress");
 
-if (location.pathname === '/Hffintranet/') {
-  chronoContainer.classList.add('d-none');
+if (location.pathname === "/Hffintranet/") {
+  chronoContainer.classList.add("d-none");
 }
 
 // Fonction pour mettre à jour le chrono
@@ -28,11 +28,11 @@ function updateChrono() {
 
     // Logique des couleurs
     if (progressPercentage > 50) {
-      chronoProgress.style.backgroundColor = '#4caf50'; // Vert
+      chronoProgress.style.backgroundColor = "#4caf50"; // Vert
     } else if (progressPercentage > 20) {
-      chronoProgress.style.backgroundColor = '#ff9800'; // Orange
+      chronoProgress.style.backgroundColor = "#ff9800"; // Orange
     } else {
-      chronoProgress.style.backgroundColor = '#f44336'; // Rouge
+      chronoProgress.style.backgroundColor = "#f44336"; // Rouge
     }
   }
 
@@ -41,15 +41,15 @@ function updateChrono() {
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = timeRemaining % 60;
   if (chronoText?.textContent) {
-    chronoText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds
+    chronoText.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
       .toString()
-      .padStart(2, '0')}`;
+      .padStart(2, "0")}`;
   }
 
   // Rediriger à la fin
   if (timeRemaining <= 0) {
     clearInterval(timer);
-    window.location.href = '/Hffintranet/logout';
+    window.location.href = "/Hffintranet/logout";
   }
 }
 
@@ -66,42 +66,42 @@ function resetTimeout() {
   updateChrono(); // Mise à jour immédiate de l'affichage du chrono
 
   // Mettre à jour l'état dans localStorage
-  localStorage.setItem('session-active', Date.now());
+  localStorage.setItem("session-active", Date.now());
 
   // Redémarrer le timer du chrono
   timer = setInterval(updateChrono, 1000);
 
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
-    window.location.href = '/Hffintranet/logout'; // URL de déconnexion
+    window.location.href = "/Hffintranet/logout"; // URL de déconnexion
   }, 900000); // 15 minutes
 }
 
 // Définir les événements pour détecter l'activité utilisateur
 const events = [
-  'load',
-  'mousemove',
-  'keypress',
-  'touchstart',
-  'click',
-  'scroll',
+  "load",
+  "mousemove",
+  "keypress",
+  "touchstart",
+  "click",
+  "scroll",
 ];
 events.forEach((event) => window.addEventListener(event, resetTimeout));
 
 // Surveiller les changements dans localStorage pour synchroniser les onglets
-window.addEventListener('storage', function (event) {
-  if (event.key === 'session-active') {
+window.addEventListener("storage", function (event) {
+  if (event.key === "session-active") {
     resetTimeout();
   }
 });
 
 // Vérification régulière de l'expiration de la session
 function checkSessionExpiration() {
-  const lastActive = localStorage.getItem('session-active');
+  const lastActive = localStorage.getItem("session-active");
   const now = Date.now();
 
   if (lastActive && now - lastActive > 900000) {
-    window.location.href = '/Hffintranet/logout'; // Rediriger vers la déconnexion
+    window.location.href = "/Hffintranet/logout"; // Rediriger vers la déconnexion
   }
 }
 
@@ -114,19 +114,19 @@ resetTimeout();
 /**
  * modal pour la déconnexion
  */
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   // Sélectionner le lien de déconnexion et le modal
-  const logoutLink = document.getElementById('logoutLink');
+  const logoutLink = document.getElementById("logoutLink");
   const logoutModal = new bootstrap.Modal(
-    document.getElementById('logoutModal')
+    document.getElementById("logoutModal")
   );
-  const confirmLogout = document.getElementById('confirmLogout');
+  const confirmLogout = document.getElementById("confirmLogout");
 
   // Variable pour stocker l'URL de déconnexion (ou la logique)
-  let logoutUrl = logoutLink?.getAttribute('href');
+  let logoutUrl = logoutLink?.getAttribute("href");
 
   // Lorsque l'utilisateur clique sur le lien de déconnexion
-  logoutLink?.addEventListener('click', function (event) {
+  logoutLink?.addEventListener("click", function (event) {
     // Empêcher la redirection initiale (si nécessaire)
     event.preventDefault();
     // Afficher le modal de confirmation
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Lorsque l'utilisateur clique sur le bouton "Confirmer"
-  confirmLogout?.addEventListener('click', function () {
+  confirmLogout?.addEventListener("click", function () {
     // Effectuer la déconnexion (rediriger vers l'URL de déconnexion)
     window.location.href = logoutUrl; // Effectuer la déconnexion
   });
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
 /**
  * POUR LE TOOLTIP
  */
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   var tooltipTriggerList = [].slice.call(
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
@@ -169,21 +169,21 @@ window.addEventListener('beforeunload', function () {
 }); */
 
 // Afficher l'overlay
-const allButtonAfficher = document.querySelectorAll('.ajout-overlay');
+const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
 
-allButtonAfficher.forEach((button) => {
-  button.addEventListener('click', () => {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-      overlay.classList.remove('hidden'); // Affiche l'overlay
-    }
-  });
-});
+// allButtonAfficher.forEach((button) => {
+//   button.addEventListener('click', () => {
+//     const overlay = document.getElementById('loading-overlay');
+//     if (overlay) {
+//       overlay.classList.remove('hidden'); // Affiche l'overlay
+//     }
+//   });
+// });
 
 // Masquer l'overlay après le chargement de la page
-window.addEventListener('load', () => {
-  const overlay = document.getElementById('loading-overlay');
+window.addEventListener("load", () => {
+  const overlay = document.getElementById("loading-overlay");
   if (overlay) {
-    overlay.classList.add('hidden'); // Masquer l'overlay après le chargement
+    overlay.classList.add("hidden"); // Masquer l'overlay après le chargement
   }
 });

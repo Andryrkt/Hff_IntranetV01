@@ -5,6 +5,7 @@ namespace App\Controller\dit;
 use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Form\dit\DitDevisSoumisAValidationType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\autres\MontantPdfService;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
@@ -54,34 +56,43 @@ class DitDevisSoumisAValidationController extends Controller
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
-            $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
-            if (empty($devisSoumisAValidationInformix)) {
-                $message = "Erreur lors de la soumission, veuillez réessayer . . . l'information de la devis n'est pas recupérer";
-
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            }
-
-            $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
-            
-            $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] <> '';
-
-            if ($conditionDitIpsDiffDitSqlServ) {
-                $message = "Erreur lors de la soumission, veuillez réessayer . . . le numero DIT dans IPS ne correspond pas à la DIT";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } elseif ($conditionServDebiteurvide) {
-                $message = "Erreur lors de la soumission, veuillez réessayer . . . le service débiteur n'est pas vide";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } else {
-
+            $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
+            $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository);
+            if ($this->blockageSoumission($blockages, $numDevis)) {
+                
+                $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis, $this->estCeVenteOuForfait($numDevis));
+                
+                $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
+                //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
 
+
+                $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
+
+                $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
+
+                $infoPrix = [];
+                foreach ($infoPieces as $values) {
+                    foreach ($values as $infopiece) {
+                        $infoPrix[] = [
+                            'cst' => $infopiece['cst'],
+                            'refPiece' => $infopiece['refpiece'],
+                            'pu1' => $infopiece['prixvente'],
+                            'datePu1' => $infopiece['dateligne'],
+                            'pu2' => '500 000 AR',
+                            'datePu2' => '21/11/2024',
+                            'pu3' => '600 000 AR',
+                            'datePu3' => '31/12/2024',
+                        ];
+                    }
+                }
+
+
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->creationPdf($devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $this->generePdfDevis);
+                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
                 $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
                 $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
@@ -93,11 +104,105 @@ class DitDevisSoumisAValidationController extends Controller
 
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
             'form' => $form->createView(),
+            'numDevis' => $numDevis,
+            'numDit' => $numDit
         ]);
     }
 
+    /**
+     * Mehode qui crée les conditions de blockage de soumission de devis
+     *
+     * @param string $numDevis
+     * @param string $numDit
+     * @param DitDevisSoumisAValidationRepository $devisRepository
+     * @return array
+     */
+    public function ConditionDeBlockage(string $numDevis, string $numDit, DitDevisSoumisAValidationRepository $devisRepository): array
+    {   $TrouverDansDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        if ($TrouverDansDit === null) {
+            $message = "Erreur avant la soumission, Impossible de soumettre le devis . . . l'information de la statut du n° DIT $numDit n'est pas récupérer";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } else {
+            $idStatutDit = $TrouverDansDit->getIdStatutDemande()->getId();
+            $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
+            $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
+            $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
+        }
 
-    private function creationPdf( $devisSoumisValidataion, $ditDevisSoumisAValidationModel, $generePdfDevis)
+        /**
+         * TODO: $servDebiteur <> ''
+         */
+        return  [
+            'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
+            'conditionServDebiteurvide' => $servDebiteur === '', // le service debiteur n'est pas vide
+            'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
+            'conditionStatutDevis' => $statutDevis === 'Soumis à validation' // le statut de la dernière version de devis est-il Soumis à validation 
+        ];
+    }
+
+    /**
+     * Methode qui récupère les données du devis dans la base de donnée informix
+     *
+     * @param string $numDevis
+     * @return array
+     */
+    public function InformationDevisInformix(string $numDevis, bool $estCeForfaitVente): array
+    {
+        $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis, $estCeForfaitVente);
+        if (empty($devisSoumisAValidationInformix)) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . l'information de la devis n'est pas recupérer";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } else {
+            return $devisSoumisAValidationInformix;
+        }
+    }
+
+    /**
+     * Methode qui permet de savoir si la soumission
+     * est une Devis vente ou forfait
+     *
+     * @param string $numDevis
+     * @return boolean
+     */
+    public function estCeVenteOuForfait(string $numDevis): bool
+    {
+        $nbrItvTypeVte = $this->ditDevisSoumisAValidationModel->recupNbrItvTypeVte($numDevis);
+        $nbrItvTypeCes = $this->ditDevisSoumisAValidationModel->recupNbrItvTypeCes($numDevis);
+
+        if((int)$nbrItvTypeVte[0]['nb_vte'] > 0 && (int)$nbrItvTypeCes[0]['nb_ces'] > 0 ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * METHODE pour les condition de blockage de soumision devis
+     *
+     * @param array $blockages
+     * @param string $numDevis
+     * @return boolean
+     */
+    public function blockageSoumission(array $blockages, string $numDevis): bool
+    {
+        if ($blockages['conditionDitIpsDiffDitSqlServ']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le numero DIT dans IPS ne correspond pas à la DIT";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionServDebiteurvide']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le service débiteur n'est pas vide";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionStatutDit']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionStatutDevis']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } else {
+            return true;
+        }
+    } 
+
+    private function creationPdf( $devisSoumisValidataion, GenererPdfDevisSoumisAValidataion $generePdfDevis)
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
         
@@ -107,23 +212,27 @@ class DitDevisSoumisAValidationController extends Controller
         // dump($OrSoumisAvantMax);
         $montantPdf = $this->montantPdfService->montantpdf($devisSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
         // dd($montantPdf);
-        $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis);
+        $quelqueaffichage = $this->quelqueAffichage($numDevis);
 
-        $generePdfDevis->GenererPdfDevisSoumisAValidation($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+        if($this->estCeVenteOuForfait($numDevis)) { // vente
+            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+        } else { // sinom forfait
+
+        }
     }
     
-    private function quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis)
+    private function quelqueAffichage($numDevis)
     {
         return [
             "numDevis" => $numDevis,
-            "sortieMagasin" => $this->estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis),
-            "achatLocaux" => $this->estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis)
+            "sortieMagasin" => $this->estCeSortieMagasin($numDevis),
+            "achatLocaux" => $this->estCeAchatLocaux($numDevis)
         ];
     }
 
-    private function estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis): bool
+    private function estCeSortieMagasin($numDevis): string
     {
-        $nbSotrieMagasin = $ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+        $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
         if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';
         } else {
@@ -133,9 +242,9 @@ class DitDevisSoumisAValidationController extends Controller
         return $sortieMagasin;
     }
 
-    private function estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis): bool
+    private function estCeAchatLocaux($numDevis): string
     {
-        $nbAchatLocaux = $ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
+        $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
         if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
@@ -196,6 +305,7 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
                 ->setLibellelItv($devisSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNatureOperation($devisSoumis['nature_opreration'])
             ;
 
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
@@ -215,9 +325,11 @@ class DitDevisSoumisAValidationController extends Controller
     private function numeroDevis(string $numDit): string
     {
         $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
+        // dump($numeroDevis);
+        // dd(empty($numeroDevis));
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->historiqueOperation->sendNotificationCreation($message, $numeroDevis, 'dit_index');
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }

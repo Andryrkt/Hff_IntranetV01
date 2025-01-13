@@ -16,3 +16,9 @@ CREATE TABLE devis_soumis_a_validation (
     dateHeureSoumission DATETIME2,
     CONSTRAINT PK_devis_soumis_a_validation PRIMARY KEY (id)
 );
+
+ALTER TABLE devis_soumis_a_validation
+ADD montantForfait DECIMAL(18, 2)
+
+ALTER TABLE devis_soumis_a_validation
+ADD natureOperation VARCHAR(3)
