@@ -75,20 +75,19 @@ class DitDevisSoumisAValidationController extends Controller
                 $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
 
                 $infoPrix = [];
-                foreach ($infoPieces as $values) {
-                    foreach ($values as $infopiece) {
-                        $infoPrix[] = [
-                            'cst' => $infopiece['cst'],
-                            'refPiece' => $infopiece['refpiece'],
-                            'pu1' => $infopiece['prixvente'],
-                            'datePu1' => $infopiece['dateligne'],
-                            'pu2' => '500 000 AR',
-                            'datePu2' => '21/11/2024',
-                            'pu3' => '600 000 AR',
-                            'datePu3' => '31/12/2024',
-                        ];
-                    }
+                foreach ($infoPieces as $infoPiece) {
+                    $infoPrix[] = [
+                        'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
+                        'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
+                        'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '-',
+                        'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
+                        'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '-',
+                        'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
+                        'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '-',
+                        'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+                    ];
                 }
+
 
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
@@ -202,6 +201,27 @@ class DitDevisSoumisAValidationController extends Controller
         }
     } 
 
+    private function variationPrixRefPiece(string $numDevis): array
+    {
+        $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
+
+        $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
+
+        $infoPrix = [];
+        foreach ($infoPieces as $infoPiece) {
+            $infoPrix[] = [
+                'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
+                'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
+                'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '-',
+                'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
+                'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '-',
+                'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
+                'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '-',
+                'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+            ];
+        }
+        return $infoPrix;
+    }
     private function creationPdf( $devisSoumisValidataion, GenererPdfDevisSoumisAValidataion $generePdfDevis)
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
@@ -214,8 +234,10 @@ class DitDevisSoumisAValidationController extends Controller
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($numDevis);
 
+        $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
+
         if($this->estCeVenteOuForfait($numDevis)) { // vente
-            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
+            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
         } else { // sinom forfait
 
         }

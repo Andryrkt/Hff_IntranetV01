@@ -12,14 +12,14 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
     
    
 
-    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, string $email)
+    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email)
     {
         $pdf = new TCPDF();
 
         $pdf->AddPage();
 
         $pdf->setFont('helvetica', 'B', 17);
-        $pdf->Cell(0, 6, 'Validation DEVIS', 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(0, 6, 'Validation DEVIS VENTE', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         $detailsBloc = [
@@ -27,8 +27,8 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
             'Numéro DIT' => $devisSoumis->getNumeroDit(),
             'Numéro DEVIS' => $devisSoumis->getNumeroDevis(),
             'Version à valider' => $devisSoumis->getNumeroVersion(),
-            'Sortie magasin' => $quelqueaffichage['sortieMagasin'] ?? 'N/A',
-            'Achat locaux' => $quelqueaffichage['achatLocaux'] ?? 'N/A',
+            'Sortie magasin' => $quelqueaffichage['sortieMagasin'] ?? 'NON',
+            'Achat locaux' => $quelqueaffichage['achatLocaux'] ?? 'NON',
         ];
         
         $this->addDetailsBlock($pdf, $detailsBloc);
@@ -66,7 +66,7 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
 
 //==========================================================================================================
  //Titre: Récapitulation de l'OR
- $this->addTitle($pdf, 'Récapitulation de l\'OR');
+ $this->addTitle($pdf, 'Récapitulation de devis');
         
         $pdf->setFont('helvetica', '', 12);
         $headerConfig2 = [
@@ -83,6 +83,9 @@ class GenererPdfDevisSoumisAValidataion extends GeneratePdf
         $html2 = $generator->generateTable($headerConfig2, $montantPdf['recapOr'], $montantPdf['totalRecapOr']);
         $pdf->writeHTML($html2, true, false, true, false, '');
         
+        /**==============================================================
+         * 
+         *============================================================*/
 
             $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('helvetica', '', 10);
