@@ -370,16 +370,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        const tableBody = document.getElementById("commandesTableBody");
+        console.log(data.avecOnglet);
+        
+        displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
+        const tableBody = document.getElementById("commandesTableBody");
         const planningTableHead = document.getElementById("planningTableHead");
+        const tableBodyOR = document.getElementById("commandesTableBodyOR");
+        const planningTableHeadOR = document.getElementById("planningTableHeadOR");
+        const tableBodyLign = document.getElementById("commandesTableBodyLign");
+        const planningTableHeadLign = document.getElementById("planningTableHeadLign");
 
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
+        planningTableHeadOR.innerHTML = "";
+        planningTableHeadLign.innerHTML = "";
 
-        if (data.length > 0) {
-          if (data[0].numor.startsWith("5")) {
+        if (data.data.length > 0) {
+          if (data.data[0].numor.startsWith("5")) {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
                             <th>N° CIS</th>
@@ -398,6 +407,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>ETA Magasin</th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
+            planningTableHeadOR.innerHTML += rowHeader;
+            planningTableHeadLign.innerHTML += rowHeader;
           } else {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
@@ -417,7 +428,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
-          data.forEach((detail) => {
+          data.data.forEach((detail) => {
             console.log(detail);
 
             Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
@@ -547,6 +558,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${message}</td> 
                     </tr>`;
               tableBody.innerHTML += row;
+              tableBodyOR.innerHTML += row;
+              let row1 = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${(detail.qteOrlig === "") ? "" : parseInt(detail.qteOrlig)}</td> 
+                        <td>${(detail.qteAllLig === "") ? "" : parseInt(detail.qteAllLig)}</td> 
+                        <td>${(detail.qteRlqLig === "") ? "" : parseInt(detail.qteRlqLig	)}</td> 
+                        <td>${(detail.qteLivLig === "") ? "" : parseInt(detail.qteLivLig	)}</td> 
+                        <td >${statut}</td> 
+                        <td>${dateStatut}</td> 
+                        <td>${dateEtaIvato}</td> 
+                        <td>${dateMagasin}</td> 
+                        <td>${message}</td> 
+                    </tr>`;
+                  tableBodyLign.innerHTML += row1;
             } else {
               // Affichage
               let row = `<tr>
@@ -590,6 +622,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
           masquerSpinner();
         }
       });
+  }
+
+  function displayOnglet(show) {
+    const avecOnglet = document.getElementById("avec_onglet");
+    const sansOnglet = document.getElementById("sans_onglet");
+    if (show) {
+      avecOnglet.classList.remove('d-none');
+      sansOnglet.classList.add('d-none'); 
+    } else {
+      avecOnglet.classList.add('d-none');
+      sansOnglet.classList.remove('d-none');
+    }
   }
 
   function formaterDate(daty) {

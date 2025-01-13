@@ -582,6 +582,41 @@ public function recuperationPartiel($numcde, $refp){
     $resultat = $this->convertirEnUtf8($data);
   return $resultat;
 }
+/**
+ * qte CIS
+ */
+
+ public function recupeQteCISlig($numOr,$itv,$refp){
+   $statement = "SELECT 
+                  nlig_qtecde as qteorlig,
+                  nlig_qtealiv as qtealllig,
+                  (nlig_qtecde - nlig_qtealiv - nlig_qteliv) as qterlqlig,
+                  nlig_qteliv as qteliv
+                  
+                  from sav_lor 
+
+                  inner join neg_lig on 
+                      nlig_soc = slor_soc 
+                      
+                  and nlig_succd = slor_succ
+                      
+                  and nlig_numcde = slor_numcf
+                      
+                  and nlig_constp = slor_constp
+                      
+                  and nlig_refp = slor_refp
+
+                  where nlig_natop = 'CIS'
+
+                  and slor_numor  ='".$numOr."'
+                  and trunc(slor_nogrp/100) = '".$itv."'
+                  and slor_refp ='".$refp."'
+        ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+ }
   /**
   * gcot ORD
   */
@@ -710,5 +745,23 @@ public function recuperationPartiel($numcde, $refp){
     $data = $this->connect->fetchResults($result);
 
     return $this->convertirEnUtf8($data);
+  }
+
+  public function recupOrcis($numOritv){
+      $statement = "SELECT  DISTINCT 
+            nlig_natop from sav_lor 
+            inner join neg_lig on 
+            nlig_soc = slor_soc 
+            and nlig_succd = slor_succ
+            and nlig_numcde = slor_numcf
+            and nlig_constp = slor_constp
+            and nlig_refp = slor_refp
+            where nlig_natop = 'CIS'
+            and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
+                     ";
+      $result = $this->connect->executeQuery($statement);
+      $data = $this->connect->fetchResults($result);
+      $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
   }
 }
