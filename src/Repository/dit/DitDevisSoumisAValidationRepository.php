@@ -8,27 +8,26 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
 {
 
     public function findDernierStatutDevis($numDevis)
-    {
-        // Étape 1 et 2 combinées : Récupérer directement le statut correspondant au numeroVersion maximum
-        $queryBuilder = $this->createQueryBuilder('dev');
-        
-        $dernierStatut = $queryBuilder
-            ->select('dev.statut')
-            ->where('dev.numeroDevis = :numDevis')
-            ->andWhere('dev.numeroVersion = (
-                SELECT MAX(dev2.numeroVersion) 
-                FROM App\Entity\dit\DitDevisSoumisAValidation dev2 
-                WHERE dev2.numeroDevis = :numDevis
-            )')
-            ->setParameter('numDevis', $numDevis)
-            ->getQuery()
-            ->getOneOrNullResult(); // Retourne null si aucun résultat
+{
+    $queryBuilder = $this->createQueryBuilder('dev');
+    
+    $dernierStatut = $queryBuilder
+        ->select('dev.statut')
+        ->where('dev.numeroDevis = :numDevis')
+        ->andWhere('dev.numeroVersion = (
+            SELECT MAX(dev2.numeroVersion) 
+            FROM App\Entity\dit\DitDevisSoumisAValidation dev2 
+            WHERE dev2.numeroDevis = :numDevis
+        )')
+        ->setParameter('numDevis', $numDevis)
+        ->setMaxResults(1) // Ajout d'une limite pour garantir un seul résultat
+        ->getQuery()
+        ->getOneOrNullResult();
 
-        // Retourne le statut ou null si rien n'est trouvé
-        return $dernierStatut ? $dernierStatut['statut'] : null;
-    }
+    return $dernierStatut ? $dernierStatut['statut'] : null;
+}
 
-    public function findDevisSoumiAvant($numDevis)
+    public function findDevisSoumiAvant($numDevis, $natureOperation)
     {
         $qb = $this->createQueryBuilder('dev');
 
@@ -40,6 +39,8 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $devSoumisAvant = $qb
             ->where('dev.numeroDevis = :numDevis')
             ->setParameter('numDevis', $numDevis)
+            ->andWhere('dev.natureOperation = :natureOperation')
+            ->setParameter('natureOperation', $natureOperation)
             ->andWhere($qb->expr()->eq('dev.numeroVersion', '(' . $subquery . ')'))
             ->getQuery()
             ->getResult();
@@ -47,7 +48,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         return $devSoumisAvant;
     }
 
-    public function findDevisSoumiAvantMax($numDevis)
+    public function findDevisSoumiAvantMax($numDevis, $natureOperation)
     {
         // Étape 1: Récupérer la version maximale pour le numeroDevis donné
         $qbMax = $this->createQueryBuilder('dev2')
@@ -66,6 +67,8 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         $qb = $this->createQueryBuilder('dev')
             ->where('dev.numeroDevis = :numDevis')
             ->andWhere('dev.numeroVersion = :previousVersion')
+            ->andWhere('dev.natureOperation = :natureOperation')
+            ->setParameter('natureOperation', $natureOperation)
             ->setParameter('numDevis', $numDevis)
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()

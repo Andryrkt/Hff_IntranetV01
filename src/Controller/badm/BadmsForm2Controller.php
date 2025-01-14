@@ -122,7 +122,7 @@ class BadmsForm2Controller extends Controller
                 //envoie des pièce jointe dans une dossier et le fusionner
                 $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
                 //copy du fichier fusionner dan sdocuware
-                $createPdf->copyInterneToDOXCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
+                $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
                 $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrer', $badm->getNumBadm(), 'badmListe_AffichageListeBadm', true);
             }

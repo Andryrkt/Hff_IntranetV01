@@ -60,9 +60,15 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    /**
+     * 
+     *
+     * @param string $numDevis
+     * @param boolean $estCeForfait
+     * @return void
+     */
     public function recupDevisSoumisValidation(string $numDevis, bool $estCeForfait)
     {
-        $conditionForfait = !$estCeForfait ? " AND slor_constp='ZDI' AND slor_refp='FORFAIT'" : "";
         
         $statement = "SELECT
             sitv_succdeb as SERV_DEBITEUR,  
@@ -75,8 +81,7 @@ class DitDevisSoumisAValidationModel extends Model
             count(slor_constp) as NOMBRE_LIGNE,
             Sum(
                 CASE
-                    WHEN slor_typlig = 'P' 
-                    THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                     WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
                 END 
                 * 
@@ -88,9 +93,8 @@ class DitDevisSoumisAValidationModel extends Model
 
             Sum(
                 CASE
-                    WHEN slor_typlig = 'P'
-                    AND slor_constp NOT like 'Z%'
-                    AND slor_constp <> 'LUB' THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+                    WHEN slor_typlig = 'P' AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
+                    THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
                 END 
                 * 
                 CASE
@@ -110,7 +114,7 @@ class DitDevisSoumisAValidationModel extends Model
 
             Sum(
                 CASE
-                    WHEN slor_constp = 'ZST' THEN (
+                    WHEN slor_constp in (".GlobalVariablesService::get('achat_locaux').") THEN (
                         slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
                     )
                 END * CASE
@@ -133,8 +137,7 @@ class DitDevisSoumisAValidationModel extends Model
                 CASE
                     WHEN 
                         slor_typlig = 'P'
-                        AND slor_constp NOT like 'Z%'
-                        AND slor_constp = 'LUB' 
+                        AND slor_constp in (".GlobalVariablesService::get('lub').")
                     THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
                 END 
                 * 
@@ -142,7 +145,13 @@ class DitDevisSoumisAValidationModel extends Model
                     WHEN slor_typlig = 'P' THEN slor_pxnreel
                     WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
                 END
-            ) AS MONTANT_LUBRIFIANTS
+            ) AS MONTANT_LUBRIFIANTS,
+            sum(
+                CASE
+                    WHEN slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE'
+                    THEN nvl((slor_pxnreel * slor_qtewait), 0)
+                END
+            ) AS MONTANT_FORFAIT
 
             from sav_eor, sav_lor, sav_itv
             WHERE seor_numor = slor_numor
@@ -154,7 +163,6 @@ class DitDevisSoumisAValidationModel extends Model
             AND sitv_soc=seor_soc
             AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
             AND seor_numor = '".$numDevis."'
-            $conditionForfait
             group by 1, 2, 3, 4, 5, 6, 7
             order by slor_numor, sitv_interv
         ";
@@ -165,6 +173,7 @@ class DitDevisSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
 
     public function recupNbrItvTypeVte($numDevis)
     {
@@ -246,7 +255,6 @@ class DitDevisSoumisAValidationModel extends Model
 
     /**
      * Methode pour recupérer l'evolution de prix de chaque pièce
-     * TODO : decommenter and slor_natop = 'VTE' et and slor_pos in ('CP','FC') 
      *
      * @param array $infoPieceClient
      * @return void
@@ -254,6 +262,7 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupInfoPourChaquePiece(array $infoPieceClient)
     {
         $statement = " SELECT FIRST 3 
+                    slor_typlig as type_ligne,
                     trim(slor_constp) as CST, 
                     trim(slor_refp) as RefPiece, 
                     slor_datel as dateLigne, 
@@ -262,8 +271,8 @@ class DitDevisSoumisAValidationModel extends Model
                     WHERE slor_refp = '".$infoPieceClient['ref_piece'] ."'
                     and slor_constp = '".$infoPieceClient['constructeur']."'
                     and slor_numor = '".$infoPieceClient['num_devis']."'
-                    --and slor_natop = 'VTE' 
-                    --and slor_pos in ('CP','FC') 
+                    and slor_natop = 'VTE' 
+                    and slor_pos in ('CP','FC') 
                     and slor_numcli = '".$infoPieceClient['num_client']."'
                     and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
         ";

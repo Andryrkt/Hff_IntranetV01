@@ -22,3 +22,6 @@ ADD montantForfait DECIMAL(18, 2)
 
 ALTER TABLE devis_soumis_a_validation
 ADD natureOperation VARCHAR(3)
+
+ALTER TABLE devis_soumis_a_validation 
+ADD devisVenteOuForfait VARCHAR(15)

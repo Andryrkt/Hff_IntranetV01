@@ -44,22 +44,23 @@ class PdfTableGenerator
     }
 
     private function generateFooter(array $headerConfig, array $totals)
-{
-    $html = '<tfoot><tr style="background-color: #D3D3D3;">';
-    foreach ($headerConfig as $config) {
-        $key = $config['key'];
-        $style = $config['style'];
-        $value = $totals[$key] ?? '';
-        
-        // Vérifier si la clé correspond à "total"
-            $value = $this->formatValue($key, $value);
-        
+    {
+        $html = '<tfoot><tr style="background-color: #D3D3D3;">';
+        foreach ($headerConfig as $config) {
+            $key = $config['key'];
+            $style = $config['style'];
+            $value = $totals[$key] ?? '';
 
-        $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
+            if (!empty($value)) {
+                // Formater uniquement si la valeur existe
+                $value = $this->formatValue($key, $value);
+            }
+
+            $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
+        }
+        $html .= '</tr></tfoot>';
+        return $html;
     }
-    $html .= '</tr></tfoot>';
-    return $html;
-}
 
 
     private function getDynamicStyle($key, $value)
@@ -81,18 +82,44 @@ class PdfTableGenerator
         return $styles;
     }
 
-    private function formatValue($key, $value)
+        /**
+     * Méthode qui formate les valeurs (nombre ou date) au format approprié.
+     * Pour les montants, la clé du tableau doit contenir "mtt".
+     * Pour les dates, la clé du tableau doit contenir "date".
+     *
+     * @param string $key La clé du tableau.
+     * @param mixed $value La valeur associée à la clé.
+     * @return string La valeur formatée.
+     */
+    private function formatValue(string $key, $value): string
     {
         // Vérifier si la clé concerne un montant
-        if (in_array($key, ['mttTotal', 'mttPieces', 'mttMo', 'mttSt', 'mttLub', 'mttAutres', 'mttTotalAv', 'mttTotalAp'])) {
+        if (in_array($key, ['mttTotal', 'mttPieces', 'mttMo', 'mttSt', 'mttLub', 'mttAutres', 'mttTotalAv', 'mttTotalAp']) || stripos($key, 'mtt') !== false) {
             // Vérifier si la valeur est un nombre
             if (is_numeric($value)) {
-                return number_format((float) $value, 2, '.', ',');
+                return number_format((float) $value, 2, ',', '.');
             }
             return '0.00'; // Retourner un montant par défaut si ce n'est pas un nombre
         }
-        return $value;
+
+        // Vérifier si la clé concerne une date
+        if (stripos($key, 'date') !== false) {
+            // Vérifier si la valeur est une chaîne et non égale à '-'
+            if (is_string($value) && $value !== '-') {
+                try {
+                    $date = new \DateTime($value);
+                    return $date->format('d/m/Y');
+                } catch (\Exception $e) {
+                    // Si la date est invalide, retourner une valeur par défaut
+                    return '-';
+                }
+            }
+            return '-'; // Si la valeur n'est pas valide, retourner un séparateur par défaut
+        }
+
+        // Retourner la valeur non modifiée si aucune condition ne s'applique
+        return (string) $value;
     }
 
-}
 
+}

@@ -32,7 +32,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention() , 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
@@ -43,7 +43,7 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
         }
-            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -54,11 +54,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(165, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->MultiCell(165, 10, $dit->getDetailDemande()."\n", 1, 'J', 0, 2, '' ,'', true);
+        $pdf->MultiCell(0, 10, $dit->getDetailDemande() . "\n", 1, 'J', 0, 2, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -68,11 +68,11 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $libelleCategorie = ''; // Ou toute autre valeur par défaut appropriée
         }
-        $pdf->cell(30, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(85);
+        $pdf->cell(55, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(95);
         $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
-        $pdf->cell(20, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(150);
+        $pdf->cell(15, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(155);
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
@@ -80,21 +80,21 @@ class GenererPdfDit extends GeneratePdf
         /** INTERVENTION */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(40, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsY(73);
+        $pdf->Cell(30, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 75);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
+        $pdf->setAbsXY(40, 75);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
         $pdf->Ln(10, true);
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        if($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())){
+        if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
         } else {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux(), 1, 0, '', false, '', 0, false, 'T', 'M');
-
         }
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -138,7 +138,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(23, 6, 'Réparation :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(35, 6, $dit->getTypeReparation(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
-        $pdf->cell(30, 6, 'Réaliser par :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Réalisé par :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
@@ -154,14 +154,16 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(25, 6, "Nom :", 0, 'L', false, 0);
-        $pdf->cell(50, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(90);
-        $pdf->MultiCell(15, 6, "N° tel :", 0, 'L', false, 0);
-        $pdf->cell(25, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(130);
+        $pdf->MultiCell(12, 6, "Nom :", 0, 'L', false, 0);
+        $nomClient = strlen($dit->getNomClient()) <= 30 ? $dit->getNomClient() : substr($dit->getNomClient(), 0, 30);
+        $pdf->cell(70, 6, $nomClient, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(93);
+        $pdf->MultiCell(17, 6, "N° tel :", 0, 'R', false, 0);
+        $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(132);
         $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $mailClient = strlen($dit->getMailClient()) <= 26 ? $dit->getMailClient() : substr($dit->getMailClient(), 0, 26);
+        $pdf->cell(0, 6, $mailClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
 
@@ -173,7 +175,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setAbsXY(70, 161);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
         $pdf->Ln(10, true);
-        
+
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -230,61 +232,59 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-         /** BILANT FINANCIERE */
-         $pdf->setFont('helvetica', 'B', 12);
-         $pdf->SetTextColor(14, 65, 148);
-         
-         $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->SetFillColor(14, 65, 148);
-         $pdf->setAbsXY(41, 225);
-         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
-         $pdf->Ln(10, true);
- 
-         $pdf->SetTextColor(0, 0, 0);
-         $pdf->setFont('helvetica', 'B', 10);
- 
-         
- 
-         $pdf->MultiCell(27, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
-         $pdf->cell(40, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->setAbsX(80);
-         $pdf->MultiCell(20, 6, "Amort :", 0, 'L', false, 0);
-         $pdf->cell(40, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->setAbsX(140);
-         $pdf->cell(20, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->Ln(15, true);
- 
-         $pdf->MultiCell(27, 6, "Charge d\'entretien :", 0, 'L', false, 0);
-         $pdf->cell(40, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->setAbsX(80);
-         $pdf->MultiCell(20, 6, "Charge Locative :", 0, 'L', false, 0);
-         $pdf->cell(40, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->setAbsX(140);
-         $pdf->cell(20, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
-         $pdf->Ln(15, true);
- 
-         $pdf->MultiCell(45, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
-         $pdf->cell(40, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
- 
-        
+        /** BILANT FINANCIERE */
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(14, 65, 148);
+
+        $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->SetFillColor(14, 65, 148);
+        $pdf->setAbsXY(41, 225);
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+        $pdf->Ln(10, true);
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+
+
+
+        $pdf->MultiCell(37, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(40, 6, "Amort :", 0, 'R', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(155);
+        $pdf->cell(15, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(15, true);
+
+        $pdf->MultiCell(37, 6, "Charge d'entretien :", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(40, 6, "Charge Locative :", 0, 'R', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(155);
+        $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(15, true);
+
+        $pdf->MultiCell(45, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
+        $pdf->cell(30, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
+
+
 
         // entête email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(110, 2);
-        $pdf->Cell(35, 6, "email : ". $dit->getMailDemandeur() , 0, 0, 'L');
+        $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
 
 
         /**DEUXIEME PAGE */
-       $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
+        $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
 
 
-    //$pdf->Output('exemple.pdf', 'I');
-     // Obtention du chemin absolu du répertoire de travail
+        //$pdf->Output('exemple.pdf', 'I');
+        // Obtention du chemin absolu du répertoire de travail
         //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
-        $documentRoot = 'C:/wamp64/www/Upload/dit';//faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $documentRoot = 'C:/wamp64/www/Upload/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';
@@ -297,13 +297,12 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->Output($filePath, 'F');
 
-            // Vérification de la création du fichier
+        // Vérification de la création du fichier
         if (file_exists($filePath)) {
             echo "\nLe fichier a été généré avec succès : $filePath";
         } else {
             echo "\nErreur lors de la génération du fichier PDF.";
         }
-
     }
 
 
@@ -311,72 +310,71 @@ class GenererPdfDit extends GeneratePdf
     {
         $pdf->AddPage();
 
-        $header1 = ['Agences', 'Services', 'Date','numor', 'interv', 'commentaire', 'pos', 'Sommes'];
+        $header1 = ['Agences', 'Services', 'Date', 'numor', 'interv', 'commentaire', 'pos', 'Sommes'];
 
-            // Commencer le tableau HTML
-            $html = '<h2 style="text-align:center">HISTORIQUE DE REPARATION</h2>';
+        // Commencer le tableau HTML
+        $html = '<h2 style="text-align:center">HISTORIQUE DE REPARATION</h2>';
 
-            $html .= '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
+        $html .= '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
-            $html .= '<thead>';
+        $html .= '<thead>';
+        $html .= '<tr>';
+        foreach ($header1 as $key => $value) {
+            if ($key === 0) {
+                $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
+            } elseif ($key === 1) {
+                $html .= '<th style="width: 40px; font-weight: bold;" >' . $value . '</th>';
+            } elseif ($key === 2) {
+                $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+            } elseif ($key === 3) {
+                $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+            } elseif ($key === 4) {
+                $html .= '<th style="width: 30px; font-weight: bold;" >' . $value . '</th>';
+            } elseif ($key === 5) {
+                $html .= '<th style="width: 250px; font-weight: bold;" >' . $value . '</th>';
+            } elseif ($key === 6) {
+                $html .= '<th style="width: 30px; font-weight: bold; text-align: center;" >' . $value . '</th>';
+            } elseif ($key === 7) {
+                $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
+            } else {
+                $html .= '<th >' . $value . '</th>';
+            }
+        }
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+        // Ajouter les lignes du tableau
+        foreach ($historiqueMateriel as $row) {
             $html .= '<tr>';
-            foreach ($header1 as $key => $value) {
-                if ($key === 0) {
-                    $html .= '<th style="width: 40px; font-weight: 900;" >' . $value . '</th>';
-                } elseif ($key === 1) {
-                    $html .= '<th style="width: 40px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 2) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 3) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 4) {
-                    $html .= '<th style="width: 30px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 5) {
-                    $html .= '<th style="width: 250px; font-weight: bold;" >' . $value . '</th>';
-                } elseif ($key === 6) {
-                    $html .= '<th style="width: 30px; font-weight: bold; text-align: center;" >' . $value . '</th>';
-                } elseif ($key === 7) {
-                    $html .= '<th style="width: 50px; font-weight: bold;" >' . $value . '</th>';
-                
-                 } else {
-                    $html .= '<th >' . $value . '</th>';
+            foreach ($row as $key => $cell) {
+
+                if ($key === 'codeagence') {
+                    $html .= '<td style="width: 40px"  >' . $cell . '</td>';
+                } elseif ($key === 'codeservice') {
+                    $html .= '<td style="width: 40px"  >' . $cell . '</td>';
+                } elseif ($key === 'datedebut') {
+                    $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                } elseif ($key === 'numeroor') {
+                    $html .= '<td style="width: 50px"  >' . $cell . '</td>';
+                } elseif ($key === 'numerointervention') {
+                    $html .= '<td style="width: 30px"  >' . $cell . '</td>';
+                } elseif ($key === 'commentaire') {
+                    $html .= '<td style="width: 250px; text-align: left;"  >' . $cell . '</td>';
+                } elseif ($key === 'somme') {
+                    $html .= '<td style="width: 50px; text-align: right;"  >' . $cell . '</td>';
+                } elseif ($key === 'pos') {
+                    $html .= '<td style="width: 30px; text-align: right; text-align: center;"  >' . $cell . '</td>';
                 }
+                // else {
+                //     $html .= '<td  >' . $cell . '</td>';
+                // }
             }
             $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-            // Ajouter les lignes du tableau
-            foreach ($historiqueMateriel as $row) {
-                $html .= '<tr>';
-                foreach ($row as $key => $cell) {
-              
-                    if ($key === 'codeagence') {
-                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'codeservice') {
-                        $html .= '<td style="width: 40px"  >' . $cell . '</td>';
-                    } elseif ($key === 'datedebut') {
-                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numeroor') {
-                        $html .= '<td style="width: 50px"  >' . $cell . '</td>';
-                    } elseif ($key === 'numerointervention') {
-                        $html .= '<td style="width: 30px"  >' . $cell . '</td>';
-                    } elseif ($key === 'commentaire') {
-                        $html .= '<td style="width: 250px; text-align: left;"  >' . $cell . '</td>';
-                    } elseif ($key === 'somme') {
-                        $html .= '<td style="width: 50px; text-align: right;"  >' . $cell . '</td>';
-                     }elseif ($key === 'pos') {
-                        $html .= '<td style="width: 30px; text-align: right; text-align: center;"  >' . $cell . '</td>';
-                     } 
-                    // else {
-                    //     $html .= '<td  >' . $cell . '</td>';
-                    // }
-                }
-                $html .= '</tr>';
-            }
-            $html .= '</tbody>';
-            $html .= '</table>';
+        }
+        $html .= '</tbody>';
+        $html .= '</table>';
 
 
-            $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->writeHTML($html, true, false, true, false, '');
     }
 }

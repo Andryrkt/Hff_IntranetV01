@@ -13,7 +13,6 @@ use App\Entity\tik\TkiPlanning;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
-use App\Repository\tik\TkiPlanningRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +27,9 @@ class DetailTikController extends Controller
      */
     public function detail($id, Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         /** 
          * @var DemandeSupportInformatique $supportInfo l'entité du DemandeSupportInformatique correspondant à l'id $id
          */

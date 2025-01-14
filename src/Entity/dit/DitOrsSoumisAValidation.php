@@ -491,13 +491,6 @@ class DitOrsSoumisAValidation
     }
 
 
-
-    // Comparaison des objets par leur numero d'intervention
-    public function estEgalParNumero(DitOrsSoumisAValidation $autre)
-    {
-        return $this->numeroItv === $autre->numeroItv;
-    }
-
     /**
      * Get the value of statut
      */
@@ -516,5 +509,12 @@ class DitOrsSoumisAValidation
         $this->statut = $statut;
 
         return $this;
+    }
+
+
+    // Comparaison des objets par leur numero d'intervention
+    public function estEgalParNumero(DitOrsSoumisAValidation $autre)
+    {
+        return $this->numeroItv === $autre->numeroItv;
     }
 }

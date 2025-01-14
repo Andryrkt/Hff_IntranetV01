@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\autres\MontantPdfService;
-use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
+use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class DitDevisSoumisAValidationController extends Controller
@@ -35,7 +35,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
-        $this->generePdfDevis = new GenererPdfDevisSoumisAValidataion();
+        $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
         $this->historiqueOperation = new HistoriqueOperationDEVService;
     }
 
@@ -64,31 +64,10 @@ class DitDevisSoumisAValidationController extends Controller
                 
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
                 //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
-                $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
+                $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
-
-
-                $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
-
-                $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
-
-                $infoPrix = [];
-                foreach ($infoPieces as $infoPiece) {
-                    $infoPrix[] = [
-                        'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
-                        'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
-                        'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '-',
-                        'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
-                        'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '-',
-                        'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
-                        'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '-',
-                        'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
-                    ];
-                }
-
-
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
@@ -128,12 +107,10 @@ class DitDevisSoumisAValidationController extends Controller
             $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
         }
 
-        /**
-         * TODO: $servDebiteur <> ''
-         */
+        
         return  [
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
-            'conditionServDebiteurvide' => $servDebiteur === '', // le service debiteur n'est pas vide
+            'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
             'conditionStatutDevis' => $statutDevis === 'Soumis à validation' // le statut de la dernière version de devis est-il Soumis à validation 
         ];
@@ -145,7 +122,7 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return array
      */
-    public function InformationDevisInformix(string $numDevis, bool $estCeForfaitVente): array
+    public function InformationDevisInformix(string $numDevis, bool $estCeForfaitVente)
     {
         $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis, $estCeForfaitVente);
         if (empty($devisSoumisAValidationInformix)) {
@@ -169,9 +146,9 @@ class DitDevisSoumisAValidationController extends Controller
         $nbrItvTypeCes = $this->ditDevisSoumisAValidationModel->recupNbrItvTypeCes($numDevis);
 
         if((int)$nbrItvTypeVte[0]['nb_vte'] > 0 && (int)$nbrItvTypeCes[0]['nb_ces'] > 0 ) {
-            return false;
+            return false; //Devis forfait
         } else {
-            return true;
+            return true; //Devis vente
         }
     }
 
@@ -206,31 +183,60 @@ class DitDevisSoumisAValidationController extends Controller
         $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
 
         $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
-
         $infoPrix = [];
-        foreach ($infoPieces as $infoPiece) {
+        if(!empty($infoPiece)){
+            foreach ($infoPieces as $infoPiece) {
+                $infoPrix[] = [
+                    'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? '-') : '-',
+                    'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
+                    'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
+                    'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '0.00',
+                    'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
+                    'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '0.00',
+                    'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
+                    'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '0.00',
+                    'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+                ];
+            }
+        } else {
             $infoPrix[] = [
-                'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
-                'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
-                'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '-',
-                'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
-                'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '-',
-                'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
-                'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '-',
-                'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+                'lineType' => '-',
+                'cst' => '-',
+                'refPiece' => '-',
+                'pu1' => '0.00',
+                'datePu1' => '-',
+                'pu2' => '0.00',
+                'datePu2' => '-',
+                'pu3' => '0.00',
+                'datePu3' => '-',
             ];
         }
+
         return $infoPrix;
     }
-    private function creationPdf( $devisSoumisValidataion, GenererPdfDevisSoumisAValidataion $generePdfDevis)
+
+    /**
+     * Methode pour la création du pdf
+     *
+     * @param array $devisSoumisValidataion
+     * @param GenererPdfDevisSoumisAValidation $generePdfDevis
+     * @return void
+     */
+    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis)
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
-        
-        $OrSoumisAvant = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis);
-        // dump($OrSoumisAvant);
-        $OrSoumisAvantMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis);
+
+        $devisSoumisAvant = [
+            'devisSoumisAvantVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'VTE'),
+            'devisSoumisAvantMaxVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'VTE'),
+            'devisSoumisAvantCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'CES'),
+            'devisSoumisAvantMaxCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'CES'),
+            'vteData' => $this->filtreLesDonnerVte($devisSoumisValidataion),
+            'cesData' => $this->filtreLesDonnerCes($devisSoumisValidataion)
+        ];
+
         // dump($OrSoumisAvantMax);
-        $montantPdf = $this->montantPdfService->montantpdf($devisSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
+        $montantPdf = $this->montantPdfService->montantpdf($devisSoumisAvant);
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($numDevis);
 
@@ -239,10 +245,25 @@ class DitDevisSoumisAValidationController extends Controller
         if($this->estCeVenteOuForfait($numDevis)) { // vente
             $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
         } else { // sinom forfait
-
+            $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
         }
     }
     
+    private function filtreLesDonnerVte(array $devisSoumisValidataion): array
+    {
+        return array_filter($devisSoumisValidataion, function ($item) {
+            return $item->getNatureOperation() === 'VTE';
+        });
+    }
+
+    private function filtreLesDonnerCes(array $devisSoumisValidataion): array
+    {
+        return array_filter($devisSoumisValidataion, function ($item) {
+            return $item->getNatureOperation() === 'CES';
+        });
+    }
+
+
     private function quelqueAffichage($numDevis)
     {
         return [
@@ -304,9 +325,15 @@ class DitDevisSoumisAValidationController extends Controller
 
 
 
-    private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit): array
+    private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $estCeVenteOuForfait): array
     {
         $devisSoumisValidataion = []; // Tableau pour stocker les objets
+        $infoDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        if($estCeVenteOuForfait) {
+            $venteOuForfait = 'DEVIS VENTE';
+        } else {
+            $venteOuForfait = 'DEVIS FORFAIT';
+        }
 
         foreach ($devisSoumisAValidationInformix as $devisSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
@@ -328,6 +355,11 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setLibellelItv($devisSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
                 ->setNatureOperation($devisSoumis['nature_opreration'])
+                ->setMontantForfait($devisSoumis['montant_forfait'])
+                ->setNomClient($infoDit->getNomClient())
+                ->setNumeroClient($infoDit->getNumeroClient())
+                ->setObjetDit($infoDit->getObjetDemande())
+                ->setDevisVenteOuForfait($venteOuForfait)
             ;
 
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
