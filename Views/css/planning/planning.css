@@ -45,26 +45,26 @@
     color: white; /* Texte blanc pour correspondre au style "table-dark" */
     padding: 10px;
   }
-  
+ 
   /* Onglet */
-.onglet-head {
+/* .onglet-head {
   border-bottom: 0;
-}
+} */
 
-.onglet-badge {
+/* .onglet-badge {
   position: absolute; /* Positionnement absolu par rapport au bouton */
-  top: 3px; /* Ajustez pour le coin supérieur */
-  right: 5px; /* Ajustez pour le coin droit */
-  background-color: red;
+  /* top: 3px; Ajustez pour le coin supérieur */
+  /* right: 5px; Ajustez pour le coin droit */
+  /* background-color: red;
   color: white;
   font-size: 12px;
   font-weight: bold;
-  padding: 2px 5px 0;
-  border-radius: 50%; /* Donne une apparence circulaire */
-  pointer-events: none; /* Empêche l'interaction avec le badge */
-}
+  padding: 2px 5px 0; */
+  /* border-radius: 50%; Donne une apparence circulaire */
+  /* pointer-events: none; Empêche l'interaction avec le badge */
+/* } */ 
 
-.onglet-head button {
+/* .onglet-head button {
   position: relative;
   font-size: 1rem !important;
   font-weight: bold;
@@ -86,4 +86,4 @@
   opacity: 1;
   z-index: 1;
   color: #ffc107 !important;
-}
+} */
