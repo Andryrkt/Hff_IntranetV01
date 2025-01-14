@@ -301,10 +301,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Gestionnaire pour la fermeture du modal
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
+    const tableBodyOR = document.getElementById("commandesTableBodyOR");
+    const tableBodyLign = document.getElementById("commandesTableBodyLign");
     const Ornum = document.getElementById("orIntv");
     const planningTableHead = document.getElementById("planningTableHead");
 
     tableBody.innerHTML = ""; // Vider le tableau
+    tableBodyLign.innerHTML = "";
+    tableBodyOR.innerHTML = "";
     Ornum.innerHTML = "";
     planningTableHead.innerHTML = "";
   });
@@ -557,7 +561,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
                     </tr>`;
-              tableBody.innerHTML += row;
+              // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
               let row1 = `<tr>
                         <td>${detail.numor}</td> 
@@ -568,10 +572,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${(detail.qteOrlig === "") ? "" : parseInt(detail.qteOrlig)}</td> 
-                        <td>${(detail.qteAllLig === "") ? "" : parseInt(detail.qteAllLig)}</td> 
-                        <td>${(detail.qteRlqLig === "") ? "" : parseInt(detail.qteRlqLig	)}</td> 
-                        <td>${(detail.qteLivLig === "") ? "" : parseInt(detail.qteLivLig	)}</td> 
+                        <td>${(isNaN(detail.qteORlig)) ? "" : parseInt(detail.qteORlig)}</td> 
+                        <td>${(isNaN(detail.qtealllig)) ? "" : parseInt(detail.qtealllig)}</td> 
+                        <td>${(isNaN(detail.qterlqlig )) ? "" : parseInt(detail.qterlqlig)}</td> 
+                        <td>${(isNaN(detail.qtelivlig )) ? "" : parseInt(detail.qtelivlig)}</td> 
                         <td >${statut}</td> 
                         <td>${dateStatut}</td> 
                         <td>${dateEtaIvato}</td> 

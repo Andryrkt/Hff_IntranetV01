@@ -588,10 +588,10 @@ public function recuperationPartiel($numcde, $refp){
 
  public function recupeQteCISlig($numOr,$itv,$refp){
    $statement = "SELECT 
-                  nlig_qtecde as qteorlig,
-                  nlig_qtealiv as qtealllig,
-                  (nlig_qtecde - nlig_qtealiv - nlig_qteliv) as qterlqlig,
-                  nlig_qteliv as qteliv
+                  nvl(nlig_qtecde,0) as qteorlig,
+                  nvl(nlig_qtealiv,0) as qtealllig,
+                  nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0)as qtereliquatlig,
+                  nvl(nlig_qteliv,0) as qtelivlig
                   
                   from sav_lor 
 
@@ -612,6 +612,7 @@ public function recuperationPartiel($numcde, $refp){
                   and trunc(slor_nogrp/100) = '".$itv."'
                   and slor_refp ='".$refp."'
         ";
+        // dump($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
