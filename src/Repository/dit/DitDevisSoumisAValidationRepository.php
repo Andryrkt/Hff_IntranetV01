@@ -119,6 +119,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
                 ])
+                ->setMaxResults(1)
                 ->getQuery()
                 ->getSingleScalarResult();
 

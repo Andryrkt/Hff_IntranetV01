@@ -27,7 +27,9 @@ class DocSoumisDwApi extends Controller
     private function recupConstrainte(string $numDit): array
     {
         $constraitDevis = self::$em->getRepository(DemandeIntervention::class)->recupConstraitSoumission($numDit);
+
         $statutDevis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findStatutDevis($numDit);
+
 
         if(empty($constraitDevis)){
             $client = "";
