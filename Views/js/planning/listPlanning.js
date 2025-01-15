@@ -572,10 +572,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${(isNaN(detail.qteORlig)) ? "" : parseInt(detail.qteORlig)}</td> 
-                        <td>${(isNaN(detail.qtealllig)) ? "" : parseInt(detail.qtealllig)}</td> 
-                        <td>${(isNaN(detail.qterlqlig )) ? "" : parseInt(detail.qterlqlig)}</td> 
-                        <td>${(isNaN(detail.qtelivlig )) ? "" : parseInt(detail.qtelivlig)}</td> 
+                        <td>${(isNaN(detail.qteORlig) || detail.qteORlig === "") ? "" : parseInt(detail.qteORlig)}</td> 
+                        <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
+                        <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
+                        <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
                         <td >${statut}</td> 
                         <td>${dateStatut}</td> 
                         <td>${dateEtaIvato}</td> 
