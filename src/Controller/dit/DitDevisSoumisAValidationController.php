@@ -197,6 +197,7 @@ class DitDevisSoumisAValidationController extends Controller
         $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
 
         $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
+        
         $infoPrix = [];
         if(!empty($infoPiece)){
             foreach ($infoPieces as $infoPiece) {
