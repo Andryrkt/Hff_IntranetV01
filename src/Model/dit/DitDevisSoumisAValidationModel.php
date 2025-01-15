@@ -61,111 +61,65 @@ class DitDevisSoumisAValidationModel extends Model
     }
 
     /**
-     * 
+     * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
      * @param string $numDevis
      * @param boolean $estCeForfait
      * @return void
      */
-    public function recupDevisSoumisValidation(string $numDevis, bool $estCeForfait)
+    public function recupDevisSoumisValidation(string $numDevis)
     {
+        $condition = [
+            'numDevis' => $numDevis
+        ];
         
-        $statement = "SELECT
-            sitv_succdeb as SERV_DEBITEUR,  
-            slor_numor,
-            sitv_datdeb,
-            trim(seor_refdem) as NUMERO_DIT,
-            sitv_interv as NUMERO_ITV,
-            trim(sitv_comment) as LIBELLE_ITV,
-            trim(sitv_natop) as nature_opreration,
-            count(slor_constp) as NOMBRE_LIGNE,
-            Sum(
-                CASE
-                    WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
-                END 
-                * 
-                CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) as MONTANT_ITV,
+        $statement = RequestSoumisValidation::buildQuery($condition);
 
-            Sum(
-                CASE
-                    WHEN slor_typlig = 'P' AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
-                    THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
-                END 
-                * 
-                CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) AS MONTANT_PIECE,
+        $result = $this->connect->executeQuery($statement);
 
-            Sum(
-                CASE
-                    WHEN slor_typlig = 'M' THEN slor_qterea
-                END * CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) AS MONTANT_MO,
+        $data = $this->connect->fetchResults($result);
 
-            Sum(
-                CASE
-                    WHEN slor_constp in (".GlobalVariablesService::get('achat_locaux').") THEN (
-                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                    )
-                END * CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) AS MONTANT_ACHATS_LOCAUX,
+        return $this->convertirEnUtf8($data);
+    }
 
-            Sum(
-                CASE
-                    WHEN slor_constp <> 'ZST'
-                    AND slor_constp like 'Z%' THEN slor_qterea
-                END * CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) AS MONTANT_DIVERS,
 
-            Sum(
-                CASE
-                    WHEN 
-                        slor_typlig = 'P'
-                        AND slor_constp in (".GlobalVariablesService::get('lub').")
-                    THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
-                END 
-                * 
-                CASE
-                    WHEN slor_typlig = 'P' THEN slor_pxnreel
-                    WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
-                END
-            ) AS MONTANT_LUBRIFIANTS,
-            sum(
-                CASE
-                    WHEN slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE'
-                    THEN nvl((slor_pxnreel * slor_qtewait), 0)
-                END
-            ) AS MONTANT_FORFAIT
+    /**
+     * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
+     *
+     * @param string $numDevis
+     * @param boolean $estCeForfait
+     * @return void
+     */
+    public function recupDevisSoumisValidationForfait(string $numDevis)
+    {
+        $condition = [
+            'numDevis' => $numDevis
+        ];
+        
+        $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
-            from sav_eor, sav_lor, sav_itv
-            WHERE seor_numor = slor_numor
-            AND seor_serv = 'DEV'
-            AND sitv_numor = slor_numor
-            AND sitv_interv = slor_nogrp / 100
-            AND seor_soc = 'HF'
-            AND slor_soc=seor_soc
-            AND sitv_soc=seor_soc
-            AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-            AND seor_numor = '".$numDevis."'
-            group by 1, 2, 3, 4, 5, 6, 7
-            order by slor_numor, sitv_interv
-        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+
+    /**
+     * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
+     *
+     * @param string $numDevis
+     * @param boolean $estCeForfait
+     * @return void
+     */
+    public function recupDevisSoumisValidationVte(string $numDevis)
+    {
+        $condition = [
+            'numDevis' => $numDevis
+        ];
+        
+        $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
         $result = $this->connect->executeQuery($statement);
 

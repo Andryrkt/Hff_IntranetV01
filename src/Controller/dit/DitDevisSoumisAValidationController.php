@@ -60,17 +60,19 @@ class DitDevisSoumisAValidationController extends Controller
             $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository);
             if ($this->blockageSoumission($blockages, $numDevis)) {
                 
-                $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis, $this->estCeVenteOuForfait($numDevis));
+                $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
+                $devisSoumisAValidationInformixForfait = $this->InformationDevisInformixForfait($numDevis);
                 
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
                 //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
+                $devisSoumisValidataionForfait = $this->devisSoumisValidataionForfait($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
+                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $devisSoumisValidataionForfait);
                 $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
                 $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
@@ -122,15 +124,27 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return array
      */
-    public function InformationDevisInformix(string $numDevis, bool $estCeForfaitVente)
+    public function InformationDevisInformix(string $numDevis)
     {
-        $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis, $estCeForfaitVente);
+        $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
         if (empty($devisSoumisAValidationInformix)) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . l'information de la devis n'est pas recupérer";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } else {
             return $devisSoumisAValidationInformix;
         }
+    }
+
+    /**
+     * Methode qui récupère les données du devis dans la base de donnée informix pour seulement devis forfait
+     *
+     * @param string $numDevis
+     * @return array
+     */
+    public function InformationDevisInformixForfait(string $numDevis)
+    {
+        $devisSoumisAValidationInformixForfait = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidationForfait($numDevis);
+        return empty($devisSoumisAValidationInformixForfait) ? [] : $devisSoumisAValidationInformixForfait;
     }
 
     /**
@@ -222,17 +236,19 @@ class DitDevisSoumisAValidationController extends Controller
      * @param GenererPdfDevisSoumisAValidation $generePdfDevis
      * @return void
      */
-    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis)
+    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, array $devisSoumisValidataionForfait)
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
         $devisSoumisAvant = [
-            'devisSoumisAvantVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'VTE'),
-            'devisSoumisAvantMaxVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'VTE'),
+            'devisSoumisAvantForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
+            'devisSoumisAvantMaxForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
+            'devisSoumisAvantVte' => $this->rectifierVenteAvantAvecForfait($numDevis),
+            'devisSoumisAvantMaxVte' => $this->rectifierVenteAvantMaxAvecForfait($numDevis),
             'devisSoumisAvantCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'CES'),
             'devisSoumisAvantMaxCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'CES'),
             'vteData' => $this->filtreLesDonnerVte($devisSoumisValidataion),
-            'cesData' => $this->filtreLesDonnerCes($devisSoumisValidataion)
+            'cesData' => $this->filtreLesDonnerCes($devisSoumisValidataion),
         ];
 
         // dump($OrSoumisAvantMax);
@@ -248,7 +264,42 @@ class DitDevisSoumisAValidationController extends Controller
             $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
         }
     }
+
+    private function rectifierVenteAvantAvecForfait(string $numDevis) {
+        $devisSoumisAvantVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'VTE');
     
+        if ($devisSoumisAvantVtes !== null) {
+            foreach ($devisSoumisAvantVtes as $key => $value) { // Utilisez $key pour garder une référence à l'index
+                if ($value->getMontantForfait() !== null) {
+                    $value->setMontantItv($value->getMontantITV() - $value->getMontantForfait());
+                }
+                
+            }
+            foreach ($devisSoumisAvantVtes as $key => $value) { // Utilisez $key pour garder une référence à l'index
+                if ($value->getMontantITV() === 0.00 && $value->getMontantForfait() !== null) {
+                    unset($devisSoumisAvantVtes[$key]); // Supprimez l'élément du tableau
+                }
+            }
+            // Réindexer le tableau après suppression
+            $devisSoumisAvantVtes = array_values($devisSoumisAvantVtes);
+        }
+        return $devisSoumisAvantVtes;
+    }
+    
+
+    private function rectifierVenteAvantMaxAvecForfait(string $numDevis) {
+        $devisSoumisAvantMaxVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'VTE');
+
+            // if($devisSoumisAvantMaxVtes !== null){
+            //     foreach ($devisSoumisAvantMaxVtes as $value) {
+            //         if($value->getMontantForfait() !== null) {
+            //             $value->setMontantItv($value->getMontantITV() - $value->getMontantForfait());
+            //         }
+            //     }
+            // }
+        return $devisSoumisAvantMaxVtes;
+    }
+
     private function filtreLesDonnerVte(array $devisSoumisValidataion): array
     {
         return array_filter($devisSoumisValidataion, function ($item) {
@@ -327,6 +378,7 @@ class DitDevisSoumisAValidationController extends Controller
 
     private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $estCeVenteOuForfait): array
     {
+        
         $devisSoumisValidataion = []; // Tableau pour stocker les objets
         $infoDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         if($estCeVenteOuForfait) {
@@ -354,7 +406,7 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
                 ->setLibellelItv($devisSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
-                ->setNatureOperation($devisSoumis['nature_opreration'])
+                ->setNatureOperation($devisSoumis['nature_operation'])
                 ->setMontantForfait($devisSoumis['montant_forfait'])
                 ->setNomClient($infoDit->getNomClient())
                 ->setNumeroClient($infoDit->getNumeroClient())
@@ -366,6 +418,44 @@ class DitDevisSoumisAValidationController extends Controller
         }
 
         return $devisSoumisValidataion;
+    }
+
+
+    private function devisSoumisValidataionForfait($devisSoumisAValidationInformixForfait, $numeroVersionMax, $numDevis, $numDit): array
+    {
+        $devisSoumisValidataionForfait = []; // Tableau pour stocker les objets
+        $infoDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+
+        foreach ($devisSoumisAValidationInformixForfait as $devisSoumis) {
+            // Instancier une nouvelle entité pour chaque entrée du tableau
+            $ditInsertionDevis = new DitDevisSoumisAValidation();
+
+            $ditInsertionDevis
+                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ->setDateHeureSoumission(new \DateTime())
+                ->setNumeroDevis($numDevis)
+                ->setNumeroDit($numDit)
+                ->setNumeroItv($devisSoumis['numero_itv'])
+                ->setNombreLigneItv($devisSoumis['nombre_ligne'])
+                ->setMontantItv($devisSoumis['montant_itv'])
+                ->setMontantPiece($devisSoumis['montant_piece'])
+                ->setMontantMo($devisSoumis['montant_mo'])
+                ->setMontantAchatLocaux($devisSoumis['montant_achats_locaux'])
+                ->setMontantFraisDivers($devisSoumis['montant_divers'])
+                ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
+                ->setLibellelItv($devisSoumis['libelle_itv'])
+                ->setStatut('Soumis à validation')
+                ->setNatureOperation($devisSoumis['nature_operation'])
+                ->setMontantForfait($devisSoumis['montant_forfait'])
+                ->setNomClient($infoDit->getNomClient())
+                ->setNumeroClient($infoDit->getNumeroClient())
+                ->setObjetDit($infoDit->getObjetDemande())
+            ;
+
+            $devisSoumisValidataionForfait[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
+        }
+
+        return $devisSoumisValidataionForfait;
     }
 
     private function autoIncrement($num)

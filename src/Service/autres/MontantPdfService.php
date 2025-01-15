@@ -10,7 +10,7 @@ class MontantPdfService
     public function montantpdf($devisSoumisAvant)
     {
         $recapAvantApresVte =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
-        $recapAvantApresForfait =$this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
+        $recapAvantApresForfait =$this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxForfait'], $devisSoumisAvant['devisSoumisAvantForfait']);
         $recapAvantApresCes =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxCes'], $devisSoumisAvant['devisSoumisAvantCes']);
         
         return [
@@ -122,6 +122,7 @@ class MontantPdfService
         return $recapAvantApres;
     }
 
+   
     // Fonction pour trouver les numéros d'intervention manquants
     private function objetsManquantsParNumero($tableauA, $tableauB) {
     $manquants = [];

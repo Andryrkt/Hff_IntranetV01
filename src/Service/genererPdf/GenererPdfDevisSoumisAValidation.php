@@ -152,6 +152,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $this->generateSeparateLine($pdf);
 
         // ================================================================================================
+        //FORFAIT CLIENT
         $this->addTitle($pdf, 'FORFAIT client');
         $pdf->setFont('helvetica', '', 12);
         $headerConfig1 = [
@@ -181,6 +182,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $this->addTitle($pdf, 'VENTE client');
         $pdf->setFont('helvetica', '', 12);
         // ================================================================================================
+        //VENTE
         $headerConfig2 = [
             ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
             ['key' => 'libelleItv', 'label' => 'Libellé ITV', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
@@ -244,9 +246,9 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->Ln(10, true);
         $headerConfig5 = [
             ['key' => 'colonne1', 'label' => 'MONTANT DEVIS AVANT', 'width' => 105, 'style' => 'font-weight: bold; text-align: center'],
-            ['key' => 'colonne2', 'label' => '', 'width' => 65, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'colonne2', 'label' => '', 'width' => 65, 'style' => 'font-weight: bold; text-align: left;'],
             ['key' => 'colonne3', 'label' => 'MONTANT DEVIS APRES', 'width' => 105, 'style' => 'font-weight: bold; text-align: center;'],
-            ['key' => 'colonne4', 'label' => '', 'width' => 65, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'colonne4', 'label' => '', 'width' => 65, 'style' => 'font-weight: bold; text-align: left;'],
             ['key' => 'colonne5', 'label' => 'MARGE', 'width' => 90, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'colonne6', 'label' => 'MARGE', 'width' => 90, 'style' => 'font-weight: bold; text-align: right;'],
         ];
@@ -256,15 +258,15 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $montantTotalCesAvant = $montantPdf['totalAvantApresCes']['mttTotalAv'];
         $montantTotalCesApres = $montantPdf['totalAvantApresCes']['mttTotalAp'];
         
-        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : ($montantTotalForfaitVenteAvant/$montantTotalCesAvant)*100;
-        $margeApres = ($montantTotalForfaitVenteApres/$montantTotalCesApres)*100;
+        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : ($montantTotalCesAvant/$montantTotalForfaitVenteAvant)*100;
+        $margeApres = $montantTotalCesApres === 0.00 ? 0.00 : ($montantTotalCesApres/$montantTotalForfaitVenteApres)*100;
 
         $footer = [
             'colonne1' => 'TOTAL FORFAIT + VENTE :', 
             'colonne2' =>  number_format((float) $montantTotalForfaitVenteAvant, 2, ',', '.'), 
             'colonne3' => 'TOTAL FORFAIT + VENTE :', 
             'colonne4' =>  number_format((float) $montantTotalForfaitVenteApres, 2, ',', '.'),
-            'colonne5' => 'AV : ' . $margeAvant . ' %', 
+            'colonne5' => 'AV : ' .  number_format((float) $margeAvant, 2, ',', '.'). ' %', 
             'colonne6' => 'AP : ' . number_format((float) $margeApres, 2, ',', '.'). '%'
         ];
 
