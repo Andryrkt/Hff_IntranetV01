@@ -14,7 +14,7 @@ class AcSoumis
 
     private $dateBc;
 
-    private $descriptionBc;
+    private $descriptionBc = '';
 
     private $numeroDevis;
 
@@ -26,11 +26,17 @@ class AcSoumis
     
     private $numeroDit;
 
-    private $emailContactHff;
+    private $emailContactHff = '';
 
-    private $telephoneContactHff;
+    private $telephoneContactHff = '';
 
     private $pieceJoint01;
+
+    private $dateExpirationDevis;
+
+    private $devise = '';
+
+    private $numeroVersion = 0;
 
     /** ===================================================================================================================
      * 
@@ -315,6 +321,66 @@ class AcSoumis
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateExpirationDevis
+     */ 
+    public function getDateExpirationDevis()
+    {
+        return $this->dateExpirationDevis;
+    }
+
+    /**
+     * Set the value of dateExpirationDevis
+     *
+     * @return  self
+     */ 
+    public function setDateExpirationDevis($dateExpirationDevis)
+    {
+        $this->dateExpirationDevis = $dateExpirationDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of devise
+     */ 
+    public function getDevise()
+    {
+        return $this->devise;
+    }
+
+    /**
+     * Set the value of devise
+     *
+     * @return  self
+     */ 
+    public function setDevise($devise)
+    {
+        $this->devise = $devise;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }

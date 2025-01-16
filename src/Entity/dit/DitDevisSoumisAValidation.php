@@ -125,6 +125,11 @@ class DitDevisSoumisAValidation
      */
     private string $devisVenteOuForfait;
 
+    /**
+     * @ORM\Column(type="string", length="10")
+     */
+    private ?string $devise = '';
+
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -635,11 +640,33 @@ class DitDevisSoumisAValidation
         return $this;
     }
     
+    
+
+    
+
+    /**
+     * Get the value of devise
+     */ 
+    public function getDevise()
+    {
+        return $this->devise;
+    }
+
+    /**
+     * Set the value of devise
+     *
+     * @return  self
+     */ 
+    public function setDevise($devise)
+    {
+        $this->devise = $devise;
+
+        return $this;
+    }
+
     // Comparaison des objets par leur numero d'intervention
     public function estEgalParNumero(DitDevisSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
     }
-
-    
 }

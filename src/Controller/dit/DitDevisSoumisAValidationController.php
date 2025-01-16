@@ -451,6 +451,7 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setNumeroClient($infoDit->getNumeroClient())
                 ->setObjetDit($infoDit->getObjetDemande())
                 ->setDevisVenteOuForfait($venteOuForfait)
+                ->setDevise($devisSoumis['devise'])
             ;
 
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau

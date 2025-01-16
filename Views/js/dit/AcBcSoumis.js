@@ -1,7 +1,5 @@
 function initializeFileHandlers(idSuffix) {
-  const fileInput = document.querySelector(
-    `#dit_devis_soumis_a_validation_pieceJoint0${idSuffix}`
-  );
+  const fileInput = document.querySelector(`#ac_soumis_pieceJoint0${idSuffix}`);
   const fileName = document.querySelector(`.file-name-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);

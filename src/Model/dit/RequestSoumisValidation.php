@@ -131,6 +131,7 @@ class RequestSoumisValidation
             "sitv_interv as NUMERO_ITV",
             "trim(sitv_comment) as LIBELLE_ITV",
             "trim(sitv_natop) as NATURE_OPERATION",
+            "trim(seor_devise) as devise",
             "count(slor_constp) as NOMBRE_LIGNE",
             self::getMontantITV(),
             self::getMontantPiece(),

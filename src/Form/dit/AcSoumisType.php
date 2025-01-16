@@ -2,6 +2,7 @@
 
 namespace App\Form\dit;
 
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\AcSoumis;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,6 +17,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class AcSoumisType extends AbstractType
 {
+    use FormatageTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -68,7 +71,7 @@ class AcSoumisType extends AbstractType
             ->add('dateCreation', TextType::class,
             [
                 'label' => 'Date',
-                'data' => '',
+                'data' => $options['data']->getDateCreation()->format('d/m/Y'),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -76,7 +79,7 @@ class AcSoumisType extends AbstractType
             ->add('numeroDevis', TextType::class,
             [
                 'label' => 'N° devis',
-                'data' => '',
+                'data' => $options['data']->getNumeroDevis(),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -84,7 +87,7 @@ class AcSoumisType extends AbstractType
             ->add('statutDevis', TextType::class,
             [
                 'label' => 'Statut devis',
-                'data' => '',
+                'data' => $options['data']->getStatutDevis(),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -92,7 +95,7 @@ class AcSoumisType extends AbstractType
             ->add('numeroDit', TextType::class,
             [
                 'label' => 'N° DIT',
-                'data' => '',
+                'data' => $options['data']->getNumeroDit(),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -100,7 +103,7 @@ class AcSoumisType extends AbstractType
             ->add('dateDevis', TextType::class,
             [
                 'label' => 'Date devis',
-                'data' => '',
+                'data' => $options['data']->getDateDevis()->format('d/m/Y'),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -108,7 +111,7 @@ class AcSoumisType extends AbstractType
             ->add('montantDevis', TextType::class,
             [
                 'label' => 'Montant devis',
-                'data' => '',
+                'data' => $this->formatNumber($options['data']->getMontantDevis()),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -116,7 +119,7 @@ class AcSoumisType extends AbstractType
             ->add('emailContactHff', TextType::class,
             [
                 'label' => 'Adresse email contact HFF',
-                'data' => '',
+                'data' => $options['data']->getEmailContactHff(),
                 'attr' => [
                     'disabled' => true
                 ]
@@ -124,7 +127,7 @@ class AcSoumisType extends AbstractType
             ->add('telephoneContactHff', TextType::class,
             [
                 'label' => 'N° téléphone contact HFF',
-                'data' => '',
+                'data' => $options['data']->getTelephoneContactHff(),
                 'attr' => [
                     'disabled' => true
                 ]

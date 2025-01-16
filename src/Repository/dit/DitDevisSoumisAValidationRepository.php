@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityRepository;
 class DitDevisSoumisAValidationRepository extends EntityRepository
 {
 
+
     public function findDernierStatutDevis($numDevis)
 {
     $queryBuilder = $this->createQueryBuilder('dev');
@@ -184,4 +185,47 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         }
     }
 
+    /**
+     * Methode qui recupère tous les information du dernière devis soumis 
+     *
+     * @param string $numDit
+     * @return void
+     */
+    public function findInfoDevis(string $numDit)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        try {
+            $numeroVersionMax = $this->createQueryBuilder('dsv')
+                ->select('MAX(dsv.numeroVersion)')
+                ->where('dsv.numeroDit = :numDit')
+                ->setParameter('numDit', $numDit)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return ''; // Retourner une chaîne vide si aucun numeroVersionMax n'est trouvé
+        }
+
+        if ($numeroVersionMax === null) {
+            return ''; // Si le numeroVersionMax est null, retourner une chaîne vide
+        }
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        try {
+            $devis = $this->createQueryBuilder('dsv')
+                ->where('dsv.numeroDit = :numDit')
+                ->andWhere('dsv.numeroVersion = :numeroVersionMax')
+                ->andWhere('dsv.natureOperation = :natureOperation')
+                ->setParameters([
+                    'numeroVersionMax' => $numeroVersionMax,
+                    'numDit' => $numDit,
+                    'natureOperation' => 'VTE'
+                ])
+                ->getQuery()
+                ->getResult();
+
+            return $devis;
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return ''; // Retourner une chaîne vide si aucun statut n'est trouvé
+        }
+    }
 }

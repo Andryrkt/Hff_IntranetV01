@@ -52,7 +52,7 @@ class BcSoumis
     private $dateBc;
 
     /**
-     * @ORM\Column(type="date", name="dateBc")
+     * @ORM\Column(type="date", name="dateDevis")
      */
     private $dateDevis;
 

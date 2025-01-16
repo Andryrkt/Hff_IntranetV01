@@ -32,3 +32,6 @@ EXEC sp_rename 'demande_intervention.devis_valide',
 
 ALTER TABLE demande_intervention
 ALTER COLUMN statut_devis VARCHAR(50)
+
+ALTER TABLE devis_soumis_a_validation 
+ADD devise VARCHAR(10)
