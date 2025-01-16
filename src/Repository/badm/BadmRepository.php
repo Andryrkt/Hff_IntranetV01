@@ -21,6 +21,7 @@ class BadmRepository extends EntityRepository
         $queryBuilder->where($queryBuilder->expr()->notIn('s.id', ':excludedStatuses'))
             ->setParameter('excludedStatuses', $excludedStatuses);
 
+            
             $results = $queryBuilder->getQuery()->getArrayResult();
 
             // Extraire les IDs des matériels dans un tableau simple
@@ -29,7 +30,7 @@ class BadmRepository extends EntityRepository
             return $idMateriels;
     }
 
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [])
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, array $criteria = [], bool $autoriser)
     {
         $queryBuilder = $this->createQueryBuilder('b')
             ->leftJoin('b.typeMouvement', 'tm')
@@ -38,17 +39,21 @@ class BadmRepository extends EntityRepository
 
             $this->filtredExcludeStatut($queryBuilder);
 
-            $this->filtredCondition($queryBuilder, $criteria);
+        $this->filtredCondition($queryBuilder, $criteria);
 
-            $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
+        //$this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
 
-        $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
-        
+        // $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
+
+        if(!$autoriser) {
+            $queryBuilder->andwhere('b.agenceEmetteurId IN (:agenceEmetId)');
+            $queryBuilder->setParameter('agenceEmetId', $criteria['agenceAutoriser']);
+        }
 
         $queryBuilder->orderBy('b.numBadm', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
-            ;
+        ;
 
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
@@ -130,17 +135,18 @@ class BadmRepository extends EntityRepository
     private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
     {
          //filtre selon l'agence emettteur
-         if (!empty($criteria['agenceEmetteur'])) {
+        if (!empty($criteria['agenceEmetteur'])) {
             $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
             ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
         }
 
-     //filtre selon le service emetteur
-    if (!empty($criteria['serviceEmetteur'])) {
-        $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
-        ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+        //filtre selon le service emetteur
+        if (!empty($criteria['serviceEmetteur'])) {
+            $queryBuilder->andWhere('b.serviceEmetteurId = :agServEmet')
+            ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
+        }
     }
-    }
+
     private function filtredExcludeStatut($queryBuilder)
     {
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
