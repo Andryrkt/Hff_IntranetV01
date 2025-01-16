@@ -33,7 +33,11 @@ trait DitTrait
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
             $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            if($dits->getAgence() === null) {
+                $demandeIntervention->setAgenceServiceDebiteur(null);
+            } else {
+                $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            }
             //INTERVENTION
             $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
             $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
@@ -97,8 +101,12 @@ trait DitTrait
 
         //Agence - service
         $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-        $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
-
+        if($dits->getAgence() === null) {
+            $demandeIntervention->setAgenceServiceDebiteur(null);
+        } else {
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+        }
+        
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());

@@ -58,7 +58,7 @@ class DitController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
