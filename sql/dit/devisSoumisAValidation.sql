@@ -25,3 +25,10 @@ ADD natureOperation VARCHAR(3)
 
 ALTER TABLE devis_soumis_a_validation 
 ADD devisVenteOuForfait VARCHAR(15)
+
+EXEC sp_rename 'demande_intervention.devis_valide',
+'statut_devis',
+'COLUMN';
+
+ALTER TABLE demande_intervention
+ALTER COLUMN statut_devis VARCHAR(50)

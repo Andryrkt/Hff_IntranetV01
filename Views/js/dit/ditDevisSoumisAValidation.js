@@ -120,7 +120,7 @@ configDevis.btnEnregistre.addEventListener("click", (e) => {
       Swal.fire({
         title: "Soumission!",
         text: "Veuillez de ne pas fermer l’onglet durant le traitement.",
-        icon: "success",
+        icon: "warning",
       }).then((res) => {
         // Afficher un overlay de chargement
         affichageOverlay();

@@ -10,6 +10,21 @@ class DitDevisSoumisAValidationModel extends Model
 {
     use ConversionModel;
     
+    public function recupNumeroClient(string $numDevis)
+    {
+        $statement = " SELECT seor_numcli as numero_client
+                        FROM sav_eor
+                        WHERE seor_serv = 'DEV'
+                        AND seor_numor = '".$numDevis."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupNumeroDevis($numDit)
     {
         $statement = "SELECT  seor_numor  as numDevis

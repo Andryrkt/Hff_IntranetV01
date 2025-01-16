@@ -51,14 +51,19 @@ class DitDevisSoumisAValidationController extends Controller
 
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
+        
+        $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+
             $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
-            $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository);
-            if ($this->blockageSoumission($blockages, $numDevis)) {
+            $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository, $originalName);
+            if ($this->blockageSoumission($blockages, $numDevis, $originalName)) {
                 
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
                 $devisSoumisAValidationInformixForfait = $this->InformationDevisInformixForfait($numDevis);
@@ -97,12 +102,17 @@ class DitDevisSoumisAValidationController extends Controller
      * @param DitDevisSoumisAValidationRepository $devisRepository
      * @return array
      */
-    public function ConditionDeBlockage(string $numDevis, string $numDit, DitDevisSoumisAValidationRepository $devisRepository): array
-    {   $TrouverDansDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+    public function ConditionDeBlockage(string $numDevis, string $numDit, DitDevisSoumisAValidationRepository $devisRepository, $originalName): array
+    {   
+        $TrouverDansDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        
         if ($TrouverDansDit === null) {
             $message = "Erreur avant la soumission, Impossible de soumettre le devis . . . l'information de la statut du n° DIT $numDit n'est pas récupérer";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } else {
+            $numClientIps = $this->ditDevisSoumisAValidationModel->recupNumeroClient($numDevis)[0]['numero_client'];
+            $numClientIntranet = $TrouverDansDit->getNumeroClient();
+            $numDevisNomFichier = explode('_', $originalName)[1];
             $idStatutDit = $TrouverDansDit->getIdStatutDemande()->getId();
             $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
             $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
@@ -111,12 +121,50 @@ class DitDevisSoumisAValidationController extends Controller
 
         
         return  [
+            'numClient' => $numClientIps <> $numClientIntranet, // est -ce le n° client dans IPS est different du n° client dans intranet
+            'numDevisNomFichier' => $numDevisNomFichier <> $numDevis, // le n° devis sur le nom de fichier est différent du n°devis IPS
+            'nomDefichierModifier' => strpos($originalName, $numDevis) !== 0, // le nom de fichie est-il modifier
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
             'conditionStatutDevis' => $statutDevis === 'Soumis à validation' // le statut de la dernière version de devis est-il Soumis à validation 
         ];
     }
+
+    /**
+     * METHODE pour les condition de blockage de soumision devis
+     *
+     * @param array $blockages
+     * @param string $numDevis
+     * @return boolean
+     */
+    public function blockageSoumission(array $blockages, string $numDevis, $originalName): bool
+    {
+        if($blockages['nomDefichierModifier']){
+            $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un devis";
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($blockages['numDevisNomFichier']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le fichier uploadé car il ne correspond pas au numéro au devis N° { $numDevis} ";
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($blockages['numClient']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le client car le client sur la DIT est différent de celui du devis ";
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($blockages['conditionDitIpsDiffDitSqlServ']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le numero DIT dans IPS ne correspond pas à la DIT";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionServDebiteurvide']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le service débiteur n'est pas vide";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionStatutDit']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } elseif ($blockages['conditionStatutDevis']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } else {
+            return true;
+        }
+    } 
 
     /**
      * Methode qui récupère les données du devis dans la base de donnée informix
@@ -166,31 +214,7 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    /**
-     * METHODE pour les condition de blockage de soumision devis
-     *
-     * @param array $blockages
-     * @param string $numDevis
-     * @return boolean
-     */
-    public function blockageSoumission(array $blockages, string $numDevis): bool
-    {
-        if ($blockages['conditionDitIpsDiffDitSqlServ']) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le numero DIT dans IPS ne correspond pas à la DIT";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } elseif ($blockages['conditionServDebiteurvide']) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le service débiteur n'est pas vide";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } elseif ($blockages['conditionStatutDit']) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } elseif ($blockages['conditionStatutDevis']) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } else {
-            return true;
-        }
-    } 
+    
 
     private function variationPrixRefPiece(string $numDevis): array
     {
@@ -486,6 +510,14 @@ class DitDevisSoumisAValidationController extends Controller
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
             ->setDateHeureSoumission(new DateTime());
+    }
+
+    private function editDevisRattacherDit(string $numDit, string $numDevis)
+    {
+        $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit->setNumeroDevisRattache($numDevis);
+        $dit->setStatutDevis('Soumis à validation');
+        self::$em->flush();
     }
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numDevis, string $numeroVersion)
