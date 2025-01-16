@@ -231,19 +231,19 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupInfoPourChaquePiece(array $infoPieceClient)
     {
         $statement = " SELECT FIRST 3 
-                    slor_typlig as type_ligne,
-                    trim(slor_constp) as CST, 
-                    trim(slor_refp) as RefPiece, 
-                    slor_datel as dateLigne, 
-                    slor_pxnreel as prixVente 
+                    slor_constp as CST, 
+                    slor_refp as RefPiece, 
+                    slor_datel as dateLigne,
+                    slor_pxnreel as prixVente,
+                    seor_serv 
                     FROM sav_lor 
+                    inner join sav_eor 
+                    on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='HF'
                     WHERE slor_refp = '".$infoPieceClient['ref_piece'] ."'
-                    and slor_constp = '".$infoPieceClient['constructeur']."'
-                    and slor_numor = '".$infoPieceClient['num_devis']."'
-                    and slor_natop = 'VTE' 
-                    and slor_pos in ('CP','FC') 
-                    and slor_numcli = '".$infoPieceClient['num_client']."'
                     and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                    and seor_serv = 'SAV'
+                    and slor_pos in('CP','FC') 
+                    and slor_numcli = '".$infoPieceClient['num_client']."'
         ";
 
         $result = $this->connect->executeQuery($statement);

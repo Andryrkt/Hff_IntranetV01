@@ -23,15 +23,17 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         $detailsBloc = [
             'Date soumission' => $devisSoumis->getDateHeureSoumission()->format('d/m/Y'),
-            'Numéro DIT' => $devisSoumis->getNumeroDit(),
+            'Numéro du client' => $devisSoumis->getNumeroClient() . ' - ' . $devisSoumis->getNomClient(),
+            'Numéro DIT' => $devisSoumis->getNumeroDit() . ' - ' . $devisSoumis->getObjetDit(),
             'Numéro DEVIS' => $devisSoumis->getNumeroDevis(),
             'Version à valider' => $devisSoumis->getNumeroVersion(),
             'Sortie magasin' => $quelqueaffichage['sortieMagasin'] ?? 'NON',
             'Achat locaux' => $quelqueaffichage['achatLocaux'] ?? 'NON',
         ];
 
-        $this->addDetailsBlock($pdf, $detailsBloc);
+        $this->addDetailsBlock($pdf, $detailsBloc, 'helvetica', 45, 50, 6, 2, 5);
 
+        $this->generateSeparateLine($pdf);
 
         // ================================================================================================
         $headerConfig1 = [
@@ -86,7 +88,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
          * tableau de variation de prix des références de pièces
          *=====================================================*/
         //Titre
-        $this->addTitle($pdf, 'Variation de prix des références de pièces');
+        $this->addTitle($pdf, 'Variation de prix de pièce par référence');
         // Configuration des entêtes du tableau
         $headerConfig = [
             ['key' => 'cst', 'label' => 'CST', 'width' => 40, 'style' => 'text-align: center; font-weight: bold;'],
@@ -208,7 +210,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $this->addSummaryDetails($pdf, $details2);
 
         //===============================================================================================================
-        $this->addTitle($pdf, 'VARIATION des prix de vente des références (3 dernières ventes facturées de plus anciennes au plus récentes)');
+        $this->addTitle($pdf, 'Variation de prix de vente par référence(3 dernières ventes facturées de plus anciennes au plus récentes)');
         $pdf->setFont('helvetica', '', 12);
         $headerConfig3 = [
             ['key' => 'lineType', 'label' => 'Type de ligne', 'width' => 60, 'style' => 'font-weight: bold;'],
@@ -255,11 +257,13 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         $montantTotalForfaitVenteAvant = $montantPdf['totalAvantApresForfait']['mttTotalAv'] + $montantPdf['totalAvantApresVte']['mttTotalAv'];
         $montantTotalForfaitVenteApres = $montantPdf['totalAvantApresForfait']['mttTotalAp'] + $montantPdf['totalAvantApresVte']['mttTotalAp'];
+        $montantTotalForfaitAvant = $montantPdf['totalAvantApresForfait']['mttTotalAv'];
+        $montantTotalForfaitApres = $montantPdf['totalAvantApresForfait']['mttTotalAp'];
         $montantTotalCesAvant = $montantPdf['totalAvantApresCes']['mttTotalAv'];
         $montantTotalCesApres = $montantPdf['totalAvantApresCes']['mttTotalAp'];
         
-        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : ($montantTotalCesAvant/$montantTotalForfaitVenteAvant)*100;
-        $margeApres = $montantTotalCesApres === 0.00 ? 0.00 : ($montantTotalCesApres/$montantTotalForfaitVenteApres)*100;
+        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : (($montantTotalForfaitAvant - $montantTotalCesAvant)/$montantTotalCesAvant)*100;
+        $margeApres = $montantTotalCesApres === 0.00 ? 0.00 : (($montantTotalForfaitApres - $montantTotalCesApres)/$montantTotalCesApres)*100;
 
         $footer = [
             'colonne1' => 'TOTAL FORFAIT + VENTE :', 
@@ -270,7 +274,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
             'colonne6' => 'AP : ' . number_format((float) $margeApres, 2, ',', '.'). '%'
         ];
 
-        $html5 = $generator->generateTable($headerConfig5, [], $footer);
+        $html5 = $generator->generateTable($headerConfig5, [], $footer, true);
         $pdf->writeHTML($html5, true, false, true, false, '');
 
         $this->generateSeparateLine($pdf);

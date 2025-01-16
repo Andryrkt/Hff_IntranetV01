@@ -32,6 +32,6 @@ class HeaderPdf extends TCPDF
         // Ajouter une ligne après l'en-tête
         $this->SetLineWidth(0.2); // Épaisseur de la ligne
         $this->SetDrawColor(0, 0, 0); // Couleur de la ligne (noir)
-        $this->Line(10, 10, 200, 10); // Coordonnées X1, Y1, X2, Y2
+        $this->Line(10, 8, 200, 8); // Coordonnées X1, Y1, X2, Y2
     }
 }

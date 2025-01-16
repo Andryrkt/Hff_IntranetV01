@@ -4,11 +4,11 @@ namespace App\Service\genererPdf;
 
 class PdfTableGenerator
 {
-    public function generateTable(array $headerConfig, array $rows, array $totals)
+    public function generateTable(array $headerConfig, array $rows, array $totals, bool $expre = false)
     {
         $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px;">';
         $html .= $this->generateHeader($headerConfig);
-        $html .= $this->generateBody($headerConfig, $rows);
+        $html .= $this->generateBody($headerConfig, $rows, $expre);
         $html .= $this->generateFooter($headerConfig, $totals);
         $html .= '</table>';
         return $html;
@@ -24,10 +24,27 @@ class PdfTableGenerator
         return $html;
     }
 
-    private function generateBody(array $headerConfig, array $rows)
+    private function generateBody(array $headerConfig, array $rows, bool $expre = false)
     {
         $html = '<tbody>';
+        // Vérifier si le tableau $rows est vide
+        if (empty($rows) && !$expre) {
+            $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
+            $html .= '</tbody>';
+            return $html;
+        }
         foreach ($rows as $row) {
+
+            // Vérifier si tous les montants sont égaux à 0
+            $montantsKeys = array_filter(array_keys($row), fn($key) => stripos($key, 'mtt') !== false);
+            $allMontantsZero = array_reduce($montantsKeys, fn($acc, $key) => $acc && ((float) $row[$key] === 0), true);
+
+            if ($allMontantsZero) {
+                // Afficher "N/A" si tous les montants sont égaux à 0
+                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
+                continue;
+            }
+
             $html .= '<tr>';
             foreach ($headerConfig as $config) {
                 $key = $config['key'];

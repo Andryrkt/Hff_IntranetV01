@@ -119,11 +119,9 @@ class DitDevisSoumisAValidationController extends Controller
             $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
         }
 
-        
         return  [
             'numClient' => $numClientIps <> $numClientIntranet, // est -ce le n° client dans IPS est different du n° client dans intranet
             'numDevisNomFichier' => $numDevisNomFichier <> $numDevis, // le n° devis sur le nom de fichier est différent du n°devis IPS
-            'nomDefichierModifier' => strpos($originalName, $numDevis) !== 0, // le nom de fichie est-il modifier
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
@@ -140,10 +138,7 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function blockageSoumission(array $blockages, string $numDevis, $originalName): bool
     {
-        if($blockages['nomDefichierModifier']){
-            $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un devis";
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-        } elseif ($blockages['numDevisNomFichier']) {
+        if ($blockages['numDevisNomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le fichier uploadé car il ne correspond pas au numéro au devis N° { $numDevis} ";
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         } elseif ($blockages['numClient']) {
@@ -226,28 +221,28 @@ class DitDevisSoumisAValidationController extends Controller
         if(!empty($infoPiece)){
             foreach ($infoPieces as $infoPiece) {
                 $infoPrix[] = [
-                    'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? '-') : '-',
-                    'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
-                    'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
-                    'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '0.00',
-                    'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
-                    'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '0.00',
-                    'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
-                    'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '0.00',
-                    'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+                    'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? 'N/A') : 'N/A',
+                    'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? 'N/A') : 'N/A',
+                    'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? 'N/A') : 'N/A',
+                    'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? 'N/A') : 'N/A',
+                    'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? 'N/A') : 'N/A',
+                    'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? 'N/A') : 'N/A',
+                    'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? 'N/A') : 'N/A',
+                    'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? 'N/A') : 'N/A',
+                    'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? 'N/A') : 'N/A',
                 ];
             }
         } else {
             $infoPrix[] = [
-                'lineType' => '-',
-                'cst' => '-',
-                'refPiece' => '-',
-                'pu1' => '0.00',
-                'datePu1' => '-',
-                'pu2' => '0.00',
-                'datePu2' => '-',
-                'pu3' => '0.00',
-                'datePu3' => '-',
+                'lineType' => 'N/A',
+                'cst' => 'N/A',
+                'refPiece' => 'N/A',
+                'pu1' => 'N/A',
+                'datePu1' => 'N/A',
+                'pu2' => 'N/A',
+                'datePu2' => 'N/A',
+                'pu3' => 'N/A',
+                'datePu3' => 'N/A',
             ];
         }
 
@@ -326,11 +321,29 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
     private function filtreLesDonnerVte(array $devisSoumisValidataion): array
-    {
-        return array_filter($devisSoumisValidataion, function ($item) {
-            return $item->getNatureOperation() === 'VTE';
-        });
-    }
+{
+    // Filtrer les éléments avec la nature d'opération égale à 'VTE'
+    $resultatFiltre = array_filter($devisSoumisValidataion, function ($item) {
+        return $item->getNatureOperation() === 'VTE';
+    });
+
+    // Vérifier si tous les montants des éléments filtrés sont à zéro
+    $tousMontantsZero = array_reduce($resultatFiltre, function ($acc, $item) {
+        $sommeMontants = 
+            $item->getMontantItv() + 
+            $item->getMontantPiece() + 
+            $item->getMontantMo() + 
+            $item->getMontantAchatLocaux() + 
+            $item->getMontantFraisDivers() + 
+            $item->getMontantLubrifiants();
+
+        return $acc && ($sommeMontants == 0);
+    }, true);
+
+    // Si tous les montants sont à zéro, retourner un tableau vide
+    return $tousMontantsZero ? [] : $resultatFiltre;
+}
+
 
     private function filtreLesDonnerCes(array $devisSoumisValidataion): array
     {
@@ -388,6 +401,7 @@ class DitDevisSoumisAValidationController extends Controller
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
+                $entity->setStatut('Soumis à validation');
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
