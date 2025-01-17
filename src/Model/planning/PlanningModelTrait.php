@@ -62,8 +62,9 @@ trait PlanningModelTrait
             break;
         default:
             $vtypeligne = " ";
-    }
-    return $vtypeligne;
+            break;
+      }
+      return $vtypeligne;
     }
     
     // private function sumPieces($criteria){

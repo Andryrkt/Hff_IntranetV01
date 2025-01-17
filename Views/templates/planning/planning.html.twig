@@ -9,40 +9,47 @@
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
+	<div class="sticky-header-titre">
+		<div class="container">
+			<h3 class="perso-titre">
+				Planning
+			</h3>
 
-	<div class="container">
-		<h3 class="perso-titre">
-			Planning
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-
-		{% include "/planning/_formulaire.html.twig" %}
+			{% include "/planning/_formulaire.html.twig" %}
+		</div>
 	</div>
-
-	<div
-		class="container-fluid">
+	<div class="container-fluid">
 		<!-- DEBUT tableau -->
-		{% if empty == true %}
-			<div class="container">
-				{% include "/partials/_noResultList.html.twig" %}
-			</div>
-		{% else %}
-			<div class="container">
-				<div class="mb-3">
+		<!-- Bloc fixe en haut -->
+			<div class="sticky-header-statut"> <div class="container">
+				<div class="my-3 d-flex flex-row">
+					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+						<small>TOUT AFFICHER |</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order
+						</small>
+					</div>
 
-					<i class="fa-solid fa-circle text-success"></i>
-					<small class="text-success">Tout livré |</small>
-					<i class="fa-solid fa-circle text-warning"></i>
-					<small class="text-warning">Partiellement livré |</small>
-					<i class="fa-solid fa-circle text-info"></i>
-					<small class="text-info">Partiellement dispo |</small>
-					<i class="fa-solid fa-circle text-primary"></i>
-					<small class="text-primary">Complet non livré |
-					</small>
-					<small class=" border-end border-start border-danger border-3">
-						Back Order
-					</small>
 				</div>
+
 				<div class="d-flex justify-content-between">
 					<div>
 						<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
@@ -51,95 +58,88 @@
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<table class="table rounded table-plein-ecran">
-				<thead class="table-dark">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>Agence - Service Travaux</th>
+					<th>ID</th>
+					<th>Marque</th>
+					<th>Modèle</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Casier</th>
+					{% for month in uniqueMonths %}
+						<th>{{ month.month }}
+							{{ month.year }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in preparedData %}
 					<tr>
-						<th>Agence - Service Travaux</th>
-						<th>ID</th>
-						<th>Marque</th>
-						<th>Modèle</th>
-						<th>N° Série</th>
-						<th>N° Parc</th>
-						<th>Casier</th>
+						<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
+						<td>{{ item.idmat }}</td>
+						<td>{{ item.marqueMat }}</td>
+						<td>{{ item.typemat }}</td>
+						<td>{{ item.numserie }}</td>
+						<td>{{ item.numparc }}</td>
+						<td>{{ item.casier }}</td>
 						{% for month in uniqueMonths %}
-							<th>{{ month.month }}
-								{{ month.year }}</th>
+							<td>
+								{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
+								{% if matchedDetails|length > 0 %}
+									{% for detail in matchedDetails %}
+										{% set classe = '' %}
+										{% set qteCdm = detail.details.qteCdm | default(0) * 1 %}
+										{% set qteLiv = detail.details.qteLiv | default(0) * 1 %}
+										{% set qteAll = detail.details.qteAll | default(0) * 1 %}
+										{% set back = detail.details.back | default('') %}
+
+										{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+											{# Tout livré #}
+											{% set classe = 'tout-livre bg-success text-white' %}
+										{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+											{# Partiellement livré #}
+											{% set classe = 'partiellement-livre bg-warning text-white' %}
+										{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+											{# Partiellement dispo #}
+											{% set classe = 'partiellement-dispo bg-info text-white' %}
+										{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+											{# complet non livré #}
+											{% set classe = 'complet-non-livre bg-primary text-white' %}
+										{% endif %}
+
+										{% if back != '' %}
+											{# Back Order #}
+											{% set classe = classe ~ ' back-order border-end border-start border-danger border-3' %}
+										{% endif %}
+
+										<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire }}">
+											{{ detail.details.orIntv }}
+										</a><br>
+									{% endfor %}
+								{% else %}
+									-
+								{% endif %}
+
+							</td>
 						{% endfor %}
 					</tr>
-				</thead>
-				<tbody>
-					{% for item in preparedData %}
-						<tr>
-							<td>{{ item.libsuc ~ ' - ' ~ item.libserv }}</td>
-							<td>{{ item.idmat }}</td>
-							<td>{{ item.marqueMat }}</td>
-							<td>{{ item.typemat }}</td>
-							<td>{{ item.numserie }}</td>
-							<td>{{ item.numparc }}</td>
-							<td>{{ item.casier }}</td>
-							{% for month in uniqueMonths %}
-								<td>
-									{% set matchedDetails = item.filteredMonths | filter(m => m.month == month.month and m.year == month.year) %}
-									{% if matchedDetails|length > 0 %}
-										{% for detail in matchedDetails %}
-											{% set classe = '' %}
-											{% if detail.details.qteCdm * 1 == detail.details.qteLiv * 1 and detail.details.qteCdm != '' and detail.details.qteLiv != '' %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-success text-white' %}
-												{% else %}
-													{% set classe = 'bg-success text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif detail.details.qteLiv * 1 > 0 and detail.details.qteLiv * 1 != detail.details.qteCdm * 1 and detail.details.qteCdm * 1 > (detail.details.qteLiv * 1 + detail.details.qteAll * 1) %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-warning text-white' %}
-												{% else %}
-													{% set classe = 'bg-warning  text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif detail.details.qteCdm * 1 != detail.details.qteAll * 1 and detail.details.qteLiv * 1 == 0 and detail.details.qteAll * 1 > 0 %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-info text-white' %}
-												{% else %}
-													{% set classe = 'bg-info text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% elseif (detail.details.qteCdm * 1 == detail.details.qteAll * 1 and detail.details.qteLiv * 1 < detail.details.qteCdm * 1) or (detail.details.qteAll * 1 > 0 and detail.details.qteCdm * 1 == (detail.details.qteAll * 1 + detail.details.qteLiv * 1)) %}
-												{% if detail.details.back == "" %}
-													{% set classe = 'bg-primary text-white' %}
-												{% else %}
-													{% set classe = 'bg-primary text-white border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% else %}
-												{% if detail.details.back == "" %}
-													{% set classe = '' %}
-												{% else %}
-													{% set classe = 'border-end border-start border-danger border-3' %}
-												{% endif %}
-											{% endif %}
-											<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{ detail.details.orIntv }}" data-numdit="{{ detail.details.numDit }}" data-migration="{{ detail.details.migration }}" class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover text-wrap {{ classe }}" title="{{ detail.details.commentaire}}">
-												{{ detail.details.orIntv }}
-											</a><br>
-										{% endfor %}
-									{% else %}
-										-
-									{% endif %}
-								</td>
-							{% endfor %}
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-
-		{% endif %}
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 
 	<!-- FIN tableau -->
 	{# body modal #}
 	{% include "/planning/_modal.html.twig"  %}
-	{% include "/planning/_modalCis.html.twig"  %}
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/planning/cisModal.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
 	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
+	{#<script src="/Hffintranet/Views/js/planning/main.js" type="module"></script>#}
 {% endblock %}

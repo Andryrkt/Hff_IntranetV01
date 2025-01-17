@@ -1,4 +1,4 @@
-<div class="accordion" id="accordionExample">
+<div class="accordion" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
 			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -7,7 +7,8 @@
 		</h2>
 		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 			<div class="accordion-body">
-				{{ form_start(form)}}
+				{{ form_start(form, { 'attr': { 'id': 'planning_search_form' } }) }}
+
 				<div class="row">
 
 					<div class="col-12 col-md-2">
