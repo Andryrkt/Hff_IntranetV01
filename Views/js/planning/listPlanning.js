@@ -546,8 +546,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
                         <td>${numCis}</td> 
-                        <td ${cmdColor}>${numeroCdeCis}</td> 
-                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td ${cmdColor}></td> 
+                        <td ${cmdColorRmq}></td> 
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
@@ -557,9 +557,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qteliv)}</td> 
                         <td >${statut}</td> 
                         <td>${dateStatut}</td> 
-                        <td>${dateEtaIvato}</td> 
-                        <td>${dateMagasin}</td> 
-                        <td>${message}</td> 
+                        <td></td> 
+                        <td></td> 
+                        <td></td> 
                     </tr>`;
               // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
