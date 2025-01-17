@@ -41,9 +41,9 @@ class BadmRepository extends EntityRepository
 
         $this->filtredCondition($queryBuilder, $criteria);
 
-        //$this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
+        $this->filtredAgenceServiceEmetteur($queryBuilder, $criteria);
 
-        // $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
+        $this->filtredAgenceServiceDebiteur($queryBuilder, $criteria);
 
         if(!$autoriser) {
             $queryBuilder->andwhere('b.agenceEmetteurId IN (:agenceEmetId)');
@@ -135,10 +135,10 @@ class BadmRepository extends EntityRepository
     private function filtredAgenceServiceEmetteur($queryBuilder, $criteria)
     {
          //filtre selon l'agence emettteur
-        if (!empty($criteria['agenceEmetteur'])) {
-            $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
-            ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
-        }
+        // if (!empty($criteria['agenceEmetteur'])) {
+        //     $queryBuilder->andWhere('b.agenceEmetteurId = :agEmet')
+        //     ->setParameter('agEmet',  $criteria['agenceEmetteur']->getId());
+        // }
 
         //filtre selon le service emetteur
         if (!empty($criteria['serviceEmetteur'])) {
