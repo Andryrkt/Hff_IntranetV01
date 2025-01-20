@@ -417,23 +417,21 @@ trait DitListTrait
         return $paginationData;
     }
 
-    private function dossierDit($request, $formDocDansDW)
-    {
+    // private function dossierDit($request, $formDocDansDW)
+    // {
 
-        $formDocDansDW->handleRequest($request);
+    //     $formDocDansDW->handleRequest($request);
 
-        if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-            if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
-                $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } else if ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
-                $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
-                $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
-                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            }
-        }
-    }
+    //     if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+    //         if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+    //             $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+    //         } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+    //             $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+    //         } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
+    //             $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+    //         }
+    //     } 
+    // }
 
     private function Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds): array
     {

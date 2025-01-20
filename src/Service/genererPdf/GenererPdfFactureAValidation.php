@@ -127,6 +127,8 @@ class GenererPdfFactureAValidation extends GeneratePdf
                     } elseif ($key === 'statut') {
                         if($cell === 'OK'){
                             $html .= '<td style="width: 110px; text-align: left; background-color: #008000;"  >' . $cell . '</td>';
+                        } elseif($cell === 'DIT migrée') {
+                            $html .= '<td style="width: 110px; text-align: left;"  >' . $cell . '</td>';
                         }  else {
                             $html .= '<td style="width: 110px; text-align: left; background-color: #FF0000;"  >' . $cell . '</td>';
                         }

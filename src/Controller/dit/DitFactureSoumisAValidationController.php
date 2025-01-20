@@ -66,6 +66,10 @@ class DitFactureSoumisAValidationController extends Controller
             $nbFact = $this->nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
+
+            // dump($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR());
+            // dump($nbFact === 0);
+            // dump($nbFactSqlServer > 0);
             if ($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
 
@@ -85,14 +89,15 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $this->notification($message);
             } else {
+
                 $dataForm = $form->getData();
                 $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+
                 $this->ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
 
                 $estRi = $this->conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit);
-
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
 
@@ -100,6 +105,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                     $this->notification($message);
                 } else {
+
                     /** CREATION PDF */
                     $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
 
@@ -169,6 +175,7 @@ class DitFactureSoumisAValidationController extends Controller
         if (empty($riSoumis)) {
             $estRi = true;
         } else {
+
             for ($i = 0; $i < count($infoFacture); $i++) {
                 if (!in_array($infoFacture[$i]['numeroitv'], $riSoumis)) {
                     $estRi = true;
