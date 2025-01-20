@@ -235,6 +235,7 @@ class DitDevisSoumisAValidationModel extends Model
                     trim(slor_refp) as RefPiece, 
                     slor_datel as dateLigne,
                     slor_pxnreel as prixVente,
+                    slor_typlig as type_ligne,
                     seor_serv 
                     FROM sav_lor
                     inner join sav_eor 

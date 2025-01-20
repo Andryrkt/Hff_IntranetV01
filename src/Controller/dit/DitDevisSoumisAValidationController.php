@@ -215,40 +215,30 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
 
-        //$infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
-        $infoPieces = [];
-        foreach ($infoPieceClients as $value) {
-            $infoPieces[] = $this->ditDevisSoumisAValidationModel->recupInfoPourChaquePiece($value);
-        }
+        $infoPieces = array_map([$this->ditDevisSoumisAValidationModel, 'recupInfoPourChaquePiece'], $infoPieceClients);
+        // $infoPieces = [];
+        // foreach ($infoPieceClients as $value) {
+        //     $infoPieces[] = $this->ditDevisSoumisAValidationModel->recupInfoPourChaquePiece($value);
+        // }
 
         $infoPrix = [];
         if(!empty($infoPieces)){
             foreach ($infoPieces as $infoPiece) {
-                $infoPrix[] = [
-                    'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? '') : '',
-                    'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '') : '',
-                    'refPiece' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '') : '',
-                    'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '') : '',
-                    'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '') : '',
-                    'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '') : '',
-                    'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '') : '',
-                    'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '') : '',
-                    'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '') : '',
-                ];
+                if(!empty($infoPiece)) {
+                    $infoPrix[] = [
+                        'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? '-') : '-',
+                        'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
+                        'refPieces' => isset($infoPiece[0]) ? ($infoPiece[0]['refpiece'] ?? '-') : '-',
+                        'pu1' => isset($infoPiece[0]) ? ($infoPiece[0]['prixvente'] ?? '-') : '-',
+                        'datePu1' => isset($infoPiece[0]) ? ($infoPiece[0]['dateligne'] ?? '-') : '-',
+                        'pu2' => isset($infoPiece[1]) ? ($infoPiece[1]['prixvente'] ?? '-') : '-',
+                        'datePu2' => isset($infoPiece[1]) ? ($infoPiece[1]['dateligne'] ?? '-') : '-',
+                        'pu3' => isset($infoPiece[2]) ? ($infoPiece[2]['prixvente'] ?? '-') : '-',
+                        'datePu3' => isset($infoPiece[2]) ? ($infoPiece[2]['dateligne'] ?? '-') : '-',
+                    ];
+                }
             }
-        } else {
-            $infoPrix[] = [
-                'lineType' => '',
-                'cst' => '',
-                'refPiece' => '',
-                'pu1' => '',
-                'datePu1' => '',
-                'pu2' => '',
-                'datePu2' => '',
-                'pu3' => '',
-                'datePu3' => '',
-            ];
-        }
+        } 
 
         return $infoPrix;
     }

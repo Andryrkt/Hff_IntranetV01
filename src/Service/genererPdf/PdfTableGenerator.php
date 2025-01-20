@@ -36,14 +36,12 @@ class PdfTableGenerator
     {
         $html = '<tbody>';
         // Vérifier si le tableau $rows est vide
-
-
     
-                if (empty($rows) && !$expre) {
-                    $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
-                    $html .= '</tbody>';
-                    return $html;
-                }
+        if (empty($rows) && !$expre) {
+            $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
+            $html .= '</tbody>';
+            return $html;
+        }
 
         
         foreach ($rows as $row) {
