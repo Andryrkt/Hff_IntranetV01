@@ -128,7 +128,7 @@ class DitDuplicationController extends Controller
 
             //ENVOYER le PDF DANS DOXCUWARE
             if ($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92" || $dits->getAgence()->getCodeAgence() === "50") {
-                $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+                $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
 
             $this->redirectToRoute("dit_index");

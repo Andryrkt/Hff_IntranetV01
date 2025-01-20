@@ -23,7 +23,11 @@ class PlanningApi extends Controller
      */
     public function serviceDebiteur($agenceId)
     {
-        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+        if ($agenceId == 100) {
+            $serviceDebiteur = [];
+        } else {
+            $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+        }
 
         header("Content-type:application/json");
 

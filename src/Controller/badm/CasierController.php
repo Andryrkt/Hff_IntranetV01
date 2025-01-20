@@ -15,6 +15,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
 use App\Service\genererPdf\GenererPdfCasier;
+use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,7 +26,13 @@ class CasierController extends Controller
     use Transformation;
     use ConversionTrait;
     use FormatageTrait;
+    private $historiqueOperation;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationCASService;
+    }
 
     /**
      * @Route("/nouveauCasier", name="casier_nouveau")
@@ -51,13 +58,13 @@ class CasierController extends Controller
             if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
 
-                $this->historiqueOperationService->enregistrerCAS('-', 5, 'Erreur', $message);
+                $this->historiqueOperation->enregistrer('-', 5, false, $message);
 
                 $this->alertRedirection($message);
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
 
-                $this->historiqueOperationService->enregistrerCAS('-', 5, 'Erreur', $message);
+                $this->historiqueOperation->enregistrer('-', 5, false, $message);
 
                 $this->alertRedirection($message);
             } else {
@@ -145,14 +152,12 @@ class CasierController extends Controller
             /** CREATION PDF */
             $genererPdfCasier = new GenererPdfCasier();
             $genererPdfCasier->genererPdfCasier($generPdfCasier);
-            $genererPdfCasier->copyInterneToDOXCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
+            $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
 
             self::$em->persist($casier);
             self::$em->flush();
 
-            $this->historiqueOperationService->enregistrerCAS($NumCAS, 5, 'Succès');
-
-            $this->redirectToRoute('listeTemporaire_affichageListeCasier');
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $NumCAS, 'listeTemporaire_affichageListeCasier', true);
         }
 
         $this->logUserVisit('casiser_formulaireCasier'); // historisation du page visité par l'utilisateur
@@ -190,9 +195,6 @@ class CasierController extends Controller
             'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
         ];
     }
-
-
-
 
     private function alertRedirection(string $message, string $chemin = "/Hffintranet/nouveauCasier")
     {

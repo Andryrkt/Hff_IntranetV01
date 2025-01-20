@@ -102,7 +102,7 @@ class BadmDupliController extends Controller
                 /** CREATION PDF */
                 $createPdf = new GenererPdfBadm();
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
-                $createPdf->copyInterneToDOXCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
+                $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
                 //RECUPERATION de la dernière NumeroDemandeIntervention 
                 $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);

@@ -11,6 +11,7 @@ use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,7 +20,13 @@ class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
+    private $historiqueOperation;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDITService;
+    }
 
     /**
      * @Route("/dit/new", name="dit_new")
@@ -62,7 +69,7 @@ class DitController extends Controller
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
             //récupération des historique de materiel (informix)
             $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
-            
+
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
@@ -76,12 +83,9 @@ class DitController extends Controller
             self::$em->flush();
 
             //ENVOYER le PDF DANS DOXCUWARE
-            $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+            $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
 
-            $this->historiqueOperationService->enregistrerDIT($pdfDemandeInterventions->getNumeroDemandeIntervention(), 5, 'Succès');
-
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("dit_index");
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $pdfDemandeInterventions->getNumeroDemandeIntervention(), 'dit_index', true);
         }
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
@@ -111,11 +115,7 @@ class DitController extends Controller
         if (!$this->autorisationApp($user)) {
             $message = "vous n'avez pas l'autorisation";
 
-            $this->historiqueOperationService->enregistrerDIT('-', 5, 'Erreur', $message);
-
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-            $this->redirectToRoute("profil_acceuil");
-            exit();
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'profil_acceuil');
         }
     }
 }

@@ -1,0 +1,48 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/contactAgenceAte/new.css">
+{% endblock %}
+
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<h2 class="perso-titre">
+						Formulaire d'ajout contact agence ate
+					</h2>
+
+					<a href="{{path("contact_agence_ate_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ form_row(form.agence)}}
+							{{ form_row(form.matricule)}}
+
+						</div>
+						<div class="col-12 col-md-6">
+							{{ form_row(form.nom)}}
+							{{ form_row(form.email)}}
+						</div>
+					</div>
+
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+	{% endblock %}
+
+	{% block javascript %}
+		<script type="module" src="/Hffintranet/Views/js/admin/utilisateur/contactAgenceAte.js"></script>
+	{% endblock %}

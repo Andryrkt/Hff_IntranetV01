@@ -4,19 +4,25 @@ namespace App\Controller\dit;
 
 use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\User;
+use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\dit\DitDevisSoumisAValidationType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
-use App\Service\genererPdf\GenererPdfDevisSoumisAValidataion;
+use App\Service\autres\MontantPdfService;
+use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
+use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class DitDevisSoumisAValidationController extends Controller
 {
-
     private $ditDevisSoumisAValidation;
     private $ditDevisSoumisAValidationModel;
+    private $montantPdfService;
+    private $generePdfDevis;
+    private $historiqueOperation;
 
     public function __construct()
     {
@@ -25,7 +31,10 @@ class DitDevisSoumisAValidationController extends Controller
 
         // Initialisation des propriétés
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
-        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
+        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
+        $this->montantPdfService = new MontantPdfService();
+        $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
+        $this->historiqueOperation = new HistoriqueOperationDEVService;
     }
 
     /**
@@ -35,52 +44,50 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function insertionDevis(Request $request, $numDit)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $numDevis = $this->numeroDevis($numDit);
-        $ditDevisSoumisAValidation = $this->initialistaion($numDit, $numDevis);
+        $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
 
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
+
             $numeroVersionMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findNumeroVersionMax($numDevis);
             $devisSoumisAValidationInformix = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidation($numDevis);
             if (empty($devisSoumisAValidationInformix)) {
-                $message = "Echec lors de la soumission, l'information de la devis n'est pas recupérer";
+                $message = "Erreur lors de la soumission, veuillez réessayer . . . l'information de la devis n'est pas recupérer";
 
-                $this->historiqueOperationService->enregistrerDEV('-', 1, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             }
 
             $conditionDitIpsDiffDitSqlServ = $devisSoumisAValidationInformix[0]['numero_dit'] <> $numDit;
+
             $conditionServDebiteurvide = $devisSoumisAValidationInformix[0]['serv_debiteur'] <> '';
 
             if ($conditionDitIpsDiffDitSqlServ) {
-                $message = "Echec lors de la soumission, le numero DIT dans IPS ne correspond pas à la DIT";
-
-                $this->historiqueOperationService->enregistrerDEV('-', 1, 'Erreur', $message);
-
-                $this->notification($message);
+                $message = "Erreur lors de la soumission, veuillez réessayer . . . le numero DIT dans IPS ne correspond pas à la DIT";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } elseif ($conditionServDebiteurvide) {
-                $message = "Echec lors de la soumission, le service débiteur n'est pas vide";
-
-                $this->historiqueOperationService->enregistrerDEV('-', 1, 'Erreur', $message);
-
-                $this->notification($message);
+                $message = "Erreur lors de la soumission, veuillez réessayer . . . le service débiteur n'est pas vide";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } else {
+
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
 
-                $fileName = $this->enregistrementFichier($form);
-                $this->evoieDansDw($fileName); // copier le fichier dans docuware
+                /** CREATION , FUSION, ENVOIE DW du PDF */
+                $this->creationPdf($devisSoumisValidataion, $this->ditDevisSoumisAValidationModel, $this->generePdfDevis);
+                $fileName = $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
+                $this->generePdfDevis->copyToDWDevisSoumis($fileName); // copier le fichier dans docuware
+                // $this->historique($fileName); //remplir la table historique
 
-                $this->historiqueOperationService->enregistrerDEV($fileName, 1, "Succès");
-
-                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Le devis a été soumis avec succès']);
-                $this->redirectToRoute("dit_index");
+                $message = 'Le devis a été soumis avec succès';
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
             }
         }
 
@@ -89,19 +96,70 @@ class DitDevisSoumisAValidationController extends Controller
         ]);
     }
 
-    private function notification($message)
+
+    private function creationPdf($devisSoumisValidataion, $ditDevisSoumisAValidationModel, GenererPdfDevisSoumisAValidation $generePdfDevis)
     {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-        $this->redirectToRoute("dit_index");
-        exit();
+        $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
+
+        $OrSoumisAvant = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis);
+        // dump($OrSoumisAvant);
+        $OrSoumisAvantMax = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis);
+        // dump($OrSoumisAvantMax);
+        $montantPdf = $this->montantPdfService->montantpdf($devisSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
+        // dd($montantPdf);
+        $quelqueaffichage = $this->quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis);
+
+        $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
 
-    private function envoieDonnerDansBd($devisSoumisValidataion)
+    private function quelqueAffichage($ditDevisSoumisAValidationModel, $numDevis)
+    {
+        return [
+            "numDevis" => $numDevis,
+            "sortieMagasin" => $this->estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis),
+            "achatLocaux" => $this->estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis)
+        ];
+    }
+
+    private function estCeSortieMagasin($ditDevisSoumisAValidationModel, $numDevis): bool
+    {
+        $nbSotrieMagasin = $ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+        if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
+            $sortieMagasin = 'OUI';
+        } else {
+            $sortieMagasin = 'NON';
+        }
+
+        return $sortieMagasin;
+    }
+
+    private function estCeAchatLocaux($ditDevisSoumisAValidationModel, $numDevis): bool
+    {
+        $nbAchatLocaux = $ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
+        if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
+            $achatLocaux = 'OUI';
+        } else {
+            $achatLocaux = 'NON';
+        }
+
+        return $achatLocaux;
+    }
+
+    private function nomUtilisateur($em)
+    {
+        $userId = $this->sessionService->get('user_id', []);
+        $user = $em->getRepository(User::class)->find($userId);
+        return [
+            'nomUtilisateur' => $user->getNomUtilisateur(),
+            'mailUtilisateur' => $user->getMail()
+        ];
+    }
+
+    private function envoieDonnerDansBd(array $devisSoumisValidataion)
     {
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
-                // Persist l'entité et l'historique
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
@@ -113,13 +171,9 @@ class DitDevisSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-    private function evoieDansDw($fileName)
-    {
-        $generePdfCde = new GenererPdfDevisSoumisAValidataion();
-        $generePdfCde->copyToDWDevisSoumis($fileName);
-    }
 
-    private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit)
+
+    private function devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit): array
     {
         $devisSoumisValidataion = []; // Tableau pour stocker les objets
 
@@ -162,30 +216,27 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $numeroDevis = $this->ditDevisSoumisAValidationModel->recupNumeroDevis($numDit);
         if (empty($numeroDevis)) {
-            $message = "Echec , le numero de devis n'existe pas";
-            $this->notification($message);
+            $message = "Echec , ce DIT n'a pas de numéro devis";
+            $this->historiqueOperation->sendNotificationCreation($message, $numeroDevis, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }
     }
 
-    private function initialistaion(string $numDit, string $numDevis): DitDevisSoumisAValidation
+    private function initialistaion(DitDevisSoumisAValidation $ditDevisSoumisAValidation, string $numDit, string $numDevis)
     {
-        $this->ditDevisSoumisAValidation
+        return $ditDevisSoumisAValidation
             ->setNumeroDit($numDit)
             ->setNumeroDevis($numDevis)
             ->setDateHeureSoumission(new DateTime());
-        return $this->ditDevisSoumisAValidation;
     }
-    private function enregistrementFichier($form)
+
+    private function enregistrementEtFusionFichier(FormInterface $form, string $numDevis, string $numeroVersion)
     {
-        $file = $form->get('pieceJoint01')->getData();
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dev';
+        $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
         $fileUploader = new FileUploaderService($chemin);
-        if ($file) {
-            $prefix = 'dev_';
-            $fileName = $fileUploader->upload($file, $prefix);
-        }
+        $prefix = 'devis_ctrl';
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, false, $numeroVersion);
 
         return $fileName;
     }

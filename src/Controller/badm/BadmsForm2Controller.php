@@ -12,6 +12,7 @@ use App\Entity\admin\badm\TypeMouvement;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
 use App\Service\genererPdf\GenererPdfBadm;
+use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,6 +20,13 @@ class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationBADMService;
+    }
 
     /**
      * @Route("/badm-form2", name="badms_newForm2")
@@ -63,27 +71,19 @@ class BadmsForm2Controller extends Controller
             if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
                 $message = 'ce matériel est déjà en PARC';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                 $message = 'le choix du type devrait être Changement de Casier';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } elseif ($idTypeMouvement === 2 && $conditionAgenceServices) {
                 $message = 'le choix du type devrait être Changement de Casier';
 
-                $this->historiqueOperationService->enregistrerBADM('-', 5, 'Erreur', $message);
-
-                $this->notification($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             } else {
 
                 $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
@@ -122,12 +122,9 @@ class BadmsForm2Controller extends Controller
                 //envoie des pièce jointe dans une dossier et le fusionner
                 $this->envoiePieceJoint($form, $badm, $this->fusionPdf);
                 //copy du fichier fusionner dan sdocuware
-                $createPdf->copyInterneToDOXCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
+                $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
-                $this->historiqueOperationService->enregistrerBADM($badm->getNumBadm(), 5, 'Succès');
-
-                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
-                $this->redirectToRoute("badmListe_AffichageListeBadm");
+                $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrer', $badm->getNumBadm(), 'badmListe_AffichageListeBadm', true);
             }
         }
 

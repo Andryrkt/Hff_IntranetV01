@@ -15,18 +15,53 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     private $userRepository;
     private $typeOperationRepository;
     private $typeDocumentRepository;
-    private $sessionService;
+    protected $sessionService;
+    private $typeDocumentId;
 
-    public function __construct()
+    /** 
+     * Constructeur pour l'historique des opérations de document par type
+     * 
+     * @param int $typeDocumentId ID du type de document
+     *  - 1 : DIT - Demande d'intervention
+     *  - 2 : OR - Ordre de réparation
+     *  - 3 : FAC - Facture
+     *  - 4 : RI - Rapport d'intervention
+     *  - 5 : TIK - Ticketing (Demande de support informatique)
+     *  - 6 : DA - Demande d'approvisionnement
+     *  - 7 : DOM - Ordre de mission
+     *  - 8 : BADM - Mouvement matériel
+     *  - 9 : CAS - Casier
+     *  - 10 : CDE - Commande
+     *  - 11 : DEV - Devis
+     *  - 12 : BC - Bon de commande
+     */
+    public function __construct(int $typeDocumentId)
     {
         $this->em                      = Controller::getEntity();
         $this->userRepository          = $this->em->getRepository(User::class);
         $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
         $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
         $this->sessionService = new SessionManagerService();
+        $this->typeDocumentId = $typeDocumentId;
     }
 
-    public function enregistrer(string $numeroDocument, int $typeOperationId, int $typeDocumentId, string $statutOperation, ?string $libelleOperation = null): void
+    /** 
+     * Méthode pour enregistrer l'historique de l'opération
+     * 
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
+     *  - 1 : SOUMISSION
+     *  - 2 : VALIDATION
+     *  - 3 : MODIFICATION
+     *  - 4 : SUPPRESSION
+     *  - 5 : CREATION
+     *  - 6 : CLOTURE
+     * @param bool $succes statut de l'opération, valeur possible:
+     *  - true : Succès de l'opération
+     *  - false : Echec de l'opération (avec erreur)
+     * @param string $libelleOperation libellé de l'opération
+     */
+    public function enregistrer(string $numeroDocument, int $typeOperationId, bool $statutOperation, ?string $libelleOperation = null): void
     {
         $historique    = new HistoriqueOperationDocument();
         $utilisateurId = $this->sessionService->get('user_id');
@@ -34,8 +69,8 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
             ->setNumeroDocument($numeroDocument)
             ->setUtilisateur($this->userRepository->find($utilisateurId)->getNomUtilisateur())
             ->setIdTypeOperation($this->typeOperationRepository->find($typeOperationId))
-            ->setIdTypeDocument($this->typeDocumentRepository->find($typeDocumentId))
-            ->setStatutOperation($statutOperation)
+            ->setIdTypeDocument($this->typeDocumentRepository->find($this->typeDocumentId))
+            ->setStatutOperation($statutOperation ? 'Succès' : 'Echec')
             ->setLibelleOperation($libelleOperation)
         ;
 
@@ -44,234 +79,115 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->em->flush();
     }
 
+
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document DIT: DEMANDE D'INTERVENTION
-     * 
-     * @param string $numeroDocument numéro du document
      * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     *  - 1 : SOUMISSION
+     *  - 2 : VALIDATION
+     *  - 3 : MODIFICATION
+     *  - 4 : SUPPRESSION
+     *  - 5 : CREATION
+     *  - 6 : CLOTURE
      */
-    public function enregistrerDIT(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    private function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 1, $statutOperation, $libelleOperation);
+        $this->sessionService->set('notification', [
+            'type'    => $success ? 'success' : 'danger',
+            'message' => $message,
+        ]);
+        $this->enregistrer($numeroDocument, $typeOperationId, $success, $message);
+
+        header("Location: " . Controller::getGenerator()->generate($routeName));
+        exit();
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document OR: ORDRE DE REPARATION
+     * Méthode pour envoyer une notification et enregistrer l'historique de la SOUMISSION dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la soumission, valeurs possibles:
+     *  - true : Succès de la soumission
+     *  - false : Echec de la soumission (valeur par défaut)
      */
-    public function enregistrerOR(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationSoumission(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 2, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 1, $success);
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document FAC: FACTURE
+     * Méthode pour envoyer une notification et enregistrer l'historique de la VALIDATION dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la validation, valeurs possibles:
+     *  - true : Succès de la validation
+     *  - false : Echec de la validation (valeur par défaut)
      */
-    public function enregistrerFAC(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationValidation(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 3, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 2, $success);
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document RI: RAPPORT INTERVENTION
+     * Méthode pour envoyer une notification et enregistrer l'historique de la MODIFICATION dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la modification, valeurs possibles:
+     *  - true : Succès de la modification
+     *  - false : Echec de la modification (valeur par défaut)
      */
-    public function enregistrerRI(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationModification(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 4, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 3, $success);
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document TIK: DEMANDE DE SUPPORT INFORMATIQUE
+     * Méthode pour envoyer une notification et enregistrer l'historique de la SUPPRESSION dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la suppression, valeurs possibles:
+     *  - true : Succès de la suppression
+     *  - false : Echec de la suppression (valeur par défaut)
      */
-    public function enregistrerTIK(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationSuppression(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 5, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 4, $success);
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document DA: DEMANDE APPROVISIONNEMENT
+     * Méthode pour envoyer une notification et enregistrer l'historique de la CREATION dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la création, valeurs possibles:
+     *  - true : Succès de la création
+     *  - false : Echec de la création (valeur par défaut)
      */
-    public function enregistrerDA(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationCreation(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 6, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 5, $success);
     }
 
     /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document DOM: DEMANDE ORDRE DE MISSION
+     * Méthode pour envoyer une notification et enregistrer l'historique de la CLOTURE dU document
      * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
+     * @param string $message message pour la notification
+     * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
+     * @param string $routeName nom de la route pour la redirection
+     * @param bool $success statut de la clôture, valeurs possibles:
+     *  - true : Succès de la clôture
+     *  - false : Echec de la clôture (valeur par défaut)
      */
-    public function enregistrerDOM(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
+    public function sendNotificationCloture(string $message, string $numeroDocument, string $routeName, bool $success = false)
     {
-        $this->enregistrer($numeroDocument, $typeOperationId, 7, $statutOperation, $libelleOperation);
-    }
-
-    /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document BADM: MOUVEMENT MATERIEL BADM
-     * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
-     */
-    public function enregistrerBADM(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
-    {
-        $this->enregistrer($numeroDocument, $typeOperationId, 8, $statutOperation, $libelleOperation);
-    }
-
-    /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document CAS: CASIER
-     * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
-     */
-    public function enregistrerCAS(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
-    {
-        $this->enregistrer($numeroDocument, $typeOperationId, 9, $statutOperation, $libelleOperation);
-    }
-
-    /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document CDE: COMMANDE
-     * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
-     */
-    public function enregistrerCDE(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
-    {
-        $this->enregistrer($numeroDocument, $typeOperationId, 10, $statutOperation, $libelleOperation);
-    }
-
-    /** 
-     * Méthode qui enregistre l'historique de l'opération fait sur le document DEV: DEVIS
-     * 
-     * @param string $numeroDocument numéro du document
-     * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
-     *        - 1 : SOUMISSION
-     *        - 2 : VALIDATION
-     *        - 3 : MODIFICATION
-     *        - 4 : SUPPRESSION
-     *        - 5 : CREATION
-     *        - 6 : CLOTURE
-     * @param string $statutOperation statut de l'opération, avec les valeurs possibles:
-     *        - Succès
-     *        - Erreur
-     * @param string|null $libelleOperation libellé de l'opération
-     */
-    public function enregistrerDEV(string $numeroDocument, int $typeOperationId, string $statutOperation, ?string $libelleOperation = null): void
-    {
-        $this->enregistrer($numeroDocument, $typeOperationId, 11, $statutOperation, $libelleOperation);
+        $this->sendNotification($message, $numeroDocument, $routeName, 6, $success);
     }
 }

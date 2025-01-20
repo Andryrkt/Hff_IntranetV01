@@ -101,15 +101,25 @@ class DitListeController extends Controller
         if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
             if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } else if ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
         }
 
+        /** HISTORIQUE DES OPERATION */
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        $filteredCriteria = $this->criteriaTab($criteria);
 
-        $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
+        // Déterminer le type de log
+        $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
+
+        // Appeler la méthode logUserVisit avec les arguments définis
+        $this->logUserVisit(...$logType);
+
 
         self::$twig->display('dit/list.html.twig', [
             'data'          => $paginationData['data'],
