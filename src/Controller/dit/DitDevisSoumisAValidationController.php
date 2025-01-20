@@ -208,7 +208,7 @@ class DitDevisSoumisAValidationController extends Controller
             return true; //Devis vente
         }
     }
-
+    
     
 
     private function variationPrixRefPiece(string $numDevis): array
