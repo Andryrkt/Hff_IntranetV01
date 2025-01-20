@@ -188,25 +188,34 @@ class DitListeController extends Controller
         self::$em->flush();
     }
 
-    private function ajouterDansCsv($filePath, $data,  $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+{
+    $fichierExiste = file_exists($filePath);
 
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
+    // Ouvre le fichier en mode append
+    $handle = fopen($filePath, 'a');
 
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            fputcsv($handle, $headers);
-        }
-
-        // Ajoute les nouvelles données
-        fputcsv($handle, $data);
-        // fwrite($handle, "\n");
-
-        // Ferme le fichier
-        fclose($handle);
+    // Si le fichier est nouveau, ajoute un BOM UTF-8
+    if (!$fichierExiste) {
+        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
     }
+
+    // Si le fichier est nouveau, ajouter les en-têtes
+    if (!$fichierExiste && $headers !== null) {
+        // Force l'encodage UTF-8 pour les en-têtes
+        fputcsv($handle, array_map(function ($header) {
+            return mb_convert_encoding($header, 'UTF-8');
+        }, $headers));
+    }
+
+    // Force l'encodage UTF-8 pour les données
+    fputcsv($handle, array_map(function ($field) {
+        return mb_convert_encoding($field, 'UTF-8');
+    }, $data));
+
+    // Ferme le fichier
+    fclose($handle);
+}
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")

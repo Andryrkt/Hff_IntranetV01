@@ -301,10 +301,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Gestionnaire pour la fermeture du modal
   listeCommandeModal.addEventListener("hidden.bs.modal", function () {
     const tableBody = document.getElementById("commandesTableBody");
+    const tableBodyOR = document.getElementById("commandesTableBodyOR");
+    const tableBodyLign = document.getElementById("commandesTableBodyLign");
     const Ornum = document.getElementById("orIntv");
     const planningTableHead = document.getElementById("planningTableHead");
 
     tableBody.innerHTML = ""; // Vider le tableau
+    tableBodyLign.innerHTML = "";
+    tableBodyOR.innerHTML = "";
     Ornum.innerHTML = "";
     planningTableHead.innerHTML = "";
   });
@@ -370,16 +374,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        const tableBody = document.getElementById("commandesTableBody");
+        console.log(data.avecOnglet);
+        
+        displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
+        const tableBody = document.getElementById("commandesTableBody");
         const planningTableHead = document.getElementById("planningTableHead");
+        const tableBodyOR = document.getElementById("commandesTableBodyOR");
+        const planningTableHeadOR = document.getElementById("planningTableHeadOR");
+        const tableBodyLign = document.getElementById("commandesTableBodyLign");
+        const planningTableHeadLign = document.getElementById("planningTableHeadLign");
 
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
+        planningTableHeadOR.innerHTML = "";
+        planningTableHeadLign.innerHTML = "";
 
-        if (data.length > 0) {
-          if (data[0].numor.startsWith("5")) {
+        if (data.data.length > 0) {
+          if (data.data[0].numor.startsWith("5")) {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
                             <th>N° CIS</th>
@@ -398,6 +411,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>ETA Magasin</th>
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
+            planningTableHeadOR.innerHTML += rowHeader;
+            planningTableHeadLign.innerHTML += rowHeader;
           } else {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
@@ -417,7 +432,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
-          data.forEach((detail) => {
+          data.data.forEach((detail) => {
             console.log(detail);
 
             Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
@@ -531,8 +546,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
                         <td>${numCis}</td> 
-                        <td ${cmdColor}>${numeroCdeCis}</td> 
-                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td ${cmdColor}></td> 
+                        <td ${cmdColorRmq}></td> 
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
@@ -542,11 +557,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qteliv)}</td> 
                         <td >${statut}</td> 
                         <td>${dateStatut}</td> 
+                        <td></td> 
+                        <td></td> 
+                        <td></td> 
+                    </tr>`;
+              // tableBody.innerHTML += row;
+              tableBodyOR.innerHTML += row;
+              let row1 = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${(isNaN(detail.qteORlig) || detail.qteORlig === "") ? "" : parseInt(detail.qteORlig)}</td> 
+                        <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
+                        <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
+                        <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
+                        <td >${statut}</td> 
+                        <td>${dateStatut}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
                     </tr>`;
-              tableBody.innerHTML += row;
+                  tableBodyLign.innerHTML += row1;
             } else {
               // Affichage
               let row = `<tr>
@@ -590,6 +626,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
           masquerSpinner();
         }
       });
+  }
+
+  function displayOnglet(show) {
+    const avecOnglet = document.getElementById("avec_onglet");
+    const sansOnglet = document.getElementById("sans_onglet");
+    if (show) {
+      avecOnglet.classList.remove('d-none');
+      sansOnglet.classList.add('d-none'); 
+    } else {
+      avecOnglet.classList.add('d-none');
+      sansOnglet.classList.remove('d-none');
+    }
   }
 
   function formaterDate(daty) {

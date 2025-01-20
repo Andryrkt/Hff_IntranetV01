@@ -438,7 +438,7 @@ public function backOrderPlanning($lesOrValides){
                                                              WHERE Numero_PO = nlig_numcf
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
-                                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
+                                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
 				                         )
 	                    END as Statut,
 
@@ -486,13 +486,13 @@ public function backOrderPlanning($lesOrValides){
                                     WHERE Numero_PO = nlig_numcf
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
-                                    AND (Line_Number = nlig_noligncm OR Line_Number = slor_nolign)
+                                    AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
                                                                WHERE Numero_PO = nlig_numcf
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
-                                                               AND (Line_Number = nlig_noligncm OR Line_Number = slor_nolign))
+                                                               AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
                                     )
                                  ), '%Y-%m-%d')
 	                  END AS dateStatut,
@@ -515,13 +515,13 @@ public function backOrderPlanning($lesOrValides){
                                             WHERE Numero_PO = nlig_numcf
                                             AND Parts_Number = slor_refp  
                                             AND Parts_CST = slor_constp 
-                                            AND (Line_Number = nlig_noligncm OR Line_Number = slor_nolign)
+                                            AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                             AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                          FROM gcot_acknow_cat 
                                                                          WHERE Numero_PO = nlig_numcf
                                                                          AND Parts_Number = slor_refp  
                                                                          AND Parts_CST = slor_constp 
-                                                                         AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign) )
+                                                                         AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
                                   )
 	                    END as Message ,
                     CASE  
@@ -582,6 +582,42 @@ public function recuperationPartiel($numcde, $refp){
     $resultat = $this->convertirEnUtf8($data);
   return $resultat;
 }
+/**
+ * qte CIS
+ */
+
+ public function recupeQteCISlig($numOr,$itv,$refp){
+   $statement = "SELECT 
+                  nvl(nlig_qtecde,0) as qteorlig,
+                  nvl(nlig_qtealiv,0) as qtealllig,
+                  nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0)as qtereliquatlig,
+                  nvl(nlig_qteliv,0) as qtelivlig
+                  
+                  from sav_lor 
+
+                  inner join neg_lig on 
+                      nlig_soc = slor_soc 
+                      
+                  and nlig_succd = slor_succ
+                      
+                  and nlig_numcde = slor_numcf
+                      
+                  and nlig_constp = slor_constp
+                      
+                  and nlig_refp = slor_refp
+
+                  where nlig_natop = 'CIS'
+
+                  and slor_numor  ='".$numOr."'
+                  and trunc(slor_nogrp/100) = '".$itv."'
+                  and slor_refp ='".$refp."'
+        ";
+        // dump($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+ }
   /**
   * gcot ORD
   */
@@ -710,5 +746,23 @@ public function recuperationPartiel($numcde, $refp){
     $data = $this->connect->fetchResults($result);
 
     return $this->convertirEnUtf8($data);
+  }
+
+  public function recupOrcis($numOritv){
+      $statement = "SELECT  DISTINCT 
+            nlig_natop from sav_lor 
+            inner join neg_lig on 
+            nlig_soc = slor_soc 
+            and nlig_succd = slor_succ
+            and nlig_numcde = slor_numcf
+            and nlig_constp = slor_constp
+            and nlig_refp = slor_refp
+            where nlig_natop = 'CIS'
+            and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
+                     ";
+      $result = $this->connect->executeQuery($statement);
+      $data = $this->connect->fetchResults($result);
+      $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
   }
 }
