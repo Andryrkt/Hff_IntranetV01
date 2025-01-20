@@ -7,9 +7,10 @@ use TCPDF;
 class HeaderFooterAcPdf extends TCPDF {
     // En-tête de page
     public function Header() {
-        $this->SetFont('helvetica', '', 10);
-        $logoPath = $logoPath = 'C:' . DIRECTORY_SEPARATOR . 'wamp64' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'Hffintranet' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logoHFF.jpg';
-        $this->Image($logoPath, 15, 20, 50, '', 'JPG', '', 'T', false, 300, '', false, false, 0, false, false, false);
+        // $this->SetFont('helvetica', '', 10);
+        // $logoPath = $logoPath = 'C:' . DIRECTORY_SEPARATOR . 'wamp64' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'Hffintranet' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logoHFF.jpg';
+        // $this->Image($logoPath, 15, 20, 50, '', 'jpg', '', 'T', false, 300, '', false, false, 0, false, false, false);
+        
     }
 
     // Pied de page

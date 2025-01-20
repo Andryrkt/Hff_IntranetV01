@@ -13,6 +13,7 @@ use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
+use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 use App\Service\TableauEnStringService;
@@ -35,7 +36,7 @@ class AcBcSoumisController extends Controller
         $this->bcSoumis = new BcSoumis();
         $this->bcRepository = self::$em->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationDEVService;
+        $this->historiqueOperation = new HistoriqueOperationBCService;
         $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
@@ -53,8 +54,8 @@ class AcBcSoumisController extends Controller
         
 
         if(empty($devis)) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero DIT {$numDit}";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         }
         
         $acSoumis = $this->initialisation($devis, $numDit);
@@ -69,14 +70,17 @@ class AcBcSoumisController extends Controller
             $numBc = $acSoumis->getNumeroBc();
             $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
-            $this->envoieBcDansBd($bcSoumis);
-
-
+            
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $this->genererPdfAc->genererPdfAc($acSoumis);
-            $fileName= $this->enregistrementEtFusionFichier($form, $numBc, $bcSoumis->getNumVersion());
+            $numClientBcDevis = $this->ditRepository->findNumClient($numDit).'_'.$numBc.'_'.$acSoumis->getNumeroDevis();
+            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis);
+            $fileName= $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
             $this->genererPdfAc->copyToDWAcSoumis($fileName);// copier le fichier dans docuware
+            
+            /** Envoie des information du bc dans le table bc_soumis */
+            $bcSoumis->setNomFichier($fileName);
+            $this->envoieBcDansBd($bcSoumis);
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
@@ -90,17 +94,18 @@ class AcBcSoumisController extends Controller
     private function filtredataDevis($numDit)
     {
         $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+        
         return array_filter($devi, function ($item) {
             return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00 ;
         });
     }
 
-    private function enregistrementEtFusionFichier(FormInterface $form, string $numBc, string $numeroVersion)
+    private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numBc, true, $numeroVersion);
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numClientBcDevis, true, $numeroVersion);
 
         return $fileName;
     }
