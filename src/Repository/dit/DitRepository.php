@@ -560,4 +560,15 @@ class DitRepository extends EntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+    public function findAteRealiserPar(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.reparationRealise')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 }

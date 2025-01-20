@@ -5,6 +5,7 @@ namespace App\Controller\dit;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\dit\AcSoumisType;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use App\Service\TableauEnStringService;
 
 class AcBcSoumisController extends Controller
 {
@@ -22,6 +24,8 @@ class AcBcSoumisController extends Controller
     private $bcRepository;
     private $genererPdfAc;
     private $historiqueOperation;
+    private $contactAgenceAteRepository;
+    private $ditRepository;
 
     public function __construct()
     {
@@ -32,7 +36,8 @@ class AcBcSoumisController extends Controller
         $this->bcRepository = self::$em->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
         $this->historiqueOperation = new HistoriqueOperationDEVService;
-
+        $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -43,11 +48,16 @@ class AcBcSoumisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-
-        $devis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
         // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-        // dd($devis, $dit);
-        $acSoumis = $this->initialisation($devis);
+        $devis = $this->filtredataDevis($numDit);
+        
+
+        if(empty($devis)) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero DIT {$numDit}";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+        }
+        
+        $acSoumis = $this->initialisation($devis, $numDit);
         
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
@@ -55,7 +65,7 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            $acSoumis = $this->initialisation($devis);
+            $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
@@ -75,6 +85,14 @@ class AcBcSoumisController extends Controller
         self::$twig->display('dit/AcBcSoumis.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    private function filtredataDevis($numDit)
+    {
+        $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+        return array_filter($devi, function ($item) {
+            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00 ;
+        });
     }
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numBc, string $numeroVersion)
@@ -116,20 +134,54 @@ class AcBcSoumisController extends Controller
         return $num + 1;
     }
 
-    private function initialisation(array $devis): AcSoumis
-    {
+    private function initialisation(array $devis, string $numDit): AcSoumis
+    {   
+        $reparationRealiser = $this->ditRepository->findAteRealiserPar($numDit);
+        $atelier = $this->contactAgenceAteRepository->findContactSelonAtelier($reparationRealiser);
+
         $this->acSoumis
             ->setDateCreation(new \DateTime($this->getDatesystem()))
             ->setNumeroDevis($devis[0]->getNumeroDevis())
             ->setStatutDevis($devis[0]->getStatut())
             ->setNumeroDit($devis[0]->getNumeroDit())
             ->setDateDevis($devis[0]->getDateHeureSoumission())
-            ->setMontantDevis(0.00)
-            ->setEmailContactHff('')
-            ->setTelephoneContactHff('')
+            ->setMontantDevis($this->calculMontantDevis($devis))
+            ->setEmailContactHff($this->emailHff($atelier))
+            ->setTelephoneContactHff($this->telephoneHff($atelier))
             ->setDevise($devis[0]->getDevise())
             ->setDateExpirationDevis((clone $devis[0]->getDateHeureSoumission())->modify('+30 days'))
         ;
         return $this->acSoumis;
+    }
+
+    private function telephoneHff(array $atelier)
+    {
+        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el) => $el->getTelephone(), $atelier), '');
+    }
+
+    private function emailHff(array $atelier)
+    {
+        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el)=> $el->getEmailString(), $atelier), '');
+    }
+
+    /**
+     * METHODE POUR CALCULER LE MONTANT DEVIS
+     * le mont devis c'est le mont du vente
+     * donc il faut soustraire du montant forfait s'il existe
+     *
+     * @param array $devis
+     * @return void
+     */
+    private function calculMontantDevis(array $devis): float
+    {
+        $montantItv = array_reduce($devis, function ($acc, $item) {
+            return $acc + $item->getMontantItv();
+        }, 0);
+
+        $montantForfait = array_reduce($devis, function ($acc, $item) {
+            return $acc + $item->getMontantForfait();
+        }, 0);
+
+        return $montantItv - $montantForfait;
     }
 }

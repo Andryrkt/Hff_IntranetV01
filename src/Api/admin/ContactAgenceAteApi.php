@@ -24,8 +24,11 @@ class ContactAgenceAteApi extends Controller
         $user = self::$em->getRepository(User::class)->findOneBy(['id' => $id]);
 
         $nomEmail = [
-            'id' => $user->getId()
+            'id' => $user->getId(),
+            'prenom' => $user->getPersonnels()->getPrenoms(),
+            'telephone' => $user->getNumTel()
         ];
+        
         header("Content-type:application/json");
 
         echo json_encode($nomEmail);

@@ -20,13 +20,18 @@
 					{{ form_errors(form)}}
 
 					<div class="row">
-						<div class="col-12 col-md-6">
-							{{ form_row(form.agence)}}
+						<div class="col-12 col-sm-12 col-md-4">
 							{{ form_row(form.matricule)}}
+							{{ form_row(form.agence)}}
+							{{ form_row(form.atelier)}}
 						</div>
-						<div class="col-12 col-md-6">
+						<div class="col-12 col-sm-12 col-md-4">
 							{{ form_row(form.nom)}}
+							{{ form_row(form.prenom)}}
+						</div>
+						<div class="col-12 col-sm-12 col-md-4">
 							{{ form_row(form.email)}}
+							{{ form_row(form.telephone)}}
 						</div>
 					</div>
 

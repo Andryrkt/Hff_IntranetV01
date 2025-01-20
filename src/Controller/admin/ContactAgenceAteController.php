@@ -25,18 +25,6 @@ class ContactAgenceAteController extends Controller
 
         $data = self::$em->getRepository(ContactAgenceAte::class)->findBy([]);
 
-        foreach ($data as $value) {
-            $user = self::$em->getRepository(User::class)->findOneBy(['matricule' => $value->getMatriculeString()]);
-            
-            $value
-                ->setNomPrenom($user->getPersonnels()->getNom().' '.$user->getPersonnels()->getPrenoms())
-                ->setPoste($user->getPoste() === null ? '' : $user->getPoste())
-                ->setEmailString($user->getMail() === null ? '' : $user->getMail())
-                ->setTelephone($user->getNumTel() === null ? '' : $user->getNumTel())
-            ;
-        }
-
-
         self::$twig->display('admin/contactAgenceAte/index.html.twig', [
             'data' => $data
         ]);
@@ -60,10 +48,17 @@ class ContactAgenceAteController extends Controller
             if($form->isSubmitted() && $form->isValid())
             {
                 $data = $form->getData();
+                
                 $contactAgenceAte 
                     ->setAgenceString($data->getAgence()->getCodeAgence())
                     ->setMatriculeString($data->getMatricule()->getMatricule())
+                    ->setNomString($data->getNom()->getPersonnels()->getNom())
+                    ->setEmailString($data->getEmail()->getMail())
+                    ->setTelephone($data->getTelephone())
+                    ->setAtelier($data->getAtelier())
+                    ->setPrenom($data->getPrenom())
                 ;
+
                 self::$em->persist($contactAgenceAte);
                 self::$em->flush();
                 $this->redirectToRoute("contact_agence_ate_index");
@@ -101,7 +96,13 @@ class ContactAgenceAteController extends Controller
                 $data = $form->getData();
                 $contactAgenceAte 
                     ->setAgenceString($data->getAgence()->getCodeAgence())
-                    ->setMatriculeString($data->getMatricule()->getMatricule());
+                    ->setMatriculeString($data->getMatricule()->getMatricule())
+                    ->setNomString($data->getNom()->getPersonnels()->getNom())
+                    ->setEmailString($data->getEmail()->getMail())
+                    ->setTelephone($data->getTelephone())
+                    ->setAtelier($data->getAtelier())
+                    ->setPrenom($data->getPrenom())
+                ;
 
                 self::$em->flush();
                 $this->redirectToRoute("contact_agence_ate_index");

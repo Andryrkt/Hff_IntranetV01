@@ -49,6 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // Mettre à jour les champs et déclencher le changement
           $("#contact_agence_ate_nom").val(data.id).trigger("change");
           $("#contact_agence_ate_email").val(data.id).trigger("change");
+          $("#contact_agence_ate_prenom").val(data.prenom);
+          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
         })
         .catch((error) => {
           console.error("Erreur : ", error);
@@ -57,6 +59,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
       $("#contact_agence_ate_nom").val("");
       $("#contact_agence_ate_email").val("");
+      $("#contact_agence_ate_prenom").val("");
+      $("#contact_agence_ate_telephone").val("");
     }
   });
 
@@ -95,6 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
           $("#contact_agence_ate_matricule").val(data.id).trigger("change");
           $("#contact_agence_ate_email").val(data.id).trigger("change");
+          $("#contact_agence_ate_prenom").val(data.prenom);
+          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
         })
         .catch((error) => {
           console.error("Erreur : ", error);
@@ -103,6 +109,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
       $("#contact_agence_ate_matricule").val("");
       $("#contact_agence_ate_email").val("");
+      $("#contact_agence_ate_prenom").val("");
+      $("#contact_agence_ate_telephone").val("");
     }
   });
 
@@ -141,6 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
           $("#contact_agence_ate_matricule").val(data.id).trigger("change");
           $("#contact_agence_ate_nom").val(data.id).trigger("change");
+          $("#contact_agence_ate_prenom").val(data.prenom);
+          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
         })
         .catch((error) => {
           console.error("Erreur : ", error);
@@ -149,6 +159,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
       $("#contact_agence_ate_matricule").val("");
       $("#contact_agence_ate_nom").val("");
+      $("#contact_agence_ate_prenom").val("");
+      $("#contact_agence_ate_telephone").val("");
     }
   });
 });

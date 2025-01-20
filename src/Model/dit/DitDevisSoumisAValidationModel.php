@@ -231,12 +231,12 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupInfoPourChaquePiece(array $infoPieceClient)
     {
         $statement = " SELECT FIRST 3 
-                    slor_constp as CST, 
-                    slor_refp as RefPiece, 
+                    trim(slor_constp) as CST, 
+                    trim(slor_refp) as RefPiece, 
                     slor_datel as dateLigne,
                     slor_pxnreel as prixVente,
                     seor_serv 
-                    FROM sav_lor 
+                    FROM sav_lor
                     inner join sav_eor 
                     on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='HF'
                     WHERE slor_refp = '".$infoPieceClient['ref_piece'] ."'

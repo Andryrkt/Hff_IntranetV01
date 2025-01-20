@@ -31,6 +31,31 @@ class ContactAgenceAte
      */
     private ?string $matriculeString;
 
+    /**
+     * @ORM\Column(type="string", length=100, name="nom")
+     */
+    private ?string $nomString = "";
+
+    /**
+     * @ORM\Column(type="string", length=200, name="prenom")
+     */
+    private ?string $prenom = "";
+
+    /**
+     * @ORM\Column(type="string", length=255, name="email")
+     */
+    private ?string  $emailString = "";
+
+    /**
+     * @ORM\Column(type="string", length=13, name="telephone")
+     */
+    private ?string $telephone = "";
+
+    /**
+     * @ORM\Column(type="string", length=10, name="atelier")
+     */
+    private ?string $atelier = "";
+
     private ?Agence $agence = null;
 
     private ?User $matricule = null;
@@ -38,14 +63,11 @@ class ContactAgenceAte
     private string $nomPrenom = "";
 
     private ?user $email = null;
-    
-    private string  $emailString = "";
 
     private ?User $nom = null;
 
     private string $poste = "";
 
-    private string $telephone = "";
 
     /**========================================================
      * GETTERS & SETTERS
@@ -254,6 +276,66 @@ class ContactAgenceAte
     public function setNom($nom)
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomString
+     */ 
+    public function getNomString()
+    {
+        return $this->nomString;
+    }
+
+    /**
+     * Set the value of nomString
+     *
+     * @return  self
+     */ 
+    public function setNomString($nomString)
+    {
+        $this->nomString = $nomString;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prenom
+     */ 
+    public function getPrenom()
+    {
+        return $this->prenom;
+    }
+
+    /**
+     * Set the value of prenom
+     *
+     * @return  self
+     */ 
+    public function setPrenom($prenom)
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of atelier
+     */ 
+    public function getAtelier()
+    {
+        return $this->atelier;
+    }
+
+    /**
+     * Set the value of atelier
+     *
+     * @return  self
+     */ 
+    public function setAtelier($atelier)
+    {
+        $this->atelier = $atelier;
 
         return $this;
     }

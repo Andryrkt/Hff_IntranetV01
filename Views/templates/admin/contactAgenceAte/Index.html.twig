@@ -28,9 +28,9 @@
 							<th>Agence</th>
 							<th>Matricule</th>
 							<th>Nom et prénom(s)</th>
-							<th>Poste</th>
 							<th>Email</th>
 							<th>Téléphone</th>
+							<th>Atelier</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody">
@@ -57,10 +57,11 @@
 								</td>
 								<td>{{item.agencestring}}</td>
 								<td>{{item.matriculestring}}</td>
-								<td>{{item.nomPrenom}}</td>
-								<td>{{item.poste}}</td>
+								<td>{{item.nomString}}
+									{{item.prenom}}</td>
 								<td>{{item.emailstring}}</td>
 								<td>{{item.telephone}}</td>
+								<td>{{item.atelier}}</td>
 							</tr>
 						{% endfor %}
 					</tbody>

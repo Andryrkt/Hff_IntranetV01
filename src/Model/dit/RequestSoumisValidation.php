@@ -145,7 +145,7 @@ class RequestSoumisValidation
         $query = "SELECT " . implode(", ", $selectColumns) . " 
                     FROM sav_eor, sav_lor, sav_itv
                     WHERE " . self::getConditions($condition) . " 
-                    GROUP BY 1, 2, 3, 4, 5, 6, 7
+                    GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
                     ORDER BY slor_numor, sitv_interv";
 
         return $query;

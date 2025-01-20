@@ -210,6 +210,9 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $this->addSummaryDetails($pdf, $details2);
 
         //===============================================================================================================
+        /**
+         * TABLEAU DE VARIATION DE PRIX
+         */
         $this->addTitle($pdf, 'Variation de prix de vente par référence(3 dernières ventes facturées de plus anciennes au plus récentes)');
         $pdf->setFont('helvetica', '', 12);
         $headerConfig3 = [
@@ -223,8 +226,9 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
             ['key' => 'pu3', 'label' => 'PU 3', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'datePu3', 'label' => 'Date PU 3', 'width' => 60, 'style' => 'font-weight: bold; text-align: center;'],
         ];
+        // dd($variationPrixRefPiece);
         $totals = [];
-        $html3 = $generator->generateTable($headerConfig3, $variationPrixRefPiece, $totals);
+        $html3 = $generator->generateTable($headerConfig3, $variationPrixRefPiece, $totals, true);
         $pdf->writeHTML($html3, true, false, true, false, '');
 
         //================================================================================================================

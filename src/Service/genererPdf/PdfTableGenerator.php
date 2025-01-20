@@ -24,20 +24,33 @@ class PdfTableGenerator
         return $html;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array $headerConfig
+     * @param array $rows
+     * @param boolean $expre
+     * @return void
+     */
     private function generateBody(array $headerConfig, array $rows, bool $expre = false)
     {
         $html = '<tbody>';
         // Vérifier si le tableau $rows est vide
-        if (empty($rows) && !$expre) {
-            $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
-            $html .= '</tbody>';
-            return $html;
-        }
+
+
+    
+                if (empty($rows) && !$expre) {
+                    $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
+                    $html .= '</tbody>';
+                    return $html;
+                }
+
+        
         foreach ($rows as $row) {
 
             // Vérifier si tous les montants sont égaux à 0
             $montantsKeys = array_filter(array_keys($row), fn($key) => stripos($key, 'mtt') !== false);
-            $allMontantsZero = array_reduce($montantsKeys, fn($acc, $key) => $acc && ((float) $row[$key] === 0), true);
+            $allMontantsZero = array_reduce($montantsKeys, fn($acc, $key) => $acc && ((float) $row[$key] === 0), false);
 
             if ($allMontantsZero) {
                 // Afficher "N/A" si tous les montants sont égaux à 0
