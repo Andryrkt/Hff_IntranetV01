@@ -52,7 +52,7 @@ class AcSoumisType extends AbstractType
                 FileType::class,
                 [
                     'label' => 'Bon de commande (PDF) *',
-                    'required' => false,
+                    'required' => true,
                     'constraints' => [
                         new File([
                             'maxSize' => '5M',
@@ -67,7 +67,7 @@ class AcSoumisType extends AbstractType
                     ],
             ])
 
-
+            //====================================================================================================================================
             ->add('dateCreation', TextType::class,
             [
                 'label' => 'Date',

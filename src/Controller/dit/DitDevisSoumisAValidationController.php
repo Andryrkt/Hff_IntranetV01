@@ -63,7 +63,7 @@ class DitDevisSoumisAValidationController extends Controller
 
             $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
             $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository, $originalName);
-            if ($this->blockageSoumission($blockages, $numDevis, $originalName)) {
+            if ($this->blockageSoumission($blockages, $numDevis)) {
                 
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
                 $devisSoumisAValidationInformixForfait = $this->InformationDevisInformixForfait($numDevis);
@@ -77,7 +77,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $devisSoumisValidataionForfait);
+                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
                 $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
                 $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
                 // $this->historique($fileName); //remplir la table historique
@@ -136,14 +136,14 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return boolean
      */
-    public function blockageSoumission(array $blockages, string $numDevis, $originalName): bool
+    public function blockageSoumission(array $blockages, string $numDevis): bool
     {
         if ($blockages['numDevisNomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le fichier uploadé car il ne correspond pas au numéro au devis N° { $numDevis} ";
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
         } elseif ($blockages['numClient']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le devis . . . Veuillez vérifier le client car le client sur la DIT est différent de celui du devis ";
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
         } elseif ($blockages['conditionDitIpsDiffDitSqlServ']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le numero DIT dans IPS ne correspond pas à la DIT";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
@@ -250,11 +250,29 @@ class DitDevisSoumisAValidationController extends Controller
      * @param GenererPdfDevisSoumisAValidation $generePdfDevis
      * @return void
      */
-    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, array $devisSoumisValidataionForfait)
+    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis)
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
-        $devisSoumisAvant = [
+        $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis, $devisSoumisValidataion);
+        $montantPdf = $this->montantPdfService->montantpdf($devisSoumisAvant);
+
+        $quelqueaffichage = $this->quelqueAffichage($numDevis);
+
+        $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
+
+        $mailUtilisateur = $this->nomUtilisateur(self::$em)['mailUtilisateur'];
+
+        if($this->estCeVenteOuForfait($numDevis)) { // vente
+            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur);
+        } else { // sinom forfait
+            $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur);
+        }
+    }
+
+    private function donnerDevisSoumisAvant(string $numDevis, array $devisSoumisValidataion): array 
+    {
+        return [
             'devisSoumisAvantForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
             'devisSoumisAvantMaxForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
             'devisSoumisAvantVte' => $this->rectifierVenteAvantAvecForfait($numDevis),
@@ -264,19 +282,6 @@ class DitDevisSoumisAValidationController extends Controller
             'vteData' => $this->filtreLesDonnerVte($devisSoumisValidataion),
             'cesData' => $this->filtreLesDonnerCes($devisSoumisValidataion),
         ];
-
-        // dump($OrSoumisAvantMax);
-        $montantPdf = $this->montantPdfService->montantpdf($devisSoumisAvant);
-        // dd($montantPdf);
-        $quelqueaffichage = $this->quelqueAffichage($numDevis);
-
-        $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
-
-        if($this->estCeVenteOuForfait($numDevis)) { // vente
-            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
-        } else { // sinom forfait
-            $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
-        }
     }
 
     private function rectifierVenteAvantAvecForfait(string $numDevis) {

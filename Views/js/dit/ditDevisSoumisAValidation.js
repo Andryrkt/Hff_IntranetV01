@@ -118,7 +118,7 @@ configDevis.btnEnregistre.addEventListener("click", (e) => {
   }).then((result) => {
     if (result.isConfirmed) {
       Swal.fire({
-        title: "Soumission!",
+        title: "Attention!",
         text: "Veuillez de ne pas fermer l’onglet durant le traitement.",
         icon: "warning",
       }).then((res) => {
