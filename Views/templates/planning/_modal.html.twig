@@ -31,53 +31,22 @@
 				</div>
 
 				<!-- Contenu des données -->
-				<div id="dataContent" style="display: none;">	
-					<div id="avec_onglet" class="d-none">
-						<nav>
-							<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
-								<button class="nav-link active" id="nav-onglet1-tab" data-bs-toggle="tab" data-bs-target="#nav-onglet1" type="button" role="tab" aria-controls="nav-onglet1" aria-selected="true">OR</button>
-								<button class="nav-link" id="nav-onglet2-tab" data-bs-toggle="tab" data-bs-target="#nav-onglet2" type="button" role="tab" aria-controls="nav-onglet2" aria-selected="false">CIS</button>
-							</div>
-						</nav>
-						<div class="tab-content p-3 border bg-light" id="nav-tabContent">
-							<div class="tab-pane fade active show" id="nav-onglet1" role="tabpanel" aria-labelledby="nav-onglet1-tab">
-								<table class="table rounded mt-1">
-									<thead class="table">
-										<tr id="planningTableHeadOR"></tr>
-									</thead>
-									<tbody id="commandesTableBodyOR"></tbody>
-								</table>
-							</div>
-							<div class="tab-pane fade" id="nav-onglet2" role="tabpanel" aria-labelledby="nav-onglet2-tab">
-								<table class="table rounded mt-1">
-									<thead class="table">
-										<tr id="planningTableHeadLign"></tr>
-									</thead>
-									<tbody id="commandesTableBodyLign"></tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<div id="sans_onglet" class="d-none">
-						<table class="table rounded mt-1">
-							<thead class="table">
-								<tr id="planningTableHead"></tr>
-							</thead>
-							<tbody id="commandesTableBody"></tbody>
-						</table>
-					</div>
-
-					{# AFFICHAGE Technicients Intervenant #}
-					<h3 class="fw-bold bg-warning p-2 technicien">Technicien(s) interventant(s)</h3>
+				<div
+					id="dataContent" style="display: none;">
+					{# <div id="table-container-detail"></div> #}
 					<table class="table rounded mt-1">
 						<thead class="table">
-							<tr>
-								<th>Matricule</th>
-								<th>Nom et prenom(s)</th>
-							</tr>
+							<tr id="planningTableHead"></tr>
+							<tr id="planningTableHead"></tr>
 						</thead>
-						<tbody id="technicienTableBody"></tbody>
+						<tbody id="commandesTableBody"></tbody>
+						<tbody id="commandesTableBody"></tbody>
 					</table>
+
+					{# AFFICHAGE Technicients Intervenant #}
+					<h3 class="fw-bold bg-warning p-2 technicien">
+						Technicien(s) interventant(s)</h3>
+					<div id="table-container"></div>
 				</div>
 			</div>
 		</div>

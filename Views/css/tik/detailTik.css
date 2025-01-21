@@ -73,9 +73,13 @@ label[for='historiqueStatut'] {
   }
 }
 
+/* Augmenter la largeur de la modale */
+.modal-dialog.custom-width {
+  max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
+
 /* *************STATUT************* */
 .statut {
-  height: 45px;
   overflow: hidden;
   transition: all 0.35s;
   position: relative;
@@ -140,6 +144,10 @@ label[for='historiqueStatut'] {
   border-style: solid;
 }
 
+.right .msg::after {
+  display: none;
+}
+
 .talk .msg p {
   margin-bottom: 0 !important;
 }
@@ -163,15 +171,23 @@ label[for='historiqueStatut'] {
 }
 .left .msg {
   margin-left: 10px;
+  border-top-left-radius: 0 !important;
   background: #d8d8d8;
   color: #000;
 }
 .left .file-comment {
   background-color: #d8d8d880;
+  transform: translateX(10px);
+}
+.msg-file {
+  display: flex;
+  flex-direction: column;
 }
 .user {
   display: block;
-  align-self: flex-end;
+  width: 60px;
+  align-self: flex-start;
+  text-align: center;
 }
 .user span {
   color: #212529;
@@ -197,7 +213,7 @@ label[for='historiqueStatut'] {
   transform: translateY(2px);
 }
 
-.msg time {
+.msg .time {
   font-size: 0.7rem;
   color: #6c757d;
   margin-top: 3px;
@@ -208,7 +224,7 @@ label[for='historiqueStatut'] {
   -moz-user-select: none;
   -ms-user-select: none;
 }
-.msg time:before {
+.msg .time:before {
   content: '\f017';
   color: #6c757d;
   font-family: FontAwesome;

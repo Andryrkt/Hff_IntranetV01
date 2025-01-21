@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\Traits;
 
 use App\Model\planning\PlanningModel;
@@ -16,35 +17,36 @@ trait PlanningTraits
         return implode("','", $numOrValide);
     }
 
-    private function recupNumOrValider($criteria, $em){
+    private function recupNumOrValider($criteria, $em)
+    {
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-    
-        $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
+
+        $numOrItvValide = $this->recupNumORItvValide($numeroOrs, $em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
         $orSansItv = $this->orEnString($numeroOrs);
-        
+
         return [
             'orAvecItv' => $resNumor,
             'orSansItv' => $orSansItv
         ];
-        
     }
 
-    private function recupNumOrBackValider($criteria){
+    private function recupNumOrBackValider($criteria)
+    {
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
         return $numeroOrs;
     }
 
-/*
+    /*
     private function recupNumOrValidersansVmax($em)
     {
         return $em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide();
     }
 */
-    
+
     private function recupNumORItvValide($numeroOrs, $em)
     {
         $numOrValide = [];
@@ -52,15 +54,15 @@ trait PlanningTraits
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
             // dump($numeroOr);
             // dump($numItv);
-            if(!empty($numItv)){
+            if (!empty($numItv)) {
                 foreach ($numItv as  $value) {
-                    $numOrValide[] = $numeroOr['numero_or'].'-'.$value;
+                    $numOrValide[] = $numeroOr['numero_or'] . '-' . $value;
                 }
             }
         }
         return $numOrValide;
     }
-/*
+    /*
     private function numeroOrValide($numeroOrs, $PlanningModel, $em)
     {
         $numOrValide = [];
@@ -140,7 +142,7 @@ trait PlanningTraits
         return $objetPlanning;
     }
 
-    private function creationTableauObjetPlanning(array $data,array $back, $em): array
+    private function creationTableauObjetPlanning(array $data, array $back, $em): array
     {
         $objetPlanning = [];
         //Recuperation de idmat et les truc
@@ -148,7 +150,7 @@ trait PlanningTraits
             $planningMateriel = new PlanningMateriel();
             // dump($item['orintv']);
             $ditRepositoryConditionner = $em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $item['orintv'])[0]]);
-        
+
             if ($ditRepositoryConditionner !== null) {
                 $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
                 $migration = $ditRepositoryConditionner->getMigration();
@@ -158,13 +160,13 @@ trait PlanningTraits
                 $migration = null;  // or some other default value
             }
 
-            
-            
-            if(in_array($item['orintv'], $back)) {
+
+
+            if (in_array($item['orintv'], $back)) {
                 $backOrder = 'Okey';
             } else {
                 $backOrder = '';
-            } 
+            }
 
             //initialisation
             $planningMateriel
@@ -204,7 +206,7 @@ trait PlanningTraits
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
                 foreach ($materiel->moisDetails as $moisDetail) {
-                    
+
                     $fusionResult[$key]->addMoisDetail(
                         $moisDetail['mois'],
                         $moisDetail['annee'],
@@ -222,7 +224,7 @@ trait PlanningTraits
         }
         return $fusionResult;
     }
-    
+
     /**
      * fonction pour affichage des 12 mois glissantes (3 mois suivant, 6 mois suivant, Année encours, Année suivant)
      *
@@ -231,97 +233,97 @@ trait PlanningTraits
      * @return array
      */
     private function prepareDataForDisplay(array $data, int $selectedOption): array
-{
-    $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-    $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
-    $currentYear = (int)date('Y');
+    {
+        $months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        $currentMonth = (int)date('n') - 1; // Index du mois actuel (0-11)
+        $currentYear = (int)date('Y');
 
-    $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
+        $selectedMonths = $this->getSelectedMonths($months, $currentMonth, $currentYear, $selectedOption);
 
-    $preparedData = array_map(function ($item) use ($months, $selectedMonths) {
-        $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
-            ? $item->getMoisDetails()
-            : [];
+        $preparedData = array_map(function ($item) use ($months, $selectedMonths) {
+            $moisDetails = property_exists($item, 'moisDetails') && is_array($item->getMoisDetails())
+                ? $item->getMoisDetails()
+                : [];
 
-        $filteredMonths = array_filter(array_map(function ($detail) use ($months, $selectedMonths) {
-            if (!is_array($detail) || !isset($detail['orIntv'], $detail['mois']) || $detail['orIntv'] === "-") {
+            $filteredMonths = array_filter(array_map(function ($detail) use ($months, $selectedMonths) {
+                if (!is_array($detail) || !isset($detail['orIntv'], $detail['mois']) || $detail['orIntv'] === "-") {
+                    return null;
+                }
+
+                $monthIndex = (int)$detail['mois'] - 1;
+                $year = $detail['annee'] ?? '';
+                $monthKey = sprintf('%04d-%02d', $year, $monthIndex + 1);
+
+                if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
+                    return [
+                        'month' => $months[$monthIndex] ?? '',
+                        'year' => $year,
+                        'details' => $detail,
+                    ];
+                }
+
                 return null;
-            }
+            }, $moisDetails));
 
-            $monthIndex = (int)$detail['mois'] - 1;
-            $year = $detail['annee'] ?? '';
-            $monthKey = sprintf('%04d-%02d', $year, $monthIndex + 1);
-
-            if (array_search($monthKey, array_column($selectedMonths, 'key')) !== false) {
-                return [
-                    'month' => $months[$monthIndex] ?? '',
-                    'year' => $year,
-                    'details' => $detail,
-                ];
-            }
-
-            return null;
-        }, $moisDetails));
+            return [
+                'libsuc' => $item->getLibsuc() ?? '',
+                'libserv' => $item->getLibServ() ?? '',
+                'idmat' => $item->getIdMat() ?? '',
+                'marqueMat' => $item->getMarqueMat() ?? '',
+                'typemat' => $item->getTypeMat() ?? '',
+                'numserie' => $item->getNumSerie() ?? '',
+                'numparc' => $item->getNumParc() ?? '',
+                'casier' => $item->getCasier() ?? '',
+                'filteredMonths' => array_values($filteredMonths),
+            ];
+        }, $data);
 
         return [
-            'libsuc' => $item->getLibsuc() ?? '',
-            'libserv' => $item->getLibServ() ?? '',
-            'idmat' => $item->getIdMat() ?? '',
-            'marqueMat' => $item->getMarqueMat() ?? '',
-            'typemat' => $item->getTypeMat() ?? '',
-            'numserie' => $item->getNumSerie() ?? '',
-            'numparc' => $item->getNumParc() ?? '',
-            'casier' => $item->getCasier() ?? '',
-            'filteredMonths' => array_values($filteredMonths),
+            'preparedData' => $preparedData,
+            'uniqueMonths' => $selectedMonths,
         ];
-    }, $data);
-
-    return [
-        'preparedData' => $preparedData,
-        'uniqueMonths' => $selectedMonths,
-    ];
-}
-
-private function getSelectedMonths(array $months, int $currentMonth, int $currentYear, int $selectedOption): array
-{
-    $selectedMonths = [];
-
-    switch ($selectedOption) {
-        case 3: // 3 mois suivant
-        case 6: // 6 mois suivant
-            $monthsCount = $selectedOption === 3 ? 4 : 7;
-            for ($i = 0; $i < $monthsCount; $i++) {
-                $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
-            }
-            // Compléter avec les mois précédents
-            for ($i = -1; count($selectedMonths) < 12; $i--) {
-                array_unshift($selectedMonths, $this->generateMonthData($months, $currentMonth, $currentYear, $i));
-            }
-            break;
-
-        case 9: // Année en cours
-            for ($i = 0; $i < 12; $i++) {
-                $selectedMonths[] = [
-                    'month' => $months[$i],
-                    'year' => $currentYear,
-                    'key' => sprintf('%04d-%02d', $currentYear, $i + 1),
-                ];
-            }
-            break;
-
-        case 11: // Année suivante
-            for ($i = 0; $i < 12; $i++) {
-                $selectedMonths[] = [
-                    'month' => $months[$i],
-                    'year' => $currentYear + 1,
-                    'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
-                ];
-            }
-            break;
     }
 
-    return $selectedMonths;
-}
+    private function getSelectedMonths(array $months, int $currentMonth, int $currentYear, int $selectedOption): array
+    {
+        $selectedMonths = [];
+
+        switch ($selectedOption) {
+            case 3: // 3 mois suivant
+            case 6: // 6 mois suivant
+                $monthsCount = $selectedOption === 3 ? 4 : 7;
+                for ($i = 0; $i < $monthsCount; $i++) {
+                    $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
+                }
+                // Compléter avec les mois précédents
+                for ($i = -1; count($selectedMonths) < 12; $i--) {
+                    array_unshift($selectedMonths, $this->generateMonthData($months, $currentMonth, $currentYear, $i));
+                }
+                break;
+
+            case 9: // Année en cours
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear,
+                        'key' => sprintf('%04d-%02d', $currentYear, $i + 1),
+                    ];
+                }
+                break;
+
+            case 11: // Année suivante
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear + 1,
+                        'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
+                    ];
+                }
+                break;
+        }
+
+        return $selectedMonths;
+    }
 
     private function generateMonthData(array $months, int $currentMonth, int $currentYear, int $offset): array
     {

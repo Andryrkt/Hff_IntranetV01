@@ -17,10 +17,18 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationTIKService;
+    }
 
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
@@ -47,6 +55,9 @@ class DemandeSupportInformatiqueController extends Controller
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
 
+            $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
+            $supportInfo->setDetailDemande($text);
+
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
@@ -59,8 +70,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("liste_tik_index");
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
         }
 
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
@@ -74,7 +84,7 @@ class DemandeSupportInformatiqueController extends Controller
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
      * @param DemandeIntervention $demandeIntervention
-     * @param [type] $em
+     * @param User $user
      * @return void
      */
     private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)
@@ -93,7 +103,7 @@ class DemandeSupportInformatiqueController extends Controller
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
 
-        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
+        $statut = self::$em->getRepository(StatutDemande::class)->find('58');
 
         $supportInfo
             ->setAgenceDebiteurId($donnerForm->getAgence())

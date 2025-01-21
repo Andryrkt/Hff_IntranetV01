@@ -11,8 +11,6 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-
-
 		<h3 class="perso-titre">
 			Liste de Demande support informatique
 		</h3>
@@ -41,6 +39,7 @@
 					<th>N° parc PC</th>
 					<th>Objet du demande</th>
 					<th>Date de demande</th>
+					<th>Dernier commentaire</th>
 					<th>Intervenant</th>
 				</tr>
 			</thead>
@@ -51,19 +50,21 @@
 					{% set classeStatutTik = '' %}
 					{% set styleStatutTik = '' %}
 
-					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+					{% set ticketId = item.id %}
+
+					{% if item.idStatutDemande.description|trim == 'OUVERT' %}
 						{% set classeStatutTik ='ouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+					{% elseif item.idStatutDemande.description|trim == 'REFUSE'  %}
 						{% set classeStatutTik ='refuse' %}
-					{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+					{% elseif  item.idStatutDemande.description|trim == 'ENCOURS' %}
 						{% set classeStatutTik ='encours' %}
-					{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+					{% elseif item.idStatutDemande.description|trim == 'PLANIFIE' %}
 						{% set classeStatutTik ='planifie' %}
-					{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+					{% elseif item.idStatutDemande.description|trim == 'RESOLU' %}
 						{% set classeStatutTik ='resolu' %}
-					{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+					{% elseif item.idStatutDemande.description|trim == 'REOUVERT' %}
 						{% set classeStatutTik ='reouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+					{% elseif item.idStatutDemande.description|trim == 'CLÔTURE' %}
 						{% set classeStatutTik ='cloture' %}
 					{% else %}
 						{% set classeStatutTik = '' %}
@@ -78,7 +79,7 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("tik_modification_edit", {id: item.id})}}">Modifier</a>
+										<a class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" href="{{ path("tik_modification_edit", {id: item.id})}}" data-tik-monticket="{{ tickets[ticketId]['monTicket'] }}" data-tik-ouvert="{{ tickets[ticketId]['ouvert'] }}">Modifier</a>
 									</li>
 
 								</ul>
@@ -88,20 +89,24 @@
 
 						{# DEBUT Statut #}
 
-						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description|trim}}</td>
 
 						{# FIN Statut #}
 
 						<td>
-							<a href="{{ path("detail_tik", {id: item.id}) }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
+							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td>{{ item.niveauUrgence.description }}</td>
+						<td>{{ item.niveauUrgence.description|default('--')  }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.parcInformatique }}</td>
+						<td>{{ item.parcInformatique|default('--') }}</td>
 						<td>{{ item.objetDemande }}</td>
-						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ item.nomIntervenant }}</td>
-
+						<td>{{ item.dateCreation|date('d/m/Y')}}</td>
+						<td>
+							<a class="comment-link" href="#" data-bs-toggle="modal" data-bs-target="#commentaire" data-commentaire-user="{{ item.commentaires|last ? item.commentaires|last.nomUtilisateur : '--' }}" data-commentaire-day="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('d') : '--' }}" data-commentaire-month="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('m') : '--' }}" data-commentaire-year="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('Y') : '--' }}" data-commentaire-time="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('H:i') : '--' }}" data-original-text="{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}">
+								{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}
+							</a>
+						</td>
+						<td>{{ item.nomIntervenant|default('--') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
@@ -109,9 +114,12 @@
 	</div>
 	<!-- FIN tableau -->
 
-
+	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalCommentaire.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalConfirmationModal.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="/Hffintranet/Views/js/tik/tikListe.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/tik/tikListeModal.js" type="module"></script>
 {% endblock %}

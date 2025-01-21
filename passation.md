@@ -146,7 +146,7 @@ $application->setDerniereId($dits->getNumeroDemandeIntervention());
     $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
 
     //ENVOYER le PDF DANS DOXCUWARE
-    $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+    $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
 
 ```
 

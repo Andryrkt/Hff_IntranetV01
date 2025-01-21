@@ -26,8 +26,6 @@ class AgenceServiceIriumController extends Controller
 
         $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
-        $this->logUserVisit('AgServIrium_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display(
             'admin/AgenceServiceIrium/list.html.twig',
             [
@@ -57,8 +55,6 @@ class AgenceServiceIriumController extends Controller
             self::$em->flush();
             $this->redirectToRoute("AgServIrium_index");
         }
-
-        $this->logUserVisit('AgServIrium_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'admin/AgenceServiceIrium/new.html.twig',
@@ -91,10 +87,6 @@ class AgenceServiceIriumController extends Controller
             self::$em->flush();
             $this->redirectToRoute("AgServIrium_index");
         }
-
-        $this->logUserVisit('AgServIrium_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display(
             'admin/AgenceServiceIrium/edit.html.twig',

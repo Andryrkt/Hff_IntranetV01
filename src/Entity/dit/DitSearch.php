@@ -71,6 +71,8 @@ class DitSearch
 
     private ?string $etatFacture = '';
 
+    private ?string $numDevis = '';
+
     //-===============================================================================================================================
     public function getNiveauUrgence()
     {
@@ -578,6 +580,26 @@ class DitSearch
         return $this;
     }
 
+    /**
+     * Get the value of numDevis
+     */ 
+    public function getNumDevis()
+    {
+        return $this->numDevis;
+    }
+
+    /**
+     * Set the value of numDevis
+     *
+     * @return  self
+     */ 
+    public function setNumDevis($numDevis)
+    {
+        $this->numDevis = $numDevis;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -604,8 +626,11 @@ class DitSearch
             'sectionSupport1' => $this->sectionSupport1,
             'sectionSupport2' => $this->sectionSupport2,
             'sectionSupport3' => $this->sectionSupport3,
-            'etatFacture' => $this->etatFacture
+            'etatFacture' => $this->etatFacture,
+            'numDevis' => $this->numDevis
         ];
     }
+
+    
 }
 

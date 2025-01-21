@@ -5,6 +5,7 @@ namespace App\Api\planning;
 use App\Controller\Controller;
 use App\Model\planning\PlanningModel;
 use App\Entity\dit\DemandeIntervention;
+use App\Model\planning\ModalPlanningModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PlanningApi extends Controller
@@ -22,13 +23,17 @@ class PlanningApi extends Controller
      */
     public function serviceDebiteur($agenceId)
     {
-        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
-        
+        if ($agenceId == 100) {
+            $serviceDebiteur = [];
+        } else {
+            $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+        }
+
         header("Content-type:application/json");
 
         echo json_encode($serviceDebiteur);
     }
-    
+
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -43,12 +48,12 @@ class PlanningApi extends Controller
             $details = [];
         } else {
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
-          
+
             $orCIS = $this->planningModel->recupOrcis($numOr);
             $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
             $migration = $ditRepositoryConditionner->getMigration();
-            
+
             $detailes = [];
             //    dd($details);
             $qteCIS = [];
@@ -72,15 +77,14 @@ class PlanningApi extends Controller
                         $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis']);
                         $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref']);
                     }
-                }else{
-                    if(empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0" ){
+                } else {
+                    if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
                         $recupGot = [];
                     } else {
-                        $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocmd'], $details[$i]['ref'],$details[$i]['cst']);
-                        $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'],$details[$i]['ref']);
+                        $detailes[] = $this->planningModel->recuperationEtaMag($details[$i]['numerocmd'], $details[$i]['ref'], $details[$i]['cst']);
+                        $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocmd'], $details[$i]['ref']);
                         // $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
-                        $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
-                        
+                        $recupGot['ord'] = $this->planningModel->recuperationinfodGcot($details[$i]['numerocmd']);
                     }
                 }
               
@@ -123,46 +127,44 @@ class PlanningApi extends Controller
                     
        
 
-                    
-                    $details[$i]['numDit'] = $numDit;
-                    $details[$i]['migration'] = $migration;
-                }
-                
-                
+
+                $details[$i]['numDit'] = $numDit;
+                $details[$i]['migration'] = $migration;
+            }
         }
 
-        for ($i=0; $i < count($details) ; $i++) { 
+        for ($i = 0; $i < count($details); $i++) {
 
             if (!empty($qteCIS)) {
-                if(!empty($qteCIS[$i])) {
-                
+                if (!empty($qteCIS[$i])) {
+
                     $details[$i]['qteORlig'] = $qteCIS[$i]['0']['qteorlig'];
-                        $details[$i]['qtealllig'] = $qteCIS[$i]['0']['qtealllig'];
-                        $details[$i]['qterlqlig'] = $qteCIS[$i]['0']['qtereliquatlig'];
-                        $details[$i]['qtelivlig'] = $qteCIS[$i]['0']['qtelivlig'];
-                } elseif(!empty($qteCIS[$i-1])){
-                        $details[$i]['qteORlig'] = $qteCIS[$i-1]['0']['qteorlig'];
-                        $details[$i]['qtealllig'] = $qteCIS[$i-1]['0']['qtealllig'];
-                        $details[$i]['qterlqlig'] = $qteCIS[$i-1]['0']['qtereliquatlig'];
-                        $details[$i]['qtelivlig'] = $qteCIS[$i-1]['0']['qtelivlig'];
-                }else{
-                            $details[$i]['qteORlig'] = "";
-                            $details[$i]['qtealllig'] = "";
-                            $details[$i]['qterlqlig'] = "";
-                            $details[$i]['qtelivlig'] = "";        
+                    $details[$i]['qtealllig'] = $qteCIS[$i]['0']['qtealllig'];
+                    $details[$i]['qterlqlig'] = $qteCIS[$i]['0']['qtereliquatlig'];
+                    $details[$i]['qtelivlig'] = $qteCIS[$i]['0']['qtelivlig'];
+                } elseif (!empty($qteCIS[$i - 1])) {
+                    $details[$i]['qteORlig'] = $qteCIS[$i - 1]['0']['qteorlig'];
+                    $details[$i]['qtealllig'] = $qteCIS[$i - 1]['0']['qtealllig'];
+                    $details[$i]['qterlqlig'] = $qteCIS[$i - 1]['0']['qtereliquatlig'];
+                    $details[$i]['qtelivlig'] = $qteCIS[$i - 1]['0']['qtelivlig'];
+                } else {
+                    $details[$i]['qteORlig'] = "";
+                    $details[$i]['qtealllig'] = "";
+                    $details[$i]['qterlqlig'] = "";
+                    $details[$i]['qtelivlig'] = "";
                 }
             }
         }
         $avecOnglet = empty($orCIS) ? false : true;
-      
+
         header("Content-type:application/json");
-        
+
         echo json_encode([
             'avecOnglet' => $avecOnglet,
             'data' => $details,
         ]);
     }
-    
+
     /**
      * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
      */
@@ -170,8 +172,7 @@ class PlanningApi extends Controller
     {
         $matriculeNom = $this->planningModel->recupTechnicientIntervenant($numOr, $numItv);
 
-        if(empty($matriculeNom))
-        {
+        if (empty($matriculeNom)) {
             $matriculeNom = $this->planningModel->recupTechnicien2($numOr, $numItv);
         }
 

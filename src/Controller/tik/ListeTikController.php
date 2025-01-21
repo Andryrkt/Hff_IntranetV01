@@ -64,7 +64,7 @@ class ListeTikController extends Controller
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 50;
 
         $option = [
             'autorisation' => $autorisation,
@@ -75,10 +75,16 @@ class ListeTikController extends Controller
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
 
+        $ticketsWithEditPermission = [];
+        foreach ($paginationData['data'] as $ticket) {
+            $ticketsWithEditPermission[$ticket->getId()] = $this->canEdit($ticket->getNumeroTicket()); // Appel à la méthode canEdit
+        }
+
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
             'data'        => $paginationData['data'],
+            'tickets'     => $ticketsWithEditPermission,
             'currentPage' => $paginationData['currentPage'],
             'totalPages'  => $paginationData['lastPage'],
             'resultat'    => $paginationData['totalItems'],
@@ -172,5 +178,40 @@ class ListeTikController extends Controller
         }
 
         return in_array($roleId, $roleIds);
+    }
+
+    /** 
+     * Fonction pour vérifier si l'utilisateur peut éditer le ticket
+     */
+    private function canEdit(string $numTik): array
+    {
+        $ticket = self::$em->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
+        $result = [
+            'monTicket' => 0,
+            'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
+        ];
+
+        $this->verifierSessionUtilisateur();
+
+        $idUtilisateur  = $this->sessionService->get('user_id');
+
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+
+        if (is_null($utilisateur)) {
+            $this->SessionDestroy();
+            $this->redirectToRoute("security_signin");
+        }
+
+        $allTik = $utilisateur->getSupportInfoUser();
+
+        foreach ($allTik as $tik) {
+            // si le numéro du ticket appartient à l'utilisateur connecté et 
+            if ($numTik === $tik->getNumeroTicket()) {
+                $result['monTicket'] = 1;
+                break;
+            }
+        }
+
+        return $result;
     }
 }

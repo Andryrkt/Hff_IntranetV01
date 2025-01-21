@@ -5,10 +5,10 @@ import { TableauComponent } from "../Component/TableauComponent.js";
 // Configuration centralisée
 const config = {
   elements: {
-    agenceDebiteurInput: "#planning_search_agenceDebite",
-    serviceDebiteurInput: "#planning_search_serviceDebite",
-    selectAllCheckbox: "#planning_search_selectAll",
-    searchForm: "#planning_search_form", // Ajout de l'ID du formulaire de recherche
+    agenceDebiteurInput: '#planning_search_agenceDebite',
+    serviceDebiteurInput: '#planning_search_serviceDebite',
+    selectAllCheckbox: '#planning_search_selectAll',
+    searchForm: '#planning_search_form', // Ajout de l'ID du formulaire de recherche
   },
   urls: {
     serviceFetch: (agenceDebiteur) =>
@@ -26,13 +26,13 @@ const serviceDebiteurInput = document.querySelector(
 const searchForm = document.querySelector(config.elements.searchForm);
 
 // Initialisation des checkbox au chargement de la page
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   ensureSelectAllCheckbox();
   attachCheckboxEventListeners();
   selectAllCheckboxByDefault();
 
   // Ajout d'un écouteur pour recalculer après la soumission du formulaire
-  searchForm.addEventListener("submit", () => {
+  searchForm.addEventListener('submit', () => {
     setTimeout(() => {
       ensureSelectAllCheckbox();
       attachCheckboxEventListeners();
@@ -42,10 +42,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Gestionnaire principal pour le changement de l'agence
-agenceDebiteurInput.addEventListener("change", handleAgenceChange);
+agenceDebiteurInput.addEventListener('change', handleAgenceChange);
 
 function handleAgenceChange() {
   serviceDebiteurInput.disabled = false;
+  // Récupération de l'agence sélectionnée
+  const agenceDebiteur =
+    agenceDebiteurInput.value === '' ? null : agenceDebiteurInput.value;
+
+  clearServiceCheckboxes();
+  removeSelectAllCheckbox();
+
+  if (!agenceDebiteur) {
+    // Si aucune agence n'est sélectionnée, on arrête ici
+    return;
+  }
+
+  // URL pour fetch
+  // Récupération de l'agence sélectionnée
+  const agenceDebiteur =
+    agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
+
+  clearServiceCheckboxes();
+  removeSelectAllCheckbox();
+
+  if (!agenceDebiteur) {
+    // Si aucune agence n'est sélectionnée, on arrête ici
+    return;
+  }
+
+  // URL pour fetch
   // Récupération de l'agence sélectionnée
   const agenceDebiteur =
     agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
@@ -73,6 +99,63 @@ function handleAgenceChange() {
       attachCheckboxEventListeners();
       selectAllCheckboxByDefault(); // Ensure default selection after updating checkboxes
     })
+    .catch((error) => console.error('Error:', error))
+    .finally(() => {
+      // Suppression du spinner
+      spinner.remove();
+    });
+}
+
+// Fonction pour retirer le bouton "Tout sélectionner"
+function removeSelectAllCheckbox() {
+  const selectAllCheckbox = document.querySelector(
+    config.elements.selectAllCheckbox
+  );
+  if (selectAllCheckbox) {
+    selectAllCheckbox.parentElement.remove();
+  }
+}
+
+/// Fonction pour créer le spinner HTML avec CSS intégré
+function createSpinner() {
+  // Conteneur du spinner
+  const spinnerContainer = document.createElement("div");
+  spinnerContainer.id = "serviceSpinner";
+  spinnerContainer.style.display = "flex";
+  spinnerContainer.style.justifyContent = "center";
+  spinnerContainer.style.alignItems = "center";
+  spinnerContainer.style.margin = "20px 0";
+
+  // Spinner
+  const spinner = document.createElement("div");
+  spinner.className = "spinner-border";
+  spinner.role = "status";
+  spinner.style.width = "3rem";
+  spinner.style.height = "3rem";
+  spinner.style.border = "0.25em solid #ccc";
+  spinner.style.borderTop = "0.25em solid #000";
+  spinner.style.borderRadius = "50%";
+  spinner.style.animation = "spin 0.8s linear infinite";
+
+  // Texte pour les lecteurs d'écran (optionnel)
+  const spinnerText = document.createElement("span");
+  spinnerText.className = "sr-only";
+  spinnerText.textContent = "Chargement...";
+
+  spinner.appendChild(spinnerText);
+  spinnerContainer.appendChild(spinner);
+
+  // Ajout des styles d'animation au document (si nécessaire)
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  return spinnerContainer;
     .catch((error) => console.error("Error:", error))
     .finally(() => {
       // Suppression du spinner
@@ -130,6 +213,63 @@ function createSpinner() {
   document.head.appendChild(style);
 
   return spinnerContainer;
+    .catch((error) => console.error("Error:", error))
+    .finally(() => {
+      // Suppression du spinner
+      spinner.remove();
+    });
+}
+
+// Fonction pour retirer le bouton "Tout sélectionner"
+function removeSelectAllCheckbox() {
+  const selectAllCheckbox = document.querySelector(
+    config.elements.selectAllCheckbox
+  );
+  if (selectAllCheckbox) {
+    selectAllCheckbox.parentElement.remove();
+  }
+}
+
+/// Fonction pour créer le spinner HTML avec CSS intégré
+function createSpinner() {
+  // Conteneur du spinner
+  const spinnerContainer = document.createElement('div');
+  spinnerContainer.id = 'serviceSpinner';
+  spinnerContainer.style.display = 'flex';
+  spinnerContainer.style.justifyContent = 'center';
+  spinnerContainer.style.alignItems = 'center';
+  spinnerContainer.style.margin = '20px 0';
+
+  // Spinner
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner-border';
+  spinner.role = 'status';
+  spinner.style.width = '3rem';
+  spinner.style.height = '3rem';
+  spinner.style.border = '0.25em solid #ccc';
+  spinner.style.borderTop = '0.25em solid #000';
+  spinner.style.borderRadius = '50%';
+  spinner.style.animation = 'spin 0.8s linear infinite';
+
+  // Texte pour les lecteurs d'écran (optionnel)
+  const spinnerText = document.createElement('span');
+  spinnerText.className = 'sr-only';
+  spinnerText.textContent = 'Chargement...';
+
+  spinner.appendChild(spinnerText);
+  spinnerContainer.appendChild(spinner);
+
+  // Ajout des styles d'animation au document (si nécessaire)
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  return spinnerContainer;
 }
 
 function updateServiceCheckboxes(services) {
@@ -150,18 +290,18 @@ function ensureSelectAllCheckbox() {
   );
 
   if (!selectAllCheckbox) {
-    const selectAllDiv = document.createElement("div");
-    selectAllDiv.className = "form-check";
+    const selectAllDiv = document.createElement('div');
+    selectAllDiv.className = 'form-check';
 
-    selectAllCheckbox = document.createElement("input");
-    selectAllCheckbox.type = "checkbox";
-    selectAllCheckbox.id = "planning_search_selectAll";
-    selectAllCheckbox.className = "form-check-input";
+    selectAllCheckbox = document.createElement('input');
+    selectAllCheckbox.type = 'checkbox';
+    selectAllCheckbox.id = 'planning_search_selectAll';
+    selectAllCheckbox.className = 'form-check-input';
 
-    const selectAllLabel = document.createElement("label");
+    const selectAllLabel = document.createElement('label');
     selectAllLabel.htmlFor = selectAllCheckbox.id;
-    selectAllLabel.textContent = "Tout sélectionner";
-    selectAllLabel.className = "form-check-label";
+    selectAllLabel.textContent = 'Tout sélectionner';
+    selectAllLabel.className = 'form-check-label';
 
     selectAllDiv.appendChild(selectAllCheckbox);
     selectAllDiv.appendChild(selectAllLabel);
@@ -170,7 +310,7 @@ function ensureSelectAllCheckbox() {
       serviceDebiteurInput.firstChild
     );
 
-    selectAllCheckbox.addEventListener("change", handleSelectAllChange);
+    selectAllCheckbox.addEventListener('change', handleSelectAllChange);
   }
 }
 
@@ -185,21 +325,21 @@ function handleSelectAllChange(event) {
 
 function addServiceCheckboxes(services) {
   services.forEach((service, index) => {
-    const div = document.createElement("div");
-    div.className = "form-check";
+    const div = document.createElement('div');
+    div.className = 'form-check';
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "planning_search[serviceDebite][]";
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'planning_search[serviceDebite][]';
     checkbox.value = service.value;
     checkbox.id = `service_${index}`;
-    checkbox.className = "form-check-input";
+    checkbox.className = 'form-check-input';
     checkbox.checked = true; // Set all checkboxes to checked by default
 
-    const label = document.createElement("label");
+    const label = document.createElement('label');
     label.htmlFor = checkbox.id;
     label.textContent = service.text;
-    label.className = "form-check-label";
+    label.className = 'form-check-label';
 
     div.appendChild(checkbox);
     div.appendChild(label);
@@ -212,8 +352,8 @@ function attachCheckboxEventListeners() {
     'input[name="planning_search[serviceDebite][]"]'
   );
   serviceCheckboxes.forEach((checkbox) => {
-    checkbox.removeEventListener("change", handleServiceCheckboxChange);
-    checkbox.addEventListener("change", handleServiceCheckboxChange);
+    checkbox.removeEventListener('change', handleServiceCheckboxChange);
+    checkbox.addEventListener('change', handleServiceCheckboxChange);
   });
 }
 
@@ -255,110 +395,178 @@ function selectAllCheckboxByDefault() {
  * LIST DETAIL MODAL
  *  =======================*/
 
-document.addEventListener("DOMContentLoaded", (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
   let abortController; // AbortController pour annuler les requêtes fetch précédentes
 
   const listeCommandeModal = document.getElementById("listeCommande");
+  const dossierDitLink = document.getElementById("dossierDitLink");
+  const loading = document.getElementById("loading");
+  const dataContent = document.getElementById("dataContent");
+  const dossierDitLink = document.getElementById("dossierDitLink");
+  const loading = document.getElementById("loading");
+  const dataContent = document.getElementById("dataContent");
 
   // Gestionnaire pour l'ouverture du modal
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
+    affichageContentModal(event);
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    clearTableContents();
+  });
+
+  function affichageContentModal(event) {
+    // Initialiser le modal et annuler les requêtes précédentes
+    abortController = initializeModal(loading, dataContent);
+
+    // Récupérer les attributs du bouton déclencheur
+    const button = event.relatedTarget; // Bouton qui a déclenché le modal
+    const { orIntv, numDit, migration } = getButtonAttributes(button);
+
+    // bouton dossier dit
+    configureModalLink(dossierDitLink, migration, numDit);
+
+    // Extraire numOr et numItv de orIntv
+    const [numOr, numItv] = orIntv.split('-');
+
+    // Utiliser AbortController pour fetchDetailModal
+    fetchDetailModal(orIntv, abortController.signal);
+    fetchTechnicienInterv(numOr, numItv, abortController.signal);
+  }
+
+  function configureModalLink(linkElement, migration, numDit) {
+    // Gérer l'affichage du lien selon la migration
+    handleLinkDisplay(linkElement, migration);
+    // Ajouter un gestionnaire d'événement pour le lien
+    addLinkEventHandler(linkElement, numDit);
+  }
+
+  function initializeModal(loadingElement, dataContentElement) {
+    affichageContentModal(event);
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    clearTableContents();
+  });
+
+  function affichageContentModal(event) {
+    // Initialiser le modal et annuler les requêtes précédentes
+    abortController = initializeModal(loading, dataContent);
+
+    // Récupérer les attributs du bouton déclencheur
+    const button = event.relatedTarget; // Bouton qui a déclenché le modal
+    const { orIntv, numDit, migration } = getButtonAttributes(button);
+
+    // bouton dossier dit
+    configureModalLink(dossierDitLink, migration, numDit);
+
+    // Extraire numOr et numItv de orIntv
+    const [numOr, numItv] = orIntv.split("-");
+
+    // Utiliser AbortController pour fetchDetailModal
+    fetchDetailModal(orIntv, abortController.signal, loading, dataContent);
+    fetchTechnicienInterv(numOr, numItv, abortController.signal);
+  }
+
+  function configureModalLink(linkElement, migration, numDit) {
+    // Gérer l'affichage du lien selon la migration
+    handleLinkDisplay(linkElement, migration);
+    // Ajouter un gestionnaire d'événement pour le lien
+    addLinkEventHandler(linkElement, numDit);
+  }
+
+  function initializeModal(loadingElement, dataContentElement) {
     // Annuler les requêtes fetch en cours s'il y en a
     if (abortController) {
       abortController.abort();
     }
 
-    abortController = new AbortController(); // Créer un nouveau contrôleur
+    // Initialiser un nouveau AbortController
+    abortController = new AbortController();
 
-    const button = event.relatedTarget; // Bouton qui a déclenché le modal
-    const orIntv = button.getAttribute("data-id");
-    const numDit = button.getAttribute("data-numDit");
-    const migration = button.getAttribute("data-migration");
-    const dossierDitLink = document.getElementById("dossierDitLink");
-    if (migration == "1") {
-      dossierDitLink.style.display = "none";
-    }
+    // Afficher le spinner
+    toggleSpinner(loadingElement, dataContentElement, true);
 
-    dossierDitLink.onclick = (event) => {
+    return abortController;
+  }
+
+  // Fonction pour gérer l'affichage du lien
+  function handleLinkDisplay(linkElement, migration) {
+    linkElement.style.display = migration === "1" ? "none" : "block";
+  }
+
+  // Fonction pour ajouter un gestionnaire d'événement au lien
+  function addLinkEventHandler(linkElement, numDit) {
+    linkElement.onclick = (event) => {
+    // Initialiser un nouveau AbortController
+    abortController = new AbortController();
+
+    // Afficher le spinner
+    toggleSpinner(loadingElement, dataContentElement, true);
+
+    return abortController;
+  }
+
+  // Fonction pour gérer l'affichage du lien
+  function handleLinkDisplay(linkElement, migration) {
+    linkElement.style.display = migration === "1" ? "none" : "block";
+  }
+
+  // Fonction pour ajouter un gestionnaire d'événement au lien
+  function addLinkEventHandler(linkElement, numDit) {
+    linkElement.onclick = (event) => {
       event.preventDefault();
       window.open(
         `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
         "_blank"
       );
     };
+  }
 
-    // Afficher le spinner
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("dataContent").style.display = "none";
+  function getButtonAttributes(button) {
+    return {
+      orIntv: button.getAttribute("data-id"),
+      numDit: button.getAttribute("data-numDit"),
+      migration: button.getAttribute("data-migration"),
+    };
+  }
+  }
 
-    const numOr = orIntv.split("-")[0];
-    const numItv = orIntv.split("-")[1];
-
-    // Utiliser AbortController pour fetchDetailModal
-    fetchDetailModal(orIntv, abortController.signal);
-    fetchTechnicienInterv(numOr, numItv, abortController.signal);
-  });
-
-  // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    const tableBodyOR = document.getElementById("commandesTableBodyOR");
-    const tableBodyLign = document.getElementById("commandesTableBodyLign");
-    const Ornum = document.getElementById("orIntv");
-    const planningTableHead = document.getElementById("planningTableHead");
-
-    tableBody.innerHTML = ""; // Vider le tableau
-    tableBodyLign.innerHTML = "";
-    tableBodyOR.innerHTML = "";
-    Ornum.innerHTML = "";
-    planningTableHead.innerHTML = "";
-  });
+  function getButtonAttributes(button) {
+    return {
+      orIntv: button.getAttribute("data-id"),
+      numDit: button.getAttribute("data-numDit"),
+      migration: button.getAttribute("data-migration"),
+    };
+  }
 
   function masquerSpinner() {
     // Masquer le spinner et afficher les données
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("dataContent").style.display = "block";
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dataContent').style.display = 'block';
   }
 
   function fetchTechnicienInterv(numOr, numItv, signal) {
-    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
-      signal,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
+    const tableContainer = document.querySelector("#table-container");
+    const url = `/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`;
+    fetch(url, { signal })
+      .then(handleFetchResponse)
+    const tableContainer = document.querySelector("#table-container");
+    const url = `/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`;
+    fetch(url, { signal })
+      .then(handleFetchResponse)
       .then((data) => {
-        console.log(data);
-
-        const tableBody = document.getElementById("technicienTableBody");
-
-        tableBody.innerHTML = ""; // Clear previous data
-
-        if (data.length > 0) {
-          data.forEach((technicien) => {
-            let nomPrenom = technicien.matriculenomprenom.split("-")[1];
-            // Affichage
-            let row = `<tr>
-              <td>${technicien.matricule}</td> 
-              <td>${nomPrenom}</td> 
-          </tr>`;
-            tableBody.innerHTML += row;
-          });
-        } else {
-          // Si les données sont vides, afficher un message vide
-          tableBody.innerHTML =
-            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-        }
+        affichageDataTechnicienDansUnTableau(data);
+        affichageDataTechnicienDansUnTableau(data);
       })
       .catch((error) => {
         if (error.name === "AbortError") {
           console.log("Requête annulée !");
         } else {
-          const tableBody = document.getElementById("technicienTableBody");
-          tableBody.innerHTML =
-            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          tableContainer.innerHTML = "Could not retrieve data";
+          tableContainer.innerHTML = "Could not retrieve data";
           console.error("There was a problem with the fetch operation:", error);
         }
       });
@@ -657,88 +865,290 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .padStart(2, "0")}/${date.getFullYear()}`;
   }
 
-  /**
-   * pour le separateur et fusion des numOR
-   *
-   * */
-  const tableBody = document.querySelector("#tableBody");
-  const rows = document.querySelectorAll("#tableBody tr");
-
-  let previousOrNumber = null;
-  let rowSpanCount = 0;
-  let firstRowInGroup = null;
-
-  for (var i = 0; i < rows.length; i++) {
-    let currentRow = rows[i];
-    let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
-    let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
-
-    if (previousOrNumber === null) {
-      // Initialisation pour la première ligne
-      firstRowInGroup = currentRow;
-      rowSpanCount = 1;
-    } else if (previousOrNumber && previousOrNumber !== currentOrNumber) {
-      if (firstRowInGroup) {
-        let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-        let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
-        let cellToRowspanService =
-          firstRowInGroup.getElementsByTagName("td")[6];
-        cellToRowspanNumDit.rowSpan = rowSpanCount;
-        cellToRowspanNumOr.rowSpan = rowSpanCount;
-        cellToRowspanInter.rowSpan = rowSpanCount;
-        cellToRowspanAgence.rowSpan = rowSpanCount;
-        cellToRowspanService.rowSpan = rowSpanCount;
-        cellToRowspanNumDit.classList.add("rowspan-cell");
-        cellToRowspanNumOr.classList.add("rowspan-cell");
-        cellToRowspanInter.classList.add("rowspan-cell");
-        cellToRowspanAgence.classList.add("rowspan-cell");
-        cellToRowspanService.classList.add("rowspan-cell");
-      }
-
-      // Début pour le séparateur
-      let separatorRow = document.createElement("tr");
-      separatorRow.classList.add("separator-row");
-      let td = document.createElement("td");
-      td.colSpan = currentRow.cells.length;
-      td.classList.add("p-0");
-      separatorRow.appendChild(td);
-      tableBody.insertBefore(separatorRow, currentRow);
-      // Fin pour le séparateur
-
-      rowSpanCount = 1;
-      firstRowInGroup = currentRow;
-    } else {
-      rowSpanCount++;
-      if (firstRowInGroup !== currentRow) {
-        currentRow.getElementsByTagName("td")[2].style.display = "none";
-        currentRow.getElementsByTagName("td")[1].style.display = "none";
-        currentRow.getElementsByTagName("td")[7].style.display = "none";
-        currentRow.getElementsByTagName("td")[5].style.display = "none";
-        currentRow.getElementsByTagName("td")[6].style.display = "none";
-      }
+  // Fonction pour formater une date ou retourner une chaîne vide pour des valeurs spécifiques
+  function formatDateOrEmpty(date) {
+    if (
+      formaterDate(date) === "01/01/1970" ||
+      formaterDate(date) === "01/01/1900" ||
+      date === ""
+    ) {
+      return "";
     }
-
-    previousOrNumber = currentOrNumber;
+    return formaterDate(date);
   }
 
-  // Appliquer le rowspan à la dernière série de lignes
-  if (firstRowInGroup) {
-    let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-    let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
-    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[6];
-    cellToRowspanNumDit.rowSpan = rowSpanCount;
-    cellToRowspanNumOr.rowSpan = rowSpanCount;
-    cellToRowspanInter.rowSpan = rowSpanCount;
-    cellToRowspanAgence.rowSpan = rowSpanCount;
-    cellToRowspanService.rowSpan = rowSpanCount;
-    cellToRowspanNumDit.classList.add("rowspan-cell");
-    cellToRowspanNumOr.classList.add("rowspan-cell");
-    cellToRowspanInter.classList.add("rowspan-cell");
-    cellToRowspanAgence.classList.add("rowspan-cell");
-    cellToRowspanService.classList.add("rowspan-cell");
+  // Fonction pour retourner une valeur ou une chaîne vide si null ou un certain seuil
+  function valueOrEmpty(value, defaultValue = "") {
+    return value == null || value === "0" ? defaultValue : value;
+  }
+
+  // Fonction pour calculer la couleur de la commande
+  function getCmdColor(detail) {
+    if (detail.statut === "DISPO STOCK") {
+      return 'style="background-color: #c8ad7f; color: white;"';
+      // return { backgroundColor: "#c8ad7f", color: "white" };
+    }
+    if (["Error", "Back Order"].includes(detail.statut)) {
+      return 'style="background-color: red; color: white;"';
+      // return { backgroundColor: "red", color: "white" };
+    }
+    if (detail.Ord === "ORD") {
+      return 'style="background-color:#9ACD32; color: white;"';
+      // return { backgroundColor: "#9ACD32", color: "white" };
+    }
+    return "";
+    //return {}; // Default case
+  }
+
+  // Fonction pour vérifier la réception partielle
+  function getCmdColorRmq(detail) {
+    return parseInt(detail.qteSolde) > 0 &&
+      parseInt(detail.qteSolde) !== parseInt(detail.qteQte)
+      ? 'style="background-color: yellow;"'
+      : "";
+    // return detail.qteSolde > 0 && detail.qteSolde !== detail.qteQte
+    //   ? { backgroundColor: "yellow" }
+    //   : {};
+  }
+
+  function fetchDetailModal(id, signal, loading, dataContent) {
+    const url = `/Hffintranet/detail-modal/${id}`;
+    const url = `/Hffintranet/detail-modal/${id}`;
+    // Fetch request to get the data
+    fetch(url, { signal })
+    fetch(url, { signal })
+      .then(handleFetchResponse)
+      .then((data) => {
+        clearTableContents();
+        if (data.length > 0) {
+          const isTypeCis = data[0].numor.startsWith("5");
+          updateTableHeader(isTypeCis);
+
+          data.forEach((detail) => {
+            updateOrDetails(detail);
+            const formattedDetail = formatDetail(detail);
+            const isTypeCis = detail.numor && detail.numor.startsWith("5");
+            document.getElementById("commandesTableBody").innerHTML +=
+              createRow(detail, formattedDetail, isTypeCis);
+          });
+
+          toggleSpinner(loading, dataContent, false);
+        } else {
+          displayEmptyMessage();
+          toggleSpinner(loading, dataContent, false);
+        }
+      })
+      .catch(handleFetchError);
+  }
+
+  function updateTableHeader(isTypeCis) {
+    const planningTableHead = document.getElementById("planningTableHead");
+    planningTableHead.innerHTML += generateRowHeader(isTypeCis);
+  }
+
+  function formatDetail(detail) {
+    return {
+      dateStatut: formatDateOrEmpty(detail.datestatut),
+      dateEtaIvato: formatDateOrEmpty(detail.Eta_ivato),
+      dateMagasin: formatDateOrEmpty(detail.Eta_magasin),
+      numCde: valueOrEmpty(detail.numerocmd),
+      numRef: valueOrEmpty(detail.ref),
+      statrmq: valueOrEmpty(detail.statut_ctrmq),
+      statut: valueOrEmpty(detail.statut),
+      message: valueOrEmpty(detail.message),
+      numCis: valueOrEmpty(detail.numcis),
+      numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+      StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+      cmdColorRmq: getCmdColorRmq(detail),
+      cmdColorRmq: getCmdColorRmq(detail),
+      cmdColor: getCmdColor(detail),
+    };
+  }
+
+  function displayEmptyMessage() {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML =
+      '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+  }
+
+  function generateRowHeader(includeCIS = false) {
+    let commonHeaders = `
+        <th>N° OR</th>
+        <th>Intv</th>
+        <th>N° Commande</th>
+        <th>Statut ctrmrq</th>
+        <th>CST</th>
+        <th>Ref</th>
+        <th>Désignation</th>
+        <th>Qté OR</th>
+        <th>Qté ALL</th>
+        <th>QTé RLQ</th>
+        <th>QTé LIV</th>
+        <th>Statut</th>
+        <th>Date Statut</th>
+        <th>ETA Ivato</th>
+        <th>ETA Magasin</th>
+        <th>Message</th>
+    `;
+
+    let cisHeader = `<th>N° CIS</th>`;
+
+    return includeCIS ? cisHeader + commonHeaders : commonHeaders;
+  }
+
+  function createRow(detail, formattedDetail, useCis) {
+    return `<tr>
+                <td>${detail.numor}</td>
+                <td>${detail.intv}</td>
+                ${useCis ? `<td>${formattedDetail.numCis}</td>` : ""}
+                <td ${formattedDetail.cmdColor}>${
+      useCis ? formattedDetail.numeroCdeCis : formattedDetail.numCde
+    }</td>
+                <td ${formattedDetail.cmdColorRmq}>${
+      useCis ? formattedDetail.StatutCtrmqCis : formattedDetail.statrmq
+    }</td>
+                <td>${detail.cst}</td>
+                <td>${formattedDetail.numRef}</td>
+                <td>${detail.desi}</td>
+                <td>${parseInt(detail.qteres_or)}</td>
+                <td>${parseInt(detail.qteall)}</td>
+                <td>${parseInt(detail.qtereliquat)}</td>
+                <td>${parseInt(detail.qteliv)}</td>
+                <td>${formattedDetail.statut}</td>
+                <td>${formattedDetail.dateStatut}</td>
+                <td>${formattedDetail.dateEtaIvato}</td>
+                <td>${formattedDetail.dateMagasin}</td>
+                <td>${formattedDetail.message}</td>
+            </tr>`;
   }
 });
+
+// function ancienDataTechnicient() {
+//   const tableBody = document.getElementById("technicienTableBody");
+
+//   tableBody.innerHTML = ""; // Clear previous data
+
+//   if (data.length > 0) {
+//     data.forEach((technicien) => {
+//       let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+//       // Affichage
+//       let row = `<tr>
+//             <td>${technicien.matricule}</td>
+//             <td>${nomPrenom}</td>
+//         </tr>`;
+//       tableBody.innerHTML += row;
+//     });
+//   } else {
+//     // Si les données sont vides, afficher un message vide
+//     tableBody.innerHTML =
+//       '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+//   }
+// }
+// function fetchDetailModal(id, signal, loading, dataContent) {
+//   const url = `/Hffintranet/detail-modal/${id}`;
+//   // Fetch request to get the data
+//   fetch(url, { signal })
+//     .then(handleFetchResponse)
+//     .then((data) => {
+//       if (data.length > 0) {
+//         const isTypeCis = data[0].numor.startsWith("5");
+//         console.log("isTypeCis:", isTypeCis);
+
+//         data.forEach((detail) => {
+//           updateOrDetails(detail);
+//         });
+
+//         const columns = defineColumns(isTypeCis);
+
+//         const formattedData = data.map((detail) =>
+//           formatDetailData(detail, isTypeCis)
+//         );
+
+//         // Effacer le contenu précédent
+//         document.getElementById("table-container-detail").innerHTML = "";
+
+//         // Initialiser ou mettre à jour le tableau
+//         const tableau = new TableauComponent({
+//           columns: columns,
+//           data: formattedData,
+//           theadClass: "table",
+//           defaultValue: "",
+//         });
+//         tableau.mount("table-container-detail");
+
+//         toggleSpinner(loading, dataContent, false);
+//       } else {
+//         displayEmptyMessage();
+//         toggleSpinner(loading, dataContent, false);
+//       }
+//     })
+//     .catch(handleFetchError);
+// }
+
+// function defineColumns(isTypeCis) {
+//   return [
+//     { key: "numor", label: "N° OR", align: "center" },
+//     { key: "intv", label: "Intv", align: "left" },
+//     ...(isTypeCis
+//       ? [{ key: "numcis", label: "N° CIS", align: "center" }]
+//       : []),
+//     {
+//       key: "numCde",
+//       label: "N° Commande",
+//       styles: (row) => getCmdColor(row),
+//       align: "center",
+//     },
+//     {
+//       key: "statrmq",
+//       label: "Statut ctrmrq",
+//       styles: (row) => getCmdColorRmq(row),
+//       align: "center",
+//     },
+//     { key: "cst", label: "CST", align: "center" },
+//     { key: "ref", label: "Ref", align: "left" },
+//     { key: "qteres_or", label: "Qté OR", align: "center" },
+//     { key: "qteall", label: "Qté ALL", align: "center" },
+//     { key: "qtereliquat", label: "Qté RLQ", align: "center" },
+//     { key: "qteliv", label: "Qté LIV", align: "center" },
+//     { key: "statut", label: "Statut", align: "center" },
+//     { key: "datestatut", label: "Date Statut", align: "center" },
+//     { key: "Eta_ivato", label: "ETA Ivato", align: "center" },
+//     { key: "Eta_magasin", label: "ETA Magasin", align: "center" },
+//     { key: "message", label: "Message", align: "left" },
+//   ];
+// }
+
+// function formatDetailData(detail, isTypeCis) {
+//   return {
+//     numcis: detail.numcis,
+//     numor: detail.numor,
+//     intv: detail.intv,
+//     numCde: detail.numerocmd || valueOrEmpty(detail.numerocdecis),
+//     statrmq: isTypeCis
+//       ? valueOrEmpty(detail.statut_ctrmq_cis)
+//       : valueOrEmpty(detail.statut_ctrmq),
+//     cst: detail.cst,
+//     ref: detail.ref,
+//     qteres_or: valueOrEmpty(parseInt(detail.qteres_or)),
+//     qteall: valueOrEmpty(parseInt(detail.qteall)),
+//     qtereliquat: valueOrEmpty(parseInt(detail.qtereliquat)),
+//     qteliv: valueOrEmpty(parseInt(detail.qteliv)),
+//     statut: detail.statut,
+//     datestatut: formatDateOrEmpty(detail.datestatut),
+//     Eta_ivato: formatDateOrEmpty(detail.Eta_ivato),
+//     Eta_magasin: formatDateOrEmpty(detail.Eta_magasin),
+//     message: detail.message,
+//     Ord: detail.Ord,
+//     qteSolde: parseInt(detail.qteSolde),
+//     qteQte: parseInt(detail.qteQte),
+//     numeroCdeCis: valueOrEmpty(detail.numerocdecis),
+//     StatutCtrmqCis: valueOrEmpty(detail.statut_ctrmq_cis),
+//   };
+// }
+
+// function displayEmptyMessage() {
+//   tableau.props.data = [
+//     { numor: "Aucune donnée disponible.", intv: "", numCde: "" },
+//   ];
+//   tableau.render();
+// }
