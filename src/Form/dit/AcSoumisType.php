@@ -25,6 +25,10 @@ class AcSoumisType extends AbstractType
             ->add('nomClient', TextType::class, [
                 'label' => 'Nom client *',
                 'required' => true,
+                'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
+                ]
             ])
             ->add('numeroBc', TextType::class, [
                 'label' => 'N° de bon de commande *',

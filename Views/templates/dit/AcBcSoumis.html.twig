@@ -3,6 +3,7 @@
 {% block stylesheets%}
 <link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 <link href="/Hffintranet/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+<link href="/Hffintranet/Views/css/dit/acBcSoumis.css" rel="stylesheet"/>
 {% endblock%}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -48,6 +49,7 @@
 									{{ form_errors(form.dateDevis)}}
 									{{ form_row(form.nomClient)}}
 									{{ form_errors(form.nomClient)}}
+									<div id="suggestion" class="suggestions"></div>
 
 								</div>
 							</div>

@@ -1,3 +1,7 @@
+/**
+ * Methode pour le draw and drop du fichier
+ * @param {*} idSuffix
+ */
 function initializeFileHandlers(idSuffix) {
   const fileInput = document.querySelector(`#ac_soumis_pieceJoint0${idSuffix}`);
   const fileName = document.querySelector(`.file-name-${idSuffix}`);
@@ -79,3 +83,78 @@ function formatFileSize(size) {
 
 // Utilisation pour plusieurs fichier
 initializeFileHandlers("1");
+
+/**
+ * Methode pour l'autocomplet nom client
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  let preloadedData = [];
+
+  /**
+   * Fonction pour charger tous les données au début (avant l'evenement)
+   */
+  async function preloadData(url) {
+    try {
+      const response = await fetch(url);
+      preloadedData = await response.json(); // Stocke les données
+    } catch (error) {
+      console.error("Erreur lors du préchargement des données :", error);
+    }
+  }
+
+  const url = "/Hffintranet/autocomplete/all-client";
+  preloadData(url); //recupérer les donner à partir de l'url
+
+  const nomClientInput = document.querySelector("#ac_soumis_nomClient");
+  const suggestionContainer = document.querySelector("#suggestion");
+
+  nomClientInput.addEventListener("input", filtrerLesDonner);
+
+  /**
+   * Methode permet de filtrer les donner selon les donnée saisi dans l'input
+   */
+  function filtrerLesDonner() {
+    const nomClient = nomClientInput.value.trim();
+
+    // Si l'input est vide, efface les suggestions et arrête l'exécution
+    if (nomClient === "") {
+      suggestionContainer.innerHTML = ""; // Efface les suggestions
+      return;
+    }
+
+    // let filteredData = [];
+
+    const filteredData = preloadedData.filter((item) => {
+      const phrase = item.label + " - " + item.value;
+      return phrase.toLowerCase().includes(nomClient.toLowerCase());
+    });
+
+    showSuggestions(suggestionContainer, filteredData);
+  }
+
+  /**
+   * Methode permet d'afficher les donner sur le div du suggestion
+   * @param {HTMLElement} suggestionsContainer
+   * @param {Array} data
+   */
+  function showSuggestions(suggestionsContainer, data) {
+    console.log(data.length === 0);
+
+    // Vérifie si le tableau est vide
+    if (data.length === 0) {
+      suggestionsContainer.innerHTML = ""; // Efface les suggestions
+      return; // Arrête l'exécution de la fonction
+    }
+
+    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
+    data.forEach((item) => {
+      const suggestion = document.createElement("div");
+      suggestion.textContent = item.label + " - " + item.value; // Affiche le label
+      suggestion.addEventListener("click", () => {
+        nomClientInput.value = item.label + " - " + item.value; // Remplit le champ avec la sélection
+        suggestionsContainer.innerHTML = ""; // Efface les suggestions
+      });
+      suggestionsContainer.appendChild(suggestion);
+    });
+  }
+});

@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
     data.forEach((item) => {
       const suggestion = document.createElement("div");
-      suggestion.textContent = item.label; // Affiche le label
+      suggestion.textContent = item.label + " - " + item.value; // Affiche le label
       suggestion.addEventListener("click", () => {
         let label = field === "numero" ? item.label : item.value;
         let value = field === "numero" ? item.value : item.label;
@@ -468,15 +468,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateClientFields(label, value) {
-    const numeroClient = document.getElementById(
-      "demande_intervention_numeroClient"
-    );
-    const nomClient = document.getElementById("demande_intervention_nomClient");
-
     // Vérification si les éléments sont présents dans le DOM
-    if (numeroClient && nomClient) {
-      numeroClient.value = label; // Assigner le label à 'numeroClient'
-      nomClient.value = value; // Assigner la value à 'nomClient'
+    if (numClientInput && nomClientInput) {
+      numClientInput.value = label; // Assigner le label à 'numeroClient'
+      nomClientInput.value = value; // Assigner la value à 'nomClient'
     } else {
       console.error("Les éléments du formulaire n'ont pas été trouvés.");
     }
@@ -501,6 +496,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     input.addEventListener("input", async function () {
       const query = input.value.trim();
+      if (query === "") {
+        numClientInput.value = "";
+        nomClientInput.value = "";
+        return;
+      }
 
       if (query.length > 0) {
         try {
@@ -546,6 +546,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Appliquer l'autocomplétion à tous les champs avec la classe "autocomplete"
   document.querySelectorAll(".autocomplete").forEach(setupAutocomplete);
+
+  allowOnlyNumbers(numClientInput); //n'accèpte que le chiffre
 });
 
 /**
