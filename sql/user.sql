@@ -51,6 +51,9 @@ ALTER TABLE users ADD societe_id INT
 UPDATE users
 set
     societe_id = 1
+
+
+    
     /** permet de changer le personnel_id dans la table user à partir de l'id de la table personnel */
 UPDATE users
 SET
