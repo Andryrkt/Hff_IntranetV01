@@ -197,15 +197,15 @@
 						<div class="d-flex justify-content-end">
 							{% if validateur and statutOuvert %}
 								{# BOUTONS POUR VALIDATEUR #}
-								<button type="submit" class="btn bouton ajout-overlay text-white bg-danger" name="refuser" id="btn_refuser">
+								<button type="submit" class="btn bouton text-white bg-danger" name="refuser" id="btn_refuser">
 									<i class="fas fa-xmark"></i>
 									Réfuser
 								</button>
-								<button type="submit" class="btn bouton ajout-overlay mx-3" name="commenter" id="btn_commenter">
+								<button type="submit" class="btn bouton mx-3" name="commenter" id="btn_commenter">
 									<i class="fas fa-paper-plane"></i>
 									Envoyer commentaire
 								</button>
-								<button type="submit" class="btn bouton ajout-overlay" name="valider" id="btn_valider">
+								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
 									<i class="fas fa-check"></i>
 									Valider
 								</button>
@@ -213,15 +213,15 @@
 							{% elseif intervenant %}
 
 								{# BOUTONS POUR INTERVENANT #}
-								<button type="submit" class="btn bouton ajout-overlay" name="resoudre" id="btn_resoudre">
+								<button type="submit" class="btn bouton" name="resoudre" id="btn_resoudre">
 									<i class="fas fa-check"></i>
 									Résoudre
 								</button>
-								<button type="submit" class="btn bouton ajout-overlay mx-3 text-white bg-black" data-intervenant="{{ connectedUser.id }}" name="transferer" id="btn_transferer">
+								<button type="submit" class="btn bouton mx-3 text-white bg-black" data-intervenant="{{ connectedUser.id }}" name="transferer" id="btn_transferer">
 									<i class="fas fa-arrows-turn-right"></i>
 									Transférer
 								</button>
-								<button type="submit" class="btn bouton ajout-overlay" name="planifier" id="btn_planifier">
+								<button type="submit" class="btn bouton" name="planifier" id="btn_planifier">
 									<i class="fas fa-calendar"></i>
 									Planifier
 								</button>
