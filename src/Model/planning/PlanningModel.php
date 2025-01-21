@@ -765,4 +765,29 @@ public function recuperationPartiel($numcde, $refp){
       $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
+
+  public function dateLivraisonCIS($numCIS){
+    $statement = "SELECT 
+                   max(nliv_datexp) as dateLivLig
+                    from neg_liv 
+                    where nliv_numcde = '".$numCIS."'
+                 ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+  return $resultat;
+  }
+
+  public function dateAllocationCIS($numCIS,$refp){
+    $statement = " SELECT
+                   nlig_datealloc as dateAlllig
+                   from neg_lig 
+                   where nlig_numcde =  '".$numCIS."' 
+                   and nlig_refp = '".$refp."'
+                ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+  return $resultat;
+  }
 }

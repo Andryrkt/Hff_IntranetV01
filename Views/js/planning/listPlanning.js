@@ -789,6 +789,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else if (Ord == "ORD") {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
+            //onglet CIS
+            // let statutCIS;
+            // let statutDateCIS;
+            // if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
+            //     statutCIS= 'Livré';
+            //     statutDateCIS = detail.dateLivLIg;
+            // }else
+            //
             if (detail.numor && detail.numor.startsWith("5")) {
               // Affichage
               let row = `<tr>
