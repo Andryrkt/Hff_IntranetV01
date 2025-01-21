@@ -37,8 +37,20 @@ class GenererPdfAcSoumis extends GeneratePdf
         $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Public/build/images/logoHFF.jpg';
         $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
         // Contenu HTML avec texte justifié
+     // Ajouter un tableau avec deux colonnes pour l'en-tête
         $html = '
         <style>
+            table {
+                width: 100%;
+            }
+            .left {
+                text-align: left;
+                font-size: 11px;
+            }
+            .right {
+                text-align: right;
+                font-size: 11px;
+            }
             h1 {
                 text-align: center;
                 font-size: 18px;
@@ -47,36 +59,40 @@ class GenererPdfAcSoumis extends GeneratePdf
                 text-align: justify;
                 line-height: 1.5;
             }
-            .header {
-                text-align: left;
-                font-size: 11px;
-            }
             .footer {
                 text-align: center;
                 font-size: 10px;
             }
         </style>
-        <div class="header">
-            <b>HENRI FRAISE FILS & CIE</b><br>
-            BP 28, 90 Làlana Ravoninahitriniarivo,<br>
-            Antananarivo 101 - Madagascar<br>
-            (+261) 20 22 123 45
-        </div>
-        <br>
+        <table>
+            <tr>
+                <td class="left">
+                    <b>HENRI FRAISE FILS & CIE</b><br>
+                    BP 28, 90 Làlana Ravoninahitriniarivo,<br>
+                    Antananarivo 101 - Madagascar<br>
+                    (+261) 20 22 227 21
+                </td>
+                <td class="right">
+                    <b>'.$acSoumis->getDateCreation()->format('d/m/Y').'</b>
+                </td>
+            </tr>
+        </table>
+
         <h1>ACCUSE DE RECEPTION</h1>
-        <br>
+
         <p>
-            <b>'.$formatter->format($acSoumis->getDateCreation()).'</b><br>
             <b>A l\'attention de '. $acSoumis->getNomClient().' </b> <br>
             <b>'.$acSoumis->getEmailClient().'</b><br>
         </p>
         <p>
-            <b>Objet : Accusé de réception du bon de commande n°'.$acSoumis->getNumeroBc().'</b>
+            <b>Objet : Accusé de réception du bon de commande n°'.$acSoumis->getNumeroBc().'</b> <br>
+            <b>N°BC : </b> '.$acSoumis->getNumeroBc().' <br>
+            <b>Date BC : </b> '.$acSoumis->getDateBc()->format('d/m/Y').'
         </p>
         <p>
             Madame, Monsieur,<br><br>
-            Nous accusons réception de votre bon de commande n°'.$acSoumis->getNumeroBc().', daté du '.$formatter->format($acSoumis->getDateBc()).', portant sur '.$acSoumis->getDescriptionBc().'.<br><br>
-            Cette commande fait suite à notre devis n° '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') en date du '.$formatter->format($acSoumis->getDateDevis()).' dont la date d\'expiration est '.$formatter->format($acSoumis->getDateExpirationDevis()).', d\'un montant total de '.$this->formatNumber($acSoumis->getMontantDevis()).$acSoumis->getDevise().'. Nous confirmons que votre commande a été enregistrée.<br><br>
+            Nous accusons réception de votre bon de commande, portant sur '.$acSoumis->getDescriptionBc().'.<br><br>
+            Cette commande fait suite à notre devis n° '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') en date du '.$acSoumis->getDateDevis()->format('d/m/Y').' dont la date d\'expiration est '.$acSoumis->getDateExpirationDevis()->format('d/m/Y').', d\'un montant HT de '.$this->formatNumber($acSoumis->getMontantDevis()).' '.$acSoumis->getDevise().'. Nous confirmons que votre commande a été enregistrée.<br><br>
             Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à '.$acSoumis->getEmailContactHff().' ou par téléphone au '.$acSoumis->getTelephoneContactHff().'.<br><br>
             Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br><br>
             Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br>
@@ -85,6 +101,7 @@ class GenererPdfAcSoumis extends GeneratePdf
 
         // Écriture du contenu HTML dans le PDF
         $pdf->writeHTML($html, true, false, true, false, '');
+
 
         
         $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Public/build/images/footer.png';
