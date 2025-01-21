@@ -758,7 +758,7 @@ public function recuperationPartiel($numcde, $refp){
             and nlig_constp = slor_constp
             and nlig_refp = slor_refp
             where nlig_natop = 'CIS'
-            and  SUBSTR(slor_numor ,1,1) = 5
+            and slor_succ  <> '01'
             and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
                      ";
       $result = $this->connect->executeQuery($statement);
