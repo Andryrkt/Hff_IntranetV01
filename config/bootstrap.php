@@ -89,6 +89,7 @@ define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
 $request = Request::createFromGlobals();
 $response = new Response();
 
+/** ROUTE */
 // Charger les routes du dossier 'Controller'
 $loader = new AnnotationDirectoryLoader(
     new FileLocator(dirname(__DIR__) . '/src/Controller/'),
@@ -115,18 +116,15 @@ $matcher = new UrlMatcher($collection, new RequestContext(''));
 $controllerResolver = new ControllerResolver();
 $argumentResolver = new ArgumentResolver();
 
+/** TWIG */
 // URL Generator for use in Twig
 $generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
-
 
 //secuiter csrf
 $csrfTokenManager = new CsrfTokenManager();
 
 // Form Validator
 $validator = Validation::createValidator();
-
-
-
 
 
 // Translator

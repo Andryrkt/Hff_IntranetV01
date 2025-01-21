@@ -45,7 +45,7 @@ class UserController extends Controller
         $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
         $data = $this->transformIdEnObjetEntitySuperieur($data);
 
-        $this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
+        //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/utilisateur/list.html.twig', [
             'data' => $data
@@ -98,7 +98,7 @@ class UserController extends Controller
             $this->redirectToRoute("utilisateur_index");
         }
 
-        $this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
+        //$this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
@@ -145,9 +145,7 @@ class UserController extends Controller
             return $this->redirectToRoute("utilisateur_index");
         }
 
-        $this->logUserVisit('utilisateur_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
+        //$this->logUserVisit('utilisateur_update', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/utilisateur/edit.html.twig', [
             'form' => $form->createView(),
@@ -221,9 +219,7 @@ class UserController extends Controller
 
         $data = self::$em->getRepository(User::class)->find($id);
 
-        $this->logUserVisit('utilisateur_show', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
+        //$this->logUserVisit('utilisateur_show', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/utilisateur/details.html.twig', [
             'data' => $data

@@ -2,19 +2,13 @@
 
 namespace App\Controller\planning;
 
-use Dotenv\Parser\Entry;
-use Illuminate\Support\Arr;
-use App\Controller\Controller;
 
-use App\Form\planning\MoisAvantType;
-use App\Service\fusionPdf\FusionPdf;
+use App\Controller\Controller;
 use App\Model\planning\PlanningModel;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\planning\PlanningSearch;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
-use App\Entity\planning\PlanningMateriel;
 use App\Form\planning\PlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
