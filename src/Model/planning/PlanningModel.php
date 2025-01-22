@@ -761,7 +761,7 @@ public function recuperationPartiel($numcde, $refp){
       //       and slor_succ  <> '01'
       //       and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
                     //  ";
-            $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') 
+            $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') as succ
             from sav_lor, sav_eor
             where slor_succ = seor_succ
             and slor_numor = seor_numor

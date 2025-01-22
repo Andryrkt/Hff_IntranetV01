@@ -45,6 +45,7 @@ class PlanningApi extends Controller
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
           
             $orCIS = $this->planningModel->recupOrcis($numOr);
+            
             $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
             $migration = $ditRepositoryConditionner->getMigration();
@@ -61,10 +62,10 @@ class PlanningApi extends Controller
                 if($numOr[0] =='5'){
                   
                     if($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0" ){
-
+                        
                         $recupGot = [];
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
-                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis	']);
+                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis']);
                         $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref']);
                        
                     } else {
@@ -156,11 +157,12 @@ class PlanningApi extends Controller
                 }
             }
         }
-      
-        $avecOnglet = empty($orCIS) ? false : true;
+
+
+        $avecOnglet = empty($orCIS) || empty($orCIS[0]['succ']) ? false : true;
        
         header("Content-type:application/json");
-        
+   
         echo json_encode([
             'avecOnglet' => $avecOnglet,
             'data' => $details,
