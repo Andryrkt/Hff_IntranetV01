@@ -49,7 +49,7 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     {
         if (!$option['autorisation']['autoriserIntervenant'] && !$option['autorisation']['autoriserValidateur']) {
             $queryBuilder
-                ->andWhere('tki.idStatutDemande NOT IN :tab')
+                ->andWhere('tki.idStatutDemande NOT IN (:tab)')
                 ->setParameter('tab', ['62', '64'])
             ;
         }
