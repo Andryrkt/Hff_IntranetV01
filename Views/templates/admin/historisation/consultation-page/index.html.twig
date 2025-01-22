@@ -9,50 +9,55 @@
 	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/historisation/consultation-page/index.css">
 {% endblock %}
 
+{% import "macroForm.html.twig" as macroForm %}
+
 {% block content %}
 	<div class="container mt-4">
 		<h3 class="perso-titre">Historique des consultations</h3>
 
-		<!-- Filtres -->
-		<form id="filters" class="row g-3 mb-4">
-			<div class="col-md-3">
-				<label for="filterUser" class="form-label">Utilisateur</label>
-				<input type="text" class="form-control" id="filterUser" placeholder="Nom de l'utilisateur">
-			</div>
-			<div class="col-md-3">
-				<label for="filterPage" class="form-label">Nom de la page</label>
-				<input type="text" class="form-control" id="filterPage" placeholder="Nom de la page">
-			</div>
-			<div class="col-md-3">
-				<label for="filterDate" class="form-label">Date</label>
-				<input type="date" class="form-control" id="filterDate">
-			</div>
-			<div class="col-md-3 d-flex align-items-end">
-				<button type="button" class="btn btn-primary w-100" id="filter">Appliquer les filtres</button>
-			</div>
-		</form>
+		{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
+	</div>
 
-		<!-- Tableau -->
-		<div class="table-responsive">
-			<table class="table table-striped table-hover">
-				<thead>
-					<tr>
-						<th>Nom de l'utilisateur</th>
-						<th>Nom de la page</th>
-						<th>Date et heure</th>
-						<th>Paramètres</th>
-						<th>Machine</th>
-					</tr>
-				</thead>
-				<tbody
-					id="consultationTable"><!-- Rempli dynamiquement -->
-				</tbody>
-			</table>
-			<!-- Spinner Loader -->
-			<div id="spinner" style="display: none; height: 60px;">
-				<div class="loader"></div>
-			</div>
+	<!-- Tableau -->
+	<div class="container-fluid">
+		<div class="container">
+			{% include "/admin/historisation/consultation-page/shared/_pagination.html.twig" %}
 		</div>
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>ID</th>
+					<th>Nom de l'utilisateur</th>
+					<th>Nom de la page</th>
+					<th>Date et heure</th>
+					<th>Paramètres</th>
+					<th>Machine</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					<tr>
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style=""></ul>
+							</div>
+						</td>
+						<td>{{ item.id }}</td>
+						<td>{{ item.utilisateur }}</td>
+						<td>{{ item.nom_page }}</td>
+						<td>{{ item.dateConsultation|date('d/m/Y - H:i:s') }}</td>
+						<td>{{ macroForm.listAssociative(item.params) }}</td>
+						<td>{{ item.machineUser }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 {% endblock %}
 

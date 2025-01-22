@@ -181,6 +181,23 @@
 </ul>
 {% endmacro %} 
 
+{% macro listAssociative(items) %}
+<ul class="list-group">
+  {% for key, value in items %}
+    {% if value is iterable %}
+        <li class="list-group-item"><b>{{ key }}</b> : 
+            {% for item in value %}
+                {{ item }} - 
+            {% endfor %}
+        </li>
+    {% else %}
+        <li class="list-group-item"><b>{{ key }}</b> : {{ value }}</li>
+    {% endif %}
+    
+  {% endfor %}
+</ul>
+{% endmacro %} 
+
 {# Fonction pour concaténer une catégorie et sous-catégorie #}
 {% macro concat(categorie, sousCategorie) %}
     {{ sousCategorie ? categorie ~ ' / ' ~ sousCategorie : categorie }}
