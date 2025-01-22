@@ -67,7 +67,16 @@ class HandleRequestService
             ->setIdStatutDemande($this->statut)    // statut en cours
         ;
 
+        $this->tkiCommentaire
+            ->setNumeroTicket($this->form->getData()->getNumeroTicket())
+            ->setNomUtilisateur($this->connectedUser->getNomUtilisateur())
+            ->setCommentaires($this->form->get('commentaires')->getData())
+            ->setUtilisateur($this->connectedUser)
+            ->setDemandeSupportInformatique($this->supportInfo)
+        ;
+
         //envoi les donnée dans la base de donnée
+        $this->em->persist($this->tkiCommentaire);
         $this->em->persist($this->supportInfo);
         $this->em->flush();
 
