@@ -51,7 +51,27 @@
 									{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
 								</div>
 								<div class="col-12 col-md-3">
-									{{ macroForm.affichage('Statut du ticket', tik.idStatutDemande.description) }}
+									{% set classeStatutTik = '' %}
+
+									{% if tik.idStatutDemande.description | trim == 'OUVERT' %}
+										{% set classeStatutTik ='ouvert' %}
+									{% elseif tik.idStatutDemande.description | trim == 'REFUSE'  %}
+										{% set classeStatutTik ='refuse' %}
+									{% elseif  tik.idStatutDemande.description | trim == 'ENCOURS' %}
+										{% set classeStatutTik ='encours' %}
+									{% elseif tik.idStatutDemande.description | trim == 'PLANIFIE' %}
+										{% set classeStatutTik ='planifie' %}
+									{% elseif tik.idStatutDemande.description | trim == 'RESOLU' %}
+										{% set classeStatutTik ='resolu' %}
+									{% elseif tik.idStatutDemande.description | trim == 'REOUVERT' %}
+										{% set classeStatutTik ='reouvert' %}
+									{% elseif tik.idStatutDemande.description | trim == 'CLÔTURE' %}
+										{% set classeStatutTik ='cloture' %}
+									{% else %}
+										{% set classeStatutTik = '' %}
+									{% endif %}
+
+									{{ macroForm.affichage2('Statut du ticket', classeStatutTik, tik.idStatutDemande.description) }}
 								</div>
 								<div class="col-12 col-md-3">
 									{{ macroForm.affichage('Date de création', tik.dateCreation|date('d/m/Y')) }}
