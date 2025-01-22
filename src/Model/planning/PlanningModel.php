@@ -749,16 +749,22 @@ public function recuperationPartiel($numcde, $refp){
   }
 
   public function recupOrcis($numOritv){
-      $statement = "SELECT  DISTINCT 
-            nlig_natop from sav_lor 
-            inner join neg_lig on 
-            nlig_soc = slor_soc 
-            and nlig_succd = slor_succ
-            and nlig_numcde = slor_numcf
-            and nlig_constp = slor_constp
-            and nlig_refp = slor_refp
-            where nlig_natop = 'CIS'
-            and slor_succ  <> '01'
+      // $statement = "SELECT  DISTINCT 
+      //       nlig_natop from sav_lor 
+      //       inner join neg_lig on 
+      //       nlig_soc = slor_soc 
+      //       and nlig_succd = slor_succ
+      //       and nlig_numcde = slor_numcf
+      //       and nlig_constp = slor_constp
+      //       and nlig_refp = slor_refp
+      //       where nlig_natop = 'CIS'
+      //       and slor_succ  <> '01'
+      //       and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
+                    //  ";
+            $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') 
+            from sav_lor, sav_eor
+            where slor_succ = seor_succ
+            and slor_numor = seor_numor
             and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
                      ";
       $result = $this->connect->executeQuery($statement);

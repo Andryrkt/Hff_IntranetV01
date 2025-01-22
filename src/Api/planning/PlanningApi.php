@@ -59,11 +59,14 @@ class PlanningApi extends Controller
             for ($i=0; $i < count($details); $i++) {
                 
                 if($numOr[0] =='5'){
-                    if(empty($details[$i]['numcis']) || $details[$i]['numerocdecis'] == "0" ){
+                  
+                    if($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0" ){
+
                         $recupGot = [];
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
                         $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis	']);
                         $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref']);
+                       
                     } else {
                         $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'],$details[$i]['cst']);
                         $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocdecis'],$details[$i]['ref']);
@@ -115,7 +118,7 @@ class PlanningApi extends Controller
                         $details[$i]['dateLivLIg'] = "";
                     }
 
-                    if(!empty($dateAllLig)){
+                    if(!empty($dateAllLig[0])){
                         $details[$i]['dateAllLIg']= $dateAllLig[$i]['0']['datealllig'];
                     }else{
                         $details[$i]['dateAllLIg'] = "";
@@ -153,8 +156,9 @@ class PlanningApi extends Controller
                 }
             }
         }
-        $avecOnglet = empty($orCIS) ? false : true;
       
+        $avecOnglet = empty($orCIS) ? false : true;
+       
         header("Content-type:application/json");
         
         echo json_encode([
