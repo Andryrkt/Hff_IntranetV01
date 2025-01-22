@@ -7,17 +7,22 @@ use TCPDF;
 class HeaderFooterAcPdf extends TCPDF {
     // En-tête de page
     public function Header() {
+       // Définir la police pour l'email
         $this->SetFont('helvetica', '', 10);
-        $this->Cell(0,10,'AR-HFF');
-        // $logoPath = $logoPath = 'C:' . DIRECTORY_SEPARATOR . 'wamp64' . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . 'Hffintranet' . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'logoHFF.jpg';
-        // $this->Image($logoPath, 15, 20, 50, '', 'jpg', '', 'T', false, 300, '', false, false, 0, false, false, false);
+
+        // Définir la couleur du texte
+        $this->SetTextColor(0, 0, 0);
+
+        // Positionner le texte de l'email
+        $this->SetXY(11, 2); // Coordonnées pour l'email
+        $this->Cell(35, 6, 'AR-HFF', 0, 0, 'L');
         
     }
 
     // Pied de page
     public function Footer() {
-        $this->SetY(-15);
-        $this->SetFont('helvetica', 'I', 8);
-        $this->Cell(0, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+        // $this->SetY(-15);
+        // $this->SetFont('helvetica', 'I', 8);
+        // $this->Cell(0, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
     }
 }

@@ -12,8 +12,6 @@ class GenererPdfAcSoumis extends GeneratePdf
 
     function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom)
     {
-        $locale = 'fr_FR';
-        $formatter = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::NONE);
         // Création de l'objet PDF
         $pdf = new HeaderFooterAcPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
@@ -27,8 +25,8 @@ class GenererPdfAcSoumis extends GeneratePdf
         $pdf->SetMargins(25, 20, 25); // Marges : gauche = 25mm, haut = 20mm, droite = 25mm
         $pdf->SetAutoPageBreak(TRUE, 20);
 
-        // Supprimer l'en-tête et le pied de page automatique
-        $pdf->setPrintHeader(false);
+        //  afficher l'en-tête et Supprimerle pied de page automatique
+        $pdf->setPrintHeader(true);
         $pdf->setPrintFooter(false);
 
         // Ajouter une page

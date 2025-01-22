@@ -138,8 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {Array} data
    */
   function showSuggestions(suggestionsContainer, data) {
-    console.log(data.length === 0);
-
     // Vérifie si le tableau est vide
     if (data.length === 0) {
       suggestionsContainer.innerHTML = ""; // Efface les suggestions
@@ -151,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const suggestion = document.createElement("div");
       suggestion.textContent = item.label + " - " + item.value; // Affiche le label
       suggestion.addEventListener("click", () => {
-        nomClientInput.value = item.label + " - " + item.value; // Remplit le champ avec la sélection
+        nomClientInput.value = item.value; // Remplit le champ avec la sélection
         suggestionsContainer.innerHTML = ""; // Efface les suggestions
       });
       suggestionsContainer.appendChild(suggestion);
