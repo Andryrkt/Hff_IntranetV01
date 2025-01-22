@@ -766,11 +766,37 @@ class PlanningModel extends Model
             and nlig_constp = slor_constp
             and nlig_refp = slor_refp
             where nlig_natop = 'CIS'
-            and  slor_numor  || '-' || trunc(slor_nogrp/100) = '" . $numOritv . "'
+            and slor_succ  <> '01'
+            and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
                      ";
+      $result = $this->connect->executeQuery($statement);
+      $data = $this->connect->fetchResults($result);
+      $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
+
+  public function dateLivraisonCIS($numCIS){
+    $statement = "SELECT 
+                   max(nliv_datexp) as dateLivLig
+                    from neg_liv 
+                    where nliv_numcde = '".$numCIS."'
+                 ";
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
+  return $resultat;
+  }
+
+  public function dateAllocationCIS($numCIS,$refp){
+    $statement = " SELECT
+                   nlig_datealloc as dateAlllig
+                   from neg_lig 
+                   where nlig_numcde =  '".$numCIS."' 
+                   and nlig_refp = '".$refp."'
+                ";
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+  return $resultat;
   }
 }
