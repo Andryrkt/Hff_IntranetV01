@@ -111,14 +111,16 @@ class DetailTikController extends Controller
                 'id' => $id
             ]); // historisation du page visité par l'utilisateur 
 
-            self::$twig->display('tik/demandeSupportInformatique/detail.html.twig', [
+            $template = in_array("VALIDATEUR", $connectedUser->getRoleNames()) && !$statutOuvert ? "detail-2" : "detail-1";
+
+            self::$twig->display("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,
                 'form'              => $form->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),
                 'canComment'        => $this->canComment($connectedUser, $supportInfo),
                 'statutOuvert'      => $statutOuvert,
-                'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérfifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
-                'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérfifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
+                'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
+                'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
                 'intervenant'       => !$statutOuvert && $isIntervenant,                   // statut différent de ouvert et l'utilisateur connecté est l'intervenant
                 'connectedUser'     => $connectedUser,
                 'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
