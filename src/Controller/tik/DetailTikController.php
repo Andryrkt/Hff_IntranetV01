@@ -54,23 +54,17 @@ class DetailTikController extends Controller
         if (!$supportInfo) {
             self::$twig->display('404.html.twig');
         } else {
-            $form = self::$validator->createBuilder(DetailTikType::class, $supportInfo)->getForm();
+            $formDetail = self::$validator->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 
-            $form->handleRequest($request);
+            $formDetail->handleRequest($request);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                /** 
-                 * @var DemandeSupportInformatique $dataForm l'entité du DemandeSupportInformatique envoyé par le formualire de validation
-                 */
-                $dataForm = $form->getData();
-                $numTik   = $dataForm->getNumeroTicket(); // numéro du ticket
-
+            if ($formDetail->isSubmitted() && $formDetail->isValid()) {
                 /** 
                  * @var array $button tableau associatif contenant "action" => l'action de la requête (refuser, valider, ...); "statut" => code statut (79, 80, ...) de la demande selon l'action 
                  */
                 $button = $this->getButton($request);
 
-                $handleRequestService->handleTheRequest($button, $form);
+                $handleRequestService->handleTheRequest($button, $formDetail);
 
                 if ($button['action'] === 'planifier') {
                     $this->redirectToRoute("tik_calendar_planning");
@@ -85,23 +79,8 @@ class DetailTikController extends Controller
 
             $formCommentaire->handleRequest($request);
 
-            if ($request->request->has('commenter') && $formCommentaire->isSubmitted() && $formCommentaire->isValid()) {
-                $commentaire
-                    ->setUtilisateur($connectedUser)
-                    ->setDemandeSupportInformatique($supportInfo)
-                ;
-                $this->traitementEtEnvoiDeFichier($formCommentaire, $commentaire);
-
-                $text = str_replace(["\r\n", "\n", "\r"], "<br>", $commentaire->getCommentaires());
-                $commentaire->setCommentaires($text);
-
-                //envoi les donnée dans la base de donnée
-                self::$em->persist($commentaire);
-                self::$em->flush();
-
-                $variableEmail = $this->emailTikService->prepareDonneeEmail($supportInfo, $connectedUser, $commentaire->getCommentaires());
-
-                $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('comment', $variableEmail, $connectedUser->getMail()));
+            if ($formCommentaire->isSubmitted() && $formCommentaire->isValid()) {
+                $handleRequestService->commenterTicket($formCommentaire, $commentaire);
             }
 
             $statutOuvert  = $supportInfo->getIdStatutDemande()->getId() == 58;
@@ -115,7 +94,7 @@ class DetailTikController extends Controller
 
             self::$twig->display("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,
-                'form'              => $form->createView(),
+                'form'              => $formDetail->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),
                 'canComment'        => $this->canComment($connectedUser, $supportInfo),
                 'statutOuvert'      => $statutOuvert,
@@ -165,21 +144,6 @@ class DetailTikController extends Controller
                 ];
             }
         }
-    }
-
-    /** 
-     * fonction pour historiser le statut du ticket
-     */
-    private function historiqueStatut($supportInfo, $statut)
-    {
-        $tikStatut = new TkiStatutTicketInformatique();
-        $tikStatut
-            ->setNumeroTicket($supportInfo->getNumeroTicket())
-            ->setCodeStatut($statut->getCodeStatut())
-            ->setIdStatutDemande($statut)
-        ;
-        self::$em->persist($tikStatut);
-        self::$em->flush();
     }
 
     /** 

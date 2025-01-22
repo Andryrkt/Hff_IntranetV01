@@ -3,6 +3,7 @@
 namespace App\Service\tik;
 
 use App\Controller\Controller;
+use App\Controller\Traits\tik\EnvoiFichier;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiCommentaires;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
@@ -13,6 +14,8 @@ use App\Service\SessionManagerService;
 
 class HandleRequestService
 {
+    use EnvoiFichier;
+
     private $emailTikService;
     private $tkiCommentaire;
     private $em;
@@ -39,7 +42,7 @@ class HandleRequestService
     {
         $actions = [
             'refuser'    => 'refuserTicket',
-            'commenter'  => 'commenterTicket',
+            'commenter'  => 'commenterTicketEnAttente', // statut en attente
             'valider'    => 'validerTicket',
             'planifier'  => 'planifierTicket',
             'transferer' => 'transfererTicket',
@@ -132,9 +135,9 @@ class HandleRequestService
     }
 
     /** 
-     * Méthode pour gérer un ticket commenté
+     * Méthode pour gérer un ticket commenté (statut en attente)
      */
-    private function commenterTicket()
+    private function commenterTicketEnAttente()
     {
         $this->tkiCommentaire
             ->setNumeroTicket($this->form->getData()->getNumeroTicket())
@@ -269,6 +272,32 @@ class HandleRequestService
     }
 
     /** 
+     * Fonction pour gérer le commentaire d'un ticket
+     */
+    public function commenterTicket($form, $commentaire)
+    {
+        $this->setForm($form);
+        $this->setTkiCommentaire($commentaire);
+        $this->tkiCommentaire
+            ->setUtilisateur($this->connectedUser)
+            ->setDemandeSupportInformatique($this->supportInfo)
+        ;
+
+        $this->traitementEtEnvoiDeFichier($form, $this->tkiCommentaire);
+
+        $text = str_replace(["\r\n", "\n", "\r"], "<br>", $this->tkiCommentaire->getCommentaires());
+        $this->tkiCommentaire->setCommentaires($text);
+
+        $this->em->persist($this->tkiCommentaire);
+        $this->em->flush();
+
+        // Envoi email mise en attente
+        $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $this->tkiCommentaire->getCommentaires());
+
+        $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('comment', $variableEmail, $this->connectedUser->getMail()));
+    }
+
+    /** 
      * fonction pour historiser le statut du ticket
      */
     private function historiqueStatut()
@@ -319,6 +348,26 @@ class HandleRequestService
     public function setForm($form)
     {
         $this->form = $form;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tkiCommentaire
+     */
+    public function getTkiCommentaire()
+    {
+        return $this->tkiCommentaire;
+    }
+
+    /**
+     * Set the value of tkiCommentaire
+     *
+     * @return  self
+     */
+    public function setTkiCommentaire($tkiCommentaire)
+    {
+        $this->tkiCommentaire = $tkiCommentaire;
 
         return $this;
     }
