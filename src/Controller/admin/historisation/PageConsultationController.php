@@ -81,11 +81,11 @@ class PageConsultationController extends Controller
         $criteria = $this->sessionService->get('page_consultation_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
-        if (!empty(array_filter($criteria))) {
+        if (!empty($criteria)) {
             $pageConsultationSearch
-                ->setUtilisateur($criteria['utilisateur'] ?? '')
-                ->setNomPage($criteria['nom_page'] ?? '')
-                ->setMachineUser($criteria['machineUser'] ?? '')
+                ->setUtilisateur($criteria['utilisateur'])
+                ->setNomPage($criteria['nom_page'])
+                ->setMachineUser($criteria['machineUser'])
                 ->setDateDebut($criteria['dateDebut'] ?? null)
                 ->setDateFin($criteria['dateFin'] ?? null)
             ;
