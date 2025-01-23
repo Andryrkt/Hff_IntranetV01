@@ -88,7 +88,7 @@ class DitRepository extends EntityRepository
     public function recupConstraitSoumission($numDit)
     {
         $queryBuilder = $this->createQueryBuilder('d')
-            ->select('d.internetExterne AS client, s.description AS statut')
+            ->select('d.internetExterne AS client, s.description AS statut, d.numeroOR AS numero_or')
             ->leftJoin('d.idStatutDemande', 's')
             ->andWhere('d.numeroDemandeIntervention = :numDit')
             ->setParameter('numDit', $numDit);

@@ -80,7 +80,7 @@ trait DitTrait
             $demandeIntervention->setServiceDebiteurId($dits->getService());
             
             //societte
-           
+        dd($demandeIntervention);
         return $demandeIntervention;
     }
 

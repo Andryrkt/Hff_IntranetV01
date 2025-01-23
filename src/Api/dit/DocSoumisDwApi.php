@@ -5,10 +5,19 @@ namespace App\Api\dit;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitDevisSoumisAValidation;
+use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DocSoumisDwApi extends Controller
 {
+    private $ditOrsoumisAValidationModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+    }
     /**
      * @Route("/constraint-soumission/{numDit}", name="constraint_soumission")
      *
@@ -30,6 +39,8 @@ class DocSoumisDwApi extends Controller
 
         $statutDevis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findStatutDevis($numDit);
 
+        $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
+
 
         if(empty($constraitDevis)){
             $client = "";
@@ -39,10 +50,17 @@ class DocSoumisDwApi extends Controller
             $statutDit = $constraitDevis[0]['statut'];
         }
 
+        if(empty($numOrBaseDonner)) {
+            $numeroOR = '';
+        } else {
+            $numeroOR = $numOrBaseDonner[0]['numor'];
+        }
+
         return  [
             "client" => $client,
             "statutDit" => $statutDit,
             "statutDevis" => $statutDevis,
+            "numeroOR" => $numeroOR
         ];
     }
 

@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . '/config/dotenv.php';
 
 use Dotenv\Dotenv;
 use App\Command\AncienDitCommand;
+use App\Command\dit\TransferDataDitExterneCommand;
 use Symfony\Component\Console\Application;
 
 //Charger le fichier .env
@@ -15,10 +16,12 @@ use Symfony\Component\Console\Application;
 
 // Instancier la commande avec l'EntityManager
 $command = new AncienDitCommand($entityManager);
+$transfertDataDitExterneCommand = new TransferDataDitExterneCommand($entitymanager);
 
 // Ajouter la commande à l'application Symfony Console
 $application = new Application();
 $application->add($command);
+$application->add($transfertDataDitExterneCommand);
 
 // Exécuter la commande
 $application->run();

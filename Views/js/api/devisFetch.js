@@ -47,7 +47,7 @@ function valeurDocASoumettre(docDansDw) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé"
+    docDansDw.statutDevis === "Validé" && !docDansDw.numeroOR 
   ) {
     docASoumettre = [
       { value: "DEVIS", text: "DEVIS" },

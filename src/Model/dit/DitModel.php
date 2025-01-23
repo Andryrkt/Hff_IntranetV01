@@ -9,8 +9,7 @@ use App\Model\Traits\ConversionModel;
 class DitModel extends Model
 {
 
-
-   use ConversionModel;
+    use ConversionModel;
 
     /**
      * informix
@@ -18,7 +17,7 @@ class DitModel extends Model
     public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
       if($matricule === '' || $matricule === '0' || $matricule === null){
-       $conditionNummat = "";
+        $conditionNummat = "";
       } else {
         $conditionNummat = "and mmat_nummat = '" . $matricule."'";
       }
