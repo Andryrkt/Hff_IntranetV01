@@ -50,6 +50,7 @@ class PlanningApi extends Controller
             $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
 
             $orCIS = $this->planningModel->recupOrcis($numOr);
+            
             $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
             $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
             $migration = $ditRepositoryConditionner->getMigration();
@@ -64,18 +65,21 @@ class PlanningApi extends Controller
             for ($i=0; $i < count($details); $i++) {
                 
                 if($numOr[0] =='5'){
-                    if(empty($details[$i]['numcis']) || $details[$i]['numerocdecis'] == "0" ){
+                  
+                    if($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0" ){
+                        
                         $recupGot = [];
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
-                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis	']);
-                        $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref']);
+                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
+                        $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
+                       
                     } else {
                         $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'],$details[$i]['cst']);
                         $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocdecis'],$details[$i]['ref']);
                         $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocdecis']);
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
-                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis']);
-                        $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref']);
+                        $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
+                        $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
                     }
                 } else {
                     if (empty($details[$i]['numerocmd']) || $details[$i]['numerocmd'] == "0") {
@@ -112,14 +116,14 @@ class PlanningApi extends Controller
                     }else{
                         $details[$i]['Ord'] = "";
                     }
-
-                    if(!empty($dateLivLig)){
+                  
+                    if(!empty($dateLivLig[0])){
                         $details[$i]['dateLivLIg']= $dateLivLig[$i]['0']['datelivlig'];
                     }else{
                         $details[$i]['dateLivLIg'] = "";
                     }
 
-                    if(!empty($dateAllLig)){
+                    if(!empty($dateAllLig[0])){
                         $details[$i]['dateAllLIg']= $dateAllLig[$i]['0']['datealllig'];
                     }else{
                         $details[$i]['dateAllLIg'] = "";
@@ -155,10 +159,12 @@ class PlanningApi extends Controller
                 }
             }
         }
-        $avecOnglet = empty($orCIS) ? false : true;
 
+
+        $avecOnglet = empty($orCIS) || empty($orCIS[0]['succ']) ? false : true;
+       
         header("Content-type:application/json");
-
+   
         echo json_encode([
             'avecOnglet' => $avecOnglet,
             'data' => $details,
