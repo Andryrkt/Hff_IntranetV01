@@ -53,7 +53,9 @@ class BadmsController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             if ($badm->getTypeMouvement() === null) {
-                throw new \Exception('choisir une type de mouvement');
+                $message = " choisir une type de mouvement";
+
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             }
 
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {

@@ -2,7 +2,6 @@
 
 namespace App\Service\dit\transfer;
 
-use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
@@ -11,12 +10,11 @@ use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
-use App\Model\dit\transfer\AncienDitExterneModel;
+
 
 class RecupDataAncienDitService
 {
     private $em;
-    private $ancienDitExternModel;
     private $userRepository;
     private $statutDemandeRepository;
     private $typeDocumentRepository;
@@ -28,7 +26,6 @@ class RecupDataAncienDitService
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->em = $entityManager;
-        $this->ancienDitExternModel = new AncienDitExterneModel();
         $this->userRepository = $this->em->getRepository(User::class);
         $this->statutDemandeRepository = $this->em->getRepository(StatutDemande::class);
         $this->typeDocumentRepository = $this->em->getRepository(WorTypeDocument::class);
@@ -38,9 +35,9 @@ class RecupDataAncienDitService
         $this->serviceRepository = $this->em->getRepository(Service::class);
     }
 
-    public function dataDit(): array
+    public function dataDit(array $ancienDits): array
     {
-        $ancienDits = $this->ancienDitExternModel->recupDit();
+        
         $ditAnciens = [];
         foreach ($ancienDits as $ancienDit) {
             $ditAnciens[] = [
@@ -80,8 +77,8 @@ class RecupDataAncienDitService
     
                 'IdStatutDemande'           => $this->statutDemandeRepository->find(50),
                 'AvisRecouvrement'          => 'NON',
-                'DateDemande'               => $this->convertToDateTime($ancienDit['DateDemande']),
-                'HeureDemande'              => $this->convertToHHMM($ancienDit['HeureDemande']),
+                'DateDemande'               => ConversionService::convertToDateTime($ancienDit['DateDemande']),
+                'HeureDemande'              => ConversionService::convertToHHMM($ancienDit['HeureDemande']),
     
                 //INFO DEMANDEUR
                 // 'MailDemandeur'             => $this->userRepository->findMail($ancienDit['UtilisateurDemandeur']),
@@ -101,7 +98,7 @@ class RecupDataAncienDitService
                 //INFO OR
                 'NumeroOR'                  => $ancienDit['NumeroOR'],
                 'StatutOr'                  => null,
-                'DateValidationOr'          => $this->convertToDateTime($ancienDit['DateOR']),
+                'DateValidationOr'          => ConversionService::convertToDateTime($ancienDit['DateOR']),
     
                 //INFO DEVIS
                 'NumeroDevisRattache'       => $ancienDit['NumeroOR'],
@@ -113,22 +110,5 @@ class RecupDataAncienDitService
 
 
 
-    private function convertToDateTime(string $dateString, string $format = 'Y-m-d'): ?\DateTime
-    {
-        $dateTime = \DateTime::createFromFormat($format, $dateString);
-        return ($dateTime && $dateTime->format($format) === $dateString) ? $dateTime : null;
-    }
-
-    private function convertToHHMM(string $time)
-    {
-        // Convertit le temps en chaîne de 6 caractères si ce n'est pas déjà le cas
-        $time = str_pad($time, 6, "0", STR_PAD_LEFT);
-
-        // Récupère les heures et minutes
-        $hours = substr($time, 0, 2);
-        $minutes = substr($time, 2, 2);
-
-        // Format final
-        return $hours . ":" . $minutes;
-    }
+    
 }

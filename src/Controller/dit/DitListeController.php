@@ -133,7 +133,6 @@ class DitListeController extends Controller
             'resultat'      => $paginationData['totalItems'],
             'statusCounts'  => $paginationData['statusCounts'],
             'form'          => $form->createView(),
-            'criteria'      => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }

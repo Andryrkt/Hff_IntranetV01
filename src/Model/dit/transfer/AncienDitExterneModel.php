@@ -8,7 +8,7 @@ class AncienDitExterneModel extends Model
 {
     public function recupDit()
     {
-        $sql=" SELECT DISTINCT * 
+        $sql=" SELECT TOP 3 * 
             from DemandeIntervention 
             where InterneExterne='E'
             and IDStatutInfo <> 15

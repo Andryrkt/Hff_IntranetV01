@@ -2,6 +2,7 @@
 
 namespace App\Service\dit\transfer;
 
+use App\Entity\dit\BcSoumis;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -13,12 +14,14 @@ class TransformerEnObjetService
     private DemandeIntervention $dit;
     private DitOrsSoumisAValidation $ditOrsSoumis;
     private DitDevisSoumisAValidation $ditDevisSoumis;
+    private BcSoumis $bcSoumis;
 
     public function __construct()
     {
         $this->dit = new DemandeIntervention();
         $this->ditOrsSoumis = new DitOrsSoumisAValidation();
         $this->ditDevisSoumis = new DitDevisSoumisAValidation();
+        $this->bcSoumis = new BcSoumis();
     }
 
     /**
@@ -119,23 +122,55 @@ class TransformerEnObjetService
             ->setNumeroItv($dev['NumeroItv'])
             ->setNombreLigneItv($dev['NombreLigneItv'])
             ->setMontantItv($dev['MontantItv'])
-            ->setNumeroVersion('')
-            ->setMontantPiece('')
-            ->setMontantMo('')
-            ->setMontantAchatLocaux('')
-            ->setMontantFraisDivers('')
-            ->setMontantLubrifiants('')
-            ->setLibellelItv('')
-            ->setStatut('')
-            ->setDateHeureSoumission('')
-            ->setMontantForfait('')
-            ->setNatureOperation('')
-            ->setDevise('')
-            ->setDevisVenteOuForfait('')
+            ->setNumeroVersion($dev['NumeroVersion'])
+            ->setMontantPiece($dev['MontantPiece'])
+            ->setMontantMo($dev['MontantMo'])
+            ->setMontantAchatLocaux($dev['MontantAchatLocaux'])
+            ->setMontantFraisDivers($dev['MontantFraisDivers'])
+            ->setMontantLubrifiants($dev['MontantLubrifiants'])
+            ->setLibellelItv($dev['LibellelItv'])
+            ->setStatut($dev['Statut'])
+            ->setDateHeureSoumission($dev['DateHeureSoumission'])
+            ->setMontantForfait($dev['MontantForfait'])
+            ->setNatureOperation($dev['NatureOperation'])
+            ->setDevise($dev['Devise'])
+            ->setDevisVenteOuForfait($dev['DevisVenteOuForfait'])
         ;
     }
-    public function dataAinsereDansTableBcSoumis()
-    {}
-    public function dataAinsereDansTableOrSoumis()
-    {}
+
+    public function dataAinsereDansTableBcSoumis(array $bcs): BcSoumis
+    {
+        return $this->bcSoumis
+            ->setNumDit('')
+            ->setNumDevis('')
+            ->setNumBc('')
+            ->setNumVersion('')
+            ->setDateBc('')
+            ->setDateDevis('')
+            ->setMontantDevis('')
+            ->setDateHeureSoumission('')
+            ->setNomFichier('')
+        ;
+    }
+
+    public function dataAinsereDansTableOrSoumis(array $ors): DitOrsSoumisAValidation
+    {
+        return $this->ditOrsSoumis
+            ->setNumeroOR($ors['NumeroOR'])
+            ->setNumeroItv($ors[''])
+            ->setNombreLigneItv($ors[''])
+            ->setMontantItv($ors[''])
+            ->setNumeroVersion($ors[''])
+            ->setMontantPiece($ors[''])
+            ->setMontantMo($ors[''])
+            ->setMontantAchatLocaux($ors[''])
+            ->setMontantFraisDivers($ors[''])
+            ->setMontantLubrifiants($ors[''])
+            ->setLibellelItv($ors[''])
+            ->setDateSoumission($ors[''])
+            ->setHeureSoumission($ors[''])
+            ->setStatut($ors[''])
+            ->setMigration($ors[''])
+        ;
+    }
 }
