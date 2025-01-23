@@ -12,19 +12,21 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class="container mt-4">
-		<h3 class="perso-titre">Historique des consultations</h3>
+	<div class="position-sticky sticky-header">
+		<div class="container mt-4">
+			<h3 class="perso-titre">Historique des consultations</h3>
 
-		{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
+			{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
+			<div class="container">
+				{% include "/admin/historisation/consultation-page/shared/_pagination.html.twig" %}
+			</div>
+		</div>
 	</div>
 
 	<!-- Tableau -->
 	<div class="container-fluid">
-		<div class="container">
-			{% include "/admin/historisation/consultation-page/shared/_pagination.html.twig" %}
-		</div>
 		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+			<thead class="table-dark position-sticky sticky-table-header">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -45,7 +47,6 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style=""></ul>
 							</div>
 						</td>
 						<td>{{ item.id }}</td>
