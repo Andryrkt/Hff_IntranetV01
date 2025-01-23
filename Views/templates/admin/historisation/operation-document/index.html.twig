@@ -47,10 +47,10 @@
 							</div>
 						</td>
 						<td>{{ item.id }}</td>
-						<td>{{ item.idTypeDocument.typeDocument }}</td>
+						<td>{{ item.idTypeDocument.libelleDocument }}</td>
 						<td>{{ item.numeroDocument }}</td>
 						<td>{{ item.utilisateur }}</td>
-						<td>{{ item.dateOperation|date('d/m/Y - H:i:s') }}</td>
+						<td>{{ item.dateOperation|date('d/m/Y') }} - {{ item.heureOperation|date('H:i:s') }}</td>
 						<td>{{ item.idTypeOperation.typeOperation }}</td>
 						<td>{{ item.statutOperation }}</td>
 						<td>{{ item.libelleOperation }}</td>

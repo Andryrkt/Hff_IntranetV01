@@ -13,15 +13,21 @@
 				<div class="row">
 					<div class="col-12 col-md-12">
 						<div class="row">
-							<div class="col-12 col-md-3">{{ form_row(form.typeOperation) }}</div>
-							<div class="col-12 col-md-3">{{ form_row(form.typeDocument) }}</div>
-							<div class="col-12 col-md-3">{{ form_row(form.dateOperationDebut) }}</div>
-							<div class="col-12 col-md-3">{{ form_row(form.dateOperationFin) }}</div>
-						</div>
-						<div class="row">
-							<div class="col-12 col-md-4">{{ form_row(form.numeroDocument) }}</div>
-							<div class="col-12 col-md-4">{{ form_row(form.utilisateur) }}</div>
-							<div class="col-12 col-md-4">{{ form_row(form.statutOperation) }}</div>
+							<div class="col-12 col-md-3">
+								{{ form_row(form.typeDocument) }}
+								{{ form_row(form.numeroDocument) }}
+							</div>
+							<div class="col-12 col-md-3">
+								{{ form_row(form.typeOperation) }}
+								{{ form_row(form.statutOperation) }}
+							</div>
+							<div class="col-12 col-md-3">
+								{{ form_row(form.dateOperationDebut) }}
+								{{ form_row(form.dateOperationFin) }}
+							</div>
+							<div class="col-12 col-md-3">
+								{{ form_row(form.utilisateur) }}
+							</div>
 						</div>
 					</div>
 				</div>

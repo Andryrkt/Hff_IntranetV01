@@ -37,14 +37,14 @@ class HistoriqueOperationDocumentSearchType extends AbstractType
                 'required' => false,
             ])
             ->add('typeOperation', EntityType::class, [
-                'label' => 'type d\'opération',
+                'label' => 'Type d\'opération',
                 'class' => TypeOperation::class,
                 'choice_label' => 'typeOperation',
                 'placeholder' => '-- Choisir un type d\'opération --',
                 'required' => false,
             ])
             ->add('typeDocument', EntityType::class, [
-                'label' => 'type de document',
+                'label' => 'Type de document',
                 'class' => TypeDocument::class,
                 'choice_label' => 'libelleDocument',
                 'placeholder' => '-- Choisir un type de document --',
