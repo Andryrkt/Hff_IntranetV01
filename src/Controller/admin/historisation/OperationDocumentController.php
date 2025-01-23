@@ -45,7 +45,7 @@ class OperationDocumentController extends Controller
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 20;
+        $limit = 50;
 
         $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : self::$em->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
 

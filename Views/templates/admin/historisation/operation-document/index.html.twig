@@ -10,11 +10,13 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container mt-4">
-		<h3 class="perso-titre">Historique des opérations sur les documents</h3>
-		{% include "/admin/historisation/operation-document/shared/_formulaireRecherche.html.twig" %}
-		<div class="container">
-			{% include "/admin/historisation/operation-document/shared/_pagination.html.twig" %}
+	<div class="position-sticky sticky-header">
+		<div class="container mt-4">
+			<h3 class="perso-titre">Historique des opérations sur les documents</h3>
+			{% include "/admin/historisation/operation-document/shared/_formulaireRecherche.html.twig" %}
+			<div class="container">
+				{% include "/admin/historisation/operation-document/shared/_pagination.html.twig" %}
+			</div>
 		</div>
 	</div>
 
@@ -38,6 +40,9 @@
 			</thead>
 			<tbody>
 				{% for item in data %}
+					{% set statutClass = "bg-success" %}
+					{% if item.statutOperation is same as("Echec") %} {% set statutClass = "bg-danger" %} {% endif %}
+					
 					<tr>
 						<td class="align-middle" style="padding: 0px">
 							<div class="dropdown">
@@ -52,7 +57,7 @@
 						<td>{{ item.utilisateur }}</td>
 						<td>{{ item.dateOperation|date('d/m/Y') }} - {{ item.heureOperation|date('H:i:s') }}</td>
 						<td>{{ item.idTypeOperation.typeOperation }}</td>
-						<td>{{ item.statutOperation }}</td>
+						<td class="{{ statutClass }}">{{ item.statutOperation }}</td>
 						<td>{{ item.libelleOperation }}</td>
 					</tr>
 				{% endfor %}
