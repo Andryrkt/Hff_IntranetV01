@@ -1,37 +1,61 @@
+.statut-ouvert {
+  color: #ffff00 !important;
+  text-shadow: 0px 0px 2px black;
+}
+.statut-en-attente {
+  color: orange !important;
+}
+.statut-refuse {
+  color: orangered !important;
+}
+.statut-en-cours {
+  color: #3799ff !important;
+}
+.statut-planifie {
+  color: #00ffff !important;
+}
+.statut-resolu {
+  color: #008000 !important;
+}
+.statut-cloture {
+  color: #00ff00 !important;
+}
+.statut-reouvert {
+  color: #ff00ff !important;
+}
+
 .ouvert {
-  background-color: red !important;
+  background-color: #ffff00 !important;
   font-weight: bold;
 }
 
 .refuse {
   background-color: orangered !important;
-  color: white;
   font-weight: bold;
 }
 
 .encours {
-  background-color: cyan !important;
+  background-color: #3799ff !important;
   color: #000 !important;
 }
 
 .planifie {
-  background-color: violet !important;
+  background-color: #00ffff !important;
   font-weight: bold;
 }
 
 .resolu {
-  background-color: greenyellow !important;
+  background-color: #008000 !important;
   font-weight: bold;
 }
 
 .reouvert {
-  background-color: yellow !important;
+  background-color: #ff00ff !important;
   font-weight: bold;
 }
 
 .cloture {
-  background-color: green !important;
-  color: white;
+  background-color: #00ff00 !important;
   font-weight: bold;
 }
 

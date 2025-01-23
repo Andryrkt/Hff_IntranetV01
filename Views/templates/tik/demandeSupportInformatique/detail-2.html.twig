@@ -1,0 +1,218 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block nav %}{% endblock %}
+
+{% block title %}
+	Détail sur le ticket
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/detailTik.css" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+<div class=" container-fluid mt-4">
+	<nav>
+		<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
+			<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
+			<button class="nav-link" id="nav-statutComm-tab" data-bs-toggle="tab" data-bs-target="#nav-statutComm" type="button" role="tab" aria-controls="nav-statutComm" aria-selected="false">Statut et commentaires</button>
+		</div>
+	</nav>
+	<div class="card mb-3 mx-2 border-top-left-radius-0">
+		<div class="card-body">
+			<div class="tab-content p-3 border bg-light" id="nav-tabContent">
+				<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								Détail du ticket
+							</h3>
+						</div>
+
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("liste_tik_index")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre('TKI', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
+								</div>
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Statut du ticket', tik.idStatutDemande.description) }}
+								</div>
+								<div class="col-12 col-md-3">
+									{% set classeStatutTik = '' %}
+
+									{% if tik.idStatutDemande.description | trim == 'OUVERT' %}
+										{% set classeStatutTik ='ouvert' %}
+									{% elseif tik.idStatutDemande.description | trim == 'REFUSE'  %}
+										{% set classeStatutTik ='refuse' %}
+									{% elseif  tik.idStatutDemande.description | trim == 'ENCOURS' %}
+										{% set classeStatutTik ='encours' %}
+									{% elseif tik.idStatutDemande.description | trim == 'PLANIFIE' %}
+										{% set classeStatutTik ='planifie' %}
+									{% elseif tik.idStatutDemande.description | trim == 'RESOLU' %}
+										{% set classeStatutTik ='resolu' %}
+									{% elseif tik.idStatutDemande.description | trim == 'REOUVERT' %}
+										{% set classeStatutTik ='reouvert' %}
+									{% elseif tik.idStatutDemande.description | trim == 'CLÔTURE' %}
+										{% set classeStatutTik ='cloture' %}
+									{% else %}
+										{% set classeStatutTik = '' %}
+									{% endif %}
+
+									{{ macroForm.affichage2('Statut du ticket', classeStatutTik, tik.idStatutDemande.description) }}
+								</div>
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Date de fin souhaitée', tik.dateFinSouhaitee|date('d/m/Y')) }}
+								</div>
+							</div>
+
+							{# DEBUT DEMANDE #}
+							{{ macroForm.sousTitre('Demande', {class: 'sousTitre'})}}
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Nom du demandeur', tik.utilisateurDemandeur) }}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Email du demandeur', tik.mailDemandeur, 'emailDemandeur') }}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('N° parc PC', tik.parcInformatique) }}
+								</div>
+							</div>
+							<div class="col-12 col-md-12">
+								{{ macroForm.affichage('Objet de la demande', tik.objetDemande) }}
+							</div>
+							<div class="col-12 col-md-12">
+								{{ macroForm.affichageHTML('Détail de la demande', tik.detailDemande) }}
+							</div>
+							{# FIN DEMANDE #}
+						</div>
+						{# FIN COLONNE 1 #}
+
+						{# DEBUT COLONNE 2 #}
+						<div class="col-12 col-md-6">
+							<div class="row">
+								<div class="col-12 col-md-3">
+									{{ macroForm.sousTitre('Société', {class: 'sousTitre'})}}
+
+									{{ macroForm.affichage('Code société', tik.codeSociete)}}
+								</div>
+								<div
+									class="col-12 col-md-9">
+									{# DEBUT Agence et service #}
+									{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
+									<div class="row">
+										<div class="col-12 col-md-6">
+											{{ macroForm.affichage('Débiteur', tik.agenceServiceDebiteur)}}
+										</div>
+										<div class="col-12 col-md-6">
+											{{ macroForm.affichage('Emetteur', tik.agenceServiceEmetteur)}}
+										</div>
+									</div>
+									{# FIN Agence et service #}
+								</div>
+							</div>
+
+							{# DEBUT Pièces Jointes #}
+							{{ macroForm.sousTitre('Pièces Jointes', {class: 'sousTitre'})}}
+
+							{% if tik.fileNames is empty %}
+								<div class="mt-2 d-flex align-items-center pt-1 fw-bold" style="min-height: 22px;">
+									Pas de pièces jointes
+								</div>
+							{% else %}
+								{% for fileName in tik.fileNames %}
+									{{ macroForm.affichageFileDownload('Pièce jointe ' ~ loop.index|format('02d'), fileName.name, '/Upload/tik/fichiers')}}
+								{% endfor %}
+							{% endif %}
+
+							{# FIN Pièces Jointes #}
+						</div>
+						{# FIN COLONNE 2 #}
+					</div>
+
+					{# FIN PARTIE POUR DETAILS SEULEMENT #}
+					{# DEBUT COLONNE 1 #}
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<div class="row">
+								{{ macroForm.sousTitre('Intervention', {class: 'sousTitre'})}}
+								{# DEBUT Intervention #}
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichage('Catégorie', tik.categorie.description)}}
+
+									{{ macroForm.affichage('Sous Catégorie', tik.sousCategorie.description)}}
+
+									{{ macroForm.affichage('Autre Catégorie', tik.autresCategorie.description)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichageModal2('Niveau d\'urgence', '#niveauUrgence', tik.niveauUrgence)}}
+
+									{{ macroForm.affichage('Intervenant', tik.nomIntervenant)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ macroForm.affichageDate('Début planning', tik.dateDebutPlanning)}}
+									{{ macroForm.affichageDate('Fin planning', tik.dateFinPlanning)}}
+								</div>
+								{# FIN Intervention #}
+							</div>
+						</div>
+						{# FIN COLONNE 1 #}
+
+						{# DEBUT COLONNE 2 #}
+						<div class="col-12 col-md-6">
+							{{ macroForm.sousTitre2('Commentaire Ticket') }}
+
+							{{ macroForm.affichageHTML('Dernier commentaire', tik.commentaires|last.commentaires)}}
+						</div>
+						{# FIN COLONNE 2 #}
+					</div>
+				</div>
+				<div class="tab-pane fade" id="nav-statutComm" role="tabpanel" aria-labelledby="nav-statutComm-tab">
+					<div class="row">
+						<div class="col-4">
+							{{ include('tik/demandeSupportInformatique/shared/_statutTicket.html.twig', { items: historiqueStatut }) }}
+						</div>
+						<div class="col-8">
+							{{ include('tik/demandeSupportInformatique/shared/_commentaire.html.twig', { items: commentaires, connectedUser: connectedUser, form: formCommentaire, canComment: canComment }) }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
+
+	{% endblock %}
+
+	{% block footer %}{% endblock %}
+
+	{% block javascript %}
+		{% if validateur %}
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js"></script>
+		{% else %}
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>
+		{% endif %}
+
+		<script>
+			const div = document.getElementById('emailDemandeur');
+const originalText = div.textContent;
+// Vérifie si le texte dépasse
+if (div.scrollWidth > div.clientWidth) {
+let truncatedText = originalText;
+while (div.scrollWidth > div.clientWidth) {
+truncatedText = truncatedText.slice(0, -1); // Retire un caractère
+div.textContent = truncatedText + '...'; // Ajoute les points de suspension
+}
+}
+		</script>
+	{% endblock %}
