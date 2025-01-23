@@ -330,7 +330,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
 
         const tableBody = document.getElementById("technicienTableBody");
 
@@ -543,20 +542,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
             //onglet CIS
             let statutCIS;
             let dateStatutCIS;
+            
+            
             if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
                 statutCIS= 'LIVRE';
-                dateStatutCIS = detail.dateLivLIg;
-            }else{
+                dateStatutCIS = formaterDate(detail.dateLivLIg);
+            } else if(parseInt(detail.qtealllig) > 0){
+              statutCIS = 'A LIVRER'
+              dateStatutCIS = formaterDate(detail.dateAllLIg);
+          } else {
               statutCIS= detail.statut;
               dateStatutCIS = "";
             }
-            if(parseInt(detail.qtealllig) > 0){
-                statutCIS = 'A LIVRER'
-                dateStatutCIS = detail.dateAllLIg	
-            }else{
-              statutCIS= detail.statut;
-              dateStatutCIS ='';
-            }
+
+            
+            
             
             if (detail.numor && detail.numor.startsWith("5")) {
               // Affichage
@@ -596,7 +596,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
                         <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
                         <td >${(statutCIS ===null)? "" : statutCIS}</td> 
-                        <td>${(dateStatutCIS ===null) ? "" : dateStatutCIS}</td> 
+                        <td>${(dateStatutCIS === null) ? "" : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
