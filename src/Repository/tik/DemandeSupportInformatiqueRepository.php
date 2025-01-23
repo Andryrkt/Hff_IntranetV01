@@ -13,7 +13,6 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('tki')
             ->leftJoin('tki.niveauUrgence', 'nu');
 
-
         $this->conditionDemandeur($queryBuilder, $option);
         $this->conditionListeDeChoix($queryBuilder, $tikSearch, $option);
         $this->conditionSaisieLibre($queryBuilder, $tikSearch);

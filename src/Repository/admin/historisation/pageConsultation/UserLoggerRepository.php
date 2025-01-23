@@ -13,7 +13,7 @@ class UserLoggerRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('ul');
 
         $this->dateFinDebut($queryBuilder, $pageConsultationSearch);
-        $this->autreFiltre($queryBuilder, $pageConsultationSearch);
+        $this->conditionSaisieLibre($queryBuilder, $pageConsultationSearch);
 
         $queryBuilder
             ->orderBy('ul.dateConsultation', 'DESC')
@@ -53,7 +53,7 @@ class UserLoggerRepository extends EntityRepository
         }
     }
 
-    private function autreFiltre($queryBuilder, PageConsultationSearch $pageConsultationSearch)
+    private function conditionSaisieLibre($queryBuilder, PageConsultationSearch $pageConsultationSearch)
     {
         //filtre utilisateur
         if (!empty($pageConsultationSearch->getUtilisateur())) {
