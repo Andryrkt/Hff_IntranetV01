@@ -72,7 +72,13 @@ class EmailTikService
                 $cc = [$tab['emailIntervenant']];
                 break;
 
-            case 'comment':
+            case 'cloture':
+                $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+                $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+                $to = $cc[0] ?? $tab['emailUserDemandeur'];
+                break;
+
+            case 'commente':
                 if ($tab['emailValidateur']) {
                     $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
                     $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
