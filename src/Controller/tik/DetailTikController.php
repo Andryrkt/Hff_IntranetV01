@@ -128,6 +128,7 @@ class DetailTikController extends Controller
             'PLA' => 'planifier',    // statut planifié
             'RES' => 'resoudre',     // statut résolu
             'ENA' => 'commenter',    // statut en attente
+            'CLO' => 'cloturer',     // statut cloturé
             '00'  => 'transferer',
         ];
 
