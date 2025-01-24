@@ -85,6 +85,11 @@ class DitDevisSoumisAValidation
     private ?float $montantLubrifiants = 0.00;
 
     /**
+     * @ORM\Column(type="float", scale="2")
+     */
+    private ?float $montantForfait = 0.00;
+
+    /**
      * @ORM\Column(type="string", length=500)
      */
     private ?string $libellelItv = '';
@@ -94,6 +99,11 @@ class DitDevisSoumisAValidation
      */
     private $statut;
 
+    /**
+     * @ORM\Column(type="string", length=3)
+     */
+    private $natureOperation;
+
     private $pieceJoint01;
 
     private $pieceJoint02;
@@ -101,6 +111,24 @@ class DitDevisSoumisAValidation
     private $pieceJoint03;
 
     private $pieceJoint04;
+
+    private $nomClient;
+
+    private $numeroClient;
+
+    private $objetDit;
+
+    /**
+     * @ORM\Column(type="string", length="15")
+     *
+     * @var string
+     */
+    private string $devisVenteOuForfait;
+
+    /**
+     * @ORM\Column(type="string", length="10")
+     */
+    private ?string $devise = '';
 
     /** ========================================================================================== 
      * GETTERS & SETTERS
@@ -366,6 +394,26 @@ class DitDevisSoumisAValidation
     }
 
     /**
+     * Get the value of montantForfait
+     */ 
+    public function getMontantForfait()
+    {
+        return $this->montantForfait;
+    }
+
+    /**
+     * Set the value of montantForfait
+     *
+     * @return  self
+     */ 
+    public function setMontantForfait($montantForfait)
+    {
+        $this->montantForfait = $montantForfait;
+
+        return $this;
+    }
+
+    /**
      * Get the value of libellelItv
      */
     public function getLibellelItv()
@@ -385,7 +433,46 @@ class DitDevisSoumisAValidation
         return $this;
     }
 
+    /**
+     * Get the value of statut
+     */
+    public function getStatut()
+    {
+        return $this->statut;
+    }
 
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of natureOperation
+     */ 
+    public function getNatureOperation()
+    {
+        return $this->natureOperation;
+    }
+
+    /**
+     * Set the value of natureOperation
+     *
+     * @return  self
+     */ 
+    public function setNatureOperation($natureOperation)
+    {
+        $this->natureOperation = $natureOperation;
+
+        return $this;
+    }
+    
     /**
      * Get the value of file
      */
@@ -469,30 +556,117 @@ class DitDevisSoumisAValidation
     }
 
 
+    /**
+     * Get the value of nomClient
+     */ 
+    public function getNomClient()
+    {
+        return $this->nomClient;
+    }
+
+    /**
+     * Set the value of nomClient
+     *
+     * @return  self
+     */ 
+    public function setNomClient($nomClient)
+    {
+        $this->nomClient = $nomClient;
+
+        return $this;
+    }
+
+     /**
+     * Get the value of numeroClient
+     */ 
+    public function getNumeroClient()
+    {
+        return $this->numeroClient;
+    }
+
+    /**
+     * Set the value of numeroClient
+     *
+     * @return  self
+     */ 
+    public function setNumeroClient($numeroClient)
+    {
+        $this->numeroClient = $numeroClient;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of objetDit
+     */ 
+    public function getObjetDit()
+    {
+        return $this->objetDit;
+    }
+
+    /**
+     * Set the value of objetDit
+     *
+     * @return  self
+     */ 
+    public function setObjetDit($objetDit)
+    {
+        $this->objetDit = $objetDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of devisVenteOuForfait
+     *
+     * @return  string
+     */ 
+    public function getDevisVenteOuForfait()
+    {
+        return $this->devisVenteOuForfait;
+    }
+
+    /**
+     * Set the value of devisVenteOuForfait
+     *
+     * @param  string  $devisVenteOuForfait
+     *
+     * @return  self
+     */ 
+    public function setDevisVenteOuForfait(string $devisVenteOuForfait)
+    {
+        $this->devisVenteOuForfait = $devisVenteOuForfait;
+
+        return $this;
+    }
+    
+    
+
+    
+
+    /**
+     * Get the value of devise
+     */ 
+    public function getDevise()
+    {
+        return $this->devise;
+    }
+
+    /**
+     * Set the value of devise
+     *
+     * @return  self
+     */ 
+    public function setDevise($devise)
+    {
+        $this->devise = $devise;
+
+        return $this;
+    }
 
     // Comparaison des objets par leur numero d'intervention
     public function estEgalParNumero(DitDevisSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
-    }
-
-    /**
-     * Get the value of statut
-     */
-    public function getStatut()
-    {
-        return $this->statut;
-    }
-
-    /**
-     * Set the value of statut
-     *
-     * @return  self
-     */
-    public function setStatut($statut)
-    {
-        $this->statut = $statut;
-
-        return $this;
     }
 }

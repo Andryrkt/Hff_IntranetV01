@@ -7,13 +7,12 @@
 export function toggleSpinner(spinner, container, isLoading) {
   if (isLoading) {
     spinner.style.display = "block";
-    container.style.opacity = "0.3";
+    container.style.opacity = "0";
   } else {
     spinner.style.display = "none";
     container.style.opacity = "1";
   }
 }
-
 
 export function affichageOverlay() {
   const overlay = document.createElement("div");

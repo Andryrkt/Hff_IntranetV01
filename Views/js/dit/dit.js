@@ -342,22 +342,31 @@ interneExterneInput.addEventListener('change', interneExterne);
 
 function interneExterne() {
   console.log(interneExterneInput.value);
+  const dataInformations = interneExterneInput.dataset.informations;
+  const parsedData = JSON.parse(dataInformations);
+
   if (interneExterneInput.value === 'EXTERNE') {
     nomClientInput.removeAttribute('disabled');
     numClientInput.removeAttribute('disabled');
     numTelInput.removeAttribute('disabled');
     clientSousContratInput.removeAttribute('disabled');
     demandeDevisInput.removeAttribute('disabled');
+    demandeDevisInput.value = 'OUI';
     agenceDebiteurInput.setAttribute('disabled', true);
     serviceDebiteurInput.setAttribute('disabled', true);
+    agenceDebiteurInput.value = '';
+    serviceDebiteurInput.value = '';
   } else {
     nomClientInput.setAttribute('disabled', true);
     numClientInput.setAttribute('disabled', true);
     numTelInput.setAttribute('disabled', true);
     demandeDevisInput.setAttribute('disabled', true);
+    demandeDevisInput.value = 'NON';
     clientSousContratInput.setAttribute('disabled', true);
     agenceDebiteurInput.removeAttribute('disabled');
     serviceDebiteurInput.removeAttribute('disabled');
+    agenceDebiteurInput.value = parsedData.agenceId;
+    serviceDebiteurInput.value = parsedData.serviceId;
   }
 }
 
@@ -447,7 +456,12 @@ document.addEventListener('DOMContentLoaded', function () {
     suggestionsContainer.innerHTML = ''; // Efface les suggestions existantes
     data.forEach((item) => {
       const suggestion = document.createElement('div');
-      suggestion.textContent = item.label; // Affiche le label
+
+      suggestion.textContent =
+        field === 'numero'
+          ? item.label + ' - ' + item.value
+          : item.value + ' - ' + item.label; // Afficher toujours le numéro d'abord
+
       suggestion.addEventListener('click', () => {
         let label = field === 'numero' ? item.label : item.value;
         let value = field === 'numero' ? item.value : item.label;
@@ -459,15 +473,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateClientFields(label, value) {
-    const numeroClient = document.getElementById(
-      'demande_intervention_numeroClient'
-    );
-    const nomClient = document.getElementById('demande_intervention_nomClient');
-
     // Vérification si les éléments sont présents dans le DOM
-    if (numeroClient && nomClient) {
-      numeroClient.value = label; // Assigner le label à 'numeroClient'
-      nomClient.value = value; // Assigner la value à 'nomClient'
+    if (numClientInput && nomClientInput) {
+      numClientInput.value = label; // Assigner le label à 'numeroClient'
+      nomClientInput.value = value; // Assigner la value à 'nomClient'
     } else {
       console.error("Les éléments du formulaire n'ont pas été trouvés.");
     }
@@ -478,7 +487,6 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(url);
       preloadedData = await response.json(); // Stocke les données
-      console.log(preloadedData);
     } catch (error) {
       console.error('Erreur lors du préchargement des données :', error);
     }
@@ -493,6 +501,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     input.addEventListener('input', async function () {
       const query = input.value.trim();
+      if (query === '') {
+        numClientInput.value = '';
+        nomClientInput.value = '';
+        return;
+      }
 
       if (query.length > 0) {
         try {
@@ -538,6 +551,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Appliquer l'autocomplétion à tous les champs avec la classe "autocomplete"
   document.querySelectorAll('.autocomplete').forEach(setupAutocomplete);
+
+  allowOnlyNumbers(numClientInput); //n'accèpte que le chiffre
 });
 
 /**

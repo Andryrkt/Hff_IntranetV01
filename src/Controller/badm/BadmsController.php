@@ -53,7 +53,9 @@ class BadmsController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             if ($badm->getTypeMouvement() === null) {
-                throw new \Exception('choisir une type de mouvement');
+                $message = " choisir une type de mouvement";
+
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             }
 
             if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
@@ -89,6 +91,7 @@ class BadmsController extends Controller
                     } else {
                         $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
                     }
+                    // dd($agenceMaterielId, $serviceMaterilId);
                     //condition de blocage
                     $conditionTypeMouvStatut = $idTypeMouvement === $idTypeMouvementMateriel && in_array($materiel->getStatutDemande()->getId(), [15, 16, 21, 46, 23, 25, 29, 30]);
                     $conditionEntreeParc = $idTypeMouvement === 1 && $data[0]['code_affect'] !== 'VTE';

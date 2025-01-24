@@ -72,8 +72,9 @@
 						<th>Débiteur</th>
 						<th>Objet</th>
 						<th>Section affectée</th>
-						<th>N° OR</th>
 						<th>N° devis</th>
+						<th>Statut Devis</th>
+						<th>N° OR</th>
 						<th class="fw-bold">Statut OR</th>
 						{# <th>Statut Livraison Pièces</th> #}
 						{# <th>Statut Achats Locaux</th> #}
@@ -180,12 +181,14 @@
 									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
 								</a>
 							</td>
+							<td>{{item.numeroDevisRattache}}</td>
+							<td>{{ item.statutDevis}}</td>
 							<td>
 								{% if item.numeroOr != '' %}
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>
 								{% endif %}
 							</td>
-							<td>{{item.numeroDevisRattache}}</td>
+
 							{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
 							<td class="fw-bold ">{{ item.statutor}}</td>
 							{# <td>{{ item.statutachatpiece}}</td> #}

@@ -295,7 +295,7 @@ class GenererPdfDit extends GeneratePdf
             exit;
         }
 
-        $pdf->Output($filePath, 'I');
+        $pdf->Output($filePath, 'F');
 
         // Vérification de la création du fichier
         if (file_exists($filePath)) {
