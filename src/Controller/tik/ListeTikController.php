@@ -83,6 +83,7 @@ class ListeTikController extends Controller
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
+            'autorisation' => $autorisation,
             'data'        => $paginationData['data'],
             'tickets'     => $ticketsWithEditPermission,
             'currentPage' => $paginationData['currentPage'],
