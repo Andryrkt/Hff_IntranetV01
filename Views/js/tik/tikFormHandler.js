@@ -23,7 +23,12 @@ export function handleActionClick(buttonName) {
         tikIntervenant,
         tikCommentaires,
       ],
-      requiredFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
+      requiredFields: [
+        tikCategorie,
+        tikNiveauUrgence,
+        tikSousCategorie,
+        tikIntervenant,
+      ],
       optionalFields: [tikCommentaires],
     },
     commenter: {

@@ -183,8 +183,14 @@ class ListeTikController extends Controller
     /** 
      * Fonction pour vérifier si l'utilisateur peut éditer le ticket
      */
-    private function canEdit(string $numTik): bool
+    private function canEdit(string $numTik): array
     {
+        $ticket = self::$em->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
+        $result = [
+            'monTicket' => 0,
+            'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
+        ];
+
         $this->verifierSessionUtilisateur();
 
         $idUtilisateur  = $this->sessionService->get('user_id');
@@ -199,13 +205,13 @@ class ListeTikController extends Controller
         $allTik = $utilisateur->getSupportInfoUser();
 
         foreach ($allTik as $tik) {
-            // si le numéro du ticket appartient à l'utilisateur connecté et le statut du ticket est ouvert ou en attente
-            if ($numTik === $tik->getNumeroTicket() && ($tik->getIdStatutDemande()->getId() === 58 || $tik->getIdStatutDemande()->getId() === 65)) {
-                return true;
+            // si le numéro du ticket appartient à l'utilisateur connecté et 
+            if ($numTik === $tik->getNumeroTicket()) {
+                $result['monTicket'] = 1;
                 break;
             }
         }
 
-        return false;
+        return $result;
     }
 }

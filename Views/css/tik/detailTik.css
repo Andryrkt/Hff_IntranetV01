@@ -90,8 +90,46 @@ label[for='historiqueStatut'] {
 
 .statut .row {
   height: 45px !important;
-  padding: 13px;
   border-top: 1px solid rgba(0, 0, 0, 0.17);
+}
+
+.statut .row div {
+  padding: 13px 35px;
+}
+
+.ouvert {
+  background-color: #ffff00 !important;
+  font-weight: bold;
+}
+
+.refuse {
+  background-color: orangered !important;
+  font-weight: bold;
+}
+
+.encours {
+  background-color: #3799ff !important;
+  color: #000 !important;
+}
+
+.planifie {
+  background-color: #00ffff !important;
+  font-weight: bold;
+}
+
+.resolu {
+  background-color: #008000 !important;
+  font-weight: bold;
+}
+
+.reouvert {
+  background-color: #ff00ff !important;
+  font-weight: bold;
+}
+
+.cloture {
+  background-color: #00ff00 !important;
+  font-weight: bold;
 }
 
 .nav-top span {

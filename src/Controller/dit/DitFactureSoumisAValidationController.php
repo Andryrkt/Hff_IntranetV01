@@ -88,6 +88,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditFactureSoumiAValidation->getNumeroFact(), 'dit_index');
             } else {
+
                 $dataForm = $form->getData();
                 $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
@@ -96,7 +97,6 @@ class DitFactureSoumisAValidationController extends Controller
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
 
                 $estRi = $this->conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit);
-
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
 

@@ -1,5 +1,4 @@
 import { getFrenchMonth } from '../utils/dateUtils.js';
-import { updateMessage } from '../utils/messageHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   /** COMMENTAIRE MODAL */
@@ -40,33 +39,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   confirmationModalButtons.forEach((element) => {
     element.addEventListener('click', (event) => {
-      const condition = event.target.getAttribute('data-bool'); // boolean
-      const numTik = event.target.getAttribute('data-id'); // numéro du ticket
+      const monTicket = event.target.getAttribute('data-tik-monticket'); // si ticket m'appartient
+      const ticketOuvert = event.target.getAttribute('data-tik-ouvert'); // si ticket ouvert
       const modalBodyContent = document.getElementById('modal-modif-content');
-      const modalConfirmationSpinner = document.querySelector(
-        '#spinner-confirmation-modal'
-      );
-      const modalConfirmationContainer = document.querySelector(
-        '#confirmation-modal-container'
-      );
 
       modalBodyContent.textContent = '';
 
-      console.log(condition);
-      console.log(modalBodyContent.textContent);
-
-      if (condition === '1') {
+      if (monTicket === '1' && ticketOuvert === '1') {
         // Si l'utilisateur peut modifier le ticket, on empêche l'affichage de la modale
         event.preventDefault();
-        window.location.href = button.getAttribute('href');
+        window.location.href = event.target.getAttribute('href');
+      } else if (monTicket === '0') {
+        modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier ce ticket.`;
       } else {
-        updateMessage(
-          confirmationModal,
-          `/Hffintranet/api/modification-ticket-fetch/${numTik}`,
-          modalBodyContent,
-          modalConfirmationSpinner,
-          modalConfirmationContainer
-        );
+        modalBodyContent.textContent = `Impossible de modifier ce ticket car il a été déjà validé/refusé.`;
       }
     });
   });

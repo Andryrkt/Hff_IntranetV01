@@ -1,47 +1,25 @@
-import { fetchData } from '../../../utils/fetchUtils';
+document.addEventListener('DOMContentLoaded', function () {
+  adjustStickyPositions();
 
-const spinner = document.getElementById('spinner');
-
-// Fonction pour afficher et masquer le spinner
-function toggleSpinner(show) {
-  spinner.style.display = show ? 'block' : 'none';
-}
-
-async function loadOperations() {
-  toggleSpinner(true); // Afficher le spinner pendant la récupération des données
-  const operations = await fetchData(
-    '/Hffintranet/api/operation-document-fetch-all'
-  ); // Données JSON injectées par le back-end
-  toggleSpinner(false); // Masquer le spinner après la récupération des données
-  return operations;
-}
-
-// Initialisation des opérations
-let operations = [];
-loadOperations().then((data) => {
-  operations = data;
-  renderTable(operations);
+  // Ajoutez un écouteur d'événements pour surveiller l'ouverture/fermeture de l'accordéon
+  document
+    .querySelector('button.accordion-button.enteteAccordion')
+    .addEventListener('click', function () {
+      // Utilisation de délai pour laisser le temps à l'animation de se terminer
+      setTimeout(adjustStickyPositions, 350); // durée de l'animation: estimé à 300ms
+    });
 });
 
-function renderTable(data) {
-  const tableBody = document.getElementById('operationTable');
-  tableBody.innerHTML =
-    data.length === 0
-      ? '<tr><td colspan="7" class="text-center">Aucun résultat</td></tr>'
-      : data.map((item) => createTableRow(item)).join('');
+function adjustStickyPositions() {
+  const stickyStatut = document.querySelector('.sticky-header');
+  const tableHeader = document.querySelector('.sticky-table-header');
+
+  // Vérifiez la hauteur totale de l'accordéon ouvert
+  const accordionHeight = stickyStatut.offsetHeight;
+
+  console.log(accordionHeight);
+
+  tableHeader.style.top = `${accordionHeight}px`;
 }
 
-// Création d'une ligne de tableau
-function createTableRow(item) {
-  return `
-    <tr>
-      <td>${item.numeroDocument}</td>
-      <td>${item.date}</td>
-      <td>${item.username}</td>
-      <td>${item.operationType}</td>
-      <td>${item.documentType}</td>
-      <td>${item.statut}</td>
-      <td>${item.libelle}</td>
-    </tr>
-  `;
-}
+window.addEventListener('resize', adjustStickyPositions);

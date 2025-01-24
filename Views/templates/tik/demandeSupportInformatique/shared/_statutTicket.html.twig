@@ -5,6 +5,25 @@
 		</label>
 		<div class="statut">
 			{% for item in items %}
+				{% set classeStatutTik = '' %}
+
+				{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+					{% set classeStatutTik ='ouvert' %}
+				{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+					{% set classeStatutTik ='refuse' %}
+				{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+					{% set classeStatutTik ='encours' %}
+				{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+					{% set classeStatutTik ='planifie' %}
+				{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+					{% set classeStatutTik ='resolu' %}
+				{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+					{% set classeStatutTik ='reouvert' %}
+				{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+					{% set classeStatutTik ='cloture' %}
+				{% else %}
+					{% set classeStatutTik = '' %}
+				{% endif %}
 				<div class="row">
 					<div class="col-12 col-md-4">
 						{{ item.dateStatut|date('d/m/Y') }}
@@ -12,7 +31,7 @@
 					<div class="col-12 col-md-4">
 						{{ item.dateStatut|date('H:i:s') }}
 					</div>
-					<div class="col-12 col-md-4 fw-bold">
+					<div class="col-12 col-md-4 fw-bold {{classeStatutTik}}">
 						{{ item.idStatutDemande.description }}
 					</div>
 				</div>

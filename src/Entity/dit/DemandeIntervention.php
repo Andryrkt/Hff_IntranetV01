@@ -342,10 +342,10 @@ class DemandeIntervention
     private ?datetime $dateDevisRattache = null;
 
     /**
-     * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
+     * @ORM\Column(type="string", length=3, name="statut_devis",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $devisValide = null;
+    private ?string $statutDevis = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_validation_devis", nullable=true)
@@ -1128,15 +1128,15 @@ class DemandeIntervention
     }
 
 
-    public function getDevisValide()
+    public function getStatutDevis()
     {
-        return $this->devisValide;
+        return $this->statutDevis;
     }
 
 
-    public function setDevisValide($devisValide): self
+    public function setStatutDevis($statutDevis): self
     {
-        $this->devisValide = $devisValide;
+        $this->statutDevis = $statutDevis;
 
         return $this;
     }
