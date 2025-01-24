@@ -29,6 +29,11 @@
   font-weight: bold;
 }
 
+.enattente {
+  background-color: orange !important;
+  font-weight: bold;
+}
+
 .refuse {
   background-color: orangered !important;
   font-weight: bold;

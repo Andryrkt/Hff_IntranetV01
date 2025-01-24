@@ -88,6 +88,8 @@
 						{% set classeStatutTik ='reouvert' %}
 					{% elseif item.idStatutDemande.description|trim == 'CLÔTURE' %}
 						{% set classeStatutTik ='cloture' %}
+					{% elseif item.idStatutDemande.description|trim == 'EN ATTENTE' %}
+						{% set classeStatutTik ='enattente' %}
 					{% else %}
 						{% set classeStatutTik = '' %}
 					{% endif %}
