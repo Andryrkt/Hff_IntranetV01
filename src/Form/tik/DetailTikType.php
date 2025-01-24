@@ -22,7 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use App\Repository\admin\tik\TkiSousCategorieRepository;
 use App\Repository\admin\tik\TkiAutreCategorieRepository;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class DetailTikType extends AbstractType
@@ -192,20 +192,18 @@ class DetailTikType extends AbstractType
                 'multiple'     => false,
                 'expanded'     => false,
             ])
-            ->add('dateDebutPlanning', DateTimeType::class, [
+            ->add('dateDebutPlanning', DateType::class, [
                 'label'      => 'Début planning',
                 'attr'       => [
                     'disabled' => !$disabled,
-                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
                 ],
                 'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
                 'required'   => false,
             ])
-            ->add('dateFinPlanning', DateTimeType::class, [
+            ->add('dateFinPlanning', DateType::class, [
                 'label'      => 'Fin planning',
                 'attr'       => [
                     'disabled' => !$disabled,
-                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
                 ],
                 'widget'     => 'single_text',
                 'required'   => false,
