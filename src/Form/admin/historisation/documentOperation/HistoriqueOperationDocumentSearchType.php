@@ -46,7 +46,9 @@ class HistoriqueOperationDocumentSearchType extends AbstractType
             ->add('typeDocument', EntityType::class, [
                 'label' => 'Type de document',
                 'class' => TypeDocument::class,
-                'choice_label' => 'libelleDocument',
+                'choice_label' => function (TypeDocument $typeDocument) {
+                    return $typeDocument->getTypeDocument() . ' (' . $typeDocument->getLibelleDocument() . ')';
+                },
                 'placeholder' => '-- Choisir un type de document --',
                 'required' => false,
             ])
