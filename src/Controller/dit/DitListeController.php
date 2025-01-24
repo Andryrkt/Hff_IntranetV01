@@ -107,6 +107,8 @@ class DitListeController extends Controller
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
                 $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
+                $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
         }
 
@@ -129,7 +131,6 @@ class DitListeController extends Controller
             'resultat'      => $paginationData['totalItems'],
             'statusCounts'  => $paginationData['statusCounts'],
             'form'          => $form->createView(),
-            'criteria'      => $criteria,
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
     }

@@ -52,7 +52,7 @@ class BcSoumis
     private $dateBc;
 
     /**
-     * @ORM\Column(type="date", name="dateBc")
+     * @ORM\Column(type="date", name="dateDevis")
      */
     private $dateDevis;
 
@@ -65,6 +65,11 @@ class BcSoumis
      * @ORM\Column(type="datetime")
      */
     private  $dateHeureSoumission;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nomFichier;
     
     
     /**==============================================================================
@@ -255,5 +260,24 @@ class BcSoumis
         return $this;
     }
 
-    
+
+    /**
+     * Get the value of nomFichier
+     */ 
+    public function getNomFichier()
+    {
+        return $this->nomFichier;
+    }
+
+    /**
+     * Set the value of nomFichier
+     *
+     * @return  self
+     */ 
+    public function setNomFichier($nomFichier)
+    {
+        $this->nomFichier = $nomFichier;
+
+        return $this;
+    }
 }

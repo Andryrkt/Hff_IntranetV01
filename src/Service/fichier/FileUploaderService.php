@@ -68,7 +68,6 @@ class FileUploaderService
 
     private function genererateCheminMainFichier(string $numeroDoc, string $prefix, string $numeroVersion = ''): string
     { 
-        
         return sprintf(
             '%s_%s%s.pdf',
             $prefix,
@@ -170,6 +169,7 @@ private function getUploadedFiles(
         string $numeroDoc, 
         bool $mergeFiles = true,
         string $numeroVersion = '',
+        bool $mainFirstPage = false,
         string $fieldPattern = '/^pieceJoint(\d{2})$/'
     ): string 
     {
@@ -179,11 +179,14 @@ private function getUploadedFiles(
         // dump($mainFilePathName);
         // dd(file_exists($mainFilePathName));
         
-        $uploadedFiles[] = $mainFilePathName;
+        if($mainFirstPage){
+            $uploadedFiles[] = $mainFilePathName;
+            $uploadedFiles = array_merge( $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion), $uploadedFiles);
+        } else {
+            $uploadedFiles[] = $mainFilePathName;
+            $uploadedFiles = array_merge($uploadedFiles, $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion));
+        }
         
-         // Récupérer les fichiers téléchargés
-        $uploadedFiles = array_merge($uploadedFiles, $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion));
-    
         // Nom du fichier PDF fusionné
         $mergedPdfFile = $mainFilePathName;
 

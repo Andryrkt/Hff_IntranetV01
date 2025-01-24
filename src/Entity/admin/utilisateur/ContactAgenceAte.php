@@ -2,6 +2,7 @@
 
 namespace App\Entity\admin\utilisateur;
 
+use App\Entity\admin\Agence;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\admin\utilisateur\ContactAgenceAteRepository;
 
@@ -22,25 +23,51 @@ class ContactAgenceAte
 
     /**
      * @ORM\Column(type="string", length=11, name="agence")
-     *
-     * @var string
      */
-    private string $agence;
+    private ?string $agenceString;
 
     /**
      * @ORM\Column(type="string", length=5, name="matricule")
-     *
-     * @var string
      */
-    private string $matricule;
+    private ?string $matriculeString;
 
-    private string $nomPrenom;
+    /**
+     * @ORM\Column(type="string", length=100, name="nom")
+     */
+    private ?string $nomString = "";
 
-    private ?string $poste;
+    /**
+     * @ORM\Column(type="string", length=200, name="prenom")
+     */
+    private ?string $prenom = "";
 
-    private string $email;
+    /**
+     * @ORM\Column(type="string", length=255, name="email")
+     */
+    private ?string  $emailString = "";
 
-    private string $telephone;
+    /**
+     * @ORM\Column(type="string", length=13, name="telephone")
+     */
+    private ?string $telephone = "";
+
+    /**
+     * @ORM\Column(type="string", length=10, name="atelier")
+     */
+    private ?string $atelier = "";
+
+    private ?Agence $agence = null;
+
+    private ?User $matricule = null;
+
+    private string $nomPrenom = "";
+
+    private ?user $email = null;
+
+    private ?User $nom = null;
+
+    private string $poste = "";
+
 
     /**========================================================
      * GETTERS & SETTERS
@@ -65,14 +92,8 @@ class ContactAgenceAte
         return $this->agence;
     }
 
-    /**
-     * Set the value of agence
-     *
-     * @param  string  $agence
-     *
-     * @return  self
-     */ 
-    public function setAgence(string $agence)
+
+    public function setAgence($agence)
     {
         $this->agence = $agence;
 
@@ -89,14 +110,7 @@ class ContactAgenceAte
         return $this->matricule;
     }
 
-    /**
-     * Set the value of matricule
-     *
-     * @param  string  $matricule
-     *
-     * @return  self
-     */ 
-    public function setMatricule(string $matricule)
+    public function setMatricule($matricule)
     {
         $this->matricule = $matricule;
 
@@ -123,25 +137,7 @@ class ContactAgenceAte
         return $this;
     }
 
-    /**
-     * Get the value of poste
-     */ 
-    public function getPoste()
-    {
-        return $this->poste;
-    }
-
-    /**
-     * Set the value of poste
-     *
-     * @return  self
-     */ 
-    public function setPoste($poste)
-    {
-        $this->poste = $poste;
-
-        return $this;
-    }
+   
 
     /**
      * Get the value of email
@@ -163,6 +159,67 @@ class ContactAgenceAte
         return $this;
     }
 
+
+    /**
+     * Get the value of agenceString
+     */ 
+    public function getAgenceString()
+    {
+        return $this->agenceString;
+    }
+
+    /**
+     * Set the value of agenceString
+     *
+     * @return  self
+     */ 
+    public function setAgenceString($agenceString)
+    {
+        $this->agenceString = $agenceString;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of matriculeString
+     */ 
+    public function getMatriculeString()
+    {
+        return $this->matriculeString;
+    }
+
+    /**
+     * Set the value of matriculeString
+     *
+     * @return  self
+     */ 
+    public function setMatriculeString($matriculeString)
+    {
+        $this->matriculeString = $matriculeString;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of poste
+     */ 
+    public function getPoste()
+    {
+        return $this->poste;
+    }
+
+    /**
+     * Set the value of poste
+     *
+     * @return  self
+     */ 
+    public function setPoste($poste)
+    {
+        $this->poste = $poste;
+
+        return $this;
+    }
+
     /**
      * Get the value of telephone
      */ 
@@ -179,6 +236,106 @@ class ContactAgenceAte
     public function setTelephone($telephone)
     {
         $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of emailString
+     */ 
+    public function getEmailString()
+    {
+        return $this->emailString;
+    }
+
+    /**
+     * Set the value of emailString
+     *
+     * @return  self
+     */ 
+    public function setEmailString($emailString)
+    {
+        $this->emailString = $emailString;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nom
+     */ 
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+    /**
+     * Set the value of nom
+     *
+     * @return  self
+     */ 
+    public function setNom($nom)
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomString
+     */ 
+    public function getNomString()
+    {
+        return $this->nomString;
+    }
+
+    /**
+     * Set the value of nomString
+     *
+     * @return  self
+     */ 
+    public function setNomString($nomString)
+    {
+        $this->nomString = $nomString;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prenom
+     */ 
+    public function getPrenom()
+    {
+        return $this->prenom;
+    }
+
+    /**
+     * Set the value of prenom
+     *
+     * @return  self
+     */ 
+    public function setPrenom($prenom)
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of atelier
+     */ 
+    public function getAtelier()
+    {
+        return $this->atelier;
+    }
+
+    /**
+     * Set the value of atelier
+     *
+     * @return  self
+     */ 
+    public function setAtelier($atelier)
+    {
+        $this->atelier = $atelier;
 
         return $this;
     }
