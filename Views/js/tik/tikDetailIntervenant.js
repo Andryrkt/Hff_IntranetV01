@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (document.getElementById('formTik').getAttribute('edit') === 'false') {
     disableForm('formTik');
   } else {
-    handleActionClick('debut');
+    handleActionClick('debut', 'formTik');
   }
 
   // Boutons d'action
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   buttons.forEach(({ id, action }) => {
     const btn = document.querySelector(id);
-    btn?.addEventListener('click', () => handleActionClick(action));
+    btn?.addEventListener('click', () => handleActionClick(action, 'formTik'));
   });
 
   // champs Intervenant et Date de planning

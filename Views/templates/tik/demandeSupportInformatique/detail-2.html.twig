@@ -176,14 +176,6 @@
 							{{ macroForm.affichageHTML('Dernier commentaire', tik.commentaires|last.commentaires)}}
 						</div>
 						{# FIN COLONNE 2 #}
-						<div class="d-flex justify-content-end">
-							{% if autoriserCloturer %}
-								<button type="submit" class="btn bouton text-white bg-cloturer" name="cloturer" id="btn_cloturer">
-									<i class="fas fa-lock"></i>
-									Clôturer
-								</button>
-							{% endif %}
-						</div>
 					</div>
 				</div>
 				<div class="tab-pane fade" id="nav-statutComm" role="tabpanel" aria-labelledby="nav-statutComm-tab">
@@ -205,7 +197,7 @@
 	{% block footer %}{% endblock %}
 
 	{% block javascript %}
-		{% if validateur %}
+		{% if validateur and statutOuvert %}
 			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js"></script>
 		{% else %}
 			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>

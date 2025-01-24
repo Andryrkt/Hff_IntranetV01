@@ -84,7 +84,7 @@ class HandleRequestService
         $this->em->persist($this->supportInfo);
         $this->em->flush();
 
-        $this->historiqueStatut($this->supportInfo, $this->statut);
+        $this->historiqueStatut();
 
         $nomPrenomIntervenant = $this->form->getData()->getIntervenant()->getPersonnels()->getNom() . ' ' . $this->form->getData()->getIntervenant()->getPersonnels()->getPrenoms();
 
@@ -309,6 +309,8 @@ class HandleRequestService
 
         $this->em->persist($this->supportInfo);
         $this->em->flush();
+
+        $this->historiqueStatut(); // historisation du statut
 
         // Envoi email cloturé
         $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser);

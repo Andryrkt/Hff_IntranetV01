@@ -11,8 +11,8 @@ const dateDebutPlanning = document.querySelector(
 );
 const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
 
-export function handleActionClick(buttonName) {
-  disableForm('formTik');
+export function handleActionClick(buttonName, formId) {
+  disableForm(formId);
   const actions = {
     valider: {
       enableFields: [
@@ -54,6 +54,11 @@ export function handleActionClick(buttonName) {
     planifier: {
       enableFields: [dateDebutPlanning, dateFinPlanning],
       requiredFields: [dateDebutPlanning, dateFinPlanning],
+      optionalFields: [],
+    },
+    cloturer: {
+      enableFields: [],
+      requiredFields: [],
       optionalFields: [],
     },
     debut: {
