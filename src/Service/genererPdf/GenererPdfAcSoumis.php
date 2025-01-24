@@ -33,7 +33,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         $pdf->AddPage();
 
         $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Public/build/images/logoHFF.jpg';
-        $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
+        $pdf->Image($logoPath, 29, 10, 40, '', 'jpg');
         // Contenu HTML avec texte justifié
      // Ajouter un tableau avec deux colonnes pour l'en-tête
         $html = '
@@ -84,19 +84,19 @@ class GenererPdfAcSoumis extends GeneratePdf
         </p>
         <p>
             <b>Objet : Accusé de réception du bon de commande </b> <br>
-            <b>N°BC : </b> '.$acSoumis->getNumeroBc().' <br/>
+            <b>N°BC : </b> '.$acSoumis->getNumeroBc().' <br>
             <b>Date BC : </b> '.$acSoumis->getDateBc()->format('d/m/Y').'
         </p>
         <p>
             Madame, Monsieur,<br><br>
-            Nous accusons réception de votre bon de commande, portant sur '.$acSoumis->getDescriptionBc().'.<br/><br/>
-            Cette commande fait suite <br/>
-            Devis : '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') du '.$acSoumis->getDateDevis()->format('d/m/Y').' qui expire le '.$acSoumis->getDateExpirationDevis()->format('d/m/Y').'<br/>
-            Montant HT : '.$this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.',2).' '.$acSoumis->getDevise().'. <br/>
-            Nous confirmons que votre commande a été enregistrée.<br/><br/>
+            Nous accusons réception de votre bon de commande, portant sur '.$acSoumis->getDescriptionBc().'.<br><br>
+            Cette commande fait suite à :<br>
+            Devis : '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') du '.$acSoumis->getDateDevis()->format('d/m/Y').' qui expire le '.$acSoumis->getDateExpirationDevis()->format('d/m/Y').'<br>
+            Montant HT : '.$this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.',2).' '.$acSoumis->getDevise().'. <br><br>
+            Nous confirmons que votre commande a été enregistrée.<br><br>
             Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à '.$acSoumis->getEmailContactHff().' ou par téléphone au '.$acSoumis->getTelephoneContactHff().'.<br><br>
-            Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br/><br/>
-            Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br/>
+            Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br/><br>
+            Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br>
         </p>
         ';
 

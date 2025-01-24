@@ -95,7 +95,7 @@ class GeneratePdf
  * @param string $align l'alignement
  * @param int $lineBreak le retour à la ligne
  */
-protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 12, string $align = 'L', int $lineBreak = 5)
+protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
 {
     $pdf->setFont($font, $style, $size);
 

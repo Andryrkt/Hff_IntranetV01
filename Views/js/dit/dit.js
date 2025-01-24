@@ -456,7 +456,10 @@ document.addEventListener("DOMContentLoaded", function () {
     suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
     data.forEach((item) => {
       const suggestion = document.createElement("div");
-      suggestion.textContent = item.label + " - " + item.value; // Affiche le label
+      suggestion.textContent =
+        field === "numero"
+          ? item.label + " - " + item.value
+          : item.value + " - " + item.label; // Affiche le label
       suggestion.addEventListener("click", () => {
         let label = field === "numero" ? item.label : item.value;
         let value = field === "numero" ? item.value : item.label;

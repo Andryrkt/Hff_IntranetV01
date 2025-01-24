@@ -104,7 +104,7 @@
     overflow-y: auto; /* Active le défilement si nécessaire */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
     z-index: 1000;
-    width: 20%; /* Assure que la liste occupe toute la largeur du champ */
+    width: 30%; /* Assure que la liste occupe toute la largeur du champ */
     margin-top: 5px;
 }
 
