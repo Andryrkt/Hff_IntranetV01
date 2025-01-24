@@ -90,7 +90,7 @@ class DetailTikController extends Controller
                 'id' => $id
             ]); // historisation du page visité par l'utilisateur 
 
-            $template = in_array("VALIDATEUR", $connectedUser->getRoleNames()) && !$statutOuvert ? "detail-2" : "detail-1";
+            $template = $statutOuvert ? (in_array("VALIDATEUR", $connectedUser->getRoleNames()) ? "detail-1" : "detail-2") : (in_array("INTERVENANT", $connectedUser->getRoleNames()) ? "detail-1" : "detail-2");
 
             self::$twig->display("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,

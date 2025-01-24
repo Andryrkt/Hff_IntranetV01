@@ -253,10 +253,10 @@ class HandleRequestService
             ->setIdStatutDemande($this->statut)    // statut resolu
         ;
 
-        self::$em->persist($this->tkiCommentaire);
-        self::$em->persist($this->supportInfo);
+        $this->em->persist($this->tkiCommentaire);
+        $this->em->persist($this->supportInfo);
 
-        self::$em->flush();
+        $this->em->flush();
 
         $this->historiqueStatut($this->supportInfo, $this->statut); // historisation du statut
 
