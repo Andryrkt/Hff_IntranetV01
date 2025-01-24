@@ -1,4 +1,4 @@
-// import { TableauComponent } from "../Component/TableauComponent.js";
+import { TableauComponent } from "../Component/TableauComponent.js";
 /**
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
@@ -17,23 +17,7 @@ const config = {
 };
 
 // Sélection des éléments du DOM
-// Configuration centralisée
-const config = {
-  elements: {
-    agenceDebiteurInput: "#planning_search_agenceDebite",
-    serviceDebiteurInput: "#planning_search_serviceDebite",
-    selectAllCheckbox: "#planning_search_selectAll",
-    searchForm: "#planning_search_form", // Ajout de l'ID du formulaire de recherche
-  },
-  urls: {
-    serviceFetch: (agenceDebiteur) =>
-      `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
-  },
-};
-
-// Sélection des éléments du DOM
 const agenceDebiteurInput = document.querySelector(
-  config.elements.agenceDebiteurInput
   config.elements.agenceDebiteurInput
 );
 const serviceDebiteurInput = document.querySelector(
@@ -59,50 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Gestionnaire principal pour le changement de l'agence
 agenceDebiteurInput.addEventListener("change", handleAgenceChange);
-  config.elements.serviceDebiteurInput
-);
-const searchForm = document.querySelector(config.elements.searchForm);
 
-// Initialisation des checkbox au chargement de la page
-document.addEventListener("DOMContentLoaded", () => {
-  ensureSelectAllCheckbox();
-  attachCheckboxEventListeners();
-  selectAllCheckboxByDefault();
-
-  // Ajout d'un écouteur pour recalculer après la soumission du formulaire
-  searchForm.addEventListener("submit", () => {
-    setTimeout(() => {
-      ensureSelectAllCheckbox();
-      attachCheckboxEventListeners();
-      selectAllCheckboxByDefault(); // Recalcule l'état après l'envoi
-    }, 100);
-  });
-});
-
-// Gestionnaire principal pour le changement de l'agence
-agenceDebiteurInput.addEventListener("change", handleAgenceChange);
-
-function handleAgenceChange() {
 function handleAgenceChange() {
   serviceDebiteurInput.disabled = false;
-  // Récupération de l'agence sélectionnée
-  const agenceDebiteur =
-    agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
-
-  clearServiceCheckboxes();
-  removeSelectAllCheckbox();
-
-  if (!agenceDebiteur) {
-    // Si aucune agence n'est sélectionnée, on arrête ici
-    return;
-  }
-
-  // URL pour fetch
-  const url = config.urls.serviceFetch(agenceDebiteur);
-
-  // Création et affichage du spinner
-  const spinner = createSpinner();
-  serviceDebiteurInput.parentElement.appendChild(spinner);
   // Récupération de l'agence sélectionnée
   const agenceDebiteur =
     agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
@@ -209,104 +152,12 @@ function ensureSelectAllCheckbox() {
   if (!selectAllCheckbox) {
     const selectAllDiv = document.createElement("div");
     selectAllDiv.className = "form-check";
-      updateServiceCheckboxes(services);
-      ensureSelectAllCheckbox();
-      attachCheckboxEventListeners();
-      selectAllCheckboxByDefault(); // Ensure default selection after updating checkboxes
-    })
-    .catch((error) => console.error("Error:", error))
-    .finally(() => {
-      // Suppression du spinner
-      spinner.remove();
-    });
-}
-
-// Fonction pour retirer le bouton "Tout sélectionner"
-function removeSelectAllCheckbox() {
-  const selectAllCheckbox = document.querySelector(
-    config.elements.selectAllCheckbox
-  );
-  if (selectAllCheckbox) {
-    selectAllCheckbox.parentElement.remove();
-  }
-}
-
-/// Fonction pour créer le spinner HTML avec CSS intégré
-function createSpinner() {
-  // Conteneur du spinner
-  const spinnerContainer = document.createElement("div");
-  spinnerContainer.id = "serviceSpinner";
-  spinnerContainer.style.display = "flex";
-  spinnerContainer.style.justifyContent = "center";
-  spinnerContainer.style.alignItems = "center";
-  spinnerContainer.style.margin = "20px 0";
-
-  // Spinner
-  const spinner = document.createElement("div");
-  spinner.className = "spinner-border";
-  spinner.role = "status";
-  spinner.style.width = "3rem";
-  spinner.style.height = "3rem";
-  spinner.style.border = "0.25em solid #ccc";
-  spinner.style.borderTop = "0.25em solid #000";
-  spinner.style.borderRadius = "50%";
-  spinner.style.animation = "spin 0.8s linear infinite";
-
-  // Texte pour les lecteurs d'écran (optionnel)
-  const spinnerText = document.createElement("span");
-  spinnerText.className = "sr-only";
-  spinnerText.textContent = "Chargement...";
-
-  spinner.appendChild(spinnerText);
-  spinnerContainer.appendChild(spinner);
-
-  // Ajout des styles d'animation au document (si nécessaire)
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
-
-  return spinnerContainer;
-}
-
-function updateServiceCheckboxes(services) {
-  clearServiceCheckboxes();
-  addServiceCheckboxes(services);
-}
-
-function clearServiceCheckboxes() {
-  const serviceCheckboxes = document.querySelectorAll(
-    'input[name="planning_search[serviceDebite][]"]'
-  );
-  serviceCheckboxes.forEach((checkbox) => checkbox.parentElement.remove());
-}
-
-function ensureSelectAllCheckbox() {
-  let selectAllCheckbox = document.querySelector(
-    config.elements.selectAllCheckbox
-  );
-
-  if (!selectAllCheckbox) {
-    const selectAllDiv = document.createElement("div");
-    selectAllDiv.className = "form-check";
 
     selectAllCheckbox = document.createElement("input");
     selectAllCheckbox.type = "checkbox";
     selectAllCheckbox.id = "planning_search_selectAll";
     selectAllCheckbox.className = "form-check-input";
-    selectAllCheckbox = document.createElement("input");
-    selectAllCheckbox.type = "checkbox";
-    selectAllCheckbox.id = "planning_search_selectAll";
-    selectAllCheckbox.className = "form-check-input";
 
-    const selectAllLabel = document.createElement("label");
-    selectAllLabel.htmlFor = selectAllCheckbox.id;
-    selectAllLabel.textContent = "Tout sélectionner";
-    selectAllLabel.className = "form-check-label";
     const selectAllLabel = document.createElement("label");
     selectAllLabel.htmlFor = selectAllCheckbox.id;
     selectAllLabel.textContent = "Tout sélectionner";
@@ -318,33 +169,11 @@ function ensureSelectAllCheckbox() {
       selectAllDiv,
       serviceDebiteurInput.firstChild
     );
-    selectAllDiv.appendChild(selectAllCheckbox);
-    selectAllDiv.appendChild(selectAllLabel);
-    serviceDebiteurInput.insertBefore(
-      selectAllDiv,
-      serviceDebiteurInput.firstChild
-    );
 
     selectAllCheckbox.addEventListener("change", handleSelectAllChange);
   }
 }
-    selectAllCheckbox.addEventListener("change", handleSelectAllChange);
-  }
-}
 
-function handleSelectAllChange(event) {
-  const serviceCheckboxes = document.querySelectorAll(
-    'input[name="planning_search[serviceDebite][]"]'
-  );
-  serviceCheckboxes.forEach((checkbox) => {
-    checkbox.checked = event.target.checked;
-  });
-}
-
-function addServiceCheckboxes(services) {
-  services.forEach((service, index) => {
-    const div = document.createElement("div");
-    div.className = "form-check";
 function handleSelectAllChange(event) {
   const serviceCheckboxes = document.querySelectorAll(
     'input[name="planning_search[serviceDebite][]"]'
@@ -366,71 +195,12 @@ function addServiceCheckboxes(services) {
     checkbox.id = `service_${index}`;
     checkbox.className = "form-check-input";
     checkbox.checked = true; // Set all checkboxes to checked by default
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "planning_search[serviceDebite][]";
-    checkbox.value = service.value;
-    checkbox.id = `service_${index}`;
-    checkbox.className = "form-check-input";
-    checkbox.checked = true; // Set all checkboxes to checked by default
 
     const label = document.createElement("label");
     label.htmlFor = checkbox.id;
     label.textContent = service.text;
     label.className = "form-check-label";
-    const label = document.createElement("label");
-    label.htmlFor = checkbox.id;
-    label.textContent = service.text;
-    label.className = "form-check-label";
 
-    div.appendChild(checkbox);
-    div.appendChild(label);
-    serviceDebiteurInput.appendChild(div);
-  });
-}
-
-function attachCheckboxEventListeners() {
-  const serviceCheckboxes = document.querySelectorAll(
-    'input[name="planning_search[serviceDebite][]"]'
-  );
-  serviceCheckboxes.forEach((checkbox) => {
-    checkbox.removeEventListener("change", handleServiceCheckboxChange);
-    checkbox.addEventListener("change", handleServiceCheckboxChange);
-  });
-}
-
-function handleServiceCheckboxChange() {
-  const allCheckboxes = document.querySelectorAll(
-    'input[name="planning_search[serviceDebite][]"]'
-  );
-  const selectAllCheckbox = document.querySelector(
-    config.elements.selectAllCheckbox
-  );
-
-  const allChecked = Array.from(allCheckboxes).every(
-    (checkbox) => checkbox.checked
-  );
-
-  selectAllCheckbox.checked = allChecked;
-}
-
-function selectAllCheckboxByDefault() {
-  const selectAllCheckbox = document.querySelector(
-    config.elements.selectAllCheckbox
-  );
-  const serviceCheckboxes = document.querySelectorAll(
-    'input[name="planning_search[serviceDebite][]"]'
-  );
-
-  if (serviceCheckboxes.length > 0) {
-    const allChecked = Array.from(serviceCheckboxes).every(
-      (checkbox) => checkbox.checked
-    );
-
-    selectAllCheckbox.checked = allChecked;
-  } else {
-    selectAllCheckbox.checked = false;
-  }
     div.appendChild(checkbox);
     div.appendChild(label);
     serviceDebiteurInput.appendChild(div);
@@ -533,14 +303,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tableBody = document.getElementById("commandesTableBody");
     const tableBodyOR = document.getElementById("commandesTableBodyOR");
     const tableBodyLign = document.getElementById("commandesTableBodyLign");
-    const tableBodyOR = document.getElementById("commandesTableBodyOR");
-    const tableBodyLign = document.getElementById("commandesTableBodyLign");
     const Ornum = document.getElementById("orIntv");
     const planningTableHead = document.getElementById("planningTableHead");
 
     tableBody.innerHTML = ""; // Vider le tableau
-    tableBodyLign.innerHTML = "";
-    tableBodyOR.innerHTML = "";
     tableBodyLign.innerHTML = "";
     tableBodyOR.innerHTML = "";
     Ornum.innerHTML = "";
@@ -564,7 +330,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-
         const tableBody = document.getElementById("technicienTableBody");
 
         tableBody.innerHTML = ""; // Clear previous data
@@ -608,34 +373,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .then((data) => {
         console.log(data.avecOnglet);
-        
-        displayOnglet(data.avecOnglet);
-        const Ornum = document.getElementById("orIntv");
-        console.log(data.avecOnglet);
-        
+
         displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
         const tableBody = document.getElementById("commandesTableBody");
         const planningTableHead = document.getElementById("planningTableHead");
         const tableBodyOR = document.getElementById("commandesTableBodyOR");
-        const planningTableHeadOR = document.getElementById("planningTableHeadOR");
+        const planningTableHeadOR = document.getElementById(
+          "planningTableHeadOR"
+        );
         const tableBodyLign = document.getElementById("commandesTableBodyLign");
-        const planningTableHeadLign = document.getElementById("planningTableHeadLign");
-        const tableBodyOR = document.getElementById("commandesTableBodyOR");
-        const planningTableHeadOR = document.getElementById("planningTableHeadOR");
-        const tableBodyLign = document.getElementById("commandesTableBodyLign");
-        const planningTableHeadLign = document.getElementById("planningTableHeadLign");
+        const planningTableHeadLign = document.getElementById(
+          "planningTableHeadLign"
+        );
 
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
         planningTableHead.innerHTML = "";
         planningTableHeadOR.innerHTML = "";
         planningTableHeadLign.innerHTML = "";
-        planningTableHeadOR.innerHTML = "";
-        planningTableHeadLign.innerHTML = "";
 
-        if (data.data.length > 0) {
-          if (data.data[0].numor.startsWith("5")) {
         if (data.data.length > 0) {
           if (data.data[0].numor.startsWith("5")) {
             let rowHeader = `<th>N° OR</th>
@@ -658,8 +415,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
             planningTableHead.innerHTML += rowHeader;
             planningTableHeadOR.innerHTML += rowHeader;
             planningTableHeadLign.innerHTML += rowHeader;
-            planningTableHeadOR.innerHTML += rowHeader;
-            planningTableHeadLign.innerHTML += rowHeader;
           } else {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
@@ -679,7 +434,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
                             <th>Message</th>`;
             planningTableHead.innerHTML += rowHeader;
           }
-          data.data.forEach((detail) => {
           data.data.forEach((detail) => {
             console.log(detail);
 
@@ -791,22 +545,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
             //onglet CIS
             let statutCIS;
             let dateStatutCIS;
-            
-            
-            if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
-                statutCIS= 'LIVRE';
-                dateStatutCIS = formaterDate(detail.dateLivLIg);
-            } else if(parseInt(detail.qtealllig) > 0){
-              statutCIS = 'A LIVRER'
+
+            if (
+              parseInt(detail.qtelivlig) > 0 &&
+              parseInt(detail.qtealllig) === 0 &&
+              parseInt(detail.qterlqlig) === 0
+            ) {
+              statutCIS = "LIVRE";
+              dateStatutCIS = formaterDate(detail.dateLivLIg);
+            } else if (parseInt(detail.qtealllig) > 0) {
+              statutCIS = "A LIVRER";
               dateStatutCIS = formaterDate(detail.dateAllLIg);
-          } else {
-              statutCIS= detail.statut;
+            } else {
+              statutCIS = detail.statut;
               dateStatutCIS = "";
             }
 
-            
-            
-            
             if (detail.numor && detail.numor.startsWith("5")) {
               // Affichage
               let row = `<tr>
@@ -840,40 +594,34 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${(isNaN(detail.qteORlig) || detail.qteORlig === "") ? "" : parseInt(detail.qteORlig)}</td> 
-                        <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
-                        <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
-                        <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
-                        <td >${(statutCIS ===null)? "" : statutCIS}</td> 
-                        <td>${(dateStatutCIS === null) ? "" : dateStatutCIS}</td> 
+                        <td>${
+                          isNaN(detail.qteORlig) || detail.qteORlig === ""
+                            ? ""
+                            : parseInt(detail.qteORlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtealllig) || detail.qtealllig === ""
+                            ? ""
+                            : parseInt(detail.qtealllig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                            ? ""
+                            : parseInt(detail.qterlqlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                            ? ""
+                            : parseInt(detail.qtelivlig)
+                        }</td> 
+                        <td >${statutCIS === null ? "" : statutCIS}</td> 
+                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
                     </tr>`;
-              // tableBody.innerHTML += row;
-              tableBodyOR.innerHTML += row;
-              let row1 = `<tr>
-                        <td>${detail.numor}</td> 
-                        <td>${detail.intv}</td> 
-                        <td>${numCis}</td> 
-                        <td ${cmdColor}>${numeroCdeCis}</td> 
-                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
-                        <td>${detail.cst}</td> 
-                        <td>${numRef}</td> 
-                        <td>${detail.desi}</td> 
-                        <td>${(isNaN(detail.qteORlig) || detail.qteORlig === "") ? "" : parseInt(detail.qteORlig)}</td> 
-                        <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
-                        <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
-                        <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
-                        <td >${statut}</td> 
-                        <td>${dateStatut}</td> 
-                        <td>${dateEtaIvato}</td> 
-                        <td>${dateMagasin}</td> 
-                        <td>${message}</td> 
-                    </tr>`;
-                  tableBodyLign.innerHTML += row1;
+                tableBodyLign.innerHTML += row1;
               }
-              
             } else {
               // Affichage
               let row = `<tr>
@@ -923,23 +671,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const avecOnglet = document.getElementById("avec_onglet");
     const sansOnglet = document.getElementById("sans_onglet");
     if (show) {
-      avecOnglet.classList.remove('d-none');
-      sansOnglet.classList.add('d-none'); 
+      avecOnglet.classList.remove("d-none");
+      sansOnglet.classList.add("d-none");
     } else {
-      avecOnglet.classList.add('d-none');
-      sansOnglet.classList.remove('d-none');
-    }
-  }
-
-  function displayOnglet(show) {
-    const avecOnglet = document.getElementById("avec_onglet");
-    const sansOnglet = document.getElementById("sans_onglet");
-    if (show) {
-      avecOnglet.classList.remove('d-none');
-      sansOnglet.classList.add('d-none'); 
-    } else {
-      avecOnglet.classList.add('d-none');
-      sansOnglet.classList.remove('d-none');
+      avecOnglet.classList.add("d-none");
+      sansOnglet.classList.remove("d-none");
     }
   }
 
