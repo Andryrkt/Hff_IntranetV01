@@ -6,22 +6,22 @@ use App\Entity\dit\BcSoumis;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class TransformerEnObjetService
 {
-
-    private DemandeIntervention $dit;
     private DitOrsSoumisAValidation $ditOrsSoumis;
     private DitDevisSoumisAValidation $ditDevisSoumis;
     private BcSoumis $bcSoumis;
+    private RecupDataAncienDitService $RecupDataAncienDitService;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManagerInterface)
     {
-        $this->dit = new DemandeIntervention();
         $this->ditOrsSoumis = new DitOrsSoumisAValidation();
         $this->ditDevisSoumis = new DitDevisSoumisAValidation();
         $this->bcSoumis = new BcSoumis();
+        $this->RecupDataAncienDitService = new RecupDataAncienDitService($entityManagerInterface);
     }
 
     /**
@@ -34,7 +34,8 @@ class TransformerEnObjetService
     {  
         $ditAnciens = [];
         foreach ($ancienDits as  $ancienDit) {
-            $ditAnciens[] = $this->ditEnObjet($ancienDit);
+            // $ditAnciens[] = $this->ditEnObjet($ancienDit);
+            $ditAnciens[] = $this->RecupDataAncienDitService->ditEnObjet($ancienDit);
             
             // Faire avancer la barre de progression
             $progressBar->advance();
@@ -43,75 +44,18 @@ class TransformerEnObjetService
         return $ditAnciens;
     }
 
-    private function ditEnObjet(array $dits): DemandeIntervention
-    {
-        return $this->dit
-            ->setNumeroDemandeIntervention($dits['NumeroDemandeIntervention'])
-            ->setTypeDocument($dits['TypeDocument'])
+
+    public function transformDevisEnObjet(array $ancienDevis, ProgressBar $progressBar): array
+    {  
+        $devisAnciens = [];
+        foreach ($ancienDevis as  $ancienDevi) {
+            $devisAnciens[] = $this->devisEnObjet($ancienDevi);
             
-            ->setTypeReparation($dits['TypeReparation'])
-            ->setReparationRealise($dits['ReparationRealise'])
-            
-            ->setCategorieDemande($dits['CategorieDemande'])
-            ->setInternetExterne($dits['InternetExterne'])
+            // Faire avancer la barre de progression
+            $progressBar->advance();
+        }
 
-            //AGENCE - SERVICE
-            ->setAgenceServiceEmetteur($dits['AgenceServiceEmetteur'])
-            ->setAgenceServiceDebiteur($dits['AgenceServiceDebiteur'])
-            //Agence et service emetteur debiteur ID
-            ->setAgenceEmetteurId($dits['AgenceEmetteurId'])
-            ->setServiceEmetteurId($dits['ServiceEmetteurId'])
-            ->setAgenceDebiteurId($dits['AgenceDebiteurId'])
-            ->setServiceDebiteurId($dits['ServiceDebiteurId'])
-
-            //INFO CLIENT
-            ->setNomClient($dits['NomClient'])
-            ->setNumeroTel($dits['NumeroTel'])
-            ->setClientSousContrat($dits['ClientSousContrat'])
-            ->setMailClient($dits['MailClient'])
-            ->setNumeroClient($dits['NumeroClient'])
-
-
-            //INFO DEMANDE
-            ->setDatePrevueTravaux($dits['DatePrevueTravaux'])
-            ->setDemandeDevis($dits['DemandeDevis'])
-            ->setIdNiveauUrgence($dits['IdNiveauUrgence'])
-            ->setObjetDemande($dits['ObjetDemande'])
-            ->setDetailDemande($dits['DetailDemande'])
-            ->setLivraisonPartiel($dits['LivraisonPartiel'])
-
-            ->setIdStatutDemande($dits['IdStatutDemande'])
-            ->setAvisRecouvrement($dits['AvisRecouvrement'])
-            ->setDateDemande($dits['DateDemande'])
-            ->setHeureDemande($dits['HeureDemande'])
-
-            //INFO DEMANDEUR
-            ->setMailDemandeur($dits['MailDemandeur'])
-            ->setUtilisateurDemandeur($dits['UtilisateurDemandeur'])
-
-            //INFORMATION MATERIEL
-            ->setIdMateriel($dits['IdMateriel'])
-            ->setKm($dits['Km'])
-            ->setHeure($dits['Heure'])
-
-            //PIECE JOINT
-            ->setPieceJoint01($dits['PieceJoint01'])
-            ->setPieceJoint02($dits['PieceJoint02'])
-            ->setPieceJoint03($dits['PieceJoint03'])
-
-            //INFO OR
-            ->setNumeroOR($dits['NumeroOR'])
-            ->setStatutOr($dits['StatutOr'])
-            ->setDateValidationOr($dits['DateValidationOr'])
-
-            //INFO DEVIS
-            ->setNumeroDevisRattache($dits['NumeroDevisRattache'])
-            ->setStatutDevis($dits['StatutDevis'])
-
-            //MIGRATION
-            ->setMigration(1)
-        ;
-
+        return $devisAnciens;
     }
 
     public function devisEnObjet(array $dev): DitDevisSoumisAValidation
@@ -138,39 +82,65 @@ class TransformerEnObjetService
         ;
     }
 
-    public function dataAinsereDansTableBcSoumis(array $bcs): BcSoumis
+    public function transformBcEnObjet(array $ancienBcs, ProgressBar $progressBar): array
+    {  
+        $ancienBcs = [];
+        foreach ($ancienBcs as  $ancienBc) {
+            $ancienBcs[] = $this->bcEnObjet($ancienBc);
+            
+            // Faire avancer la barre de progression
+            $progressBar->advance();
+        }
+
+        return $ancienBcs;
+    }
+
+    public function bcEnObjet(array $bcs): BcSoumis
     {
         return $this->bcSoumis
-            ->setNumDit('')
-            ->setNumDevis('')
-            ->setNumBc('')
-            ->setNumVersion('')
-            ->setDateBc('')
-            ->setDateDevis('')
-            ->setMontantDevis('')
-            ->setDateHeureSoumission('')
-            ->setNomFichier('')
+            ->setNumDit($bcs['NumDit'])
+            ->setNumDevis($bcs['NumDevis'])
+            ->setNumBc($bcs['NumBc'])
+            ->setNumVersion($bcs['NumVersion'])
+            ->setDateBc($bcs['DateBc'])
+            ->setDateDevis($bcs['DateDevis'])
+            ->setMontantDevis($bcs['MontantDevis'])
+            ->setDateHeureSoumission($bcs['DateHeureSoumission'])
+            ->setNomFichier($bcs['NomFichier'])
         ;
     }
 
-    public function dataAinsereDansTableOrSoumis(array $ors): DitOrsSoumisAValidation
+    public function transformOrEnObjet(array $ancienOrs, ProgressBar $progressBar): array
+    {  
+        $OrAnciens = [];
+        foreach ($ancienOrs as  $ancienOr) {
+            $OrAnciens[] = $this->orEnObjet($ancienOr);
+            
+            // Faire avancer la barre de progression
+            $progressBar->advance();
+        }
+
+        return $OrAnciens;
+    }
+
+    public function OrEnObjet(array $ors): DitOrsSoumisAValidation
     {
         return $this->ditOrsSoumis
             ->setNumeroOR($ors['NumeroOR'])
-            ->setNumeroItv($ors[''])
-            ->setNombreLigneItv($ors[''])
-            ->setMontantItv($ors[''])
-            ->setNumeroVersion($ors[''])
-            ->setMontantPiece($ors[''])
-            ->setMontantMo($ors[''])
-            ->setMontantAchatLocaux($ors[''])
-            ->setMontantFraisDivers($ors[''])
-            ->setMontantLubrifiants($ors[''])
-            ->setLibellelItv($ors[''])
-            ->setDateSoumission($ors[''])
-            ->setHeureSoumission($ors[''])
-            ->setStatut($ors[''])
-            ->setMigration($ors[''])
+            ->setNumeroItv($ors['NumeroItv'])
+            ->setNombreLigneItv($ors['NombreLigneItv'])
+            ->setMontantItv($ors['MontantItv'])
+            ->setNumeroVersion($ors['NumeroVersion'])
+            ->setMontantPiece($ors['MontantPiece'])
+            ->setMontantMo($ors['MontantMo'])
+            ->setMontantAchatLocaux($ors['MontantAchatLocaux'])
+            ->setMontantFraisDivers($ors['MontantFraisDivers'])
+            ->setMontantLubrifiants($ors['MontantLubrifiants'])
+            ->setLibellelItv($ors['LibellelItv'])
+            ->setDateSoumission($ors['DateSoumission'])
+            ->setHeureSoumission($ors['HeureSoumission'])
+            ->setStatut($ors['Statut'])
+            ->setMigration($ors['Migration'])
         ;
     }
 }

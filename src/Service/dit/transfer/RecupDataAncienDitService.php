@@ -3,13 +3,14 @@
 namespace App\Service\dit\transfer;
 
 use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\Service;
+use App\Entity\admin\dit\WorNiveauUrgence;
 
 
 class RecupDataAncienDitService
@@ -35,80 +36,151 @@ class RecupDataAncienDitService
         $this->serviceRepository = $this->em->getRepository(Service::class);
     }
 
-    public function dataDit(array $ancienDits): array
+    public  function ditEnObjet(array $ancienDit): DemandeIntervention
     {
-        
-        $ditAnciens = [];
-        foreach ($ancienDits as $ancienDit) {
-            $ditAnciens[] = [
-                'NumeroDemandeIntervention' => $ancienDit['NumeroDemandeIntervention'],
-                'TypeDocument'              => $this->typeDocumentRepository->find(7),
-                
-                'TypeReparation'            => 'A REALISER',
-                'ReparationRealise'         => 'ATE TANA',
-                
-                'CategorieDemande'          => $this->categorieDemandeRepository->find(2),
-                'InternetExterne'           => 'EXTERNE',
+        $dit = new DemandeIntervention();
+
+        return $dit
+            ->setNumeroDemandeIntervention($ancienDit['NumeroDemandeIntervention'])
+            ->setTypeDocument($this->typeDocumentRepository->find(7))
+            
+            ->setTypeReparation('A REALISER')
+            ->setReparationRealise('ATE TANA')
+            
+            ->setCategorieDemande($this->categorieDemandeRepository->find(2))
+            ->setInternetExterne('EXTERNE')
+
+            //AGENCE - SERVICE
+            ->setAgenceServiceEmetteur($ancienDit['IDAgence'].'-'.$ancienDit['IDService'])
+            ->setAgenceServiceDebiteur(null)
+            //Agence et service emetteur debiteur ID
+            ->setAgenceEmetteurId($this->agenceRepository->findOneBy(["codeAgence" => $ancienDit['IDAgence']]))
+            ->setServiceEmetteurId($this->serviceRepository->findOneBy(["codeService" => $ancienDit['IDService']]))
+            ->setAgenceDebiteurId(null)
+            ->setServiceDebiteurId(null)
+
+            //INFO CLIENT
+            ->setNomClient($ancienDit['LibelleClient'])
+            ->setNumeroTel(null)
+            ->setClientSousContrat(null)
+            ->setMailClient(null)
+            ->setNumeroClient($ancienDit['NumeroClient'])
+
+
+            //INFO DEMANDE
+            ->setDatePrevueTravaux(new \DateTime())
+            ->setDemandeDevis($ancienDit['DemandeDevis'])
+            ->setIdNiveauUrgence($this->niveauUregenceRepository->find(1))
+            ->setObjetDemande($ancienDit['ObjetDemande'])
+            ->setDetailDemande($ancienDit['DetailDemande'])
+            ->setLivraisonPartiel('NON')
+
+            ->setIdStatutDemande($this->statutDemandeRepository->find(50))
+            ->setAvisRecouvrement('NON')
+            ->setDateDemande(ConversionService::convertToDateTime($ancienDit['DateDemande']))
+            ->setHeureDemande(ConversionService::convertToHHMM($ancienDit['HeureDemande']))
+
+            //INFO DEMANDEUR
+            ->setMailDemandeur('')
+            ->setUtilisateurDemandeur($ancienDit['UtilisateurDemandeur'])
+
+            //INFORMATION MATERIEL
+            ->setIdMateriel($ancienDit['NumeroMateriel'])
+            ->setKm($ancienDit['KilometrageMachine'])
+            ->setHeure($ancienDit['HeureMachine'])
+
+            //PIECE JOINT
+            ->setPieceJoint01(null)
+            ->setPieceJoint02(null)
+            ->setPieceJoint03(null)
+
+            //INFO OR
+            ->setNumeroOR($ancienDit['NumeroOR'])
+            ->setStatutOr('')
+            ->setDateValidationOr(ConversionService::convertToDateTime($ancienDit['DateOR']))
+
+            //INFO DEVIS
+            ->setNumeroDevisRattache($ancienDit['NumeroOR'])
+            ->setStatutDevis(null)
+
+            //MIGRATION
+            ->setMigration(1)
+        ;
+
+    }
     
-                //AGENCE - SERVICE
-                'AgenceServiceEmetteur'     => $ancienDit['IDAgence'].'-'.$ancienDit['IDService'],
-                'AgenceServiceDebiteur'     => null,
-                //Agence et service emetteur debiteur ID
-                'AgenceEmetteurId'          => $this->agenceRepository->findOneBy(["codeAgence" => $ancienDit['IDAgence']]) ,
-                'ServiceEmetteurId'         => $this->serviceRepository->findOneBy(["codeService" => $ancienDit['IDService']]),
-                'AgenceDebiteurId'          => null,
-                'ServiceDebiteurId'         => null,
-    
-                //INFO CLIENT
-                'NomClient'                 => $ancienDit['LibelleClient'],
-                'NumeroTel'                 => null,
-                'ClientSousContrat'         => null,
-                'MailClient'                => null,
-                'NumeroClient'              => $ancienDit['NumeroClient'],
-    
-    
-                //INFO DEMANDE
-                'DatePrevueTravaux'         => new \DateTime(),
-                'DemandeDevis'              => $ancienDit['DemandeDevis'],
-                'IdNiveauUrgence'           => $this->niveauUregenceRepository->find(1),
-                'ObjetDemande'              => $ancienDit['ObjetDemande'],
-                'DetailDemande'             => $ancienDit['DetailDemande'],
-                'LivraisonPartiel'          => 'NON',
-    
-                'IdStatutDemande'           => $this->statutDemandeRepository->find(50),
-                'AvisRecouvrement'          => 'NON',
-                'DateDemande'               => ConversionService::convertToDateTime($ancienDit['DateDemande']),
-                'HeureDemande'              => ConversionService::convertToHHMM($ancienDit['HeureDemande']),
-    
-                //INFO DEMANDEUR
-                // 'MailDemandeur'             => $this->userRepository->findMail($ancienDit['UtilisateurDemandeur']),
-                'MailDemandeur'             => '',
-                'UtilisateurDemandeur'      => $ancienDit['UtilisateurDemandeur'],
-    
-                //INFORMATION MATERIEL
-                'IdMateriel'                => $ancienDit['NumeroMateriel'],
-                'Km'                        => $ancienDit['KilometrageMachine'],
-                'Heure'                     => $ancienDit['HeureMachine'],
-    
-                //PIECE JOINT
-                'PieceJoint01'              => null,
-                'PieceJoint02'              => null,
-                'PieceJoint03'              => null,
-    
-                //INFO OR
-                'NumeroOR'                  => $ancienDit['NumeroOR'],
-                'StatutOr'                  => null,
-                'DateValidationOr'          => ConversionService::convertToDateTime($ancienDit['DateOR']),
-    
-                //INFO DEVIS
-                'NumeroDevisRattache'       => $ancienDit['NumeroOR'],
-                'StatutDevis'               => null,
-            ]; 
+
+    public function dataDevis(array $ancienDevis): array
+    {
+        $devisAnciens = [];
+        foreach ($ancienDevis as $ancienDevi) {
+            $devisAnciens[] = [
+                'NumeroDit'             => '',
+                'NumeroDevis'           => '',
+                'NumeroItv'             => '',
+                'NombreLigneItv'        => '',
+                'MontantItv'            => '',
+                'NumeroVersion'         => '',
+                'MontantPiece'          => '',
+                'MontantMo'             => '',
+                'MontantAchatLocaux'    => '',
+                'MontantFraisDivers'    => '',
+                'MontantLubrifiants'    => '',
+                'LibellelItv'           => '',
+                'Statut'                => '',
+                'DateHeureSoumission'   => '',
+                'MontantForfait'        => '',
+                'NatureOperation'       => '',
+                'Devise'                => '',
+                'DevisVenteOuForfait'   => '',
+            ];
         }
-        return $ditAnciens;
+
+        return $devisAnciens;
     }
 
+    public function dataBc(array $ancienBcs): array
+    {
+        $bcAnciens = [];
+        foreach ($ancienBcs as $ancienBc) {
+            $bcAnciens[] = [
+                'NumDit'                => '',
+                'NumDevis'              => '',
+                'NumBc'                 => '',
+                'NumVersion'            => '',
+                'DateBc'                => '',
+                'DateDevis'             => '',
+                'MontantDevis'          => '',
+                'DateHeureSoumission'   => '',
+                'NomFichier'            => '',
+            ];
+        }
 
+        return $bcAnciens;
+    }
 
-    
+    public function dataOr(array $ancienOrs): array
+    {
+        $orAnciens = [];
+        foreach ($ancienOrs as $ancienOr) {
+            $orAnciens[] = [
+                'NumeroOR'              => '',
+                'NumeroItv'             => '',
+                'NombreLigneItv'        => '',
+                'MontantItv'            => '',
+                'NumeroVersion'         => '',
+                'MontantPiece'          => '',
+                'MontantMo'             => '',
+                'MontantAchatLocaux'    => '',
+                'MontantFraisDivers'    => '',
+                'MontantLubrifiants'    => '',
+                'LibellelItv'           => '',
+                'DateSoumission'        => '',
+                'HeureSoumission'       => '',
+                'Statut'                => '',
+                'Migration'             => '',
+            ];
+        }
+        return $orAnciens;
+    }
 }
