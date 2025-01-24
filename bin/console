@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+require_once dirname(__DIR__) . '/config/dotenv.php';
+
+use Dotenv\Dotenv;
+use App\Command\AncienDitCommand;
+use Symfony\Component\Console\Application;
+
+//Charger le fichier .env
+// $dotenv = Dotenv::createImmutable(dirname(__DIR__));
+// $dotenv->load();
+
+// Instancier la commande avec l'EntityManager
+$command = new AncienDitCommand($entityManager);
+
+// Ajouter la commande à l'application Symfony Console
+$application = new Application();
+$application->add($command);
+
+// Exécuter la commande
+$application->run();

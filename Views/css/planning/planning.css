@@ -1,0 +1,89 @@
+.dossierDit:disabled {
+    background-color: #ccc; /* Couleur de fond grisée */
+    color: #666; /* Couleur du texte grisée */
+    border: 1px solid #aaa; /* Bordure grisée */
+    cursor: not-allowed; /* Curseur qui indique que l'action est impossible */
+    opacity: 0.7; /* Légèrement transparent pour un effet visuel */
+}
+
+
+.modal-dialog.custom-width {
+    max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
+
+/* Conteneur pour l'en-tête fixe */
+.sticky-header-titre {
+    position: sticky;
+    top: 0; /* Fixe au sommet de la page */
+    z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+    background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+  }
+
+  .sticky-header-statut {
+    position: sticky;
+    top: 109px; /* Fixe au sommet de la page */
+    z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+    background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+  }
+  
+  /* Conteneur pour rendre le tableau défilable */
+  .table-container {
+    max-height: 500px; /* Hauteur maximale du tableau */
+    overflow-y: auto; /* Défilement vertical */
+  }
+  
+  /* Style pour fixer l'en-tête du tableau */
+  .table-plein-ecran thead tr {
+    position: sticky;
+    top: 210px; /* Fixe en haut de la zone défilable */
+    z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
+    background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
+    color: white; /* Texte blanc pour correspondre au style "table-dark" */
+    padding: 10px;
+  }
+ 
+  /* Onglet */
+/* .onglet-head {
+  border-bottom: 0;
+} */
+
+/* .onglet-badge {
+  position: absolute; /* Positionnement absolu par rapport au bouton */
+  /* top: 3px; Ajustez pour le coin supérieur */
+  /* right: 5px; Ajustez pour le coin droit */
+  /* background-color: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 5px 0; */
+  /* border-radius: 50%; Donne une apparence circulaire */
+  /* pointer-events: none; Empêche l'interaction avec le badge */
+/* } */ 
+
+/* .onglet-head button {
+  position: relative;
+  font-size: 1rem !important;
+  font-weight: bold;
+  width: 20% !important;
+  margin-right: 5px;
+  opacity: 0.7;
+  color: #000 !important;
+  background-color: var(--bs-nav-tabs-link-active-bg) !important;
+  border-color: var(--bs-nav-tabs-link-active-border-color) !important;
+  transition: all 0.5s;
+}
+
+.onglet-head button:hover {
+  opacity: 0.85;
+  color: #f5d166 !important;
+}
+
+.onglet-head button.active {
+  opacity: 1;
+  z-index: 1;
+  color: #ffc107 !important;
+} */

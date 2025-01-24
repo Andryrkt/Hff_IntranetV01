@@ -1,0 +1,28 @@
+{% set role_ids = App.user.roleIds %}
+{{ form_start(form, {'method': 'GET'}) }}
+<div class="row">
+	<div class="col-12 col-md-2">
+		{{ form_row(form.statut) }}
+		{{ form_row(form.sousTypeDocument) }}
+	</div>
+	<div class="col-12 col-md-2">
+		{{form_row(form.numDom)}}
+		{{form_row(form.matricule)}}
+	</div>
+
+	<div class="col-12 col-md-2">
+		{{ form_row(form.dateDebut) }}
+		{{ form_row(form.dateFin) }}
+	</div>
+	<div class="col-12 col-md-2">
+		{{ form_row(form.dateMissionDebut) }}
+		{{ form_row(form.dateMissionFin) }}
+	</div>
+
+	<div class="d-flex justify-content-end col-12 col-md-8">
+		<button class="btn btn-sm btn-warning fw-bold" type="submit">
+			<i class="fab fa-searchengin"></i>
+			Recherche</button>
+	</div>
+</div>
+{{ form_end(form) }}

@@ -1,0 +1,45 @@
+{% extends "baseTemplate.html.twig"%}
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/signin.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+	{% block nav %}{% endblock %}
+	<div id="intro" class="bg-image shadow-2-strong">
+		<div class="mask d-flex align-items-center h-100">
+			<div class="container">
+				<div class="row justify-content-center">
+					<div class="col-xl-5 col-md-8">
+						<form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="">
+							<img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo"/>
+							{% if error_msg %}
+							<div class="alert alert-danger">
+								{{ error_msg }}
+							</div>
+							{% endif %}
+							<div class="form-outline mb-4" data-mdb-input-init>
+								<label class="form-label" for="form1Example1">Utilisateur</label>
+								<input type="text" id="form1Example1" class="form-control" name="Username" required/>
+							</div>
+
+							<div class="form-outline mb-4" data-mdb-input-init>
+								<label class="form-label" for="form1Example2">Mot de passe</label>
+								<input type="password" id="form1Example2" class="form-control" name="Pswd" required/>
+							</div>
+							<button type="submit" class="btn" style="background-color: black; color: white">
+								Se connecter
+							</button>
+						</form>
+						<div class="notice">
+							<span class="notice-icon">
+								<i class="fas fa-info-circle"></i>
+							</span>
+							<div class="notice-content">L'identifiant et le mot de passe sont le nom d'utilisateur et le mot de passe que vous utilisez pour vous connecter à votre ordinateur.
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

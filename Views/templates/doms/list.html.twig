@@ -1,0 +1,121 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock%}
+
+{# {% import "macroForm.html.twig" as form %} #}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste de Demande d'ordre de mission
+		</h3>
+		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
+		{% include "/doms/shared/_pagination.html.twig" %}
+	</div>
+
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>Statut</th>
+					<th>Sous type</th>
+					<th>N° DOM</th>
+					<th>Date de demande</th>
+					<th>Motif de déplacemnt</th>
+					<th class="text-center">Matricule</th>
+					<th>Agence\Service</th>
+					<th>Date de début</th>
+					<th>Date de fin</th>
+					<th>Client</th>
+					<th>Lieu d'intervention</th>
+					<th>Total général payer</th>
+					<th>Devis</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+
+					{% set classeStatutDom = '' %}
+					{% set styleStatutDom = '' %}
+					{% set styleStatutDom = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
+					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
+						{% set classeStatutDom ='bg-success bg-gradient' %}
+					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
+						{% set classeStatutDom ='bg-success' %}
+						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
+					{% elseif item.idStatutDemande.description | trim == 'CONTROLE SERVICE' %}
+						{% set classeStatutDom ='bg-info' %}
+					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
+						{% set classeStatutDom ='bg-primary' %}
+						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
+					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG'%}
+						{% set classeStatutDom ='bg-success' %}
+					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
+						{% set classeStatutDom ='bg-danger' %}
+					{% else %}
+						{% set classeStatutDom = '' %}
+					{% endif %}
+
+
+					<tr>
+						{# Début Action #}
+						<td style="padding: 0px;" class="align-middle">
+							<div class="dropdown">
+								<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
+									</li>
+								</ul>
+							</div>
+						</td>
+						{# Fin Actions #}
+
+						{# DEBUT Statut #}
+						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.idStatutDemande.description}}</td>
+
+						{# FIN Statut #}
+						<td>{{ item.sousTypeDocument.codeSousType}}</td>
+						<td>
+							<a href="{{ path("Dom_detail", {id:item.id})}}" target="_blank">
+								{{ item.numeroOrdreMission }}
+							</a>
+						</td>
+						<td class="text-center">{{ item.dateDemande | date('d/m/Y')}}</td>
+						<td>{{ item.motifDeplacement}}</td>
+						<td class="text-center">{{ item.matricule }}</td>
+						<td>{{ item.libelleCodeAgenceService}}</td>
+						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.dateFin | date('d/m/Y') }}</td>
+						<td>{{ item.client}}</td>
+						<td>{{ item.lieuIntervention}}</td>
+						<td class="text-end">{{ item.totalGeneralPayer}}</td>
+						<td>{{ item.devis}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<!-- FIN tableau -->
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>
+
+{% endblock %}

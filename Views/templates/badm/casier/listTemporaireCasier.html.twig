@@ -1,0 +1,86 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+{% endblock%}
+
+{% import "macroForm.html.twig" as formMacro %}
+
+
+{% block content %}
+	<div class="container">
+
+
+		<div class="row ">
+
+			<h3 class="perso-titre">
+				Liste des casiers temporaires
+			</h3>
+
+		</div>
+
+		<!-- DEBUT recherche -->
+		{{ form_start(form)}}
+		<div class="row">
+			<div class="col-12 col-md-2">{{ form_row(form.agence)}}</div>
+
+			<div class="col-12 col-md-2  ">
+				{{ form_row(form.casier)}}
+			</div>
+		</div>
+		<div class="boutonRecherche col-md-4">
+			<input type="submit" class="btn  fw-bold" style="background-color: #FBBB01 ;" value="Rechercher">
+		</div>
+		{{ form_end(form)}}
+		<!-- FIN recherche -->
+
+
+	</div>
+
+	<!-- DEBUT tableau -->
+	<div class="container ">
+		<div class="row">
+			{% include "/badm/casier/_paginationTemporaire.html.twig" %}
+		</div>
+		{% if empty == true %}
+			<div class="container">
+				{% include "/partials/_noResultList.html.twig" %}
+			</div>
+		{% else %}
+
+			<table class="table   table-shadow shadow  rounded " style="text-align: center;">
+				<thead class="table-dark">
+					<tr>
+						<th>Statut</th>
+						<th>Agence rattaché</th>
+						<th>Casier</th>
+						<th>Date de création</th>
+						<th>Numero Casier</th>
+						{% set role_ids = App.user.roleIds %}
+						{% if 1 in role_ids  %}
+							<th>Action</th>
+						{% endif %}
+					</tr>
+				</thead>
+				<tbody id="table-container">
+					{% for item in casier %}
+						<tr>
+							<td>{{ item.idStatutDemande}}</td>
+							<td>{{item.agenceRattacher.codeAgence()}}</td>
+							<td style="text-align:left">{{item.Casier}}</td>
+							<td>{{item.Date_Creation|date("d/m/Y")}}</td>
+							<td>{{item.NumeroCAS}}</td>
+							{% if 1 in role_ids  %}
+								<td>
+									<a href="{{ path("CasierListTemporaire_btnValide", { id: item.Id})}}" class="btn  fw-bold mb-3" style="background-color: #FF0000; color: white">Validé</a>
+								</td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	</div>
+	<!-- FIN tableau -->
+{% endblock %}

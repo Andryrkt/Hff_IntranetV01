@@ -1,0 +1,54 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+<div class=" container mt-3">
+	<div class="card mb-3">
+		<div class="card-body">
+
+			<div class="container">
+				<h3 class="text-center  fw-bold bg-black py-2 text-white">
+					Détail des informations d'utilisateur
+				</h3>
+
+				<a href="{{path("utilisateur_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
+				<a href="{{path("utilisateur_new")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">New</a>
+
+
+				<div class="row">
+					<div class="col-12 col-md-6">
+						{{ macroForm.affichage('Nom d\'utilisateur', data.nomutilisateur)}}
+							{{ macroForm.affichage('N° matricule', data.matricule)}}
+							{{ macroForm.affichage('Email', data.mail)}}
+							{{ macroForm.list('Permissions', data.permissions, 'permissionName')}}
+							{{ macroForm.list('Rôles', data.roles, 'rolename')}}
+							<div class="row">
+								<div class="col-12 col-md-6">
+								{{ macroForm.list('Applications', data.applications, 'codeApp')}}
+								</div>
+								<div class="col-12 col-md-6">
+								{{ macroForm.list('Sociétés', data.societtes, 'codeSociete')}}
+								</div>
+							</div>
+
+						</div>
+						<div class="col-12 col-md-6">
+							{{ macroForm.affichage('Agence de l\'utilisateur', data.agenceServiceIrium.agenceips)}}
+							{{ macroForm.affichage('Service de l\'utilisateur', data.agenceServiceIrium.serviceips)}} 
+							{{ macroForm.affichage('Nom', data.personnels.nom)}} 
+							{{ macroForm.affichage('Prénoms', data.personnels.prenoms)}} 
+							{{ macroForm.listSansProp('Supérieurs', data.superieurs)}}
+							{{ macroForm.affichage('Fonction', data.fonction)}}
+							{{ macroForm.list('Agence Autorisé', data.agencesAutorisees, 'codeAgence')}}
+							{{ macroForm.list('Service Autorisé', data.serviceAutoriser, 'codeService')}}
+						</div>
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

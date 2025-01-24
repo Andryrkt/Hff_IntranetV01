@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Controller\dit;
+
+
+use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Controller\Traits\DitTrait;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\utilisateur\User;
+use App\Form\dit\demandeInterventionType;
+use App\Service\genererPdf\GenererPdfDit;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+
+class DitController extends Controller
+{
+    use DitTrait;
+    use FormatageTrait;
+
+
+    /**
+     * @Route("/dit/new", name="dit_new")
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function new(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        //recuperation de l'utilisateur connecter
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
+        /** Autorisation accées */
+        $this->autorisationAcces($user);
+        /** FIN AUtorisation acées */
+
+        $demandeIntervention = new DemandeIntervention();
+
+        //INITIALISATION DU FORMULAIRE
+        $this->initialisationForm($demandeIntervention, self::$em);
+
+        //AFFICHE LE FORMULAIRE
+        $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $dits = $this->infoEntrerManuel($form, self::$em, $user);
+
+            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            $this->modificationDernierIdApp($dits);
+
+            /**CREATION DU PDF*/
+            //recupération des donners dans le formulaire
+            $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
+            //récupération des historique de materiel (informix)
+            $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            //genere le PDF
+            $genererPdfDit = new GenererPdfDit();
+            $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+
+            //envoie des pièce jointe dans une dossier et la fusionner
+            $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
+
+            //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
+            self::$em->persist($insertDemandeInterventions);
+            self::$em->flush();
+
+            //ENVOYER le PDF DANS DOXCUWARE
+            $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+
+
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->redirectToRoute("dit_index");
+        }
+
+        $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('dit/new.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    private function modificationDernierIdApp($dits)
+    {
+        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dits->getNumeroDemandeIntervention());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
+    }
+    private function autorisationApp($user): bool
+    {
+        //id pour DIT est 4
+        $AppIds = $user->getApplicationsIds();
+        return in_array(4, $AppIds);
+    }
+
+    private function autorisationAcces($user)
+    {
+        if (!$this->autorisationApp($user)) {
+            $message = "vous n'avez pas l'autorisation";
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
+            $this->redirectToRoute("profil_acceuil");
+            exit();
+        }
+    }
+}

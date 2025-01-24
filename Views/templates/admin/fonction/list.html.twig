@@ -1,0 +1,61 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block content %}
+
+
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+
+				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+					Listes des Fonction utilisateur
+				</h2>
+
+				<div class="d-flex flex-row ">
+					<div class="p-2">
+						<a href="{{ path("fonction_new")}}" class="btn btn-success fw-bold">
+							Add
+						</a>
+					</div>
+				</div>
+
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>Actions</th>
+							<th>Nom de fonction</th>
+
+						</tr>
+					</thead>
+
+					<tbody>
+						{% for item in data %}
+
+							<tr>
+								<td>
+									<div class="dropdown">
+										<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											Actions
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+
+											<li>
+												<a class="dropdown-item fw-bold" href="#">Modifier</a>
+											</li>
+											<li>
+												<a class="dropdown-item fw-bold" style="color: red;" href="#">Supprimer</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td>{{item.description}}</td>
+
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

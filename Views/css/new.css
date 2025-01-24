@@ -1,0 +1,55 @@
+.sousTitre h3{
+    /* color: #0e4194; */
+    color: black;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0px;
+}
+
+.sousTitre div {
+    width: 100%; 
+    height: 3px; 
+    background-color: #FBBB01;
+    border-radius: 2px; 
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border: none;
+}
+
+.sousTitreGiser h3{
+    color: #aaa;
+    font-weight: bold;
+}
+
+.sousTitreGiser div{
+    width: 100%; 
+    height: 15px; 
+    background-color:#aaa;
+    border-radius: 2px; 
+    margin-top: 10px;
+    border: none;
+}
+
+.nomClient {
+    text-transform: uppercase;
+}
+
+#erreur {
+    color: red;
+}
+
+.bouton {
+    background-color: #FBBB01;
+    color: black;
+    font-weight: bold;
+}
+
+.cadre {
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.fond-btn {
+    background-color: #FBBB01;
+}

@@ -1,0 +1,20 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets %}
+<link rel="stylesheet" href="/Hffintranet/Views/css/doc/styles.css">
+{% endblock%}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="col-12 col-md-3">
+				{% include "/partials/_sidebar.html.twig" %}
+			</div>
+			<div class="col-12 col-md-9">
+
+				{{ content|raw }}
+
+			</div>
+		</div>
+	</div>
+	{% include "/partials/_footer.html.twig" %}
+{% endblock %}

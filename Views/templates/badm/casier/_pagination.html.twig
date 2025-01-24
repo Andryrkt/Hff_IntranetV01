@@ -1,0 +1,30 @@
+<div class="d-flex justify-content-between">
+	<div>
+		<a href="{{ path("casier_nouveau")}}" class="btn  fw-bold mb-3" style="background-color: #000; color: white">Nouveau Casier</a>
+		<a href="{{ path("listeTemporaire_affichageListeCasier")}}" class="btn  fw-bold mb-3" style="background-color: #FBBB01;">Listes Temporaires</a>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{resultat}}
+			Résultats</p>
+	</div>
+	<div>
+		<p class="fw-bold my-3" id="nombreResultat">{{currentPage ~' / '~ (lastPage)}}
+			pages</p>
+	</div>
+	<div class="navigation">
+		{% set queryParams = criteria  %}
+
+		{% if currentPage > 1 %}
+			<a class="btn btn-dark my-3" href="{{ path('liste_affichageListeCasier', queryParams|merge({'page': currentPage - 1})) }}">
+				<i class="fas fa-angle-left text-warning"></i>
+			</a>
+		{% endif %}
+
+
+		{% if currentPage < lastPage %}
+			<a class="btn btn-dark" href="{{ path('liste_affichageListeCasier', queryParams|merge({'page': currentPage + 1})) }}">
+				<i class="fas fa-angle-right text-warning"></i>
+			</a>
+		{% endif %}
+	</div>
+</div>

@@ -1,0 +1,23 @@
+{% extends 'baseTemplate.html.twig' %}
+
+{% block title %}planning ticket
+{% endblock %}
+{% block stylesheets %}
+	<!-- Flatpickr CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<link href="/Hffintranet/Views/css/tik/calendar.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+	<div id="calendar" style="max-width: 900px; margin: auto;"></div>
+
+	{% include "/tik/planning/shared/_modalCalendar.html.twig" %}
+{% endblock %}
+{% block javascript %}
+	<!-- Flatpickr JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<!-- Fullcalendar JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+	<script src="/Hffintranet/Views/js/tik/calendar.js"></script>
+{% endblock %}

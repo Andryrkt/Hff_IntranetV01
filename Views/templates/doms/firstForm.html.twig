@@ -1,0 +1,73 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link href="/Hffintranet/Views/css/dom/firstForm.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+
+				{% include "/partials/_notification.html.twig" %}
+
+				<div class="d-flex  flex-row-reverse px-2">
+					<h3 class="perso-titre">Demande d'Ordre de Mission</h3>
+				</div>
+
+
+				{{ form_start(form)}}
+				<div class="row">
+					<div class="col-4">
+						{{ form_row(form.agenceEmetteur)}}
+					</div>
+					<div class="col-4">
+						{{ form_row(form.serviceEmetteur)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						{{form_row(form.sousTypeDocument)}}
+					</div>
+
+					<div class="col-4" id="chek">
+						{{ form_row(form.salarie)}}
+					</div>
+
+				</div>
+				<div class="row">
+					<div class="col-6">
+						{{ form_row(form.categorie)}}
+					</div>
+				</div>
+				<div class="row" id="Interne">
+
+					{{ form_row(form.matriculeNom)}}
+
+					{{ form_row(form.matricule)}}
+
+				</div>
+				<div class="row" id="externe">
+
+					{{ form_row(form.nom)}}
+
+					{{ form_row(form.prenom)}}
+
+					{{ form_row(form.cin)}}
+
+				</div>
+				<div class="row">
+					<div class="mt-2">
+						<button type="submit" class="btn btn-info fw-bold">
+							Suivant
+							<i class="fas fa-arrow-right"></i>
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{{ form_end(form)}}{% endblock %}{% block javascript %}
+<script src="/Hffintranet/Views/js/dom/firstForm.js"></script>{% endblock %}

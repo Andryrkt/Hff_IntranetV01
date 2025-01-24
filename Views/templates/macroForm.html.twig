@@ -1,0 +1,219 @@
+/**
+*input pour lire les données seulement
+*/
+{% macro inputReadonly(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+
+{% macro sousTitre(name, option = []) %}
+<div id="{{name}}"  class=" mt-4 sousTitre {{ option.class }}">
+    <h3>{{name}}</h3>
+    <div></div>
+</div>
+{% endmacro %}
+
+{% macro sousTitre2(name, option = []) %}
+<div id="{{ option.id }}" class=" mt-4 sousTitre {{ option.class }}">
+    <h3>{{name}}</h3>
+    <div></div>
+</div>
+{% endmacro %}
+
+{% macro readOnly(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}"  {{option.required}} disabled readonly />
+</div>
+{% endmacro %}
+
+{% macro inputText(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="text" id="{{ name }}" name="{{ name }}" value="{{ value }}" maxlength="{{option.maxlength}}"  {{option.required}} {{option.disabled}}/>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro inputDate(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="date" id="{{ name }}" name="{{ name }}" value='{{ value}}' {{option.required}} {{option.disabled}}/>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro inputNumber(name, nom, value = null, option = []) %}
+<div class="col-{{option.endpoint}} {{ option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
+    <input class="form-control" type="number" id="{{ name }}" name="{{ name }}" value="{{ value }}" min="0" pattern="\d*" step="{{option.step}}" {{option.required}} {{option.disabled}} />
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro select(name, label, array, option = [],  selectedValue = '') %}
+<div class="col-{{option.endpoint}} {{option.class}}">
+    <label for="{{ name }}" class="label-form fw-bold">{{label}}</label>
+    <select class="form-select " id="{{ name }}" name="{{ name }}" {{ option.required}} {{ option.disabled }} >
+        {% if option.default %}
+            <option value="{{selectedValue}}"> </option>
+        {% endif %}
+       
+        {% for row in array %}
+                <option value="{{row}}" {{ row == selectedValue ? 'selected' : '' }} >{{row}}</option>
+        {% endfor %}
+    </select>
+    <div class="form-text text-danger fst-italic" id="error-{{name}}" ></div>
+</div>
+{% endmacro %}
+
+{% macro select_1(name, label, array, option = []) %}
+<div class="col-{{option.endpoint}} {{option.class}}">
+     
+        <div class="input-group mb-2">
+            <span class="input-group-text">{{label}}</span>
+            <select class="form-control" id="{{ name }}" name="{{ name }}" >
+                {% if option.default %}
+                    <option value=""  selected> -- {{option.valueDefault}} --</option>
+                {% endif %}
+                {% for row in array %}
+                    <option value="{{row}}" >{{row}}</option>
+                {% endfor %}
+            </select>
+        </div>
+  
+</div>
+{% endmacro %}
+
+{% macro button(type, label, id=null, color, option = []) %}
+    <div class="col-3 col-md-2 col-lg-1">
+    
+        <button type="{{type}}" class="btn {{color}}" name="{{ id }}" onclick="{{option.onclick}}" >
+        <i class="fas fa-save"></i>
+        {{label}}
+        </button>
+    </div>
+{% endmacro %}
+
+{% macro inputFile(name, label, option = [])%}
+
+<div class="col-12 {{ option.class}}">
+    <label for="formFile" class="form-label fw-bold">{{label}}</label>
+    <input  class="form-control" type="file" name="{{name}}" id="{{name}}" accept="{{ option.accept}}" {{ option.disabled }} onchange="" required>
+</div>
+{% endmacro %}
+
+
+
+{% macro affichage(label, value = "", id = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
+{% endmacro %}
+
+{% macro affichageHTML(label, value = "", id = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value | raw}}</div>
+{% endmacro %}
+
+{% macro affichageFile(label, value = "", directory) %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center border border-secondary border-1 rounded px-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href=" {{directory}}/{{value}}" target="_blank">
+{{value}}
+</a>
+</div>
+{% endmacro %}
+
+{% macro affichageFileDownload(label, value = "", directory) %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center border border-secondary border-1 rounded px-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href=" {{directory}}/{{value}}" download="{{value}}">
+{{value}}
+</a>
+</div>
+{% endmacro %}
+
+{% macro affichageModal(label, value = "") %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href="#"  data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{value}}" id="numOr">{{value}}</a>
+</div>
+{% endmacro %}
+
+{% macro list(label, items, propriete) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ attribute(item, propriete)}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 
+
+{% macro listSansProp(label, items) %}
+<ul class="list-group py-3">
+  <li class="list-group-item disabled" aria-disabled="true">{{label}}</li>
+  {% for  item in items %}
+
+  <li class="list-group-item">{{ item}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %} 
+
+{# Fonction pour concaténer une catégorie et sous-catégorie #}
+{% macro concat(categorie, sousCategorie) %}
+    {{ sousCategorie ? categorie ~ ' / ' ~ sousCategorie : categorie }}
+{% endmacro %}
+
+{% macro agence_service_change(form_agence, form_service, spinner_service, service_container) %}
+    <div>
+	    {{ form_row(form_agence) }}
+	</div>
+    <div class="spinner-container">
+	    <label for="form_service">{{ form_label(form_service) }}</label><br>
+        <div class="spinner" id="{{spinner_service}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{service_container}}">
+	    {{ form_widget(form_service) }}
+    </div>
+{% endmacro %}
+
+{% macro spinner_load(spinner_id, form_container_id, form_data_id, form_data) %}
+    <div class="spinner-container">
+        {{ form_label(form_data) }} <br>
+        <div class="spinner-load" id="{{spinner_id}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{ form_container_id }}" class="mb-3">
+	    {{ form_widget(form_data) }}
+    </div>
+{% endmacro %}

@@ -1,0 +1,98 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/dw/dw.css">
+{% endblock %}
+
+{% block nav %}
+	{% include "/dw/shared/_entete.html.twig" %}
+
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<div class="container">
+				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
+						<tr>
+							<th>Date DIT</th>
+							<th>N° DIT</th>
+							<th>ID mat</th>
+							<th>N° Parc</th>
+							<th>N/S</th>
+							<th>Désignation</th>
+							<th>OR</th>
+							<th>Nb de docs</th>
+							<th>type interv (interne/externe)</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for dwDit in dwDits %}
+							<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
+								<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
+								<td>{{dwDit.numero_dit_intervention}}</td>
+								<td>{{dwDit.id_materiel_intervention}}</td>
+								<td>{{dwDit.numero_parc_intervention}}</td>
+								<td>{{dwDit.numero_serie_intervention}}</td>
+								<td>{{dwDit.designation_materiel_intervention}}</td>
+								<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
+								<td class="text-center">{{dwDit.nbDoc}}</td>
+								<td>{{dwDit.type_reparation_intervention}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				<div class="dossier">DOSSIER:
+					<span id="numero-dit">DITXXXXX</span>
+				</div>
+
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
+						<tr>
+							<th>Type</th>
+							<th>
+								Nom document</th>
+							<th>N° de document</th>
+							<th>Date de création</th>
+							<th>Date de MAJ</th>
+							<th>N° Version</th>
+							<th>Nb de pages</th>
+							<th>Taille</th>
+						</tr>
+					</thead>
+					<tbody
+						id="documents-tbody">
+						<!-- Le contenu sera inséré ici via JS -->
+						<div id="spinner" style="display: none;">
+							<i class="fas fa-spinner fa-spin"></i>
+							Chargement...
+						</div>
+
+					</tbody>
+				</table>
+				<div class="notice">
+					<span class="notice-icon">
+						<i class="fas fa-info-circle"></i>
+					</span>
+					<div class="notice-content">
+						Les navigateurs peuvent afficher directement des fichiers comme des PDF, des images (JPEG, PNG, GIF, etc.), et parfois même des fichiers texte. Pour d'autres formats, le fichier sera téléchargé.
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6">
+			<div
+				id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
+				<!-- Le fichier sélectionné sera affiché ici -->
+				<div id="spinners" style="display: none;">Loading...</div>
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/dw/dossierInterventionAtelier.js" type="module"></script>
+{% endblock %}
