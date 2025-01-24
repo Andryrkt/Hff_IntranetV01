@@ -51,6 +51,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(35, 6, 'Le : ' . $dit->getDateDemande()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+        //========================================================================================
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -60,7 +61,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->MultiCell(0, 10, $dit->getDetailDemande() . "\n", 1, 'J', 0, 2, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(10, true);
+        $pdf->Ln(5, true);
 
         $pdf->MultiCell(25, 6, "Catégorie :", 0, 'L', false, 0);
         if ($dit->getCategorieDemande() !== null) {
@@ -76,17 +77,18 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
+//=========================================================================================================
         /** INTERVENTION */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->setAbsY(73);
-        $pdf->Cell(30, 6, 'Intervention', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(40, 75);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 11);
+        // $pdf->SetTextColor(14, 65, 148);
+        // // $pdf->setAbsY(63);
+        // $pdf->Cell(30, 6, 'Intervention', 1, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(40, 65);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+        // $pdf->Ln(7, true);
 
+        $this->renderTextWithLine($pdf, 'Intervention');
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
@@ -100,13 +102,13 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getIdNiveauUrgence()->getDescription(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
+//===================================================================================================
         /**AGENCE-SERVICE */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Agence - Service', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 96);
+        $pdf->setAbsXY(50, 82);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -119,13 +121,13 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
+//====================================================================================================
         /**REPARATION */
         $pdf->setFont('helvetica', 'B', 12);
         $pdf->SetTextColor(14, 65, 148);
         $pdf->Cell(40, 6, 'Réparation', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(35, 118);
+        $pdf->setAbsXY(35, 104);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), 165, 3, 'F');
         $pdf->Ln(10, true);
 
@@ -295,7 +297,7 @@ class GenererPdfDit extends GeneratePdf
             exit;
         }
 
-        $pdf->Output($filePath, 'F');
+        $pdf->Output($filePath, 'I');
 
         // Vérification de la création du fichier
         if (file_exists($filePath)) {
@@ -304,6 +306,34 @@ class GenererPdfDit extends GeneratePdf
             echo "\nErreur lors de la génération du fichier PDF.";
         }
     }
+
+
+    function renderTextWithLine($pdf, $text, $lineWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 12, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 3) {
+        // Set font and text color
+        $pdf->setFont($font, $fontStyle, $fontSize);
+        $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
+    
+        // Calculate text width
+        $textWidth = $pdf->GetStringWidth($text);
+    
+        // Add the text
+        $pdf->Cell($textWidth, 6, $text, 0, 0, 'L');
+    
+        // Set fill color for the line
+        $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
+    
+        // Calculate the position for the line (next to the text)
+        $lineStartX = $pdf->GetX() + $lineOffset; // Add a small offset
+        $lineStartY = $pdf->GetY() + 2; // Adjust for alignment
+    
+        // Draw the line
+        $pdf->Rect($lineStartX, $lineStartY, $lineWidth - $textWidth - $lineOffset, $lineHeight, 'F');
+    
+        // Move to the next line
+        $pdf->Ln(10);
+    }
+    
+    
 
 
     private function affichageHistoriqueMateriel($pdf, $historiqueMateriel)
