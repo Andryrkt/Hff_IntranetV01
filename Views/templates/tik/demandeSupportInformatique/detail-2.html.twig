@@ -46,9 +46,6 @@
 									{{ macroForm.affichage('Numéro du ticket', tik.numeroTicket) }}
 								</div>
 								<div class="col-12 col-md-3">
-									{{ macroForm.affichage('Statut du ticket', tik.idStatutDemande.description) }}
-								</div>
-								<div class="col-12 col-md-3">
 									{% set classeStatutTik = '' %}
 
 									{% if tik.idStatutDemande.description | trim == 'OUVERT' %}
@@ -70,6 +67,9 @@
 									{% endif %}
 
 									{{ macroForm.affichage2('Statut du ticket', classeStatutTik, tik.idStatutDemande.description) }}
+								</div>
+								<div class="col-12 col-md-3">
+									{{ macroForm.affichage('Date de création', tik.dateCreation|date('d/m/Y')) }}
 								</div>
 								<div class="col-12 col-md-3">
 									{{ macroForm.affichage('Date de fin souhaitée', tik.dateFinSouhaitee|date('d/m/Y')) }}
