@@ -46,6 +46,7 @@ class HandleRequestService
             'valider'    => 'validerTicket',
             'planifier'  => 'planifierTicket',
             'transferer' => 'transfererTicket',
+            'cloturer'   => 'cloturerTicket',
             'resoudre'   => 'resoudreTicket',
         ];
 
@@ -294,7 +295,30 @@ class HandleRequestService
         // Envoi email mise en attente
         $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $this->tkiCommentaire->getCommentaires());
 
-        $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('comment', $variableEmail, $this->connectedUser->getMail()));
+        $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('commente', $variableEmail, $this->connectedUser->getMail()));
+    }
+
+    /** 
+     * Fonction pour gérer la cloture d'un ticket
+     */
+    public function cloturerTicket()
+    {
+        $this->supportInfo
+            ->setIdStatutDemande($this->statut)    // statut cloturé
+        ;
+
+        $this->em->persist($this->supportInfo);
+        $this->em->flush();
+
+        // Envoi email cloturé
+        $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser);
+
+        $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('cloture', $variableEmail, $this->connectedUser->getMail()));
+
+        $this->sessionService->set('notification', [
+            'type'    => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été cloturé."
+        ]);
     }
 
     /** 
