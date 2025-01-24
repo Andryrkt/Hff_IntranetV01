@@ -89,6 +89,7 @@ class GenererPdfDit extends GeneratePdf
         // $pdf->Ln(7, true);
 
         $this->renderTextWithLine($pdf, 'Intervention');
+
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
@@ -104,13 +105,15 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Ln(10, true);
 //===================================================================================================
         /**AGENCE-SERVICE */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(40, 6, 'Agence - Service', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(50, 82);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(40, 6, 'Agence - Service', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(50, 82);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 150, 3, 'F');
+        // $pdf->Ln(10, true);
+
+        $this->renderTextWithLine($pdf, 'Agence - Service');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -123,13 +126,15 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Ln(10, true);
 //====================================================================================================
         /**REPARATION */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(40, 6, 'Réparation', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(35, 104);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 165, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(40, 6, 'Réparation', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(35, 104);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 165, 3, 'F');
+        // $pdf->Ln(10, true);
+
+        $this->renderTextWithLine($pdf, 'Réparation');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -143,41 +148,57 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(25, 6, 'Réalisé par :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
+//===================================================================================================
         /**CLIENT */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(40, 6, ' Client ', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(30, 140);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 170, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(40, 6, ' Client ', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(30, 140);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 170, 3, 'F');
+        // $pdf->Ln(10, true);
+
+
+        $this->renderTextWithLine($pdf, 'Client');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(12, 6, "Nom :", 0, 'L', false, 0);
-        $nomClient = strlen($dit->getNomClient()) <= 30 ? $dit->getNomClient() : substr($dit->getNomClient(), 0, 30);
-        $pdf->cell(70, 6, $nomClient, 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(93);
-        $pdf->MultiCell(17, 6, "N° tel :", 0, 'R', false, 0);
-        $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(132);
-        $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $mailClient = strlen($dit->getMailClient()) <= 26 ? $dit->getMailClient() : substr($dit->getMailClient(), 0, 26);
-        $pdf->cell(0, 6, $mailClient, 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Numéro :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(90);
+        $pdf->cell(15, 6, 'Nom :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+        $pdf->cell(25, 6, 'N° tel :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setAbsX(90);
+        $pdf->cell(15, 6, 'Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(10, true);
 
+        
+        // $pdf->setAbsX(93);
+        // $pdf->cell(17, 6, "N° tel :", 0, 'R', false, 0);
+        // $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->setAbsX(132);
+        // $pdf->cell(15, 6, ' Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $mailClient =  $dit->getMailClient() ;
+        // $pdf->cell(0, 6, $mailClient, 1, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->Ln(10, true);
+
+//========================================================================================================
         /** CARACTERISTIQUE MATERIEL */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(70, 161);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(50, 6, 'Caractéristiques du matériel', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(70, 161);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 130, 3, 'F');
+        // $pdf->Ln(10, true);
 
+        $this->renderTextWithLine($pdf, 'Caractéristiques du matériel');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -185,7 +206,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->cell(25, 6, 'Désignation :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(70, 6, $dit->getDesignation(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->setAbsX(148);
+        $pdf->setAbsX(140);
         $pdf->cell(20, 6, 'N° Série :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getNumSerie(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
@@ -211,15 +232,17 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(0, 6, $dit->getLivraisonPartiel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
-
+//===================================================================================================
         /** ETAT MACHINE */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
-        $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(40, 203);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
-        $pdf->Ln(10, true);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(40, 6, 'Etat machine', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(40, 203);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+        // $pdf->Ln(10, true);
+
+        $this->renderTextWithLine($pdf, 'Etat machine');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -233,44 +256,45 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
-
+//========================================================================================
         /** BILANT FINANCIERE */
-        $pdf->setFont('helvetica', 'B', 12);
-        $pdf->SetTextColor(14, 65, 148);
+        // $pdf->setFont('helvetica', 'B', 12);
+        // $pdf->SetTextColor(14, 65, 148);
+        // $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
+        // $pdf->SetFillColor(14, 65, 148);
+        // $pdf->setAbsXY(41, 225);
+        // $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
+        // $pdf->Ln(10, true);
 
-        $pdf->Cell(40, 6, 'Valeur (MGA)', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->SetFillColor(14, 65, 148);
-        $pdf->setAbsXY(41, 225);
-        $pdf->Rect($pdf->GetX(), $pdf->GetY(), 160, 3, 'F');
-        $pdf->Ln(10, true);
+        $this->renderTextWithLine($pdf, 'Valeur (MGA)');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
 
 
-        $pdf->MultiCell(37, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
+        $pdf->MultiCell(43, 6, "Cout d'Acquisition :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getCoutAcquisition()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->MultiCell(40, 6, "Amort :", 0, 'R', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getAmortissement()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(155);
         $pdf->cell(15, 6, 'Vnc :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getValeurNetComptable()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(15, true);
+        $pdf->Ln(10, true);
 
-        $pdf->MultiCell(37, 6, "Charge d'entretien :", 0, 'L', false, 0);
+        $pdf->MultiCell(43, 6, "Charge d'entretien :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeEntretient()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->MultiCell(40, 6, "Charge Locative :", 0, 'R', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(155);
         $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $this->formatNumber($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(15, true);
+        $pdf->Ln(10, true);
 
-        $pdf->MultiCell(45, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
+        $pdf->MultiCell(43, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumber($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
 
-
+//=========================================================================================
 
         // entête email
         $pdf->SetTextColor(0, 0, 0);
@@ -278,7 +302,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetXY(110, 2);
         $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
 
-
+//=================================================================================================
         /**DEUXIEME PAGE */
         $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
 
@@ -297,18 +321,11 @@ class GenererPdfDit extends GeneratePdf
             exit;
         }
 
-        $pdf->Output($filePath, 'I');
-
-        // Vérification de la création du fichier
-        if (file_exists($filePath)) {
-            echo "\nLe fichier a été généré avec succès : $filePath";
-        } else {
-            echo "\nErreur lors de la génération du fichier PDF.";
-        }
+        $pdf->Output($filePath, 'F');
     }
 
 
-    function renderTextWithLine($pdf, $text, $lineWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 12, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 3) {
+    function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 12, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 3) {
         // Set font and text color
         $pdf->setFont($font, $fontStyle, $fontSize);
         $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
@@ -322,12 +339,17 @@ class GenererPdfDit extends GeneratePdf
         // Set fill color for the line
         $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
     
+        // Calculate the remaining width for the line
+        $remainingWidth = $totalWidth - $textWidth - $lineOffset;
+
         // Calculate the position for the line (next to the text)
         $lineStartX = $pdf->GetX() + $lineOffset; // Add a small offset
         $lineStartY = $pdf->GetY() + 2; // Adjust for alignment
-    
+
         // Draw the line
-        $pdf->Rect($lineStartX, $lineStartY, $lineWidth - $textWidth - $lineOffset, $lineHeight, 'F');
+        if ($remainingWidth > 0) { // Only draw if there is space left for the line
+            $pdf->Rect($lineStartX, $lineStartY, $remainingWidth, $lineHeight, 'F');
+        }
     
         // Move to the next line
         $pdf->Ln(10);
