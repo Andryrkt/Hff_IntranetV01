@@ -61,7 +61,6 @@ class UserType extends AbstractType
                     'label' => "Nom d'utilisateur *",
                     'choices' => array_combine($nom, $nom),
                     'placeholder' => '-- Choisir un nom d\'utilisateur --',
-
                 ]
             )
             ->add(
@@ -70,7 +69,6 @@ class UserType extends AbstractType
                 [
                     'label' => 'Numero Matricule *',
                     'required' => true,
-
                 ]
             )
             ->add(
@@ -79,7 +77,6 @@ class UserType extends AbstractType
                 [
                     'label' => 'Email *',
                     'required' => true,
-
                 ]
             )
             ->add(
@@ -96,7 +93,6 @@ class UserType extends AbstractType
                     'multiple' => true,
                     'expanded' => true,
                     'required' => true,
-
                 ]
             )
             ->add(
@@ -134,7 +130,6 @@ class UserType extends AbstractType
                     'choice_label' => 'Matricule',
                     'placeholder' => '-- Choisir une matricuel --',
                     'required' => true,
-
                 ]
             )
             ->add(

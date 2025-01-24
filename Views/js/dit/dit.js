@@ -1,30 +1,30 @@
 /**recupère l'idMateriel et afficher les information du matériel */
 const idMaterielInput = document.querySelector(
-  '#demande_intervention_idMateriel'
+  "#demande_intervention_idMateriel"
 );
-const numParcInput = document.querySelector('#demande_intervention_numParc');
+const numParcInput = document.querySelector("#demande_intervention_numParc");
 
-const numSerieInput = document.querySelector('#demande_intervention_numSerie');
+const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 
-const constructeurInput = document.querySelector('#constructeur');
-const designationInput = document.querySelector('#designation');
-const modelInput = document.querySelector('#model');
-const casierInput = document.querySelector('#casier');
-const kmInput = document.querySelector('#km');
-const heuresInput = document.querySelector('#heures');
-const coutAcquisitionInput = document.querySelector('#coutAcquisition');
-const amortissementInput = document.querySelector('#amortissement');
-const vncInput = document.querySelector('#vnc');
-const caInput = document.querySelector('#ca');
-const chargeLocativeInput = document.querySelector('#chargeLocative');
-const chargeEntretienInput = document.querySelector('#chargeEntretien');
+const constructeurInput = document.querySelector("#constructeur");
+const designationInput = document.querySelector("#designation");
+const modelInput = document.querySelector("#model");
+const casierInput = document.querySelector("#casier");
+const kmInput = document.querySelector("#km");
+const heuresInput = document.querySelector("#heures");
+const coutAcquisitionInput = document.querySelector("#coutAcquisition");
+const amortissementInput = document.querySelector("#amortissement");
+const vncInput = document.querySelector("#vnc");
+const caInput = document.querySelector("#ca");
+const chargeLocativeInput = document.querySelector("#chargeLocative");
+const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
-  '#resultatExploitation'
+  "#resultatExploitation"
 );
-const erreur = document.querySelector('#erreur');
-const containerInfoMateriel = document.querySelector('#containerInfoMateriel');
+const erreur = document.querySelector("#erreur");
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener("DOMContentLoaded", (event) => {
   let timeouts = {}; // Objets de timeouts pour chaque champ
 
   function debounceInput(callback, delay, inputId) {
@@ -37,35 +37,35 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   idMaterielInput.addEventListener(
-    'input',
+    "input",
     debounceInput(
       () => {
         handleInputChange(idMaterielInput);
       },
       2000,
-      'idMateriel'
+      "idMateriel"
     )
   );
 
   numParcInput.addEventListener(
-    'input',
+    "input",
     debounceInput(
       () => {
         handleInputChange(numParcInput);
       },
       2000,
-      'numParc'
+      "numParc"
     )
   );
 
   numSerieInput.addEventListener(
-    'input',
+    "input",
     debounceInput(
       () => {
         handleInputChange(numSerieInput);
       },
       2000,
-      'numSerie'
+      "numSerie"
     )
   );
 
@@ -76,24 +76,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function clearAndToggleRequired(excludeInput) {
     if (excludeInput !== idMaterielInput) {
-      idMaterielInput.value = '';
-      idMaterielInput.removeAttribute('required');
+      idMaterielInput.value = "";
+      idMaterielInput.removeAttribute("required");
     } else {
-      idMaterielInput.setAttribute('required', 'required');
+      idMaterielInput.setAttribute("required", "required");
     }
 
     if (excludeInput !== numParcInput) {
-      numParcInput.value = '';
-      numParcInput.removeAttribute('required');
+      numParcInput.value = "";
+      numParcInput.removeAttribute("required");
     } else {
-      numParcInput.setAttribute('required', 'required');
+      numParcInput.setAttribute("required", "required");
     }
 
     if (excludeInput !== numSerieInput) {
-      numSerieInput.value = '';
-      numSerieInput.removeAttribute('required');
+      numSerieInput.value = "";
+      numSerieInput.removeAttribute("required");
     } else {
-      numSerieInput.setAttribute('required', 'required');
+      numSerieInput.setAttribute("required", "required");
     }
   }
 
@@ -102,12 +102,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function resetInfoMateriel(message) {
-    containerInfoMateriel.innerHTML = '';
-    idMaterielInput.value = '';
-    numParcInput.value = '';
-    numSerieInput.value = '';
+    containerInfoMateriel.innerHTML = "";
+    idMaterielInput.value = "";
+    numParcInput.value = "";
+    numSerieInput.value = "";
 
-    erreur.classList.add('text-danger');
+    erreur.classList.add("text-danger");
     erreur.innerHTML = message;
   }
 
@@ -128,23 +128,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     if (!data || !Array.isArray(data) || data.length === 0) {
-      console.error('Invalid or empty data provided.');
+      console.error("Invalid or empty data provided.");
       container.innerHTML =
         '<p class="text-danger">Aucune donnée disponible.</p>';
       return;
     }
 
     const fields = [
-      { label: 'Constructeur', key: 'constructeur' },
-      { label: 'Désignation', key: 'designation' },
-      { label: 'KM', key: 'km' },
-      { label: 'N° Parc', key: 'num_parc' },
+      { label: "Constructeur", key: "constructeur" },
+      { label: "Désignation", key: "designation" },
+      { label: "KM", key: "km" },
+      { label: "N° Parc", key: "num_parc" },
 
-      { label: 'Modèle', key: 'modele' },
-      { label: 'Casier', key: 'casier_emetteur' },
-      { label: 'Heures', key: 'heure' },
-      { label: 'N° Serie', key: 'num_serie' },
-      { label: 'Id Materiel', key: 'num_matricule' },
+      { label: "Modèle", key: "modele" },
+      { label: "Casier", key: "casier_emetteur" },
+      { label: "Heures", key: "heure" },
+      { label: "N° Serie", key: "num_serie" },
+      { label: "Id Materiel", key: "num_matricule" },
     ];
 
     const createFieldHtml = (label, value) => `
@@ -163,13 +163,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
           ${fields
             .slice(0, 4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
             .slice(4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .join("")}
         </div>
       </div>
     </ul>
@@ -195,12 +195,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     const hasValidInput =
-      idMateriel !== '' || numParc !== '' || numSerie !== '';
+      idMateriel !== "" || numParc !== "" || numSerie !== "";
 
     if (hasValidInput) {
-      erreur.innerHTML = '';
+      erreur.innerHTML = "";
       const url = buildUrl(
-        '/Hffintranet/fetch-materiel',
+        "/Hffintranet/fetch-materiel",
         idMateriel,
         numParc,
         numSerie
@@ -212,17 +212,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
       fetch(url)
         .then((response) => {
           if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des données.');
+            throw new Error("Erreur lors de la récupération des données.");
           }
           return response.json();
         })
         .then((data) => {
           console.log(data);
 
-          erreur.innerHTML = '';
+          erreur.innerHTML = "";
 
           // Effacer le spinner et afficher les données
-          containerInfoMateriel.innerHTML = '';
+          containerInfoMateriel.innerHTML = "";
           createMaterielInfoDisplay(containerInfoMateriel, data);
         })
         .catch((error) => {
@@ -231,8 +231,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
               "Erreur : l'information du matériel n'est pas dans la base de données."
             );
           } else {
-            console.error('Error:', error);
-            erreur.innerHTML = 'Erreur : ' + error.message;
+            console.error("Error:", error);
+            erreur.innerHTML = "Erreur : " + error.message;
           }
         });
     } else {
@@ -243,13 +243,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   /**
    * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
    */
-  const inputNoEntrers = document.querySelectorAll('.noEntrer');
+  const inputNoEntrers = document.querySelectorAll(".noEntrer");
   inputNoEntrers.forEach((inputNoEntrer) => {
-    inputNoEntrer.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
+    inputNoEntrer.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
         event.preventDefault(); // Empêche le rechargement de la page
         console.log(
-          'La touche Entrée a été pressée dans le champ :',
+          "La touche Entrée a été pressée dans le champ :",
           inputNoEntrer.placeholder
         );
       }
@@ -260,11 +260,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
-const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
-const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
-const spinnerService = document.getElementById('spinner-service');
-const serviceContainer = document.getElementById('service-container');
-agenceDebiteurInput.addEventListener('change', selectAgence);
+const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
+const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
+agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -276,13 +276,13 @@ function selectAgence() {
       console.log(services);
       updateServiceOptions(services);
     })
-    .catch((error) => console.error('Error:', error))
+    .catch((error) => console.error("Error:", error))
     .finally(() => toggleSpinner(false));
 }
 
 function toggleSpinner(show) {
-  spinnerService.style.display = show ? 'inline-block' : 'none';
-  serviceContainer.style.display = show ? 'none' : 'block';
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
 }
 
 function updateServiceOptions(services) {
@@ -293,7 +293,7 @@ function updateServiceOptions(services) {
 
   // Ajouter les nouvelles options à partir du tableau services
   for (var i = 0; i < services.length; i++) {
-    var option = document.createElement('option');
+    var option = document.createElement("option");
     option.value = services[i].value;
     option.text = services[i].text;
     serviceDebiteurInput.add(option);
@@ -302,7 +302,7 @@ function updateServiceOptions(services) {
   //Afficher les nouvelles valeurs et textes des options
   for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
     var option = serviceDebiteurInput.options[i];
-    console.log('Value: ' + option.value + ', Text: ' + option.text);
+    console.log("Value: " + option.value + ", Text: " + option.text);
   }
 }
 
@@ -310,9 +310,9 @@ function updateServiceOptions(services) {
  * CHAMP CLIENT MISE EN MAJUSCULE
  */
 const nomClientInput = document.querySelector(
-  '#demande_intervention_nomClient'
+  "#demande_intervention_nomClient"
 );
-nomClientInput.addEventListener('input', MiseMajuscule);
+nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
@@ -320,50 +320,59 @@ function MiseMajuscule() {
 /**
  * INTERNE - EXTERNE (champ )
  */
-const interneExterneInput = document.querySelector('.interneExterne');
-const numTelInput = document.querySelector('.numTel');
-const clientSousContratInput = document.querySelector('.clientSousContrat');
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
 const demandeDevisInput = document.querySelector(
-  '#demande_intervention_demandeDevis'
+  "#demande_intervention_demandeDevis"
 );
-const erreurClient = document.querySelector('#erreurClient');
+const erreurClient = document.querySelector("#erreurClient");
 const numClientInput = document.querySelector(
-  '#demande_intervention_numeroClient'
+  "#demande_intervention_numeroClient"
 );
 
-if (interneExterneInput.value === 'INTERNE') {
-  nomClientInput.setAttribute('disabled', true);
-  numClientInput.setAttribute('disabled', true);
-  numTelInput.setAttribute('disabled', true);
-  clientSousContratInput.setAttribute('disabled', true);
+if (interneExterneInput.value === "INTERNE") {
+  nomClientInput.setAttribute("disabled", true);
+  numClientInput.setAttribute("disabled", true);
+  numTelInput.setAttribute("disabled", true);
+  clientSousContratInput.setAttribute("disabled", true);
 }
 
-interneExterneInput.addEventListener('change', interneExterne);
+interneExterneInput.addEventListener("change", interneExterne);
 
 function interneExterne() {
   console.log(interneExterneInput.value);
-  if (interneExterneInput.value === 'EXTERNE') {
-    nomClientInput.removeAttribute('disabled');
-    numClientInput.removeAttribute('disabled');
-    numTelInput.removeAttribute('disabled');
-    clientSousContratInput.removeAttribute('disabled');
-    demandeDevisInput.removeAttribute('disabled');
-    agenceDebiteurInput.setAttribute('disabled', true);
-    serviceDebiteurInput.setAttribute('disabled', true);
+  const dataInformations = interneExterneInput.dataset.informations;
+  const parsedData = JSON.parse(dataInformations);
+
+  if (interneExterneInput.value === "EXTERNE") {
+    nomClientInput.removeAttribute("disabled");
+    numClientInput.removeAttribute("disabled");
+    numTelInput.removeAttribute("disabled");
+    clientSousContratInput.removeAttribute("disabled");
+    demandeDevisInput.removeAttribute("disabled");
+    demandeDevisInput.value = "OUI";
+    agenceDebiteurInput.setAttribute("disabled", true);
+    serviceDebiteurInput.setAttribute("disabled", true);
+    agenceDebiteurInput.value = "";
+    serviceDebiteurInput.value = "";
   } else {
-    nomClientInput.setAttribute('disabled', true);
-    numClientInput.setAttribute('disabled', true);
-    numTelInput.setAttribute('disabled', true);
-    demandeDevisInput.setAttribute('disabled', true);
-    clientSousContratInput.setAttribute('disabled', true);
-    agenceDebiteurInput.removeAttribute('disabled');
-    serviceDebiteurInput.removeAttribute('disabled');
+    nomClientInput.setAttribute("disabled", true);
+    numClientInput.setAttribute("disabled", true);
+    numTelInput.setAttribute("disabled", true);
+    demandeDevisInput.setAttribute("disabled", true);
+    demandeDevisInput.value = "NON";
+    clientSousContratInput.setAttribute("disabled", true);
+    agenceDebiteurInput.removeAttribute("disabled");
+    serviceDebiteurInput.removeAttribute("disabled");
+    agenceDebiteurInput.value = parsedData.agenceId;
+    serviceDebiteurInput.value = parsedData.serviceId;
   }
 }
 
 /** LIMITATION DE CARACTERE DU TELEPHONE */
 function limitInputCharacters(inputElement, maxLength) {
-  inputElement.addEventListener('input', () => {
+  inputElement.addEventListener("input", () => {
     if (inputElement.value.length > maxLength) {
       inputElement.value = inputElement.value.substring(0, maxLength);
     }
@@ -373,19 +382,19 @@ limitInputCharacters(numTelInput, 10);
 
 /** LES CARACTES CHIFFRE SEULEMENT */
 function allowOnlyNumbers(inputElement) {
-  inputElement.addEventListener('input', () => {
-    inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
+  inputElement.addEventListener("input", () => {
+    inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
   });
 }
 allowOnlyNumbers(numTelInput);
 
 /** FORM */
-const myForm = document.querySelector('#myForm');
+const myForm = document.querySelector("#myForm");
 
-myForm.addEventListener('submit', intExtEnvoier);
+myForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute('disabled');
-  serviceDebiteurInput.removeAttribute('disabled');
+  agenceDebiteurInput.removeAttribute("disabled");
+  serviceDebiteurInput.removeAttribute("disabled");
 }
 
 /**
@@ -395,12 +404,12 @@ function formatNumber(input) {
   let number = parseFloat(input);
   if (!isNaN(number)) {
     // Formater le nombre en utilisant la locale fr-FR
-    let formatted = number.toLocaleString('fr-FR', {
+    let formatted = number.toLocaleString("fr-FR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
     // Remplacer les espaces par des points pour les séparateurs de milliers
-    formatted = formatted.replace(/\s/g, '.');
+    formatted = formatted.replace(/\s/g, ".");
     return formatted;
   }
 }
@@ -408,10 +417,10 @@ function formatNumber(input) {
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
-const textarea = document.querySelector('.detailDemande');
+const textarea = document.querySelector(".detailDemande");
 
-textarea.addEventListener('input', function () {
-  var lines = textarea.value.split('\n');
+textarea.addEventListener("input", function () {
+  var lines = textarea.value.split("\n");
 
   // Limiter chaque ligne à 86 caractères
   for (var i = 0; i < lines.length; i++) {
@@ -422,52 +431,47 @@ textarea.addEventListener('input', function () {
 
   // Limiter le nombre de lignes à 3
   if (lines.length > 3) {
-    textarea.value = lines.slice(0, 3).join('\n');
+    textarea.value = lines.slice(0, 3).join("\n");
   } else {
-    textarea.value = lines.join('\n');
+    textarea.value = lines.join("\n");
   }
 });
 
 /**
  * AUTOCOMPLETE NOM et NUMERO CLient
  */
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   let preloadedData = []; // Variable pour stocker les données préchargées
 
   // Précharger les données dès le début
   const url = document
-    .querySelector('.autocomplete')
-    ?.getAttribute('data-autocomplete-url');
+    .querySelector(".autocomplete")
+    ?.getAttribute("data-autocomplete-url");
   if (url) {
     preloadData(url);
   }
 
   // Fonction pour afficher les suggestions
   function showSuggestions(field, suggestionsContainer, data) {
-    suggestionsContainer.innerHTML = ''; // Efface les suggestions existantes
+    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
     data.forEach((item) => {
-      const suggestion = document.createElement('div');
-      suggestion.textContent = item.label; // Affiche le label
-      suggestion.addEventListener('click', () => {
-        let label = field === 'numero' ? item.label : item.value;
-        let value = field === 'numero' ? item.value : item.label;
+      const suggestion = document.createElement("div");
+      suggestion.textContent = item.label + " - " + item.value; // Affiche le label
+      suggestion.addEventListener("click", () => {
+        let label = field === "numero" ? item.label : item.value;
+        let value = field === "numero" ? item.value : item.label;
         updateClientFields(label, value); // Remplit le champ avec la sélection
-        suggestionsContainer.innerHTML = ''; // Efface les suggestions
+        suggestionsContainer.innerHTML = ""; // Efface les suggestions
       });
       suggestionsContainer.appendChild(suggestion);
     });
   }
 
   function updateClientFields(label, value) {
-    const numeroClient = document.getElementById(
-      'demande_intervention_numeroClient'
-    );
-    const nomClient = document.getElementById('demande_intervention_nomClient');
-
     // Vérification si les éléments sont présents dans le DOM
-    if (numeroClient && nomClient) {
-      numeroClient.value = label; // Assigner le label à 'numeroClient'
-      nomClient.value = value; // Assigner la value à 'nomClient'
+    if (numClientInput && nomClientInput) {
+      numClientInput.value = label; // Assigner le label à 'numeroClient'
+      nomClientInput.value = value; // Assigner la value à 'nomClient'
     } else {
       console.error("Les éléments du formulaire n'ont pas été trouvés.");
     }
@@ -478,9 +482,8 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const response = await fetch(url);
       preloadedData = await response.json(); // Stocke les données
-      console.log(preloadedData);
     } catch (error) {
-      console.error('Erreur lors du préchargement des données :', error);
+      console.error("Erreur lors du préchargement des données :", error);
     }
   }
 
@@ -491,21 +494,26 @@ document.addEventListener('DOMContentLoaded', function () {
       `${input.id}_suggestions`
     );
 
-    input.addEventListener('input', async function () {
+    input.addEventListener("input", async function () {
       const query = input.value.trim();
+      if (query === "") {
+        numClientInput.value = "";
+        nomClientInput.value = "";
+        return;
+      }
 
       if (query.length > 0) {
         try {
           // Filtre les données préchargées
           let filteredData = [];
-          let field = '';
-          if (input.id === 'demande_intervention_numeroClient') {
-            field = 'numero';
+          let field = "";
+          if (input.id === "demande_intervention_numeroClient") {
+            field = "numero";
             filteredData = preloadedData.filter((item) =>
               item.label.toLowerCase().includes(query.toLowerCase())
             );
           } else {
-            field = 'nom';
+            field = "nom";
             filteredData = preloadedData.filter((item) =>
               item.value.toLowerCase().includes(query.toLowerCase())
             );
@@ -516,28 +524,30 @@ document.addEventListener('DOMContentLoaded', function () {
           showSuggestions(field, suggestionsContainer, filteredData);
         } catch (error) {
           console.error(
-            'Erreur lors de la récupération des suggestions :',
+            "Erreur lors de la récupération des suggestions :",
             error
           );
         }
       } else {
-        suggestionsContainer.innerHTML = ''; // Efface les suggestions si la saisie est trop courte
+        suggestionsContainer.innerHTML = ""; // Efface les suggestions si la saisie est trop courte
       }
     });
 
     // Cacher les suggestions si on clique ailleurs
-    document.addEventListener('click', (e) => {
+    document.addEventListener("click", (e) => {
       if (
         !input.contains(e.target) &&
         !suggestionsContainer.contains(e.target)
       ) {
-        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.innerHTML = "";
       }
     });
   }
 
   // Appliquer l'autocomplétion à tous les champs avec la classe "autocomplete"
-  document.querySelectorAll('.autocomplete').forEach(setupAutocomplete);
+  document.querySelectorAll(".autocomplete").forEach(setupAutocomplete);
+
+  allowOnlyNumbers(numClientInput); //n'accèpte que le chiffre
 });
 
 /**

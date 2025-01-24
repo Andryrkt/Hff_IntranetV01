@@ -60,6 +60,7 @@ class demandeInterventionType extends AbstractType
         'OUI' => 'OUI'
     ];
 
+
     public function __construct()
     {
         $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
@@ -87,7 +88,6 @@ class demandeInterventionType extends AbstractType
                     'service',
                     EntityType::class,
                     [
-
                         'label' => 'Service Débiteur *',
                         'class' => Service::class,
                         'choice_label' => function (Service $service): string {
@@ -112,7 +112,12 @@ class demandeInterventionType extends AbstractType
                 $agenceId = $data['agence'];
 
                 $agence = $this->agenceRepository->find($agenceId);
-                $services = $agence->getServices();
+                if($agence === null){
+                    $services = [];
+                } else {
+                    $services = $agence->getServices();
+                }
+                
 
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur *',
@@ -200,7 +205,10 @@ class demandeInterventionType extends AbstractType
                     'placeholder' => false,
                     'data' => 'INTERNE',
                     'required' => false,
-                    'attr' => ['class' => 'interneExterne']
+                    'attr' => [
+                        'class' => 'interneExterne',
+                        'data-informations' => json_encode(['agenceId' => $options['data']->getAgence()->getId(), 'serviceId' => $options['data']->getService()->getId()])
+                    ]
                 ]
             )
             ->add(

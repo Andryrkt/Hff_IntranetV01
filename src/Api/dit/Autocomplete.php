@@ -40,58 +40,60 @@ class Autocomplete extends Controller
         echo json_encode($results);
     }
 
-    /**
-     * @Route("/autocomplete/nom-client", name="autocomplete_nom_client")
-     *
-     * @param Request $request
-     */
-    public function autocompleteNomClient(Request $request)
-    {
-        $term = $request->query->get('term');
-        $results = [];
+    // /**
+    //  * @Route("/autocomplete/nom-client", name="autocomplete_nom_client")
+    //  *
+    //  * @param Request $request
+    //  */
+    // public function autocompleteNomClient(Request $request)
+    // {
+    //     $term = $request->query->get('term');
+    //     $results = [];
 
-        if ($term) {
-            // Recherchez les clients par nom dans votre base de données
-            $nomClients = $this->ditAutocompleteModel->recupNomClientExterne($term);
+    //     if ($term) {
+    //         // Recherchez les clients par nom dans votre base de données
+    //         $nomClients = $this->ditAutocompleteModel->recupNomClientExterne($term);
+    //         // Recherchez les clients par numéro dans votre base de données
+    //         $numClients = $this->ditAutocompleteModel->recupNumeroClientExterne($term);
 
-            $results = array_map(function ($client) {
-                return [
-                    'value' => $client['cbse_nomcli'],
-                    'label' => $client['cbse_nomcli']
-                ];
-            }, $nomClients);
-        }
+    //         $results = array_map(function ($nomClient, $numClient) {
+    //             return [
+    //                 'value' => $nomClient['cbse_nomcli'],
+    //                 'label' => $numClient['cbse_numcli'] .'-'. $nomClient['cbse_nomcli']
+    //             ];
+    //         }, $nomClients, $numClients);
+    //     }
 
-        header("Content-type:application/json");
+    //     header("Content-type:application/json");
 
-        echo json_encode($results);
-    }
+    //     echo json_encode($results);
+    // }
 
 
-    /**
-     * @Route("/autocomplete/numero-client", name="autocomplete_numero_client")
-     *
-     * @param Request $request
-     */
-    public function autocompleteNumeroClient(Request $request)
-    {
-        $term = $request->query->get('term');
-        $results = [];
+    // /**
+    //  * @Route("/autocomplete/numero-client", name="autocomplete_numero_client")
+    //  *
+    //  * @param Request $request
+    //  */
+    // public function autocompleteNumeroClient(Request $request)
+    // {
+    //     $term = $request->query->get('term');
+    //     $results = [];
 
-        if ($term) {
-            // Recherchez les clients par numéro dans votre base de données
-            $numClients = $this->ditAutocompleteModel->recupNumeroClientExterne($term);
+    //     if ($term) {
+    //         // Recherchez les clients par numéro dans votre base de données
+    //         $numClients = $this->ditAutocompleteModel->recupNumeroClientExterne($term);
 
-            $results = array_map(function ($client) {
-                return [
-                    'value' => $client['cbse_numcli'],
-                    'label' => $client['cbse_numcli']
-                ];
-            }, $numClients);
-        }
+    //         $results = array_map(function ($client) {
+    //             return [
+    //                 'value' => $client['cbse_numcli'],
+    //                 'label' => $client['cbse_numcli']
+    //             ];
+    //         }, $numClients);
+    //     }
 
-        header("Content-type:application/json");
+    //     header("Content-type:application/json");
 
-        echo json_encode($results);
-    }
+    //     echo json_encode($results);
+    // }
 }

@@ -105,6 +105,11 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="string", length=255)
      */
     private $statut;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $migration;
     //==========================================================================================
 
 
@@ -491,13 +496,6 @@ class DitOrsSoumisAValidation
     }
 
 
-
-    // Comparaison des objets par leur numero d'intervention
-    public function estEgalParNumero(DitOrsSoumisAValidation $autre)
-    {
-        return $this->numeroItv === $autre->numeroItv;
-    }
-
     /**
      * Get the value of statut
      */
@@ -516,5 +514,32 @@ class DitOrsSoumisAValidation
         $this->statut = $statut;
 
         return $this;
+    }
+
+
+    /**
+     * Get the value of migration
+     */ 
+    public function getMigration()
+    {
+        return $this->migration;
+    }
+
+    /**
+     * Set the value of migration
+     *
+     * @return  self
+     */ 
+    public function setMigration($migration)
+    {
+        $this->migration = $migration;
+
+        return $this;
+    }
+
+    // Comparaison des objets par leur numero d'intervention
+    public function estEgalParNumero(DitOrsSoumisAValidation $autre)
+    {
+        return $this->numeroItv === $autre->numeroItv;
     }
 }

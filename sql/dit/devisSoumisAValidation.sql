@@ -16,3 +16,22 @@ CREATE TABLE devis_soumis_a_validation (
     dateHeureSoumission DATETIME2,
     CONSTRAINT PK_devis_soumis_a_validation PRIMARY KEY (id)
 );
+
+ALTER TABLE devis_soumis_a_validation
+ADD montantForfait DECIMAL(18, 2)
+
+ALTER TABLE devis_soumis_a_validation
+ADD natureOperation VARCHAR(3)
+
+ALTER TABLE devis_soumis_a_validation 
+ADD devisVenteOuForfait VARCHAR(15)
+
+EXEC sp_rename 'demande_intervention.devis_valide',
+'statut_devis',
+'COLUMN';
+
+ALTER TABLE demande_intervention
+ALTER COLUMN statut_devis VARCHAR(50)
+
+ALTER TABLE devis_soumis_a_validation 
+ADD devise VARCHAR(10)

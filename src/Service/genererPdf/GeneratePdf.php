@@ -77,23 +77,37 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    /** 
-     * Méthode pour ajouter un titre au PDF
-     * 
-     * @param TCPDF $pdf le pdf à générer
-     * @param string $title le titre du pdf
-     * @param string $font le style de la police pour le titre
-     * @param string $style le font-weight du titre
-     * @param int $size le font-size du titre
-     * @param string $align l'alignement
-     * @param int $lineBreak le retour à la ligne
-     */
-    protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 12, string $align = 'L', int $lineBreak = 10)
+    public function copyToDWAcSoumis($fileName)
     {
-        $pdf->setFont($font, $style, $size);
-        $pdf->Cell(0, 6, $title, 0, 0, $align, false, '', 0, false, 'T', 'M');
-        $pdf->Ln($lineBreak, true);
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/ac_bc/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
+
+    /**
+ * Méthode pour ajouter un titre au PDF
+ * 
+ * @param TCPDF $pdf le pdf à générer
+ * @param string $title le titre du pdf
+ * @param string $font le style de la police pour le titre
+ * @param string $style le font-weight du titre
+ * @param int $size le font-size du titre
+ * @param string $align l'alignement
+ * @param int $lineBreak le retour à la ligne
+ */
+protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 12, string $align = 'L', int $lineBreak = 5)
+{
+    $pdf->setFont($font, $style, $size);
+
+    // Calculer la largeur de la cellule en fonction de la page
+    $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+
+    // Utiliser MultiCell pour gérer les titres longs
+    $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
+
+    // Ajouter un espace après le titre
+    $pdf->Ln($lineBreak);
+}
 
     /** 
      * Méthode pour ajouter des détails (sommaire) au PDF
@@ -107,7 +121,7 @@ class GeneratePdf
      * @param int $lineHeight le retour à la ligne après chaque détail
      * @param int $spacingAfter le retour à la ligne après les détails
      */
-    protected function addSummaryDetails(TCPDF $pdf, array $details, string $font = 'helvetica', int $fontSize = 10, int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 5, int $spacingAfter = 10)
+    protected function addSummaryDetails(TCPDF $pdf, array $details, string $font = 'helvetica', int $fontSize = 10, int $labelWidth = 45, int $valueWidth = 50, int $lineHeight = 5, int $spacingAfter = 5)
     {
         $pdf->setFont($font, '', $fontSize);
 
@@ -176,6 +190,6 @@ class GeneratePdf
 
         // Afficher la ligne de séparation
         $pdf->Cell(0, 10, $line, 0, 1, 'C'); // Une cellule contenant la ligne
-        $pdf->Ln(5); // Ajouter un espacement en dessous de la ligne
+        //$pdf->Ln(5); // Ajouter un espacement en dessous de la ligne
     }
 }
