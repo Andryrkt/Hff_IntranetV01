@@ -366,12 +366,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((response) => response.json())
       .then((personne) => {
         console.log(personne);
+        console.log(modePayementInput.value);
         if (modePayementInput.value === "VIREMENT BANCAIRE") {
           modeInput.readOnly = true;
           modeInput.value = personne.compteBancaire;
+          modeInput.required = false;
+        } else if (modePayementInput.value === "MOBILE MONEY") {
+          modeInput.readOnly = false;
+          modeInput.value = personne.telephone;
+          modeInput.required = true;
         } else {
           modeInput.readOnly = false;
           modeInput.value = "";
+          modeInput.required = false;
         }
         labelMode.innerHTML = modePayementInput.value;
       })
