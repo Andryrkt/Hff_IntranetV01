@@ -98,6 +98,7 @@ class DetailTikController extends Controller
                 'formCommentaire'   => $formCommentaire->createView(),
                 'canComment'        => $this->canComment($connectedUser, $supportInfo),
                 'statutOuvert'      => $statutOuvert,
+                'autoriserCloturer' => in_array("VALIDATEUR", $connectedUser->getRoleNames()) || $supportInfo->getUserId()->getId() === $connectedUser->getId(),
                 'autoriser'         => !empty(array_intersect(["INTERVENANT", "VALIDATEUR"], $connectedUser->getRoleNames())),  // vérifie si parmi les roles de l'utilisateur on trouve "INTERVENANT" ou "VALIDATEUR"
                 'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
                 'intervenant'       => !$statutOuvert && $isIntervenant,                   // statut différent de ouvert et l'utilisateur connecté est l'intervenant

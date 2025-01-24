@@ -132,6 +132,10 @@ label[for='historiqueStatut'] {
   font-weight: bold;
 }
 
+.bg-cloturer {
+  background-color: rgba(40, 167, 69, 1) !important;
+}
+
 .nav-top span {
   font-size: 1rem !important;
 }
