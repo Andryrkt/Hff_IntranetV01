@@ -34,27 +34,37 @@ export function handleActionClick(buttonName) {
     commenter: {
       enableFields: [tikCommentaires],
       requiredFields: [tikCommentaires],
-      optionalFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
+      optionalFields: [],
     },
     refuser: {
       enableFields: [tikCommentaires],
       requiredFields: [tikCommentaires],
-      optionalFields: [tikCategorie, tikNiveauUrgence, tikIntervenant],
+      optionalFields: [],
     },
     resoudre: {
       enableFields: [tikCommentaires],
       requiredFields: [tikCommentaires],
-      optionalFields: [tikIntervenant, dateDebutPlanning, dateFinPlanning],
+      optionalFields: [],
     },
     transferer: {
       enableFields: [tikIntervenant],
       requiredFields: [tikIntervenant],
-      optionalFields: [tikCommentaires, dateDebutPlanning, dateFinPlanning],
+      optionalFields: [],
     },
     planifier: {
       enableFields: [dateDebutPlanning, dateFinPlanning],
       requiredFields: [dateDebutPlanning, dateFinPlanning],
-      optionalFields: [tikCommentaires, tikIntervenant],
+      optionalFields: [],
+    },
+    debut: {
+      enableFields: [
+        tikIntervenant,
+        dateDebutPlanning,
+        dateFinPlanning,
+        tikCommentaires,
+      ],
+      requiredFields: [],
+      optionalFields: [],
     },
   };
 

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (document.getElementById('formTik').getAttribute('edit') === 'false') {
     disableForm('formTik');
   } else {
-    handleActionClick('planifier');
+    handleActionClick('debut');
   }
 
   // Boutons d'action
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
   );
   const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
 
-  const transfererBtn = document.getElementById('#btn_transferer');
+  const transfererBtn = document.getElementById('btn_transferer');
 
   // gestion du cas où l'intervenant n'est pas valide
   tikIntervenant.addEventListener('change', () =>

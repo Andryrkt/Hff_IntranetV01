@@ -199,7 +199,7 @@
 
 							{# DEBUT COLONNE 2 #}
 							<div class="col-12 col-md-6">
-								{% if validateur %}
+								{% if validateur and statutOuvert %}
 									{# DEBUT Observation Ticket #}
 									{% set name = 'Commentaire Ticket' %}
 								{% else %}
@@ -273,9 +273,8 @@
 {% block footer %}{% endblock %}
 
 {% block javascript %}
-	{% if validateur %} 
+	{% if validateur and statutOuvert %} 
 		<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js"></script>
-		<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>
 	{% else %}
 		<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>
 	{% endif %}
