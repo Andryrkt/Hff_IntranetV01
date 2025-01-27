@@ -90,7 +90,7 @@ class DetailTikController extends Controller
                 'id' => $id
             ]); // historisation du page visité par l'utilisateur 
 
-            $template = $statutOuvert ? (in_array("VALIDATEUR", $connectedUser->getRoleNames()) ? "detail-1" : "detail-2") : (in_array("INTERVENANT", $connectedUser->getRoleNames()) ? "detail-1" : "detail-2");
+            $template = $this->determineTemplate($connectedUser, $supportInfo);
 
             self::$twig->display("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,
@@ -185,5 +185,28 @@ class DetailTikController extends Controller
         }
 
         return in_array($connectedUser->getId(), $authorizedUsers);
+    }
+
+    /** 
+     * Méthode dédiée pour la logique de sélection du template
+     * 
+     * @return string
+     */
+    private function determineTemplate($connectedUser, $supportInfo): string
+    {
+        if ($supportInfo->getIdStatutDemande()->getId() === 59) { // statut refusé
+            return "detail-2";
+        } else if ($supportInfo->getIdStatutDemande()->getId() === 58) { // statut ouvert
+            if (in_array("VALIDATEUR", $connectedUser->getRoleNames())) {  // profil = VALIDATEUR
+                return "detail-1";
+            }
+            return "detail-2";
+        }
+
+        if (in_array("INTERVENANT", $connectedUser->getRoleNames())) { // profil = INTERVENANT
+            return "detail-1";
+        }
+
+        return "detail-2";
     }
 }
