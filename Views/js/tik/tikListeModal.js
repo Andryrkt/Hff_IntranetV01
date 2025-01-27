@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Modification d'un ticket
   const confirmationModal = new bootstrap.Modal(
     document.getElementById('confirmationModal')
   );
