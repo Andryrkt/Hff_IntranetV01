@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -19,11 +20,11 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     private $requestStack;
     private $tokenStorage;
     private $authorizationChecker;
- 
+
 
     public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker)
     {
-        
+
         $this->session = $session;
         $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
@@ -34,23 +35,25 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     {
         $user = null;
         $token = $this->tokenStorage->getToken();
-        
+
 
         $notification = $this->session->get('notification');
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
-       if ($this->session->get('user_id') !== null) {
+        if ($this->session->get('user_id') !== null) {
             $user = Controller::getEntity()->getRepository(User::class)->find($this->session->get('user_id'));
-       }
-       
+        }
+
         return [
             'App' => [
-                'user' => $user,
-                'session' => $this->session,
-                'request' => $this->requestStack->getCurrentRequest(),
+                'user'         => $user,
+                'ticketing'    => [
+                    'nbrTicketResolu' => Controller::getEntity()->getRepository(DemandeSupportInformatique::class)->countByStatutDemande('62', $this->session->get('user_id')),
+                ],
+                'session'      => $this->session,
+                'request'      => $this->requestStack->getCurrentRequest(),
                 'notification' => $notification,
             ],
         ];
     }
 }
-
