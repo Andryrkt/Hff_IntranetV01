@@ -11,6 +11,8 @@
 					{% set classeStatutTik ='ouvert' %}
 				{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
 					{% set classeStatutTik ='refuse' %}
+				{% elseif item.idStatutDemande.description | trim == 'EN ATTENTE' %}
+					{% set classeStatutTik ='enattente' %}
 				{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
 					{% set classeStatutTik ='encours' %}
 				{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}

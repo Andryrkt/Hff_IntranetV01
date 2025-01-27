@@ -107,6 +107,11 @@ label[for='historiqueStatut'] {
   font-weight: bold;
 }
 
+.enattente {
+  background-color: orange !important;
+  font-weight: bold;
+}
+
 .encours {
   background-color: #3799ff !important;
   color: #000 !important;

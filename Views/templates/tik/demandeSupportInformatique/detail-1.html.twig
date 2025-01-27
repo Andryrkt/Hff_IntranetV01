@@ -57,6 +57,8 @@
 										{% set classeStatutTik ='ouvert' %}
 									{% elseif tik.idStatutDemande.description | trim == 'REFUSE'  %}
 										{% set classeStatutTik ='refuse' %}
+									{% elseif item.idStatutDemande.description | trim == 'EN ATTENTE' %}
+										{% set classeStatutTik ='enattente' %}
 									{% elseif  tik.idStatutDemande.description | trim == 'ENCOURS' %}
 										{% set classeStatutTik ='encours' %}
 									{% elseif tik.idStatutDemande.description | trim == 'PLANIFIE' %}
