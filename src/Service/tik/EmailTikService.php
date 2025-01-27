@@ -72,6 +72,7 @@ class EmailTikService
                 $cc = [$tab['emailIntervenant']];
                 break;
 
+            case 'reouvert':
             case 'cloture':
                 $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
                 $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));

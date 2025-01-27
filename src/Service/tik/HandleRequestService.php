@@ -319,6 +319,26 @@ class HandleRequestService
     }
 
     /** 
+     * Fonction pour gérer la réouverture d'un ticket
+     */
+    public function reouvrirTicket()
+    {
+        $this->supportInfo
+            ->setIdStatutDemande($this->statut)    // statut réouvert
+        ;
+
+        $this->em->persist($this->supportInfo);
+        $this->em->flush();
+
+        $this->historiqueStatut(); // historisation du statut
+
+        // Envoi email cloturé
+        $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser);
+
+        $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('reouvert', $variableEmail, $this->connectedUser->getMail()));
+    }
+
+    /** 
      * fonction pour historiser le statut du ticket
      */
     private function historiqueStatut()

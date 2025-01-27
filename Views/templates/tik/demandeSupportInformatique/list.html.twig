@@ -108,6 +108,9 @@
 									<li>
 										<a class="dropdown-item fw-bold cloturer-ticket" href="{{ path("tik_cloture", {id: item.id})}}" data-tik-profil="{{ ticketsCloture[ticketId]['profil'] }}" data-tik-statut="{{ ticketsCloture[ticketId]['statut'] }}">Cloturer</a>
 									</li>
+									<li>
+										<a class="dropdown-item fw-bold cloturer-ticket" href="{{ path("tik_reouvert", {id: item.id})}}" data-tik-profil="{{ ticketsCloture[ticketId]['profil'] }}" data-tik-statut="{{ ticketsCloture[ticketId]['statut'] }}">Réouvrir</a>
+									</li>
 								</ul>
 							</div>
 						</td>
