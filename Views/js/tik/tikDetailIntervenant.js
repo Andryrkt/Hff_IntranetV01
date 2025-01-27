@@ -7,10 +7,12 @@ import {
 } from '../utils/formUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
-    disableForm('formTik');
-  } else {
-    handleActionClick('debut', 'formTik');
+  if (document.getElementById('formTik')) {
+    if (document.getAttribute('edit') === 'false') {
+      disableForm('formTik');
+    } else {
+      handleActionClick('debut', 'formTik');
+    }
   }
 
   // Boutons d'action
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const transfererBtn = document.getElementById('btn_transferer');
 
   // gestion du cas où l'intervenant n'est pas valide
-  tikIntervenant.addEventListener('change', () =>
+  tikIntervenant?.addEventListener('change', () =>
     validateField(
       true,
       tikIntervenant.value,
@@ -46,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // gestion de cas où la date de planning est invalide
   [dateDebutPlanning, dateFinPlanning].forEach((date) => {
-    date.addEventListener('change', () =>
+    date?.addEventListener('change', () =>
       validateField(
         true,
         dateDebutPlanning.value,
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const myForm = document.getElementById('formTik');
 
   // Bloquer le formulaire si champ invalide
-  myForm.addEventListener('submit', (event) => {
+  myForm?.addEventListener('submit', (event) => {
     let buttonName = event.submitter.name;
     console.log(buttonName);
 

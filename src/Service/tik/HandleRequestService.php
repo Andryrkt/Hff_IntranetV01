@@ -170,7 +170,7 @@ class HandleRequestService
 
         $this->sessionService->set('notification', [
             'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été suspendu."
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été mise en attente avec succès."
         ]);
     }
 

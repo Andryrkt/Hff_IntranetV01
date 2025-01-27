@@ -194,7 +194,7 @@ class DetailTikController extends Controller
      */
     private function determineTemplate($connectedUser, $supportInfo): string
     {
-        if ($supportInfo->getIdStatutDemande()->getId() === 59) { // statut refusé
+        if (in_array($supportInfo->getIdStatutDemande()->getId(), [59, 65])) { // statut refusé, mise en attente
             return "detail-2";
         } else if ($supportInfo->getIdStatutDemande()->getId() === 58) { // statut ouvert
             if (in_array("VALIDATEUR", $connectedUser->getRoleNames())) {  // profil = VALIDATEUR

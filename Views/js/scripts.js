@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('newTikModal')
   );
 
-  newTicketButton.addEventListener('click', (event) => {
+  newTicketButton?.addEventListener('click', (event) => {
     event.preventDefault(); // Empêche le comportement par défaut du lien
     const ticketResolu = event.target.getAttribute('data-tik-resolu');
     if (ticketResolu === '0') {
