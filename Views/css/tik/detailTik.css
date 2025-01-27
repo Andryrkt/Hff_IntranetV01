@@ -352,6 +352,13 @@ label[for='historiqueStatut'] {
 
 /* **********FORM********** */
 
+.non-modifiable {
+  background-color: #e9ecef;
+  color: #212529;
+  pointer-events: none;
+  opacity: 1;
+}
+
 .chat-form {
   flex-shrink: 0;
   width: 100%;

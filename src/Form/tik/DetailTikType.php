@@ -43,11 +43,6 @@ class DetailTikType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $idStatut      = $options['data']->getIdStatutDemande()->getId();
-        $statutOuvert  = $idStatut == '79';
-        $validateur    = in_array("VALIDATEUR", $this->connectedUser->getRoleNames());
-        $intervenant   = in_array("INTERVENANT", $this->connectedUser->getRoleNames());
-        $disabled      = ($statutOuvert) ? !$validateur : $intervenant;
         $builder
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
@@ -61,7 +56,6 @@ class DetailTikType extends AbstractType
                 'data'         => $options['data']->getCategorie(),
                 'attr'         => [
                     'class'    => 'categorie',
-                    'disabled' => $disabled,
                 ],
                 'placeholder'  => '-- Choisir une catégorie --',
                 'multiple'     => false,
@@ -163,9 +157,6 @@ class DetailTikType extends AbstractType
             ->add('niveauUrgence', EntityType::class, [
                 'label'        => 'Niveau d\'urgence',
                 'choice_label' => 'description',
-                'attr'         => [
-                    'disabled' => $disabled
-                ],
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
                 'query_builder' => function (WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
@@ -194,17 +185,11 @@ class DetailTikType extends AbstractType
             ])
             ->add('dateDebutPlanning', DateType::class, [
                 'label'      => 'Début planning',
-                'attr'       => [
-                    'disabled' => !$disabled,
-                ],
                 'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
                 'required'   => false,
             ])
             ->add('dateFinPlanning', DateType::class, [
                 'label'      => 'Fin planning',
-                'attr'       => [
-                    'disabled' => !$disabled,
-                ],
                 'widget'     => 'single_text',
                 'required'   => false,
             ])

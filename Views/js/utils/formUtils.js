@@ -12,7 +12,9 @@ export function toggleRequiredFields(
   fieldsToMakeRequired,
   fieldsToRemoveRequired
 ) {
-  fieldsToMakeEnabled.forEach((field) => (field.disabled = false));
+  fieldsToMakeEnabled.forEach((field) =>
+    field.classList.remove('non-modifiable')
+  );
   fieldsToMakeRequired.forEach((field) => {
     addAsterisk(field);
     field.setAttribute('required', 'required');
@@ -36,7 +38,7 @@ export function disableForm(formId) {
   if (form) {
     Array.from(form.elements).forEach((element) => {
       if (element.type !== 'submit' && element.type !== 'hidden') {
-        element.disabled = true;
+        element.classList.add('non-modifiable');
       }
     });
   } else {
