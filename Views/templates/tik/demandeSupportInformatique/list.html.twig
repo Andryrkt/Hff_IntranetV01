@@ -109,7 +109,7 @@
 										<a class="dropdown-item fw-bold cloturer-ticket" href="{{ path("tik_cloture", {id: item.id})}}" data-tik-profil="{{ ticketsCloture[ticketId]['profil'] }}" data-tik-statut="{{ ticketsCloture[ticketId]['statut'] }}">Cloturer</a>
 									</li>
 									<li>
-										<a class="dropdown-item fw-bold cloturer-ticket" href="{{ path("tik_reouvert", {id: item.id})}}" data-tik-profil="{{ ticketsCloture[ticketId]['profil'] }}" data-tik-statut="{{ ticketsCloture[ticketId]['statut'] }}">Réouvrir</a>
+										<a class="dropdown-item fw-bold reouvrir-ticket" href="{{ path("tik_reouvert", {id: item.id})}}" data-tik-profil="{{ ticketsReouvrir[ticketId]['profil'] }}" data-tik-statut="{{ ticketsReouvrir[ticketId]['statut'] }}">Réouvrir</a>
 									</li>
 								</ul>
 							</div>
@@ -146,6 +146,8 @@
 	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
 	{% include "/tik/demandeSupportInformatique/shared/_modalCommentaire.html.twig"  %}
 	{% include "/tik/demandeSupportInformatique/shared/_modalModification.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalCloture.html.twig" %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalReouverture.html.twig" %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>

@@ -91,8 +91,40 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Réouverture d'un ticket
+  const reouvertureModal = new bootstrap.Modal(
+    document.getElementById('modalReouvert')
+  );
+
+  const reouvertureModalButtons = document.querySelectorAll('.reouvrir-ticket');
+
+  reouvertureModalButtons.forEach((element) => {
+    element.addEventListener('click', (event) => {
+      event.preventDefault(); // Empêche le comportement par défaut du lien
+      const profil = event.target.getAttribute('data-tik-profil');
+      const statut = event.target.getAttribute('data-tik-statut');
+      const modalBodyContent = document.getElementById(
+        'modal-reouverture-content'
+      );
+
+      modalBodyContent.textContent = '';
+
+      // Vérification et gestion de la logique
+      const message = getReouvertureMessage(profil, statut);
+
+      if (message) {
+        // Si un message existe, on l'affiche dans la modale
+        modalBodyContent.textContent = message;
+        reouvertureModal.show();
+      } else {
+        // Si pas de message, on redirige immédiatement
+        window.location.href = event.target.getAttribute('href');
+      }
+    });
+  });
+
   /**
-   * Fonction pour déterminer le message ou retourner null si aucune erreur
+   * Fonction pour déterminer le message ou retourner null si aucune erreur (CLOTURE)
    * @param {string} profil - Profil de l'utilisateur
    * @param {string} statut - Statut du ticket
    * @returns {string|null} - Message d'erreur ou null si pas d'erreur
@@ -108,10 +140,29 @@ document.addEventListener('DOMContentLoaded', function () {
     if (statut === '64') return `Un ticket clôturé ne peut être reclôturé.`;
     if (statut === '59') return `Un ticket refusé ne peut être clôturé.`;
 
-    // Cas spécifique : profil = 1 (client) et ticket pas résolu
+    // Cas spécifique : profil = 1 (demandeur) et ticket pas résolu
     if (profil === '1' && statut !== '62') {
       return `Vous ne pouvez clôturer que des tickets résolus.`;
     }
+
+    // Aucun problème détecté
+    return null;
+  }
+
+  /**
+   * Fonction pour déterminer le message ou retourner null si aucune erreur (REOUVERTURE)
+   * @param {string} profil - Profil de l'utilisateur
+   * @param {string} statut - Statut du ticket
+   * @returns {string|null} - Message d'erreur ou null si pas d'erreur
+   */
+  function getReouvertureMessage(profil, statut) {
+    // Vérifications liées au profil
+    if (profil !== '1')
+      return `Seul le demandeur qui a créé le ticket peut réouvrir un ticket.`;
+
+    // Vérifications liées au statut
+    if (statut !== '62')
+      return `Seuls les tickets résolus peuvent être réouvert.`;
 
     // Aucun problème détecté
     return null;
