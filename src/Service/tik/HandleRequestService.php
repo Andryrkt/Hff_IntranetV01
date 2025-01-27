@@ -316,11 +316,6 @@ class HandleRequestService
         $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser);
 
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('cloture', $variableEmail, $this->connectedUser->getMail()));
-
-        $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été cloturé."
-        ]);
     }
 
     /** 
