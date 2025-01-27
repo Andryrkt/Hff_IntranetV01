@@ -33,12 +33,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('confirmationModal')
   );
 
-  const confirmationModalButtons = document.querySelectorAll(
-    'a[data-bs-target="#confirmationModal"]'
-  );
+  const confirmationModalButtons = document.querySelectorAll('.editer-ticket');
 
   confirmationModalButtons.forEach((element) => {
     element.addEventListener('click', (event) => {
+      event.preventDefault(); // Empêche le comportement par défaut du lien
       const monTicket = event.target.getAttribute('data-tik-monticket'); // si ticket m'appartient
       const ticketOuvert = event.target.getAttribute('data-tik-ouvert'); // si ticket ouvert
       const modalBodyContent = document.getElementById('modal-modif-content');
@@ -47,12 +46,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (monTicket === '1' && ticketOuvert === '1') {
         // Si l'utilisateur peut modifier le ticket, on empêche l'affichage de la modale
-        event.preventDefault();
         window.location.href = event.target.getAttribute('href');
-      } else if (monTicket === '0') {
-        modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier ce ticket.`;
       } else {
-        modalBodyContent.textContent = `Impossible de modifier ce ticket car il a été déjà validé/refusé.`;
+        if (monTicket === '0') {
+          modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier ce ticket.`;
+        } else {
+          modalBodyContent.textContent = `Impossible de modifier ce ticket car il a été déjà validé/refusé.`;
+        }
+
+        // Manuellement ouvrir la modale avec Bootstrap
+        confirmationModal.show();
       }
     });
   });
