@@ -207,6 +207,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
             ]
         ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }
