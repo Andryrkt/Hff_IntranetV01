@@ -42,13 +42,14 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         if ($this->session->get('user_id') !== null) {
             $user = Controller::getEntity()->getRepository(User::class)->find($this->session->get('user_id'));
+            $nbrTikResolu = Controller::getEntity()->getRepository(DemandeSupportInformatique::class)->countByStatutDemande('62', $this->session->get('user_id'));
         }
 
         return [
             'App' => [
                 'user'         => $user,
                 'ticketing'    => [
-                    'nbrTicketResolu' => Controller::getEntity()->getRepository(DemandeSupportInformatique::class)->countByStatutDemande('62', $this->session->get('user_id')),
+                    'nbrTicketResolu' => $nbrTikResolu ?? '',
                 ],
                 'session'      => $this->session,
                 'request'      => $this->requestStack->getCurrentRequest(),
