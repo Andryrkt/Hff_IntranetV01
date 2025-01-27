@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
-use App\Repository\admin\utilisateur\UserRepository;
 use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
@@ -23,11 +22,13 @@ class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
     private $historiqueOperation;
+    private $tikRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->tikRepository = self::$em->getRepository(DemandeSupportInformatique::class);
     }
 
     /**
@@ -35,11 +36,12 @@ class DemandeSupportInformatiqueController extends Controller
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
+
+        if ($this->conditionNouveauTicket($user->getId())) {
+            $this->redirectToRoute('profil_acceuil');
+        }
 
         $supportInfo = new DemandeSupportInformatique();
         //INITIALISATION DU FORMULAIRE
@@ -209,5 +211,21 @@ class DemandeSupportInformatiqueController extends Controller
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+
+    /** 
+     * Méthode pour vérifier si l'utilisateur peut créer un nouveau ticket, retourne le nombre de ticket résolu, non cloturé
+     * 
+     * @return bool
+     */
+    private function conditionNouveauTicket($userId): bool
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
+            return true;
+        }
+        return false;
     }
 }
