@@ -241,8 +241,10 @@ class ListeTikController extends Controller
             $result['profil'] = 2;
         } else if ($ticket->getUserId() === $utilisateur->getId()) {
             $result['profil'] = 1;
-        } else {
+        } else if (in_array("INTERVENANT", $utilisateur->getRoleNames())) {
             $result['profil'] = 0;
+        } else {
+            $result['profil'] = -1;
         }
 
         $result['statut'] = $ticket->getIdStatutDemande()->getId();
