@@ -7,13 +7,7 @@ import {
 } from '../utils/formUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik')) {
-    if (document.getAttribute('edit') === 'false') {
-      disableForm('formTik');
-    } else {
-      handleActionClick('debut', 'formTik');
-    }
-  }
+  handleActionClick('debut', 'formTik');
 
   // Boutons d'action
   const buttons = [

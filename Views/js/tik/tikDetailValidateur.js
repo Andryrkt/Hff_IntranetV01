@@ -7,11 +7,7 @@ import { resetDropdown } from '../utils/dropdownUtils.js';
 import { updateDropdown } from '../utils/selectionHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
-    disableForm('formTik');
-  } else {
-    handleActionClick('valider', 'formTik');
-  }
+  handleActionClick('valider', 'formTik');
 
   // Boutons d'action
   const buttons = [
