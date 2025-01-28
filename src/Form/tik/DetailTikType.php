@@ -22,6 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use App\Repository\admin\tik\TkiSousCategorieRepository;
 use App\Repository\admin\tik\TkiAutreCategorieRepository;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -30,7 +31,10 @@ class DetailTikType extends AbstractType
     private User $connectedUser;
     private $sousCategorieRepository;
     private $categoriesRepository;
-
+    const DAY_PART = [
+        'AM (08:00 - 12:00)' => 'AM',
+        'PM (13:30 - 17:30)' => 'PM'
+    ];
 
     public function __construct()
     {
@@ -192,6 +196,11 @@ class DetailTikType extends AbstractType
                 'label'      => 'Fin planning',
                 'widget'     => 'single_text',
                 'required'   => false,
+            ])
+            ->add('partOfDay', ChoiceType::class, [
+                'label' => 'Période de la journée',
+                'choices' => self::DAY_PART,
+                'required' => false,
             ])
             ->add('commentaires', TextareaType::class, [
                 'label'    => false,

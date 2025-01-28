@@ -224,6 +224,8 @@ class DemandeSupportInformatique
      */
     private $planning;
 
+    private ?string $partOfDay;
+
     /**=====================================================================================
      * 
      * GETTERS and SETTERS
@@ -916,6 +918,26 @@ class DemandeSupportInformatique
     public function setCommentaires($commentaires)
     {
         $this->commentaires = $commentaires;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of partOfDay
+     */
+    public function getPartOfDay()
+    {
+        return $this->partOfDay;
+    }
+
+    /**
+     * Set the value of partOfDay
+     *
+     * @return  self
+     */
+    public function setPartOfDay($partOfDay)
+    {
+        $this->partOfDay = $partOfDay;
 
         return $this;
     }
