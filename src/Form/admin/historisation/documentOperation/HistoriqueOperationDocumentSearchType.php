@@ -34,6 +34,7 @@ class HistoriqueOperationDocumentSearchType extends AbstractType
             ->add('statutOperation', ChoiceType::class, [ // à changer
                 'label' => 'Statut de l\'opération',
                 'choices' => self::TYPE_STATUT,
+                'placeholder' => '-- Choisir un statut d\'opération --',
                 'required' => false,
             ])
             ->add('typeOperation', EntityType::class, [

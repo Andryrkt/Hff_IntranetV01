@@ -224,6 +224,9 @@ class DemandeSupportInformatique
      */
     private $planning;
 
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true, name="part_day_planning")
+     */
     private ?string $partOfDay;
 
     /**=====================================================================================

@@ -198,8 +198,9 @@ class DetailTikType extends AbstractType
                 'required'   => false,
             ])
             ->add('partOfDay', ChoiceType::class, [
-                'label' => 'Période de la journée',
+                'label' => 'Période de la journée du planning',
                 'choices' => self::DAY_PART,
+                'placeholder' => '-- Choisir une période de la journée --',
                 'required' => false,
             ])
             ->add('commentaires', TextareaType::class, [
