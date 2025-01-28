@@ -1,7 +1,5 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import { disableForm } from '../utils/formUtils.js';
-
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
 import { updateDropdown } from '../utils/selectionHandler.js';

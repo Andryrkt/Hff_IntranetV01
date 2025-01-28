@@ -10,6 +10,7 @@ const tikAutreCategorie = document.querySelector('#detail_tik_autresCategorie');
 const tikNiveauUrgence = document.querySelector('#detail_tik_niveauUrgence');
 const tikIntervenant = document.querySelector('#detail_tik_intervenant');
 const tikCommentaires = document.querySelector('#detail_tik_commentaires');
+const tikPartOfDay = document.querySelector('#detail_tik_partOfDay');
 const dateDebutPlanning = document.querySelector(
   '#detail_tik_dateDebutPlanning'
 );
@@ -62,16 +63,26 @@ export function handleActionClick(buttonName, formId) {
     resoudre: {
       enableFields: [tikCommentaires],
       requiredFields: [tikCommentaires],
-      optionalFields: [tikIntervenant, dateDebutPlanning, dateFinPlanning],
+      optionalFields: [
+        tikIntervenant,
+        tikPartOfDay,
+        dateDebutPlanning,
+        dateFinPlanning,
+      ],
     },
     transferer: {
       enableFields: [tikIntervenant],
       requiredFields: [tikIntervenant],
-      optionalFields: [tikCommentaires, dateDebutPlanning, dateFinPlanning],
+      optionalFields: [
+        tikCommentaires,
+        tikPartOfDay,
+        dateDebutPlanning,
+        dateFinPlanning,
+      ],
     },
     planifier: {
-      enableFields: [dateDebutPlanning, dateFinPlanning],
-      requiredFields: [dateDebutPlanning, dateFinPlanning],
+      enableFields: [tikPartOfDay, dateDebutPlanning, dateFinPlanning],
+      requiredFields: [tikPartOfDay, dateDebutPlanning, dateFinPlanning],
       optionalFields: [tikCommentaires, tikIntervenant],
     },
     cloturer: {
@@ -82,6 +93,7 @@ export function handleActionClick(buttonName, formId) {
     debut: {
       enableFields: [
         tikIntervenant,
+        tikPartOfDay,
         dateDebutPlanning,
         dateFinPlanning,
         tikCommentaires,

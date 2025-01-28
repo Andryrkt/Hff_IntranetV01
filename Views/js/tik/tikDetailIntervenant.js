@@ -1,10 +1,6 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import {
-  validateField,
-  validateFormBeforeSubmit,
-  disableForm,
-} from '../utils/formUtils.js';
+import { validateField, validateFormBeforeSubmit } from '../utils/formUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   handleActionClick('debut', 'formTik');
