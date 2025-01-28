@@ -83,7 +83,8 @@
         "illuminate/view": "^8.83",
         "symfony/security-core": "^5.4",
         "symfony/property-access": "^5.4",
-        "friendsofsymfony/ckeditor-bundle": "^2.4"
+        "friendsofsymfony/ckeditor-bundle": "^2.4",
+        "symfony/finder": "^5.4"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43",

@@ -175,6 +175,10 @@ $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()
 $twig->addExtension(new AssetExtension($packages));// Ajouter l'extension Asset à Twig
 
 
+$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+
+// Créer une instance de SimpleManagerRegistry
+$managerRegistry = new SimpleManagerRegistry($entityManager);
 
 // Configure Form Renderer Engine and Runtime Loader
 // $defaultFormTheme = 'form_div_layout.html.twig';
@@ -187,13 +191,6 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 ]));
 
 
-
-
-
-$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
-
-// Créer une instance de SimpleManagerRegistry
-$managerRegistry = new SimpleManagerRegistry($entityManager);
 // Set up the Form component
 $formFactory = Forms::createFormFactoryBuilder()
     ->addExtension(new CsrfCsrfExtension($csrfTokenManager))

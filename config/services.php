@@ -6,28 +6,45 @@ use Doctrine\ORM\Tools\Setup;
 use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use App\Factory\FrontController;
+use App\Twig\DeleteWordExtension;
+use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 use App\Service\AccessControlService;
+use Symfony\Component\Asset\Packages;
 use App\Service\SessionManagerService;
 use App\Factory\RouteCollectionFactory;
+use Symfony\Component\Asset\PathPackage;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use Symfony\Component\Form\FormFactoryInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
+use Symfony\Component\Form\FormFactoryBuilderInterface;
+use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension; 
 
 // 1) On instancie le conteneur
 $containerBuilder = new ContainerBuilder();
@@ -190,6 +207,29 @@ $containerBuilder->register('manager_registry', SimpleManagerRegistry::class)
     ])
     ->setPublic(true);
 
+/**
+ * REQUEST
+ */
+// 1) Définition du service "request"
+$requestDefinition = new Definition(Request::class);
+// On utilise la factory statique createFromGlobals()
+$requestDefinition->setFactory([Request::class, 'createFromGlobals']);
+// (facultatif) Rendez-le public si vous voulez le récupérer directement
+$requestDefinition->setPublic(true);
+
+$containerBuilder->setDefinition('request', $requestDefinition);
+
+// 2) Définition du service "request_stack"
+$requestStackDefinition = new Definition(RequestStack::class);
+// On empile la requête via un appel de méthode
+$requestStackDefinition->addMethodCall('push', [
+    // Référence au service "request"
+    new Reference('request')
+]);
+$requestStackDefinition->setPublic(true);
+
+$containerBuilder->setDefinition('request_stack', $requestStackDefinition);
+
 
 /**
  * SSESSION SERVICE
@@ -207,7 +247,52 @@ $containerBuilder->register('app.session_manager', SessionManagerService::class)
     ])
     ->setPublic(true);
 
+/**
+ * INITIALISATION EXTENSION TWIG
+ */
+//1) AppExtension
+$containerBuilder->register('app.app_extension', \App\Twig\AppExtension::class)
+    ->setArguments([
+        new Reference('session_storage'), 
+        new Reference('request_stack'),
+    ]);
 
+//2) DeletewordExtension
+$containerBuilder->register('app.delete_word_extension', DeleteWordExtension::class);
+
+//3) AssetExtension
+// 3.1) On déclare un paramètre pour le chemin public
+$containerBuilder->setParameter('asset.public_path', '/Hffintranet/public');
+
+// 3.2) Enregistrer la EmptyVersionStrategy
+$containerBuilder->register('asset.version_strategy.empty', EmptyVersionStrategy::class)
+    ->setPublic(false);
+
+// 3.3) Enregistrer le PathPackage
+//    PathPackage::__construct(string $basePath, VersionStrategyInterface $versionStrategy, ContextInterface $context = null)
+$containerBuilder->register('asset.path_package', PathPackage::class)
+    ->setArguments([
+        '%asset.public_path%',                                // le chemin
+        new Reference('asset.version_strategy.empty'),        // la stratégie
+        // Optionnel : un troisième argument pour le contexte (si nécessaire)
+    ])
+    ->setPublic(false);
+
+// 3.4) Enregistrer "Packages" 
+//    Packages::__construct(PackageInterface $defaultPackage, array $packages = [])
+//    On utilise le PathPackage comme "package" principal ou par défaut
+$containerBuilder->register('asset.packages', Packages::class)
+    ->setArguments([
+        new Reference('asset.path_package'), // defaultPackage
+        []                                   // ou un tableau de packages nommés
+    ])
+    ->setPublic(true);
+//3.5)
+    $containerBuilder->register('twig.extension.asset', \Symfony\Bridge\Twig\Extension\AssetExtension::class)
+    ->setArguments([
+        new Reference('asset.packages')
+    ])
+    ->setPublic(false);
 /**
  * TWIG
  */
@@ -228,24 +313,22 @@ $twigDefinition->setArguments([
 ]);
 
 // 3.1) Ajouter des extensions (ex. DebugExtension)
-$twigDefinition->addMethodCall('addExtension', [
-    new Reference('twig.extension.debug')
-]);
+$twigDefinition->addMethodCall('addExtension', [new Reference('twig.extension.debug')]);
 
 // 3.2) RoutingExtension
-$twigDefinition->addMethodCall('addExtension', [
-    new Reference('twig.extension.routing')
-]);
+$twigDefinition->addMethodCall('addExtension', [new Reference('twig.extension.routing')]);
 
 // 3.3) FormExtension
-$twigDefinition->addMethodCall('addExtension', [
-    new Reference('twig.extension.form')
-]);
+$twigDefinition->addMethodCall('addExtension', [new Reference('twig.extension.form')]);
 
-// 3.4) FormExtension
-$twigDefinition->addMethodCall('addExtension', [
-    new Reference('twig.extension.form')
-]);
+//3.4)AppExtension
+$twigDefinition->addMethodCall('addExtension', [ new Reference('app.app_extension') ]);
+
+//3.5)DeleteWordExtension
+$twigDefinition->addMethodCall('addExtension', [ new Reference('app.delete_word_extension') ]);
+
+//3.6) AssetExtension
+$twigDefinition->addMethodCall('addExtension', [ new Reference('twig.extension.asset')]);
 
 // etc. vous pouvez ajouter d'autres extensions de la même façon
 $containerBuilder->setDefinition('twig', $twigDefinition)->setPublic(true);
@@ -262,25 +345,89 @@ $containerBuilder->register('twig.extension.form', FormExtension::class);
 /**
  * TWIG FORM
  */
-// 1) form_engine
-$containerBuilder->register('twig.form_renderer_engine', \Symfony\Bridge\Twig\Form\TwigRendererEngine::class)
-    ->setArguments([[$defaultFormTheme], new Reference('twig')]);
-
-// 2) FormRenderer en “runtime”
-$containerBuilder->register('twig.form_renderer', \Symfony\Component\Form\FormRenderer::class)
-    ->setFactory(function() use ($containerBuilder) {
-        // On récupère le service 'twig.form_renderer_engine'
-        $formEngine = $containerBuilder->get('twig.form_renderer_engine');
-        return new \Symfony\Component\Form\FormRenderer($formEngine);
-    });
-
-// 3) Ajout du RuntimeLoader
-$twigDefinition->addMethodCall('addRuntimeLoader', [
-    new \Twig\RuntimeLoader\FactoryRuntimeLoader([
-        \Symfony\Component\Form\FormRenderer::class => new Reference('twig.form_renderer')
+// 1.1) Service “twig.form_renderer_engine”
+//      qui reçoit un tableau de thèmes + le service `twig`
+$containerBuilder->register('twig.form_renderer_engine', TwigRendererEngine::class)
+    ->setArguments([
+        [ 'bootstrap_5_layout.html.twig' ],  // ou votre autre thème
+        new Reference('twig'),               // le service twig existant
     ])
-]);
+    ->setPublic(false);
 
+// 1.2) Service “twig.form_renderer”
+//      qui construit le FormRenderer basé sur l’engine ci-dessus
+$containerBuilder->register('twig.form_renderer', FormRenderer::class)
+    ->setArguments([
+        new Reference('twig.form_renderer_engine'),
+        // Si vous utilisez un CsrfTokenManager pour les formulaires, 
+        // vous pouvez l'ajouter ici en second argument.
+    ])
+    ->setPublic(false);
+
+// 1.3) Service “twig.form_runtime_loader”
+//      un FactoryRuntimeLoader qui associe la classe FormRenderer::class
+//      à l’instance twig.form_renderer
+$containerBuilder->register('twig.form_runtime_loader', FactoryRuntimeLoader::class)
+    ->setArguments([[
+        FormRenderer::class => new Reference('twig.form_renderer')
+    ]])
+    ->setPublic(false);
+
+// 1.4) Ajouter ce runtime loader à Twig via un appel de méthode
+$containerBuilder->getDefinition('twig.loader') // supposez que "twig" soit déjà défini
+    ->addMethodCall('addRuntimeLoader', [
+        new Reference('twig.form_runtime_loader')
+    ]);
+
+/**
+ * TWIG FORM FACTORY
+ */
+// a) Extension CSRF
+$containerBuilder->register('form.extension.csrf', CsrfCsrfExtension::class)
+    ->setArguments([
+        new Reference('csrf_token_manager')  // Supposez que vous ayez un service `csrf_token_manager`
+    ])
+    ->setPublic(false);
+
+// b) Extension Validator
+$containerBuilder->register('form.extension.validator', ValidatorExtension::class)
+    ->setArguments([
+        new Reference('validator') // Supposez que vous ayez un service `validator`
+    ])
+    ->setPublic(false);
+
+// c) Extension Core
+$containerBuilder->register('form.extension.core', CoreExtension::class)
+    ->setPublic(false);
+
+// d) Extension HttpFoundation
+$containerBuilder->register('form.extension.http_foundation', HttpFoundationExtension::class)
+    ->setPublic(false);
+
+// e) Extension Doctrine
+$containerBuilder->register('form.extension.doctrine_orm', DoctrineOrmExtension::class)
+    ->setArguments([
+        new Reference('manager_registry') // Supposez que vous ayez `manager_registry`
+    ])
+    ->setPublic(false);
+
+    // Service "form.factory_builder"
+$containerBuilder->register('form.factory_builder', FormFactoryBuilderInterface::class)
+// On utilise la factory statique "Forms::createFormFactoryBuilder()"
+->setFactory([Forms::class, 'createFormFactoryBuilder'])
+// On ajoute les extensions
+->addMethodCall('addExtension', [new Reference('form.extension.csrf')])
+->addMethodCall('addExtension', [new Reference('form.extension.validator')])
+->addMethodCall('addExtension', [new Reference('form.extension.core')])
+->addMethodCall('addExtension', [new Reference('form.extension.http_foundation')])
+->addMethodCall('addExtension', [new Reference('form.extension.doctrine_orm')])
+->setPublic(false);
+
+// Service "form.factory"
+$containerBuilder->register('form.factory', FormFactoryInterface::class)
+    ->setFactory([new Reference('form.factory_builder'), 'getFormFactory'])
+    ->setPublic(true);
+    
 /**
  * Access control service
  */

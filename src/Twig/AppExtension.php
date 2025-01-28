@@ -17,23 +17,17 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 {
     private $session;
     private $requestStack;
-    private $tokenStorage;
-    private $authorizationChecker;
- 
 
-    public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker)
+
+    public function __construct(SessionInterface $session, RequestStack $requestStack)
     {
-        
         $this->session = $session;
         $this->requestStack = $requestStack;
-        $this->tokenStorage = $tokenStorage;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function getGlobals(): array
     {
         $user = null;
-        $token = $this->tokenStorage->getToken();
         
 
         $notification = $this->session->get('notification');
