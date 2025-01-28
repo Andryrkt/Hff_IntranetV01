@@ -22,7 +22,7 @@ class EmailTikService
     /** 
      * Méthode pour préparer les données pour l'envoi d'email
      */
-    public function prepareDonneeEmail(DemandeSupportInformatique $tik, User $userConnecter, string $variable = ''): array
+    public function prepareDonneeEmail(DemandeSupportInformatique $tik, User $userConnecter, $variable = ''): array
     {
         return [
             'id'                 => $tik->getId(),
