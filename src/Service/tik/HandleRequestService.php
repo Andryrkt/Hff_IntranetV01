@@ -11,6 +11,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\tik\TkiPlanning;
 use App\Service\SessionManagerService;
+use DateTime;
 
 class HandleRequestService
 {
@@ -25,6 +26,10 @@ class HandleRequestService
     private DemandeSupportInformatique $supportInfo;
     private StatutDemande $statut;
 
+    /**=====================================================================================
+     * CONSTRUCT
+     **=====================================================================================*/
+
     public function __construct(User $connectedUser, DemandeSupportInformatique $supportInfo)
     {
         $this->emailTikService = new EmailTikService;
@@ -34,6 +39,74 @@ class HandleRequestService
         $this->connectedUser = $connectedUser;
         $this->supportInfo = $supportInfo;
     }
+
+    /**=====================================================================================
+     * GETTERS and SETTERS
+     **=====================================================================================*/
+
+    /**
+     * Get the value of statut
+     */
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */
+    public function setStatut(StatutDemande $statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of form
+     */
+    public function getForm()
+    {
+        return $this->form;
+    }
+
+    /**
+     * Set the value of form
+     *
+     * @return  self
+     */
+    public function setForm($form)
+    {
+        $this->form = $form;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tkiCommentaire
+     */
+    public function getTkiCommentaire()
+    {
+        return $this->tkiCommentaire;
+    }
+
+    /**
+     * Set the value of tkiCommentaire
+     *
+     * @return  self
+     */
+    public function setTkiCommentaire($tkiCommentaire)
+    {
+        $this->tkiCommentaire = $tkiCommentaire;
+
+        return $this;
+    }
+
+    /**=====================================================================================
+     * METHODS
+     **=====================================================================================*/
 
     /** 
      * Méthode pour gérer la requête selon l'action
@@ -179,36 +252,110 @@ class HandleRequestService
      */
     private function planifierTicket()
     {
+        /** 
+         * entité TkiPlanning 
+         **/
+        $partofDay = $this->form->getData()->getPartOfDay();
+        $dateDebut = $this->form->getData()->getDateDebutPlanning();
+        $dateFin = $this->form->getData()->getDateFinPlanning();
+
+        $datePlanning = $this->getNumberOfDayPlanning($partofDay, $dateDebut, $dateFin);
+
+        foreach ($datePlanning as $date) {
+            $planning = new TkiPlanning;
+
+            $planning
+                ->setNumeroTicket($this->form->getData()->getNumeroTicket())
+                ->setObjetDemande($this->form->getData()->getObjetDemande())
+                ->setDetailDemande($this->form->getData()->getDetailDemande())
+                ->setUserId($this->connectedUser)
+                ->setDemandeId($this->form->getData())
+                ->setDateDebutPlanning($date['debut'])
+                ->setDateFinPlanning($date['fin'])
+            ;
+            $this->em->persist($planning);
+        }
+
+        /** 
+         * entité DemandeSupportInformatique 
+         **/
         $this->supportInfo
             ->setIdStatutDemande($this->statut)    // statut planifié
         ;
-
-        $planning = $this->em->getRepository(TkiPlanning::class)->findOneBy(['numeroTicket' => $this->form->getData()->getNumeroTicket()]);
-
-        $planning = $planning ?? new TkiPlanning;
-
-        $planning
-            ->setNumeroTicket($this->form->getData()->getNumeroTicket())
-            ->setDateDebutPlanning($this->form->getData()->getDateDebutPlanning())
-            ->setDateFinPlanning($this->form->getData()->getDateFinPlanning())
-            ->setObjetDemande($this->form->getData()->getObjetDemande())
-            ->setDetailDemande($this->form->getData()->getDetailDemande())
-            ->setUserId($this->connectedUser)
-            ->setDemandeId($this->form->getData())
-        ;
-
-        //envoi les donnée dans la base de donnée
         $this->em->persist($this->supportInfo);
-        $this->em->persist($planning);
 
         $this->em->flush();
 
         $this->historiqueStatut();
 
         // Envoi email de planification
-        $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $this->form->getData()->getDateDebutPlanning());
+        $variableEmail = $this->emailTikService->prepareDonneeEmail($this->supportInfo, $this->connectedUser, $dateDebut);
 
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('planifie', $variableEmail));
+    }
+
+    /** 
+     * Méthode pour retourner un tableau de couple de date Début et date Fin, qui tronque la différence entre $dateDebut et $dateFin
+     * 
+     * @param string $partofDay partie de la journée
+     *  - AM => 08:00 - 12:00
+     *  - PM => 13:30 - 17:30
+     * @param DateTime $dateDebut date de début du planning
+     * @param DateTime $dateFin date de fin du planning
+     * 
+     * @return array
+     */
+    private function getNumberOfDayPlanning(string $partofDay, DateTime $dateDebut, DateTime $dateFin): array
+    {
+        $result = [];
+
+        // Définition des plages horaires selon la partie de journée
+        $timeRanges = [
+            'AM' => ['08:00', '12:00'],
+            'PM' => ['13:30', '17:30']
+        ];
+
+        [$startHour, $endHour] = $timeRanges[$partofDay];
+
+        // Création des dates de début et fin pour le découpage
+        $currentStart = clone $dateDebut;
+        $currentEnd = clone $dateDebut;
+
+        // Réinitialisation de l'heure selon la partie de la journée
+        $currentStart->setTime((int)explode(':', $startHour)[0], (int)explode(':', $startHour)[1]);  // Ex: Si AM alors $currentStart->setTime(8, 0)
+        $currentEnd->setTime((int)explode(':', $endHour)[0], (int)explode(':', $endHour)[1]);  // Ex: Si PM alors $currentEnd->setTime(17, 30)
+
+        $dateDebut = clone $currentStart;
+
+        // Parcours de l'intervalle date par date
+        while ($currentStart->format('Y-m-d') <= $dateFin->format('Y-m-d')) {
+            // Ignorer les samedis et dimanches
+            if ((int)$currentStart->format('N') >= 6) { // 6 = samedi, 7 = dimanche
+                // Aller au lundi suivant
+                $currentStart->modify('next monday')->setTime((int)explode(':', $startHour)[0], (int)explode(':', $startHour)[1]);
+                $currentEnd = clone $currentStart;
+                $currentEnd->setTime((int)explode(':', $endHour)[0], (int)explode(':', $endHour)[1]);
+                continue;
+            }
+
+            // Si la fin actuelle dépasse la date de fin, on ajuste
+            if ($currentEnd > $dateFin) {
+                $currentEnd = clone $dateFin;
+                $currentEnd->setTime((int)explode(':', $endHour)[0], (int)explode(':', $endHour)[1]);
+            }
+
+            // Ajout du couple (date de début, date de fin) au résultat
+            $result[] = [
+                'debut' => clone $currentStart,
+                'fin' => clone $currentEnd
+            ];
+
+            // Passage au jour suivant
+            $currentStart->modify('+1 day')->setTime((int)explode(':', $startHour)[0], (int)explode(':', $startHour)[1]);
+            $currentEnd->modify('+1 day')->setTime((int)explode(':', $endHour)[0], (int)explode(':', $endHour)[1]);
+        }
+
+        return $result;
     }
 
     /** 
@@ -354,65 +501,5 @@ class HandleRequestService
         ;
         $this->em->persist($tikStatut);
         $this->em->flush();
-    }
-
-    /**
-     * Get the value of statut
-     */
-    public function getStatut()
-    {
-        return $this->statut;
-    }
-
-    /**
-     * Set the value of statut
-     *
-     * @return  self
-     */
-    public function setStatut(StatutDemande $statut)
-    {
-        $this->statut = $statut;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of form
-     */
-    public function getForm()
-    {
-        return $this->form;
-    }
-
-    /**
-     * Set the value of form
-     *
-     * @return  self
-     */
-    public function setForm($form)
-    {
-        $this->form = $form;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of tkiCommentaire
-     */
-    public function getTkiCommentaire()
-    {
-        return $this->tkiCommentaire;
-    }
-
-    /**
-     * Set the value of tkiCommentaire
-     *
-     * @return  self
-     */
-    public function setTkiCommentaire($tkiCommentaire)
-    {
-        $this->tkiCommentaire = $tkiCommentaire;
-
-        return $this;
     }
 }
