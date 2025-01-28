@@ -17,7 +17,10 @@ export function validateFieldDate(
     let textError = '';
     let dateDebut = new Date(dateDebutvalue);
     let dateFin = new Date(dateFinvalue);
-    if (dateDebut.getDay() === 0 || dateDebut.getDay() === 6) {
+    if (dateDebut < new Date().setHours(0, 0, 0, 0)) {
+      textError =
+        "Le jour de la date de début pour le planning doit être supérieur ou égale à aujourd'hui.";
+    } else if (dateDebut.getDay() === 0 || dateDebut.getDay() === 6) {
       textError =
         'Le jour de la date de début pour le planning ne doit pas être un Samedi ou Dimanche.';
     } else if (dateFin.getDay() === 0 || dateFin.getDay() === 6) {
