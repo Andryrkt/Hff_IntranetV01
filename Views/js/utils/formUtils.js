@@ -28,9 +28,11 @@ export function validateFieldDate(
         'La date de fin pour le planning doit être supérieur à celui de la date de début.';
     }
 
-    errorElement.innerHTML = textError;
-    errorElement.style.display = 'block';
-    return false;
+    if (textError !== '') {
+      errorElement.innerHTML = textError;
+      errorElement.style.display = 'block';
+      return false;
+    }
   }
   errorElement.style.display = 'none';
   return true;
