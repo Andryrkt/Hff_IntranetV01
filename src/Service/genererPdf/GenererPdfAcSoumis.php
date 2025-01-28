@@ -91,7 +91,7 @@ class GenererPdfAcSoumis extends GeneratePdf
             Madame, Monsieur,<br><br>
             Nous accusons réception de votre bon de commande, portant sur '.$acSoumis->getDescriptionBc().'.<br><br>
             Cette commande fait suite à :<br>
-            Devis : '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') du '.$acSoumis->getDateDevis()->format('d/m/Y').' qui expire le '.$acSoumis->getDateExpirationDevis()->format('d/m/Y').'<br>
+            Devis : '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') du '.$acSoumis->getDateDevis()->format('d/m/Y').'<br>
             Montant HT : '.$this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.',2).' '.$acSoumis->getDevise().'. <br><br>
             Nous confirmons que votre commande a été enregistrée.<br><br>
             Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à '.$acSoumis->getEmailContactHff().' ou par téléphone au '.$acSoumis->getTelephoneContactHff().'.<br><br>
