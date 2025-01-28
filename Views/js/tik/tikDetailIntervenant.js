@@ -1,6 +1,10 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import { validateField, validateFormBeforeSubmit } from '../utils/formUtils.js';
+import {
+  validateField,
+  validateFieldDate,
+  validateFormBeforeSubmit,
+} from '../utils/formUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   handleActionClick('debut', 'formTik');
@@ -39,10 +43,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // gestion de cas où la date de planning est invalide
   [dateDebutPlanning, dateFinPlanning].forEach((date) => {
     date?.addEventListener('change', () =>
-      validateField(
+      validateFieldDate(
         true,
         dateDebutPlanning.value,
-        (val) => new Date(val) <= new Date(dateFinPlanning.value),
+        dateFinPlanning.value,
         document.querySelector('.error-message-date')
       )
     );
@@ -65,10 +69,10 @@ document.addEventListener('DOMContentLoaded', function () {
           document.querySelector('.error-message-intervenant')
         ),
       () =>
-        validateField(
+        validateFieldDate(
           buttonName === 'planifier',
           dateDebutPlanning.value,
-          (val) => new Date(val) <= new Date(dateFinPlanning.value),
+          dateFinPlanning.value,
           document.querySelector('.error-message-date')
         ),
     ]);

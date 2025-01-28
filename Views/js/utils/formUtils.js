@@ -7,6 +7,35 @@ export function validateField(clickedButton, value, conditionFn, errorElement) {
   return true;
 }
 
+export function validateFieldDate(
+  clickedButton,
+  dateDebutvalue,
+  dateFinvalue,
+  errorElement
+) {
+  if (clickedButton) {
+    let textError = '';
+    let dateDebut = new Date(dateDebutvalue);
+    let dateFin = new Date(dateFinvalue);
+    if (dateDebut.getDay() === 0 || dateDebut.getDay() === 6) {
+      textError =
+        'Le jour de la date de début pour le planning ne doit pas être un Samedi ou Dimanche.';
+    } else if (dateFin.getDay() === 0 || dateFin.getDay() === 6) {
+      textError =
+        'Le jour de la date de fin pour le planning ne doit pas être un Samedi ou Dimanche.';
+    } else if (dateDebut > dateFin) {
+      textError =
+        'La date de fin pour le planning doit être supérieur à celui de la date de début.';
+    }
+
+    errorElement.innerHTML = textError;
+    errorElement.style.display = 'block';
+    return false;
+  }
+  errorElement.style.display = 'none';
+  return true;
+}
+
 export function disableErrorElements(...errorElements) {
   errorElements.forEach((errorElement) => {
     if (errorElement instanceof HTMLElement) {
