@@ -1,0 +1,121 @@
+parameters:
+  kernel.project_dir: "C:/wamp64/www/Hffintranet"
+  public_path: "%kernel.project_dir%/Public"
+  views_dir: "%kernel.project_dir%/Views/templates"
+
+services:
+  _defaults:
+    public: true
+    autowire: true
+    autoconfigure: true
+
+  # Routing
+  router.matcher:
+    class: Symfony\Component\Routing\Matcher\UrlMatcher
+    arguments:
+      - "@routes"
+      - "@request_context"
+
+  router.generator:
+    class: Symfony\Component\Routing\Generator\UrlGenerator
+    arguments:
+      - "@routes"
+      - "@request_context"
+
+  routes:
+    class: Symfony\Component\Routing\RouteCollection
+
+  request_context:
+    class: Symfony\Component\Routing\RequestContext
+
+  controller_resolver:
+    class: Symfony\Component\HttpKernel\Controller\ControllerResolver
+
+  argument_resolver:
+    class: Symfony\Component\HttpKernel\Controller\ArgumentResolver
+
+  annotation_reader:
+    class: Doctrine\Common\Annotations\AnnotationReader
+
+  router.annotation_loader:
+    class: Symfony\Component\Routing\Loader\AnnotationDirectoryLoader
+    arguments:
+      - "@file_locator"
+      - "@annotation_reader"
+
+  file_locator:
+    class: Symfony\Component\Config\FileLocator
+    arguments:
+      - "%kernel.project_dir%/src/Controller"
+
+  # Twig Configuration
+  twig.loader:
+    class: Twig\Loader\FilesystemLoader
+    arguments:
+      - [
+          "%views_dir%",
+          "%kernel.project_dir%/vendor/symfony/twig-bridge/Resources/views/Form",
+        ]
+
+  twig.environment:
+    class: Twig\Environment
+    arguments:
+      - "@twig.loader"
+      - { debug: true }
+
+  twig.extension.debug:
+    class: Twig\Extension\DebugExtension
+    tags:
+      - { name: twig.extension }
+
+  twig.extension.translation:
+    class: Symfony\Bridge\Twig\Extension\TranslationExtension
+    arguments:
+      - "@translator"
+    tags:
+      - { name: twig.extension }
+
+  twig.extension.routing:
+    class: Symfony\Bridge\Twig\Extension\RoutingExtension
+    arguments:
+      - "@router.generator"
+    tags:
+      - { name: twig.extension }
+
+  twig.extension.form:
+    class: Symfony\Bridge\Twig\Extension\FormExtension
+    tags:
+      - { name: twig.extension }
+
+  twig.extension.asset:
+    class: Symfony\Bridge\Twig\Extension\AssetExtension
+    arguments:
+      - "@asset.packages"
+    tags:
+      - { name: twig.extension }
+
+  # Asset Configuration
+  asset.packages:
+    class: Symfony\Component\Asset\Packages
+    arguments:
+      - "@asset.default_package"
+
+  asset.default_package:
+    class: Symfony\Component\Asset\PathPackage
+    arguments:
+      - "%public_path%"
+      - "@asset.empty_version_strategy"
+
+  asset.empty_version_strategy:
+    class: Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy
+
+  # Form Configuration
+  form.factory:
+    class: Symfony\Component\Form\FormFactory
+    factory: ['Symfony\Component\Form\Forms', "createFormFactory"]
+
+  # Translator for Twig
+  translator:
+    class: Symfony\Component\Translation\Translator
+    arguments:
+      - "fr_FR"

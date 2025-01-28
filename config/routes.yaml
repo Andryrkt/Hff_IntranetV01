@@ -1,0 +1,39 @@
+parameters:
+  kernel.project_dir: "/Hffintranet"
+
+services:
+  # FileLocator pour localiser les fichiers
+  router.file_locator:
+    class: Symfony\Component\Config\FileLocator
+    arguments:
+      - "%kernel.project_dir%/src/Controller"
+
+  # AnnotationDirectoryLoader pour charger toutes les annotations d'un dossier
+  router.loader.annotation_directory:
+    class: Symfony\Component\Routing\Loader\AnnotationDirectoryLoader
+    arguments:
+      - "@router.file_locator"
+      - "@router.annotation_reader"
+
+  # AnnotationReader pour lire les annotations
+  router.annotation_reader:
+    class: Doctrine\Common\Annotations\AnnotationReader
+
+  # RouteCollection chargée depuis les annotations
+  my_route_collection:
+    class: Symfony\Component\Routing\RouteCollection
+    factory: ["@router.loader.annotation_directory", "load"]
+    arguments:
+      - "%kernel.project_dir%/src/Controller"
+
+  # RequestContext pour le contexte de la requête
+  router.request_context:
+    class: Symfony\Component\Routing\RequestContext
+
+  # UrlMatcher pour faire correspondre les routes
+  router.url_matcher:
+    class: Symfony\Component\Routing\Matcher\UrlMatcher
+    arguments:
+      - "@my_route_collection"
+      - "@router.request_context"
+    public: true

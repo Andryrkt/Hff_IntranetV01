@@ -1,37 +1,29 @@
 <?php
+// index.php
 
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+require_once __DIR__.'/vendor/autoload.php';
 
+//charger dotev
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
+// On récupère notre container
+$container = require __DIR__.'/config/services.php';
 
-require __DIR__ . '/config/bootstrap.php';
-require_once __DIR__ . '/config/dotenv.php';
-require __DIR__ . '/config/listeConstructeur.php';
+use Symfony\Component\HttpFoundation\Request;
 
+/** @var \Doctrine\ORM\EntityManagerInterface $em */
+$em = $container->get('entity_manager');
 
+// Crée la requête depuis les variables globals (GET, POST, SERVER, etc.)
+$request = Request::createFromGlobals();
 
-try {
-    $curentRoute = $matcher->match($request->getPathInfo());
-    $request->attributes->add($curentRoute);
+// Récupère l'instance du FrontController (service public)
+$frontController = $container->get('app.front_controller');
 
-    $controller = $controllerResolver->getController($request);
-    $arguments = $argumentResolver->getArguments($request, $controller);
+// Gère la requête et retourne un objet Response
+$response = $frontController->handleRequest($request);
 
-    call_user_func_array($controller, $arguments);
-} catch (ResourceNotFoundException $e) {
-    $htmlContent = $twig->render('404.html.twig');
-    $response->setContent($htmlContent);
-    $response->setStatusCode(404);
-} catch (AccessDeniedException $e) {
-    $htmlContent = $twig->render('403.html.twig');
-    $response->setContent($htmlContent);
-    $response->setStatusCode(403);
-}
-// catch (Exception $e) {
-//     $htmlContent = "<html><body><h1>500</h1><p>Une erreur s'est produite.</p></body></html>";
-//     $response->setContent($htmlContent);
-//     $response->setStatusCode(500);
-// }
-
+// Enfin, on envoie la réponse au client
 $response->send();

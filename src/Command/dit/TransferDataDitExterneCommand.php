@@ -2,12 +2,12 @@
 
 namespace App\Command\dit;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\dit\transfer\TraitementAncienDitService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TransferDataDitExterneCommand extends Command
 {
@@ -15,10 +15,10 @@ class TransferDataDitExterneCommand extends Command
 
     private $traitementAncienDitService;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct();
-        $this->traitementAncienDitService = new TraitementAncienDitService($entityManager);
+        $this->traitementAncienDitService = $container->get(TraitementAncienDitService::class);
     }
 
     protected function configure()

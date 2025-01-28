@@ -13,9 +13,9 @@ class ProfilControl extends Controller
     public function showPageAcceuil()
     {
         //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        // $this->verifierSessionUtilisateur();
 
-        $this->logUserVisit('profil_acceuil'); // historisation du page visité par l'utilisateur
+        // $this->logUserVisit('profil_acceuil'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'main/accueil.html.twig'

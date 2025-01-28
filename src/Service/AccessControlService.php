@@ -2,70 +2,85 @@
 
 namespace App\Service;
 
-use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
-
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\SessionManagerService;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AccessControlService 
 {
+    private EntityManagerInterface $em;
+    private SessionManagerService $sessionService;
 
-    private $em;
-    private $sessionService;
-   private $user;
-   private $generator;
-   private $request;
 
-    public function __construct()
-    {
-        $this->em = Controller::getEntity();
-        $this->generator = Controller::getGenerator();
-        $this->sessionService = new SessionManagerService();
-        $userId = $this->sessionService->get('user_id');
-
-        $this->user = $this->em->getRepository(User::class)->find(15);
-        $this->request = new Request();
-    
+    public function __construct(
+        EntityManagerInterface $em,
+        SessionManagerService $sessionService
+    ) {
+        $this->em             = $em;
+        $this->sessionService = $sessionService;
     }
-    
+
+    /**
+     * Récupère l'utilisateur en session si besoin.
+     */
+    private function getUser(): ?User
+    {
+        $userId = $this->sessionService->get('user_id');
+        if (!$userId) {
+            return null;
+        }
+
+        return $this->em->getRepository(User::class)->find($userId);
+    }
+
+
     public function hasAccessApp(string $application): bool
     {
+        $user = $this->getUser();
+        if (!$user) {
+            return false;
+        }
+
         $apps = [];
-        foreach ($this->user->getApplications() as  $app) {
+        foreach ($user->getApplications() as $app) {
             $apps[] = $app->getCodeApp();
         }
         
-        return in_array($application, $apps);
+        return in_array($application, $apps, true);
     }
 
-    public function hasAccessRole(string $role): bool
+    public function hasAccessRole(string $roleName): bool
     {
+        $user = $this->getUser();
+        if (!$user) {
+            return false;
+        }
+
         $roles = [];
-        foreach($this->user->getRoles() as $role) {
+        foreach ($user->getRoles() as $role) {
             $roles[] = $role->getRoleName();
-        }   
+        }
         
-        return in_array($role, $roles);
+        return in_array($roleName, $roles, true);
     }
 
-    public function hasAccessSociette(string $societte): bool
+    public function hasAccessSociette(string $societteCode): bool
     {
+        $user = $this->getUser();
+        if (!$user) {
+            return false;
+        }
+
         $societtes = [];
-        foreach ($this->user->getSociettes() as $societte) {
-          $societtes[] = $societte->getCodeSociete();
+        foreach ($user->getSociettes() as $societte) {
+            $societtes[] = $societte->getCodeSociete();
         }
-        return in_array($societte, $societtes);
-    }
-
-    private function hasAccessAgenceServ(string $agServEmetteur): bool
-    {
-        $agenceServices = [];
-        foreach ($this->user->getServices() as  $service) {
-           $agenceServices[] = $this->user->getAgences()->getCodeAgence() . '-' . $service->getCodeService();
-        }
-
-        return in_array($agServEmetteur, $agenceServices);
+        return in_array($societteCode, $societtes, true);
     }
 
     
+
 }

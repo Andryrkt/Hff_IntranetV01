@@ -109,9 +109,9 @@ class Controller
         $this->transfer04       = new TransferDonnerModel();
 
 
-        $this->sessionService   = new SessionManagerService();
+        // $this->sessionService   = new SessionManagerService();
 
-        $this->accessControl    = new AccessControlService();
+        // $this->accessControl    = new AccessControlService();
 
         $this->excelService     = new ExcelService();
     }
@@ -495,31 +495,31 @@ class Controller
         }
     }
 
-    protected function logUserVisit(string $nomRoute, ?array $params = null)
-    {
-        $idUtilisateur  = $this->sessionService->get('user_id');
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
-        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
-        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
+    // protected function logUserVisit(string $nomRoute, ?array $params = null)
+    // {
+    //     $idUtilisateur  = $this->sessionService->get('user_id');
+    //     $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+    //     $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+    //     $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+    //     $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
-        $log            = new UserLogger();
+    //     $log            = new UserLogger();
 
-        $log->setUtilisateur($utilisateurNom ?: '-');
-        $log->setNom_page($page->getNom());
-        $log->setParams($params ?: null);
-        $log->setUser($utilisateur);
-        $log->setPage($page);
-        $log->setMachineUser($machine);
+    //     $log->setUtilisateur($utilisateurNom ?: '-');
+    //     $log->setNom_page($page->getNom());
+    //     $log->setParams($params ?: null);
+    //     $log->setUser($utilisateur);
+    //     $log->setPage($page);
+    //     $log->setMachineUser($machine);
 
-        self::$em->persist($log);
-        self::$em->flush();
-    }
+    //     self::$em->persist($log);
+    //     self::$em->flush();
+    // }
 
-    protected function verifierSessionUtilisateur()
-    {
-        if (!$this->sessionService->has('user_id')) {
-            $this->redirectToRoute("security_signin");
-        }
-    }
+    // public function verifierSessionUtilisateur()
+    // {
+    //     if (!$this->sessionService->has('user_id')) {
+    //         $this->redirectToRoute("security_signin");
+    //     }
+    // }
 }
