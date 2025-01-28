@@ -1,4 +1,8 @@
-import { toggleRequiredFields, disableForm } from '../utils/formUtils.js';
+import {
+  toggleRequiredFields,
+  disableForm,
+  disableErrorElements,
+} from '../utils/formUtils.js';
 
 const tikCategorie = document.querySelector('#detail_tik_categorie');
 const tikSousCategorie = document.querySelector('#detail_tik_sousCategorie');
@@ -13,6 +17,10 @@ const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
 
 export function handleActionClick(buttonName, formId) {
   disableForm(formId);
+  disableErrorElements(
+    document.querySelector('.error-message-intervenant'),
+    document.querySelector('.error-message-date')
+  );
   const actions = {
     valider: {
       enableFields: [

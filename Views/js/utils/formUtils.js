@@ -7,6 +7,14 @@ export function validateField(clickedButton, value, conditionFn, errorElement) {
   return true;
 }
 
+export function disableErrorElements(...errorElements) {
+  errorElements.forEach((errorElement) => {
+    if (errorElement instanceof HTMLElement) {
+      errorElement.style.display = 'none';
+    }
+  });
+}
+
 export function toggleRequiredFields(
   fieldsToMakeEnabled,
   fieldsToMakeRequired,
