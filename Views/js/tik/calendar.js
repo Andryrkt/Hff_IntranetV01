@@ -8,15 +8,36 @@ document.addEventListener('DOMContentLoaded', function () {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
     },
+    views: {
+      dayGridMonth: {
+        dayHeaderFormat: { weekday: 'long' }, // Affichage du jour en texte complet
+        titleFormat: { year: 'numeric', month: 'long' }, // Format du titre
+        dayMaxEvents: true, // Afficher "+X more" si trop d'événements
+      },
+      timeGridWeek: {
+        titleFormat: { day: 'numeric', month: 'long', year: 'numeric' }, // Format du titre
+        dayHeaderFormat: { weekday: 'long', day: '2-digit', month: '2-digit' }, // Affichage du jour en texte complet
+        slotDuration: '00:15:00', // Durée des créneaux
+        slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false }, // Format des heures
+        allDaySlot: false, // Désactiver la ligne "Toute la journée"
+        nowIndicator: true, // Indicateur de l'heure actuelle
+      },
+      timeGridDay: {
+        slotDuration: '00:15:00', // Créneaux plus courts
+        scrollTime: '08:00:00', // Scroll automatique à 08h00
+        allDaySlot: true, // Activer la ligne "Toute la journée"
+        nowIndicator: true,
+      },
+    },
     buttonText: {
       today: "Aujourd'hui",
       month: 'Mois',
       week: 'Semaine',
       day: 'Jour',
-      list: 'Planning',
+      list: 'Liste mensuel',
     },
     events: '/Hffintranet/api/tik/calendar-fetch',
-    editable: true,
+    editable: false,
     selectable: true,
     select: function (info) {
       document.getElementById('calendar_dateDebutPlanning').value =

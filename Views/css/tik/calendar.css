@@ -1,7 +1,178 @@
+.fc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fc-col-header-cell-cushion {
+  font-size: medium;
+  text-transform: capitalize;
+}
+
+.fc-toolbar-title {
+  text-transform: capitalize;
+}
+
+/* Style global pour FullCalendar */
+.fc {
+  font-family: 'Arial', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Dimensionner le calendrier */
 #calendar {
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 80%; /* Limite la largeur du calendrier, sans être trop large */
+  margin: 20px auto; /* Centre le calendrier */
+  padding: 20px;
+  background-color: #fff; /* Fond blanc pour un aspect épuré */
+  border-radius: 10px; /* Coins arrondis pour un look moderne */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre douce autour du calendrier */
+}
+
+/* Style pour les boutons de navigation (prev, next, today) */
+.fc-prev-button,
+.fc-next-button,
+.fc-today-button {
+  background-color: #007bff; /* Couleur bleue */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.fc-prev-button:hover,
+.fc-next-button:hover,
+.fc-today-button:hover {
+  background-color: #0056b3; /* Couleur plus foncée lors du survol */
+}
+
+.fc-prev-button:focus,
+.fc-next-button:focus,
+.fc-today-button:focus {
+  outline: none;
+}
+
+/* Style pour le titre */
+.fc-header-title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: #333; /* Couleur du texte du titre */
+  margin: 10px 0;
+}
+
+/* Style des vues (dayGridMonth, timeGridWeek, timeGridDay, listMonth) */
+.fc-dayGridMonth-button,
+.fc-timeGridWeek-button,
+.fc-timeGridDay-button,
+.fc-listMonth-button {
+  background-color: #f1f1f1; /* Couleur de fond neutre */
+  color: #333;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 5px;
+}
+
+.fc-dayGridMonth-button:hover,
+.fc-timeGridWeek-button:hover,
+.fc-timeGridDay-button:hover,
+.fc-listMonth-button:hover {
+  background-color: #e0e0e0; /* Légère variation de couleur au survol */
+}
+
+/* Style des en-têtes de jours (lundi, mardi, ...) */
+.fc-day-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  padding: 10px 0;
+  text-align: center;
+  background-color: #f7f7f7; /* Fond clair pour les entêtes de jours */
+}
+
+/* Style des cellules de jours */
+.fc-day {
+  padding: 10px;
+  height: 80px;
+  min-width: 50px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.fc-day-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Style des événements */
+.fc-event {
+  background-color: #007bff; /* Couleur de fond des événements */
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  text-align: center;
+  margin: 3px 0;
+}
+
+.fc-event:hover {
+  background-color: #0056b3; /* Effet au survol */
+}
+
+/* Style des événements en liste */
+.fc-list-event {
+  border-left: 5px solid #007bff; /* Barre à gauche pour les événements en liste */
+  margin: 5px 0;
+}
+
+.fc-list-event:hover {
+  background-color: #f7f7f7; /* Fond clair au survol */
+}
+
+/* Style pour la vue 'timeGrid' */
+.fc-time-grid .fc-slot {
+  background-color: #f5f5f5; /* Fond léger pour les créneaux horaires */
+  border-top: 1px solid #ddd;
+}
+
+/* Style de sélection d'une plage d'événements */
+.fc-selection {
+  background-color: rgba(
+    0,
+    123,
+    255,
+    0.1
+  ); /* Légère teinte bleue lors de la sélection */
+}
+
+/* Responsivité : Ajuste le calendrier pour les petits écrans */
+@media (max-width: 768px) {
+  #calendar {
+    width: 100%; /* Prend toute la largeur de l'écran sur les petits appareils */
+    padding: 10px;
+  }
+
+  .fc-prev-button,
+  .fc-next-button,
+  .fc-today-button,
+  .fc-dayGridMonth-button,
+  .fc-timeGridWeek-button,
+  .fc-timeGridDay-button,
+  .fc-listMonth-button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .fc-day-header {
+    font-size: 12px;
+  }
+
+  .fc-day {
+    height: 60px;
+  }
 }
