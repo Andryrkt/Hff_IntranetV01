@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     events: '/Hffintranet/api/tik/calendar-fetch',
     loading: function (isLoading) {
-      console.log(spinner.classList);
       if (isLoading) {
         spinner.classList.remove('d-none'); // Affiche le spinner
       } else {
@@ -60,6 +59,11 @@ document.addEventListener('DOMContentLoaded', function () {
       eventModal.show();
     },
     eventClick: function (info) {
+      // Afficher le modal
+      const eventModal = new bootstrap.Modal(
+        document.getElementById('eventModal')
+      );
+      eventModal.show();
       alert('Événement : ' + info.event.title);
     },
   });
