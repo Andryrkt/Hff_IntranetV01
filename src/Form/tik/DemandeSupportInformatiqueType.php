@@ -46,7 +46,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
-                    'label' => 'Agence *',
+                    'label' => 'Agence Emetteur *',
                     'required' => false,
                     'attr' => [
                         'readonly' => true
@@ -60,7 +60,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
-                    'label' => 'Service *',
+                    'label' => 'Service Emetteur *',
                     'required' => false,
                     'attr' => [
                         'readonly' => true,
@@ -149,7 +149,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                 'agence',
                 EntityType::class,
                 [
-                    'label' => 'Agence Debiteur *',
+                    'label' => 'Agence Débiteur *',
                     'placeholder' => '-- Choisir une agence Debiteur --',
                     'class' => Agence::class,
                     'choice_label' => function (Agence $agence): string {
