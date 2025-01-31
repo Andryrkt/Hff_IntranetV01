@@ -24,17 +24,19 @@ class CalendarApi extends Controller
             // $user = self::$em->getRepository(User::class)->find($userId);
 
             // Récupération des événements depuis la base de données
-            $events = self::$em->getRepository(TkiPlanning::class)->findBy(['userId' => $userId]);
+            $events = self::$em->getRepository(TkiPlanning::class)->findAll();
 
             // Transformation des données en tableau JSON
             $eventData = [];
             foreach ($events as $event) {
                 $eventData[] = [
                     'id' => $event->getId(),
-                    'title' => $event->getObjetDemande(),
+                    'title' => ($event->getNumeroTicket() ? $event->getNumeroTicket() . ' - ' : '') . $event->getObjetDemande(),
                     'description' => $event->getDetailDemande(),
                     'start' => $event->getDateDebutPlanning()->format('Y-m-d H:i:s'),
                     'end' => $event->getDateFinPlanning()->format('Y-m-d H:i:s'),
+                    'backgroundColor' => $event->getNumeroTicket() ? '#fbbb01' : '#3788d8',
+                    'className' => $event->getNumeroTicket() ? 'planning-ticket' : '',
                 ];
             }
 
@@ -49,7 +51,7 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
-                
+
                 $userId = $this->sessionService->get('user_id');
                 $user = self::$em->getRepository(User::class)->find($userId);
                 // Création de l'événement
@@ -65,7 +67,7 @@ class CalendarApi extends Controller
                 $entityManager->persist($event);
                 $entityManager->flush();
 
-                
+
                 echo json_encode(['success' => true]);
                 exit;
             }
