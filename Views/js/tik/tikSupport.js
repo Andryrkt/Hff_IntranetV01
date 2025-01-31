@@ -58,6 +58,25 @@ document.addEventListener('DOMContentLoaded', function () {
   const fileList = document.getElementById('file-list');
   const paperclipIcon = document.getElementById('paperclip-icon');
   const infoIcon = document.getElementById('info-icon');
+  const myForm = document.querySelector('form');
+
+  function validerEmail(email) {
+    const regex =
+      /^[a-zA-Z0-9._%+-]+@(hff\.mg|natema\.mg|airways\.hff\.mg|travel\.hff\.mg|somava\.mg)$/;
+    return regex.test(email);
+  }
+
+  myForm.addEventListener('submit', function (event) {
+    const email = document.getElementById('user-email').getAttribute('data');
+    if (!validerEmail(email)) {
+      const modal = new bootstrap.Modal(
+        document.getElementById('modalNouveauTicket')
+      );
+      document.getElementById('modal-nouveau-ticket-content').innerHTML = email;
+      modal.show();
+      event.preventDefault();
+    }
+  });
 
   let filesArray = [];
   const existingFiles = Array.from(document.querySelectorAll('.file-item'));
