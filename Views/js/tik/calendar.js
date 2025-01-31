@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   var calendarEl = document.getElementById('calendar');
+  var spinner = document.getElementById('loading-spinner-overlay');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'fr',
     initialView: 'dayGridMonth',
@@ -37,6 +38,14 @@ document.addEventListener('DOMContentLoaded', function () {
       list: 'Liste mensuel',
     },
     events: '/Hffintranet/api/tik/calendar-fetch',
+    loading: function (isLoading) {
+      console.log(spinner.classList);
+      if (isLoading) {
+        spinner.classList.remove('d-none'); // Affiche le spinner
+      } else {
+        spinner.classList.add('d-none'); // Cache le spinner
+      }
+    },
     editable: false,
     selectable: true,
     select: function (info) {
