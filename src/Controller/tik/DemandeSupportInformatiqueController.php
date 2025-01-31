@@ -52,8 +52,14 @@ class DemandeSupportInformatiqueController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $donnerForm = $form->getData();
-            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
+            $dataForm = $form->getData();
+
+            if (!$this->validateEmail($user->getMail())) {
+                $message = "Echec de la création de la demande: email invalide.";
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'liste_tik_index');
+            }
+
+            $this->ajoutDonnerDansEntity($dataForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
 
@@ -65,10 +71,10 @@ class DemandeSupportInformatiqueController extends Controller
             self::$em->flush();
 
             $this->envoyerMailAuxValidateurs([
-                'id'            => $donnerForm->getId(),
-                'numTik'        => $donnerForm->getNumeroTicket(),
-                'objet'         => $donnerForm->getObjetDemande(),
-                'detail'        => $donnerForm->getDetailDemande(),
+                'id'            => $dataForm->getId(),
+                'numTik'        => $dataForm->getNumeroTicket(),
+                'objet'         => $dataForm->getObjetDemande(),
+                'detail'        => $dataForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
@@ -100,16 +106,16 @@ class DemandeSupportInformatiqueController extends Controller
         $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
 
-    private function ajoutDonnerDansEntity($donnerForm, DemandeSupportInformatique $supportInfo, User $user)
+    private function ajoutDonnerDansEntity($dataForm, DemandeSupportInformatique $supportInfo, User $user)
     {
-        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
-        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
+        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $dataForm->getAgenceEmetteur())[0]]);
+        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $dataForm->getServiceEmetteur())[0]]);
 
         $statut = self::$em->getRepository(StatutDemande::class)->find('58');
 
         $supportInfo
-            ->setAgenceDebiteurId($donnerForm->getAgence())
-            ->setServiceDebiteurId($donnerForm->getService())
+            ->setAgenceDebiteurId($dataForm->getAgence())
+            ->setServiceDebiteurId($dataForm->getService())
             ->setAgenceEmetteurId($agenceEmetteur)
             ->setServiceEmetteurId($serviceEmetteur)
             ->setHeureCreation($this->getTime())
@@ -117,7 +123,7 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
             ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . '-' . $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceDebiteur($dataForm->getAgence()->getCodeAgence() . '-' . $dataForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
             ->setCodeSociete($user->getSociettes()->getCodeSociete())
@@ -226,6 +232,24 @@ class DemandeSupportInformatiqueController extends Controller
         if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
             return true;
         }
+        return false;
+    }
+
+    /** 
+     * Méthode pour valider l'email selon le règle de HFF
+     * 
+     * @param string $email l'email à valider
+     * 
+     * @return bool
+     */
+    private function validateEmail(string $email): bool
+    {
+        $pattern = '/^[a-zA-Z0-9._%+-]+@(hff\.mg|natema\.mg|airways\.hff\.mg|travel\.hff\.mg|somava\.mg)$/';
+
+        if (preg_match($pattern, $email)) {
+            return true;
+        }
+
         return false;
     }
 }
