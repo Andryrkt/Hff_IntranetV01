@@ -132,7 +132,7 @@ class DemandeSupportInformatiqueType extends AbstractType
             )
             ->add('categorie', EntityType::class, [
                 'label' => 'Catégorie *',
-                'placeholder' => ' -- Choisir une catégorie',
+                'placeholder' => ' -- Choisir une catégorie --',
                 'class' => TkiCategorie::class,
                 'choice_label' => 'description'
             ])
