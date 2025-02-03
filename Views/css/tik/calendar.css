@@ -1,3 +1,18 @@
+.bouton {
+  background-color: #fbbb01;
+  color: black;
+  font-weight: bold;
+  padding: 10px 20px; /* Ajout d'un peu de padding pour un meilleur visuel */
+  border: none; /* Optionnel : pour retirer une bordure si tu en as une */
+  cursor: pointer; /* Optionnel : change le curseur pour indiquer que c'est un bouton */
+  transition: background-color 0.3s, transform 0.2s; /* Ajout d'une transition douce */
+}
+
+.bouton:hover {
+  background-color: #fdcb4d; /* Change la couleur de fond au survol */
+  transform: scale(1.05); /* Légère augmentation de la taille du bouton */
+}
+
 .fc a {
   color: inherit;
   text-decoration: none;
