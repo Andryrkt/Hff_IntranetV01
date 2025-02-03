@@ -220,7 +220,7 @@ class DemandeSupportInformatique
     private $commentaires;
 
     /**
-     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
      */
     private $planning;
 

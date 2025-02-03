@@ -268,8 +268,8 @@ class HandleRequestService
                 ->setNumeroTicket($this->form->getData()->getNumeroTicket())
                 ->setObjetDemande($this->form->getData()->getObjetDemande())
                 ->setDetailDemande($this->form->getData()->getDetailDemande())
-                ->setUserId($this->connectedUser)
-                ->setDemandeId($this->form->getData())
+                ->setUser($this->connectedUser)
+                ->setDemandeSupportInfo($this->form->getData())
                 ->setDateDebutPlanning($date['debut'])
                 ->setDateFinPlanning($date['fin'])
             ;
