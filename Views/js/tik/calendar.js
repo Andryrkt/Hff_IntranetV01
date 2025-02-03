@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
       list: 'Liste mensuel',
     },
     events: '/Hffintranet/api/tik/calendar-fetch',
+    editable: false,
+    selectable: true,
     loading: function (isLoading) {
       if (isLoading) {
         spinner.classList.remove('d-none'); // Affiche le spinner
@@ -45,8 +47,6 @@ document.addEventListener('DOMContentLoaded', function () {
         spinner.classList.add('d-none'); // Cache le spinner
       }
     },
-    editable: false,
-    selectable: true,
     select: function (info) {
       document.getElementById('calendar_dateDebutPlanning').value =
         info.startStr;
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('eventModal')
       );
       eventModal.show();
-      alert('Événement : ' + info.event.title);
+      // alert('Événement : ' + info.event.title);
     },
   });
 
@@ -103,12 +103,4 @@ document.addEventListener('DOMContentLoaded', function () {
         eventModal.hide();
       });
   });
-
-  /*
-DATE de debut et date de fin
-*/
-  // flatpickr(".datetime-picker", {
-  //   enableTime: true,
-  //   dateFormat: "Y-m-d H:i",
-  // });
 });
