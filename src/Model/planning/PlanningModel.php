@@ -588,10 +588,10 @@ public function recuperationPartiel($numcde, $refp){
 
  public function recupeQteCISlig($numOr,$itv,$refp){
    $statement = "SELECT 
-                  nvl(nlig_qtecde,0) as qteorlig,
-                  nvl(nlig_qtealiv,0) as qtealllig,
-                  nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0)as qtereliquatlig,
-                  nvl(nlig_qteliv,0) as qtelivlig
+                  trunc(nvl(nlig_qtecde,0)) as qteorlig,
+                  trunc(nvl(nlig_qtealiv,0) )as qtealllig,
+                  trunc(nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0))as qtereliquatlig,
+                  trunc(nvl(nlig_qteliv,0)) as qtelivlig
                   
                   from sav_lor 
 
@@ -749,16 +749,22 @@ public function recuperationPartiel($numcde, $refp){
   }
 
   public function recupOrcis($numOritv){
-      $statement = "SELECT  DISTINCT 
-            nlig_natop from sav_lor 
-            inner join neg_lig on 
-            nlig_soc = slor_soc 
-            and nlig_succd = slor_succ
-            and nlig_numcde = slor_numcf
-            and nlig_constp = slor_constp
-            and nlig_refp = slor_refp
-            where nlig_natop = 'CIS'
-            and slor_succ  <> '01'
+      // $statement = "SELECT  DISTINCT 
+      //       nlig_natop from sav_lor 
+      //       inner join neg_lig on 
+      //       nlig_soc = slor_soc 
+      //       and nlig_succd = slor_succ
+      //       and nlig_numcde = slor_numcf
+      //       and nlig_constp = slor_constp
+      //       and nlig_refp = slor_refp
+      //       where nlig_natop = 'CIS'
+      //       and slor_succ  <> '01'
+      //       and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
+                    //  ";
+            $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') as succ
+            from sav_lor, sav_eor
+            where slor_succ = seor_succ
+            and slor_numor = seor_numor
             and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
                      ";
       $result = $this->connect->executeQuery($statement);
@@ -767,11 +773,14 @@ public function recuperationPartiel($numcde, $refp){
     return $resultat;
   }
 
-  public function dateLivraisonCIS($numCIS){
-    $statement = "SELECT 
-                   max(nliv_datexp) as dateLivLig
-                    from neg_liv 
-                    where nliv_numcde = '".$numCIS."'
+  public function dateLivraisonCIS($numCIS,$refp,$cst){
+    $statement = "SELECT  max(nliv_datexp) as datelivlig
+                  from neg_liv, neg_llf 
+                  where nliv_soc = nllf_soc
+                  and nliv_numcde = '".$numCIS."'
+                  and nliv_numliv = nllf_numliv
+                  and nllf_constp = '".$cst."'
+                  and nllf_refp = '".$refp."'
                  ";
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
@@ -779,12 +788,14 @@ public function recuperationPartiel($numcde, $refp){
   return $resultat;
   }
 
-  public function dateAllocationCIS($numCIS,$refp){
-    $statement = " SELECT
-                   nlig_datealloc as dateAlllig
-                   from neg_lig 
-                   where nlig_numcde =  '".$numCIS."' 
-                   and nlig_refp = '".$refp."'
+  public function dateAllocationCIS($numCIS,$refp,$cst){
+    $statement = " SELECT  max(npic_date) as datealllig
+                  from neg_pic, neg_pil
+                  where npic_soc = npil_soc
+                  and npic_numcde = npil_numcde
+                  and  npic_numcde = '".$numCIS."'
+                  and npil_constp = '".$cst."'
+                  and npil_refp = '".$refp."'
                 ";
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);

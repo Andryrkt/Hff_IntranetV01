@@ -1,0 +1,58 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/planning/planning.css">
+{% endblock %}
+{% block content %}
+	<div class="sticky-header-titre">
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste
+			</h3>
+
+			{% include "/planning/_Listeformulaire.html.twig" %}
+		</div>
+	</div>
+	<div class="container-fluid">
+		<!-- DEBUT tableau -->
+		<!-- Bloc fixe en haut -->
+			<div class="sticky-header-statut"> <div class="container">
+				<div class="my-3 d-flex flex-row">
+					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+						<small>TOUT AFFICHER |</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order
+						</small>
+					</div>
+
+				</div>
+
+				<div class="d-flex justify-content-between">
+					{# <div>
+						<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div> #}
+				</div>
+			</div>
+		</div>
+
+	{% endblock %}

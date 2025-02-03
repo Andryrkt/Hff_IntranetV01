@@ -330,7 +330,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
 
         const tableBody = document.getElementById("technicienTableBody");
 
@@ -541,21 +540,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
             //onglet CIS
-            // let statutCIS;
-            // let statutDateCIS;
-            // if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
-            //     statutCIS= 'Livré';
-            //     statutDateCIS = detail.dateLivLIg;
-            // }else
-            //
+            let statutCIS;
+            let dateStatutCIS;
+            
+            
+            if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
+                statutCIS= 'LIVRE';
+                dateStatutCIS = formaterDate(detail.dateLivLIg);
+            } else if(parseInt(detail.qtealllig) > 0){
+              statutCIS = 'A LIVRER'
+              dateStatutCIS = formaterDate(detail.dateAllLIg);
+          } else {
+              statutCIS= detail.statut;
+              dateStatutCIS = "";
+            }
+
+            
+            
+            
             if (detail.numor && detail.numor.startsWith("5")) {
               // Affichage
               let row = `<tr>
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
                         <td>${numCis}</td> 
-                        <td ${cmdColor}></td> 
-                        <td ${cmdColorRmq}></td> 
+                        <td ></td> 
+                        <td ></td> 
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
@@ -571,7 +581,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
                     </tr>`;
               // tableBody.innerHTML += row;
               tableBodyOR.innerHTML += row;
-              let row1 = `<tr>
+              if (numCis) {
+                let row1 = `<tr>
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
                         <td>${numCis}</td> 
@@ -584,13 +595,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
                         <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
                         <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
-                        <td >${statut}</td> 
-                        <td>${dateStatut}</td> 
+                        <td >${(statutCIS ===null)? "" : statutCIS}</td> 
+                        <td>${(dateStatutCIS === null) ? "" : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
                     </tr>`;
                   tableBodyLign.innerHTML += row1;
+              }
+              
             } else {
               // Affichage
               let row = `<tr>
