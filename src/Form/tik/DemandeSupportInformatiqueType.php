@@ -10,7 +10,6 @@ use App\Entity\admin\tik\TkiCategorie;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\AbstractType;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -24,9 +23,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -54,7 +50,6 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getAgenceEmetteur() : null
                 ]
             )
-
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -69,8 +64,6 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getServiceEmetteur() : null
                 ]
             )
-
-
             ->add('dateFinSouhaitee', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date fin souhaitee *',
@@ -97,7 +90,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'label' => 'Détail de la demande *',
                     'required' => true,
                     'attr' => [
-                        'rows' => 5,
+                        'rows' => 2,
                         'class' => 'detailDemande',
                         'placeholder' => 'Veuillez décrire les détails de votre demande ici...', // Texte indicatif
                         'maxlength' => 5000, // Limite de caractères
@@ -115,7 +108,6 @@ class DemandeSupportInformatiqueType extends AbstractType
                     ],
                 ]
             )
-
             ->add(
                 'fileNames',
                 FileType::class,
@@ -163,8 +155,6 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'attr' => ['class' => 'agenceDebiteur']
                 ]
             )
-
-
         ;
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
@@ -180,7 +170,6 @@ class DemandeSupportInformatiqueType extends AbstractType
                 'service',
                 EntityType::class,
                 [
-
                     'label' => 'Service Débiteur *',
                     'class' => Service::class,
                     'choice_label' => function (Service $service): string {

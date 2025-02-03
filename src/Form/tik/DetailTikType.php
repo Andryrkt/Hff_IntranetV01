@@ -84,7 +84,7 @@ class DetailTikType extends AbstractType
                     'label' => 'Sous Catégorie',
                     'class' => TkiSousCategorie::class,
                     'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie--',
+                    'placeholder' => '-- Choisir une sous categorie --',
                     'required' => false,
                     'choices' => $sousCategorie,
                     'query_builder' => function (EntityRepository $tkiCategorie) {
@@ -97,7 +97,7 @@ class DetailTikType extends AbstractType
                     'label' => 'Autres Catégories',
                     'class' => TkiAutresCategorie::class,
                     'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie--',
+                    'placeholder' => '-- Choisir une autre categorie --',
                     'required' => false,
                     'choices' => $autresCategories,
                     'query_builder' => function (EntityRepository $tkiCategorie) {
@@ -136,7 +136,7 @@ class DetailTikType extends AbstractType
                     'label' => 'Sous Catégorie',
                     'class' => TkiSousCategorie::class,
                     'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie--',
+                    'placeholder' => '-- Choisir une sous categorie --',
                     'required' => false,
                     'choices' => $sousCategories,
                     'query_builder' => function (EntityRepository $tkiCategorie) {
@@ -149,7 +149,7 @@ class DetailTikType extends AbstractType
                     'label' => 'Autres Catégories',
                     'class' => TkiAutresCategorie::class,
                     'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie--',
+                    'placeholder' => '-- Choisir une autre categorie --',
                     'required' => false,
                     'choices' => $autresCategories,
                     'query_builder' => function (EntityRepository $tkiCategorie) {
