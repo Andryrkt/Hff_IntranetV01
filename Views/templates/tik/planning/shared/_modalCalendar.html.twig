@@ -1,6 +1,6 @@
 {% import "macroForm.html.twig" as macroForm %}
 
-<div class="modal fade show" id="eventModal" tabindex="-1" style="display:block;" aria-labelledby="eventModalLabel" aria-hidden="true">
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -14,7 +14,7 @@
 						{{ macroForm.affichage3('Numéro du ticket', 'px-2 py-1', '', 'numeroTicket') }}
 					</div>
 					<div class="col-md-4">
-						{{ macroForm.affichage3('Date de création', 'px-2 py-1', '', '', 'dateCreation') }}
+						{{ macroForm.affichage3('Date de création', 'px-2 py-1', '', 'dateCreation') }}
 					</div>
 					<div class="col-md-4">
 						{{ macroForm.affichage3('Date de fin souhaitée', 'px-2 py-1', '', 'dateFinSouhaite') }}
@@ -25,7 +25,7 @@
 						{{ macroForm.sousTitre3('Demande', { id: '', class: 'mt-4 sousTitre' })}}
 						{{ macroForm.affichage3('Nom du demandeur', 'px-2 py-1', '', 'demandeur') }}
 						{{ macroForm.affichage3('Objet de la demande', 'px-2 py-1', '', 'objetDemande') }}
-						{{ macroForm.affichageHTML('Détail de la demande', '', 'detailDemande') }}
+						{{ macroForm.affichageHTML2('Détail de la demande', 'px-2 py-1', '', 'detailDemande') }}
 					</div>
 					<div class="col-md-6">
 						{{ macroForm.sousTitre3('Intervention', { id: '', class: 'mt-4 sousTitre' })}}
@@ -35,7 +35,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+				<a type="button" id="linkDetail" class="btn bouton" href="{{ path("detail_tik", { id: 0}) }}">Détail complet</a>
 			</div>
 		</div>
 	</div>
