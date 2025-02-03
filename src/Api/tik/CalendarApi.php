@@ -5,9 +5,9 @@ namespace App\Api\tik;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CalendarApi extends Controller
 {
@@ -29,16 +29,43 @@ class CalendarApi extends Controller
             // Transformation des données en tableau JSON
             $eventData = [];
             foreach ($events as $event) {
+                /**
+                 * @var DemandeSupportInformatique $demandeSupportInfo ticket correspondant au planning
+                 */
+                $demandeSupportInfo = $event->getDemandeSupportInfo();
+                /** 
+                 * @var TkiPlanning $event planning de l'évènement
+                 */
+                $planningId         = $event->getId();
+                $numeroTicket       = $event->getNumeroTicket();
+                $objetDemande       = $event->getObjetDemande();
+                $detailDemande      = $event->getDetailDemande();
+                $dateDebutPlanning  = $event->getDateDebutPlanning();
+                $dateFinPlanning    = $event->getDateFinPlanning();
+                $ticket             = $numeroTicket ? true : false;
+
                 $eventData[] = [
-                    'id' => $event->getId(),
-                    'title' => ($event->getNumeroTicket() ? $event->getNumeroTicket() . ' - ' : '') . $event->getObjetDemande(),
-                    'description' => $event->getDetailDemande(),
-                    'start' => $event->getDateDebutPlanning()->format('Y-m-d H:i:s'),
-                    'end' => $event->getDateFinPlanning()->format('Y-m-d H:i:s'),
-                    'backgroundColor' => $event->getNumeroTicket() ? '#fbbb01' : '#3788d8',
-                    'className' => $event->getNumeroTicket() ? 'planning-ticket' : '',
+                    'id'              => $planningId,
+                    'title'           => ($ticket ? $numeroTicket . ' - ' : '') . $objetDemande,
+                    'start'           => $dateDebutPlanning->format('Y-m-d H:i:s'),
+                    'end'             => $dateFinPlanning->format('Y-m-d H:i:s'),
+                    'backgroundColor' => $ticket ? '#fbbb01' : '#3788d8',
+                    'classNames'      => $ticket ? 'planning-ticket' : '',
+                    'extendedProps'   => $ticket ? [
+                        'numeroTicket'    => $numeroTicket,
+                        'objetDemande'    => $objetDemande,
+                        'detailDemande'   => $detailDemande,
+                        'demandeur'       => $demandeSupportInfo->getUtilisateurDemandeur(),
+                        'intervenant'     => $demandeSupportInfo->getNomIntervenant(),
+                        'dateCreation'    => $demandeSupportInfo->getDateCreation()->format('d-m-Y'),
+                        'dateFinSouhaite' => $demandeSupportInfo->getDateFinSouhaitee()->format('d-m-Y'),
+                        'categorie'       => $demandeSupportInfo->getCategorie()->getDescription(),
+                    ] : [],
                 ];
             }
+
+            var_dump($eventData);
+            die;
 
             echo json_encode($eventData);
             exit;
@@ -60,7 +87,7 @@ class CalendarApi extends Controller
                 $event->setDetailDemande($data['description']);
                 $event->setDateDebutPlanning(new \DateTime($data['start']));
                 $event->setDateFinPlanning(new \DateTime($data['end']));
-                $event->setUserId($user);
+                $event->setUser($user);
 
                 // Sauvegarde dans la base de données
                 $entityManager = self::$em;
