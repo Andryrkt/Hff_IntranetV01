@@ -55,17 +55,15 @@ class CalendarApi extends Controller
                         'numeroTicket'    => $numeroTicket,
                         'objetDemande'    => $objetDemande,
                         'detailDemande'   => $detailDemande,
+                        'id'              => $demandeSupportInfo->getId(),
                         'demandeur'       => $demandeSupportInfo->getUtilisateurDemandeur(),
                         'intervenant'     => $demandeSupportInfo->getNomIntervenant(),
-                        'dateCreation'    => $demandeSupportInfo->getDateCreation()->format('d-m-Y'),
-                        'dateFinSouhaite' => $demandeSupportInfo->getDateFinSouhaitee()->format('d-m-Y'),
+                        'dateCreation'    => $demandeSupportInfo->getDateCreation()->format('d/m/Y'),
+                        'dateFinSouhaite' => $demandeSupportInfo->getDateFinSouhaitee()->format('d/m/Y'),
                         'categorie'       => $demandeSupportInfo->getCategorie()->getDescription(),
                     ] : [],
                 ];
             }
-
-            var_dump($eventData);
-            die;
 
             echo json_encode($eventData);
             exit;

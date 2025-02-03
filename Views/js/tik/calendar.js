@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const eventModalEl = document.getElementById('eventModal');
+  const eventModal = new bootstrap.Modal(eventModalEl);
+
+  // Détail d'un ticket
+  const numeroTicket = document.getElementById('numeroTicket');
+  const objetDemande = document.getElementById('objetDemande');
+  const detailDemande = document.getElementById('detailDemande');
+  const demandeur = document.getElementById('demandeur');
+  const intervenant = document.getElementById('intervenant');
+  const dateCreation = document.getElementById('dateCreation');
+  const dateFinSouhaite = document.getElementById('dateFinSouhaite');
+  const categorie = document.getElementById('categorie');
+  const linkDetail = document.getElementById('linkDetail');
+
   var calendarEl = document.getElementById('calendar');
   var spinner = document.getElementById('loading-spinner-overlay');
   var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -51,56 +65,63 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('calendar_dateDebutPlanning').value =
         info.startStr;
       document.getElementById('calendar_dateFinPlanning').value = info.endStr;
-
       // Afficher le modal
-      const eventModal = new bootstrap.Modal(
-        document.getElementById('eventModal')
-      );
       eventModal.show();
     },
     eventClick: function (info) {
       // Afficher le modal
-      const eventModal = new bootstrap.Modal(
-        document.getElementById('eventModal')
-      );
+      const data = info.event.extendedProps;
+
+      numeroTicket.innerHTML = data.numeroTicket;
+      objetDemande.innerHTML = data.objetDemande;
+      detailDemande.innerHTML = data.detailDemande;
+      demandeur.innerHTML = data.demandeur;
+      intervenant.innerHTML = data.intervenant;
+      dateCreation.innerHTML = data.dateCreation;
+      dateFinSouhaite.innerHTML = data.dateFinSouhaite;
+      categorie.innerHTML = data.categorie;
+
+      let id = data.id;
+      linkDetail.href = linkDetail.href.replace(/\/[^/]*$/, `/${id}`);
+
       eventModal.show();
-      // alert('Événement : ' + info.event.title);
     },
   });
 
   calendar.render();
 
-  document.getElementById('eventForm').addEventListener('submit', function (e) {
-    e.preventDefault();
+  document
+    .getElementById('eventForm')
+    ?.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-    const title = document.getElementById('calendar_objetDemande').value;
-    const description = document.getElementById('calendar_detailDemande').value;
-    const start = document.getElementById('calendar_dateDebutPlanning').value;
-    const end = document.getElementById('calendar_dateFinPlanning').value;
+      const title = document.getElementById('calendar_objetDemande').value;
+      const description = document.getElementById(
+        'calendar_detailDemande'
+      ).value;
+      const start = document.getElementById('calendar_dateDebutPlanning').value;
+      const end = document.getElementById('calendar_dateFinPlanning').value;
 
-    fetch('/Hffintranet/api/tik/calendar-fetch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, description, start, end }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        response.json();
+      fetch('/Hffintranet/api/tik/calendar-fetch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, start, end }),
       })
-      .then((data) => {
-        console.log(data);
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          response.json();
+        })
+        .then((data) => {
+          console.log(data);
 
-        alert('Événement ajouté avec succès !');
-        calendar.refetchEvents();
+          alert('Événement ajouté avec succès !');
+          calendar.refetchEvents();
 
-        // Réinitialiser le formulaire et masquer le modal
-        document.getElementById('eventForm').reset();
-        const eventModal = bootstrap.Modal.getInstance(
-          document.getElementById('eventModal')
-        );
-        eventModal.hide();
-      });
-  });
+          // Réinitialiser le formulaire et masquer le modal
+          document.getElementById('eventForm').reset();
+          eventModal.hide();
+        });
+    });
 });
