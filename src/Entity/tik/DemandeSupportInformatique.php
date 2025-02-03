@@ -876,8 +876,8 @@ class DemandeSupportInformatique
     public function setPlanning(?TkiPlanning $planning): self
     {
         // set the owning side of the relation if necessary
-        if ($planning && $planning->getDemandeId() !== $this) {
-            $planning->setDemandeId($this);
+        if ($planning && $planning->getDemandeSupportInfo() !== $this) {
+            $planning->setDemandeSupportInfo($this);
         }
 
         $this->planning = $planning;

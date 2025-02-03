@@ -605,7 +605,7 @@ class User implements UserInterface
     {
         if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUserId($this);
+            $tikPlanningUser->setUser($this);
         }
 
         return $this;
@@ -615,8 +615,8 @@ class User implements UserInterface
     {
         if ($this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUserId() === $this) {
-                $tikPlanningUser->setUserId(null);
+            if ($tikPlanningUser->getUser() === $this) {
+                $tikPlanningUser->setUser(null);
             }
         }
 
@@ -724,7 +724,7 @@ class User implements UserInterface
      * Get the value of numTel
      *
      * @return  string
-     */ 
+     */
     public function getNumTel()
     {
         return $this->numTel;
@@ -736,7 +736,7 @@ class User implements UserInterface
      * @param  string  $numTel
      *
      * @return  self
-     */ 
+     */
     public function setNumTel(string $numTel)
     {
         $this->numTel = $numTel;
@@ -748,7 +748,7 @@ class User implements UserInterface
      * Get the value of poste
      *
      * @return  string
-     */ 
+     */
     public function getPoste()
     {
         return $this->poste;
@@ -760,7 +760,7 @@ class User implements UserInterface
      * @param  string  $poste
      *
      * @return  self
-     */ 
+     */
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
