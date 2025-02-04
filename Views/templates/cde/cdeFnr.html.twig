@@ -1,4 +1,60 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block stylesheets%}
+	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+	<link rel="stylesheet" href="/Hffintranet/Views/css/dw/dw.css">
+{% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<div class="container">
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
+						<tr>
+							<th>Numéro fournisseur</th>
+							<th>Nom fournisseur</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for fournisseur in fournisseurs %}
+							<tr class="clickable-row clickable" data-numfnr="{{fournisseur.num_fournisseur}}">
+								<td>{{fournisseur.num_fournisseur}}</td>
+								<td>{{fournisseur.nom_fournisseur}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				<h4>Listes des commandes fournisseur non réceptionnées</h4>
+				<table class="table rounded table-plein-ecran table-moitier">
+					<thead class="table-dark">
+						<tr>
+							<th>N° cde</th>
+							<th>Date cde</th>
+							<th>N° Fournisseur</th>
+							<th>Nom fournisseur</th>
+							<th>Libelle cde</th>
+							<th>Prix cde TTC</th>
+							<th>Prix cde TTC & devise</th>
+							<th>Devise cde</th>
+							<th>Type cde</th>
+						</tr>
+					</thead>
+					<tbody
+						id="documents-tbody">
+						<!-- Le contenu sera inséré ici via JS -->
+						<div id="spinner" style="display: none;">
+							<i class="fas fa-spinner fa-spin"></i>
+							Chargement...
+						</div>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="/Hffintranet/Views/js/cde/cdeFnrSoumisAValidation.js" type="module"></script>
+{% endblock %}
