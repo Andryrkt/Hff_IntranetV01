@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1c9002434f9500cab8552f1d5225b811c02fd8df',
+        'reference' => '0fd55384b7edb0fc1ccf259c38996d5859296832',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -319,7 +319,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1c9002434f9500cab8552f1d5225b811c02fd8df',
+            'reference' => '0fd55384b7edb0fc1ccf259c38996d5859296832',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -610,8 +610,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0',
-                1 => '1.0.0 || 2.0.0 || 3.0.0',
+                0 => '1.0.0 || 2.0.0 || 3.0.0',
+                1 => '1.0|2.0',
             ),
         ),
         'psr/simple-cache' => array(
@@ -836,6 +836,15 @@
             'reference' => 'c2dbfc92b851404567160d1ecf3fb7d9b7bde9b0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/http-kernel',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/ldap' => array(
+            'pretty_version' => 'v5.4.45',
+            'version' => '5.4.45.0',
+            'reference' => 'be1474c7e93e5f7a24f5ed2e8c583f46e8094121',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/ldap',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

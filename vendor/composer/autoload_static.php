@@ -92,6 +92,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
             'Symfony\\Component\\PasswordHasher\\' => 33,
             'Symfony\\Component\\OptionsResolver\\' => 34,
             'Symfony\\Component\\Mime\\' => 23,
+            'Symfony\\Component\\Ldap\\' => 23,
             'Symfony\\Component\\HttpKernel\\' => 29,
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Form\\' => 23,
@@ -383,6 +384,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'Symfony\\Component\\Mime\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/mime',
+        ),
+        'Symfony\\Component\\Ldap\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/ldap',
         ),
         'Symfony\\Component\\HttpKernel\\' => 
         array (

@@ -8,6 +8,7 @@ use Doctrine\ORM\Tools\Setup;
 use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use App\Factory\FrontController;
+use Symfony\Component\Ldap\Ldap;
 use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
@@ -497,6 +498,28 @@ foreach ($finder as $file) {
     }
 }
 
+
+/**
+ * LDAP
+ */
+// Enregistrer le service LDAP
+$containerBuilder->register('ldap', Ldap::class)
+    ->setFactory([Ldap::class, 'create'])
+    ->setArguments([[
+        'host'       => '192.168.0.1',   // Votre adresse LDAP
+        'port'       => 389,             // Le port LDAP
+        'encryption' => null,            // 'tls' si vous utilisez TLS, sinon null
+        'options'    => [
+            'protocol_version' => 3,     // Version du protocole LDAP
+            'referrals'        => false, // Désactiver les referrals
+        ],
+    ]])
+    ->setPublic(true);
+
+    $containerBuilder->register(\App\Service\ldap\MyLdapService::class, \App\Service\ldap\MyLdapService::class)
+    ->setAutowired(true)
+    ->setAutoconfigured(true)
+    ->setPublic(true);
 
     // On compile et on retourne le conteneur
 $containerBuilder->compile();

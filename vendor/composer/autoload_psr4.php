@@ -44,6 +44,7 @@ return array(
     'Symfony\\Component\\PasswordHasher\\' => array($vendorDir . '/symfony/password-hasher'),
     'Symfony\\Component\\OptionsResolver\\' => array($vendorDir . '/symfony/options-resolver'),
     'Symfony\\Component\\Mime\\' => array($vendorDir . '/symfony/mime'),
+    'Symfony\\Component\\Ldap\\' => array($vendorDir . '/symfony/ldap'),
     'Symfony\\Component\\HttpKernel\\' => array($vendorDir . '/symfony/http-kernel'),
     'Symfony\\Component\\HttpFoundation\\' => array($vendorDir . '/symfony/http-foundation'),
     'Symfony\\Component\\Form\\' => array($vendorDir . '/symfony/form'),
