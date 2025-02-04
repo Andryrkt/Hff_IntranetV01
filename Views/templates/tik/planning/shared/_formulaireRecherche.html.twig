@@ -11,19 +11,13 @@
 		</h2>
 		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 			<div class="accordion-body">
-				<form name="tik_planning_search" method="post">
+				{{ form_start(formSearch) }}
 					<div class="row">
 						<div class="col-12 col-md-3">
-							<div class="mb-3">
-								<label for="tik_planning_search_demandeur" class="form-label">Demandeur</label>
-								<input type="text" id="tik_planning_search_demandeur" name="tik_planning_search[demandeur]" class="form-control">
-							</div>
+							{{ form_row(formSearch.demandeur) }}
 						</div>
 						<div class="col-12 col-md-3">
-							<div class="mb-3">
-								<label for="tik_planning_search_intervenant" class="form-label">Intervenant</label>
-								<input type="text" id="tik_planning_search_intervenant" name="tik_planning_search[intervenant]" class="form-control">
-							</div>
+							{{ form_row(formSearch.nomIntervenant) }}
 						</div>
 					</div>
 
@@ -33,7 +27,7 @@
 							Recherche
 						</button>
 					</div>
-				</form>
+				{{ form_end(formSearch) }}
 			</div>
 		</div>
 	</div>
