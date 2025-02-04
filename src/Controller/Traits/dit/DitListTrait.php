@@ -584,6 +584,8 @@ trait DitListTrait
                 $value->setEstOrASoumi(false);
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
+            } elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] ==='LST') {
+                $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);
             }

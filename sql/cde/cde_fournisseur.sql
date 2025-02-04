@@ -8,6 +8,7 @@ AND FFOU_SOC = 'HF'
 and FBSE_NOMFOU like '%" . $nomFournisseur . "%' 
 order by FBSE_NOMFOU 
 
+-- REQ liste fournisseur ameliorer avec jointure JOIN
 SELECT  
     FBSE_NUMFOU AS num_fournisseur,
     UPPER(FBSE_NOMFOU) AS nom_fournisseur
@@ -31,7 +32,7 @@ TRIM(ASUC_LIB)||' - '||trim(ATAB_LIB) AS libelle_agence_service,
 FCDE_NUMCDE AS num_cde,
 DATE(FCDE_DATE) AS date_cde,
 TO_CHAR(FCDE_NUMFOU) AS num_fournisseur ,
-FBSE_NOMFOU AS nom_fourniseur,
+FBSE_NOMFOU AS nom_fournisseur,
 FCDE_LIB  AS libelle_cde,
 FCDE_TTC AS prix_cde_ttc,
 FCDE_TTC*FCDE_TXDEV AS prix_cde_ttc_devise,
@@ -61,7 +62,7 @@ TRIM(ASUC_LIB)||' - '||TRIM(ATAB_LIB) AS libelle_agence_service,
 FCDE_NUMCDE AS num_cde,
 DATE(FCDE_DATE) AS date_cde,
 TO_CHAR(FCDE_NUMFOU) AS num_fournisseur,
-FBSE_NOMFOU AS nom_fourniseu,
+FBSE_NOMFOU AS nom_fournisseur,
 FCDE_LIB AS libelle_cde,
 Sum(FCDL_SOLDE*FCDL_PXACH) AS prix_cde_ttc,
 Sum(FCDL_SOLDE*FCDL_PXACH*FCDE_TXDEV) AS prix_cde_ttc_devise,
