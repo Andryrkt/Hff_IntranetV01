@@ -11,8 +11,13 @@
 {% endblock %}
 
 {% block content %}
-	<div id="loading-spinner-overlay" class="d-none">
-		<div class="spinner"></div>
+	<div class="position-sticky sticky-header">
+		<div class="container">
+			<h3 class="perso-titre">
+				Calendrier du planning
+			</h3>
+			{% include "/tik/planning/shared/_formulaireRecherche.html.twig" %}
+		</div>
 	</div>
 	<div class="container">
 		<div id="calendar"></div>

@@ -1,0 +1,40 @@
+{% import "macroForm.html.twig" as macroForm %}
+
+<!-- DEBUT recherche -->
+{% set role_ids = App.user.roleIds %}
+<div class="accordion" id="accordionExample">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+			<div class="accordion-body">
+				<form name="tik_planning_search" method="post">
+					<div class="row">
+						<div class="col-12 col-md-3">
+							<div class="mb-3">
+								<label for="tik_planning_search_demandeur" class="form-label">Demandeur</label>
+								<input type="text" id="tik_planning_search_demandeur" name="tik_planning_search[demandeur]" class="form-control">
+							</div>
+						</div>
+						<div class="col-12 col-md-3">
+							<div class="mb-3">
+								<label for="tik_planning_search_intervenant" class="form-label">Intervenant</label>
+								<input type="text" id="tik_planning_search_intervenant" name="tik_planning_search[intervenant]" class="form-control">
+							</div>
+						</div>
+					</div>
+
+					<div class="d-flex justify-content-end mb-2">
+						<button class="btn btn-warning fw-bold" type="submit">
+							<i class="fab fa-searchengin"></i>
+							Recherche
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

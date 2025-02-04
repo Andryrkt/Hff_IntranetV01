@@ -41,6 +41,7 @@
 .position-sticky.sticky-header {
   z-index: 2;
   background-color: #f8f9fa;
+  top: 0;
 }
 
 .fc a {
