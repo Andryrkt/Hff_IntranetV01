@@ -19,12 +19,11 @@ class CalendarApi extends Controller
         header("Content-type: application/json");
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
-
+            $tab = $this->sessionService->get('tik_planning_search');
             $userId = $this->sessionService->get('user_id');
-            // $user = self::$em->getRepository(User::class)->find($userId);
 
             // Récupération des événements depuis la base de données
-            $events = self::$em->getRepository(TkiPlanning::class)->findAll();
+            $events = self::$em->getRepository(TkiPlanning::class)->findByFilter($tab);
 
             // Transformation des données en tableau JSON
             $eventData = [];
