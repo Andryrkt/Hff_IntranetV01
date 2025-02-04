@@ -42,6 +42,7 @@ class CalendarApi extends Controller
                 $detailDemande      = $event->getDetailDemande();
                 $dateDebutPlanning  = $event->getDateDebutPlanning();
                 $dateFinPlanning    = $event->getDateFinPlanning();
+                $partOfDay          = $demandeSupportInfo->getPartOfDay();
                 $ticket             = $numeroTicket ? true : false;
 
                 $eventData[] = [
@@ -60,6 +61,8 @@ class CalendarApi extends Controller
                         'intervenant'     => $demandeSupportInfo->getNomIntervenant(),
                         'dateCreation'    => $demandeSupportInfo->getDateCreation()->format('d/m/Y'),
                         'dateFinSouhaite' => $demandeSupportInfo->getDateFinSouhaitee()->format('d/m/Y'),
+                        'debutPlanning'   => $partOfDay === 'AM' ? '08:00' : '13:30',
+                        'finPlanning'     => $partOfDay === 'AM' ? '12:00' : '17:30',
                         'categorie'       => $demandeSupportInfo->getCategorie()->getDescription(),
                     ] : [],
                 ];

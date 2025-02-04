@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const dateCreation = document.getElementById('dateCreation');
   const dateFinSouhaite = document.getElementById('dateFinSouhaite');
   const categorie = document.getElementById('categorie');
+  const datePlanification = document.getElementById('datePlanification');
+  const debutPlanning = document.getElementById('debutPlanning');
+  const finPlanning = document.getElementById('finPlanning');
   const linkDetail = document.getElementById('linkDetail');
 
   var calendarEl = document.getElementById('calendar');
@@ -69,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
       eventModal.show();
     },
     eventClick: function (info) {
-      // Afficher le modal
+      // donnée de extendedProps provenant l'API
       const data = info.event.extendedProps;
 
       numeroTicket.innerHTML = data.numeroTicket;
@@ -80,10 +83,15 @@ document.addEventListener('DOMContentLoaded', function () {
       dateCreation.innerHTML = data.dateCreation;
       dateFinSouhaite.innerHTML = data.dateFinSouhaite;
       categorie.innerHTML = data.categorie;
+      datePlanification.innerHTML =
+        info.event.start.toLocaleDateString('fr-FR'); // formater une date en d/m/Y
+      debutPlanning.innerHTML = data.debutPlanning;
+      finPlanning.innerHTML = data.finPlanning;
 
       let id = data.id;
       linkDetail.href = linkDetail.href.replace(/\/[^/]*$/, `/${id}`);
 
+      // Afficher le modal
       eventModal.show();
     },
   });

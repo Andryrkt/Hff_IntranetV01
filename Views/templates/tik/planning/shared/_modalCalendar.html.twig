@@ -3,9 +3,9 @@
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg modal-dialog-centered">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-black text-white">
 				<h5 class="modal-title" id="eventModalLabel">Détail de premier niveau du planning</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<span type="button" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times" style="font-size: x-large;"></i></span>
 			</div>
 			<div class="modal-body">
 				{{ macroForm.sousTitre3('Ticket', { id: '', class: 'sousTitre' })}}
@@ -31,6 +31,18 @@
 						{{ macroForm.sousTitre3('Intervention', { id: '', class: 'mt-4 sousTitre' })}}
 						{{ macroForm.affichage3('Catégorie', 'px-2 py-1', '', 'categorie')}}
 						{{ macroForm.affichage3('Intervenant', 'px-2 py-1', '', 'intervenant')}}
+					</div>
+				</div>
+				{{ macroForm.sousTitre3('Planification', { id: '', class: 'mt-4 sousTitre' })}}
+				<div class="row">
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Date de planification', 'px-2 py-1', '', 'datePlanification') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Début planning', 'px-2 py-1', '', 'debutPlanning') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Fin planning', 'px-2 py-1', '', 'finPlanning') }}
 					</div>
 				</div>
 			</div>
