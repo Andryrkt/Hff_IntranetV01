@@ -52,7 +52,7 @@ class CdefnrSoumisAValidationModel extends Model
                 AND FCDE_NUMFOU = FBSE_NUMFOU
                 AND ATAB_CODE = FCDE_SERV AND ATAB_NOM = 'SER'
                 AND (FCDE_NUMCDE = FCDL_NUMCDE AND FCDE_SOC = FCDL_SOC AND FCDE_SUCC = FCDL_SUCC)
-                AND FCDE_NUMCDE  IN (select FLLF_NUMCDE from FRN_LLF WHERE FLLF_SOC = FCDE_SOC AND FLLF_SUCC = FCDE_SUCC)
+                AND FCDE_NUMCDE NOT IN (select FLLF_NUMCDE from FRN_LLF WHERE FLLF_SOC = FCDE_SOC AND FLLF_SUCC = FCDE_SUCC)
                 --and date(FCDE_DATE) >= dateDebut 
                 --and date(FCDE_DATE) <= dateFin
                 and FCDE_NUMFOU = '".$numFournisseur."'
