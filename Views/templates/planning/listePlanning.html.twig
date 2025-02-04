@@ -10,7 +10,7 @@
 				Liste
 			</h3>
 
-			{% include "/planning/_Listeformulaire.html.twig" %}
+			{% include "/planning/_formulaire.html.twig" %}
 		</div>
 	</div>
 	<div class="container-fluid">
@@ -45,14 +45,65 @@
 
 				</div>
 
-				<div class="d-flex justify-content-between">
-					{# <div>
-						<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div> #}
+				<div
+					class="d-flex justify-content-between">{# <div>
+												<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
+													<i class="fas fa-table"></i>
+													Excel</a>
+											</div> #}
 				</div>
 			</div>
 		</div>
+		<table class="table rounded table-plein-ecran">
+		<thead class="table-dark">
+				<tr>
+					<th>Agence - Service Travaux</th>
+					<th>ID</th>
+					<th>Marque</th>
+					<th>Modèle</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Casier</th>
+					<th>N° OR</th>
+					<th>itv</th>
+					<th>Commentaire</th>
+					<th>Date planning</th>
+					<th>Statut ctrmrq</th>
+					<th>CST</th>
+					<th>Ref</th>
+					<th>Dési</th>
+					<th>Qté cde OR</th>
+					<th>Qté all OR</th>
+					<th>Qté reliq OR</th>
+					<th>Qté liv OR</th>
+					<th>Statut OR</th>
+					<th>Date Statut OR</th>
+					<th>ETA Ivato</th>
+					<th>ETA Magasin</th>
+					<th>Message</th>
+					<th>N° CIS</th>
+					<th>Qté cde CIS</th>
+					<th>Qté all CIS</th>
+					<th>Qté reliq CIS</th>
+					<th>Qté liv CIS</th>
+					<th>Statut CIS</th>
+					<th>Date Statut CIS</th>
+				</tr>
+			</thead>
+			<tbody>
+			 {% for item in data %}
+			 	<tr>
+				<td> {{item.agenceServiceTravaux}}</td>
+				</tr>
+			 {% endfor %}
+			</tbody>
+		</table>
 
+		{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+	{% endblock %}
+	{% block javascript %}
+		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+		<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
+		<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
+		{#<script src="/Hffintranet/Views/js/planning/main.js" type="module"></script>#}
 	{% endblock %}

@@ -117,7 +117,7 @@ class PlanningModel extends Model
       }, $dataUtf8);  
 
    }
-  public function recuperationMaterielplanifier(PlanningSearch $criteria, string $lesOrValides, string $back)
+  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
   {
     if($criteria->getOrBackOrder() == true){
       $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
@@ -348,8 +348,6 @@ public function backOrderPlanning($lesOrValides){
   }
   public function recuperationDetailPieceInformix($numOrIntv,$criteria){
     $vplan = "'".$criteria['plan']."'";
-    
-
    
     if(!empty($criteria['typeligne'])){
         switch($criteria['typeligne']){
@@ -537,6 +535,7 @@ public function backOrderPlanning($lesOrValides){
                 --AND slor_typlig = 'P'
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
+                GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
       ";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);

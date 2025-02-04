@@ -67,7 +67,7 @@ class PlanningApi extends Controller
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'],$details[$i]['intv'],$details[$i]['ref']);
                         $dateLivLig[] = $this->planningModel->dateLivraisonCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
                         $dateAllLig[] = $this->planningModel->dateAllocationCIS($details[$i]['numcis'],$details[$i]['ref'],$details[$i]['cst']);
-                       
+                        $recupGot['ord']= $this->planningModel->recuperationinfodGcot($details[$i]['numerocdecis']);
                     } else {
                         $detailes[]= $this->planningModel->recuperationEtaMag($details[$i]['numerocdecis'], $details[$i]['ref'],$details[$i]['cst']);
                         $recupPariel[] = $this->planningModel->recuperationPartiel($details[$i]['numerocdecis'],$details[$i]['ref']);
@@ -88,7 +88,7 @@ class PlanningApi extends Controller
                     }
                 }
               
-                if(!empty($detailes[0])){
+                if(!empty($detailes[0])) {
                     $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
                     $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin']; 
                         $detailes = [];                 
@@ -106,7 +106,8 @@ class PlanningApi extends Controller
                         $details[$i]['qteSlode'] = "";
                         $details[$i]['qte'] = "";
                     }
-                    
+
+
                     if(!empty($recupGot)){
                         $details[$i]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
                     }else{
