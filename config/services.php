@@ -1,7 +1,9 @@
 <?php
 // config/services.php
 
+use Monolog\Logger;
 use Twig\Environment;
+use Psr\Log\LoggerInterface;
 use Doctrine\ORM\Tools\Setup;
 use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
@@ -10,8 +12,11 @@ use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
+use Monolog\Handler\StreamHandler; 
+use Symfony\Component\Finder\Finder;
 use App\Service\AccessControlService;
 use Symfony\Component\Asset\Packages;
+use App\Controller\AbstractController;
 use App\Service\SessionManagerService;
 use App\Factory\RouteCollectionFactory;
 use Symfony\Component\Asset\PathPackage;
@@ -33,6 +38,8 @@ use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
 use Symfony\Component\Form\FormFactoryBuilderInterface;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
@@ -44,7 +51,7 @@ use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension; 
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
 
 // 1) On instancie le conteneur
 $containerBuilder = new ContainerBuilder();
@@ -132,16 +139,32 @@ $containerBuilder
     ->setPublic(false)
 ;
 
-// 13) FrontController (service public "app.front_controller")
+// 13) Enregistrement du logger (Monolog)
+$containerBuilder->register('logger', Logger::class)
+    ->setArguments(['app'])
+    ->addMethodCall('pushHandler', [new StreamHandler(__DIR__ . '/../var/logs/app.log', Logger::DEBUG)])
+    ->setPublic(true);
+
+// 14) FrontController (service public "app.front_controller")
 $containerBuilder->register('app.front_controller', FrontController::class)
     ->setArguments([
         new Reference('url_matcher'),
         new Reference('controller_resolver'),
         new Reference('argument_resolver'),
+        new Reference('logger'),
     ])
     // On le rend public, car on va le récupérer en mode "entrypoint"
     ->setPublic(true)
 ;
+
+// 15) UrlGenerator
+$containerBuilder->register('routing.url_generator', UrlGenerator::class)
+    ->setArguments([
+        new Reference('route_collection'),
+        new Reference('request_context')
+    ])
+    ->setPublic(true);
+
 
 /**
  * ENTITY MANAGER
@@ -382,6 +405,14 @@ $containerBuilder->getDefinition('twig.loader') // supposez que "twig" soit déj
 /**
  * TWIG FORM FACTORY
  */
+// 1) Enregistrement
+// 1-2) Enregistrement du service "csrf_token_manager"
+$containerBuilder->register('csrf_token_manager', CsrfTokenManager::class)
+->setPublic(true);
+//1-3) Enregistrement du service "validator"
+$containerBuilder->register('validator', \Symfony\Component\Validator\Validator\ValidatorInterface::class)
+->setPublic(true);
+
 // a) Extension CSRF
 $containerBuilder->register('form.extension.csrf', CsrfCsrfExtension::class)
     ->setArguments([
@@ -410,6 +441,7 @@ $containerBuilder->register('form.extension.doctrine_orm', DoctrineOrmExtension:
         new Reference('manager_registry') // Supposez que vous ayez `manager_registry`
     ])
     ->setPublic(false);
+
 
     // Service "form.factory_builder"
 $containerBuilder->register('form.factory_builder', FormFactoryBuilderInterface::class)
@@ -442,8 +474,28 @@ $containerBuilder->register('app.access_control_service', AccessControlService::
     ->setPublic(true); 
     
 
+    /** 
+     * Enregistrer AbstractController dans le conteneur
+     */ 
+// 1️⃣ Enregistrer `AbstractController`
+$containerBuilder->register('abstract_controller', AbstractController::class)
+->setArguments([new Reference('service_container')])
+->setPublic(true);
 
+// 2️⃣ Automatiser l'enregistrement de tous les contrôleurs
+$finder = new Finder();
+$finder->files()->in(dirname(__DIR__) . '/src/Controller')->name('*.php');
 
+foreach ($finder as $file) {
+    $className = 'App\\Controller\\' . $file->getBasename('.php');
+
+    if ($className !== AbstractController::class) {
+        $containerBuilder->register($className, $className)
+            ->setAutowired(true) // Permet l'injection automatique
+            ->setAutoconfigured(true) // Active l'injection des dépendances
+            ->setPublic(true);
+    }
+}
 
 
     // On compile et on retourne le conteneur

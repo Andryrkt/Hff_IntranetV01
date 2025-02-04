@@ -143,6 +143,7 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'M' => 
         array (
             'MyCLabs\\Enum\\' => 13,
+            'Monolog\\' => 8,
             'Matrix\\' => 7,
         ),
         'L' => 
@@ -563,6 +564,10 @@ class ComposerStaticInit394db9ff3e8bed461b3131f49f543b23
         'MyCLabs\\Enum\\' => 
         array (
             0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
+        ),
+        'Monolog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Matrix\\' => 
         array (

@@ -1,0 +1,2 @@
+[2025-02-04T06:41:41.217330+00:00] app.ERROR: Internal server error: Call to a member function render() on null [] []
+[2025-02-04T06:52:41.576106+00:00] app.ERROR: Internal server error: Too few arguments to function App\Controller\ProfilControl::__construct(), 0 passed in C:\wamp64\www\Hffintranet\vendor\symfony\http-kernel\Controller\ControllerResolver.php on line 147 and exactly 1 expected [] []
