@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventModalEl = document.getElementById('eventModal');
   const eventModal = new bootstrap.Modal(eventModalEl);
 
+  const replanificationModal = new bootstrap.Modal('#replanificationModal'); // création de modal avec bootstrap avec l'id de l'élément
+
   // Détail d'un ticket
   const numeroTicket = document.getElementById('numeroTicket');
   const objetDemande = document.getElementById('objetDemande');
@@ -93,6 +95,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Afficher le modal
       eventModal.show();
+    },
+    eventDrop: function (info) {
+      replanificationModal.show();
+      const non = document.getElementById('refuseReplanification');
+      const oui = document.getElementById('confirmReplanification');
+      document
+        .getElementById('replanificationModal')
+        .addEventListener('hidden.bs.modal', function () {
+          info.revert();
+        });
+      non.addEventListener('click', function () {
+        info.revert();
+      });
+      oui.addEventListener('click', function () {
+        spinner.classList.remove('d-none');
+      });
     },
   });
 
