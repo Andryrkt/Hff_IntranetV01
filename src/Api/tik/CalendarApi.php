@@ -43,6 +43,7 @@ class CalendarApi extends Controller
                 $dateDebutPlanning  = $event->getDateDebutPlanning();
                 $dateFinPlanning    = $event->getDateFinPlanning();
                 $partOfDay          = $demandeSupportInfo->getPartOfDay();
+                $intervenantId      = $demandeSupportInfo->getIntervenant()->getId(); // id de l'intervenant affilié au planning
                 $ticket             = $numeroTicket ? true : false;
 
                 $eventData[] = [
@@ -52,6 +53,7 @@ class CalendarApi extends Controller
                     'end'             => $dateFinPlanning->format('Y-m-d H:i:s'),
                     'backgroundColor' => $ticket ? '#fbbb01' : '#3788d8',
                     'classNames'      => $ticket ? 'planning-ticket' : '',
+                    'editable'        => ($ticket && $userId === $intervenantId) ? true : false, // si planning d'un ticket et l'id de l'intervenant === id de l'utilisateur connecté
                     'extendedProps'   => $ticket ? [
                         'numeroTicket'    => $numeroTicket,
                         'objetDemande'    => $objetDemande,
