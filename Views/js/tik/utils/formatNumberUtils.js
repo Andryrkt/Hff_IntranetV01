@@ -7,8 +7,8 @@
  */
 export function formaterNombre(
   nombre,
-  separateurMillier,
-  separateurEntierDecimal
+  separateurMillier = ".",
+  separateurEntierDecimal = ","
 ) {
   // Vérification du type
   if (typeof nombre !== "number") {

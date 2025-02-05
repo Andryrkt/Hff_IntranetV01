@@ -3,6 +3,7 @@
 namespace App\Entity\cde;
 
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CdefnrSoumisAValidationRepository::class)
@@ -23,7 +24,7 @@ class CdefnrSoumisAValidation
     private string $numCdeFournisseur = '';
 
     /**
-     * @ORM\Column(type="string", length=8, name="devise_commande")
+     * @ORM\Column(type="string", length=8, name="code_fournisseur")
      */
     private string $codeFournisseur = '';
 
@@ -33,7 +34,7 @@ class CdefnrSoumisAValidation
     private string $libelleFournisseur = '';
 
     /**
-     * @ORM\Column(type="integer", name="numero_version")
+     * @ORM\Column(type="integer", name="numeroVersion")
      */
     private int $numVersion = 0;
     
@@ -58,9 +59,11 @@ class CdefnrSoumisAValidation
     private  $dateHeureSoumission;
 
     /**
-     * @ORM\Column(type="string", length=50, name="statut)
+     * @ORM\Column(type="string", length=50, name="statut")
      */
     private string $statut = '';
+
+    private $pieceJoint01;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -250,6 +253,26 @@ class CdefnrSoumisAValidation
     public function setStatut($statut)
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint01
+     */ 
+    public function getPieceJoint01()
+    {
+        return $this->pieceJoint01;
+    }
+
+    /**
+     * Set the value of pieceJoint01
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint01($pieceJoint01)
+    {
+        $this->pieceJoint01 = $pieceJoint01;
 
         return $this;
     }
