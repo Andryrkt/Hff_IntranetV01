@@ -27,8 +27,7 @@
 	{% endblock %}
 	</head>
 		<body>
-		<div id="loading-spinner-overlay" class="d-none"> 
-			<div class="spinner-overlay"></div>
+			<div id="loading-spinner-overlay" class="d-none"> <div class="spinner-overlay"></div>
 			<div class="text-overlay text-white">Veuillez patienter s'il vous plaît!</div>
 		</div>
 
@@ -45,6 +44,7 @@
 			{% include "/partials/_footer.html.twig" %}
 		{% endblock %}
 
+		{% include "/shared/_modalNotification.html.twig" %}
 		{% include "/shared/_modalConfirmation.html.twig" %}
 		{% include "/shared/_modalNouveauTicket.html.twig" %}
 
