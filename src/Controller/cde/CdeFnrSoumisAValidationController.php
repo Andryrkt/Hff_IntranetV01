@@ -42,22 +42,27 @@ class CdefnrSoumisAValidationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $cdeFournisseur = $this->ajoutDonnerEntity($data);
-            
-            //Enregistrement du fichier
-            $numFnrCde = $data->getCodeFournisseur().'_'.$data->getNumCdeFournisseur();
-            $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
-            
-            //envoyer le ficher dans docuware
-            $genererPdfCdeFnr = new GenererPdfCdeFnr();
-            $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
 
-            //ajout des données dan sla base de donnée
-            $this->ajoutDonnerDansDb($cdeFournisseur);
-
-            //historisation de l'operation
-            $message = 'La commade fournisseur a été soumis avec succès';
-            $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
+            $blockages = $this->conditionDeBlockage($form, $data);
+            
+            if ($this->blockageSoumissionCdeFnr($blockages, $data)) {
+                $cdeFournisseur = $this->ajoutDonnerEntity($data);
+            
+                //Enregistrement du fichier
+                $numFnrCde = $data->getCodeFournisseur().'_'.$data->getNumCdeFournisseur();
+                $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
+                
+                //envoyer le ficher dans docuware
+                $genererPdfCdeFnr = new GenererPdfCdeFnr();
+                $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
+    
+                //ajout des données dan sla base de donnée
+                $this->ajoutDonnerDansDb($cdeFournisseur);
+    
+                //historisation de l'operation
+                $message = 'La commade fournisseur a été soumis avec succès';
+                $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
+            }
         }
 
         self::$twig->display('cde/cdeFnr.html.twig', [
@@ -66,6 +71,28 @@ class CdefnrSoumisAValidationController extends Controller
         ]);
     }
 
+    private function conditionDeBlockage( FormInterface $form, CdefnrSoumisAValidation $data): array 
+    {
+        $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+
+        return [
+            'numFnrEgale' => strpos($originalName, $data->getCodeFournisseur()) !== false,
+            'numCdeFnrEgale' => strpos($originalName, $data->getNumCdeFournisseur()) !== false,
+        ];
+    }
+
+    private function blockageSoumissionCdeFnr($blockages, $data): bool
+    {
+        if ($blockages['numFnrEgale']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un numero fournisseur ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $data->getCodeFournisseur(), 'profil_acceuil');
+        } elseif ($blockages['numCdeFnrEgale']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un cde fournisseur ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
+        } else {
+            return true;
+        }
+    }
     private function autoIncrement($num)
     {
         if ($num === null) {
@@ -73,7 +100,8 @@ class CdefnrSoumisAValidationController extends Controller
         }
         return $num + 1;
     }
-    private function ajoutDonnerEntity($data)
+
+    private function ajoutDonnerEntity(CdefnrSoumisAValidation $data)
     {
         $numeroVersionMax = $this->cdeFnrRepository->findNumeroVersionMax($data->getNumCdeFournisseur());
         $cdeFournisseur = $this->cdeFnrModel->recupListeInitialCdeFrn($data->getCodeFournisseur(), $data->getNumCdeFournisseur());
