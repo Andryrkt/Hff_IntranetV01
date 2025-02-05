@@ -41,9 +41,9 @@ class MigrationDataModel extends Model
                 NumeroMateriel as ID_Materiel,
                 NULL as mail_demandeur,
                 DateDemande as date_demande,
-                HeureDemande as heure_demande,
-                DateCloture as date_cloture,
-                HeureCloture as heure_cloture,
+                FORMAT(HeureDemande, 'HH:mm') as heure_demande,
+                null as date_cloture,
+                null as heure_cloture,
                 FichierJoint1 as piece_joint1,
                 FichierJoint2 as piece_joint2,
                 FichierJoint3 as piece_joint,
@@ -73,7 +73,7 @@ class MigrationDataModel extends Model
                 KilometrageMachine as KM_machine,
                 HeureMachine as heure_machine,
                 null as date_devis_rattache,
-                null as section_affectee, -- 
+                null as section_affectee, 
                 null as statut_or,
                 null as statut_commande,
                 null as date_validation_or,
@@ -87,14 +87,15 @@ class MigrationDataModel extends Model
                 '1' as migration,
                 null as etat_facturation,
                 '0/0' as ri,
-                null as mail_client
+                null as mail_client,
+                2 as num_migr
                 FROM DemandeIntervention
                 inner join StatutInfo on StatutInfo.IDStatutInfo = DemandeIntervention.IDStatutInfo
                 where CodeSection not in ('ASS','MAG') and InterneExterne='I' and LibelleStatutInfo in ('encours','attente devis','incomplet','devis à approuver')
                 and IDAgence in ('01','02','10','20','30','40','50','60','80','90','91','92')
         ";        
         $result = [];
-        $query = odbc_exec($this->connexion04, $sql);
+        $query = odbc_exec($this->connexion04->getConnexion(), $sql);
         if (!$query) {
             die("Erreur lors de l'exécution de la requête : " . odbc_errormsg($this->connexion));
         }
@@ -125,9 +126,9 @@ class MigrationDataModel extends Model
                     date_validation_or, agence_emetteur_id, service_emetteur_id, 
                     agence_debiteur_id, service_debiteur_id, section_support_1, 
                     section_support_2, section_support_3, migration, etat_facturation, 
-                    ri, mail_client
+                    ri, mail_client, num_migr
                 ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )";
         
         $stmt = odbc_prepare($this->connexion, $sql);

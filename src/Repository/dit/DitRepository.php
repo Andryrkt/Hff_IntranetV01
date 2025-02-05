@@ -557,7 +557,8 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
         return $this->createQueryBuilder('d')
             ->where('d.migration = :migration')
             ->setParameter('migration', 1)
-            ->setMaxResults(3) // Limite à 3 résultats
+            ->andWhere('d.numMigration = :numMigr')
+            ->setParameter('numMigr', 3)
             ->getQuery()
             ->getResult();
     }

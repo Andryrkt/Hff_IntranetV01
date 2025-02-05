@@ -2,11 +2,12 @@
 
 namespace App\Service\migration;
 
+use App\Service\FusionPdf;
 use App\Model\dit\DitModel;
 use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -24,28 +25,79 @@ class MigrationPdfDitService
     }
 
     public function migrationPdfDit($output)
-    {
-        $dits = $this->recupDonnerDit();
-        
-        $total = count($dits);
-        $progressBar = new ProgressBar($output, $total);
-        $progressBar->start();
-        //generation du pdf
-        foreach ($dits as $dit) {
+{
+    // Augmenter temporairement la limite de mémoire
+    ini_set('memory_limit', '1024M');
+
+    $dits = $this->recupDonnerDit();
+    $total = count($dits);
+    $batchSize = 3; // Par exemple, 10 éléments par lot
+
+    // Diviser les dits en lots
+    $batches = array_chunk($dits, $batchSize);
+
+    $progressBar = new ProgressBar($output, $total);
+    $progressBar->start();
+
+    foreach ($batches as $batch) {
+        foreach ($batch as $dit) {
+            // Créer l'objet de génération du PDF
             $ditPdf = new GenererPdfDit();
+
+            // Récupérer les données nécessaires
             $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
+
+            // Génération du PDF et sauvegarde sur disque
             $ditPdf->genererPdfDit($dit, $historiqueMateriel);
-            //envoyer dans DWXCUWARE
-            $ditPdf->copyInterneToDOXCUWARE($dit->getNumeroDemandeIntervention(), str_replace("-", "", $dit->getAgenceServiceEmetteur()));
+            // Supposons que le PDF est sauvegardé sur disque ici
 
-            // Avancer la barre de progression d'une étape
+            // Fusion du PDF et migration (vérifier que cette méthode utilise bien des fichiers temporaires)
+            $this->fusionPdfmigrations($dit);
+
+            // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
+            $ditPdf->copyInterneToDOXCUWARE(
+                $dit->getNumeroDemandeIntervention(),
+                str_replace("-", "", $dit->getAgenceServiceEmetteur())
+            );
+
+            
+            // Avancer la barre de progression
             $progressBar->advance();
-        }
 
-        // Afficher le nombre de résultats
-        $output->writeln("\nNombre de résultats : " . $total);
-        $progressBar->finish();
-        $output->writeln("\nTerminé !");
+            // Libérer la mémoire de l'objet PDF
+            // unset($ditPdf);
+        }
+        // Forcer la collecte des cycles de garbage collection après chaque lot
+        gc_collect_cycles();
+    }
+
+    $output->writeln("\nNombre de résultats : " . $total);
+    $progressBar->finish();
+    $output->writeln("\nTerminé !");
+}
+
+
+
+    private function fusionPdfmigrations($dit)
+    {
+        $fusionPdf = new FusionPdf();
+
+        $mainPdf = 'C:/wamp64/www/Upload/dit/'.$dit->getNumeroDemandeIntervention().'_'. str_replace("-", "", $dit->getAgenceServiceEmetteur()).'.pdf';
+        $files = [$mainPdf];
+        $extension01 = '.' . pathinfo($dit->getPieceJoint01(), PATHINFO_EXTENSION);
+        $extension02 = '.' . pathinfo($dit->getPieceJoint02(), PATHINFO_EXTENSION);
+        $extension03 = '.' . pathinfo($dit->getPieceJoint03(), PATHINFO_EXTENSION);
+        if(!empty($dit->getPieceJoint01()) && $extension01 === '.pdf'){
+            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint01();
+        }
+        if(!empty($dit->getPieceJoint02() && $extension02 === '.pdf')){
+            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint02();
+        }
+        if(!empty($dit->getPieceJoint03()) && $extension03 === '.pdf'){
+            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint03();
+        }
+        $outputFile = 'C:/wamp64/www/Upload/dit/'.$dit->getNumeroDemandeIntervention().'_'. str_replace("-", "", $dit->getAgenceServiceEmetteur()).'.pdf';
+        $fusionPdf->mergePdfs($files, $outputFile);
     }
 
     private function recupDonnerDit(): array

@@ -231,3 +231,7 @@ VALUES (
         '2024-11-04',
         '2024-11-04'
     );
+
+
+ALTER TABLE demande_intervention
+ADD num_migr int
