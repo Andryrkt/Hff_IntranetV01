@@ -213,6 +213,7 @@ class ListeController extends Controller
                             'qtealllig_cis' => $details[$j]['qtealllig'],
                             'qterlqlig_cis' => $details[$j]['qterlqlig'],
                             'qtelivlig_cis' => $details[$j]['qtelivlig'],
+                            'dateStatutCIS' => $details[$j]['DateStatutCIS'] ,
                         ];      
                     }
                 }
