@@ -34,6 +34,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 10 : CDE - Commande
      *  - 11 : DEV - Devis
      *  - 12 : BC - Bon de commande
+     *  - 13 : CDEFNR - Fournisseur
      */
     public function __construct(int $typeDocumentId)
     {

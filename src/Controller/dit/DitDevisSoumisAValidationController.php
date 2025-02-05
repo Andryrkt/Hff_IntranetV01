@@ -538,8 +538,13 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
         $fileUploader = new FileUploaderService($chemin);
-        $prefix = 'devis_ctrl';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, false, $numeroVersion);
+        $options = [
+            'prefix' => 'devis_ctrl',
+            'numeroDoc' => $numDevis,
+            'mergeFiles' => false,
+            'numeroVersion' => $numeroVersion
+        ];
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
         return $fileName;
     }

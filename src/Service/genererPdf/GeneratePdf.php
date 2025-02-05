@@ -84,6 +84,12 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    public function copyToDWCdeFnrSoumis($fileName)
+    {
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'cde_fournisseur/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
     /**
  * Méthode pour ajouter un titre au PDF
  * 

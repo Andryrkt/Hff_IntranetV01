@@ -1,60 +1,89 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dw/dw.css">
+	<link href="/Hffintranet/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="/Hffintranet/Views/css/cde/cdeFnr.css">
 {% endblock %}
 
 {% block content %}
-	<div class="row">
-		<div class="col-12 col-md-6">
-			<div class="container">
-				<table class="table rounded table-plein-ecran table-moitier">
-					<thead class="table-dark">
-						<tr>
-							<th>Numéro fournisseur</th>
-							<th>Nom fournisseur</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for fournisseur in fournisseurs %}
-							<tr class="clickable-row clickable" data-numfnr="{{fournisseur.num_fournisseur}}">
-								<td>{{fournisseur.num_fournisseur}}</td>
-								<td>{{fournisseur.nom_fournisseur}}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-				<h4>Listes des commandes fournisseur non réceptionnées</h4>
-				<table class="table rounded table-plein-ecran table-moitier">
-					<thead class="table-dark">
-						<tr>
-							<th>N° cde</th>
-							<th>Date cde</th>
-							<th>N° Fournisseur</th>
-							<th>Nom fournisseur</th>
-							<th>Libelle cde</th>
-							<th>Prix cde TTC</th>
-							<th>Prix cde TTC & devise</th>
-							<th>Devise cde</th>
-							<th>Type cde</th>
-						</tr>
-					</thead>
-					<tbody
-						id="documents-tbody">
-						<!-- Le contenu sera inséré ici via JS -->
-						<div id="spinner" style="display: none;">
-							<i class="fas fa-spinner fa-spin"></i>
-							Chargement...
-						</div>
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-12 col-md-11">
+						<h3 class="perso-titre">
+							Soumission Commande Fournisseur
+						</h3>
+					</div>
+				</div>
+				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="row">
+					<div class="col-12 col-md-3">
+						{{ form_row(form.codeFournisseur)}}
+						{{ form_errors(form.codeFournisseur)}}
+						<div id="suggestion-num-fournisseur" class="suggestions"></div>
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_row(form.libelleFournisseur)}}
+						{{ form_errors(form.libelleFournisseur)}}
+						<div id="suggestion-nom-fournisseur" class="suggestions"></div>
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_row(form.numCdeFournisseur)}}
+						{{ form_errors(form.numCdeFournisseur)}}
+					</div>
+					<div class="col-12 col-md-3"></div>
+				</div>
 
-					</tbody>
-				</table>
+				<div class="row">
+					<div class="col-12 col-md-3">
+						<p>Veuillez insérer
+							<strong>le commande à valider *</strong>
+						</p>
+					</div>
+				</div>
+				<div class="row">
+
+					<div class="col-12 col-md-3">
+						<div id="dropzone-1" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+							<i class="fa fa-cloud-upload upload-icon"></i>
+							<br>
+
+							Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+							<br>
+							<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un fichier</button>
+						</div>
+						{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
+						{{ form_errors(form.pieceJoint01)}}
+						<!-- Conteneur pour afficher le nom du fichier -->
+						<div class="file-name-1" style="margin-top: 10px;"></div>
+						<div class="file-size" id="file-size-1"></div>
+					</div>
+					<div class="col-12 col-md-9">
+						<div class="row" id="tableau_cde_frn"></div>
+					</div>
+				</div>
+				<div class="row">
+					<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
+						<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+					</div>
+				</div>
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn bouton mt-2 ajout-overlay">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+				</div>
+				{{ form_end(form) }}
+
 			</div>
 		</div>
 	</div>
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/cde/cdeFnrSoumisAValidation.js" type="module"></script>
+	<script type="module" src="/Hffintranet/Views/js/cde/cdeFnrSoumisAValidation.js" type="module"></script>
 {% endblock %}

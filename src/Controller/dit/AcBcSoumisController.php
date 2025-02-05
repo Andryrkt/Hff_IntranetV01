@@ -104,8 +104,14 @@ class AcBcSoumisController extends Controller
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
-        $prefix = 'bc';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numClientBcDevis, true, $numeroVersion, true);
+        $options = [
+            'prefix' => 'bc',
+            'numeroDoc' => $numClientBcDevis,
+            'mergeFiles' => true,
+            'numeroVersion' => $numeroVersion,
+            'mainFirstPage' => true
+        ];
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
         return $fileName;
     }
