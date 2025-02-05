@@ -1,0 +1,32 @@
+<!-- Modal Bootstrap pour la confirmation -->
+<div class="modal fade" id="modalNotification" tabindex="-1" aria-labelledby="modalNotificationLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content shadow-lg border-0">
+			<div class="modal-header bg-light text-dark bordered ps-4">
+				<h5 class="modal-title fw-bold" id="modalNotificationLabel">
+					<i class="fa-solid fa-bell text-primary"></i>
+					Notification
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<div class="modal-body d-flex align-items-center p-4">
+				<i class="fa-solid fa-circle-minus text-secondary fs-3 me-3"></i>
+				<span id="modal-notification-content" class="fs-5"></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Toast Bootstrap (Notification) -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+	<div id="notificationToast" class="toast align-items-center text-bg-light border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body d-flex align-items-center">
+				<i class="fa-solid fa-circle-minus text-secondary fs-4 me-3"></i>
+				<span id="toast-notification-content"></span>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+		</div>
+	</div>
+</div>

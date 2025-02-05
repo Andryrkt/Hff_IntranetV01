@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventModal = new bootstrap.Modal(eventModalEl);
 
   const replanificationModal = new bootstrap.Modal('#replanificationModal'); // création de modal avec bootstrap avec l'id de l'élément
+  const notificationToast = new bootstrap.Toast('#notificationToast'); // création de toast de notification
 
   // Détail d'un ticket
   const numeroTicket = document.getElementById('numeroTicket');
@@ -17,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const debutPlanning = document.getElementById('debutPlanning');
   const finPlanning = document.getElementById('finPlanning');
   const linkDetail = document.getElementById('linkDetail');
+
+  // contenant du texte de la notification
+  const notification = document.getElementById('toast-notification-content');
 
   var calendarEl = document.getElementById('calendar');
   var spinner = document.getElementById('loading-spinner-overlay');
@@ -104,9 +108,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .getElementById('replanificationModal')
         .addEventListener('hidden.bs.modal', function () {
           info.revert();
+          notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
+          notificationToast.show();
         });
       non.addEventListener('click', function () {
         info.revert();
+        notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
+        notificationToast.show();
       });
       oui.addEventListener('click', function () {
         spinner.classList.remove('d-none');
