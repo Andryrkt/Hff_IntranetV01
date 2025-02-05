@@ -58,7 +58,6 @@ class ListeController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getdata();
-            dump($criteria);
         }
 
         /**
@@ -170,7 +169,14 @@ class ListeController extends Controller
                             $details[$j]['qterlqlig'] = "";
                             $details[$j]['qtelivlig'] = "";        
                         }
-                        
+                        if ($details[$j]['qtelivlig'] > 0 &&  $details[$j]['qtealllig']  === 0 && $details[$j]['qterlqlig']) {
+                            $details[$j]['StatutCIS'] = "LIVRE";
+                            $details[$j]['DateStatutCIS'] = $details[$j]['dateLivLIg'];
+                        }elseif( $details[$j]['qtealllig'] > 0){
+                            $details[$j]['StatutCIS'] = "A LIVRER";
+                            $details[$j]['DateStatutCIS'] = $details[$j]['dateAllLIg'];     
+                        }
+
                         $data[$j] = [
                             'agenceServiceTravaux' => $res1[$i]['libsuc'] . ' - ' . $res1[$i]['libserv'],
                             'Id' => $res1[$i]['idmat'],
@@ -179,7 +185,6 @@ class ListeController extends Controller
                             'N_Serie' => $res1[$i]['numserie'],
                             'parc' => $res1[$i]['numparc'],
                             'casier' => $res1[$i]['casier'],
-    
                             'numor' => $details[$j]['numor'],
                             'numcis' => $details[$j]['numcis'],
                             'intv' => $details[$j]['intv'],
@@ -199,15 +204,11 @@ class ListeController extends Controller
                             'message' => $details[$j]['message'],
                             'statut_ctrmq_cis' => $details[$j]['statut_ctrmq_cis'],
                             'numerocdecis' => $details[$j]['numerocdecis'],
-                            
                             'Eta_ivato' => $details[$j]['Eta_ivato'],
                             'Eta_magasin' => $details[$j]['Eta_magasin'],
                             'qteSlode' => $details[$j]['qteSlode'],
                             'qte' => $details[$j]['qte'],
                             'Ord' => $details[$j]['Ord'],
-                            'dateLivLIg' => $details[$j]['dateLivLIg'],
-                            'dateAllLIg' => $details[$j]['dateAllLIg'],
-    
                             'qteORlig_cis' => $details[$j]['qteORlig'],
                             'qtealllig_cis' => $details[$j]['qtealllig'],
                             'qterlqlig_cis' => $details[$j]['qterlqlig'],
