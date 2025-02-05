@@ -22,6 +22,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // contenant du texte de la notification
   const notification = document.getElementById('toast-notification-content');
 
+  // contenant du texte du modal de replanification
+  const dateReplanification = document.getElementById(
+    'date-replanification-content'
+  );
+
   var calendarEl = document.getElementById('calendar');
   var spinner = document.getElementById('loading-spinner-overlay');
   var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -101,7 +106,16 @@ document.addEventListener('DOMContentLoaded', function () {
       eventModal.show();
     },
     eventDrop: function (info) {
+      // texte pour le modal
+      dateReplanification.innerHTML = afficherDateReplanification(
+        info.event.start,
+        info.event.end
+      );
+
+      // afficher modal
       replanificationModal.show();
+
+      // Confirmation
       const non = document.getElementById('refuseReplanification');
       const oui = document.getElementById('confirmReplanification');
       document
@@ -159,3 +173,61 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+/**
+ * Fonction pour afficher la date de replanification du ticket
+ *
+ * @param {Date} dateDebut Date de début pour la replanification
+ * @param {Date} dateFin Date de fin pour la replanification
+ */
+function afficherDateReplanification(dateDebut, dateFin) {
+  if (formatDatePartielDate(dateDebut) === formatDatePartielDate(dateFin)) {
+    return `<strong>${formatDatePartielDate(
+      dateDebut
+    )}</strong>, dans le créneau horaire de <strong>${formatDatePartielHeure(
+      dateDebut
+    )}</strong> à <strong>${formatDatePartielHeure(dateFin)}</strong>`;
+  } else {
+    return `<strong>${formatDateComplet(
+      dateDebut
+    )}</strong> jusqu'au <strong>${formatDateComplet(dateFin)}</strong>`;
+  }
+}
+
+/**
+ * Fonction pour formater une date en d/m/Y H:i
+ *
+ * @param {Date} date Date à formater
+ */
+function formatDateComplet(date) {
+  return date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+/**
+ * Fonction pour formater une date en d/m/Y
+ *
+ * @param {Date} date Date à formater
+ */
+function formatDatePartielDate(date) {
+  return date.toLocaleDateString('fr-FR');
+}
+
+/**
+ * Fonction pour formater une date en H:i
+ *
+ * @param {Date} date Date à formater
+ */
+function formatDatePartielHeure(date) {
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}

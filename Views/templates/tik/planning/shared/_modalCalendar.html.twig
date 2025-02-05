@@ -5,7 +5,9 @@
 		<div class="modal-content">
 			<div class="modal-header bg-black text-white">
 				<h5 class="modal-title" id="eventModalLabel">Détail de premier niveau du planning</h5>
-				<span type="button" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times" style="font-size: x-large;"></i></span>
+				<span type="button" data-bs-dismiss="modal" aria-label="Close">
+					<i class="fas fa-times" style="font-size: x-large;"></i>
+				</span>
 			</div>
 			<div class="modal-body">
 				{{ macroForm.sousTitre3('Ticket', { id: '', class: 'sousTitre' })}}
@@ -60,12 +62,14 @@
 				<h5 class="modal-title" id="replanificationModalLabel">Replanification de ticket</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body fs-7">
-				Êtes-vous sûr de vouloir replanifier ce ticket à cette date ?
+			<div class="modal-body fs-6">
+				Êtes-vous certain(e) de vouloir reprogrammer ce ticket pour le
+				<span id="date-replanification-content" class="fs-6"></span>
+				?
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" id="refuseReplanification" data-bs-dismiss="modal">Non</button>
-				<a type="button" class="btn bouton" id="confirmReplanification">Oui, je confirme</a>
+				<a type="button" class="btn bouton" id="confirmReplanification">Oui</a>
 			</div>
 		</div>
 	</div>
