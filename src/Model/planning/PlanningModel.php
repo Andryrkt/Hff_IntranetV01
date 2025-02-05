@@ -526,7 +526,16 @@ public function backOrderPlanning($lesOrValides){
                       WHEN nlig_natcm = 'C' THEN 'COMMANDE'
                       WHEN nlig_natcm = 'L' THEN 'RECEPTION'
                     END AS Statut_ctrmq_cis,
-                    nlig_numcf as numerocdecis                        
+                    
+                    CASE
+                    WHEN nlig_natcm = 'C' THEN 
+                     nlig_numcf   
+                    WHEN nlig_natcm = 'L'THEN
+                     (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = nlig_numcf
+                          AND fllf_ligne = nlig_noligncm
+                          AND fllf_refp = nlig_refp)
+                    END as numerocdecis   
+                                      
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
