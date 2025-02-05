@@ -548,4 +548,18 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+
+
+    /** MIGRATION */
+    public function findDitMigration()
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.migration = :migration')
+            ->setParameter('migration', 1)
+            ->setMaxResults(3) // Limite à 3 résultats
+            ->getQuery()
+            ->getResult();
+    }
+
 }
