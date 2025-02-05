@@ -98,7 +98,6 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'required' => true,
-              
             ])
         ->add('societtes',
             EntityType::class,
@@ -119,7 +118,6 @@ class UserType extends AbstractType
                 'choice_label' => 'Matricule',
                 'placeholder' => '-- Choisir une matricuel --',
                 'required' => true,
-                
             ])
             ->add('superieurs', 
             EntityType::class, [
