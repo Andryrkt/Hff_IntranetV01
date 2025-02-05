@@ -576,7 +576,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qteall)}</td> 
                         <td>${parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv)}</td> 
-                        <td >${statut}</td> 
+                        <td ></td> 
                         <td>${dateStatut}</td> 
                         <td></td> 
                         <td></td> 
