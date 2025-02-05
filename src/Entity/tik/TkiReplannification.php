@@ -61,6 +61,12 @@ class TkiReplannification
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=TkiPlanning::class, inversedBy="replanificationPlanning")
+     * @ORM\JoinColumn(name="planning_id", referencedColumnName="id")
+     */
+    private $planning;
+
     /**=====================================================================================
      * 
      * GETTERS and SETTERS
@@ -223,6 +229,26 @@ class TkiReplannification
     public function setId($id)
     {
         $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of planning
+     */
+    public function getPlanning()
+    {
+        return $this->planning;
+    }
+
+    /**
+     * Set the value of planning
+     *
+     * @return  self
+     */
+    public function setPlanning($planning)
+    {
+        $this->planning = $planning;
 
         return $this;
     }

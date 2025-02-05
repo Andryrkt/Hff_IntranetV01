@@ -15,6 +15,7 @@ CREATE TABLE TKI_Planning (
 CREATE TABLE TKI_Replannification (
     id INT IDENTITY (1, 1) NOT NULL,
     numero_ticket NVARCHAR (11) NULL, -- Homogénéité des noms de colonnes
+    planning_id INT NULL,
     demande_id INT NULL,
     user_id INT NULL,
     old_date_heure_debut_planning DATETIME2 NOT NULL,
@@ -41,3 +42,7 @@ FOREIGN KEY (demande_id) REFERENCES Demande_Support_Informatique (ID_Demande_Sup
 ALTER TABLE TKI_Replannification
 ADD CONSTRAINT FK_User_Replanification
 FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE TKI_Replannification
+ADD CONSTRAINT FK_Planning_Replanification
+FOREIGN KEY (planning_id) REFERENCES TKI_Planning (id);

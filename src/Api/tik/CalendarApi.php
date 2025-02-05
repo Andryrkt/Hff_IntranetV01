@@ -7,6 +7,7 @@ use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -126,8 +127,59 @@ class CalendarApi extends Controller
          * @var TkiPlanning $planning l'entité de TkiPlanning correspondant à l'id $id
          */
         $planning = self::$em->getRepository(TkiPlanning::class)->find($id);
-        $data['planning'] = $planning->getNumeroTicket();
+
+        $demandeSupportInfo = $planning->getDemandeSupportInfo();
+
+        $this->saveSupportInfo($demandeSupportInfo, $dateDebut);
+        $this->saveReplannification($demandeSupportInfo, $planning, $dateDebut, $dateFin);
+        $this->savePlanning($planning, $dateDebut, $dateFin);
+
+        self::$em->flush();
 
         echo json_encode($data);
+    }
+
+    private function saveSupportInfo(DemandeSupportInformatique $supportInfo, $date)
+    {
+        $oldDateDebut = $supportInfo->getDateDebutPlanning();
+        $oldDateFin = $supportInfo->getDateFinPlanning();
+        $updated = false;
+
+        if ($oldDateDebut > $date) {
+            $supportInfo->setDateDebutPlanning($date);
+            $updated = true;
+        }
+        if ($date < $oldDateFin) {
+            $supportInfo->setDateFinPlanning($date);
+            $updated = true;
+        }
+        if ($updated) {
+            self::$em->persist($supportInfo);
+        }
+    }
+
+    private function savePlanning(TkiPlanning $planning, $dateDebut, $dateFin)
+    {
+        $planning
+            ->setDateDebutPlanning($dateDebut)
+            ->setDateFinPlanning($dateFin)
+        ;
+        self::$em->persist($planning);
+    }
+
+    private function saveReplannification(DemandeSupportInformatique $supportInfo, TkiPlanning $planning, $dateDebut, $dateFin)
+    {
+        $replanification = new TkiReplannification;
+        $replanification
+            ->setNumeroTicket($supportInfo->getNumeroTicket())
+            ->setOldDateDebutPlanning($planning->getDateDebutPlanning())
+            ->setOldDateFinPlanning($planning->getDateFinPlanning())
+            ->setNewDateDebutPlanning($dateDebut)
+            ->setNewDateFinPlanning($dateFin)
+            ->setDemandeSupportInfo($supportInfo)
+            ->setUser($planning->getUser())
+            ->setPlanning($planning)
+        ;
+        self::$em->persist($replanification);
     }
 }
