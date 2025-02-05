@@ -20,6 +20,6 @@ export async function postData(url, data) {
     return await response.json();
   } catch (error) {
     console.error("Erreur lors de l'envoi des données:", error);
-    return null;
+    return [];
   }
 }

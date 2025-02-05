@@ -10,7 +10,8 @@ import { postData } from '../../utils/fetchUtils';
 export async function acceptReplanification(spinner, url, data) {
   try {
     spinner.classList.remove('d-none');
-    return await postData(url, data);
+    const donnees = await postData(url, data);
+    console.log(donnees);
   } catch (error) {
     console.error('Erreur lors de la replanification:', error);
   } finally {

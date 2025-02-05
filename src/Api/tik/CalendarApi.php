@@ -2,6 +2,7 @@
 
 namespace App\Api\tik;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
@@ -19,7 +20,7 @@ class CalendarApi extends Controller
         header("Content-type: application/json");
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
-            $tab = $this->sessionService->get('tik_planning_search');
+            $tab = $this->sessionService->get('tik_planning_search', []);
             $userId = $this->sessionService->get('user_id');
 
             // Récupération des événements depuis la base de données
@@ -107,5 +108,26 @@ class CalendarApi extends Controller
 
         header("HTTP/1.1 405 Method Not Allowed");
         echo json_encode(['error' => 'Méthode non autorisée']);
+    }
+
+    /**  
+     * @Route("/api/tik/data/calendar/{id<\d+>}", name="planning_data")
+     */
+    public function replanifier($id, Request $request)
+    {
+        header("Content-type: application/json");
+        // Récupérer les données JSON envoyées
+        $data = json_decode($request->getContent(), true);
+
+        $dateDebut = new DateTime($data['dateDebut']);
+        $dateFin = new DateTime($data['dateFin']);
+
+        /** 
+         * @var TkiPlanning $planning l'entité de TkiPlanning correspondant à l'id $id
+         */
+        $planning = self::$em->getRepository(TkiPlanning::class)->find($id);
+        $data['planning'] = $planning->getNumeroTicket();
+
+        echo json_encode($data);
     }
 }
