@@ -225,6 +225,11 @@ class DemandeSupportInformatique
     private $planning;
 
     /**
+     * @ORM\OneToOne(targetEntity=TkiReplannification::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
+     */
+    private $replanification;
+
+    /**
      * @ORM\Column(type="string", length=2, nullable=true, name="part_day_planning")
      */
     private ?string $partOfDay;
@@ -941,6 +946,26 @@ class DemandeSupportInformatique
     public function setPartOfDay($partOfDay)
     {
         $this->partOfDay = $partOfDay;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanification
+     */
+    public function getReplanification()
+    {
+        return $this->replanification;
+    }
+
+    /**
+     * Set the value of replanification
+     *
+     * @return  self
+     */
+    public function setReplanification($replanification)
+    {
+        $this->replanification = $replanification;
 
         return $this;
     }

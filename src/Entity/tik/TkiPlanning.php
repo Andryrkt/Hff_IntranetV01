@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use App\Repository\tik\TkiPlanningRepository;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 
 /**
  * @ORM\Entity(repositoryClass=TkiPlanningRepository::class)
@@ -62,6 +63,11 @@ class TkiPlanning
      * 
      */
     private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="planning")
+     */
+    private $replanificationPlanning;
 
     /**=====================================================================================
      * 
@@ -213,6 +219,26 @@ class TkiPlanning
     public function setUser($user)
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationPlanning
+     */
+    public function getReplanificationPlanning()
+    {
+        return $this->replanificationPlanning;
+    }
+
+    /**
+     * Set the value of replanificationPlanning
+     *
+     * @return  self
+     */
+    public function setReplanificationPlanning($replanificationPlanning)
+    {
+        $this->replanificationPlanning = $replanificationPlanning;
 
         return $this;
     }

@@ -18,6 +18,7 @@ use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -156,11 +157,15 @@ class User implements UserInterface
      */
     private $supportInfoValidateur;
 
-
     /**
      * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
      */
     private $tikPlanningUser;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="user")
+     */
+    private $replanificationUser;
 
     /**
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
@@ -764,6 +769,26 @@ class User implements UserInterface
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationUser
+     */
+    public function getReplanificationUser()
+    {
+        return $this->replanificationUser;
+    }
+
+    /**
+     * Set the value of replanificationUser
+     *
+     * @return  self
+     */
+    public function setReplanificationUser($replanificationUser)
+    {
+        $this->replanificationUser = $replanificationUser;
 
         return $this;
     }
