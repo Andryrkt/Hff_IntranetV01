@@ -121,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
       replanificationModal.show();
 
       // Confirmation
-      const non = document.getElementById('refuseReplanification');
       const oui = document.getElementById('confirmReplanification');
       document
         .getElementById('replanificationModal')
@@ -130,11 +129,6 @@ document.addEventListener('DOMContentLoaded', function () {
           notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
           notificationToast.show();
         });
-      non.addEventListener('click', function () {
-        info.revert();
-        notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
-        notificationToast.show();
-      });
       oui.addEventListener('click', function () {
         acceptReplanification(
           spinner,

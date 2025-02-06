@@ -169,7 +169,7 @@ class CalendarApi extends Controller
                 $updated = true;
                 $i++;
             }
-            if ($date < $oldDateFin) {
+            if ($date > $oldDateFin) {
                 $supportInfo->setDateFinPlanning($date);
                 $updated = true;
                 $i++;
