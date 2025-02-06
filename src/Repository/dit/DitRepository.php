@@ -548,4 +548,22 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+
+
+    /** MIGRATION */
+    public function findDitMigration()
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.migration = :migration')
+            ->setParameter('migration', 1)
+            ->andWhere('d.numMigration = :numMigr')
+            ->setParameter('numMigr', 3)
+            ->andWhere('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', 'DIT25010315')
+            ->orderBy('d.numeroDemandeIntervention', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 }

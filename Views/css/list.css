@@ -1,4 +1,19 @@
-
+@media print {
+    * {
+      -webkit-print-color-adjust: exact !important; /* Safari et Chrome */
+      print-color-adjust: exact !important; /* Standard */
+    }
+  
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+  
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+  }
 
 .trois-points-vertical {
     text-decoration: none; 

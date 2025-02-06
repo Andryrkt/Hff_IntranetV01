@@ -87,7 +87,6 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(60, 10, $tab['libmodepaie'], 0, 0);
         $pdf->Cell(60, 10, $tab['mode'], 0, 1);
 
-
         $pdf->SetFont('pdfatimesbi', '', 10);
         $pdf->setY(240);
         $pdf->setX(10);
@@ -104,9 +103,6 @@ class GeneratePdfDom extends GeneratePdf
         //pieds de page 
         $pdf->setY(0);
         $pdf->SetFont('pdfatimesbi', '', 8);
-
-
-
 
         // Positionnement de la deuxième cellule à droite
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');

@@ -7,6 +7,8 @@ require_once dirname(__DIR__) . '/config/dotenv.php';
 
 use Dotenv\Dotenv;
 use App\Command\AncienDitCommand;
+use App\Command\MigrationPdfCommand;
+use App\Command\MigrationDataCommand;
 use Symfony\Component\Console\Application;
 
 //Charger le fichier .env
@@ -15,10 +17,14 @@ use Symfony\Component\Console\Application;
 
 // Instancier la commande avec l'EntityManager
 $command = new AncienDitCommand($entityManager);
+$migrationPdfDit = new MigrationPdfCommand($entityManager);
+$migrationDataDit = new MigrationDataCommand($entityManager);
 
 // Ajouter la commande à l'application Symfony Console
 $application = new Application();
 $application->add($command);
+$application->add($migrationPdfDit);
+$application->add($migrationDataDit);
 
 // Exécuter la commande
 $application->run();
