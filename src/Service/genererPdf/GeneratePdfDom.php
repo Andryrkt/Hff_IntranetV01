@@ -105,9 +105,6 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setY(0);
         $pdf->SetFont('pdfatimesbi', '', 8);
 
-
-
-
         // Positionnement de la deuxième cellule à droite
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
 

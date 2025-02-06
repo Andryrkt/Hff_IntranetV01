@@ -559,7 +559,9 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->setParameter('migration', 1)
             ->andWhere('d.numMigration = :numMigr')
             ->setParameter('numMigr', 3)
-            ->orderBy('d.numeroDemandeIntervention', 'DESC')
+            ->andWhere('d.numeroDemandeIntervention =:numDit')
+            ->setParameter('numDit', 'DIT25010315')
+            // ->orderBy('d.numeroDemandeIntervention', 'ASC')
             ->getQuery()
             ->getResult();
     }
