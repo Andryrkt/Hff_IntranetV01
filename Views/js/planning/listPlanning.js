@@ -330,7 +330,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-
         const tableBody = document.getElementById("technicienTableBody");
 
         tableBody.innerHTML = ""; // Clear previous data
@@ -374,15 +373,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
       })
       .then((data) => {
         console.log(data.avecOnglet);
-        
+
         displayOnglet(data.avecOnglet);
         const Ornum = document.getElementById("orIntv");
         const tableBody = document.getElementById("commandesTableBody");
         const planningTableHead = document.getElementById("planningTableHead");
         const tableBodyOR = document.getElementById("commandesTableBodyOR");
-        const planningTableHeadOR = document.getElementById("planningTableHeadOR");
+        const planningTableHeadOR = document.getElementById(
+          "planningTableHeadOR"
+        );
         const tableBodyLign = document.getElementById("commandesTableBodyLign");
-        const planningTableHeadLign = document.getElementById("planningTableHeadLign");
+        const planningTableHeadLign = document.getElementById(
+          "planningTableHeadLign"
+        );
 
         tableBody.innerHTML = ""; // Clear previous data
         Ornum.innerHTML = "";
@@ -542,22 +545,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
             //onglet CIS
             let statutCIS;
             let dateStatutCIS;
-            
-            
-            if(parseInt(detail.qtelivlig) > 0 && parseInt(detail.qtealllig) === 0 && parseInt(detail.qterlqlig) === 0 ){
-                statutCIS= 'LIVRE';
-                dateStatutCIS = formaterDate(detail.dateLivLIg);
-            } else if(parseInt(detail.qtealllig) > 0){
-              statutCIS = 'A LIVRER'
+
+            if (
+              parseInt(detail.qtelivlig) > 0 &&
+              parseInt(detail.qtealllig) === 0 &&
+              parseInt(detail.qterlqlig) === 0
+            ) {
+              statutCIS = "LIVRE";
+              dateStatutCIS = formaterDate(detail.dateLivLIg);
+            } else if (parseInt(detail.qtealllig) > 0) {
+              statutCIS = "A LIVRER";
               dateStatutCIS = formaterDate(detail.dateAllLIg);
-          } else {
-              statutCIS= detail.statut;
+            } else {
+              statutCIS = detail.statut;
               dateStatutCIS = "";
             }
 
-            
-            
-            
             if (detail.numor && detail.numor.startsWith("5")) {
               // Affichage
               let row = `<tr>
@@ -591,19 +594,34 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
-                        <td>${(isNaN(detail.qteORlig) || detail.qteORlig === "") ? "" : parseInt(detail.qteORlig)}</td> 
-                        <td>${(isNaN(detail.qtealllig) || detail.qtealllig === "") ? "" : parseInt(detail.qtealllig)}</td> 
-                        <td>${(isNaN(detail.qterlqlig)|| detail.qterlqlig === "") ? "" : parseInt(detail.qterlqlig)}</td> 
-                        <td>${(isNaN(detail.qtelivlig )|| detail.qtelivlig === "") ? "" : parseInt(detail.qtelivlig)}</td> 
-                        <td >${(statutCIS ===null)? "" : statutCIS}</td> 
-                        <td>${(dateStatutCIS === null) ? "" : dateStatutCIS}</td> 
+                        <td>${
+                          isNaN(detail.qteORlig) || detail.qteORlig === ""
+                            ? ""
+                            : parseInt(detail.qteORlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtealllig) || detail.qtealllig === ""
+                            ? ""
+                            : parseInt(detail.qtealllig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                            ? ""
+                            : parseInt(detail.qterlqlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                            ? ""
+                            : parseInt(detail.qtelivlig)
+                        }</td> 
+                        <td >${statutCIS === null ? "" : statutCIS}</td> 
+                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
                     </tr>`;
-                  tableBodyLign.innerHTML += row1;
+                tableBodyLign.innerHTML += row1;
               }
-              
             } else {
               // Affichage
               let row = `<tr>
@@ -653,11 +671,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const avecOnglet = document.getElementById("avec_onglet");
     const sansOnglet = document.getElementById("sans_onglet");
     if (show) {
-      avecOnglet.classList.remove('d-none');
-      sansOnglet.classList.add('d-none'); 
+      avecOnglet.classList.remove("d-none");
+      sansOnglet.classList.add("d-none");
     } else {
-      avecOnglet.classList.add('d-none');
-      sansOnglet.classList.remove('d-none');
+      avecOnglet.classList.add("d-none");
+      sansOnglet.classList.remove("d-none");
     }
   }
 
