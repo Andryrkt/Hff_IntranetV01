@@ -376,7 +376,8 @@ public function backOrderPlanning($lesOrValides){
                             slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(sitv_comment) as commentaire,
-                            slor_datel as datePlanning,
+                            --slor_datel as datePlanning,
+                            sitv_datepla as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
@@ -659,7 +660,12 @@ public function recuperationPartiel($numcde, $refp){
     }else{
       $vconditionNumOr = "";
     }
-  
+    if(!empty($criteria->getTypeDocument())){
+      $vconditionTypeDoc = " AND type_document ='".$criteria->getTypeDocument()->getId()."'";
+    }else{
+      $vconditionTypeDoc = "";
+    }
+    
     $niveauUrgence = $criteria->getNiveauUrgence();
     if(!empty($niveauUrgence)){
       $idUrgence = $niveauUrgence->getId();
@@ -670,26 +676,18 @@ public function recuperationPartiel($numcde, $refp){
     }else{
       $nivUrg = "";
     }
-    // if(!empty($criteria->getServiceDebite())){
-    //   $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
-    // } else{
-    //   $serviceDebite = "";
-    // } 
-    // if(!empty($criteria->getAgenceDebite())){
-    //   $agenceDebite = " AND agence_service_debiteur like  %'".substr($criteria->getAgenceDebite(),-6,2). "' % ";
-    // }else{
-    //   $agenceDebite = "";
-    // }
+    
 
-    $statement = "SELECT 
+    $sql = "SELECT 
                   numero_or 
                   FROM demande_intervention
                   WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
+                  $vconditionTypeDoc
                   $vconditionNumOr
                   $nivUrg
                   ";
    
-    $execQueryNumOr = $this->connexion->query($statement);
+    $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
     while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
@@ -699,6 +697,7 @@ public function recuperationPartiel($numcde, $refp){
     return $numOr;
   }
 
+  
   public function recupNumeroItv($numOr, $stringItv)
   {
       $statement = " SELECT  

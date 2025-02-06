@@ -81,7 +81,7 @@ class ListeController extends Controller
             }
             $res1 = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
 
-            for ($i = 0; $i < 3 ; $i++) {
+            for ($i = 0; $i < 1 ; $i++) {
                 $details = $this->planningModel->recuperationDetailPieceInformix($res1[$i]['orintv'], $criteriaTAb);
               
                     for ($j=0; $j < count($details); $j++) { 
@@ -175,45 +175,43 @@ class ListeController extends Controller
                         }elseif( $details[$j]['qtealllig'] > 0){
                             $details[$j]['StatutCIS'] = "A LIVRER";
                             $details[$j]['DateStatutCIS'] = $details[$j]['dateAllLIg'];     
+                        }else{
+                            $details[$j]['StatutCIS'] = "";
+                            $details[$j]['DateStatutCIS'] = ""; 
                         }
 
                         $data[$j] = [
                             'agenceServiceTravaux' => $res1[$i]['libsuc'] . ' - ' . $res1[$i]['libserv'],
-                            'Id' => $res1[$i]['idmat'],
                             'Marque' => $res1[$i]['markmat'],
                             'Modele' => $res1[$i]['typemat'],
+                            'Id' => $res1[$i]['idmat'],
                             'N_Serie' => $res1[$i]['numserie'],
                             'parc' => $res1[$i]['numparc'],
                             'casier' => $res1[$i]['casier'],
-                            'numor' => $details[$j]['numor'],
-                            'numcis' => $details[$j]['numcis'],
-                            'intv' => $details[$j]['intv'],
                             'commentaire' => $details[$j]['commentaire'],
+                            'numor_itv' => $details[$j]['numor'].'-'.$details[$j]['intv'],
                             'dateplanning' => $details[$j]['dateplanning'],
                             'cst' => $details[$j]['cst'],
                             'ref' => $details[$j]['ref'],
                             'desi' => $details[$j]['desi'],
-                            'qtereliquat' => $details[$j]['qtereliquat'],
                             'qteres_or' => $details[$j]['qteres_or'],
-                            'qteliv_or' => $details[$j]['qteliv'],
                             'qteall_or' => $details[$j]['qteall'],
-                            'statut_ctrmq' => $details[$j]['statut_ctrmq'],
-                            'numerocmd' => $details[$j]['numerocmd'],
-                            'statutOR' => $details[$j]['statut'],
-                            'datestatutOR' => $details[$j]['datestatut'],
-                            'message' => $details[$j]['message'],
-                            'statut_ctrmq_cis' => $details[$j]['statut_ctrmq_cis'],
-                            'numerocdecis' => $details[$j]['numerocdecis'],
-                            'Eta_ivato' => $details[$j]['Eta_ivato'],
-                            'Eta_magasin' => $details[$j]['Eta_magasin'],
-                            'qteSlode' => $details[$j]['qteSlode'],
-                            'qte' => $details[$j]['qte'],
-                            'Ord' => $details[$j]['Ord'],
+                            'qtereliquat' => $details[$j]['qtereliquat'],
+                            'qteliv_or' => $details[$j]['qteliv'],
+                            'numcis' => $details[$j]['numcis'].$details[$j]['numerocmd'] ,
+                            'numerocmd' => $details[$j]['numerocdecis'],
+                            'statut_ctrmq' => $details[$j]['statut_ctrmq'] .$details[$j]['statut_ctrmq_cis'],
                             'qteORlig_cis' => $details[$j]['qteORlig'],
                             'qtealllig_cis' => $details[$j]['qtealllig'],
                             'qterlqlig_cis' => $details[$j]['qterlqlig'],
-                            'qtelivlig_cis' => $details[$j]['qtelivlig']
-                            // 'dateStatutCIS' => $details[$j]['DateStatutCIS'] ,
+                            'qtelivlig_cis' => $details[$j]['qtelivlig'],
+                            'statut' => $details[$j]['statut'].$details[$j]['StatutCIS'],
+                            'datestatut' => $details[$j]['datestatut'].$details[$j]['DateStatutCIS'],
+                            'Eta_ivato' => $details[$j]['Eta_ivato'],
+                            'Eta_magasin' => $details[$j]['Eta_magasin'],
+                            'message' => $details[$j]['message'],
+                            'ORD' => $details[$j]['Ord']
+                     
                         ];      
                     }
                 }
