@@ -3,6 +3,7 @@
 namespace App\Api\tik;
 
 use DateTime;
+use Exception;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
@@ -130,56 +131,96 @@ class CalendarApi extends Controller
 
         $demandeSupportInfo = $planning->getDemandeSupportInfo();
 
-        $this->saveSupportInfo($demandeSupportInfo, $dateDebut);
-        $this->saveReplannification($demandeSupportInfo, $planning, $dateDebut, $dateFin);
-        $this->savePlanning($planning, $dateDebut, $dateFin);
+        try {
+            $result = $this->saveSupportInfo($demandeSupportInfo, $dateDebut);
 
-        self::$em->flush();
+            // Vérifier si saveSupportInfo a bien fonctionné
+            if ($result === false) {
+                throw new Exception("Erreur lors de la mise à jour des informations par 'saveSupportInfo()'.");
+            }
 
-        echo json_encode($data);
+            $this->saveReplannification($demandeSupportInfo, $planning, $dateDebut, $dateFin);
+            $this->savePlanning($planning, $dateDebut, $dateFin);
+
+            self::$em->flush();
+
+            echo json_encode([
+                'status' => 'success',
+                'saveSupportInfo' => $result,
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     private function saveSupportInfo(DemandeSupportInformatique $supportInfo, $date)
     {
-        $oldDateDebut = $supportInfo->getDateDebutPlanning();
-        $oldDateFin = $supportInfo->getDateFinPlanning();
-        $updated = false;
+        try {
+            $oldDateDebut = $supportInfo->getDateDebutPlanning();
+            $oldDateFin = $supportInfo->getDateFinPlanning();
+            $updated = false;
+            $i = 0;
 
-        if ($oldDateDebut > $date) {
-            $supportInfo->setDateDebutPlanning($date);
-            $updated = true;
-        }
-        if ($date < $oldDateFin) {
-            $supportInfo->setDateFinPlanning($date);
-            $updated = true;
-        }
-        if ($updated) {
-            self::$em->persist($supportInfo);
+            if ($oldDateDebut > $date) {
+                $supportInfo->setDateDebutPlanning($date);
+                $updated = true;
+                $i++;
+            }
+            if ($date < $oldDateFin) {
+                $supportInfo->setDateFinPlanning($date);
+                $updated = true;
+                $i++;
+            }
+            if ($updated) {
+                self::$em->persist($supportInfo);
+            }
+            return $i; // Retourne le nombre de modifications effectuées
+        } catch (Exception $e) {
+            return false; // En cas d'erreur, retourne false
         }
     }
 
     private function savePlanning(TkiPlanning $planning, $dateDebut, $dateFin)
     {
-        $planning
-            ->setDateDebutPlanning($dateDebut)
-            ->setDateFinPlanning($dateFin)
-        ;
-        self::$em->persist($planning);
+        try {
+            if (!$planning) {
+                throw new Exception("Objet planning invalide.");
+            }
+
+            $planning
+                ->setDateDebutPlanning($dateDebut)
+                ->setDateFinPlanning($dateFin);
+
+            self::$em->persist($planning);
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la sauvegarde du planning: " . $e->getMessage());
+        }
     }
 
     private function saveReplannification(DemandeSupportInformatique $supportInfo, TkiPlanning $planning, $dateDebut, $dateFin)
     {
-        $replanification = new TkiReplannification;
-        $replanification
-            ->setNumeroTicket($supportInfo->getNumeroTicket())
-            ->setOldDateDebutPlanning($planning->getDateDebutPlanning())
-            ->setOldDateFinPlanning($planning->getDateFinPlanning())
-            ->setNewDateDebutPlanning($dateDebut)
-            ->setNewDateFinPlanning($dateFin)
-            ->setDemandeSupportInfo($supportInfo)
-            ->setUser($planning->getUser())
-            ->setPlanning($planning)
-        ;
-        self::$em->persist($replanification);
+        try {
+            if (!$supportInfo || !$planning) {
+                throw new Exception("Informations de support ou planning invalides.");
+            }
+
+            $replanification = new TkiReplannification();
+            $replanification
+                ->setNumeroTicket($supportInfo->getNumeroTicket())
+                ->setOldDateDebutPlanning($planning->getDateDebutPlanning())
+                ->setOldDateFinPlanning($planning->getDateFinPlanning())
+                ->setNewDateDebutPlanning($dateDebut)
+                ->setNewDateFinPlanning($dateFin)
+                ->setDemandeSupportInfo($supportInfo)
+                ->setUser($planning->getUser())
+                ->setPlanning($planning);
+
+            self::$em->persist($replanification);
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la replanification: " . $e->getMessage());
+        }
     }
 }
