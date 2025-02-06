@@ -86,10 +86,16 @@
 					<th>ETA Ivato</th>
 					<th>ETA Magasin</th>
 					<th>Message</th>
+					
 				</tr>
 			</thead>
 			<tbody>
 			 {% for item in data %}
+			  {% if item.ord is same as "ORD" %}
+				{% set classe = 'bg-success text-white'%}
+				{% else %}
+				{% set classe = ''%}
+			  {% endif %}
 			 	<tr>
 				<td> {{item.agenceServiceTravaux}}</td>
 				<td> {{item.Marque}}</td>
@@ -100,28 +106,26 @@
 				<td> {{item.casier}}</td>
 				<td> {{item.commentaire}}</td>
 				<td> {{item.numor_itv}}</td>
-				<td> {{item.dateplanning}}</td>
+				<td > {{item.dateplanning | date("d/m/Y")}}</td>
 				<td> {{item.cst}}</td>
 				<td> {{item.ref}}</td>
 				<td> {{item.desi}}</td>
-				<td> {{item.qteres_or}}</td>
-				<td> {{item.qteall_or}}</td>
-				<td> {{item.qtereliquat}}</td>
-				<td> {{item.qteliv_or}}</td>
+				<td> {{item.qteres_or | number_format(0)}}</td>
+				<td> {{item.qteall_or | number_format(0)}}</td>
+				<td> {{item.qtereliquat | number_format(0)}}</td>
+				<td> {{item.qteliv_or | number_format(0)}}</td>
 				<td> {{item.numcis}}</td>
 				<td> {{item.numerocmd}}</td>
-				<td> {{item.statut_ctrmq}}</td>
-				<td> {{item.qteORlig_cis}}</td>
-				<td> {{item.qtealllig_cis}}</td>
-				<td> {{item.qterlqlig_cis}}</td>
-				<td> {{item.qtelivlig_cis}}</td>
+				<td class = "{{classe}}"> {{item.statut_ctrmq}}</td>
+				<td> {{item.qteORlig_cis | number_format(0)}}</td>
+				<td> {{item.qtealllig_cis | number_format(0)}}</td>
+				<td> {{item.qterlqlig_cis | number_format(0)}}</td>
+				<td> {{item.qtelivlig_cis | number_format(0)}}</td>
 				<td> {{item.statut}}</td>
-				<td> {{item.datestatut}}</td>
+				<td> {{item.datestatut | date("d/m/Y")}}</td>
 				<td> {{item.Eta_ivato}}</td>
 				<td> {{item.Eta_magasin}}</td>
 				<td> {{item.message}}</td>
-				<td> {{item.ORD}}</td>
-				
 				</tr>
 			 {% endfor %}
 			</tbody>

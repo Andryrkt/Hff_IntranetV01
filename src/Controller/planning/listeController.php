@@ -91,6 +91,7 @@ class ListeController extends Controller
                             $qteCis [] = $this->planningModel->recupeQteCISlig($details[$j]['numor'],$details[$j]['intv'],$details[$j]['ref']);
                             $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($details[$j]['numcis'],$details[$j]['ref'],$details[$j]['cst']);
                             $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($details[$j]['numcis'],$details[$j]['ref'],$details[$j]['cst']);
+                            $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($details[$j]['numerocdecis']);
                             }else{
                                 $etatMag[] = $this->planningModel->recuperationEtaMag($details[$j]['numerocdecis'],$details[$j]['ref'],$details[$j]['cst']);
                                 $qteCis [] = $this->planningModel->recupeQteCISlig($details[$j]['numor'],$details[$j]['intv'],$details[$j]['ref']);
@@ -127,9 +128,9 @@ class ListeController extends Controller
                             $details[$j]['qteSlode'] = "";
                             $details[$j]['qte'] = "";
                         }
-                        
-                        if(!empty($recupGot)){
-                            $details[$j]['Ord']= $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
+                    
+                        if(!empty($recupGcot)){
+                            $details[$j]['Ord']= $recupGcot['ord'] === false ? '' : $recupGcot['ord']['Ord'];
                         }else{
                             $details[$j]['Ord'] = "";
                         }
@@ -179,7 +180,11 @@ class ListeController extends Controller
                             $details[$j]['StatutCIS'] = "";
                             $details[$j]['DateStatutCIS'] = ""; 
                         }
-
+                        if ($details[$j]['numcis'] === $details[$j]['numerocmd']) {
+                            $details[$j]['numcde_cis'] = $details[$j]['numcis'];
+                        }else{
+                            $details[$j]['numcde_cis'] = $details[$j]['numcis'];
+                        }
                         $data[$j] = [
                             'agenceServiceTravaux' => $res1[$i]['libsuc'] . ' - ' . $res1[$i]['libserv'],
                             'Marque' => $res1[$i]['markmat'],
@@ -198,7 +203,8 @@ class ListeController extends Controller
                             'qteall_or' => $details[$j]['qteall'],
                             'qtereliquat' => $details[$j]['qtereliquat'],
                             'qteliv_or' => $details[$j]['qteliv'],
-                            'numcis' => $details[$j]['numcis'].$details[$j]['numerocmd'] ,
+                            // 'numcis' => $details[$j]['numcis'].$details[$j]['numerocmd'] ,
+                            'numcis' => $details[$j]['numcde_cis'] ,
                             'numerocmd' => $details[$j]['numerocdecis'],
                             'statut_ctrmq' => $details[$j]['statut_ctrmq'] .$details[$j]['statut_ctrmq_cis'],
                             'qteORlig_cis' => $details[$j]['qteORlig'],
@@ -210,7 +216,7 @@ class ListeController extends Controller
                             'Eta_ivato' => $details[$j]['Eta_ivato'],
                             'Eta_magasin' => $details[$j]['Eta_magasin'],
                             'message' => $details[$j]['message'],
-                            'ORD' => $details[$j]['Ord']
+                            'ord' => $details[$j]['Ord']
                      
                         ];      
                     }
