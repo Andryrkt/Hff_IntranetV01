@@ -376,7 +376,8 @@ public function backOrderPlanning($lesOrValides){
                             slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(sitv_comment) as commentaire,
-                            slor_datel as datePlanning,
+                            --slor_datel as datePlanning,
+                            sitv_datepla as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,
@@ -526,14 +527,16 @@ public function backOrderPlanning($lesOrValides){
                       WHEN nlig_natcm = 'C' THEN 'COMMANDE'
                       WHEN nlig_natcm = 'L' THEN 'RECEPTION'
                     END AS Statut_ctrmq_cis,
+                    
                     CASE
-                      WHEN nlig_natcm = 'C' THEN 
-                      nlig_numcf   
-                      WHEN nlig_natcm = 'L'THEN
-                      (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = nlig_numcf
-                            AND fllf_ligne = nlig_noligncm
-                            AND fllf_refp = nlig_refp)
-                    END as numerocdecis                    
+                    WHEN nlig_natcm = 'C' THEN 
+                     nlig_numcf   
+                    WHEN nlig_natcm = 'L'THEN
+                     (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = nlig_numcf
+                          AND fllf_ligne = nlig_noligncm
+                          AND fllf_refp = nlig_refp)
+                    END as numerocdecis   
+                                      
 
                 FROM sav_lor
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
@@ -657,7 +660,12 @@ public function recuperationPartiel($numcde, $refp){
     }else{
       $vconditionNumOr = "";
     }
-  
+    if(!empty($criteria->getTypeDocument())){
+      $vconditionTypeDoc = " AND type_document ='".$criteria->getTypeDocument()->getId()."'";
+    }else{
+      $vconditionTypeDoc = "";
+    }
+    
     $niveauUrgence = $criteria->getNiveauUrgence();
     if(!empty($niveauUrgence)){
       $idUrgence = $niveauUrgence->getId();
@@ -668,26 +676,18 @@ public function recuperationPartiel($numcde, $refp){
     }else{
       $nivUrg = "";
     }
-    // if(!empty($criteria->getServiceDebite())){
-    //   $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
-    // } else{
-    //   $serviceDebite = "";
-    // } 
-    // if(!empty($criteria->getAgenceDebite())){
-    //   $agenceDebite = " AND agence_service_debiteur like  %'".substr($criteria->getAgenceDebite(),-6,2). "' % ";
-    // }else{
-    //   $agenceDebite = "";
-    // }
+    
 
-    $statement = "SELECT 
+    $sql = "SELECT 
                   numero_or 
                   FROM demande_intervention
                   WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
+                  $vconditionTypeDoc
                   $vconditionNumOr
                   $nivUrg
                   ";
    
-    $execQueryNumOr = $this->connexion->query($statement);
+    $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
     while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
@@ -697,6 +697,7 @@ public function recuperationPartiel($numcde, $refp){
     return $numOr;
   }
 
+  
   public function recupNumeroItv($numOr, $stringItv)
   {
       $statement = " SELECT  

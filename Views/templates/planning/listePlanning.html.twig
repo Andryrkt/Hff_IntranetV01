@@ -57,18 +57,16 @@
 		<table class="table rounded table-plein-ecran">
 		<thead class="table-dark">
 				<tr>
-					<th>Agence - Service Travaux</th>
-					<th>ID</th>
+					<th>Agence - Service</th>
 					<th>Marque</th>
 					<th>Modèle</th>
+					<th>ID</th>
 					<th>N° Série</th>
 					<th>N° Parc</th>
 					<th>Casier</th>
-					<th>N° OR</th>
-					<th>itv</th>
-					<th>Commentaire</th>
+					<th>Intitulé travaux (commentaire)</th>
+					<th>N° OR-Itv</th>
 					<th>Date planning</th>
-					<th>Statut ctrmrq</th>
 					<th>CST</th>
 					<th>Ref</th>
 					<th>Dési</th>
@@ -76,24 +74,58 @@
 					<th>Qté all OR</th>
 					<th>Qté reliq OR</th>
 					<th>Qté liv OR</th>
-					<th>Statut OR</th>
-					<th>Date Statut OR</th>
+					<th>Ctr Marque (num CIS)</th>
+					<th>Cde frn</th>
+					<th>Statut ctrmrq(recp/cmd=>CIS OR)</th>
+					<th>Qté CIS</th>
+					<th>Qté all</th>
+					<th>Qté rel</th>
+					<th>Qté liv</th>
+					<th>Statut</th>
+					<th>Date statut</th>
 					<th>ETA Ivato</th>
 					<th>ETA Magasin</th>
 					<th>Message</th>
-					<th>N° CIS</th>
-					<th>Qté cde CIS</th>
-					<th>Qté all CIS</th>
-					<th>Qté reliq CIS</th>
-					<th>Qté liv CIS</th>
-					<th>Statut CIS</th>
-					<th>Date Statut CIS</th>
+					
 				</tr>
 			</thead>
 			<tbody>
 			 {% for item in data %}
+			  {% if item.ord is same as "ORD" %}
+				{% set classe = 'bg-success text-white'%}
+				{% else %}
+				{% set classe = ''%}
+			  {% endif %}
 			 	<tr>
 				<td> {{item.agenceServiceTravaux}}</td>
+				<td> {{item.Marque}}</td>
+				<td> {{item.Modele}}</td>
+				<td> {{item.Id}}</td>
+				<td> {{item.N_Serie}}</td>
+				<td> {{item.parc}}</td>
+				<td> {{item.casier}}</td>
+				<td> {{item.commentaire}}</td>
+				<td> {{item.numor_itv}}</td>
+				<td > {{item.dateplanning | date("d/m/Y")}}</td>
+				<td> {{item.cst}}</td>
+				<td> {{item.ref}}</td>
+				<td> {{item.desi}}</td>
+				<td> {{item.qteres_or | number_format(0)}}</td>
+				<td> {{item.qteall_or | number_format(0)}}</td>
+				<td> {{item.qtereliquat | number_format(0)}}</td>
+				<td> {{item.qteliv_or | number_format(0)}}</td>
+				<td> {{item.numcis}}</td>
+				<td> {{item.numerocmd}}</td>
+				<td class = "{{classe}}"> {{item.statut_ctrmq}}</td>
+				<td> {{item.qteORlig_cis | number_format(0)}}</td>
+				<td> {{item.qtealllig_cis | number_format(0)}}</td>
+				<td> {{item.qterlqlig_cis | number_format(0)}}</td>
+				<td> {{item.qtelivlig_cis | number_format(0)}}</td>
+				<td> {{item.statut}}</td>
+				<td> {{item.datestatut | date("d/m/Y")}}</td>
+				<td> {{item.Eta_ivato}}</td>
+				<td> {{item.Eta_magasin}}</td>
+				<td> {{item.message}}</td>
 				</tr>
 			 {% endfor %}
 			</tbody>

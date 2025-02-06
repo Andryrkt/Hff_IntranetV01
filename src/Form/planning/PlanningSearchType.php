@@ -11,11 +11,13 @@ use Symfony\Component\Form\FormEvents;
 use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
+use App\Entity\admin\dit\WorTypeDocument;
 use setasign\Fpdi\PdfParser\Filter\Flate;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -204,7 +206,20 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- Choisir un service--",
                     'expanded' => true,
                 ])
-                
+                ->add('typeDocument', 
+                EntityType::class, [
+                    'label' => 'Type de document ',
+                    'placeholder' => '-- Choisir--',
+                    'class' => WorTypeDocument::class,
+                    'choice_label' => 'description',
+                    'required' => false,
+                    'query_builder' => function (WorTypeDocumentRepository $repository) {
+                        return $repository->createQueryBuilder('w')
+                            ->where('w.id >= :id')
+                            ->setParameter('id', 5)
+                            ->orderBy('w.description', 'ASC');
+                    }
+                ])
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
                     $data = $event->getData();
