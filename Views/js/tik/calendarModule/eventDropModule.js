@@ -12,9 +12,21 @@ export async function acceptReplanification(spinner, url, data) {
   try {
     spinner.classList.remove('d-none');
     const donnees = await postData(url, data);
+    if (donnees.status === 'success') {
+      afficherToast(
+        'success',
+        `<strong>Opération effectuée.</strong> La <strong>replanification</strong> du ticket a été effectuée avec succès.`
+      );
+    } else {
+      afficherToast(
+        'erreur',
+        `<strong>Opération rejetée.</strong> Erreur lors de la demande de <strong>replanification</strong>.`
+      );
+      throw new Error(donnees.message);
+    }
     console.log(donnees);
   } catch (error) {
-    console.error('Erreur lors de la replanification:', error);
+    console.error('Erreur lors de la replanification:', error.message);
   } finally {
     spinner.classList.add('d-none');
   }

@@ -1,4 +1,8 @@
-import { acceptReplanification } from './calendarModule/eventDropModule';
+import {
+  acceptReplanification,
+  declineReplanification,
+} from './calendarModule/eventDropModule';
+
 import {
   afficherDateReplanification,
   formatDatePartielDate,
@@ -9,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventModal = new bootstrap.Modal(eventModalEl);
 
   const replanificationModal = new bootstrap.Modal('#replanificationModal'); // création de modal avec bootstrap avec l'id de l'élément
-  const notificationToast = new bootstrap.Toast('#notificationToast'); // création de toast de notification
 
   // Détail d'un ticket
   const numeroTicket = document.getElementById('numeroTicket');
@@ -24,9 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const debutPlanning = document.getElementById('debutPlanning');
   const finPlanning = document.getElementById('finPlanning');
   const linkDetail = document.getElementById('linkDetail');
-
-  // contenant du texte de la notification
-  const notification = document.getElementById('toast-notification-content');
 
   // contenant du texte du modal de replanification
   const dateReplanification = document.getElementById(
@@ -128,12 +128,18 @@ document.addEventListener('DOMContentLoaded', function () {
       // Confirmation
       const oui = document.getElementById('confirmReplanification');
 
-      replanificationModal.addEventListener('hidden.bs.modal', function () {
-        info.revert();
-        notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
-        notificationToast.show();
-      });
+      function onModalHidden() {
+        declineReplanification(info);
+      }
+
+      replanificationModalEl.addEventListener('hidden.bs.modal', onModalHidden);
+
       oui.addEventListener('click', function () {
+        replanificationModalEl.removeEventListener(
+          'hidden.bs.modal',
+          onModalHidden
+        );
+        replanificationModal.hide();
         acceptReplanification(
           spinner,
           `/Hffintranet/api/tik/data/calendar/${info.event.id}`,
