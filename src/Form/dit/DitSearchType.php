@@ -65,6 +65,7 @@ class DitSearchType extends AbstractType
         $sectionAffecte = $this->ditSearchRepository->findSectionAffectee();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
+        dd($sectionAffectee);
         return array_combine($sectionAffectee, $sectionAffectee);
    }
 
