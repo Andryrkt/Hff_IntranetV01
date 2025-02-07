@@ -83,10 +83,10 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function blockageSoumissionCdeFnr($blockages, $data): bool
     {
-        if ($blockages['numFnrEgale']) {
+        if (!$blockages['numFnrEgale']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un numero fournisseur ";
             $this->historiqueOperation->sendNotificationSoumission($message, $data->getCodeFournisseur(), 'profil_acceuil');
-        } elseif ($blockages['numCdeFnrEgale']) {
+        } elseif (!$blockages['numCdeFnrEgale']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un cde fournisseur ";
             $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
         } else {
