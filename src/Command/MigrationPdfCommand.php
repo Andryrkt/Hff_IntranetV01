@@ -24,7 +24,7 @@ class MigrationPdfCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Migration des pdfs.')
+            ->setDescription('Migration des pdfs. voici la ligne de commande pour faire fonctionner : "php -d memory_limit=1024M bin/console app:migration-pdf"')
             ->setHelp('Cette commande vous permet de migrer les pdfs dit...');
     }
 

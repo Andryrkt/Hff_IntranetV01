@@ -30,6 +30,7 @@ class MigrationPdfDitService
     ini_set('memory_limit', '1024M');
 
     $dits = $this->recupDonnerDit();
+    
     $total = count($dits);
     $batchSize = 3; // Par exemple, 10 éléments par lot
 
@@ -41,6 +42,7 @@ class MigrationPdfDitService
 
     foreach ($batches as $batch) {
         foreach ($batch as $dit) {
+
             // Créer l'objet de génération du PDF
             $ditPdf = new GenererPdfDit();
 
@@ -60,7 +62,7 @@ class MigrationPdfDitService
                 str_replace("-", "", $dit->getAgenceServiceEmetteur())
             );
 
-            
+
             // Avancer la barre de progression
             $progressBar->advance();
 
@@ -104,32 +106,33 @@ class MigrationPdfDitService
     {
         $dits = $this->ditRepository->findDitMigration();
         
+        
         foreach ($dits as $dit) {
             if(!empty($dit->getIdMateriel())){
                 $data = $this->ditModel->findAll($dit->getIdMateriel());
                 if (empty($data)) {
                     echo "Aucune donnée trouvée pour le matériel ayant pour id : " . $dit->getIdMateriel();
-                    die();
                 } else {
-                //Caractéristiques du matériel
-                $dit->setNumParc($data[0]['num_parc']);
-                $dit->setNumSerie($data[0]['num_serie']);
-                $dit->setIdMateriel($data[0]['num_matricule']);
-                $dit->setConstructeur($data[0]['constructeur']);
-                $dit->setModele($data[0]['modele']);
-                $dit->setDesignation($data[0]['designation']);
-                $dit->setCasier($data[0]['casier_emetteur']);
-                $dit->setLivraisonPartiel($dit->getLivraisonPartiel());
-                //Bilan financière
-                $dit->setCoutAcquisition($data[0]['prix_achat']);
-                $dit->setAmortissement($data[0]['amortissement']);
-                $dit->setChiffreAffaire($data[0]['chiffreaffaires']);
-                $dit->setChargeEntretient($data[0]['chargeentretien']);
-                $dit->setChargeLocative($data[0]['chargelocative']);
-                //Etat machine
-                $dit->setKm($data[0]['km']);
-                $dit->setHeure($data[0]['heure']);
+                    //Caractéristiques du matériel
+                    $dit->setNumParc($data[0]['num_parc']);
+                    $dit->setNumSerie($data[0]['num_serie']);
+                    $dit->setIdMateriel($data[0]['num_matricule']);
+                    $dit->setConstructeur($data[0]['constructeur']);
+                    $dit->setModele($data[0]['modele']);
+                    $dit->setDesignation($data[0]['designation']);
+                    $dit->setCasier($data[0]['casier_emetteur']);
+                    $dit->setLivraisonPartiel($dit->getLivraisonPartiel());
+                    //Bilan financière
+                    $dit->setCoutAcquisition($data[0]['prix_achat']);
+                    $dit->setAmortissement($data[0]['amortissement']);
+                    $dit->setChiffreAffaire($data[0]['chiffreaffaires']);
+                    $dit->setChargeEntretient($data[0]['chargeentretien']);
+                    $dit->setChargeLocative($data[0]['chargelocative']);
+                    //Etat machine
+                    $dit->setKm($data[0]['km']);
+                    $dit->setHeure($data[0]['heure']);
                 }
+                
             }
         }
         return $dits;
