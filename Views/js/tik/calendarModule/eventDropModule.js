@@ -1,4 +1,5 @@
 import { postData } from '../../utils/fetchUtils';
+import { afficherToast } from '../../utils/toastUtils';
 
 /**
  * Fonction pour gérer le cas où la replanification est acceptée
@@ -17,4 +18,15 @@ export async function acceptReplanification(spinner, url, data) {
   } finally {
     spinner.classList.add('d-none');
   }
+}
+
+/**
+ * Fonction pour gérer le cas où la replanification est refuséé
+ */
+export function declineReplanification(info) {
+  info.revert();
+  afficherToast(
+    'annulation',
+    `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`
+  );
 }

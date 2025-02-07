@@ -117,18 +117,22 @@ document.addEventListener('DOMContentLoaded', function () {
         info.event.end
       );
 
+      // élement HTML du modal
+      const replanificationModalEl = document.getElementById(
+        'replanificationModal'
+      );
+
       // afficher modal
       replanificationModal.show();
 
       // Confirmation
       const oui = document.getElementById('confirmReplanification');
-      document
-        .getElementById('replanificationModal')
-        .addEventListener('hidden.bs.modal', function () {
-          info.revert();
-          notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
-          notificationToast.show();
-        });
+
+      replanificationModal.addEventListener('hidden.bs.modal', function () {
+        info.revert();
+        notification.innerHTML = `<strong>Annulation effectuée.</strong> La demande de <strong>replanification</strong> a bien été annulée.`;
+        notificationToast.show();
+      });
       oui.addEventListener('click', function () {
         acceptReplanification(
           spinner,
