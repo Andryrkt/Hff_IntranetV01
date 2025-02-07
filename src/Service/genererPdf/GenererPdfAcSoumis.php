@@ -36,6 +36,8 @@ class GenererPdfAcSoumis extends GeneratePdf
         $pdf->Image($logoPath, 29, 10, 40, '', 'jpg');
         // Contenu HTML avec texte justifié
      // Ajouter un tableau avec deux colonnes pour l'en-tête
+     $email = $acSoumis->getEmailContactHff() ?: '<span style="color: red;">L\'adresse email est introuvable</span>';
+     $telephone = $acSoumis->getTelephoneContactHff() ?: '<span style="color: red;">Le numéro de téléphone est introuvable</span>';
         $html = '
         <style>
             table {
@@ -94,7 +96,7 @@ class GenererPdfAcSoumis extends GeneratePdf
             Devis : '.$acSoumis->getNumeroDevis().' ('.$acSoumis->getNumeroDit().') du '.$acSoumis->getDateDevis()->format('d/m/Y').'<br>
             Montant HT : '.$this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.',2).' '.$acSoumis->getDevise().'. <br><br>
             Nous confirmons que votre commande a été enregistrée.<br><br>
-            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à '.$acSoumis->getEmailContactHff().' ou par téléphone au '.$acSoumis->getTelephoneContactHff().'.<br><br>
+            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à '.$email.' ou par téléphone au '.$telephone.'.<br><br>
             Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br/><br>
             Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br>
         </p>

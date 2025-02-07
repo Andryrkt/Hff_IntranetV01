@@ -120,20 +120,22 @@ class AcSoumisType extends AbstractType
                     'disabled' => true
                 ]
             ])
-            ->add('emailContactHff', TextType::class,
+            ->add('emailContactHff', TextareaType::class,
             [
                 'label' => 'Adresse email contact HFF',
-                'data' => $options['data']->getEmailContactHff(),
+                'data' => $options['data']->getEmailContactHff()?: 'L\'adresse email du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => true,
+                    'class' => $options['data']->getEmailContactHff() ? '' : 'text-danger'
                 ]
             ])
-            ->add('telephoneContactHff', TextType::class,
+            ->add('telephoneContactHff', TextareaType::class,
             [
                 'label' => 'N° téléphone contact HFF',
-                'data' => $options['data']->getTelephoneContactHff(),
+                'data' => $options['data']->getTelephoneContactHff()?: 'Le téléphone du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => true,
+                    'class' => $options['data']->getTelephoneContactHff() ? '' : 'text-danger'
                 ]
             ])
         ;

@@ -63,6 +63,11 @@ class AcBcSoumisController extends Controller
         
         $acSoumis = $this->initialisation($devis, $numDit);
         
+        if(empty($acSoumis->getEmailContactHff()) || empty($acSoumis->getTelephoneContactHff())) {
+            $message = 'Erreur lors de la soumission, Impossible de soumettre le BC . . . l\'adresse email ou le numéro de téléphone du chef atelier est introuvable';
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        }
+
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
         $form->handleRequest($request);
@@ -72,23 +77,23 @@ class AcBcSoumisController extends Controller
             $blockage = $this->ConditionDeBlockage($devis, $data);
             if($this->blockageSoumission($blockage)) {
                 $acSoumis = $this->initialisation($devis, $numDit);
-            $numBc = $acSoumis->getNumeroBc();
-            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
-            $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
-            
-            /** CREATION , FUSION, ENVOIE DW du PDF */
-            $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $numClientBcDevis = $this->ditRepository->findNumClient($numDit).'_'.$numBc.'_'.$acSoumis->getNumeroDevis();
-            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis);
-            $fileName= $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
-            $this->genererPdfAc->copyToDWAcSoumis($fileName);// copier le fichier dans docuware
-            
-            /** Envoie des information du bc dans le table bc_soumis */
-            $bcSoumis->setNomFichier($fileName);
-            $this->envoieBcDansBd($bcSoumis);
+                $numBc = $acSoumis->getNumeroBc();
+                $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
+                $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
+                
+                /** CREATION , FUSION, ENVOIE DW du PDF */
+                $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
+                $numClientBcDevis = $this->ditRepository->findNumClient($numDit).'_'.$numBc.'_'.$acSoumis->getNumeroDevis();
+                $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis);
+                $fileName= $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
+                $this->genererPdfAc->copyToDWAcSoumis($fileName);// copier le fichier dans docuware
+                
+                /** Envoie des information du bc dans le table bc_soumis */
+                $bcSoumis->setNomFichier($fileName);
+                $this->envoieBcDansBd($bcSoumis);
 
-            $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
-            $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
+                $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
+                $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
             }
             
         }
@@ -187,14 +192,22 @@ class AcBcSoumisController extends Controller
         return $this->acSoumis;
     }
 
-    private function telephoneHff(array $atelier)
+    private function telephoneHff(array $atelier): string
     {
-        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el) => $el->getTelephone(), $atelier), '');
+        // if (empty($atelier)) {
+        //     return 'Le téléphone du chef atelier <realisé_par> est introuvable';
+        // }
+
+        return TableauEnStringService::TableauEnString(PHP_EOL, array_map(fn($el) => '- ' .$el->getTelephone(), $atelier), '') ;
     }
 
-    private function emailHff(array $atelier)
+    private function emailHff(array $atelier): string
     {
-        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el)=> $el->getEmailString(), $atelier), '');
+        // if (empty($atelier)) {
+        //     return 'L\'adresse mail du chef atelier <realisé_par> est introuvable';
+        // }
+
+        return TableauEnStringService::TableauEnString(PHP_EOL, array_map(fn($el)=> '- ' .$el->getEmailString(), $atelier), '');
     }
 
     /**
