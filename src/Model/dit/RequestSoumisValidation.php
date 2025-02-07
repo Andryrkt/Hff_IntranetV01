@@ -152,49 +152,49 @@ class RequestSoumisValidation
     }
 
 /** FORFAIT */
-    public static function getConditionsForfait(array $condition)
-    {
-        return "
-            seor_numor = slor_numor
-            AND seor_serv = 'DEV'
-            AND sitv_numor = slor_numor
-            AND sitv_interv = slor_nogrp / 100
-            AND seor_soc = 'HF'
-            AND slor_soc = seor_soc
-            AND sitv_soc = seor_soc
-            AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
-            AND seor_numor = '{$condition['numDevis']}'
-            AND slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE' --ajout de ceci pour le forfait
-        ";
-    }
+    // public static function getConditionsForfait(array $condition)
+    // {
+    //     return "
+    //         seor_numor = slor_numor
+    //         AND seor_serv = 'DEV'
+    //         AND sitv_numor = slor_numor
+    //         AND sitv_interv = slor_nogrp / 100
+    //         AND seor_soc = 'HF'
+    //         AND slor_soc = seor_soc
+    //         AND sitv_soc = seor_soc
+    //         AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
+    //         AND seor_numor = '{$condition['numDevis']}'
+    //         AND slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE' --ajout de ceci pour le forfait
+    //     ";
+    // }
 
-    public static function buildQueryForfait(array $condition)
-    {
-        $selectColumns = [
-            "sitv_succdeb as SERV_DEBITEUR",
-            "slor_numor",
-            "sitv_datdeb",
-            "trim(seor_refdem) as NUMERO_DIT",
-            "sitv_interv as NUMERO_ITV",
-            "trim(sitv_comment) as LIBELLE_ITV",
-            "trim(sitv_natop) as NATURE_OPERATION",
-            "count(slor_constp) as NOMBRE_LIGNE",
-            self::getMontantITV(),
-            self::getMontantPiece(),
-            self::getMontantMo(),
-            self::getMontantAchatLocaux(),
-            self::getMontantFraisDivers(),
-            self::getMontantLubrifiants(),
-            self::getMontantForfait()
-        ];
+    // public static function buildQueryForfait(array $condition)
+    // {
+    //     $selectColumns = [
+    //         "sitv_succdeb as SERV_DEBITEUR",
+    //         "slor_numor",
+    //         "sitv_datdeb",
+    //         "trim(seor_refdem) as NUMERO_DIT",
+    //         "sitv_interv as NUMERO_ITV",
+    //         "trim(sitv_comment) as LIBELLE_ITV",
+    //         "trim(sitv_natop) as NATURE_OPERATION",
+    //         "count(slor_constp) as NOMBRE_LIGNE",
+    //         self::getMontantITV(),
+    //         self::getMontantPiece(),
+    //         self::getMontantMo(),
+    //         self::getMontantAchatLocaux(),
+    //         self::getMontantFraisDivers(),
+    //         self::getMontantLubrifiants(),
+    //         self::getMontantForfait()
+    //     ];
 
-        $query = "SELECT " . implode(", ", $selectColumns) . " 
-                    FROM sav_eor, sav_lor, sav_itv
-                    WHERE " . self::getConditionsForfait($condition) . " 
-                    GROUP BY 1, 2, 3, 4, 5, 6, 7
-                    ORDER BY slor_numor, sitv_interv";
+    //     $query = "SELECT " . implode(", ", $selectColumns) . " 
+    //                 FROM sav_eor, sav_lor, sav_itv
+    //                 WHERE " . self::getConditionsForfait($condition) . " 
+    //                 GROUP BY 1, 2, 3, 4, 5, 6, 7
+    //                 ORDER BY slor_numor, sitv_interv";
 
-        return $query;
-    }
+    //     return $query;
+    // }
 
 }

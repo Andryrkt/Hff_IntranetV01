@@ -98,50 +98,50 @@ class DitDevisSoumisAValidationModel extends Model
     }
 
 
-    /**
-     * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
-     *
-     * @param string $numDevis
-     * @param boolean $estCeForfait
-     * @return void
-     */
-    public function recupDevisSoumisValidationForfait(string $numDevis)
-    {
-        $condition = [
-            'numDevis' => $numDevis
-        ];
+    // /**
+    //  * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
+    //  *
+    //  * @param string $numDevis
+    //  * @param boolean $estCeForfait
+    //  * @return void
+    //  */
+    // public function recupDevisSoumisValidationForfait(string $numDevis)
+    // {
+    //     $condition = [
+    //         'numDevis' => $numDevis
+    //     ];
         
-        $statement = RequestSoumisValidation::buildQueryForfait($condition);
+    //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
-        $result = $this->connect->executeQuery($statement);
+    //     $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    //     $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    //     return $this->convertirEnUtf8($data);
+    // }
 
 
-    /**
-     * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
-     *
-     * @param string $numDevis
-     * @param boolean $estCeForfait
-     * @return void
-     */
-    public function recupDevisSoumisValidationVte(string $numDevis)
-    {
-        $condition = [
-            'numDevis' => $numDevis
-        ];
+    // /**
+    //  * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
+    //  *
+    //  * @param string $numDevis
+    //  * @param boolean $estCeForfait
+    //  * @return void
+    //  */
+    // public function recupDevisSoumisValidationVte(string $numDevis)
+    // {
+    //     $condition = [
+    //         'numDevis' => $numDevis
+    //     ];
         
-        $statement = RequestSoumisValidation::buildQueryForfait($condition);
+    //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
-        $result = $this->connect->executeQuery($statement);
+    //     $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    //     $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    //     return $this->convertirEnUtf8($data);
+    // }
 
 
     public function recupNbrItvTypeVte($numDevis)
