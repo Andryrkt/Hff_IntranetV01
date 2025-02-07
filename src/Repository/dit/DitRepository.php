@@ -425,6 +425,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         $result = $this->createQueryBuilder('d')
         ->select('DISTINCT d.sectionSupport1')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
         return array_column($result, 'sectionSupport1');
@@ -434,6 +439,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         $result = $this->createQueryBuilder('d')
         ->select('DISTINCT d.sectionSupport2')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
         return array_column($result, 'sectionSupport2');
@@ -443,6 +453,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         $result = $this->createQueryBuilder('d')
         ->select('DISTINCT d.sectionSupport3')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
         return array_column($result, 'sectionSupport3');
@@ -452,6 +467,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         $result = $this->createQueryBuilder('d')
         ->select('DISTINCT d.sectionAffectee')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
         return array_column($result, 'sectionAffectee');
