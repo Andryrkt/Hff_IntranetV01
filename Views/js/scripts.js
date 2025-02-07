@@ -3,7 +3,7 @@
 // window.addEventListener("load", () => {
 //   loader.classList.add("fondu-out");
 // });
-
+/* 
 let timeout;
 
 // Variables pour le chronomètre
@@ -79,7 +79,7 @@ events.forEach((event) => window.addEventListener(event, resetTimeout));
 
 // Démarrer le timeout et le chrono au chargement de la page
 resetTimeout();
-
+ */
 /**
  * POUR LE TOOLTIP
  */

@@ -4,6 +4,8 @@
 	<link rel="stylesheet" href="/Hffintranet/Views/css/planning/planning.css">
 {% endblock %}
 {% block content %}
+<div id="conteneur" data-page-type="liste_planning">
+
 	<div class="sticky-header-titre">
 		<div class="container">
 			<h3 class="perso-titre">
@@ -45,17 +47,18 @@
 
 				</div>
 
-				<div
-					class="d-flex justify-content-between">{# <div>
-												<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
-													<i class="fas fa-table"></i>
-													Excel</a>
-											</div> #}
-				</div>
+				{# <div
+					class="d-flex justify-content-between"> 
+					<div>
+						<a href="{{path("export_planning01")}}" id="excelDit" name="excelplanning" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div> 
+				</div> #}
 			</div>
 		</div>
 		<table class="table rounded table-plein-ecran">
-		<thead class="table-dark">
+			<thead class="table-dark">
 				<tr>
 					<th>Agence - Service</th>
 					<th>Marque</th>
@@ -64,7 +67,7 @@
 					<th>N° Série</th>
 					<th>N° Parc</th>
 					<th>Casier</th>
-					<th>Intitulé travaux (commentaire)</th>
+					<th>Intitulé travaux</th>
 					<th>N° OR-Itv</th>
 					<th>Date planning</th>
 					<th>CST</th>
@@ -74,9 +77,11 @@
 					<th>Qté all OR</th>
 					<th>Qté reliq OR</th>
 					<th>Qté liv OR</th>
-					<th>Ctr Marque (num CIS)</th>
+					{#  (num CIS) #}
+					<th>Ctr Marque</th>
 					<th>Cde frn</th>
-					<th>Statut ctrmrq(recp/cmd=>CIS OR)</th>
+					{#  (recp/cmd=>CIS OR)#}
+					<th>Statut ctrmrq</th>
 					<th>Qté CIS</th>
 					<th>Qté all</th>
 					<th>Qté rel</th>
@@ -86,56 +91,85 @@
 					<th>ETA Ivato</th>
 					<th>ETA Magasin</th>
 					<th>Message</th>
-					
+
 				</tr>
 			</thead>
-			<tbody>
-			 {% for item in data %}
-			  {% if item.ord is same as "ORD" %}
-				{% set classe = 'bg-success text-white'%}
-				{% else %}
-				{% set classe = ''%}
-			  {% endif %}
-			 	<tr>
-				<td> {{item.agenceServiceTravaux}}</td>
-				<td> {{item.Marque}}</td>
-				<td> {{item.Modele}}</td>
-				<td> {{item.Id}}</td>
-				<td> {{item.N_Serie}}</td>
-				<td> {{item.parc}}</td>
-				<td> {{item.casier}}</td>
-				<td> {{item.commentaire}}</td>
-				<td> {{item.numor_itv}}</td>
-				<td > {{item.dateplanning | date("d/m/Y")}}</td>
-				<td> {{item.cst}}</td>
-				<td> {{item.ref}}</td>
-				<td> {{item.desi}}</td>
-				<td> {{item.qteres_or | number_format(0)}}</td>
-				<td> {{item.qteall_or | number_format(0)}}</td>
-				<td> {{item.qtereliquat | number_format(0)}}</td>
-				<td> {{item.qteliv_or | number_format(0)}}</td>
-				<td> {{item.numcis}}</td>
-				<td> {{item.numerocmd}}</td>
-				<td class = "{{classe}}"> {{item.statut_ctrmq}}</td>
-				<td> {{item.qteORlig_cis | number_format(0)}}</td>
-				<td> {{item.qtealllig_cis | number_format(0)}}</td>
-				<td> {{item.qterlqlig_cis | number_format(0)}}</td>
-				<td> {{item.qtelivlig_cis | number_format(0)}}</td>
-				<td> {{item.statut}}</td>
-				<td> {{item.datestatut | date("d/m/Y")}}</td>
-				<td> {{item.Eta_ivato}}</td>
-				<td> {{item.Eta_magasin}}</td>
-				<td> {{item.message}}</td>
-				</tr>
-			 {% endfor %}
+			<tbody id="tableBody">
+				{% for item in data %}
+					{% if item.ord is same as "ORD" %}
+						{% set classe = 'bg-success text-white'%}
+					{% else %}
+						{% set classe = ''%}
+					{% endif %}
+					<tr>
+						<td>
+							{{item.agenceServiceTravaux}}</td>
+						<td>
+							{{item.Marque}}</td>
+						<td>
+							{{item.Modele}}</td>
+						<td>
+							{{item.Id}}</td>
+						<td>
+							{{item.N_Serie}}</td>
+						<td>
+							{{item.parc}}</td>
+						<td>
+							{{item.casier}}</td>
+						<td>
+							{{item.commentaire}}</td>
+						<td>
+							{{item.numor_itv}}</td>
+						<td>
+							{{item.dateplanning | date("d/m/Y")}}</td>
+						<td>
+							{{item.cst}}</td>
+						<td>
+							{{item.ref}}</td>
+						<td>
+							{{item.desi}}</td>
+						<td>
+							{{item.qteres_or | number_format(0)}}</td>
+						<td>
+							{{item.qteall_or | number_format(0)}}</td>
+						<td>
+							{{item.qtereliquat | number_format(0)}}</td>
+						<td>
+							{{item.qteliv_or | number_format(0)}}</td>
+						<td>
+							{{item.numcis}}</td>
+						<td>
+							{{item.numerocmd}}</td>
+						<td class="{{classe}}">
+							{{item.statut_ctrmq}}</td>
+						<td>
+							{{item.qteORlig_cis | number_format(0)}}</td>
+						<td>
+							{{item.qtealllig_cis | number_format(0)}}</td>
+						<td>
+							{{item.qterlqlig_cis | number_format(0)}}</td>
+						<td>
+							{{item.qtelivlig_cis | number_format(0)}}</td>
+						<td>
+							{{item.statut}}</td>
+						<td>
+							{{item.datestatut | date("d/m/Y")}}</td>
+						<td>
+							{{item.Eta_ivato | date("d/m/Y")}}</td>
+						<td>
+							{{item.Eta_magasin | date("d/m/Y")}}</td>
+						<td>
+							{{item.message}}</td>
+					</tr>
+				{% endfor %}
 			</tbody>
 		</table>
-
+</div>
 		{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 	{% endblock %}
 	{% block javascript %}
 		<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 		<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
-		<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
-		{#<script src="/Hffintranet/Views/js/planning/main.js" type="module"></script>#}
+		<script src="/Hffintranet/Views/js/planning/agServPlanning.js" type="module"></script>
+		<script src="/Hffintranet/Views/js/planning/planningListe.js" type="module"></script>
 	{% endblock %}
