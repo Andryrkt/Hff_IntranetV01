@@ -381,47 +381,46 @@ trait DomsTrait
 
         $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
         return  [
-            "Devis" => $dom->getDevis(),
-            "Prenoms" => $dom->getPrenom(),
-            "AllMontant" => $dom->getTotalGeneralPayer(),
-            "Code_serv" => $dom->getAgenceEmetteur(),
-            "dateS" => $dom->getDateDemande()->format("d/m/Y"),
-            "NumDom" => $dom->getNumeroOrdreMission(),
-            "serv" => $dom->getServiceEmetteur(),
-            "matr" => $dom->getMatricule(),
-            "typMiss" => $dom->getSousTypeDocument()->getCodeSousType(),
-
-            "Nom" => $dom->getNom(),
-            "NbJ" => $dom->getNombreJour(),
-            "dateD" => $dom->getDateDebut()->format("d/m/Y"),
-            "heureD" => $dom->getHeureDebut(),
-            "dateF" => $dom->getDateFin()->format("d/m/Y"),
-            "heureF" => $dom->getHeureFin(),
-            "motif" => $dom->getMotifDeplacement(),
-            "Client" => $dom->getClient(),
-            "fiche" => $dom->getFiche(),
-            "lieu" => $dom->getLieuIntervention(),
-            "vehicule" => $dom->getVehiculeSociete(),
-            "numvehicul" => $dom->getNumVehicule(),
-            "idemn" => $dom->getIndemniteForfaitaire(),
-            "totalIdemn" => $dom->getTotalIndemniteForfaitaire(),
-            "motifdep01" => $dom->getMotifAutresDepense1(),
-            "montdep01" => $dom->getAutresDepense1(),
-            "motifdep02" => $dom->getMotifAutresDepense2(),
-            "montdep02" => $dom->getAutresDepense2(),
-            "motifdep03" => $dom->getMotifAutresDepense3(),
-            "montdep03" => $dom->getAutresDepense3(),
-            "totaldep" => $dom->getTotalAutresDepenses(),
-            "libmodepaie" => explode(':', $dom->getModePayement())[0],
-            "mode" => $mode,
-            "codeAg_serv" => substr($domForm->getAgenceEmetteur(), 0, 2) . substr($domForm->getServiceEmetteur(), 0, 3),
-            "CategoriePers" => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
-            "Site" => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
-            "Idemn_depl" => $dom->getIdemnityDepl(),
-            "MailUser" => $email,
-            "Bonus" => $dom->getDroitIndemnite(),
-            "codeServiceDebitteur" => $dom->getAgence()->getCodeAgence(),
-            "serviceDebitteur" => $dom->getService()->getCodeService()
+            "MailUser"              => $email,
+            "dateS"                 => $dom->getDateDemande()->format("d/m/Y"),
+            "NumDom"                => $dom->getNumeroOrdreMission(),
+            "typMiss"               => $dom->getSousTypeDocument()->getCodeSousType(),
+            "Site"                  => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
+            "Code_serv"             => $dom->getAgenceEmetteur(),
+            "serv"                  => $dom->getServiceEmetteur(),
+            "Nom"                   => $dom->getNom(),
+            "Prenoms"               => $dom->getPrenom(),
+            "matr"                  => $dom->getMatricule(),
+            "motif"                 => $dom->getMotifDeplacement(),
+            "CategoriePers"         => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
+            "NbJ"                   => $dom->getNombreJour(),
+            "dateD"                 => $dom->getDateDebut()->format("d/m/Y"),
+            "heureD"                => $dom->getHeureDebut(),
+            "dateF"                 => $dom->getDateFin()->format("d/m/Y"),
+            "heureF"                => $dom->getHeureFin(),
+            "lieu"                  => $dom->getLieuIntervention(),
+            "Client"                => $dom->getClient(),
+            "fiche"                 => $dom->getFiche(),
+            "vehicule"              => $dom->getVehiculeSociete(),
+            "numvehicul"            => $dom->getNumVehicule(),
+            "Devis"                 => $dom->getDevis(),
+            "idemn"                 => $this->formatMontant($dom->getIndemniteForfaitaire()),
+            "Bonus"                 => $this->formatMontant($dom->getDroitIndemnite()),
+            "Idemn_depl"            => $this->formatMontant($dom->getIdemnityDepl()),
+            "totalIdemn"            => $this->formatMontant($dom->getTotalIndemniteForfaitaire()),
+            "motifdep01"            => $dom->getMotifAutresDepense1(),
+            "motifdep02"            => $dom->getMotifAutresDepense2(),
+            "motifdep03"            => $dom->getMotifAutresDepense3(),
+            "montdep01"             => $this->formatMontant($dom->getAutresDepense1()),
+            "montdep02"             => $this->formatMontant($dom->getAutresDepense2()),
+            "montdep03"             => $this->formatMontant($dom->getAutresDepense3()),
+            "totaldep"              => $this->formatMontant($dom->getTotalAutresDepenses()),
+            "AllMontant"            => $this->formatMontant($dom->getTotalGeneralPayer()),
+            "libmodepaie"           => explode(':', $dom->getModePayement())[0],
+            "mode"                  => $mode,
+            "codeAg_serv"           => substr($domForm->getAgenceEmetteur(), 0, 2) . substr($domForm->getServiceEmetteur(), 0, 3),
+            "codeServiceDebitteur"  => $dom->getAgence()->getCodeAgence(),
+            "serviceDebitteur"      => $dom->getService()->getCodeService()
         ];
     }
 
@@ -473,5 +472,17 @@ trait DomsTrait
         }
         // Vérifier si aucune correspondance n'est trouvée
         return $trouve;
+    }
+
+    /**
+     * Retourne une valeur monétaire valide.
+     * Si la chaîne est vide, retourne "0", sinon retourne la valeur d'origine.
+     *
+     * @param string|null $montant La valeur monétaire sous forme de chaîne.
+     * @return string La valeur monétaire, avec "0" par défaut si vide.
+     */
+    private function formatMontant(?string $montant = null): string
+    {
+        return $montant === null ? '0' : $montant;
     }
 }
