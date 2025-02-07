@@ -75,19 +75,17 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setTextColor(0, 0, 0); // Noir
         $pdf->Cell((2 * $w50) - 12, 10, $tab['Nom'], 0, 1);
 
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), $w50 * 2, 10);  // Bordure englobant tout
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(19, 10, 'Prénoms : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
-        $pdf->Cell($w50 - 19, 10, $tab['Prenoms'], 0, 0);
-        $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
+        $pdf->Cell((2 * $w50) - 19, 10, $tab['Prenoms'], 0, 1);
 
+        $pdf->Rect($pdf->GetX(), $pdf->GetY(), $w50 * 2, 10);  // Bordure englobant tout
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(21, 10, 'Matricule : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
-        $pdf->Cell($w50 - 21, 10, $tab['matr'], 0, 0);
-        $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
-
-        $pdf->Ln(); // Nouvelle ligne
+        $pdf->Cell((2 * $w50) - 21, 10, $tab['matr'], 0, 1);
 
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), $w50 * 2, 10);  // Bordure englobant tout
         $pdf->setTextColor(...$couleurTitre); // Bleu
@@ -169,25 +167,25 @@ class GeneratePdfDom extends GeneratePdf
 
         $pdf->Ln(); // Nouvelle ligne
 
-        $pdf->setY(155);
+        $pdf->setY(165);
 
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(20, 10, 'Autres: ', 0, 1);
 
-        $pdf->setXY(30, 155);
+        $pdf->setXY(30, 165);
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(80, 10,  'MOTIF', 1, 0, 'C');
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
         $pdf->setX(30);
 
         $pdf->setTextColor(0, 0, 0); // Noir
-        $pdf->Cell(80, 10,  '   ' . $tab['motifdep01'], 1, 0, 'L');
+        $pdf->Cell(80, 10,  $tab['motifdep01'], 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $tab['montdep01'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '  ' . $tab['motifdep02'], 1, 0, 'L');
+        $pdf->Cell(80, 10,  $tab['motifdep02'], 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $tab['montdep02'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
-        $pdf->Cell(80, 10,  '   ' . $tab['motifdep03'], 1, 0, 'L');
+        $pdf->Cell(80, 10,  $tab['motifdep03'], 1, 0, 'L');
         $pdf->Cell(80, 10, '' . $tab['montdep03'] . ' ' . $tab['Devis'], 1, 1, 'C');
         $pdf->setX(30);
         $pdf->Cell(80, 10,  'Total autre ', 1, 0, 'C');
@@ -198,7 +196,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setTextColor(0, 0, 0); // Noir
         $pdf->Cell(80, 10,   $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
-        $pdf->setY(220);
+        $pdf->setY(230);
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(35, 10, 'Mode de paiement: ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
