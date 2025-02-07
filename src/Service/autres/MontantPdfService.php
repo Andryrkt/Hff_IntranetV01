@@ -55,7 +55,7 @@ class MontantPdfService
         for ($i = 0; $i < count($OrSoumisAvant); $i++) {
             // dump($OrSoumisAvantMax[$i]);
             if(null !== $OrSoumisAvant[$i]->getNatureOperation() ){
-                if($OrSoumisAvant[$i]->getNatureOperation() === 'VTE'){
+                if($OrSoumisAvant[$i]->getNatureOperation() === 'VTE' && $OrSoumisAvant[$i]->getDevisVenteOuForfait() === 'DEVIS FORFAIT'){
                     $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantVente() : 0.00;
                     $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantVente() : 0.00;
                 } else {
@@ -234,7 +234,7 @@ class MontantPdfService
         
         foreach ($orSoumisValidataion as $orSoumis) {
             if ($orSoumis->getNatureOperation() !== null) {
-               if ($orSoumis->getNatureOperation() === 'VTE') {
+               if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
                 $recapOr[] = [
                     'itv' => $orSoumis->getNumeroItv(),
                     'mttTotal' => $orSoumis->getMontantVente(),
@@ -291,7 +291,7 @@ class MontantPdfService
         foreach ($orSoumisValidataion as $orSoumis) {
             // Faire la somme des montants et les stocker dans le tableau
             if ($orSoumis->getNatureOperation() !== null) {
-                if ($orSoumis->getNatureOperation() === 'VTE') {
+                if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
                     $totalRecapOr['mttTotal'] += $orSoumis->getMontantVente();
                     $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
                     $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();

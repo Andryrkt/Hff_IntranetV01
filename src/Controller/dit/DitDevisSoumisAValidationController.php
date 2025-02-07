@@ -415,6 +415,7 @@ class DitDevisSoumisAValidationController extends Controller
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
+                $entity->setStatut('Soumis à validation');
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
@@ -466,7 +467,6 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setMontantFraisDivers($devisSoumis['montant_divers'])
                 ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
                 ->setLibellelItv($devisSoumis['libelle_itv'])
-                ->setStatut('Soumis à validation')
                 ->setNatureOperation($devisSoumis['nature_operation'])
                 ->setMontantForfait($devisSoumis['montant_forfait'])
                 ->setNomClient($infoDit->getNomClient())
