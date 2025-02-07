@@ -210,7 +210,7 @@ class PlanningModel extends Model
                     $vconditionCasier
                     $vsection 
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
-		                order by 10  ";      
+		                order by 10,14  ";      
 
         
         $result = $this->connect->executeQuery($statement);
@@ -546,6 +546,7 @@ public function backOrderPlanning($lesOrValides){
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+               
       ";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);
@@ -665,6 +666,11 @@ public function recuperationPartiel($numcde, $refp){
     }else{
       $vconditionTypeDoc = "";
     }
+    if(!empty($criteria->getReparationRealise())){
+      $vconditionReparationPar = " AND reparation_realise ='".$criteria->getReparationRealise()."'";
+    }else{
+      $vconditionReparationPar = "";
+    }
     
     $niveauUrgence = $criteria->getNiveauUrgence();
     if(!empty($niveauUrgence)){
@@ -683,10 +689,10 @@ public function recuperationPartiel($numcde, $refp){
                   FROM demande_intervention
                   WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
                   $vconditionTypeDoc
+                  $vconditionReparationPar
                   $vconditionNumOr
                   $nivUrg
                   ";
-   
     $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
