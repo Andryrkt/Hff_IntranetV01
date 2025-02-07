@@ -158,7 +158,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(48, 10, 'Indemnité de chantier (-) : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
-        $pdf->Cell($w50 - 48, 10, $tab['Idemn_depl'] . ' ' . $tab['Devis'], 0, 0);
+        $pdf->Cell($w50 - 48, 10, $tab['Idemn_depl'] . ' ' . $tab['Devis'] . ' / jour', 0, 0);
         $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
         $pdf->setTextColor(...$couleurTitre); // Bleu
