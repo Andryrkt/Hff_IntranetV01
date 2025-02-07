@@ -25,6 +25,21 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupNomClient(string $numDevis)
+    {
+        $statement = " SELECT TRIM(seor_nomcli) as nom_client
+                        FROM sav_eor
+                        WHERE seor_serv = 'DEV'
+                        AND seor_numor = '".$numDevis."'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupNumeroDevis($numDit)
     {
         $statement = "SELECT  seor_numor  as numDevis

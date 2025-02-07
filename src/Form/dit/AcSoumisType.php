@@ -23,7 +23,7 @@ class AcSoumisType extends AbstractType
     {
         $builder
             ->add('nomClient', TextType::class, [
-                'label' => 'Nom client *',
+                'label' => 'Client *',
                 'required' => true,
                 'attr' => [
                     'class' => 'autocomplete',

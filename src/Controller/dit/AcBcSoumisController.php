@@ -5,18 +5,19 @@ namespace App\Controller\dit;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\dit\AcSoumisType;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
-use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Entity\admin\utilisateur\ContactAgenceAte;
+use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
-use App\Service\TableauEnStringService;
 
 class AcBcSoumisController extends Controller
 {
@@ -27,6 +28,7 @@ class AcBcSoumisController extends Controller
     private $historiqueOperation;
     private $contactAgenceAteRepository;
     private $ditRepository;
+    private $ditDevisSoumisAValidationModel;
 
     public function __construct()
     {
@@ -39,6 +41,7 @@ class AcBcSoumisController extends Controller
         $this->historiqueOperation = new HistoriqueOperationBCService;
         $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
     }
 
     /**
@@ -65,8 +68,10 @@ class AcBcSoumisController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
-            $acSoumis = $this->initialisation($devis, $numDit);
+            $data = $form->getData();
+            $blockage = $this->ConditionDeBlockage($devis, $data);
+            if($this->blockageSoumission($blockage)) {
+                $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
@@ -84,12 +89,35 @@ class AcBcSoumisController extends Controller
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
+            }
+            
         }
 
         self::$twig->display('dit/AcBcSoumis.html.twig', [
             'form' => $form->createView()
         ]);
     }
+
+    private function ConditionDeBlockage(array $devis, AcSoumis $data): array
+    {
+        $numClientIps = $this->ditDevisSoumisAValidationModel->recupNomClient($devis[0]->getNumeroDevis())[0]['nom_client'];
+        $numClientSaisie = $data->getNomClient();
+
+        return [
+            'conditionNomClient' => $numClientIps !== $numClientSaisie,
+        ];
+    }
+
+    private function blockageSoumission(array $blockage): bool
+    {
+        if ($blockage['conditionNomClient']) {
+            $message = 'Erreur lors de la soumission, Impossible de soumettre le BC . . . le nom du client saisi ne correspond pas au nom du client du devis';
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        }
+
+        return true;
+    }
+
 
     private function filtredataDevis($numDit)
     {
