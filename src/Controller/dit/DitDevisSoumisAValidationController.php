@@ -52,8 +52,7 @@ class DitDevisSoumisAValidationController extends Controller
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
         
-        $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
-
+       
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
@@ -73,13 +72,14 @@ class DitDevisSoumisAValidationController extends Controller
                 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
-
+                $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
-                $fileName= $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
-                $this->generePdfDevis->copyToDWDevisSoumis($fileName);// copier le fichier dans docuware
-                // $this->historique($fileName); //remplir la table historique
+                $fileNames = $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
+                $this->generePdfDevis->copyToDWDevisSoumis($fileNames['fileName']);// copier le fichier de controlle dans docuware
+                $this->generePdfDevis->copyToDWFichierDevisSoumis($fileNames['nomFichierUploder']);// copier le fichier de devis dans docuware
+                
 
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
@@ -576,9 +576,21 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
         $fileUploader = new FileUploaderService($chemin);
-        $prefix = 'devis_ctrl';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numDevis, false, $numeroVersion);
+        $options = [
+            'prefix' => 'devis_ctrl',
+            'prefixFichier' => 'devis',
+            'numeroDoc' => $numDevis,
+            'mergeFiles' => false,
+            'numeroVersion' => $numeroVersion,
+            'isIndex' => false
+        ];
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
-        return $fileName;
+        $nomFichierUploder = $fileUploader->generateNomDeFichier(null, $numDevis, '', 'devis', $numeroVersion);
+
+        return [
+            'fileName' => $fileName,
+            'nomFichierUploder' => $nomFichierUploder
+        ];
     }
 }

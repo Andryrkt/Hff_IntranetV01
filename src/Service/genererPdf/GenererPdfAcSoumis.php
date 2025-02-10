@@ -36,8 +36,8 @@ class GenererPdfAcSoumis extends GeneratePdf
         $pdf->Image($logoPath, 29, 10, 40, '', 'jpg');
         // Contenu HTML avec texte justifié
      // Ajouter un tableau avec deux colonnes pour l'en-tête
-     $email = $acSoumis->getEmailContactHff() ?: '<span style="color: red;">L\'adresse email est introuvable</span>';
-     $telephone = $acSoumis->getTelephoneContactHff() ?: '<span style="color: red;">Le numéro de téléphone est introuvable</span>';
+     $email = ltrim($acSoumis->getEmailContactHff(), '- ') ?: '<span style="color: red;">L\'adresse email est introuvable</span>';
+     $telephone = ltrim($acSoumis->getTelephoneContactHff(), '- ') ?: '<span style="color: red;">Le numéro de téléphone est introuvable</span>';
         $html = '
         <style>
             table {

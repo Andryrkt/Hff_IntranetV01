@@ -137,8 +137,14 @@ class AcBcSoumisController extends Controller
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
-        $prefix = 'bc';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numClientBcDevis, true, $numeroVersion, true);
+        $options = [
+            'prefix' => 'bc',
+            'numeroDoc' => $numClientBcDevis,
+            'mergeFiles' => true,
+            'numeroVersion' => $numeroVersion,
+            'mainFirstPage' => true
+        ];
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
         return $fileName;
     }
@@ -224,10 +230,10 @@ class AcBcSoumisController extends Controller
             return $acc + $item->getMontantItv();
         }, 0);
 
-        $montantForfait = array_reduce($devis, function ($acc, $item) {
-            return $acc + $item->getMontantForfait();
-        }, 0);
+        // $montantForfait = array_reduce($devis, function ($acc, $item) {
+        //     return $acc + $item->getMontantForfait();
+        // }, 0);
 
-        return $montantItv - $montantForfait;
+        return $montantItv;
     }
 }

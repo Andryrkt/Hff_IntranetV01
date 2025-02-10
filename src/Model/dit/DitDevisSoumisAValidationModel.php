@@ -260,6 +260,7 @@ class DitDevisSoumisAValidationModel extends Model
                     and seor_serv = 'SAV'
                     and slor_pos in('CP','FC') 
                     and slor_numcli = '".$infoPieceClient['num_client']."'
+                    ORDER BY slor_datel DESC
         ";
 
         $result = $this->connect->executeQuery($statement);
