@@ -169,9 +169,6 @@ class UserController extends Controller
         foreach ($user->getApplications() as $application) {
             $user->removeApplication($application);
         }
-        foreach ($user->getSociettes() as $societte) {
-            $user->removeSociette($societte);
-        }
         foreach ($user->getRoles() as $role) {
             $user->removeRole($role);
         }
@@ -188,6 +185,7 @@ class UserController extends Controller
         }
 
         // Supprimer les références ManyToOne
+        $user->setSociettes(null);
         $user->setPersonnels(null);
         $user->setFonction(null);
         $user->setAgenceServiceIrium(null);
