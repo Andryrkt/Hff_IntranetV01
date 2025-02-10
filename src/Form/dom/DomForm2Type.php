@@ -530,7 +530,10 @@ class DomForm2Type extends AbstractType
         [
             'mapped' => false,
             'label' => 'supplément journalier',
-            'required' => false
+            'required' => false,
+            'attr' => [
+                    'disabled' => $idSousTypeDocument === 11,
+            ]
         ])
         ->add('totalIndemniteForfaitaire', 
         TextType::class, 
@@ -576,7 +579,7 @@ class DomForm2Type extends AbstractType
         ]) 
         ->add('autresDepense2', 
         TextType::class,
-         [
+        [
             'label' => 'Montant',
             'required' => false,
         ]) 
@@ -622,10 +625,10 @@ class DomForm2Type extends AbstractType
                 new NotBlank([
                     'message' => 'Le montant total ne peut pas être vide.',
                 ]),
-                new GreaterThan([
-                    'value' => 0,
-                    'message' => 'Le montant total doit être supérieur à 0.',
-                ]),
+                // new GreaterThan([
+                //     'value' => 0,
+                //     'message' => 'Le montant total doit être supérieur à 0.',
+                // ]),
             ],
         ])
         ->add('modePayement', 
