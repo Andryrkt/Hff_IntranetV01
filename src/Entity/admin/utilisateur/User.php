@@ -678,7 +678,7 @@ class User implements UserInterface
     /**
      * Get the value of userLoggers
      */
-    public function getUserLoggers(): ArrayCollection
+    public function getUserLoggers(): Collection
     {
         return $this->userLoggers;
     }

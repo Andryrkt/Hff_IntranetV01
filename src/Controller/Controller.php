@@ -525,6 +525,7 @@ class Controller
     {
         $idUtilisateur = $this->sessionService->get('user_id');
         $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
+        
         $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine       = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 

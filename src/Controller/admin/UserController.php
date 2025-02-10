@@ -153,59 +153,66 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
-     *
-     * @return void
-     */
-    public function delete(Request $request, $id)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+ * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
+ *
+ * @return void
+ */
+public function delete($id)
+{
+    // Vérification de la session utilisateur
+    $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(User::class)->find($id);
+    // Récupération de l'utilisateur
+    $user = self::$em->getRepository(User::class)->find($id);
 
-        if ($user === null) {
-            throw new \Exception('Utilisateur non trouvé');
-        }
 
-        // Supprimer les références ManyToMany
-        foreach ($user->getPermissions() as $permission) {
-            $user->removePermission($permission);
-        }
-        foreach ($user->getApplications() as $application) {
-            $user->removeApplication($application);
-        }
-        // foreach ($user->getSociettes() as $societte) {
-        //     $user->removeSociette($societte);
-        // }
-        foreach ($user->getRoles() as $role) {
-            $user->removeRole($role);
-        }
-        foreach ($user->getAgencesAutorisees() as $agence) {
-            $user->removeAgenceAutorise($agence);
-        }
-        foreach ($user->getServiceAutoriser() as $service) {
-            $user->removeServiceAutoriser($service);
-        }
-
-        // Supprimer les références OneToMany
-        foreach ($user->getCasiers() as $casier) {
-            $user->removeCasier($casier);
-        }
-
-        // Supprimer les références ManyToOne
-        $user->setPersonnels(null);
-        $user->setFonction(null);
-        $user->setAgenceServiceIrium(null);
-
-        self::$em->flush();
-
-        // Supprimer l'utilisateur
-        self::$em->remove($user);
-        self::$em->flush();
-
-        return $this->redirectToRoute("utilisateur_index");
+    // Supprimer les relations manuellement avant suppression
+    foreach ($user->getRoles() as $role) {
+        $user->removeRole($role);
     }
+
+    foreach ($user->getApplications() as $application) {
+        $user->removeApplication($application);
+    }
+
+    foreach ($user->getAgencesAutorisees() as $agence) {
+        $user->removeAgenceAutorise($agence);
+    }
+
+    foreach ($user->getServiceAutoriser() as $service) {
+        $user->removeServiceAutoriser($service);
+    }
+
+    foreach ($user->getPermissions() as $permission) {
+        $user->removePermission($permission);
+    }
+
+    foreach ($user->getUserLoggers() as $logger) {
+        self::$em->remove($logger);
+    }
+
+    // foreach ($user->getCommentaireDitOrs() as $commentaire) {
+    //     self::$em->remove($commentaire);
+    // }
+
+    // foreach ($user->getSupportInfoUser() as $support) {
+    //     self::$em->remove($support);
+    // }
+
+    // foreach ($user->getTikPlanningUser() as $planning) {
+    //     self::$em->remove($planning);
+    // }
+
+    // Appliquer les modifications en base
+    self::$em->flush();
+
+    // Supprimer l'utilisateur
+    self::$em->remove($user);
+    self::$em->flush();
+
+    return $this->redirectToRoute("utilisateur_index");
+}
+
 
     /**
      * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
