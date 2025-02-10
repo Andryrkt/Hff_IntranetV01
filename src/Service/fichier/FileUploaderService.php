@@ -53,9 +53,9 @@ class FileUploaderService
      * @param string $index
      * @return string
      */
-    public function generateNomDeFichier(?UploadedFile $file,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
+    public function generateNomDeFichier(?string $extension,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
     {
-        $extension = $file->guessExtension() ?? 'pdf';
+        $extension = $extension ?? 'pdf';
 
         return sprintf(
             '%s_%s%s%s.%s',
@@ -105,7 +105,8 @@ class FileUploaderService
             throw new InvalidArgumentException("Type de fichier non autorisé : {$file->getClientOriginalName()}.");
         }
 
-        $fileName = $this->generateNomDeFichier( $file,  $numeroDoc, $index, $prefixFichier, $numeroVersion);
+        $extension =$file->guessExtension();
+        $fileName = $this->generateNomDeFichier( $extension,  $numeroDoc, $index, $prefixFichier, $numeroVersion);
         $destination = $this->targetDirectory . $pathFichier;
 
         try {
