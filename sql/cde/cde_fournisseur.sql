@@ -102,3 +102,6 @@ CREATE TABLE cdefnr_soumis_a_validation (
 
 INSERT INTO type_document(typeDocument, date_creation, date_modification, heure_creation, heure_modification, libelle_document)
 VALUES('CDEFRN', '2025-01-07', '2025-01-07', '10:32:16.6800000', '10:32:16.6800000', 'COMMANDE FOURNISSEUR')
+
+INSERT INTO applications(nom, code_app, date_creation, date_modification)
+VALUES ('COMMANDE FOURNISSEUR', 'CFR', '2025-02-10', '2025-02-10')
