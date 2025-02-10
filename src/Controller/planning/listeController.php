@@ -73,19 +73,23 @@ class ListeController extends Controller
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
             // dump($lesOrvalides['orAvecItv']);
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']); 
 
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
-            $res1 = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
+            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString);
+        
             if (empty($res1)) {
             } else {
                 $k = 0;
+               
                 for ($i = 0; $i < count($res1); $i++) {
-                    $details = $this->planningModel->recuperationDetailPieceInformix($res1[$i]['orintv'], $criteriaTAb);
+                    // $details = $this->planningModel->recuperationDetailPieceInformix($res1[$i]['orintv'], $criteriaTAb);
+                    $details = $this->planningModel->recuperationDetailPieceInformixListe($res1[$i]['numor'], $criteriaTAb,$res1[$i]['itv']);
+                
                     for ($j = 0; $j < count($details); $j++) {
                         if (substr($details[$j]['numor'], 0, 1) == '5') {
                             if ($details[$j]['numcis'] !== "0" || $details[$j]['numerocdecis'] == "0") {
