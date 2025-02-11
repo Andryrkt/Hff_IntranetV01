@@ -833,7 +833,7 @@ class PlanningModel extends Model
   /**
    * liste planning
    */
-  public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit)
+  public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
   {
     if ($criteria->getOrBackOrder() == true) {
       $vOrvalDw = "AND seor_numor in (" . $back . ") ";
@@ -871,7 +871,10 @@ class PlanningModel extends Model
     $vplan = $criteria->getPlan();
 
     $offset = ($page - 1) * $limit;
-    $statement = " SELECT SKIP $offset FIRST $limit
+
+    $conditionPagination = $export === false ? "SKIP $offset FIRST $limit" : "";
+
+    $statement = " SELECT $conditionPagination
                       
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
@@ -937,6 +940,189 @@ class PlanningModel extends Model
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
+  }
+
+  /**
+   * nombre total de matériel planifié
+   */
+  public function recuperationNombreMaterielplanifier($criteria, string $lesOrValides, string $back)
+  {
+    if ($criteria->getOrBackOrder() == true) {
+      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+    } else {
+      if (!empty($lesOrValides)) {
+        $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+      } else {
+        $vOrvalDw = " AND seor_numor in ('')";
+        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+      }
+    }
+
+
+    $vligneType = $this->typeLigne($criteria);
+
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+
+    $statement = " SELECT COUNT(*) as total FROM  ( SELECT 
+
+
+                      trim(seor_succ) as codeSuc, 
+
+
+                      trim(asuc_lib) as libSuc, 
+
+
+                      trim(seor_servcrt) as codeServ, 
+
+
+                      trim(ser.atab_lib) as libServ, 
+
+
+                      trim(sitv_comment) as commentaire,
+
+
+                      mmat_nummat as idMat,
+
+
+                      trim(mmat_marqmat) as markMat,
+
+
+                      trim(mmat_typmat) as typeMat ,
+
+
+                      trim(mmat_numserie) as numSerie,
+
+
+                      trim(mmat_recalph) as numParc,
+
+
+                      trim(mmat_numparc) as casier,
+
+
+                       CASE WHEN 
+
+
+                    YEAR ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+
+ 
+                THEN
+
+
+                    YEAR(DATE(sitv_datepla)  )
+
+
+                ELSE
+
+
+                    YEAR ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
+
+
+                END  as annee,
+
+
+                       CASE WHEN 
+
+
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+
+ 
+                                THEN
+
+
+                                    MONTH(DATE(sitv_datepla)  )
+
+
+                                ELSE
+
+
+                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
+
+ 
+                                END   as mois,
+
+
+                      seor_numor ||'-'||sitv_interv as orIntv,
+
+
+
+                      (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) as QteCdm,
+
+ 
+                    (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) as QtLiv,
+
+ 
+                      (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) as QteALL,
+                      
+
+ 
+                      sitv_interv as Itv,
+
+
+                      seor_numor as numOR
+                    FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
+                    WHERE seor_numor = slor_numor
+                    AND seor_serv <> 'DEV'
+                    AND sitv_numor = slor_numor 
+                    AND sitv_interv = slor_nogrp/100
+                    AND (seor_succ = asuc_num) -- OR mmat_succ = asuc_parc)
+                    AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+                    AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+                    AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
+                    $vStatutFacture
+                    AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+                    AND (seor_nummat = mmat_nummat)
+                    AND slor_constp NOT like '%ZDI%'
+                    
+                    $vOrvalDw
+                    $vligneType
+
+                   
+                    $vConditionNoPlanning 
+                    $agence
+                    $vStatutInterneExterne
+                    $agenceDebite
+                    $serviceDebite
+                    $vDateDMonthPlan
+                    $vDateFMonthPlan
+                    $vconditionNumParc
+                    $vconditionIdMat
+                    $vconditionNumOr
+                    $vconditionNumSerie
+                    $vconditionCasier
+                    $vsection 
+                    group by codeSuc ,libSuc,codeServ,libServ,commentaire,idMat,markMat,typeMat,numSerie,numParc,casier,annee,mois,orIntv,QteCdm,QtLiv,QteALL,Itv,numOR)";
+
+
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+// dump($statement);
+    // Retourne le nombre total d'éléments
+    return (int) $data[0]['total'];
   }
 
   public function recuperationDetailPieceInformixListe($numOr, $criteria, $itv)
