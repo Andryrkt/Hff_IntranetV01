@@ -22,7 +22,7 @@ class CalendarApi extends Controller
         header("Content-type: application/json");
         // Vérifier si c'est une méthode GET
         if ($request->isMethod('GET')) {
-            $tab = $this->sessionService->get('tik_planning_search', []);
+            $tab = $this->sessionService->get('tik_planning_search', []); // Pour le tri ou formulaire de recherche
             $userId = $this->sessionService->get('user_id');
 
             // Récupération des événements depuis la base de données
@@ -44,7 +44,6 @@ class CalendarApi extends Controller
                 $detailDemande      = $event->getDetailDemande();
                 $dateDebutPlanning  = $event->getDateDebutPlanning();
                 $dateFinPlanning    = $event->getDateFinPlanning();
-                $partOfDay          = $demandeSupportInfo->getPartOfDay();
                 $intervenantId      = $demandeSupportInfo->getIntervenant()->getId(); // id de l'intervenant affilié au planning
                 $ticket             = $numeroTicket ? true : false;
 
@@ -65,8 +64,8 @@ class CalendarApi extends Controller
                         'intervenant'     => $demandeSupportInfo->getNomIntervenant(),
                         'dateCreation'    => $demandeSupportInfo->getDateCreation()->format('d/m/Y'),
                         'dateFinSouhaite' => $demandeSupportInfo->getDateFinSouhaitee()->format('d/m/Y'),
-                        'debutPlanning'   => $partOfDay === 'AM' ? '08:00' : '13:30',
-                        'finPlanning'     => $partOfDay === 'AM' ? '12:00' : '17:30',
+                        'debutPlanning'   => $dateDebutPlanning->format('H:i'),
+                        'finPlanning'     => $dateFinPlanning->format('H:i'),
                         'categorie'       => $demandeSupportInfo->getCategorie()->getDescription(),
                     ] : [],
                 ];

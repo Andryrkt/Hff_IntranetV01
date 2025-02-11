@@ -20,8 +20,6 @@ use App\Repository\admin\tik\TkiCategorieRepository;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
-use App\Repository\admin\tik\TkiSousCategorieRepository;
-use App\Repository\admin\tik\TkiAutreCategorieRepository;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -80,31 +78,32 @@ class DetailTikType extends AbstractType
                     $autresCategories = $data->getSousCategorie()->getAutresCategories();
                 }
 
-                $form->add('sousCategorie', EntityType::class, [
-                    'label' => 'Sous Catégorie',
-                    'class' => TkiSousCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie --',
-                    'required' => false,
-                    'choices' => $sousCategorie,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'sous-categorie']
-                ]);
-
-                $form->add('autresCategorie', EntityType::class, [
-                    'label' => 'Autres Catégories',
-                    'class' => TkiAutresCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie --',
-                    'required' => false,
-                    'choices' => $autresCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'autre-categorie']
-                ]);
+                $form
+                    ->add('sousCategorie', EntityType::class, [
+                        'label' => 'Sous Catégorie',
+                        'class' => TkiSousCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une sous categorie --',
+                        'required' => false,
+                        'choices' => $sousCategorie,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'sous-categorie']
+                    ])
+                    ->add('autresCategorie', EntityType::class, [
+                        'label' => 'Autres Catégories',
+                        'class' => TkiAutresCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une autre categorie --',
+                        'required' => false,
+                        'choices' => $autresCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'autre-categorie']
+                    ])
+                ;
             })
 
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -132,31 +131,32 @@ class DetailTikType extends AbstractType
                     }
                 }
 
-                $form->add('sousCategorie', EntityType::class, [
-                    'label' => 'Sous Catégorie',
-                    'class' => TkiSousCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie --',
-                    'required' => false,
-                    'choices' => $sousCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'sous-categorie']
-                ]);
-
-                $form->add('autresCategorie', EntityType::class, [
-                    'label' => 'Autres Catégories',
-                    'class' => TkiAutresCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie --',
-                    'required' => false,
-                    'choices' => $autresCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'autres-categories']
-                ]);
+                $form
+                    ->add('sousCategorie', EntityType::class, [
+                        'label' => 'Sous Catégorie',
+                        'class' => TkiSousCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une sous categorie --',
+                        'required' => false,
+                        'choices' => $sousCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'sous-categorie']
+                    ])
+                    ->add('autresCategorie', EntityType::class, [
+                        'label' => 'Autres Catégories',
+                        'class' => TkiAutresCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une autre categorie --',
+                        'required' => false,
+                        'choices' => $autresCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'autres-categories']
+                    ])
+                ;
             })
             ->add('niveauUrgence', EntityType::class, [
                 'label'        => 'Niveau d\'urgence',
