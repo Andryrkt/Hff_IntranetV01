@@ -4,23 +4,18 @@
 	<link rel="stylesheet" href="/Hffintranet/Views/css/planning/planning.css">
 {% endblock %}
 {% block content %}
-	<div id="conteneur" data-page-type="liste_planning" class="container">
-
-		<div class="sticky-header-titre">
-			<div class="container">
-				<h3 class="perso-titre">
-					Liste
-				</h3>
-
-				{% include "/planning/_formulaire.html.twig" %}
-			</div>
-		</div>
+	<div class="sticky-header-titre">
 		<div class="container">
-			{% include "/planning/_pagination.html.twig" %} 
+			<h3 class="perso-titre">
+				Liste
+			</h3>
+
+			{% include "/planning/_formulaire.html.twig" %}
+			{% include "/planning/_pagination.html.twig" %}
 		</div>
 	</div>
 	<table class="table rounded table-plein-ecran">
-		<thead class="table-dark">
+		<thead class="table-dark position-sticky">
 			<tr>
 				<th>Agence - Service</th>
 				<th>Marque</th>
@@ -130,7 +125,7 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
 	<script src="/Hffintranet/Views/js/planning/agServPlanning.js" type="module"></script>
 	<script src="/Hffintranet/Views/js/planning/planningListe.js" type="module"></script>
+	<script src="/Hffintranet/Views/js/planning/planningPositionSticky.js" type="module"></script>
 {% endblock %}
