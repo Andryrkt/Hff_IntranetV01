@@ -27,7 +27,7 @@ CREATE TABLE demande_paiement (
     beneficiaire VARCHAR(50),
     motif VARCHAR(255),
     agence_a_debiter VARCHAR(2),
-    service_a_debiter VARCHAR(2),
+    service_a_debiter VARCHAR(3),
     mode_paiement_id int,
     statut VARCHAR(50),
     adresse_mail_demandeur VARCHAR(100),
@@ -37,13 +37,6 @@ CREATE TABLE demande_paiement (
     CONSTRAINT PK_demande_paiement PRIMARY KEY (id, numero_demande_paiement)
 );
 
-CREATE TABLE mode_paiement (
-    id INT IDENTITY (1, 1),
-    description VARCHAR(100),
-    date_creation DATETIME2 (3),
-    date_modification DATETIME2 (3),
-    CONSTRAINT PK_mode_paiement PRIMARY KEY (id)
-);
 
 CREATE TABLE type_demande (
     id INT IDENTITY (1, 1),
@@ -57,7 +50,7 @@ INSERT INTO type_document(typeDocument, date_creation, date_modification, heure_
 VALUES('SW', '2025-01-10', '2025-01-10', '10:32:16.6800000', '10:32:16.6800000', 'SWIFT');
 
 INSERT INTO applications(nom, code_app, date_creation, date_modification)
-VALUES ('DEMANDE PAIEMENT', 'DPI', '2025-02-10', '2025-02-10')
+VALUES ('DEMANDE PAIEMENT', 'DDP', '2025-02-10', '2025-02-10', 'DDP25029999')
 
 INSERT INTO type_demande(code_type_demande, libelle_type_demande, description)
 VALUES 

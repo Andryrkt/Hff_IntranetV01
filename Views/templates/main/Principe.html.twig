@@ -22,7 +22,7 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
-				{% set hasPDV = false %}
+				{% set hasDDP = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -37,8 +37,8 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
-					{% elseif item.codeApp == 'TIK' %}
-						{% set hasPDV = true %}
+					{% elseif item.codeApp == 'DDP' %}
+						{% set hasDDP = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -137,8 +137,8 @@
 							{% endif %}
 							<!-- Fin Bordereau d’acquisition et de Mouvement Matériel -->
 
-							<!-- Demande de paiement PDV -->
-							{% if hasPDV %}
+							<!-- Demande de paiement DDP -->
+							{% if hasDDP %}
 								<li>
 									<hr class="dropdown-divider">
 								</li>
@@ -146,10 +146,10 @@
 									Demande de paiement
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("pdv_new")}}">Nouvelle Demande</a>
+									<a class="dropdown-item" href="#">Nouvelle Demande</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="{{ path("pdv_index")}}">Consultation des demandes</a>
+									<a class="dropdown-item" href="#">Consultation des demandes</a>
 								</li>
 							{% endif %}
 						</ul>
