@@ -152,6 +152,81 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+/**
+ * MODAL TYPE DE DEMANDE Paiement
+ */
+
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .getElementById("modalTypeDemande")
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      const overlay = document.getElementById("loading-overlay");
+      overlay.classList.remove("hidden");
+      fetch("/Hffintranet/api/form-type-demande") // L'URL de votre route Symfony
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("modalContent").innerHTML = html;
+          new bootstrap.Modal(document.getElementById("formModal")).show();
+
+          // Ajouter un écouteur sur la soumission du formulaire
+          document
+            .getElementById("typeDemandeForm")
+            .addEventListener("submit", function (event) {
+              event.preventDefault();
+
+              const formData = new FormData(this);
+
+              let jsonData = {};
+              formData.forEach((value, key) => {
+                // Supprimer le préfixe `form_type_demande[...]`
+                let cleanKey = key.replace(
+                  /^form_type_demande\[(.*?)\]$/,
+                  "$1"
+                );
+                jsonData[cleanKey] = value;
+
+                console.log(jsonData.typeDemande === "1");
+              });
+
+              if (jsonData.typeDemande === "1") {
+                window.location.href = `/Hffintranet/demande-paiement/${jsonData.typeDemande}`;
+              } else if (jsonData.typeDemande === "2") {
+                window.location.href = `/Hffintranet/demande-paiement/${jsonData.typeDemande}`;
+              }
+
+              // fetch("/Hffintranet/form-type-demande", {
+              //   method: "POST",
+              //   headers: {
+              //     "Content-Type": "application/json",
+              //     "X-Requested-With": "XMLHttpRequest", // Indiquer à Symfony que c'est une requête AJAX
+              //   },
+              //   body: JSON.stringify(jsonData),
+              // })
+              //   .then((response) => response.json())
+              //   .then((data) => {
+              //     console.log(data);
+
+              //     if (data.redirect_url) {
+              //       window.location.href = data.redirect_url; // Redirection vers l'URL donnée par le backend
+              //     } else {
+              //       alert("Aucune redirection spécifiée.");
+              //     }
+              //   })
+              //   .catch((error) =>
+              //     console.error("Erreur lors de la soumission:", error)
+              //   );
+            });
+        })
+        .catch((error) =>
+          console.error("Erreur lors du chargement du formulaire:", error)
+        )
+        .finally(() => {
+          overlay.classList.add("hidden");
+        });
+    });
+});
+
 /** OVERLAY */
 // Afficher l'overlay dès que la page commence à charger
 /* document.addEventListener('DOMContentLoaded', () => {
