@@ -41,9 +41,13 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, 'DEMANDE DE PAIEMENT A L’AVANCE', 0, 1);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
+        $pdf->Cell(0, 10, 'DEMANDE DE PAIEMENT A L’AVANCE', 0, 0);  // TO DO: valeur de "TYPE DE DEMANDE" (changer 'DEMANDE DE PAIEMENT A L’AVANCE')
 
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('TYPE DE DEMANDE') + 1, $pdf->GetY() - 2.5);
+
+
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'DDP25019999', 0, 1, 'R');  // TO DO: valeur de "NUMERO DOCUMENT" (changer 'DDP25019999')
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
