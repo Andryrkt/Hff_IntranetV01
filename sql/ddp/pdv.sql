@@ -28,7 +28,6 @@ CREATE TABLE demande_paiement (
     motif VARCHAR(255),
     agence_a_debiter VARCHAR(2),
     service_a_debiter VARCHAR(3),
-    mode_paiement_id int,
     statut VARCHAR(50),
     adresse_mail_demandeur VARCHAR(100),
     demandeur VARCHAR(100),

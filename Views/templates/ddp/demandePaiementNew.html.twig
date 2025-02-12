@@ -1,0 +1,81 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								{% if id == 1 %}
+									Formulaire Demande de paiement à l’avance
+								{% else %}
+									Formulaire Demande de paiement après livraison
+								{% endif %}
+							</h3>
+						</div>
+
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+					{{ form_start(form) }}
+					{{ form_errors(form)}}
+
+
+					<div class="row">
+						<div class="col-12 col-md-2">
+							{{ form_row(form.numeroFournisseur) }}
+							{{ form_row(form.serviceDebiter) }}
+							{{ form_row(form.pieceJoint01) }}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.numeroCommande) }}
+							{{ form_row(form.ribFournisseur) }}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.numeroFacture)}}
+							{{ form_row(form.contact)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.beneficiaire)}}
+							{{ form_row(form.modePaiement)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.motif)}}
+							{{ form_row(form.devise)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.agenceDebiter)}}
+							{{ form_row(form.montantAPayer)}}
+						</div>
+					</div>
+
+					<a onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<button type="submit" class="btn bouton" id="formDit">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</a>
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+{% endblock %}
+
+{% block javascript %}
+	{#<script type="module" src="/Hffintranet/Views/js/dit/dit.js"></script>#}
+{% endblock %}

@@ -2,7 +2,6 @@
 
 namespace App\Entity\admin\ddp;
 
-use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 
@@ -13,8 +12,6 @@ use App\Repository\admin\ddp\TypeDemandeRepository;
  */
 class TypeDemande
 {
-
-    use DateTrait;
 
     /**
      * @ORM\Id
@@ -38,7 +35,7 @@ class TypeDemande
     private ?string $libelle;
 
     /**
-     * @ORM\Column(type="string", lentgth=255, name="description")
+     * @ORM\Column(type="string", length=255, name="description")
      *
      * @var string|null
      */

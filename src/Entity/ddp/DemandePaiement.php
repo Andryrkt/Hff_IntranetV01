@@ -72,8 +72,12 @@ class DemandePaiement
      */
     private ?string $serviceDebiter;
 
-    
-    private ?int $modePaiementId;
+    /**
+     * @ORM\Column(type="string", length=50, name="statut")
+     *
+     * @var string|null
+     */
+    private ?string $statut;
 
     /**
      * @ORM\Column(type="string", length=100, name="adresse_mail_demandeur")
@@ -88,6 +92,26 @@ class DemandePaiement
      * @var string|null
      */
     private ?string $demandeur;
+
+    private $numeroCommande;
+
+    private $numeroFacture;
+
+    private $contact;
+
+    private $devise;
+
+    private $montantAPayer;
+
+    private $pieceJoint01; // proforma facture fournisseur
+
+    private $commandeFichier;
+
+    private $factureFournisseurFichier;
+
+    private $controleLivraisonFichier;
+
+    private $titreDeTransportFichier;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -291,21 +315,25 @@ class DemandePaiement
     }
 
     /**
-     * Get the value of modePaiementId
+     * Get the value of statut
+     *
+     * @return  string|null
      */ 
-    public function getModePaiementId()
+    public function getStatut()
     {
-        return $this->modePaiementId;
+        return $this->statut;
     }
 
     /**
-     * Set the value of modePaiementId
+     * Set the value of statut
+     *
+     * @param  string|null  $statut
      *
      * @return  self
      */ 
-    public function setModePaiementId($modePaiementId)
+    public function setStatut($statut)
     {
-        $this->modePaiementId = $modePaiementId;
+        $this->statut = $statut;
 
         return $this;
     }
@@ -354,6 +382,208 @@ class DemandePaiement
     public function setDemandeur($demandeur)
     {
         $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    
+
+    /**
+     * Get the value of numeroCommande
+     */ 
+    public function getNumeroCommande()
+    {
+        return $this->numeroCommande;
+    }
+
+    /**
+     * Set the value of numeroCommande
+     *
+     * @return  self
+     */ 
+    public function setNumeroCommande($numeroCommande)
+    {
+        $this->numeroCommande = $numeroCommande;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroFacture
+     */ 
+    public function getNumeroFacture()
+    {
+        return $this->numeroFacture;
+    }
+
+    /**
+     * Set the value of numeroFacture
+     *
+     * @return  self
+     */ 
+    public function setNumeroFacture($numeroFacture)
+    {
+        $this->numeroFacture = $numeroFacture;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of contact
+     */ 
+    public function getContact()
+    {
+        return $this->contact;
+    }
+
+    /**
+     * Set the value of contact
+     *
+     * @return  self
+     */ 
+    public function setContact($contact)
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of devise
+     */ 
+    public function getDevise()
+    {
+        return $this->devise;
+    }
+
+    /**
+     * Set the value of devise
+     *
+     * @return  self
+     */ 
+    public function setDevise($devise)
+    {
+        $this->devise = $devise;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantAPayer
+     */ 
+    public function getMontantAPayer()
+    {
+        return $this->montantAPayer;
+    }
+
+    /**
+     * Set the value of montantAPayer
+     *
+     * @return  self
+     */ 
+    public function setMontantAPayer($montantAPayer)
+    {
+        $this->montantAPayer = $montantAPayer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint01
+     */ 
+    public function getPieceJoint01()
+    {
+        return $this->pieceJoint01;
+    }
+
+    /**
+     * Set the value of pieceJoint01
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint01($pieceJoint01)
+    {
+        $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of commandeFichier
+     */ 
+    public function getCommandeFichier()
+    {
+        return $this->commandeFichier;
+    }
+
+    /**
+     * Set the value of commandeFichier
+     *
+     * @return  self
+     */ 
+    public function setCommandeFichier($commandeFichier)
+    {
+        $this->commandeFichier = $commandeFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of factureFournisseurFichier
+     */ 
+    public function getFactureFournisseurFichier()
+    {
+        return $this->factureFournisseurFichier;
+    }
+
+    /**
+     * Set the value of factureFournisseurFichier
+     *
+     * @return  self
+     */ 
+    public function setFactureFournisseurFichier($factureFournisseurFichier)
+    {
+        $this->factureFournisseurFichier = $factureFournisseurFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of controleLivraisonFichier
+     */ 
+    public function getControleLivraisonFichier()
+    {
+        return $this->controleLivraisonFichier;
+    }
+
+    /**
+     * Set the value of controleLivraisonFichier
+     *
+     * @return  self
+     */ 
+    public function setControleLivraisonFichier($controleLivraisonFichier)
+    {
+        $this->controleLivraisonFichier = $controleLivraisonFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of titreDeTransportFichier
+     */ 
+    public function getTitreDeTransportFichier()
+    {
+        return $this->titreDeTransportFichier;
+    }
+
+    /**
+     * Set the value of titreDeTransportFichier
+     *
+     * @return  self
+     */ 
+    public function setTitreDeTransportFichier($titreDeTransportFichier)
+    {
+        $this->titreDeTransportFichier = $titreDeTransportFichier;
 
         return $this;
     }
