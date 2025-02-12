@@ -613,3 +613,5 @@ SET
     ID_Statut_Demande = 9
 where
     Numero_Ordre_Mission = 'DOM24100448'
+
+delete from Sous_type_document where ID_Sous_Type_Document='4';
