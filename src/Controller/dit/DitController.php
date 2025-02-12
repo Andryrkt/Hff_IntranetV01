@@ -31,10 +31,11 @@ class DitController extends Controller
      * @param Request $request
      * @return void
      */
-    public function new(Request $request){
+    public function new(Request $request)
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
@@ -49,9 +50,8 @@ class DitController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            
+        if ($form->isSubmitted() && $form->isValid()) {
+
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
@@ -59,7 +59,7 @@ class DitController extends Controller
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
             self::$em->persist($application);
             self::$em->flush();
-            
+
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
@@ -68,23 +68,22 @@ class DitController extends Controller
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
-            
+
             //envoie des pièce jointe dans une dossier et la fusionner
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
-            
+
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
             $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
             self::$em->persist($insertDemandeInterventions);
             self::$em->flush();
-            
-            //ENVOYER le PDF DANS DOXCUWARE
-        
-                $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
-            
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            //ENVOYER le PDF DANS DOXCUWARE
+
+            $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+
+
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("dit_index");
-            
         }
 
         self::$twig->display('dit/new.html.twig', [
@@ -92,21 +91,22 @@ class DitController extends Controller
         ]);
     }
 
-   
-   
+
+
     /**
      * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
-    public function agence($id) {
+    public function agence($id)
+    {
 
         $agence = self::$em->getRepository(Agence::class)->find($id);
-    
+
         $service = $agence->getServices();
 
         //   $services = $service->getValues();
-            $services = [];
+        $services = [];
         foreach ($service as $key => $value) {
             $services[] = [
                 'value' => $value->getId(),
@@ -114,7 +114,7 @@ class DitController extends Controller
             ];
         }
 
-        
+
         //dd($services);
         header("Content-type:application/json");
 
@@ -143,8 +143,5 @@ class DitController extends Controller
         $jsonData = json_encode($data);
 
         $this->testJson($jsonData);
-       
     }
-
-
 }
