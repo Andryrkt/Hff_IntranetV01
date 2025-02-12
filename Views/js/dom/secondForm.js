@@ -179,13 +179,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
   if (siteInput) {
     siteInput.addEventListener('change', indemnitySite);
   }
+  console.log(sousTypeDocInput.value);
 
   function indemnitySite() {
     const siteValue = siteInput.value;
-    const docValue = sousTypeDocInput.value;
+    const sousTypeDocValue = sousTypeDocInput.value;
+
     const catgValue = categorieInput.value;
     const rmqValue = rmqInput.value;
-    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
+    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
     fetch(url)
       .then((response) => response.json())
       .then((indemnite) => {
@@ -347,7 +349,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let montantTotal =
       totalindemniteForfaitaire + totaAutreDepense - totalIdemniteDeplacement;
 
-    montantTotalInput.value = formatNumberInt(montantTotal);
+    if (sousTypeDocInput.value == 11) {
+      montantTotalInput.value = "-" + formatNumberInt(montantTotal);
+    } else {
+      montantTotalInput.value = formatNumberInt(montantTotal);
+    }
   }
 
   /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
