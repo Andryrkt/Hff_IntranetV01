@@ -8,6 +8,7 @@ use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class InfoFournisseurApi extends Controller
 {
@@ -75,5 +76,19 @@ class InfoFournisseurApi extends Controller
                 ]
             );
         }
+    }
+
+    /**
+     * @Route("/api/liste-doc/{numeroDossier}", name="api_liste_doc")
+     *
+     * @param string $numeroDossier
+     * @return void
+     */
+    public function listeDoc(string $numeroDossier)
+    {
+        $dossiers = $this->demandePaiementModel->findListeDoc($numeroDossier);
+
+        $response = new JsonResponse($dossiers);
+        $response->send();
     }
 }

@@ -61,8 +61,31 @@ export class TableauComponent {
     // Vérifier si les données sont présentes
     if (this.props.data && this.props.data.length > 0) {
       // Si des données existent, les afficher
-      this.props.data.forEach((row) => {
-        const tableRow = document.createElement("tr");
+      this.props.data.forEach((row, index) => {
+        let tableRow;
+
+        // if (this.props.customRenderRow) {
+        //   tableRow = this.props.customRenderRow(row, index, this.props.data);
+        // } else {
+        tableRow = document.createElement("tr");
+        // }
+        // Ajout d'une classe personnalisée si définie dans les colonnes ou de manière générale
+        if (this.props.rowClassName) {
+          if (typeof this.props.rowClassName === "function") {
+            const dynamicClass = this.props.rowClassName(row);
+            if (dynamicClass) {
+              tableRow.className = dynamicClass;
+            }
+          } else {
+            tableRow.className = this.props.rowClassName;
+          }
+        }
+
+        // Ajout de l'événement personnalisé sur le clic de la ligne
+        if (this.props.onRowClick) {
+          tableRow.addEventListener("click", () => this.props.onRowClick(row));
+        }
+
         this.props.columns.forEach((column) => {
           const td = document.createElement("td");
           // Utiliser defaultValue si la donnée est vide ou inexistante
@@ -104,8 +127,11 @@ export class TableauComponent {
             td.style.textAlign = column.align;
           }
 
-          tableRow.appendChild(td);
+          if (tableRow) {
+            tbody.appendChild(tableRow);
+          }
         });
+
         tbody.appendChild(tableRow);
       });
     } else {

@@ -1,198 +1,218 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+import { AutoComplete } from "../utils/Autocomplete.js";
+import { TableauComponent } from "../Component/TableauComponent.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  /**====================================
+   * AUTOCOMPLETE
+   *====================================*/
   const fetchManager = new FetchManager("/Hffintranet");
 
-  let preloadeFrnData = [];
-
-  const numFrnInput = document.querySelector(
-    "#demande_paiement_numeroFournisseur"
-  );
-  const nomFrnInput = document.querySelector("#demande_paiement_beneficiaire");
-  const deviseInput = document.querySelector("#demande_paiement_devise");
-  const modePaiementInput = document.querySelector(
-    "#demande_paiement_modePaiement"
-  );
-  const ribInput = document.querySelector("#demande_paiement_ribFournisseur");
-  const suggestionContainerNum = document.querySelector(
-    "#suggestion-num-fournisseur"
-  );
-  const suggestionContainerNom = document.querySelector(
-    "#suggestion-nom-fournisseur"
-  );
-
-  async function fetchListeFournisseur(endpoint) {
-    try {
-      const fornisseurs = await fetchManager.get(endpoint);
-      preloadeFrnData = fornisseurs;
-      // console.log("Données récupérées:", fornisseurs);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
-      );
-    }
+  async function fetchFournisseurs() {
+    return await fetchManager.get("api/info-fournisseur-ddp");
   }
 
-  const endpoint = "api/info-fournisseur-ddp";
-  fetchListeFournisseur(endpoint);
+  function displayFournisseur(item) {
+    return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
+  }
 
-  numFrnInput.addEventListener("input", filtrerLesDonnerNum);
-  nomFrnInput.addEventListener("input", filtrerLesDonnerNom);
+  function onSelectFournisseur(item) {
+    document.querySelector("#demande_paiement_numeroFournisseur").value =
+      item.num_fournisseur;
+    document.querySelector("#demande_paiement_beneficiaire").value =
+      item.nom_fournisseur;
+    document.querySelector("#demande_paiement_devise").value = item.devise;
+    document.querySelector("#demande_paiement_modePaiement").value =
+      item.mode_paiement;
+    document.querySelector("#demande_paiement_ribFournisseur").value =
+      item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
+        ? item.rib
+        : "-";
+
+    // Exemple : Récupérer les commandes du fournisseur après la sélection
+    updateCommandesFournisseur(item.num_fournisseur);
+  }
+
+  // Activation sur le champ "Numéro Fournisseur"
+  new AutoComplete({
+    inputElement: document.querySelector("#demande_paiement_numeroFournisseur"),
+    suggestionContainer: document.querySelector("#suggestion-num-fournisseur"),
+    loaderElement: document.querySelector("#loader-num-fournisseur"), // Ajout du loader
+    debounceDelay: 300, // Délai en ms
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+  });
+
+  // Activation sur le champ "Nom Fournisseur"
+  new AutoComplete({
+    inputElement: document.querySelector("#demande_paiement_beneficiaire"),
+    suggestionContainer: document.querySelector("#suggestion-nom-fournisseur"),
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+  });
 
   /**
-   * Methode permet de filtrer les donner selon les donnée saisi dans l'input
+   * Permet d'afficher le tableau de facture
+   * @param {string} numFournisseur
    */
-  function filtrerLesDonnerNum() {
-    const numFrn = numFrnInput.value.trim();
+  async function updateCommandesFournisseur(numFournisseur) {
+    const commandes = await fetchManager.get(
+      `api/num-cde-frn/${numFournisseur}`
+    );
+    const $tableauContainer = document.querySelector("#tableau_facture");
+    $tableauContainer.innerHTML = "";
+    const columns = [
+      { label: "N° Facture", key: "Numero_Facture" },
+      { label: "N° fournisseur", key: "Code_Fournisseur" },
+      { label: "Nom fournisseur", key: "Libelle_Fournisseur" },
+      { label: "N° Dossier", key: "Numero_Dossier_Douane" },
+      { label: "N° LTA", key: "Numero_LTA" },
+      { label: "N° HAWB", key: "Numero_HAWB" },
+      { label: "N° PO", key: "Numero_PO" },
+    ];
 
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (numFrn === "") {
-      suggestionContainerNum.innerHTML = ""; // Efface les suggestions
-      return;
+    const tableauComponent = new TableauComponent({
+      columns: columns,
+      data: commandes.listeGcot,
+      theadClass: "table-dark",
+      rowClassName: "clickable-row clickable",
+      //   customRenderRow: (row, index, data) =>
+      //     customRenderRow(row, index, data, columns),
+      onRowClick: (row) => chargerDocuments(row.Numero_Dossier_Douane),
+    });
+
+    tableauComponent.mount("tableau_facture");
+    //     document.querySelector("#demande_paiement_numeroCommande").value =
+    //       commandes.numCdes.join(";");
+  }
+
+  function customRenderRow(row, index, data, columns) {
+    const tr = document.createElement("tr");
+
+    // Colonnes qui doivent être identiques pour la fusion
+    const columnsToMerge = [
+      "Numero_Facture",
+      "Code_Fournisseur",
+      "Libelle_Fournisseur",
+    ];
+
+    const previousRow = data[index - 1] || {};
+    const nextRow = data[index + 1] || {};
+
+    const isLastOfGroup =
+      index === data.length - 1 ||
+      columnsToMerge.some((key) => row[key] !== nextRow[key]);
+
+    if (isLastOfGroup) {
+      tr.style.borderBottom = "3px solid black";
     }
 
-    const filteredData = preloadeFrnData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(numFrn.toLowerCase());
-    });
+    // Vérifie si la ligne actuelle est la première d'un groupe "fusionnable"
+    const isFirstOfGroup =
+      index === 0 ||
+      columnsToMerge.some(
+        (key) => row[key] !== previousRow[key] // Si une valeur est différente, c'est le début d'un groupe
+      );
 
-    showSuggestions(suggestionContainerNum, filteredData);
-  }
+    // Compte combien de lignes peuvent être fusionnées
+    let rowspan = 1;
+    if (isFirstOfGroup) {
+      for (let i = index + 1; i < data.length; i++) {
+        const nextRow = data[i];
+        const isSameGroup = columnsToMerge.every(
+          (key) => row[key] === nextRow[key]
+        );
 
-  function filtrerLesDonnerNom() {
-    const nomFrn = nomFrnInput.value.trim();
-
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (nomFrn === "") {
-      suggestionContainerNom.innerHTML = ""; // Efface les suggestions
-      return;
+        if (isSameGroup) {
+          rowspan++;
+        } else {
+          break;
+        }
+      }
     }
 
-    const filteredData = preloadeFrnData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(nomFrn.toLowerCase());
+    columns.forEach((column) => {
+      const td = document.createElement("td");
+      const value = row[column.key] || "-";
+
+      // Gestion des colonnes à fusionner
+      if (columnsToMerge.includes(column.key)) {
+        // Si ce n'est pas la première ligne du groupe, on ne met rien
+        if (!isFirstOfGroup) {
+          return; // Ne pas créer de cellule pour les lignes suivantes du groupe
+        }
+
+        td.textContent = value;
+
+        if (rowspan > 1) {
+          td.setAttribute("rowspan", rowspan);
+          td.style.verticalAlign = "middle";
+        }
+      } else {
+        // Colonnes normales sans fusion
+        td.textContent = value;
+      }
+
+      tr.appendChild(td);
     });
 
-    showSuggestions(suggestionContainerNom, filteredData);
+    // Ajoute une classe personnalisée si nécessaire
+    tr.classList.add("clickable-row", "clickable");
+
+    // Ajoute l'événement au clic sur la ligne
+    tr.addEventListener("click", () =>
+      chargerDocuments(row.Numero_Dossier_Douane)
+    );
+
+    return tr;
   }
 
-  /**
-   * Methode permet d'afficher les donner sur le div du suggestion
-   * @param {HTMLElement} suggestionsContainer
-   * @param {Array} data
-   */
-  function showSuggestions(suggestionsContainer, data) {
-    // Vérifie si le tableau est vide
-    if (data.length === 0) {
-      suggestionsContainer.innerHTML = ""; // Efface les suggestions
-      return; // Arrête l'exécution de la fonction
-    }
+  async function chargerDocuments(numeroDossier) {
+    // const spinners = document.getElementById("spinners");
+    // const spinner = document.getElementById("spinner");
 
-    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
-    data.forEach((item) => {
-      const numFournisseur = item.num_fournisseur;
-      const nomFournisseur = item.nom_fournisseur;
-      const suggestion = document.createElement("div");
-      suggestion.textContent = numFournisseur + " - " + nomFournisseur; // Affiche la liste des suggestions
-      remplitLesChamps(suggestion, suggestionsContainer, item);
-      suggestionsContainer.appendChild(suggestion);
-    });
-  }
+    // spinner.style.display = "block";
 
-  function remplitLesChamps(suggestion, suggestionsContainer, item) {
-    suggestion.addEventListener("click", () => {
-      const numFournisseur = item.num_fournisseur;
-      const nomFournisseur = item.nom_fournisseur;
-      const deviseFournisseur = item.devise;
-      const modePaiementFournisseur = item.mode_paiement;
-      const rib = item.rib;
-      updateNumFournisseurFields(numFournisseur); // Remplit le champ avec la sélection
-      updateNomFournisseurFields(nomFournisseur);
-      updateDeviseFournisseurFields(deviseFournisseur);
-      updateModePaiementFournisseurFields(modePaiementFournisseur);
-      updateRibFournisseurFields(rib);
-      updateCdeFrn(numFournisseur);
-      suggestionsContainer.innerHTML = ""; // Efface les suggestions
-    });
-  }
-
-  async function updateCdeFrn(numFournisseur) {
     try {
-      const endpoint = `api/num-cde-frn/${numFournisseur}`;
-      const commandes = await fetchManager.get(endpoint);
-      const numCdeInput = document.querySelector(
-        "#demande_paiement_numeroCommande"
-      );
-      console.log(commandes.numCdes);
+      const dossier = await fetchManager.get(`api/liste-doc/${numeroDossier}`);
 
-      if (numCdeInput) {
-        numCdeInput.value = commandes.numCdes.join(";");
-      } else {
-        console.error("Les éléments du formulaire n'ont pas été trouvés.");
-      }
+      //spinner.style.display = "none";
+
+      const tContainer = document.getElementById("tableau_dossier");
+      tContainer.innerHTML = "";
+
+      const columns = [
+        { label: "Chemin fichier", key: "Nom_Fichier" },
+        { label: "Date", key: "Date_Fichier" },
+      ];
+
+      const tableauComponent = new TableauComponent({
+        columns: columns,
+        data: dossier,
+        theadClass: "table-dark",
+        rowClassName: "clickable-row clickable",
+        // onRowClick: (row) => chargerDocuments(row.Nom_Fichier),
+      });
+
+      tableauComponent.mount("tableau_dossier");
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
-      );
+      console.error("Erreur chargement des documents : ", error);
+      spinner.style.display = "none";
     }
   }
 
-  function updateNumFournisseurFields(numFournisseur) {
-    // Vérification si les éléments sont présents dans le DOM
-    if (numFrnInput) {
-      numFrnInput.value = numFournisseur;
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  function updateNomFournisseurFields(nomFournisseur) {
-    // Vérification si les éléments sont présents dans le DOM
-    if (nomFrnInput) {
-      nomFrnInput.value = nomFournisseur;
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  function updateDeviseFournisseurFields(devise) {
-    if (deviseInput) {
-      deviseInput.value = devise;
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  function updateModePaiementFournisseurFields(modePaiement) {
-    if (modePaiementInput) {
-      modePaiementInput.value = modePaiement;
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  function updateRibFournisseurFields(rib) {
-    if (ribInput) {
-      if (
-        rib &&
-        rib != 0 &&
-        rib.trim() != "XXXXXXXXXXX" &&
-        rib.trim() != "US" &&
-        rib.trim() != "ZA"
-      ) {
-        ribInput.value = rib;
-      } else {
-        ribInput.value = "-";
-      }
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  /** FICHIER */
+  /** ============================
+   * FICHIER
+   * =============================*/
   const fileInput = document.querySelector("#demande_paiement_pieceJoint01");
   initializeFileHandlers("1", fileInput);
+
+  /**==================================================
+   * sweetalert pour le bouton Enregistrer
+   *==================================================*/
+  setupConfirmationButtons();
 });

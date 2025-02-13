@@ -20,7 +20,6 @@ class Model
 
     public function __construct()
     {
-
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();
@@ -152,5 +151,15 @@ class Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function retournerResultGcot04($sql)
+    {
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+        $data[] = $tabType;
+        }
+        return $data;
     }
 }

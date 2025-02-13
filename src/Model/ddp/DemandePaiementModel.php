@@ -71,11 +71,17 @@ class DemandePaiementModel extends Model
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
         ";
 
-        $statement = $this->connexion04Gcot->query($sql);
-        $data = [];
-        while ($tabType = odbc_fetch_array($statement)) {
-        $data[] = $tabType;
-        }
-        return $data;
+        return $this->retournerResultGcot04($sql);
+    }
+
+    public function findListeDoc($numeroDossier)
+    {
+        $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO
+            from GCOT_Gestion_Document
+            where Numero_PO='{$numeroDossier}'
+            and (Nom_Fichier like '%PDV%' or Nom_Fichier like '%BOL%' or Nom_Fichier like '%HAWB%')
+        ";
+
+        return $this->retournerResultGcot04($sql);
     }
 }

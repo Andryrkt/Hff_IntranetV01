@@ -1,6 +1,8 @@
-
+/**===================================
+* Container du choix de l'autaucomplet
+*======================================*/
 /* Conteneur de la liste des suggestions */
-.suggestions {
+.suggestions-container {
     position: absolute;
     background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
     /* border: 1px solid rgba(255, 255, 255, 0.3); Bordure blanche translucide */
@@ -14,7 +16,7 @@
 }
 
 /* Style des éléments de suggestion */
-.suggestions div {
+.suggestions-container div {
     padding: 10px;
     font-size: 14px;
     color: #ffc107;
@@ -22,20 +24,29 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.suggestions-container div.active-suggestion {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+
 /* Effet hover sur une suggestion */
-.suggestions div:hover {
+.suggestions-container div:hover {
     background-color: #000000b2; /* Bleu clair pour hover */
     color: #ffffff; /* Bleu pour le texte */
 }
 
 /* Style pour aucune suggestion trouvée */
-.suggestions .no_results {
+.suggestions-container .no_results {
     color: #888;
     text-align: center;
     font-style: italic;
     padding: 10px;
 }
 
+/**======================================
+* Apparence du champ
+*=======================================*/
 /* Améliore l'apparence générale des champs */
 input.autocomplete {
     border: 1px solid #ccc;
@@ -52,4 +63,21 @@ input.autocomplete:focus {
     border-color: #ffd900; /* Bordure bleue */
     box-shadow: 0 0 5px rgba(255, 208, 0, 0.5); /* Lueur bleue */
     outline: none;
+}
+
+/**=================================
+* Tableau clickable
+*=====================================*/
+.clickable {
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Ajoute une transition fluide */
+}
+
+.clickable:hover {
+    background-color: #fbbc0185; /* Change la couleur de fond au survol */
+}
+
+.selected {
+    background-color:#FBBB01; /* Couleur de fond une fois cliqué */
+    font-weight: bold;
 }
