@@ -3,7 +3,9 @@
 namespace App\Entity\admin\ddp;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\ddp\DemandePaiement;
 use App\Repository\admin\ddp\TypeDemandeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=TypeDemandeRepository::class)
@@ -41,10 +43,21 @@ class TypeDemande
      */
     private ?string $description;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandePaiement::class, mappedBy="typeDemandeId")
+     */
+    private $demandePaiement;
+
     /**===========================================================================
      * GETTER & SETTER
      *
      *==========================================================================*/
+
+    public function __construct()
+    {
+        $this->demandePaiement = new ArrayCollection();
+    }
 
     /**
      * Get the value of id
@@ -122,6 +135,39 @@ class TypeDemande
     public function setDescription($description)
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDemandePaiement()
+    {
+        return $this->demandePaiement;
+    }
+
+    public function addDemandePaiement($demandePaiement)
+    {
+        if(!$this->demandePaiement->contains($demandePaiement)) {
+            $this->demandePaiement[] = $demandePaiement;
+            $demandePaiement->setTypeDemandeId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandePaiement($demandePaiement)
+    {
+        if($this->demandePaiement->contains($demandePaiement)) {
+            $this->demandePaiement->removeElement($demandePaiement);
+            if($demandePaiement->getTypeDemandeId() === $this ) {
+                $demandePaiement->setTypeDemandeId(null);
+            }
+        }
+        return $this;
+    }
+
+    public function setDemandePaiement($demandePaiement)
+    {
+        $this->demandePaiement = $demandePaiement;
 
         return $this;
     }

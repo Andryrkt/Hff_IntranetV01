@@ -50,6 +50,11 @@ class TableauEnStringService
     {
         // Fonction de validation et de transformation
         $flattenedArray = self::flattenArray($tab);
+
+        // Si le tableau est vide, renvoyer deux quotes simples
+        if (empty($flattenedArray)) {
+            return $quote . $quote;
+        }
         
         // Échappe les caractères spéciaux si nécessaire
         $escapedArray = array_map(function ($el) use ($quote) {

@@ -156,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { label: "Devise", key: "devise_cde", align: "center" },
     { label: "Type", key: "type_cde", align: "center" },
   ];
+
   async function fetchListeCdeFournisseur(
     endpoint,
     spinnerElement,
@@ -164,6 +165,9 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       // Afficher le spinner avant le début du chargement
       // toggleSpinner(spinnerElement, containerElement, true);
+
+      const $tableauContainer = document.querySelector("#tableau_cde_frn");
+      $tableauContainer.innerHTML = "";
 
       const cdes = await fetchManager.get(endpoint);
 
@@ -275,4 +279,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Utilisation pour plusieurs fichier
   initializeFileHandlers("1");
+
+  /**==================================================
+   * sweetalert pour le bouton Enregistrer
+   *==================================================*/
+  const btnCdeFnr = document.querySelector("#bouton-cde-fnr");
+  btnCdeFnr.addEventListener("click", (e) => {
+    e.preventDefault();
+    const overlay = document.getElementById("loading-overlay");
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: `Vous êtes en train de soumettre une commande à validation dans DocuWare `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#fbbb01",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "OUI",
+    })
+      .then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: "Fait Attention!",
+            text: "Veuillez de ne pas fermer l’onglet durant le traitement.",
+            icon: "warning",
+          }).then((res) => {
+            overlay.classList.remove("hidden");
+            // Soumettre le formulaire
+            const form = document.querySelector("#myForm");
+            form.submit();
+          });
+        }
+      })
+      .finally(() => {
+        overlay.classList.add("hidden");
+      });
+  });
 });

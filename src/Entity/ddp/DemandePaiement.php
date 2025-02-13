@@ -3,6 +3,9 @@
 namespace App\Entity\ddp;
 
 use App\Entity\Traits\DateTrait;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\ddp\TypeDemande;
+use App\Repository\ddp\DemandePaiementRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DemandePaiementRepository::class)
@@ -28,6 +31,10 @@ class DemandePaiement
     private ?string $numero;
 
 
+    /**
+     * @ORM\ManyToOne(targetEntity=TypeDemande::class, inversedBy="demandePaiement")
+     * @ORM\JoinColumn(name="type_demande", referencedColumnName="id")
+     */
     private $typeDemandeId;
 
     /**
