@@ -33,7 +33,6 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 0, 'C');
         $pdf->SetFont('pdfatimesbi', '', 12);
         $pdf->Cell(0, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
-        $pdf->SetFont('pdfatimesbi', '', 12);
         $pdf->SetTextColor(...$couleurTitre);
         $pdf->setX($pdf->GetX() + 35);
         $pdf->Cell(0, 10, 'Agence/Service débiteur : ' . $tab['codeServiceDebitteur'] . '-' . $tab['serviceDebitteur'], 0, 0, 'C');
@@ -41,12 +40,16 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setX($w50 + 10);
         $pdf->Cell(0, 10, $tab['NumDom'], 0, 1, 'R');
 
+        /** Type mission */
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(12, 10, 'Type : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
         $pdf->Cell($w50 - 12, 10, $tab['typMiss'], 0, 0);
         $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
+        $pdf->SetFont('pdfatimesbi', '', 10);
+
+        /** SITE */
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(11, 10, 'Site : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
@@ -54,13 +57,18 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
         $pdf->Ln(); // Nouvelle ligne
+        $pdf->SetFont('pdfatimesbi', '', 12);
 
+        /** AGENCE */
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(17, 10, 'Agence : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
         $pdf->Cell($w50 - 17, 10, $tab['Code_serv'], 0, 0);
         $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
+        $pdf->SetFont('pdfatimesbi', '', 10);
+
+        /** SERVICE */
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(17, 10, 'Service : ', 0, 0);
         $pdf->setTextColor(0, 0, 0); // Noir
@@ -69,6 +77,7 @@ class GeneratePdfDom extends GeneratePdf
 
         $pdf->Ln(); // Nouvelle ligne
 
+        $pdf->SetFont('pdfatimesbi', '', 12);
         $pdf->Rect($pdf->GetX(), $pdf->GetY(), $w50 * 2, 10);  // Bordure englobant tout
         $pdf->setTextColor(...$couleurTitre); // Bleu
         $pdf->Cell(12, 10, 'Nom : ', 0, 0);

@@ -159,7 +159,7 @@ class DitRepository extends EntityRepository
          //filtre selon le section affectée
         $sectionAffectee = $ditSearch->getSectionAffectee();
         if (!empty($sectionAffectee)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots disponibles
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
             $resultatsSectionAffectee = [];
     
             foreach ($groupes as $groupe) {
@@ -345,7 +345,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     // Filtrer selon la section affectée
     $sectionAffectee = $ditSearch->getSectionAffectee();
     if (!empty($sectionAffectee)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
         $orX = $queryBuilder->expr()->orX();
 
         foreach ($groupes as $index => $groupe) {
@@ -363,7 +363,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     //filtre selon le section support 1
     $sectionSupport1 = $ditSearch->getSectionSupport1();
     if (!empty($sectionSupport1)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
         $orX = $queryBuilder->expr()->orX();
 
         foreach ($groupes as $groupe) {
@@ -378,7 +378,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
      //filtre selon le section support 2
     $sectionSupport2 = $ditSearch->getSectionSupport2();
     if (!empty($sectionSupport2)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
         $orX = $queryBuilder->expr()->orX();
         
         foreach ($groupes as $groupe) {
@@ -393,7 +393,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
       //filtre selon le section support 3
     $sectionSupport3 = $ditSearch->getSectionSupport1();
     if (!empty($sectionSupport3)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
         $orX = $queryBuilder->expr()->orX();
 
         foreach ($groupes as $groupe) {

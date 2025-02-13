@@ -63,16 +63,15 @@ class DitSearchType extends AbstractType
    private function sectionAffectee()
    {
         $sectionAffecte = $this->ditSearchRepository->findSectionAffectee();
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
-        dd($sectionAffectee);
         return array_combine($sectionAffectee, $sectionAffectee);
    }
 
    private function sectionSupport1()
    {
         $sectionSupport1 = $this->ditSearchRepository->findSectionSupport1();
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport1 = str_replace($groupes, "", $sectionSupport1);
         return array_combine($sectionSupport1, $sectionSupport1);
    }
@@ -80,7 +79,7 @@ class DitSearchType extends AbstractType
    private function sectionSupport2()
    {
         $sectionSupport2 = $this->ditSearchRepository->findSectionSupport2();
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport2 = str_replace($groupes, "", $sectionSupport2);
         return array_combine($sectionSupport2, $sectionSupport2);
    }
@@ -88,7 +87,7 @@ class DitSearchType extends AbstractType
    private function sectionSupport3()
    {
         $sectionSupport3 = $this->ditSearchRepository->findSectionSupport3();
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots à supprimer
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport3 = str_replace($groupes, "", $sectionSupport3);
         return array_combine($sectionSupport3, $sectionSupport3);
    }
