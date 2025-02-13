@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
               let row = `<tr>
                         <td>${detail.numor}</td> 
                         <td>${detail.intv}</td> 
-                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numCis}</td> 
                         <td ></td> 
                         <td></td> 
                         <td>${detail.cst}</td> 
@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qteall)}</td> 
                         <td>${parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv)}</td> 
-                        <td  ${cmdColor}>${statut} </td> 
+                        <td  >${statut} </td> 
                         <td>${dateStatut}</td> 
                         <td></td> 
                         <td></td> 

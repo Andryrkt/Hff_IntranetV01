@@ -86,7 +86,7 @@ class ListeController extends Controller
             }
 
             $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit);
-            $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
+             $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
 
             // Calcule le nombre total de pages
             $pagesCount = ceil($resultat / $limit);
@@ -129,7 +129,6 @@ class ListeController extends Controller
         $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, 1, 0, true);
 
         $data = $this->recuperationDonnees($res1, $criteriaTAb, true);
-       
 
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
@@ -139,7 +138,7 @@ class ListeController extends Controller
             'N_Serie' => 'N° Série',
             'parc' => 'Parc',
             'casier' => 'Casier',
-            'commentaire' => 'Commentaire',
+            'commentaire' => 'Intitulé',
             'numor_itv' => 'Num OR - ITV',
             'dateplanning' => 'Date Planning',
             'cst' => 'CST',
@@ -163,7 +162,8 @@ class ListeController extends Controller
             'Eta_ivato' => 'État Ivato',
             'Eta_magasin' => 'État Magasin',
             'message' => 'Message',
-            'ord' => 'Commande Envoyé'
+            'ord' => 'Commande Envoyé',
+            'status_b' => 'Statut'
         ];
 
         array_unshift($data, $header);
@@ -402,7 +402,8 @@ class ListeController extends Controller
                         'Eta_ivato' =>  $dateEtaIvato ,
                         'Eta_magasin' => $dateEtaMag ,
                         'message' => $details[$j]['message'],
-                        'ord' => $details[$j]['Ord']
+                        'ord' => $details[$j]['Ord'],
+                        'status_b' =>$res1[$i]['status_b']
 
                     ];
                 }
