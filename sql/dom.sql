@@ -615,3 +615,14 @@ where
     Numero_Ordre_Mission = 'DOM24100448'
 
 delete from Sous_type_document where ID_Sous_Type_Document='4';
+
+
+INSERT INTO Idemnity (Catg, Destination, Rmq, Montant_idemnite, Type)
+SELECT Catg, Destination, Rmq, Montant_idemnite, 'TROP PERCU' FROM Idemnity
+WHERE Type = 'MISSION';
+
+INSERT INTO idemnite(montant, site_id, catg_id, rmq_id, sousTypeDoc_id, date_creation, date_modification)
+SELECT montant, site_id, catg_id, rmq_id, '11', date_creation, date_modification FROM idemnite
+WHERE sousTypeDoc_id = '2';
+
+
