@@ -34,6 +34,8 @@
 				<th>Qté all OR</th>
 				<th>Qté reliq OR</th>
 				<th>Qté liv OR</th>
+				<th>Statut OR</th>
+				<th>Date statut OR</th>
 				{#  (num CIS) #}
 				<th>Ctr Marque</th>
 				<th>Cde frn</th>
@@ -43,8 +45,8 @@
 				<th>Qté all</th>
 				<th>Qté rel</th>
 				<th>Qté liv</th>
-				<th>Statut</th>
-				<th>Date statut</th>
+				<th>Statut CIS</th>
+				<th>Date statut CIS</th>
 				<th>ETA Ivato</th>
 				<th>ETA Magasin</th>
 				<th>Message</th>
@@ -94,6 +96,10 @@
 					<td>
 						{{item.qteliv_or | number_format(0)}}</td>
 					<td>
+						{{item.statutOR}}</td>
+					<td>
+						{{item.datestatutOR}}</td>
+					<td>
 						{{item.numcis}}</td>
 					<td>
 						{{item.numerocmd}}</td>
@@ -108,13 +114,13 @@
 					<td>
 						{{item.qtelivlig_cis | number_format(0)}}</td>
 					<td>
-						{{item.statut}}</td>
+						{{item.statutCis}}</td>
 					<td>
-						{{item.datestatut | date("d/m/Y")}}</td>
+						{{item.datestatutCis }}</td>
 					<td>
-						{{item.Eta_ivato | date("d/m/Y")}}</td>
+						{{item.Eta_ivato }}</td>
 					<td>
-						{{item.Eta_magasin | date("d/m/Y")}}</td>
+						{{item.Eta_magasin }}</td>
 					<td>
 						{{item.message}}</td>
 				</tr>

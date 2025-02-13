@@ -251,6 +251,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               statut = detail.statut;
             }
+           
             if (detail.message == null) {
               message = "";
             } else {
@@ -315,7 +316,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${detail.intv}</td> 
                         <td>${numCis}</td> 
                         <td ></td> 
-                        <td ></td> 
+                        <td></td> 
                         <td>${detail.cst}</td> 
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
@@ -323,7 +324,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${parseInt(detail.qteall)}</td> 
                         <td>${parseInt(detail.qtereliquat)}</td> 
                         <td>${parseInt(detail.qteliv)}</td> 
-                        <td ></td> 
+                        <td  ${cmdColor}>${statut} </td> 
                         <td>${dateStatut}</td> 
                         <td></td> 
                         <td></td> 

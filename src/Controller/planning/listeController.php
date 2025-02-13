@@ -10,6 +10,7 @@ use App\Controller\Traits\Transformation;
 use App\Entity\planning\PlanningSearch;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\planning\PlanningSearchType;
+use DateTime;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\Routing\Annotation\Route;
@@ -91,6 +92,7 @@ class ListeController extends Controller
             $pagesCount = ceil($resultat / $limit);
 
             $data = $this->recuperationDonnees($res1, $criteriaTAb);
+            // dd($data);
         }
         // dump($data);
         self::$twig->display('planning/listePlanning.html.twig', [
@@ -126,7 +128,8 @@ class ListeController extends Controller
 
         $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, 1, 0, true);
 
-        $data = $this->recuperationDonnees($res1, $criteriaTAb,true);
+        $data = $this->recuperationDonnees($res1, $criteriaTAb, true);
+       
 
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
@@ -146,6 +149,8 @@ class ListeController extends Controller
             'qteall_or' => 'Qte All OR',
             'qtereliquat' => 'Qte Reliquat',
             'qteliv_or' => 'Qte Livrée OR',
+            'statutOR' => 'Statut OR',
+            'datestatutOR' => 'Date statut OR',
             'numcis' => 'Num CIS',
             'numerocmd' => 'Numéro CMD',
             'statut_ctrmq' => 'Statut CTRMQ',
@@ -153,8 +158,8 @@ class ListeController extends Controller
             'qtealllig_cis' => 'Qte All CIS',
             'qterlqlig_cis' => 'Qte Reliquat CIS',
             'qtelivlig_cis' => 'Qte Livrée CIS',
-            'statut' => 'Statut',
-            'datestatut' => 'Date Statut',
+            'statutCis' => 'Statut CIS',
+            'datestatutCis' => 'Date Statut CIS',
             'Eta_ivato' => 'État Ivato',
             'Eta_magasin' => 'État Magasin',
             'message' => 'Message',
@@ -227,8 +232,12 @@ class ListeController extends Controller
             for ($i = 0; $i < count($res1); $i++) {
                 // $details = $this->planningModel->recuperationDetailPieceInformix($res1[$i]['orintv'], $criteriaTAb);
                 $details = $this->planningModel->recuperationDetailPieceInformixListe($res1[$i]['numor'], $criteriaTAb, $res1[$i]['itv']);
-
+                $qteCis = [];
+                $dateLivLigCIS = [];
+                $dateAllLigCIS = [];
                 for ($j = 0; $j < count($details); $j++) {
+
+
                     if (substr($details[$j]['numor'], 0, 1) == '5') {
                         if ($details[$j]['numcis'] !== "0" || $details[$j]['numerocdecis'] == "0") {
                             $recupGcot = [];
@@ -277,8 +286,7 @@ class ListeController extends Controller
                     } else {
                         $details[$j]['Ord'] = "";
                     }
-
-                    if (!empty($dateLivLigCIS[0])) {
+                    if (!empty($dateLivLigCIS[$j][0])) {
                         $details[$j]['dateLivLIg'] = $dateLivLigCIS[$j]['0']['datelivlig'];
                     } else {
                         $details[$j]['dateLivLIg'] = "";
@@ -290,17 +298,17 @@ class ListeController extends Controller
                         $details[$j]['dateAllLIg'] = "";
                     }
 
-                    if (!empty($qteCIS)) {
-                        if (!empty($qteCIS[$j])) {
-                            $details[$j]['qteORlig'] = $qteCIS[$j]['0']['qteorlig'];
-                            $details[$j]['qtealllig'] = $qteCIS[$j]['0']['qtealllig'];
-                            $details[$j]['qterlqlig'] = $qteCIS[$j]['0']['qtereliquatlig'];
-                            $details[$j]['qtelivlig'] = $qteCIS[$j]['0']['qtelivlig'];
-                        } elseif (!empty($qteCIS[$j - 1])) {
-                            $details[$j]['qteORlig'] = $qteCIS[$j - 1]['0']['qteorlig'];
-                            $details[$j]['qtealllig'] = $qteCIS[$j - 1]['0']['qtealllig'];
-                            $details[$j]['qterlqlig'] = $qteCIS[$j - 1]['0']['qtereliquatlig'];
-                            $details[$j]['qtelivlig'] = $qteCIS[$j - 1]['0']['qtelivlig'];
+                    if (!empty($qteCis)) {
+                        if (!empty($qteCis[$j])) {
+                            $details[$j]['qteORlig'] = $qteCis[$j]['0']['qteorlig'];
+                            $details[$j]['qtealllig'] = $qteCis[$j]['0']['qtealllig'];
+                            $details[$j]['qterlqlig'] = $qteCis[$j]['0']['qtereliquatlig'];
+                            $details[$j]['qtelivlig'] = $qteCis[$j]['0']['qtelivlig'];
+                        } elseif (isset($qteCis[$j - 1]) && !empty($qteCis[$j - 1])) {
+                            $details[$j]['qteORlig'] = $qteCis[$j - 1]['0']['qteorlig'];
+                            $details[$j]['qtealllig'] = $qteCis[$j - 1]['0']['qtealllig'];
+                            $details[$j]['qterlqlig'] = $qteCis[$j - 1]['0']['qtereliquatlig'];
+                            $details[$j]['qtelivlig'] = $qteCis[$j - 1]['0']['qtelivlig'];
                         } else {
                             $details[$j]['qteORlig'] = "";
                             $details[$j]['qtealllig'] = "";
@@ -313,7 +321,8 @@ class ListeController extends Controller
                         $details[$j]['qterlqlig'] = "";
                         $details[$j]['qtelivlig'] = "";
                     }
-                    if ($details[$j]['qtelivlig'] > 0 &&  $details[$j]['qtealllig']  === 0 && $details[$j]['qterlqlig']) {
+
+                    if ($details[$j]['qtelivlig'] > 0 &&  $details[$j]['qtealllig']  == 0 && $details[$j]['qterlqlig'] == 0) {
                         $details[$j]['StatutCIS'] = "LIVRE";
                         $details[$j]['DateStatutCIS'] = $details[$j]['dateLivLIg'];
                     } elseif ($details[$j]['qtealllig'] > 0) {
@@ -327,6 +336,38 @@ class ListeController extends Controller
                         $details[$j]['numcde_cis'] = $details[$j]['numcis'];
                     } else {
                         $details[$j]['numcde_cis'] = $details[$j]['numcis'];
+                    }
+                   
+
+                    if ($details[$j]['statut'] == "" || $details[$j]['statut'] == null  ) {
+                        $statutDetail = "";
+                    } else {
+                        $statutDetail = $details[$j]['statut'];
+                    }
+                    if ($details[$j]['StatutCIS'] == "" || $details[$j]['StatutCIS'] == null  ) {
+                        $statutCisDetail = "";
+                    } else {
+                        $statutCisDetail = $details[$j]['StatutCIS'];
+                    }
+                    if ($details[$j]['datestatut'] == "" || $details[$j]['datestatut'] == null  ) {
+                        $datestatutDetail = "";
+                    } else {
+                        $datestatutDetail = (new DateTime($details[$j]['datestatut']))->format('d/m/Y');
+                    }
+                    if ($details[$j]['DateStatutCIS'] == "" || $details[$j]['DateStatutCIS'] == null  ) {
+                        $datestatutCisDetail = "";
+                    } else {
+                        $datestatutCisDetail = (new DateTime($details[$j]['DateStatutCIS']))->format('d/m/Y');
+                    }
+                    if ($details[$j]['Eta_ivato'] == "" || $details[$j]['Eta_ivato'] == null  ) {
+                        $dateEtaIvato = "";
+                    } else {
+                        $dateEtaIvato = (new DateTime($details[$j]['Eta_ivato']))->format('d/m/Y');
+                    }
+                    if ($details[$j]['Eta_magasin'] == "" || $details[$j]['Eta_magasin'] == null  ) {
+                        $dateEtaMag = "";
+                    } else {
+                        $dateEtaMag = (new DateTime($details[$j]['Eta_magasin']))->format('d/m/Y');
                     }
                     $data[] = [
                         'agenceServiceTravaux' => $res1[$i]['libsuc'] . ' - ' . $res1[$i]['libserv'],
@@ -345,7 +386,9 @@ class ListeController extends Controller
                         'qteres_or' => $details[$j]['qteres_or'],
                         'qteall_or' => $details[$j]['qteall'],
                         'qtereliquat' => $details[$j]['qtereliquat'],
-                        'qteliv_or' => $details[$j]['qteliv'],
+                        'qteliv_or' => $details[$j]['qteliv'], /**** */
+                        'statutOR' => $statutDetail,
+                        'datestatutOR' => $datestatutDetail  ,
                         // 'numcis' => $details[$j]['numcis'].$details[$j]['numerocmd'] ,
                         'numcis' => $details[$j]['numcde_cis'],
                         'numerocmd' => $details[$j]['numerocdecis'],
@@ -354,10 +397,10 @@ class ListeController extends Controller
                         'qtealllig_cis' => $details[$j]['qtealllig'],
                         'qterlqlig_cis' => $details[$j]['qterlqlig'],
                         'qtelivlig_cis' => $details[$j]['qtelivlig'],
-                        'statut' => $details[$j]['statut'] . $details[$j]['StatutCIS'],
-                        'datestatut' => $details[$j]['datestatut'] . $details[$j]['DateStatutCIS'],
-                        'Eta_ivato' => $details[$j]['Eta_ivato'],
-                        'Eta_magasin' => $details[$j]['Eta_magasin'],
+                        'statutCis' => $statutCisDetail,
+                        'datestatutCis' => $datestatutCisDetail ,
+                        'Eta_ivato' =>  $dateEtaIvato ,
+                        'Eta_magasin' => $dateEtaMag ,
                         'message' => $details[$j]['message'],
                         'ord' => $details[$j]['Ord']
 
