@@ -1,9 +1,9 @@
-document.addEventListener("DOMContentLoaded", (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
   /**
    * N'AFFICHE PAS LES CHAMPS matricule et cin selon le statut de la salarier
    */
-  const cinInput = document.querySelector("#dom_form2_cin");
-  const matriculeInput = document.querySelector("#dom_form2_matricule");
+  const cinInput = document.querySelector('#dom_form2_cin');
+  const matriculeInput = document.querySelector('#dom_form2_matricule');
 
   function form1Data() {
     let url = `/Hffintranet/form1Data-fetch`;
@@ -11,22 +11,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((response) => response.json())
       .then((form1Data) => {
         console.log(form1Data);
-        if (form1Data.salarier === "PERMANENT") {
-          cinInput.parentElement.style.display = "none";
+        if (form1Data.salarier === 'PERMANENT') {
+          cinInput.parentElement.style.display = 'none';
         } else {
-          matriculeInput.parentElement.style.display = "none";
+          matriculeInput.parentElement.style.display = 'none';
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
   form1Data();
 
   /**
    * recuperer l'agence debiteur et changer le service debiteur selon l'agence
    */
-  const agenceDebiteurInput = document.querySelector("#dom_form2_agence");
-  const serviceDebiteurInput = document.querySelector("#dom_form2_service");
-  agenceDebiteurInput.addEventListener("change", selectAgence);
+  const agenceDebiteurInput = document.querySelector('#dom_form2_agence');
+  const serviceDebiteurInput = document.querySelector('#dom_form2_service');
+  agenceDebiteurInput.addEventListener('change', selectAgence);
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         // Ajouter les nouvelles options à partir du tableau services
         for (var i = 0; i < services.length; i++) {
-          var option = document.createElement("option");
+          var option = document.createElement('option');
           option.value = services[i].value;
           option.text = services[i].text;
           serviceDebiteurInput.add(option);
@@ -52,26 +52,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
         //Afficher les nouvelles valeurs et textes des options
         for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
           var option = serviceDebiteurInput.options[i];
-          console.log("Value: " + option.value + ", Text: " + option.text);
+          console.log('Value: ' + option.value + ', Text: ' + option.text);
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
 
   /**
    * CALCULE et AFFICHAGE DU NOMBRE DE JOUR
    */
-  const dateDebutInput = document.querySelector("#dom_form2_dateDebut");
-  const dateFinInput = document.querySelector("#dom_form2_dateFin");
-  const nombreDeJourInput = document.querySelector("#dom_form2_nombreJour");
+  const dateDebutInput = document.querySelector('#dom_form2_dateDebut');
+  const dateFinInput = document.querySelector('#dom_form2_dateFin');
+  const nombreDeJourInput = document.querySelector('#dom_form2_nombreJour');
 
-  const errorMessage = document.createElement("div");
-  errorMessage.style.color = "red";
-  errorMessage.style.display = "none";
+  const errorMessage = document.createElement('div');
+  errorMessage.style.color = 'red';
+  errorMessage.style.display = 'none';
 
   if (dateDebutInput && dateFinInput && nombreDeJourInput) {
-    dateDebutInput.addEventListener("change", calculateDays);
-    dateFinInput.addEventListener("change", calculateDays);
+    dateDebutInput.addEventListener('change', calculateDays);
+    dateFinInput.addEventListener('change', calculateDays);
     dateFinInput.parentNode.insertBefore(
       errorMessage,
       dateFinInput.nextSibling
@@ -88,11 +88,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
       if (dateDebut > dateFin) {
         errorMessage.textContent =
-          "La date de début ne peut pas être supérieure à la date de fin.";
-        errorMessage.style.display = "block";
-        nombreDeJourInput.value = "";
+          'La date de début ne peut pas être supérieure à la date de fin.';
+        errorMessage.style.display = 'block';
+        nombreDeJourInput.value = '';
       } else {
-        errorMessage.style.display = "none";
+        errorMessage.style.display = 'none';
         const timeDifference = dateFin - dateDebut;
         const dayDifference = timeDifference / (1000 * 3600 * 24);
         nombreDeJourInput.value = dayDifference + 1;
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         updateTotalIndemnity();
 
         //ajout d'une nouvelle evenement qui sera utiliser en bas
-        const event = new Event("valueAdded");
+        const event = new Event('valueAdded');
         nombreDeJourInput.dispatchEvent(event);
       }
     }
@@ -110,14 +110,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * CALCULE et AFFICHAGE total indemnité de déplacement
    */
   const totalIdemniteDeplacementInput = document.querySelector(
-    "#dom_form2_totalIndemniteDeplacement"
+    '#dom_form2_totalIndemniteDeplacement'
   );
-  const idemnityDeplInput = document.querySelector("#dom_form2_idemnityDepl");
+  const idemnityDeplInput = document.querySelector('#dom_form2_idemnityDepl');
 
   function updateTotalIndemnity() {
     const nombreDeJour = parseInt(nombreDeJourInput.value);
     const indemnityDepl = parseInt(
-      idemnityDeplInput.value.replace(/[^\d]/g, "")
+      idemnityDeplInput.value.replace(/[^\d]/g, '')
     );
 
     if (!isNaN(nombreDeJour) && !isNaN(indemnityDepl)) {
@@ -125,15 +125,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
       totalIdemniteDeplacementInput.value = formatNumberInt(totalIndemnity);
 
-      const event = new Event("valueAdded");
+      const event = new Event('valueAdded');
       totalIdemniteDeplacementInput.dispatchEvent(event);
     } else {
-      totalIdemniteDeplacementInput.value = "";
+      totalIdemniteDeplacementInput.value = '';
     }
   }
 
   if (idemnityDeplInput) {
-    idemnityDeplInput.addEventListener("input", () => {
+    idemnityDeplInput.addEventListener('input', () => {
       idemnityDeplInput.value = formatNumberInt(idemnityDeplInput.value);
       updateTotalIndemnity();
     });
@@ -141,27 +141,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   /** PERMET DE FORMTER UN NOMBRE (utilisation du bibliothème numeral.js)*/
   // Définir une locale personnalisée
-  numeral.register("locale", "fr-custom", {
+  numeral.register('locale', 'fr-custom', {
     delimiters: {
-      thousands: ".",
-      decimal: ",",
+      thousands: '.',
+      decimal: ',',
     },
     abbreviations: {
-      thousand: "k",
-      million: "m",
-      billion: "b",
-      trillion: "t",
+      thousand: 'k',
+      million: 'm',
+      billion: 'b',
+      trillion: 't',
     },
     ordinal: function (number) {
-      return number === 1 ? "er" : "ème";
+      return number === 1 ? 'er' : 'ème';
     },
     currency: {
-      symbol: "Ar",
+      symbol: 'Ar',
     },
   });
 
   // Utiliser la locale personnalisée
-  numeral.locale("fr-custom");
+  numeral.locale('fr-custom');
 
   function formatNumberInt(value) {
     return numeral(value).format(0, 0);
@@ -169,15 +169,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
   const indemniteForfaitaireJournaliereInput = document.querySelector(
-    "#dom_form2_indemniteForfaitaire"
+    '#dom_form2_indemniteForfaitaire'
   );
-  const siteInput = document.querySelector("#dom_form2_site");
-  const sousTypeDocInput = document.querySelector("#sousTypeDoc");
-  const categorieInput = document.querySelector("#categorie");
-  const rmqInput = document.querySelector("#rmq");
+  const siteInput = document.querySelector('#dom_form2_site');
+  const sousTypeDocInput = document.querySelector('#sousTypeDoc');
+  const categorieInput = document.querySelector('#categorie');
+  const rmqInput = document.querySelector('#rmq');
 
   if (siteInput) {
-    siteInput.addEventListener("change", indemnitySite);
+    siteInput.addEventListener('change', indemnitySite);
   }
 
   function indemnitySite() {
@@ -193,50 +193,50 @@ document.addEventListener("DOMContentLoaded", (event) => {
         indemniteForfaitaireJournaliereInput.value = indemnite.montant;
         calculTotalForfaitaire();
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
 
   /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
   const supplementJournalierInput = document.querySelector(
-    "#dom_form2_supplementJournaliere"
+    '#dom_form2_supplementJournaliere'
   );
   const totalindemniteForfaitaireInput = document.querySelector(
-    "#dom_form2_totalIndemniteForfaitaire"
+    '#dom_form2_totalIndemniteForfaitaire'
   );
 
-  nombreDeJourInput.addEventListener("valueAdded", calculTotalForfaitaire);
+  nombreDeJourInput.addEventListener('valueAdded', calculTotalForfaitaire);
 
   function calculTotalForfaitaire() {
     if (
-      supplementJournalierInput.value === "" &&
-      indemniteForfaitaireJournaliereInput.value !== ""
+      supplementJournalierInput.value === '' &&
+      indemniteForfaitaireJournaliereInput.value !== ''
     ) {
       const nombreDeJour = parseInt(nombreDeJourInput.value);
       const indemniteForfaitaireJournaliere = parseInt(
-        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
+        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, '')
       );
 
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * indemniteForfaitaireJournaliere
       );
     } else if (
-      supplementJournalierInput.value !== "" &&
-      indemniteForfaitaireJournaliereInput.value !== ""
+      supplementJournalierInput.value !== '' &&
+      indemniteForfaitaireJournaliereInput.value !== ''
     ) {
       const supplementJournalier = parseInt(
-        supplementJournalierInput.value.replace(/[^\d]/g, "")
+        supplementJournalierInput.value.replace(/[^\d]/g, '')
       );
       const nombreDeJour = parseInt(nombreDeJourInput.value);
       const indemniteForfaitaireJournaliere = parseInt(
-        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, "")
+        indemniteForfaitaireJournaliereInput.value.replace(/[^\d]/g, '')
       );
 
       totalindemniteForfaitaireInput.value = formatNumberInt(
         nombreDeJour * (indemniteForfaitaireJournaliere + supplementJournalier)
       );
-    } else if (supplementJournalierInput.value !== "") {
+    } else if (supplementJournalierInput.value !== '') {
       const supplementJournalier = parseInt(
-        supplementJournalierInput.value.replace(/[^\d]/g, "")
+        supplementJournalierInput.value.replace(/[^\d]/g, '')
       );
       const nombreDeJour = parseInt(nombreDeJourInput.value);
 
@@ -245,13 +245,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
       );
     }
 
-    const event = new Event("valueAdded");
+    const event = new Event('valueAdded');
     totalindemniteForfaitaireInput.dispatchEvent(event);
   }
 
   /** si l'utilisateur saisie une suplement journalier */
   supplementJournalierInput.addEventListener(
-    "input",
+    'input',
     calculTotalForfaitaireAvecSupplement
   );
 
@@ -264,7 +264,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   /** si l'utilisateur saisie l'indemnite forfatitaire Journaliere */
   indemniteForfaitaireJournaliereInput.addEventListener(
-    "input",
+    'input',
     calculTotalForfaitaireIdemniteSaisie
   );
 
@@ -277,72 +277,72 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   /** CALCUL TOTAL MONTANT AUTRES DEPENSE */
   const autreDepenseInput_1 = document.querySelector(
-    "#dom_form2_autresDepense1"
+    '#dom_form2_autresDepense1'
   );
   const autreDepenseInput_2 = document.querySelector(
-    "#dom_form2_autresDepense2"
+    '#dom_form2_autresDepense2'
   );
   const autreDepenseInput_3 = document.querySelector(
-    "#dom_form2_autresDepense3"
+    '#dom_form2_autresDepense3'
   );
   const totaAutreDepenseInput = document.querySelector(
-    "#dom_form2_totalAutresDepenses"
+    '#dom_form2_totalAutresDepenses'
   );
 
-  autreDepenseInput_1.addEventListener("input", () => {
+  autreDepenseInput_1.addEventListener('input', () => {
     autreDepenseInput_1.value = formatNumberInt(autreDepenseInput_1.value);
     calculTotalAutreDepense();
   });
-  autreDepenseInput_2.addEventListener("input", () => {
+  autreDepenseInput_2.addEventListener('input', () => {
     autreDepenseInput_2.value = formatNumberInt(autreDepenseInput_2.value);
     calculTotalAutreDepense();
   });
-  autreDepenseInput_3.addEventListener("input", () => {
+  autreDepenseInput_3.addEventListener('input', () => {
     autreDepenseInput_3.value = formatNumberInt(autreDepenseInput_3.value);
     calculTotalAutreDepense();
   });
 
   function calculTotalAutreDepense() {
-    console.log("Function calculTotal() called");
+    console.log('Function calculTotal() called');
 
     const autreDepense_1 =
-      parseInt(autreDepenseInput_1.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(autreDepenseInput_1.value.replace(/[^\d]/g, '')) || 0;
     const autreDepense_2 =
-      parseInt(autreDepenseInput_2.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(autreDepenseInput_2.value.replace(/[^\d]/g, '')) || 0;
     const autreDepense_3 =
-      parseInt(autreDepenseInput_3.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(autreDepenseInput_3.value.replace(/[^\d]/g, '')) || 0;
 
     console.log(
-      "Values before sum:",
+      'Values before sum:',
       autreDepense_1,
       autreDepense_2,
       autreDepense_3
     );
     let totaAutreDepense = autreDepense_1 + autreDepense_2 + autreDepense_3;
 
-    console.log("Total:", totaAutreDepense);
+    console.log('Total:', totaAutreDepense);
     totaAutreDepenseInput.value = formatNumberInt(totaAutreDepense);
 
     //creation d'une evement personaliser
-    const event = new Event("valueAdded");
+    const event = new Event('valueAdded');
     totaAutreDepenseInput.dispatchEvent(event);
   }
 
   /** CALCUL  MONTANT TOTAL */
   const montantTotalInput = document.querySelector(
-    "#dom_form2_totalGeneralPayer"
+    '#dom_form2_totalGeneralPayer'
   );
-  totalIdemniteDeplacementInput.addEventListener("valueAdded", calculTotal);
-  totalindemniteForfaitaireInput.addEventListener("valueAdded", calculTotal);
-  totaAutreDepenseInput.addEventListener("valueAdded", calculTotal);
+  totalIdemniteDeplacementInput.addEventListener('valueAdded', calculTotal);
+  totalindemniteForfaitaireInput.addEventListener('valueAdded', calculTotal);
+  totaAutreDepenseInput.addEventListener('valueAdded', calculTotal);
 
   function calculTotal() {
     const totaAutreDepense =
-      parseInt(totaAutreDepenseInput.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(totaAutreDepenseInput.value.replace(/[^\d]/g, '')) || 0;
     const totalIdemniteDeplacement =
-      parseInt(totalIdemniteDeplacementInput.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(totalIdemniteDeplacementInput.value.replace(/[^\d]/g, '')) || 0;
     const totalindemniteForfaitaire =
-      parseInt(totalindemniteForfaitaireInput.value.replace(/[^\d]/g, "")) || 0;
+      parseInt(totalindemniteForfaitaireInput.value.replace(/[^\d]/g, '')) || 0;
 
     let montantTotal =
       totalindemniteForfaitaire + totaAutreDepense - totalIdemniteDeplacement;
@@ -351,13 +351,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 
   /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
-  const modePayementInput = document.querySelector("#dom_form2_modePayement");
-  const modeInput = document.querySelector("#dom_form2_mode");
+  const modePayementInput = document.querySelector('#dom_form2_modePayement');
+  const modeInput = document.querySelector('#dom_form2_mode');
   const labelMode = modeInput.previousElementSibling;
-  const matriculeInput_2 = document.querySelector("#dom_form2_matricule");
-  modePayementInput.addEventListener("change", infoPersonnel);
-  modeInput.addEventListener("input", () => {
-    modeInput.setAttribute("maxlength", 10);
+  const matriculeInput_2 = document.querySelector('#dom_form2_matricule');
+  modePayementInput.addEventListener('change', infoPersonnel);
+  modeInput.addEventListener('input', () => {
+    modeInput.setAttribute('maxlength', 10);
   });
   function infoPersonnel() {
     const matricule = matriculeInput_2.value;
@@ -366,16 +366,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .then((response) => response.json())
       .then((personne) => {
         console.log(personne);
-        if (modePayementInput.value === "VIREMENT BANCAIRE") {
+        console.log(modePayementInput.value);
+        if (modePayementInput.value === 'VIREMENT BANCAIRE') {
           modeInput.readOnly = true;
           modeInput.value = personne.compteBancaire;
+          modeInput.required = false;
+        } else if (modePayementInput.value === 'MOBILE MONEY') {
+          modeInput.readOnly = false;
+          modeInput.value = personne.telephone;
+          modeInput.required = true;
         } else {
           modeInput.readOnly = false;
-          modeInput.value = "";
+          modeInput.value = '';
+          modeInput.required = false;
         }
         labelMode.innerHTML = modePayementInput.value;
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
 
   /**
@@ -383,26 +390,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
    */
   //MOTIF DE DEPLACEMNET
   const motifDeplacementInput = document.querySelector(
-    "#dom_form2_motifDeplacement"
+    '#dom_form2_motifDeplacement'
   );
-  motifDeplacementInput.addEventListener("input", () => {
+  motifDeplacementInput.addEventListener('input', () => {
     motifDeplacementInput.value = motifDeplacementInput.value
       .toUpperCase()
       .slice(0, 60);
   });
 
   //NOM CLIENT
-  const nomClientInput = document.querySelector("#dom_form2_client");
-  nomClientInput.addEventListener("input", () => {
-    nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 33);
+  const nomClientInput = document.querySelector('#dom_form2_client');
+  nomClientInput.addEventListener('input', () => {
+    nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 29);
   });
 
   //LIEU D'INTERVENTION
   const lieuInterventionInput = document.querySelector(
-    "#dom_form2_lieuIntervention"
+    '#dom_form2_lieuIntervention'
   );
 
-  lieuInterventionInput.addEventListener("input", () => {
+  lieuInterventionInput.addEventListener('input', () => {
     lieuInterventionInput.value = lieuInterventionInput.value
       .toUpperCase()
       .slice(0, 60);
@@ -411,31 +418,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
   //MOTIF AUTRE DEPENSE
   //1
   const motifAutreDepense1Input = document.querySelector(
-    "#dom_form2_motifAutresDepense1"
+    '#dom_form2_motifAutresDepense1'
   );
-  motifAutreDepense1Input.addEventListener("input", () => {
+  motifAutreDepense1Input.addEventListener('input', () => {
     motifAutreDepense1Input.value = motifAutreDepense1Input.value
       .toUpperCase()
-      .slice(0, 30);
+      .slice(0, 29);
   });
 
   //2
   const motifAutreDepense2Input = document.querySelector(
-    "#dom_form2_motifAutresDepense2"
+    '#dom_form2_motifAutresDepense2'
   );
-  motifAutreDepense2Input.addEventListener("input", () => {
+  motifAutreDepense2Input.addEventListener('input', () => {
     motifAutreDepense2Input.value = motifAutreDepense2Input.value
       .toUpperCase()
-      .slice(0, 30);
+      .slice(0, 29);
   });
 
   //3
   const motifAutreDepense3Input = document.querySelector(
-    "#dom_form2_motifAutresDepense3"
+    '#dom_form2_motifAutresDepense3'
   );
-  motifAutreDepense3Input.addEventListener("input", () => {
+  motifAutreDepense3Input.addEventListener('input', () => {
     motifAutreDepense3Input.value = motifAutreDepense3Input.value
       .toUpperCase()
-      .slice(0, 30);
+      .slice(0, 29);
   });
 });
