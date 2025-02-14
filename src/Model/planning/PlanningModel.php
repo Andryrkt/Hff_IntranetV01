@@ -121,20 +121,19 @@ class PlanningModel extends Model
   }
   public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
   {
-    if($criteria->getOrBackOrder() == true){
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+    if ($criteria->getOrBackOrder() == true) {
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
     } else {
-      if(!empty($lesOrValides)){
-        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-      } 
-      else{
+      if (!empty($lesOrValides)) {
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+      } else {
         $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
       }
     }
-    
 
-    $vligneType = $this->typeLigne($criteria);  
-  
+
+    $vligneType = $this->typeLigne($criteria);
+
     $vYearsStatutPlan =  $this->planAnnee($criteria);
     $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
     $vMonthStatutPlan = $this->planMonth($criteria);
@@ -154,7 +153,7 @@ class PlanningModel extends Model
     $vsection = $this->section($criteria);
     $vplan = $criteria->getPlan();
 
-                  $statement = " SELECT
+    $statement = " SELECT
                       
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
@@ -212,14 +211,14 @@ class PlanningModel extends Model
                     $vconditionCasier
                     $vsection 
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
-		                order by 10  ";      
+		                order by 10  ";
 
-        
-        $result = $this->connect->executeQuery($statement);
-                  //  dump($statement);
-        $data = $this->connect->fetchResults($result);
-        $resultat = $this->convertirEnUtf8($data);
-        return $resultat;
+
+    $result = $this->connect->executeQuery($statement);
+    //  dump($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
   }
   public function backOrderPlanning($lesOrValides)
   {
@@ -1200,7 +1199,7 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
 
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
-// dump($statement);
+    // dump($statement);
     // Retourne le nombre total d'éléments
     return (int) $data[0]['total'];
   }
