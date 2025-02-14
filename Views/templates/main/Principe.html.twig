@@ -22,6 +22,7 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
+				{% set hasCFR = false %}
 				{% set hasDDP = false %}
 
 					{% for item in App.user.Applications %}
@@ -37,6 +38,8 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
+					{% elseif item.codeApp == 'CFR' %}
+						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'DDP' %}
 						{% set hasDDP = true %}
 					{% endif %}
