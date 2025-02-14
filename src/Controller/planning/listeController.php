@@ -76,7 +76,7 @@ class ListeController extends Controller
         if ($request->query->get('action') !== 'oui') {
 
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-            // dump($lesOrvalides['orAvecItv']);
+            // dump($lesOrvalides['orSansItv']);
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
 
             if (is_array($back)) {

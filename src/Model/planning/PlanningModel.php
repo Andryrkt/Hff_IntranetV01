@@ -5,8 +5,9 @@ namespace App\Model\planning;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\planning\PlanningSearch;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\FormatageTrait;
 
 class PlanningModel extends Model
 {
@@ -416,13 +417,13 @@ class PlanningModel extends Model
                       WHEN slor_natcm = 'C' THEN
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
-                                  WHERE Numero_PO = slor_numcf 
+                                  WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
                                   AND Line_Number = slor_noligncm 
 		   		                        AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
-                                                             WHERE Numero_PO = slor_numcf  
+                                                             WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))  
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
                                                              AND Line_Number = slor_noligncm )
@@ -430,13 +431,13 @@ class PlanningModel extends Model
                       WHEN slor_typcf = 'CIS' THEN
 		                            ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
-                                  WHERE Numero_PO = nlig_numcf
+                                  WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
                                   AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
 	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
-                                                             WHERE Numero_PO = nlig_numcf
+                                                             WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
                                                              AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
@@ -467,13 +468,13 @@ class PlanningModel extends Model
  		                    TO_CHAR((	
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
-                                    WHERE Numero_PO = slor_numcf 
+                                    WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
                                     AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
-                                                               WHERE Numero_PO = slor_numcf  
+                                                               WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))  
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
                                                                AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign) )
@@ -484,13 +485,13 @@ class PlanningModel extends Model
 		                       TO_CHAR((
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
-                                    WHERE Numero_PO = nlig_numcf
+                                    WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
                                     AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
-                                                               WHERE Numero_PO = nlig_numcf
+                                                               WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
                                                                AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
@@ -500,26 +501,26 @@ class PlanningModel extends Model
 
                       CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
 	                     ( SELECT message FROM  gcot_acknow_cat 
-                          WHERE Numero_PO = slor_numcf 
+                          WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                           AND Parts_Number = slor_refp  
                           AND Parts_CST = slor_constp 
                           AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
 		   		                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                       FROM gcot_acknow_cat 
-                                                      WHERE Numero_PO = slor_numcf  
+                                                      WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))  
                                                       AND Parts_Number = slor_refp  
                                                       AND Parts_CST = slor_constp 
                                                       AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign))
 					            	)
                         WHEN slor_typcf = 'CIS' THEN
                                   ( SELECT message FROM  gcot_acknow_cat 
-                                            WHERE Numero_PO = nlig_numcf
+                                            WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                             AND Parts_Number = slor_refp  
                                             AND Parts_CST = slor_constp 
                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                             AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                          FROM gcot_acknow_cat 
-                                                                         WHERE Numero_PO = nlig_numcf
+                                                                         WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                                          AND Parts_Number = slor_refp  
                                                                          AND Parts_CST = slor_constp 
                                                                          AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
@@ -696,10 +697,12 @@ class PlanningModel extends Model
                   numero_or 
                   FROM demande_intervention
                   WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
+                  AND numero_or <>''
                   $vconditionTypeDoc
                   $vconditionReparationPar
                   $vconditionNumOr
                   $nivUrg
+            ORDER  BY  numero_or
                   ";
     $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
@@ -1011,7 +1014,7 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
                     $vconditionCasier
                     $vsection 
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
-		                order by 10,14  ";
+		                order by 14  ";
 
 
     $result = $this->connect->executeQuery($statement);
@@ -1210,20 +1213,20 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
 
     if (!empty($criteria['typeligne'])) {
       switch ($criteria['typeligne']) {
-        case "TOUTES":
+        case "TOUTES": 
           $vtypeligne = " ";
           break;
-        case "PIECES_MAGASIN":
-          $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
+      case "PIECES_MAGASIN":
+          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
           break;
-        case "ACHAT_LOCAUX":
-          $vtypeligne = " AND slor_constp  = 'ZST'";
+      case "ACHAT_LOCAUX":
+          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
           break;
-        case "LUBRIFIANTS":
-          $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
+      case "LUBRIFIANTS":
+          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
           break;
-        default:
-          $vtypeligne  = "";
+      default:
+          $vtypeligne = " ";
           break;
       }
     } else {
@@ -1274,13 +1277,13 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
                       WHEN slor_natcm = 'C' THEN
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
-                                  WHERE Numero_PO = slor_numcf 
+                                  WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
                                   AND Line_Number = slor_noligncm 
 		   		                        AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
-                                                             WHERE Numero_PO = slor_numcf  
+                                                             WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
                                                              AND Line_Number = slor_noligncm )
@@ -1288,13 +1291,13 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
                       WHEN slor_typcf = 'CIS' THEN
 		                            ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
-                                  WHERE Numero_PO = nlig_numcf
+                                  WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                   AND Parts_Number = slor_refp  
                                   AND Parts_CST = slor_constp 
                                   AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
 	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
                                                              FROM gcot_acknow_cat 
-                                                             WHERE Numero_PO = nlig_numcf
+                                                             WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                              AND Parts_Number = slor_refp  
                                                              AND Parts_CST = slor_constp 
                                                              AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
@@ -1325,13 +1328,13 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
  		                    TO_CHAR((	
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
-                                    WHERE Numero_PO = slor_numcf 
+                                    WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
                                     AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
-                                                               WHERE Numero_PO = slor_numcf  
+                                                               WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
                                                                AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign) )
@@ -1342,13 +1345,13 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
 		                       TO_CHAR((
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
-                                    WHERE Numero_PO = nlig_numcf
+                                    WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                     AND Parts_Number = slor_refp  
                                     AND Parts_CST = slor_constp 
                                     AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                     AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                FROM gcot_acknow_cat 
-                                                               WHERE Numero_PO = nlig_numcf
+                                                               WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                                AND Parts_Number = slor_refp  
                                                                AND Parts_CST = slor_constp 
                                                                AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
@@ -1358,26 +1361,26 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
 
                       CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
 	                     ( SELECT message FROM  gcot_acknow_cat 
-                          WHERE Numero_PO = slor_numcf 
+                          WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
                           AND Parts_Number = slor_refp  
                           AND Parts_CST = slor_constp 
                           AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
 		   		                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                       FROM gcot_acknow_cat 
-                                                      WHERE Numero_PO = slor_numcf  
+                                                      WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
                                                       AND Parts_Number = slor_refp  
                                                       AND Parts_CST = slor_constp 
                                                       AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign))
 					            	)
                         WHEN slor_typcf = 'CIS' THEN
                                   ( SELECT message FROM  gcot_acknow_cat 
-                                            WHERE Numero_PO = nlig_numcf
+                                            WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                             AND Parts_Number = slor_refp  
                                             AND Parts_CST = slor_constp 
                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
                                             AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
                                                                          FROM gcot_acknow_cat 
-                                                                         WHERE Numero_PO = nlig_numcf
+                                                                         WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                                                          AND Parts_Number = slor_refp  
                                                                          AND Parts_CST = slor_constp 
                                                                          AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
@@ -1408,6 +1411,7 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
                 AND slor_constp NOT LIKE '%ZDI%'
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
       ";
+      
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
