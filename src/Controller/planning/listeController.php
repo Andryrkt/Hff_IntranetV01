@@ -70,7 +70,7 @@ class ListeController extends Controller
 
         // Récupère la page actuelle depuis la requête (par défaut : 1)
         $page = $request->query->getInt('page', 1);
-        $limit = 20; // Nombre d'éléments par page
+        $limit = 50; // Nombre d'éléments par page
 
         $data = [];
         if ($request->query->get('action') !== 'oui') {
