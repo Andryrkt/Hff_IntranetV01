@@ -1,0 +1,56 @@
+<table class="table rounded table-plein-ecran">
+	<thead class="table-dark">
+		<tr>
+			<th><i class="fas fa-ellipsis-vertical"></i></th>
+			{% for colonne in colonnes %}
+				<th class="{{ colonne.class|default('') }}">{{ colonne.label }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in data %}
+			<tr>
+				<td>
+					<div class="dropdown">
+						<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" data-bs-toggle="dropdown">
+							<i class="fas fa-ellipsis-vertical"></i>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li>
+								<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
+							</li>
+							<li>
+								<a class="dropdown-item fw-bold" href="#">Dossier DIT</a>
+							</li>
+						</ul>
+					</div>
+				</td>
+
+				{% for colonne in colonnes %}
+					<td class="{{ colonne.class|default('') }}">
+						{% set valeur = item %}
+						{% for part in colonne.key|split('.') %}
+							{% set valeur = attribute(valeur, part) %}
+						{% endfor %}
+
+						{% if colonne.type == 'link' %}
+							<a href="{{ path(colonne.route, colonne.route_params|map(param => attribute(item, param))) }}">
+								{{ valeur }}
+							</a>
+						{% elseif colonne.type == 'date' %}
+							{{ valeur|date('d/m/Y') }}
+						{% elseif colonne.type == 'modal' %}
+							<a href="#" data-bs-toggle="modal" data-bs-target="#{{ colonne.modal_id }}" data-id="{{ attribute(item, colonne.modal_key) }}">
+								{{ valeur }}
+							</a>
+						{% elseif colonne.key ends with '|upper' %}
+							{{ valeur|upper }}
+						{% else %}
+							{{ valeur }}
+						{% endif %}
+					</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

@@ -22,7 +22,7 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
-				{% set hasCFR = false %}
+				{% set hasDDP = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -37,8 +37,8 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
-					{% elseif item.codeApp == 'CFR' %}
-						{% set hasCFR = true %}
+					{% elseif item.codeApp == 'DDP' %}
+						{% set hasDDP = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -134,7 +134,23 @@
 								<li>
 									<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">Consultation Casier</a>
 								</li>
+							{% endif %}
+							<!-- Fin Bordereau d’acquisition et de Mouvement Matériel -->
 
+							<!-- Demande de paiement DDP -->
+							{% if hasDDP %}
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li class="dropdown-header">
+									Demande de paiement
+								</li>
+								<li>
+									<a class="dropdown-item" href="#" id="modalTypeDemande">Nouvelle Demande</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="#">Consultation des demandes</a>
+								</li>
 							{% endif %}
 						</ul>
 					</li>
