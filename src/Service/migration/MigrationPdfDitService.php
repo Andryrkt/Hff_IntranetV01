@@ -90,13 +90,13 @@ class MigrationPdfDitService
         $extension02 = '.' . pathinfo($dit->getPieceJoint02(), PATHINFO_EXTENSION);
         $extension03 = '.' . pathinfo($dit->getPieceJoint03(), PATHINFO_EXTENSION);
         if(!empty($dit->getPieceJoint01()) && $extension01 === '.pdf'){
-            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint01();
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint01();
         }
         if(!empty($dit->getPieceJoint02() && $extension02 === '.pdf')){
-            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint02();
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint02();
         }
         if(!empty($dit->getPieceJoint03()) && $extension03 === '.pdf'){
-            $files[] = 'C:/wamp64/www/Upload/dit/migrations/'.$dit->getPieceJoint03();
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint03();
         }
         $outputFile = 'C:/wamp64/www/Upload/dit/'.$dit->getNumeroDemandeIntervention().'_'. str_replace("-", "", $dit->getAgenceServiceEmetteur()).'.pdf';
         $fusionPdf->mergePdfs($files, $outputFile);
@@ -105,6 +105,7 @@ class MigrationPdfDitService
     private function recupDonnerDit(): array
     {
         $dits = $this->ditRepository->findDitMigration();
+        
         
         foreach ($dits as $dit) {
             if(!empty($dit->getIdMateriel())){
