@@ -9,6 +9,7 @@ use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InfoFournisseurApi extends Controller
 {
@@ -91,4 +92,32 @@ class InfoFournisseurApi extends Controller
         $response = new JsonResponse($dossiers);
         $response->send();
     }
+
+    /**
+     * @Route("/api/recuperer-fichier/{nomFichier}", name="api_recuper_fichier_nom_fichier")
+     */
+    public function recupererFichier($nomFichier)
+    {
+        $nomFichier = basename($nomFichier);
+        $cheminFichier = '\\\\192.168.0.15\\GCOT_DATA\\TRANSIT\\DD1297A24\\' . $nomFichier;
+        dd(file_exists($cheminFichier));
+        if (!file_exists($cheminFichier)) {
+            http_response_code(404);
+            echo "Fichier introuvable.";
+            exit;
+        }
+
+        // Détermine le type MIME pour l'envoi du fichier
+        $mimeType = mime_content_type($cheminFichier);
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: inline; filename="' . basename($cheminFichier) . '"');
+        header('Content-Length: ' . filesize($cheminFichier));
+
+        // Lire le fichier et l'envoyer
+        readfile($cheminFichier);
+        exit;
+        
+    }
+
 }

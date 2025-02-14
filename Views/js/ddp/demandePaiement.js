@@ -3,6 +3,7 @@ import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { AutoComplete } from "../utils/Autocomplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
+import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   /**====================================
@@ -80,8 +81,8 @@ document.addEventListener("DOMContentLoaded", function () {
       data: commandes.listeGcot,
       theadClass: "table-dark",
       rowClassName: "clickable-row clickable",
-      //   customRenderRow: (row, index, data) =>
-      //     customRenderRow(row, index, data, columns),
+      customRenderRow: (row, index, data) =>
+        customRenderRow(row, index, data, columns),
       onRowClick: (row) => chargerDocuments(row.Numero_Dossier_Douane),
     });
 
@@ -98,6 +99,9 @@ document.addEventListener("DOMContentLoaded", function () {
       "Numero_Facture",
       "Code_Fournisseur",
       "Libelle_Fournisseur",
+      "Numero_Dossier_Douane",
+      "Numero_LTA",
+      "Numero_HAWB",
     ];
 
     const previousRow = data[index - 1] || {};
@@ -184,10 +188,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const tContainer = document.getElementById("tableau_dossier");
       tContainer.innerHTML = "";
-
       const columns = [
-        { label: "Chemin fichier", key: "Nom_Fichier" },
-        { label: "Date", key: "Date_Fichier" },
+        {
+          label: "Nom de fichier",
+          key: "Nom_Fichier",
+          format: (value) => nomFichier(value),
+        },
+        {
+          label: "Date",
+          key: "Date_Fichier",
+          format: (value) => new Date(value).toLocaleDateString("fr-FR"),
+        },
       ];
 
       const tableauComponent = new TableauComponent({
@@ -195,13 +206,38 @@ document.addEventListener("DOMContentLoaded", function () {
         data: dossier,
         theadClass: "table-dark",
         rowClassName: "clickable-row clickable",
-        // onRowClick: (row) => chargerDocuments(row.Nom_Fichier),
+        onRowClick: (row) => afficherFichier(row.Nom_Fichier),
       });
 
       tableauComponent.mount("tableau_dossier");
     } catch (error) {
       console.error("Erreur chargement des documents : ", error);
       spinner.style.display = "none";
+    }
+  }
+
+  function nomFichier(cheminFichier) {
+    const motExacteASupprimer = [
+      "\\\\192.168.0.15",
+      "\\GCOT_DATA",
+      "\\TRANSIT",
+    ];
+    const motCommenceASupprimer = ["\\DD"];
+
+    return enleverPartiesTexte(
+      cheminFichier,
+      motExacteASupprimer,
+      motCommenceASupprimer
+    );
+  }
+
+  async function afficherFichier(nomFichie) {
+    try {
+      const fileName = nomFichier(nomFichie);
+      const url = `/Hffintranet/api/recuperer-fichier/${fileName}`;
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du fichier : ", error);
     }
   }
 

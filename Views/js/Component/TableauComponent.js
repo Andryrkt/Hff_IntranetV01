@@ -64,12 +64,52 @@ export class TableauComponent {
       this.props.data.forEach((row, index) => {
         let tableRow;
 
-        // if (this.props.customRenderRow) {
-        //   tableRow = this.props.customRenderRow(row, index, this.props.data);
-        // } else {
-        tableRow = document.createElement("tr");
-        // }
-        // Ajout d'une classe personnalisée si définie dans les colonnes ou de manière générale
+        if (this.props.customRenderRow) {
+          tableRow = this.props.customRenderRow(row, index, this.props.data);
+        } else {
+          tableRow = document.createElement("tr");
+
+          this.props.columns.forEach((column) => {
+            const td = document.createElement("td");
+            const value =
+              column.format && typeof column.format === "function"
+                ? column.format(row[column.key])
+                : row[column.key] || this.props.defaultValue || "-";
+
+            td.textContent = value;
+
+            if (column.className) {
+              td.className = column.className;
+            }
+
+            if (column.attributes) {
+              Object.entries(column.attributes).forEach(
+                ([attrName, attrValue]) => {
+                  td.setAttribute(attrName, attrValue);
+                }
+              );
+            }
+
+            if (column.styles && typeof column.styles === "function") {
+              const dynamicStyles = column.styles(row);
+              if (dynamicStyles) {
+                Object.entries(dynamicStyles).forEach(
+                  ([styleName, styleValue]) => {
+                    td.style[styleName] = styleValue;
+                  }
+                );
+              }
+            }
+
+            if (column.align) {
+              td.style.textAlign = column.align;
+            }
+
+            tableRow.appendChild(td);
+          });
+        }
+
+        // Ajout d'une classe personnalisée si définie
         if (this.props.rowClassName) {
           if (typeof this.props.rowClassName === "function") {
             const dynamicClass = this.props.rowClassName(row);
@@ -85,52 +125,6 @@ export class TableauComponent {
         if (this.props.onRowClick) {
           tableRow.addEventListener("click", () => this.props.onRowClick(row));
         }
-
-        this.props.columns.forEach((column) => {
-          const td = document.createElement("td");
-          // Utiliser defaultValue si la donnée est vide ou inexistante
-          if (column.format && typeof column.format === "function") {
-            td.textContent =
-              column.format(row[column.key]) || this.props.defaultValue || "-";
-          } else {
-            td.textContent = row[column.key] || this.props.defaultValue || "-";
-          }
-
-          // Appliquer une classe spécifique
-          if (column.className) {
-            td.className = column.className;
-          }
-
-          // Ajouter plusieurs attributs si définis
-          if (column.attributes) {
-            Object.entries(column.attributes).forEach(
-              ([attrName, attrValue]) => {
-                td.setAttribute(attrName, attrValue);
-              }
-            );
-          }
-
-          // Appliquer les styles dynamiques via des fonctions
-          if (column.styles && typeof column.styles === "function") {
-            const dynamicStyles = column.styles(row);
-            if (dynamicStyles) {
-              Object.entries(dynamicStyles).forEach(
-                ([styleName, styleValue]) => {
-                  td.style[styleName] = styleValue;
-                }
-              );
-            }
-          }
-
-          // Appliquer l'alignement si défini
-          if (column.align) {
-            td.style.textAlign = column.align;
-          }
-
-          if (tableRow) {
-            tbody.appendChild(tableRow);
-          }
-        });
 
         tbody.appendChild(tableRow);
       });
