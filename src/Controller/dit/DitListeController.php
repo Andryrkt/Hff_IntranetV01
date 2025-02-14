@@ -79,12 +79,12 @@ class DitListeController extends Controller
             }
         }
 
+
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
-
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
@@ -189,33 +189,33 @@ class DitListeController extends Controller
     }
 
     private function ajouterDansCsv($filePath, $data, $headers = null)
-{
-    $fichierExiste = file_exists($filePath);
+    {
+        $fichierExiste = file_exists($filePath);
 
-    // Ouvre le fichier en mode append
-    $handle = fopen($filePath, 'a');
+        // Ouvre le fichier en mode append
+        $handle = fopen($filePath, 'a');
 
-    // Si le fichier est nouveau, ajoute un BOM UTF-8
-    if (!$fichierExiste) {
-        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+        // Si le fichier est nouveau, ajoute un BOM UTF-8
+        if (!$fichierExiste) {
+            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+        }
+
+        // Si le fichier est nouveau, ajouter les en-têtes
+        if (!$fichierExiste && $headers !== null) {
+            // Force l'encodage UTF-8 pour les en-têtes
+            fputcsv($handle, array_map(function ($header) {
+                return mb_convert_encoding($header, 'UTF-8');
+            }, $headers));
+        }
+
+        // Force l'encodage UTF-8 pour les données
+        fputcsv($handle, array_map(function ($field) {
+            return mb_convert_encoding($field, 'UTF-8');
+        }, $data));
+
+        // Ferme le fichier
+        fclose($handle);
     }
-
-    // Si le fichier est nouveau, ajouter les en-têtes
-    if (!$fichierExiste && $headers !== null) {
-        // Force l'encodage UTF-8 pour les en-têtes
-        fputcsv($handle, array_map(function ($header) {
-            return mb_convert_encoding($header, 'UTF-8');
-        }, $headers));
-    }
-
-    // Force l'encodage UTF-8 pour les données
-    fputcsv($handle, array_map(function ($field) {
-        return mb_convert_encoding($field, 'UTF-8');
-    }, $data));
-
-    // Ferme le fichier
-    fclose($handle);
-}
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")

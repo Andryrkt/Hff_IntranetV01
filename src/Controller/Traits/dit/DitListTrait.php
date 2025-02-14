@@ -98,7 +98,6 @@ trait DitListTrait
     {
 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
         if ($criteria !== null) {
             // if ($autoriser) {
             $agenceIpsEmetteur = null;
@@ -157,6 +156,7 @@ trait DitListTrait
             ->setSectionSupport1($criteria['sectionSupport1'] ?? null)
             ->setSectionSupport2($criteria['sectionSupport2'] ?? null)
             ->setSectionSupport3($criteria['sectionSupport3'] ?? null)
+            ->setEtatFacture($criteria['etatFacture'] ?? null)
         ;
     }
 
@@ -473,6 +473,7 @@ trait DitListTrait
             ->setSectionSupport1($criteria["sectionSupport1"])
             ->setSectionSupport2($criteria["sectionSupport2"])
             ->setSectionSupport3($criteria["sectionSupport3"])
+            ->setEtatFacture(($criteria['etatFacture']))
         ;
 
         return $ditSearch;
@@ -540,7 +541,7 @@ trait DitListTrait
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 30;
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
