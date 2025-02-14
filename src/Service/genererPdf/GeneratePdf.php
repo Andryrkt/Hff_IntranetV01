@@ -2,15 +2,34 @@
 
 namespace App\Service\genererPdf;
 
+use TCPDF;
+
 class GeneratePdf
 {
+    const  BASE_CHEMIN_DU_FICHIER = 'C:/wamp64/www/Upload/';
+    const  BASE_CHEMIN_DOCUWARE = 'C:/DOCUWARE/';
+
+    private function copyFile(string $sourcePath, string $destinationPath): void
+    {
+        if (!file_exists($sourcePath)) {
+            throw new \Exception("Le fichier source n'existe pas : $sourcePath");
+        }
+
+        if (!copy($sourcePath, $destinationPath)) {
+            throw new \Exception("Impossible de copier le fichier : $sourcePath vers $destinationPath");
+        }
+
+        echo "Fichier copié avec succès : $destinationPath\n";
+    }
+
+
     /**
      * Copie le PDF generer dans l'upload 
      */
-    public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
+    public function copyInterneToDOCUWARE($NumDom, $codeAg_serv)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -20,29 +39,29 @@ class GeneratePdf
 
     public function copyToDw($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)
     {
-        $cheminFichierDistant = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = 'C:/wamp64/www/Upload/cde/' . $fileName;
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'cde/' . $fileName;
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -72,29 +91,29 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
     /**
-     * Méthode pour ajouter un titre au PDF
-     * 
-     * @param TCPDF $pdf le pdf à générer
-     * @param string $title le titre du pdf
-     * @param string $font le style de la police pour le titre
-     * @param string $style le font-weight du titre
-     * @param int $size le font-size du titre
-     * @param string $align l'alignement
-     * @param int $lineBreak le retour à la ligne
-     */
-    protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
-    {
-        $pdf->setFont($font, $style, $size);
+ * Méthode pour ajouter un titre au PDF
+ * 
+ * @param TCPDF $pdf le pdf à générer
+ * @param string $title le titre du pdf
+ * @param string $font le style de la police pour le titre
+ * @param string $style le font-weight du titre
+ * @param int $size le font-size du titre
+ * @param string $align l'alignement
+ * @param int $lineBreak le retour à la ligne
+ */
+protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
+{
+    $pdf->setFont($font, $style, $size);
 
-        // Calculer la largeur de la cellule en fonction de la page
-        $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+    // Calculer la largeur de la cellule en fonction de la page
+    $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
 
-        // Utiliser MultiCell pour gérer les titres longs
-        $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
+    // Utiliser MultiCell pour gérer les titres longs
+    $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
 
-        // Ajouter un espace après le titre
-        $pdf->Ln($lineBreak);
-    }
+    // Ajouter un espace après le titre
+    $pdf->Ln($lineBreak);
+}
 
     /** 
      * Méthode pour ajouter des détails (sommaire) au PDF
