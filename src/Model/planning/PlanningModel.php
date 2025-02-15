@@ -1014,7 +1014,7 @@ AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
                     $vconditionCasier
                     $vsection 
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
-		                order by 14  ";
+		                order by 10,14  ";
 
 
     $result = $this->connect->executeQuery($statement);

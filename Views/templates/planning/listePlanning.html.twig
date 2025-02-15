@@ -7,7 +7,7 @@
 	<div class="sticky-header-titre">
 		<div class="container">
 			<h3 class="perso-titre">
-				Liste
+				Planning détaillé
 			</h3>
 
 			{% include "/planning/_formulaire.html.twig" %}
@@ -16,6 +16,29 @@
 	</div>
 	<table class="table rounded table-plein-ecran">
 		<thead class="table-dark position-sticky">
+			<tr>
+				<th style="text-align:center;" colspan = '13'> Matériel</th>
+				{# <th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"> </th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th> #}
+				<th style="text-align:center;" colspan="8">OR</th>			
+				{# <th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th> 
+				<th style="background-color:#f8f9fa;"></th>#}
+				<th style="text-align:center;" colspan="7">CIS</th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+				<th style="background-color:#f8f9fa;"></th>
+			</tr>
 			<tr>
 				<th>Agence - Service</th>
 				<th>Marque</th>
@@ -56,10 +79,35 @@
 		<tbody id="tableBody">
 			{% for item in data %}
 				{% if item.ord is same as "ORD" %}
+				{# cmd frs envoyé #}
 					{% set classe = 'bg-success text-white'%}
 				{% else %}
 					{% set classe = ''%}
 				{% endif %}
+              	{% if item.statutOR is same as "DISPO STOCK" %}
+				{# dispo stock #}
+					{% set styl = "background-color: #c8ad7f; color: white;"%}
+				{% elseif item.statutOR is same as "Error" or item.statutOR is same as "Back Order"  %}		
+					{% set styl = "background-color: red; color: white;"%}
+				{% elseif item.Qte_Solde > 0 and  item.Qte_Solde != item.qte %}
+				{# reception partiel  #}
+				{% set styl = "background-color: yellow;" %}
+				{% else %}	
+					{% set styl = ''%}
+				{% endif %}
+				
+				{# Statut part#}
+					{% if item.status_b is same as "PARTIELLEMENT LIVRE"%}
+						{% set statut = "bg-warning text-white"%}
+					{% elseif  item.status_b is same as "TOUT LIVRE"%}
+					{% set statut = 'bg-success text-white'%}
+					{% elseif  item.status_b is same as "PARTIELLEMENT DISPO"%}
+					{% set statut = 'bg-info text-white'%}
+					{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
+					{% set statut = 'bg-primary text-white'%}
+					{% else %}
+						{% set statut = ""%}
+					{% endif %}
 				<tr>
 					<td>
 						{{item.agenceServiceTravaux}}</td>
@@ -77,7 +125,7 @@
 						{{item.casier}}</td>
 					<td>
 						{{item.commentaire}}</td>
-					<td>
+					<td class = '{{statut}}'>
 						{{item.numor_itv}}</td>
 					<td>
 						{{item.dateplanning | date("d/m/Y")}}</td>
@@ -95,13 +143,13 @@
 						{{item.qtereliquat | number_format(0)}}</td>
 					<td>
 						{{item.qteliv_or | number_format(0)}}</td>
-					<td>
+					<td style = "{{styl}}">
 						{{item.statutOR}}</td>
 					<td>
 						{{item.datestatutOR}}</td>
 					<td>
 						{{item.numcis}}</td>
-					<td>
+					<td >
 						{{item.numerocmd}}</td>
 					<td class="{{classe}}">
 						{{item.statut_ctrmq}}</td>
