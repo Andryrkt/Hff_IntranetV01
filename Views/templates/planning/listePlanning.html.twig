@@ -9,38 +9,65 @@
 			<h3 class="perso-titre">
 				Planning détaillé
 			</h3>
-
 			{% include "/planning/_formulaire.html.twig" %}
+			<div class="my-3 d-flex flex-row">
+				<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+					<small>TOUT AFFICHER |</small>
+				</div>
+				<div role="button" tabindex="0" id="tout-livre">
+					<i class="fa-solid fa-circle text-success"></i>
+					<small class="text-success">Tout livré |</small>
+				</div>
+				<div role="button" tabindex="0" id="partiellement-livre">
+					<i class="fa-solid fa-circle text-warning"></i>
+					<small class="text-warning">Partiellement livré |</small>
+				</div>
+				<div role="button" tabindex="0" id="partiellement-dispo">
+					<i class="fa-solid fa-circle text-info"></i>
+					<small class="text-info">Partiellement dispo |</small>
+				</div>
+				<div role="button" tabindex="0" id="complet-non-livre">
+					<i class="fa-solid fa-circle text-primary"></i>
+					<small class="text-primary">Complet non livré |</small>
+				</div>
+				<div role="button" tabindex="0" id="dispo stock">
+					<i class="fa-solid fa-circle " style = "color: #c8ad7f"></i>
+					<small style ="color: #c8ad7f">Dispo stock |</small>
+				</div>
+				<div role="button" tabindex="0" id="back error">
+					<i class="fa-solid fa-circle text-danger" ></i>
+					<small class="text-danger">Back Order / Error |</small>
+				</div>
+				<div role="button" tabindex="0" id="cmd frs">
+					<i class="fa-solid fa-circle " style = "color: #9ACD32"></i>
+					<small style ="color: #9ACD32">Commande envoyée fournisseur |</small>
+				</div>
+				<div role="button" tabindex="0" id="reception partiel">
+					<i class="fa-solid fa-circle " style ="color: #EE82EE"></i>
+					<small style ="color: #EE82EE">Réception Partielle|</small>
+				</div>
+				
+			</div>
 			{% include "/planning/_pagination.html.twig" %}
 		</div>
+
 	</div>
-	<table class="table rounded table-plein-ecran">
+	<table class="table rounded table-plein-ecran ">
 		<thead class="table-dark position-sticky">
+			
 			<tr>
-				<th style="text-align:center;" colspan = '13'> Matériel</th>
-				{# <th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"> </th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th> #}
-				<th style="text-align:center;" colspan="8">OR</th>			
-				{# <th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th> 
-				<th style="background-color:#f8f9fa;"></th>#}
-				<th style="text-align:center;" colspan="7">CIS</th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
-				<th style="background-color:#f8f9fa;"></th>
+				
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Agence-service</th>
+				<th style="text-align:center;border: 2px solid white;" colspan = "12">Matériel</th>
+				<th style="text-align:center;border: 2px solid white;" colspan = "8">OR </th>
+				<th style="text-align:center;border: 2px solid white;" colspan = "7">CIS</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato </th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin </th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Message </th>
+
 			</tr>
 			<tr>
-				<th>Agence - Service</th>
+				
 				<th>Marque</th>
 				<th>Modèle</th>
 				<th>ID</th>
@@ -53,61 +80,60 @@
 				<th>CST</th>
 				<th>Ref</th>
 				<th>Dési</th>
-				<th>Qté cde OR</th>
-				<th>Qté all OR</th>
-				<th>Qté reliq OR</th>
-				<th>Qté liv OR</th>
-				<th>Statut OR</th>
-				<th>Date statut OR</th>
+				<th>Qté cde </th>
+				<th>Qté all </th>
+				<th>Qté reliq </th>
+				<th>Qté liv </th>
+				<th>Statut</th>
+				<th>Date statut</th>
 				{#  (num CIS) #}
 				<th>Ctr Marque</th>
 				<th>Cde frn</th>
 				{#  (recp/cmd=>CIS OR)#}
 				<th>Statut ctrmrq</th>
-				<th>Qté CIS</th>
+				<th>Qté Cde</th>
 				<th>Qté all</th>
 				<th>Qté rel</th>
 				<th>Qté liv</th>
-				<th>Statut CIS</th>
-				<th>Date statut CIS</th>
-				<th>ETA Ivato</th>
-				<th>ETA Magasin</th>
-				<th>Message</th>
-
+				<th>Statut </th>
+				<th>Date statut </th>
+				{# <th>ETA Ivato </th>
+				<th>ETA Magasin </th>
+				<th>Message </th> #}
 			</tr>
 		</thead>
 		<tbody id="tableBody">
 			{% for item in data %}
 				{% if item.ord is same as "ORD" %}
-				{# cmd frs envoyé #}
-					{% set classe = 'bg-success text-white'%}
+					{# cmd frs envoyé #}
+					{% set classe = 'background-color:#9ACD32  ; color: white;'%}
 				{% else %}
 					{% set classe = ''%}
 				{% endif %}
-              	{% if item.statutOR is same as "DISPO STOCK" %}
-				{# dispo stock #}
+				{% if item.statutOR is same as "DISPO STOCK" %}
+					{# dispo stock #}
 					{% set styl = "background-color: #c8ad7f; color: white;"%}
-				{% elseif item.statutOR is same as "Error" or item.statutOR is same as "Back Order"  %}		
+				{% elseif item.statutOR is same as "Error" or item.statutOR is same as "Back Order"  %}
 					{% set styl = "background-color: red; color: white;"%}
 				{% elseif item.Qte_Solde > 0 and  item.Qte_Solde != item.qte %}
-				{# reception partiel  #}
-				{% set styl = "background-color: yellow;" %}
-				{% else %}	
+					{# reception partiel  #}
+					{% set styl = "background-color: #EE82EE;" %}
+				{% else %}
 					{% set styl = ''%}
 				{% endif %}
-				
+
 				{# Statut part#}
-					{% if item.status_b is same as "PARTIELLEMENT LIVRE"%}
-						{% set statut = "bg-warning text-white"%}
-					{% elseif  item.status_b is same as "TOUT LIVRE"%}
+				{% if item.status_b is same as "PARTIELLEMENT LIVRE"%}
+					{% set statut = "bg-warning text-white"%}
+				{% elseif  item.status_b is same as "TOUT LIVRE"%}
 					{% set statut = 'bg-success text-white'%}
-					{% elseif  item.status_b is same as "PARTIELLEMENT DISPO"%}
+				{% elseif  item.status_b is same as "PARTIELLEMENT DISPO"%}
 					{% set statut = 'bg-info text-white'%}
-					{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
+				{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
 					{% set statut = 'bg-primary text-white'%}
-					{% else %}
-						{% set statut = ""%}
-					{% endif %}
+				{% else %}
+					{% set statut = ""%}
+				{% endif %}
 				<tr>
 					<td>
 						{{item.agenceServiceTravaux}}</td>
@@ -125,7 +151,7 @@
 						{{item.casier}}</td>
 					<td>
 						{{item.commentaire}}</td>
-					<td class = '{{statut}}'>
+					<td class='{{statut}}'>
 						{{item.numor_itv}}</td>
 					<td>
 						{{item.dateplanning | date("d/m/Y")}}</td>
@@ -143,15 +169,15 @@
 						{{item.qtereliquat | number_format(0)}}</td>
 					<td>
 						{{item.qteliv_or | number_format(0)}}</td>
-					<td style = "{{styl}}">
+					<td style="{{styl}}">
 						{{item.statutOR}}</td>
 					<td>
 						{{item.datestatutOR}}</td>
 					<td>
 						{{item.numcis}}</td>
-					<td >
+					<td>
 						{{item.numerocmd}}</td>
-					<td class="{{classe}}">
+					<td style="{{classe}}">
 						{{item.statut_ctrmq}}</td>
 					<td>
 						{{item.qteORlig_cis | number_format(0)}}</td>
@@ -175,6 +201,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
