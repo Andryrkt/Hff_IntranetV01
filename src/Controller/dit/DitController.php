@@ -55,7 +55,11 @@ class DitController extends Controller
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $this->modificationDernierIdApp($dits);
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+            $application->setDerniereId($dits->getNumeroDemandeIntervention());
+            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+            self::$em->persist($application);
+            self::$em->flush();
 
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
@@ -75,6 +79,7 @@ class DitController extends Controller
             self::$em->flush();
 
             //ENVOYER le PDF DANS DOXCUWARE
+
             $genererPdfDit->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
 
 
@@ -89,28 +94,57 @@ class DitController extends Controller
         ]);
     }
 
-    private function modificationDernierIdApp($dits)
+
+
+    /**
+     * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
+     * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
+     * @return void
+     */
+    public function agence($id)
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
-            $application->setDerniereId($dits->getNumeroDemandeIntervention());
-            // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
-    }
-    private function autorisationApp($user): bool
-    {
-        //id pour DIT est 4
-        $AppIds = $user->getApplicationsIds();
-        return in_array(4, $AppIds);
+
+        $agence = self::$em->getRepository(Agence::class)->find($id);
+
+        $service = $agence->getServices();
+
+        //   $services = $service->getValues();
+        $services = [];
+        foreach ($service as $key => $value) {
+            $services[] = [
+                'value' => $value->getId(),
+                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+            ];
+        }
+
+
+        //dd($services);
+        header("Content-type:application/json");
+
+        echo json_encode($services);
+
+        //echo new JsonResponse($services);
     }
 
-    private function autorisationAcces($user)
+
+    /**
+     * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
+     * cette fonctin permet d'envoyer les informations materiels en ajax
+     */
+    public function fetchMateriel($idMateriel,  $numParc, $numSerie)
     {
-        if (!$this->autorisationApp($user)) {
-            $message = "vous n'avez pas l'autorisation";
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-            $this->redirectToRoute("profil_acceuil");
-            exit();
+        $ditModel = new DitModel();
+        // Récupérer les données depuis le modèle
+        $data = $ditModel->findAll($idMateriel, $numParc, $numSerie);
+
+        // Vérifiez si les données existent
+        if (!$data) {
+            return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
         }
+        header("Content-type:application/json");
+
+        $jsonData = json_encode($data);
+
+        $this->testJson($jsonData);
     }
 }
