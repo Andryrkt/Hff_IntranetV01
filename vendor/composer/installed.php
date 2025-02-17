@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'db27d7d22a4b6197b7cdf2080e156d0cbf4d6fec',
+        'reference' => '1a1e317ce6b874a1ed3dd47fdcb29c2989615fcf',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -319,7 +319,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'db27d7d22a4b6197b7cdf2080e156d0cbf4d6fec',
+            'reference' => '1a1e317ce6b874a1ed3dd47fdcb29c2989615fcf',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
