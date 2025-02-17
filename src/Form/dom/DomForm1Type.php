@@ -21,6 +21,7 @@ use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Repository\admin\dom\CatgRepository;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -59,6 +60,7 @@ class DomForm1Type extends AbstractType
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
+
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -72,13 +74,18 @@ class DomForm1Type extends AbstractType
                     'data' => $options["data"]->getServiceEmetteur() ?? null
                 ]
             )
+
+
             ->add(
                 'sousTypeDocument',
                 EntityType::class,
                 [
                     'label' => 'Type de Mission',
                     'class' => SousTypeDocument::class,
-                    'choice_label' => 'codeSousType'
+                    'choice_label' => 'codeSousType',
+                    'query_builder' => function (SousTypeDocumentRepository $catg) {
+                        return $catg->createQueryBuilder('s')->where('s.id <> 5');
+                    }
                 ]
             )
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
