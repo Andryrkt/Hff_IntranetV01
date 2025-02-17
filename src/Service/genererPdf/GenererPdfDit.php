@@ -15,7 +15,7 @@ class GenererPdfDit extends GeneratePdf
      *
      * @return void
      */
-    function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel)
+    public function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel)
     {
         $pdf = new TCPDF();
 
@@ -82,7 +82,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
-//=========================================================================================================
+        //=========================================================================================================
         /** INTERVENTION */
         // $pdf->setFont('helvetica', 'B', 11);
         // $pdf->SetTextColor(14, 65, 148);
@@ -100,7 +100,6 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
         if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
-        if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
         } else {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -109,7 +108,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getIdNiveauUrgence()->getDescription(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
-//===================================================================================================
+        //===================================================================================================
         /**AGENCE-SERVICE */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -130,7 +129,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
-//====================================================================================================
+        //====================================================================================================
         /**REPARATION */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -154,7 +153,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(25, 6, 'Réalisé par :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getReparationRealise(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
-//===================================================================================================
+        //===================================================================================================
         /**CLIENT */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -194,7 +193,7 @@ class GenererPdfDit extends GeneratePdf
         // $pdf->cell(0, 6, $mailClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         // $pdf->Ln(10, true);
 
-//========================================================================================================
+        //========================================================================================================
         /** CARACTERISTIQUE MATERIEL */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -238,7 +237,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(0, 6, $dit->getLivraisonPartiel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
 
-//===================================================================================================
+        //===================================================================================================
         /** ETAT MACHINE */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -262,7 +261,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getKm(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
-//========================================================================================
+        //========================================================================================
         /** BILANT FINANCIERE */
         // $pdf->setFont('helvetica', 'B', 12);
         // $pdf->SetTextColor(14, 65, 148);
@@ -300,16 +299,15 @@ class GenererPdfDit extends GeneratePdf
         $pdf->MultiCell(43, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
         $pdf->cell(30, 6, $this->formatNumberDecimal($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
 
-//=========================================================================================
+        //=========================================================================================
 
         // entête email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(110, 2);
         $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
-        $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
 
-//=================================================================================================
+        //=================================================================================================
         /**DEUXIEME PAGE */
         $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
 
@@ -331,8 +329,9 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Output($filePath, 'I');
     }
 
-
-    function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1) {
+    
+    private function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1) 
+    {
         // Set font and text color
         $pdf->setFont($font, $fontStyle, $fontSize);
         $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
@@ -362,8 +361,6 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Ln(6, true);
     }
     
-    
-
 
     private function affichageHistoriqueMateriel($pdf, $historiqueMateriel)
     {

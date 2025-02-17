@@ -1,113 +1,84 @@
-/**recupère l'idMateriel et afficher les information du matériel */
+import { AutoComplete } from "../utils/AutoComplete.js";
+import { FetchManager } from "../api/FetchManager.js";
+
 const idMaterielInput = document.querySelector(
-  '#demande_intervention_idMateriel'
+  "#demande_intervention_idMateriel"
 );
-const numParcInput = document.querySelector('#demande_intervention_numParc');
+const numParcInput = document.querySelector("#demande_intervention_numParc");
 
-const numSerieInput = document.querySelector('#demande_intervention_numSerie');
+const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 
-const constructeurInput = document.querySelector('#constructeur');
-const designationInput = document.querySelector('#designation');
-const modelInput = document.querySelector('#model');
-const casierInput = document.querySelector('#casier');
-const kmInput = document.querySelector('#km');
-const heuresInput = document.querySelector('#heures');
-const coutAcquisitionInput = document.querySelector('#coutAcquisition');
-const amortissementInput = document.querySelector('#amortissement');
-const vncInput = document.querySelector('#vnc');
-const caInput = document.querySelector('#ca');
-const chargeLocativeInput = document.querySelector('#chargeLocative');
-const chargeEntretienInput = document.querySelector('#chargeEntretien');
+const constructeurInput = document.querySelector("#constructeur");
+const designationInput = document.querySelector("#designation");
+const modelInput = document.querySelector("#model");
+const casierInput = document.querySelector("#casier");
+const kmInput = document.querySelector("#km");
+const heuresInput = document.querySelector("#heures");
+const coutAcquisitionInput = document.querySelector("#coutAcquisition");
+const amortissementInput = document.querySelector("#amortissement");
+const vncInput = document.querySelector("#vnc");
+const caInput = document.querySelector("#ca");
+const chargeLocativeInput = document.querySelector("#chargeLocative");
+const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
-  '#resultatExploitation'
+  "#resultatExploitation"
 );
-const erreur = document.querySelector('#erreur');
-const containerInfoMateriel = document.querySelector('#containerInfoMateriel');
+const erreur = document.querySelector("#erreur");
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  let timeouts = {}; // Objets de timeouts pour chaque champ
-
-  function debounceInput(callback, delay, inputId) {
-    return (...args) => {
-      clearTimeout(timeouts[inputId]); // Réinitialise le timer pour ce champ spécifique
-      timeouts[inputId] = setTimeout(() => {
-        callback(...args); // Appelle la fonction après le délai
-      }, delay);
-    };
-  }
-
-  idMaterielInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(idMaterielInput);
-      },
-      2000,
-      'idMateriel'
-    )
-  );
-
-  numParcInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(numParcInput);
-      },
-      2000,
-      'numParc'
-    )
-  );
-
-  numSerieInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(numSerieInput);
-      },
-      2000,
-      'numSerie'
-    )
-  );
-
-  function handleInputChange(inputElement) {
-    InfoMateriel(); // Appeler votre fonction principale
-    clearAndToggleRequired(inputElement); // Nettoyer et définir les règles requises
-  }
-
-  function clearAndToggleRequired(excludeInput) {
-    if (excludeInput !== idMaterielInput) {
-      idMaterielInput.value = '';
-      idMaterielInput.removeAttribute('required');
-    } else {
-      idMaterielInput.setAttribute('required', 'required');
-    }
-
-    if (excludeInput !== numParcInput) {
-      numParcInput.value = '';
-      numParcInput.removeAttribute('required');
-    } else {
-      numParcInput.setAttribute('required', 'required');
-    }
-
-    if (excludeInput !== numSerieInput) {
-      numSerieInput.value = '';
-      numSerieInput.removeAttribute('required');
-    } else {
-      numSerieInput.setAttribute('required', 'required');
-    }
-  }
+/** ===================================================================
+ * recupère l'idMateriel et afficher les information du matériel
+ * ==================================================================*/
+document.addEventListener("DOMContentLoaded", (event) => {
+  const fetchManager = new FetchManager("/Hffintranet");
 
   function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
     return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
   }
 
-  function resetInfoMateriel(message) {
-    containerInfoMateriel.innerHTML = '';
-    idMaterielInput.value = '';
-    numParcInput.value = '';
-    numSerieInput.value = '';
+  function InfoMateriel() {
+    const idMateriel = idMaterielInput.value;
+    const numParc = numParcInput.value;
+    const numSerie = numSerieInput.value;
 
-    erreur.classList.add('text-danger');
+    const hasValidInput =
+      idMateriel !== "" || numParc !== "" || numSerie !== "";
+
+    if (hasValidInput) {
+      erreur.innerHTML = "";
+      const url = buildUrl(
+        "fetch-materiel",
+        idMateriel,
+        numParc,
+        numSerie
+      );
+
+      return fetchManager.get(url);
+  }
+
+  function displayMateriel(item) {
+    return `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`;
+  }
+
+  function onSelectFournisseur(item) {
+    idMaterielInput.value = item.num_matricule;
+    numParcInput.value = item.num_parc;
+    numSerieInput.value = item.num_serie;
+    constructeurInput.innerHTML = item.constructeur;
+    designationInput.innerHTML = item.designation;
+    modelInput.innerHTML = item.model;
+    casierInput.innerHTML = item.casier_emetteur;
+    kmInput.innerHTML = item.km;
+    heuresInput.innerHTML = item.heure
+  }
+
+  function resetInfoMateriel(message) {
+    containerInfoMateriel.innerHTML = "";
+    idMaterielInput.value = "";
+    numParcInput.value = "";
+    numSerieInput.value = "";
+
+    erreur.classList.add("text-danger");
     erreur.innerHTML = message;
   }
 
@@ -128,23 +99,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     if (!data || !Array.isArray(data) || data.length === 0) {
-      console.error('Invalid or empty data provided.');
+      console.error("Invalid or empty data provided.");
       container.innerHTML =
         '<p class="text-danger">Aucune donnée disponible.</p>';
       return;
     }
 
     const fields = [
-      { label: 'Constructeur', key: 'constructeur' },
-      { label: 'Désignation', key: 'designation' },
-      { label: 'KM', key: 'km' },
-      { label: 'N° Parc', key: 'num_parc' },
+      { label: "Constructeur", key: "constructeur" },
+      { label: "Désignation", key: "designation" },
+      { label: "KM", key: "km" },
+      { label: "N° Parc", key: "num_parc" },
 
-      { label: 'Modèle', key: 'modele' },
-      { label: 'Casier', key: 'casier_emetteur' },
-      { label: 'Heures', key: 'heure' },
-      { label: 'N° Serie', key: 'num_serie' },
-      { label: 'Id Materiel', key: 'num_matricule' },
+      { label: "Modèle", key: "modele" },
+      { label: "Casier", key: "casier_emetteur" },
+      { label: "Heures", key: "heure" },
+      { label: "N° Serie", key: "num_serie" },
+      { label: "Id Materiel", key: "num_matricule" },
     ];
 
     const createFieldHtml = (label, value) => `
@@ -163,13 +134,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
           ${fields
             .slice(0, 4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
             .slice(4)
             .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .join("")}
         </div>
       </div>
     </ul>
@@ -180,76 +151,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     return value && value.trim().length > 0;
   }
 
-  function InfoMateriel() {
-    const idMateriel = idMaterielInput.value;
-    const numParc = numParcInput.value;
-    const numSerie = numSerieInput.value;
-
-    if (
-      !isValidInput(idMateriel) &&
-      !isValidInput(numParc) &&
-      !isValidInput(numSerie)
-    ) {
-      resetInfoMateriel("Veuillez compléter l'un des champs.");
-      return;
-    }
-
-    const hasValidInput =
-      idMateriel !== '' || numParc !== '' || numSerie !== '';
-
-    if (hasValidInput) {
-      erreur.innerHTML = '';
-      const url = buildUrl(
-        '/Hffintranet/fetch-materiel',
-        idMateriel,
-        numParc,
-        numSerie
-      );
-
-      // Afficher le spinner dans le container
-      showSpinner(containerInfoMateriel);
-
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des données.');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log(data);
-
-          erreur.innerHTML = '';
-
-          // Effacer le spinner et afficher les données
-          containerInfoMateriel.innerHTML = '';
-          createMaterielInfoDisplay(containerInfoMateriel, data);
-        })
-        .catch((error) => {
-          if (error instanceof SyntaxError) {
-            resetInfoMateriel(
-              "Erreur : l'information du matériel n'est pas dans la base de données."
-            );
-          } else {
-            console.error('Error:', error);
-            erreur.innerHTML = 'Erreur : ' + error.message;
-          }
-        });
-    } else {
-      resetInfoMateriel("veuillez completer l'un des champs ");
-    }
-  }
-
-  /**
+  /** ==========================================================================
    * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
-   */
-  const inputNoEntrers = document.querySelectorAll('.noEntrer');
+   *=============================================================================*/
+  const inputNoEntrers = document.querySelectorAll(".noEntrer");
   inputNoEntrers.forEach((inputNoEntrer) => {
-    inputNoEntrer.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
+    inputNoEntrer.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
         event.preventDefault(); // Empêche le rechargement de la page
         console.log(
-          'La touche Entrée a été pressée dans le champ :',
+          "La touche Entrée a été pressée dans le champ :",
           inputNoEntrer.placeholder
         );
       }
@@ -257,14 +168,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
 });
 
-/**
+/** =========================================================================
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
- */
-const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
-const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
-const spinnerService = document.getElementById('spinner-service');
-const serviceContainer = document.getElementById('service-container');
-agenceDebiteurInput.addEventListener('change', selectAgence);
+ *==========================================================================*/
+const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
+const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
+agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -276,13 +187,13 @@ function selectAgence() {
       console.log(services);
       updateServiceOptions(services);
     })
-    .catch((error) => console.error('Error:', error))
+    .catch((error) => console.error("Error:", error))
     .finally(() => toggleSpinner(false));
 }
 
 function toggleSpinner(show) {
-  spinnerService.style.display = show ? 'inline-block' : 'none';
-  serviceContainer.style.display = show ? 'none' : 'block';
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
 }
 
 function updateServiceOptions(services) {
@@ -293,7 +204,7 @@ function updateServiceOptions(services) {
 
   // Ajouter les nouvelles options à partir du tableau services
   for (var i = 0; i < services.length; i++) {
-    var option = document.createElement('option');
+    var option = document.createElement("option");
     option.value = services[i].value;
     option.text = services[i].text;
     serviceDebiteurInput.add(option);
@@ -302,7 +213,7 @@ function updateServiceOptions(services) {
   //Afficher les nouvelles valeurs et textes des options
   for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
     var option = serviceDebiteurInput.options[i];
-    console.log('Value: ' + option.value + ', Text: ' + option.text);
+    console.log("Value: " + option.value + ", Text: " + option.text);
   }
 }
 
@@ -320,9 +231,9 @@ function MiseMajuscule() {
 /**
  * INTERNE - EXTERNE (champ )
  */
-const interneExterneInput = document.querySelector('.interneExterne');
-const numTelInput = document.querySelector('.numTel');
-const clientSousContratInput = document.querySelector('.clientSousContrat');
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
 const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
@@ -338,7 +249,7 @@ if (interneExterneInput.value === "INTERNE") {
   clientSousContratInput.setAttribute("disabled", true);
 }
 
-interneExterneInput.addEventListener('change', interneExterne);
+interneExterneInput.addEventListener("change", interneExterne);
 
 function interneExterne() {
   console.log(interneExterneInput.value);
@@ -389,12 +300,12 @@ function allowOnlyNumbers(inputElement) {
 allowOnlyNumbers(numTelInput);
 
 /** FORM */
-const myForm = document.querySelector('#myForm');
+const myForm = document.querySelector("#myForm");
 
-myForm.addEventListener('submit', intExtEnvoier);
+myForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute('disabled');
-  serviceDebiteurInput.removeAttribute('disabled');
+  agenceDebiteurInput.removeAttribute("disabled");
+  serviceDebiteurInput.removeAttribute("disabled");
 }
 
 /**
@@ -404,12 +315,12 @@ function formatNumber(input) {
   let number = parseFloat(input);
   if (!isNaN(number)) {
     // Formater le nombre en utilisant la locale fr-FR
-    let formatted = number.toLocaleString('fr-FR', {
+    let formatted = number.toLocaleString("fr-FR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
     // Remplacer les espaces par des points pour les séparateurs de milliers
-    formatted = formatted.replace(/\s/g, '.');
+    formatted = formatted.replace(/\s/g, ".");
     return formatted;
   }
 }
@@ -417,9 +328,9 @@ function formatNumber(input) {
 /**
  * VALIDATION DE OBJET DEMANDE (ne peut pas contenir plus de 86 caractère)
  */
-const objetDemande = document.querySelector('.noEntrer');
+const objetDemande = document.querySelector(".noEntrer");
 
-objetDemande.addEventListener('input', function () {
+objetDemande.addEventListener("input", function () {
   objetDemande.value = objetDemande.value.substring(0, 86);
 });
 
