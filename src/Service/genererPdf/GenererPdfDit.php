@@ -32,7 +32,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention() , 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
@@ -43,7 +43,7 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
         }
-        $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -99,6 +99,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
         if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
         } else {
@@ -305,6 +306,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(110, 2);
+        $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
         $pdf->Cell(35, 6, "email : " . $dit->getMailDemandeur(), 0, 0, 'L');
 
 //=================================================================================================
