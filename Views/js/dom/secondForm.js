@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const matriculeInput = document.querySelector('#dom_form2_matricule');
 
   function form1Data() {
-    let url = `/Hffintranet/form1Data-fetch`;
+    let url = `/Hffintranet_TEST/form1Data-fetch`;
     fetch(url)
       .then((response) => response.json())
       .then((form1Data) => {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+    let url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
     fetch(url)
       .then((response) => response.json())
       .then((services) => {
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const docValue = sousTypeDocInput.value;
     const catgValue = categorieInput.value;
     const rmqValue = rmqInput.value;
-    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
+    let url = `/Hffintranet_TEST/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
     fetch(url)
       .then((response) => response.json())
       .then((indemnite) => {
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
   function infoPersonnel() {
     const matricule = matriculeInput_2.value;
-    let url = `/Hffintranet/personnel-fetch/${matricule}`;
+    let url = `/Hffintranet_TEST/personnel-fetch/${matricule}`;
     fetch(url)
       .then((response) => response.json())
       .then((personne) => {

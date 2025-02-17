@@ -1,12 +1,12 @@
-import { toggleSpinner } from "./spinnerUtils.js";
-import { populateServiceOptions, contenuInfoMateriel } from "./uiUtils.js";
+import { toggleSpinner } from './spinnerUtils.js';
+import { populateServiceOptions, contenuInfoMateriel } from './uiUtils.js';
 
 export function fetchNumMatMarqueCasier(numOr, rectangle) {
-  const url = `/Hffintranet/api/numMat-marq-casier/${numOr}`;
+  const url = `/Hffintranet_TEST/api/numMat-marq-casier/${numOr}`;
   fetch(url)
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des données");
+        throw new Error('Erreur lors de la récupération des données');
       }
       return response.json();
     })
@@ -15,8 +15,8 @@ export function fetchNumMatMarqueCasier(numOr, rectangle) {
       contenuInfoMateriel(data, rectangle);
     })
     .catch((error) => {
-      console.error("Erreur :", error);
-      rectangle.textContent = "Erreur de chargement";
+      console.error('Erreur :', error);
+      rectangle.textContent = 'Erreur de chargement';
     });
 }
 
@@ -26,19 +26,19 @@ export function fetchServicesForAgence(
   spinnerService,
   serviceContainer
 ) {
-  const url = `/Hffintranet/service-informix-fetch/${agence}`;
+  const url = `/Hffintranet_TEST/service-informix-fetch/${agence}`;
   toggleSpinner(spinnerService, serviceContainer, true);
 
   fetch(url)
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des services");
+        throw new Error('Erreur lors de la récupération des services');
       }
       return response.json();
     })
     .then((services) => {
       populateServiceOptions(services, serviceInput);
     })
-    .catch((error) => console.error("Erreur :", error))
+    .catch((error) => console.error('Erreur :', error))
     .finally(() => toggleSpinner(spinnerService, serviceContainer, false));
 }

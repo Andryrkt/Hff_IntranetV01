@@ -17,13 +17,13 @@
                 </div>
                 <div class="d-flex flex-row ">
                     <div class="p-2">
-                        <a href="/Hffintranet/index.php?action=PersonnelList" class="btn btn-warning">
+                        <a href="/Hffintranet_TEST/index.php?action=PersonnelList" class="btn btn-warning">
                             Liste des personnels
                         </a>
 
                     </div>
                 </div>
-                <form action="" method="POST"> 
+                <form action="" method="POST">
                     <div class=" row">
                         <div class="col">
                             <label for="AgenceSage" class="label-form">Agence - Service</label>

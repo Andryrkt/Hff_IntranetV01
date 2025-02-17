@@ -18,13 +18,13 @@
                 </div>
                 <div class="d-flex flex-row ">
                     <div class="p-2">
-                        <a href="/Hffintranet/index.php?action=Personnels" class="btn btn-success">
+                        <a href="/Hffintranet_TEST_TEST_TEST/index.php?action=Personnels" class="btn btn-success">
                             Nouvelle Personnel
                         </a>
 
                     </div>
                 </div>
-                
+
                 <table class="table">
                     <thead class="table-dark">
                         <tr>

@@ -1,13 +1,13 @@
-const exportExcelButton = document.querySelector("#export_excel");
+const exportExcelButton = document.querySelector('#export_excel');
 
 //export excel
-exportExcelButton.addEventListener("click", (e) => {
+exportExcelButton.addEventListener('click', (e) => {
   e.preventDefault();
   dataDom();
 });
 
 function dataDom() {
-  let url = `/Hffintranet/data-fetch`;
+  let url = `/Hffintranet_TEST/data-fetch`;
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
@@ -15,7 +15,7 @@ function dataDom() {
 
       ExportExcel(data);
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error('Error:', error));
 }
 
 /**
@@ -28,37 +28,37 @@ function ExportExcel(data) {
 
   // Ajoute les en-têtes à la feuille Excel
   const headers = [
-    "Id",
-    "Statut",
-    "type document",
+    'Id',
+    'Statut',
+    'type document',
     "Numéro d'Ordre de Mission",
-    "Date de Demande",
-    "Motif de Déplacement",
-    "Numero Matricule",
-    "Nom",
-    "Prénoms",
-    "Mode de paiement",
-    "Agence de service",
-    "Date de Debut",
-    "Date de Fin",
-    "Nombre de Jour",
-    "Client",
-    "Numéro OR",
+    'Date de Demande',
+    'Motif de Déplacement',
+    'Numero Matricule',
+    'Nom',
+    'Prénoms',
+    'Mode de paiement',
+    'Agence de service',
+    'Date de Debut',
+    'Date de Fin',
+    'Nombre de Jour',
+    'Client',
+    'Numéro OR',
     "Lieu d'intervention",
-    "Numero Vehicule",
-    "Total Autres Dépenses",
-    "Total Général Payer",
-    "Devis",
+    'Numero Vehicule',
+    'Total Autres Dépenses',
+    'Total Général Payer',
+    'Devis',
   ];
   XLSX.utils.sheet_add_aoa(worksheet, [headers], {
-    origin: "A1",
+    origin: 'A1',
   });
 
   // Ajoute la feuille Excel au classeur
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Données');
 
   // Télécharge le fichier Excel
-  XLSX.writeFile(workbook, "Exportation-Excel.xlsx", {
+  XLSX.writeFile(workbook, 'Exportation-Excel.xlsx', {
     compression: true,
   });
 }

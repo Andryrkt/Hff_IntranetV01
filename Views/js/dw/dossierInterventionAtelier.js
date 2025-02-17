@@ -3,50 +3,50 @@ import {
   iconSelonTypeFile,
   afficherFichier,
   couleurDefondClick,
-} from "./utils.js";
+} from './utils.js';
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // Sélectionne toutes les lignes du premier tableau
-  const rows = document.querySelectorAll(".clickable-row");
-  const spinners = document.getElementById("spinners");
-  const spinner = document.getElementById("spinner");
+  const rows = document.querySelectorAll('.clickable-row');
+  const spinners = document.getElementById('spinners');
+  const spinner = document.getElementById('spinner');
 
   rows.forEach(function (row) {
-    row.addEventListener("click", function () {
+    row.addEventListener('click', function () {
       couleurDefondClick(row);
       // Récupère le numéro DIT de la ligne cliquée
       const numeroDit = this.dataset.dit;
 
       // Affiche le spinner
-      spinner.style.display = "block";
+      spinner.style.display = 'block';
 
       // Met à jour le titre avec le numéro DIT
-      document.getElementById("numero-dit").textContent = numeroDit;
+      document.getElementById('numero-dit').textContent = numeroDit;
       console.log(numeroDit);
 
       // Appelle l'API via AJAX pour récupérer les détails
-      const url = `/Hffintranet/dw-fetch/${numeroDit}`;
+      const url = `/Hffintranet_TEST_TEST_TEST_TEST/dw-fetch/${numeroDit}`;
       fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("Erreur HTTP " + response.status);
+            throw new Error('Erreur HTTP ' + response.status);
           }
           return response.json();
         })
         .then((data) => {
           console.log(data);
           // Masque le spinner une fois les données chargées
-          spinner.style.display = "none";
+          spinner.style.display = 'none';
 
           // Remplace le tbody du tableau à chaque clic
-          const newTbody = document.createElement("tbody");
-          newTbody.id = "documents-tbody";
-          const oldTbody = document.getElementById("documents-tbody");
+          const newTbody = document.createElement('tbody');
+          newTbody.id = 'documents-tbody';
+          const oldTbody = document.getElementById('documents-tbody');
           oldTbody.parentNode.replaceChild(newTbody, oldTbody);
 
           // Parcourt les données reçues et insère chaque document dans le tableau
@@ -58,14 +58,14 @@ document.addEventListener("DOMContentLoaded", function () {
             let icon = iconSelonTypeFile(doc.extension_fichier);
 
             //affichage statut et version or
-            let statut = "-";
-            let numVersion = "-";
-            if (doc.nomDoc === "Ordre de réparation") {
-              statut = doc.statut_or ? doc.statut_or : "-";
-              numVersion = doc.numero_version ? doc.numero_version : "-";
+            let statut = '-';
+            let numVersion = '-';
+            if (doc.nomDoc === 'Ordre de réparation') {
+              statut = doc.statut_or ? doc.statut_or : '-';
+              numVersion = doc.numero_version ? doc.numero_version : '-';
             }
 
-            const row = document.createElement("tr");
+            const row = document.createElement('tr');
 
             row.innerHTML = `
                       <td>${icon}</td>
@@ -83,28 +83,28 @@ document.addEventListener("DOMContentLoaded", function () {
                   `;
 
             // Ajoute la classe "clickable" à la ligne
-            row.classList.add("clickable");
+            row.classList.add('clickable');
 
             // Ajoute un événement de clic pour afficher le fichier dans la page
-            row.addEventListener("click", function () {
+            row.addEventListener('click', function () {
               couleurDefondClick(row);
 
               // Affiche le spinner avant d'afficher le fichier
-              spinners.style.display = "block";
+              spinners.style.display = 'block';
 
               afficherFichier(doc.chemin); // Appelle la fonction pour afficher le fichier
 
               // Masque le spinner après l'affichage du fichier
-              spinners.style.display = "none";
+              spinners.style.display = 'none';
             });
 
             newTbody.appendChild(row);
           });
         })
         .catch((error) => {
-          console.error("Erreur lors de la récupération des données:", error);
+          console.error('Erreur lors de la récupération des données:', error);
           // Masque le spinner en cas d'erreur
-          spinner.style.display = "none";
+          spinner.style.display = 'none';
         });
     });
   });

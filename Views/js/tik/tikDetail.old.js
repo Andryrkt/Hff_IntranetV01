@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return; // Sortir de la fonction
       }
 
-      let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
+      let url = `/Hffintranet_TEST/api/sous-categorie-fetch/${categorie}`;
       fetch(url)
         .then((response) => response.json())
         .then((sousCategories) => {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log(sousCategorie);
 
-        let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
+        let url = `/Hffintranet_TEST/api/autres-categorie-fetch/${sousCategorie}`;
         fetch(url)
           .then((response) => response.json())
           .then((autresCategories) => {
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       console.log(sousCategorie);
 
-      let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
+      let url = `/Hffintranet_TEST/api/autres-categorie-fetch/${sousCategorie}`;
       fetch(url)
         .then((response) => response.json())
         .then((autresCategories) => {

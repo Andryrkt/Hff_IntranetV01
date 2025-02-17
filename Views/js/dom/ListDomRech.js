@@ -1,28 +1,28 @@
-const statutInput = document.querySelector("#statut");
-const matriculeInput = document.querySelector("#matricule");
-const sousTypeDocInput = document.querySelector("#sousTypeDoc");
-const numDomInput = document.querySelector("#numDom");
-const dateCreationDebutInput = document.querySelector("#dateCreationDebut");
-const dateCreationFinInput = document.querySelector("#dateCreationFin");
-const dateDebutDebutInput = document.querySelector("#dateDebutDebut");
-const dateDebutFinInput = document.querySelector("#dateDebutFin");
-const exportExcelButton = document.querySelector("#export");
-const rechercheInput = document.querySelector("#recherche");
-const resetInput = document.querySelector("#reset");
-const nombreLigneInput = document.querySelector("#nombreLigne");
-const nombreResultatInput = document.querySelector("#nombreResultat");
+const statutInput = document.querySelector('#statut');
+const matriculeInput = document.querySelector('#matricule');
+const sousTypeDocInput = document.querySelector('#sousTypeDoc');
+const numDomInput = document.querySelector('#numDom');
+const dateCreationDebutInput = document.querySelector('#dateCreationDebut');
+const dateCreationFinInput = document.querySelector('#dateCreationFin');
+const dateDebutDebutInput = document.querySelector('#dateDebutDebut');
+const dateDebutFinInput = document.querySelector('#dateDebutFin');
+const exportExcelButton = document.querySelector('#export');
+const rechercheInput = document.querySelector('#recherche');
+const resetInput = document.querySelector('#reset');
+const nombreLigneInput = document.querySelector('#nombreLigne');
+const nombreResultatInput = document.querySelector('#nombreResultat');
 
-const urlStatut = "/Hffintranet/listStatut";
+const urlStatut = '/Hffintranet_TEST/listStatut';
 
 /**
  * @Andryrkt
  * récupère les donnée JSON et faire le traitement du recherhce, affichage, export excel
  */
 async function fetchvaleur() {
-  const url = "/Hffintranet/recherche";
+  const url = '/Hffintranet_TEST/recherche';
   return await fetch(url).then((response) => {
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      throw new Error('Network response was not ok');
     }
     return response.json();
   });
@@ -36,69 +36,69 @@ fetchvaleur()
 
     SousTypeDoc(raw_data);
 
-    dateCreationDebutInput.addEventListener("change", (e) => {
+    dateCreationDebutInput.addEventListener('change', (e) => {
       e.preventDefault();
       // Vérifier si la date de début est supérieure à la date de fin
       if (
         new Date(dateCreationDebutInput.value) >
         new Date(dateCreationFinInput.value)
       ) {
-        const message = document.getElementById("dateCreationMessage");
+        const message = document.getElementById('dateCreationMessage');
         message.textContent =
-          "La date de début doit être inférieure à la date de fin.";
+          'La date de début doit être inférieure à la date de fin.';
       } else {
-        const message = document.getElementById("dateCreationMessage");
-        message.textContent = "";
+        const message = document.getElementById('dateCreationMessage');
+        message.textContent = '';
       }
     });
 
-    dateCreationFinInput.addEventListener("change", (e) => {
+    dateCreationFinInput.addEventListener('change', (e) => {
       e.preventDefault();
 
       if (
         new Date(dateCreationDebutInput.value) >
         new Date(dateCreationFinInput.value)
       ) {
-        const message = document.getElementById("dateCreationMessage");
+        const message = document.getElementById('dateCreationMessage');
         message.textContent =
-          "La date de début doit être inférieure à la date de fin.";
+          'La date de début doit être inférieure à la date de fin.';
       } else {
-        const message = document.getElementById("dateCreationMessage");
-        message.textContent = "";
+        const message = document.getElementById('dateCreationMessage');
+        message.textContent = '';
       }
     });
 
-    dateDebutDebutInput.addEventListener("change", (e) => {
+    dateDebutDebutInput.addEventListener('change', (e) => {
       e.preventDefault();
       if (
         new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)
       ) {
-        const message = document.getElementById("dateCreationMessage");
+        const message = document.getElementById('dateCreationMessage');
         message.textContent =
-          "La date de début doit être inférieure à la date de fin.";
+          'La date de début doit être inférieure à la date de fin.';
       } else {
-        const message = document.getElementById("dateCreationMessage");
-        message.textContent = "";
+        const message = document.getElementById('dateCreationMessage');
+        message.textContent = '';
       }
     });
-    dateDebutFinInput.addEventListener("change", (e) => {
+    dateDebutFinInput.addEventListener('change', (e) => {
       e.preventDefault();
       if (
         new Date(dateDebutDebutInput.value) > new Date(dateDebutFinInput.value)
       ) {
-        const message = document.getElementById("dateCreationMessage");
+        const message = document.getElementById('dateCreationMessage');
         message.textContent =
-          "La date de début doit être inférieure à la date de fin.";
+          'La date de début doit être inférieure à la date de fin.';
       } else {
-        const message = document.getElementById("dateCreationMessage");
-        message.textContent = "";
+        const message = document.getElementById('dateCreationMessage');
+        message.textContent = '';
       }
     });
 
     /* 
         bouton de recherche
     */
-    recherche.addEventListener("click", (e) => {
+    recherche.addEventListener('click', (e) => {
       e.preventDefault();
       executeFiltreEtRendu();
     });
@@ -106,16 +106,16 @@ fetchvaleur()
     /*
         bouton effacer tous les recherches
    */
-    reset.addEventListener("click", (e) => {
+    reset.addEventListener('click', (e) => {
       e.preventDefault();
-      statutInput.value = "";
-      matriculeInput.value = "";
-      sousTypeDocInput.value = "";
-      numDomInput.value = "";
-      dateCreationDebutInput.value = "";
-      dateCreationFinInput.value = "";
-      dateDebutDebutInput.value = "";
-      dateDebutFinInput.value = "";
+      statutInput.value = '';
+      matriculeInput.value = '';
+      sousTypeDocInput.value = '';
+      numDomInput.value = '';
+      dateCreationDebutInput.value = '';
+      dateCreationFinInput.value = '';
+      dateDebutDebutInput.value = '';
+      dateDebutFinInput.value = '';
     });
 
     /**
@@ -127,10 +127,10 @@ fetchvaleur()
       // Filtre les données
       console.log(donner);
       if (donner.length > 0) {
-        const container = document.querySelector("#noResult");
-        container.innerHTML = "";
+        const container = document.querySelector('#noResult');
+        container.innerHTML = '';
         renderData1(donner);
-        nombreResultat.textContent = donner.length + " résultats";
+        nombreResultat.textContent = donner.length + ' résultats';
       } else {
         console.log(
           new Date(dateCreationDebutInput.value) >
@@ -138,21 +138,21 @@ fetchvaleur()
         );
 
         // Afficher un message si le tableau est vide
-        const noResult = document.querySelector("#noResult");
+        const noResult = document.querySelector('#noResult');
         noResult.innerHTML = `<p class="fw-bold" style="text-align: center;">Il n'y a pas de données correspondant à votre recherche.</p>`;
-        var container = document.getElementById("table-container");
-        container.innerHTML = "";
-        nombreResultat.textContent = 0 + " résultats";
+        var container = document.getElementById('table-container');
+        container.innerHTML = '';
+        nombreResultat.textContent = 0 + ' résultats';
       }
     }
 
     //export excel
-    exportExcelButton.addEventListener("click", () => {
+    exportExcelButton.addEventListener('click', () => {
       ExportExcel(raw_data);
     });
   })
   .catch((error) => {
-    console.error("There has been a problem with your fetch operation:", error);
+    console.error('There has been a problem with your fetch operation:', error);
   });
 
 /**
@@ -163,16 +163,16 @@ function SelectStatutValue1(data) {
   const uniqueStatuts = new Set();
   data.forEach((element) => uniqueStatuts.add(element.Statut));
 
-  const select = document.getElementById("statut");
+  const select = document.getElementById('statut');
 
   // Ajouter une option vide
-  const emptyOption = document.createElement("option");
-  emptyOption.value = ""; // Valeur vide
-  emptyOption.textContent = "Sélectionnez un statut"; // Texte optionnel
+  const emptyOption = document.createElement('option');
+  emptyOption.value = ''; // Valeur vide
+  emptyOption.textContent = 'Sélectionnez un statut'; // Texte optionnel
   select.appendChild(emptyOption);
 
   uniqueStatuts.forEach((statut) => {
-    const option = document.createElement("option");
+    const option = document.createElement('option');
     option.value = statut;
     option.textContent = statut;
     // Ajouter l'option à l'élément <select>
@@ -184,16 +184,16 @@ function SousTypeDoc(data) {
   const uniqueSousTypeDoc = new Set();
   data.forEach((element) => uniqueSousTypeDoc.add(element.Sous_type_document));
 
-  const select = document.getElementById("sousTypeDoc");
+  const select = document.getElementById('sousTypeDoc');
 
   // Ajouter une option vide
-  const emptyOption = document.createElement("option");
-  emptyOption.value = ""; // Valeur vide
-  emptyOption.textContent = "Sélectionnez un sous type"; // Texte optionnel
+  const emptyOption = document.createElement('option');
+  emptyOption.value = ''; // Valeur vide
+  emptyOption.textContent = 'Sélectionnez un sous type'; // Texte optionnel
   select.appendChild(emptyOption);
 
   uniqueSousTypeDoc.forEach((sousTypeDoc) => {
-    const option = document.createElement("option");
+    const option = document.createElement('option');
     option.value = sousTypeDoc;
     option.textContent = sousTypeDoc;
     // Ajouter l'option à l'élément <select>
@@ -206,55 +206,55 @@ function SousTypeDoc(data) {
  * rendre le tableau afficher sur l'écran
  */
 function renderData1(data) {
-  const trCorps = document.querySelector("#trCorps");
+  const trCorps = document.querySelector('#trCorps');
 
   // Création du corps du tableau s'il n'existe pas encore
 
-  const container = document.getElementById("table-container");
-  container.innerHTML = "";
+  const container = document.getElementById('table-container');
+  container.innerHTML = '';
 
   // Ajouter les nouvelles lignes pour les données filtrées
   data.forEach(function (item, index) {
-    const row = document.createElement("tr");
-    row.classList.add(index % 2 === 0 ? "table-gray-700" : "table-secondary"); // Alternance des couleurs de ligne
+    const row = document.createElement('tr');
+    row.classList.add(index % 2 === 0 ? 'table-gray-700' : 'table-secondary'); // Alternance des couleurs de ligne
 
     // Créer une cellule pour les boutons
-    const buttonCell = document.createElement("td");
+    const buttonCell = document.createElement('td');
 
     // Ajouter un bouton d'annulation à chaque ligne
-    const annulationButton = document.createElement("button");
-    annulationButton.innerHTML = `<a href="/Hffintranet/index.php?action=annuler&NumDOM=${item["Numero_Ordre_Mission"]}&IdDOM=${item["ID_Demande_Ordre_Mission"]}&check=${item["Matricule"]}" style="text-decoration: none; color:red; font-weight: 600">Annuler</a>`;
-    annulationButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
-    annulationButton.style.backgroundColor = "#000";
-    annulationButton.style.borderStyle = "none";
+    const annulationButton = document.createElement('button');
+    annulationButton.innerHTML = `<a href="/Hffintranet_TEST/index.php?action=annuler&NumDOM=${item['Numero_Ordre_Mission']}&IdDOM=${item['ID_Demande_Ordre_Mission']}&check=${item['Matricule']}" style="text-decoration: none; color:red; font-weight: 600">Annuler</a>`;
+    annulationButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-1');
+    annulationButton.style.backgroundColor = '#000';
+    annulationButton.style.borderStyle = 'none';
     buttonCell.appendChild(annulationButton);
 
     // Ajouter un bouton de duplication à chaque ligne
-    const duplicateButton = document.createElement("button");
-    duplicateButton.innerHTML = `<a href="/Hffintranet/duplifierForm/${item["Numero_Ordre_Mission"]}/${item["ID_Demande_Ordre_Mission"]}/${item["Matricule"]}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
-    duplicateButton.classList.add("btn", "btn-warning", "mx-2", "my-1");
-    duplicateButton.style.backgroundColor = "#FBBB01";
+    const duplicateButton = document.createElement('button');
+    duplicateButton.innerHTML = `<a href="/Hffintranet_TEST/duplifierForm/${item['Numero_Ordre_Mission']}/${item['ID_Demande_Ordre_Mission']}/${item['Matricule']}" style="text-decoration: none; color: #000000; font-weight: 600">Dupliquer</a>`;
+    duplicateButton.classList.add('btn', 'btn-warning', 'mx-2', 'my-1');
+    duplicateButton.style.backgroundColor = '#FBBB01';
     buttonCell.appendChild(duplicateButton);
 
     // Ajouter la cellule des boutons à la ligne
     row.appendChild(buttonCell);
 
     for (var key in item) {
-      const cellule = document.createElement("td");
-      cellule.classList.add("w-50");
+      const cellule = document.createElement('td');
+      cellule.classList.add('w-50');
 
       if (
-        key === "Matricule" ||
-        key === "Date_Demande" ||
-        key === "Date_Debut" ||
-        key === "Date_Fin" ||
-        key === "Nombre_Jour"
+        key === 'Matricule' ||
+        key === 'Date_Demande' ||
+        key === 'Date_Debut' ||
+        key === 'Date_Fin' ||
+        key === 'Nombre_Jour'
       ) {
-        cellule.style.textAlign = "center";
+        cellule.style.textAlign = 'center';
       }
 
-      if (key === "Total_Autres_Depenses" || key === "Total_General_Payer") {
-        cellule.style.textAlign = "end";
+      if (key === 'Total_Autres_Depenses' || key === 'Total_General_Payer') {
+        cellule.style.textAlign = 'end';
       }
 
       // if(key==='ID_Demande_Ordre_Mission'){
@@ -262,14 +262,14 @@ function renderData1(data) {
       // }
 
       if (
-        key === "Date_Demande" ||
-        key === "Date_Debut" ||
-        key === "Date_Fin"
+        key === 'Date_Demande' ||
+        key === 'Date_Debut' ||
+        key === 'Date_Fin'
       ) {
-        cellule.textContent = item[key].split("-").reverse().join("/");
-      } else if (key === "Numero_Ordre_Mission") {
-        var lien = document.createElement("a");
-        lien.href = `/Hffintranet/detailDom/${item[key]}/${item["ID_Demande_Ordre_Mission"]}`;
+        cellule.textContent = item[key].split('-').reverse().join('/');
+      } else if (key === 'Numero_Ordre_Mission') {
+        var lien = document.createElement('a');
+        lien.href = `/Hffintranet_TEST/detailDom/${item[key]}/${item['ID_Demande_Ordre_Mission']}`;
         lien.textContent = item[key];
         cellule.appendChild(lien);
       } else {
@@ -277,19 +277,19 @@ function renderData1(data) {
       }
 
       // Vérifier si la clé est "statut" et attribuer une classe en conséquence
-      if (key === "Statut") {
+      if (key === 'Statut') {
         switch (item[key]) {
-          case "Ouvert":
-            cellule.style.backgroundColor = "#FBBB01";
+          case 'Ouvert':
+            cellule.style.backgroundColor = '#FBBB01';
             break;
-          case "Payé":
-            cellule.style.backgroundColor = "#34c924";
+          case 'Payé':
+            cellule.style.backgroundColor = '#34c924';
             break;
-          case "Annulé":
-            cellule.style.backgroundColor = "#FF0000";
+          case 'Annulé':
+            cellule.style.backgroundColor = '#FF0000';
             break;
-          case "Compta":
-            cellule.style.backgroundColor = "#77b5fe";
+          case 'Compta':
+            cellule.style.backgroundColor = '#77b5fe';
             break;
         }
       }
@@ -403,37 +403,37 @@ function ExportExcel(data) {
 
   // Ajoute les en-têtes à la feuille Excel
   const headers = [
-    "Id",
-    "Statut",
-    "type document",
+    'Id',
+    'Statut',
+    'type document',
     "Numéro d'Ordre de Mission",
-    "Date de Demande",
-    "Motif de Déplacement",
-    "Numero Matricule",
-    "Nom",
-    "Prénoms",
-    "Mode de paiement",
-    "Agence de service",
-    "Date de Debut",
-    "Date de Fin",
-    "Nombre de Jour",
-    "Client",
-    "Numéro OR",
+    'Date de Demande',
+    'Motif de Déplacement',
+    'Numero Matricule',
+    'Nom',
+    'Prénoms',
+    'Mode de paiement',
+    'Agence de service',
+    'Date de Debut',
+    'Date de Fin',
+    'Nombre de Jour',
+    'Client',
+    'Numéro OR',
     "Lieu d'intervention",
-    "Numero Vehicule",
-    "Total Autres Dépenses",
-    "Total Général Payer",
-    "Devis",
+    'Numero Vehicule',
+    'Total Autres Dépenses',
+    'Total Général Payer',
+    'Devis',
   ];
   XLSX.utils.sheet_add_aoa(worksheet, [headers], {
-    origin: "A1",
+    origin: 'A1',
   });
 
   // Ajoute la feuille Excel au classeur
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Données');
 
   // Télécharge le fichier Excel
-  XLSX.writeFile(workbook, "Exportation-Excel.xlsx", {
+  XLSX.writeFile(workbook, 'Exportation-Excel.xlsx', {
     compression: true,
   });
 }
