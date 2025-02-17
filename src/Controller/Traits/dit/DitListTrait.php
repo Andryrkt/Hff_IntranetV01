@@ -575,14 +575,16 @@ trait DitListTrait
     private function ajoutEstOrASoumis($paginationData, $em)
     {
         foreach ($paginationData as $value) {
-            // efa nisy noumission or ve?
+            // dd($value);
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
-
-            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) {
-                $value->setEstOrASoumi(true);
+            
+            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+                $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
-                $value->setEstOrASoumi(false);
+                $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
+                $value->setEstOrASoumi(true);
+            }  elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-",$value->getAgenceServiceDebiteur())[1] ==='LST') {
                 $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);
