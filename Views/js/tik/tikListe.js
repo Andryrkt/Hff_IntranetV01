@@ -21,7 +21,7 @@ function selectAgenceEmetteur() {
     return; // Sortir de la fonction
   }
 
-  let url = `/Hffintranet_TEST_TEST/agence-fetch/${agenceDebiteur}`;
+  let url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
@@ -77,7 +77,7 @@ function selectAgenceDebiteur() {
     return; // Sortir de la fonction
   }
 
-  let url = `/Hffintranet_TEST_TEST/agence-fetch/${agenceDebiteur}`;
+  let url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
@@ -135,7 +135,7 @@ function selectCategorieSousCategorie() {
     return; // Sortir de la fonction
   }
 
-  let url = `/Hffintranet_TEST_TEST/api/sous-categorie-fetch/${categorie}`;
+  let url = `/Hffintranet_TEST/api/sous-categorie-fetch/${categorie}`;
   fetch(url)
     .then((response) => response.json())
     .then((sousCategories) => {
@@ -190,7 +190,7 @@ function selectCategorieSousCategorie() {
 
     console.log(sousCategorie);
 
-    let url = `/Hffintranet_TEST_TEST/api/autres-categorie-fetch/${sousCategorie}`;
+    let url = `/Hffintranet_TEST/api/autres-categorie-fetch/${sousCategorie}`;
     fetch(url)
       .then((response) => response.json())
       .then((autresCategories) => {

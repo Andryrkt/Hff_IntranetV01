@@ -7,7 +7,7 @@ export function fetchServicesForAgence(
   spinnerService,
   serviceContainer
 ) {
-  const url = `/Hffintranet_TEST_TEST/service-informix-fetch/${agence}`;
+  const url = `/Hffintranet_TEST/service-informix-fetch/${agence}`;
   toggleSpinner(spinnerService, serviceContainer, true);
 
   fetch(url)

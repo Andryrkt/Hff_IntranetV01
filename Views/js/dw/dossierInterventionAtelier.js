@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log(numeroDit);
 
       // Appelle l'API via AJAX pour récupérer les détails
-      const url = `/Hffintranet_TEST_TEST_TEST_TEST/dw-fetch/${numeroDit}`;
+      const url = `/Hffintranet_TEST/dw-fetch/${numeroDit}`;
       fetch(url, {
         method: 'GET',
         headers: {

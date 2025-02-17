@@ -14,7 +14,7 @@ function selectAgence() {
   console.log(agenceDebiteur);
 
   if (agenceDebiteur) {
-    let url = `/Hffintranet_TEST_TEST/agence-fetch/${agenceDebiteur}`;
+    let url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
     fetch(url)
       .then((response) => response.json())
       .then((services) => {

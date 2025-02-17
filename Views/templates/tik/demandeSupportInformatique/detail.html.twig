@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet_TEST_TEST_TEST_TEST_TEST/Views/css/new.css" rel="stylesheet"/>
-	<link href="/Hffintranet_TEST_TEST_TEST_TEST_TEST/Views/css/tik/detailTik.css" rel="stylesheet"/>
-	<link href="/Hffintranet_TEST_TEST_TEST_TEST_TEST/Views/css/tik/supportInfo.css" rel="stylesheet">
+	<link href="/Hffintranet_TEST/Views/css/new.css" rel="stylesheet"/>
+	<link href="/Hffintranet_TEST/Views/css/tik/detailTik.css" rel="stylesheet"/>
+	<link href="/Hffintranet_TEST/Views/css/tik/supportInfo.css" rel="stylesheet">
 	<style>
 		.card-body input:checked ~ .statut {
 			height: calc({{ historiqueStatut|length }} * 45px);
@@ -250,7 +250,7 @@
 {% block footer %}{% endblock %}
 
 {% block javascript %}
-	<script type="module" src="/Hffintranet_TEST_TEST_TEST_TEST_TEST/Views/js/tik/tikDetail.js"></script>
+	<script type="module" src="/Hffintranet_TEST/Views/js/tik/tikDetail.js"></script>
 	<script>
 		const div = document.getElementById('emailDemandeur');
 const originalText = div.textContent;

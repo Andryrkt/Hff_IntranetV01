@@ -12,7 +12,7 @@ const config = {
   },
   urls: {
     serviceFetch: (agenceDebiteur) =>
-      `/Hffintranet_TEST_TEST/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
+      `/Hffintranet_TEST/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
   },
 };
 
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
-        `/Hffintranet_TEST_TEST/dw-intervention-atelier-avec-dit/${numDit}`,
+        `/Hffintranet_TEST/dw-intervention-atelier-avec-dit/${numDit}`,
         '_blank'
       );
     };
@@ -320,12 +320,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function fetchTechnicienInterv(numOr, numItv, signal) {
-    fetch(
-      `/Hffintranet_TEST_TEST/api/technicien-intervenant/${numOr}/${numItv}`,
-      {
-        signal,
-      }
-    )
+    fetch(`/Hffintranet_TEST/api/technicien-intervenant/${numOr}/${numItv}`, {
+      signal,
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -367,7 +364,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function fetchDetailModal(id, signal) {
     // Fetch request to get the data
-    fetch(`/Hffintranet_TEST_TEST/detail-modal/${id}`, { signal })
+    fetch(`/Hffintranet_TEST/detail-modal/${id}`, { signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

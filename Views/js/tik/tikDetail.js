@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Mise à jour des sous-catégories
   categorieInput?.addEventListener('change', function () {
     if (categorieInput.value !== '') {
-      const url = `/Hffintranet_TEST_TEST/api/sous-categorie-fetch/${categorieInput.value}`;
+      const url = `/Hffintranet_TEST/api/sous-categorie-fetch/${categorieInput.value}`;
       updateDropdown(
         sousCategorieInput,
         url,
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Mise à jour des autres catégories
   sousCategorieInput?.addEventListener('change', function () {
     if (sousCategorieInput.value !== '') {
-      const url = `/Hffintranet_TEST_TEST/api/autres-categorie-fetch/${sousCategorieInput.value}`;
+      const url = `/Hffintranet_TEST/api/autres-categorie-fetch/${sousCategorieInput.value}`;
       updateDropdown(
         autreCategorieInput,
         url,

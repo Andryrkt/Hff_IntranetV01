@@ -7,7 +7,7 @@ const config = {
   },
   urls: {
     serviceFetch: (agenceDebiteur) =>
-      `/Hffintranet_TEST_TEST_TEST/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
+      `/Hffintranet_TEST/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
   },
 };
 

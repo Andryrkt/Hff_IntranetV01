@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log(nomDoc);
       console.log(numeroVersion);
 
-      const url = `/Hffintranet_TEST_TEST/dw-chemin-fetch/${numeroDoc}/${nomDoc}/${numeroVersion}`;
+      const url = `/Hffintranet_TEST/dw-chemin-fetch/${numeroDoc}/${nomDoc}/${numeroVersion}`;
       fetch(url, {
         method: 'GET',
         headers: {
