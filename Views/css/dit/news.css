@@ -150,6 +150,10 @@ input.autocomplete:focus {
 }
 
 
+/** detail demande*/
+#demande_intervention_detailDemande{
+    margin-bottom: 0 !important;
+}
 
 
 

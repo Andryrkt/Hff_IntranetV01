@@ -437,6 +437,34 @@ function formatNumber(input) {
 //   }
 // });
 
+const textarea = document.querySelector(".detailDemande");
+const charCount = document.getElementById("charCount");
+const MAX_CHARACTERS = 1877;
+
+// Afficher le message initial
+charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
+charCount.style.color = "black"; // Couleur initiale
+
+textarea.addEventListener("input", function () {
+  const remainingCharacters = MAX_CHARACTERS - textarea.value.length;
+
+  if (remainingCharacters < 0) {
+    textarea.value = textarea.value.substring(0, MAX_CHARACTERS);
+  }
+
+  // Mettre à jour le nombre restant et la couleur
+  if (textarea.value.length === 0) {
+    charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
+    charCount.style.color = "black";
+  } else {
+    charCount.textContent = `Il vous reste ${
+      remainingCharacters >= 0 ? remainingCharacters : 0
+    } caractères.`;
+    charCount.style.color = "#000";
+    // charCount.style.background = "red"; // Change la couleur lorsqu'on commence à écrire
+  }
+});
+
 /**
  * AUTOCOMPLETE NOM et NUMERO CLient
  */
