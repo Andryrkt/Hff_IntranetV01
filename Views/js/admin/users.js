@@ -2,30 +2,30 @@
  * SELECTE 2/ permet de faire une recherche sur le select
  */
 $(document).ready(function () {
-  $(".selectUser").select2({
+  $('.selectUser').select2({
     placeholder: "-- Choisir un nom d'utilisateur --",
     allowClear: true,
-    theme: "bootstrap",
+    theme: 'bootstrap',
   });
 
-  $(".superieurs").select2({
-    placeholder: "-- Choisir une superieur--",
+  $('.superieurs').select2({
+    placeholder: '-- Choisir une superieur--',
     allowClear: true,
-    theme: "bootstrap",
-    width: "100%",
+    theme: 'bootstrap',
+    width: '100%',
   });
 });
 
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
-const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
-const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
-agenceDebiteurInput.addEventListener("change", selectAgence);
+const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
+const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
+agenceDebiteurInput.addEventListener('change', selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  let url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
   fetch(url)
     .then((response) => response.json())
     .then((services) => {
@@ -38,7 +38,7 @@ function selectAgence() {
 
       // Ajouter les nouvelles options à partir du tableau services
       for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
+        var option = document.createElement('option');
         option.value = services[i].value;
         option.text = services[i].text;
         serviceDebiteurInput.add(option);
@@ -47,8 +47,8 @@ function selectAgence() {
       //Afficher les nouvelles valeurs et textes des options
       for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
         var option = serviceDebiteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
+        console.log('Value: ' + option.value + ', Text: ' + option.text);
       }
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error('Error:', error));
 }

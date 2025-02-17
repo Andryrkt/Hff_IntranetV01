@@ -24,7 +24,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
 
         // Logo HFF
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet_TEST/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
 
         // Grand titre du pdf

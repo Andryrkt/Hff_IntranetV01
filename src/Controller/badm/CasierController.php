@@ -185,7 +185,7 @@ class CasierController extends Controller
 
 
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/nouveauCasier")
+    private function alertRedirection(string $message, string $chemin = "/Hffintranet_TEST/nouveauCasier")
     {
         echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
     }

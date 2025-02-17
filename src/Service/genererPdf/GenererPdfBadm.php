@@ -23,7 +23,7 @@ class GenererPdfBadm extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henrifraise.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet_TEST/Views/assets/henrifraise.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -297,17 +297,17 @@ class GenererPdfBadm extends GeneratePdf
     public function AjoutImage($pdf, $tab)
     {
         $pdf->AddPage();
-            $imagePath = $tab['image'];
-            if ($tab['extension'] === 'JPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'JEPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'PNG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
-            }
+        $imagePath = $tab['image'];
+        if ($tab['extension'] === 'JPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'JEPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'PNG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+        }
     }
 
-    
+
     /**
      * Recuperation et affichage des or dans une tableau
      *

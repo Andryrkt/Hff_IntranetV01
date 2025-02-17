@@ -23,7 +23,7 @@ class GenererPdf
     {
         $pdf = new TCPDF();
         $pdf->AddPage();
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet_TEST/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 30, '', 'jpg');
 
         $pdf->SetFont('pdfatimesbi', 'B', 16);

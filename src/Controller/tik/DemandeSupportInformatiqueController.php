@@ -194,7 +194,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'statut'     => "newTik",
                 'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url' => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);

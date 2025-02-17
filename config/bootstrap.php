@@ -82,7 +82,7 @@ define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
-define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
+define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet_TEST');
 
 
 
@@ -118,7 +118,7 @@ $argumentResolver = new ArgumentResolver();
 
 /** TWIG */
 // URL Generator for use in Twig
-$generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
+$generator = new UrlGenerator($collection, new RequestContext('/Hffintranet_TEST'));
 
 //secuiter csrf
 $csrfTokenManager = new CsrfTokenManager();
@@ -170,7 +170,7 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
-$publicPath = '/Hffintranet/public';
+$publicPath = '/Hffintranet_TEST/public';
 $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
 
 // Ajouter l'extension Asset à Twig
@@ -205,7 +205,7 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 
 
 
-$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+$entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 // Créer une instance de SimpleManagerRegistry
 $managerRegistry = new SimpleManagerRegistry($entityManager);

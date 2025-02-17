@@ -1,10 +1,10 @@
-import { FetchManager } from "../FetchManager";
+import { FetchManager } from '../FetchManager';
 
-const btnRechercheInput = document.querySelector("#recherche");
-const agenceInput = document.querySelector("#agence");
-const casierInput = document.querySelector("#casier");
+const btnRechercheInput = document.querySelector('#recherche');
+const agenceInput = document.querySelector('#agence');
+const casierInput = document.querySelector('#casier');
 
-btnRechercheInput.addEventListener("click", sendData);
+btnRechercheInput.addEventListener('click', sendData);
 
 async function sendData() {
   const agenceValue = agenceInput.value;
@@ -15,10 +15,10 @@ async function sendData() {
     casier: casierValue,
   });
 
-  const response = await fetch("/Hffintranet/index.php?action=dataRech", {
-    method: "POST",
+  const response = await fetch('/Hffintranet_TEST/index.php?action=dataRech', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: dataToSend,
   })
@@ -30,5 +30,5 @@ async function sendData() {
       console.log(data);
       //   document.getElementById("response").innerText = data;
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => console.error('Error:', error));
 }

@@ -382,7 +382,7 @@ class DetailTikController extends Controller
                 'statut'      => "refuse",
                 'subject'     => "{$tab['numTik']} - Ticket refusé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -400,7 +400,7 @@ class DetailTikController extends Controller
                 'statut'      => "valide",
                 'subject'     => "{$tab['numTik']} - Ticket validé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -430,7 +430,7 @@ class DetailTikController extends Controller
                 'statut'      => "comment",
                 'subject'     => "{$tab['numTik']} - Commentaire émis",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -449,7 +449,7 @@ class DetailTikController extends Controller
                 'statut'      => "resolu",
                 'subject'     => "{$tab['numTik']} - Ticket résolu",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -468,7 +468,7 @@ class DetailTikController extends Controller
                 'statut'      => "planifie",
                 'subject'     => "{$tab['numTik']} - Ticket planifié",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -487,7 +487,7 @@ class DetailTikController extends Controller
                 'statut'      => "transfere",
                 'subject'     => "{$tab['numTik']} - Ticket transféré",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique("Hffintranet_TEST/tik-detail/{$tab['id']}")
             ]
         ];
     }

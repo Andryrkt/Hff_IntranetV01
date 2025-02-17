@@ -8,7 +8,7 @@ return [
     ],
     [
         'method' => 'GET',
-        'path' => '/Hffintranet/',
+        'path' => '/Hffintranet_TEST/',
         'controller' => 'App\\Controller\\badm\\BadmController::formBadm'
     ],
     [

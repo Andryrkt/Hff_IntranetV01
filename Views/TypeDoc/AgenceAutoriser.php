@@ -12,7 +12,7 @@
         <div class="row" style="margin-top: 1%;">
             <div class="col">
                 <h3 style="text-align: center;">Agence Service Autoriser</h3>
-                <form action="/Hffintranet/index.php?action=MoveTypeDoc" method="POST">
+                <form action="/Hffintranet_TEST/index.php?action=MoveTypeDoc" method="POST">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="User"> Utilisateur</label>
                         <div class="col-sm-10">
@@ -31,7 +31,7 @@
                     </div>
                     <div class="btn-group" style="margin-top: 1%;">
                         <button name="btn_coms" type="submit" class="btn btn-success" value="ADD">Ajouter</button>
-                        <!---  <a href="/Hffintranet/index.php?action=Acceuil " class="btn btn-danger"> Annuler</a>-->
+                        <!---  <a href="/Hffintranet_TEST/index.php?action=Acceuil " class="btn btn-danger"> Annuler</a>-->
                     </div>
 
                 </form>
@@ -49,7 +49,7 @@
                         <?php foreach ($ListAgenceAuto as $ListAgenceAuto) : ?>
                             <tr>
                                 <td>
-                                    <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="btn btn-danger" href="/Hffintranet/index.php?action=DelAgAuto&Id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Supprimer</a>
+                                    <a onclick="return confirm('Vous êtes sûr de supprimer !')" class="btn btn-danger" href="/Hffintranet_TEST/index.php?action=DelAgAuto&Id=<?php echo $ListAgenceAuto['ID_Agence_Service_Autorise'] ?>"> Supprimer</a>
                                 </td>
                                 <td> <?php echo $ListAgenceAuto['Session_Utilisateur'] ?></td>
                                 <td> <?php echo $ListAgenceAuto['Code_AgenceService_IRIUM'] ?></td>
@@ -71,7 +71,7 @@
         function ShowAgenceAll() {
             $.ajax({
                 type: 'POST',
-                url: '/Hffintranet/index.php?action=AgenceServiceAutoAll',
+                url: '/Hffintranet_TEST/index.php?action=AgenceServiceAutoAll',
                 success: function(response) {
                     $('#AgenceAll').html(response).show();
                     ShowCodeAgence();
@@ -86,7 +86,7 @@
             var LibAgence = $('#AgenceAll option:selected').text();
             $.ajax({
                 type: 'POST',
-                url: '/Hffintranet/index.php?action=CodeAgenceServiceAuto',
+                url: '/Hffintranet_TEST/index.php?action=CodeAgenceServiceAuto',
                 data: {
                     libAgServ: LibAgence
                 },

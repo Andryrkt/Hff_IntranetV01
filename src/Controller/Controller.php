@@ -184,7 +184,7 @@ class Controller
             session_start();
         }
         if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/");
+            header("Location:/Hffintranet_TEST/");
             session_destroy();
             exit();
         }
@@ -207,7 +207,7 @@ class Controller
         session_unset();
 
         // Redirige vers la page d'accueil
-        header("Location: /Hffintranet/");
+        header("Location: /Hffintranet_TEST/");
 
         // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
         session_write_close();

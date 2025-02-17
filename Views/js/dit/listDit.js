@@ -1,16 +1,16 @@
 /**
  * recuperer l'agence emetteur et changer le service emetteur selon l'agence
  */
-const agenceEmetteurInput = document.querySelector(".agenceEmetteur");
-const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
+const agenceEmetteurInput = document.querySelector('.agenceEmetteur');
+const serviceEmetteurInput = document.querySelector('.serviceEmetteur');
 const spinnerServiceEmetteur = document.getElementById(
-  "spinner-service-emetteur"
+  'spinner-service-emetteur'
 );
 const serviceContainerEmetteur = document.getElementById(
-  "service-container-emetteur"
+  'service-container-emetteur'
 );
 
-agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
+agenceEmetteurInput.addEventListener('change', selectAgenceEmetteur);
 
 function selectAgenceEmetteur() {
   const agenceEmetteur = agenceEmetteurInput.value;
@@ -19,7 +19,7 @@ function selectAgenceEmetteur() {
     return;
   }
 
-  let url = `/Hffintranet/agence-fetch/${agenceEmetteur}`;
+  let url = `/Hffintranet_TEST/agence-fetch/${agenceEmetteur}`;
   toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, true);
   fetch(url)
     .then((response) => response.json())
@@ -27,7 +27,7 @@ function selectAgenceEmetteur() {
       console.log(services);
       updateServiceOptions(services, serviceEmetteurInput);
     })
-    .catch((error) => console.error("Error:", error))
+    .catch((error) => console.error('Error:', error))
     .finally(() =>
       toggleSpinner(spinnerServiceEmetteur, serviceContainerEmetteur, false)
     );
@@ -36,16 +36,16 @@ function selectAgenceEmetteur() {
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
-const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
-const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
+const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
 const spinnerServiceDebiteur = document.getElementById(
-  "spinner-service-debiteur"
+  'spinner-service-debiteur'
 );
 const serviceContainerDebiteur = document.getElementById(
-  "service-container-debiteur"
+  'service-container-debiteur'
 );
 
-agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
+agenceDebiteurInput.addEventListener('change', selectAgenceDebiteur);
 
 function selectAgenceDebiteur() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -55,7 +55,7 @@ function selectAgenceDebiteur() {
     return;
   }
 
-  const url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  const url = `/Hffintranet_TEST/agence-fetch/${agenceDebiteur}`;
   toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, true);
 
   fetch(url)
@@ -64,23 +64,23 @@ function selectAgenceDebiteur() {
       console.log(services);
       updateServiceOptions(services, serviceDebiteurInput);
     })
-    .catch((error) => console.error("Error:", error))
+    .catch((error) => console.error('Error:', error))
     .finally(() =>
       toggleSpinner(spinnerServiceDebiteur, serviceContainerDebiteur, false)
     );
 }
 
 function DeleteContentService(agenceValue, serviceInput) {
-  if (agenceValue === "") {
+  if (agenceValue === '') {
     // Supprime toutes les options
     while (serviceInput.options.length > 0) {
       serviceInput.remove(0);
     }
 
     // Ajoute l'option par défaut
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.text = ' -- Choisir une service -- ';
     serviceInput.add(defaultOption);
 
     // Indique qu'il faut sortir de la fonction appelante
@@ -91,8 +91,8 @@ function DeleteContentService(agenceValue, serviceInput) {
 }
 
 function toggleSpinner(spinnerService, serviceContainer, show) {
-  spinnerService.style.display = show ? "inline-block" : "none";
-  serviceContainer.style.display = show ? "none" : "block";
+  spinnerService.style.display = show ? 'inline-block' : 'none';
+  serviceContainer.style.display = show ? 'none' : 'block';
 }
 
 function updateServiceOptions(services, serviceInput) {
@@ -101,14 +101,14 @@ function updateServiceOptions(services, serviceInput) {
     serviceInput.remove(0);
   }
 
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.text = " -- Choisir une service -- ";
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.text = ' -- Choisir une service -- ';
   serviceInput.add(defaultOption);
 
   // Ajouter les nouvelles options à partir du tableau services
   for (var i = 0; i < services.length; i++) {
-    var option = document.createElement("option");
+    var option = document.createElement('option');
     option.value = services[i].value;
     option.text = services[i].text;
     serviceInput.add(option);
@@ -117,22 +117,22 @@ function updateServiceOptions(services, serviceInput) {
   //Afficher les nouvelles valeurs et textes des options
   for (var i = 0; i < serviceInput.options.length; i++) {
     var option = serviceInput.options[i];
-    console.log("Value: " + option.value + ", Text: " + option.text);
+    console.log('Value: ' + option.value + ', Text: ' + option.text);
   }
 }
 
 /**
  * CREATION D'EXCEL
  */
-const typeDocumentInput = document.querySelector("#dit_search_typeDocument");
-const niveauUrgenceInput = document.querySelector("#dit_search_niveauUrgence");
-const statutInput = document.querySelector("#dit_search_statut");
-const idMaterielInput = document.querySelector("#dit_search_idMateriel");
-const interExternInput = document.querySelector("#dit_search_internetExterne");
-const dateDemandeDebutInput = document.querySelector("#dit_search_dateDebut");
-const dateDemandeFinInput = document.querySelector("#dit_search_dateFin");
-const buttonExcelInput = document.querySelector("#excelDit");
-buttonExcelInput.addEventListener("click", recherche);
+const typeDocumentInput = document.querySelector('#dit_search_typeDocument');
+const niveauUrgenceInput = document.querySelector('#dit_search_niveauUrgence');
+const statutInput = document.querySelector('#dit_search_statut');
+const idMaterielInput = document.querySelector('#dit_search_idMateriel');
+const interExternInput = document.querySelector('#dit_search_internetExterne');
+const dateDemandeDebutInput = document.querySelector('#dit_search_dateDebut');
+const dateDemandeFinInput = document.querySelector('#dit_search_dateFin');
+const buttonExcelInput = document.querySelector('#excelDit');
+buttonExcelInput.addEventListener('click', recherche);
 
 function recherche() {
   const typeDocument = typeDocumentInput.value;
@@ -143,7 +143,7 @@ function recherche() {
   const dateDemandeDebut = dateDemandeDebutInput.value;
   const dateDemandeFin = dateDemandeFinInput.value;
 
-  let url = "/Hffintranet/dit-excel";
+  let url = '/Hffintranet_TEST/dit-excel';
 
   const data = {
     idMateriel: idMateriel || null,
@@ -156,9 +156,9 @@ function recherche() {
   };
 
   fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   })
@@ -167,43 +167,43 @@ function recherche() {
       console.log(data);
     })
     .catch((error) => {
-      console.error("Error:", error);
+      console.error('Error:', error);
     });
 }
 
-document.addEventListener("DOMContentLoaded", (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
   /** LIST COMMANDE MODAL */
-  const listeCommandeModal = document.getElementById("listeCommande");
+  const listeCommandeModal = document.getElementById('listeCommande');
 
-  listeCommandeModal.addEventListener("show.bs.modal", function (event) {
+  listeCommandeModal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
-    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    const id = button.getAttribute('data-id'); // Extract info from data-* attributes
 
     // Afficher le spinner et masquer le contenu des données
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("dataContent").style.display = "none";
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('dataContent').style.display = 'none';
 
     // Fetch request to get the data
-    fetch(`/Hffintranet/command-modal/${id}`)
+    fetch(`/Hffintranet_TEST/command-modal/${id}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error('Network response was not ok');
         }
         return response.json();
       })
       .then((data) => {
-        const tableBody = document.getElementById("commandesTableBody");
-        tableBody.innerHTML = ""; // Clear previous data
+        const tableBody = document.getElementById('commandesTableBody');
+        tableBody.innerHTML = ''; // Clear previous data
 
         if (data.length > 0) {
           data.forEach((command) => {
             let typeCommand;
-            if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
-              typeCommand = "Local";
-            } else if (command.slor_typcf == "CIS") {
-              typeCommand = "Agence";
+            if (command.slor_typcf == 'ST' || command.slor_typcf == 'LOC') {
+              typeCommand = 'Local';
+            } else if (command.slor_typcf == 'CIS') {
+              typeCommand = 'Agence';
             } else {
-              typeCommand = "Import";
+              typeCommand = 'Import';
             }
 
             // Formater la date
@@ -211,9 +211,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
             const formattedDate = `${date
               .getDate()
               .toString()
-              .padStart(2, "0")}/${(date.getMonth() + 1)
+              .padStart(2, '0')}/${(date.getMonth() + 1)
               .toString()
-              .padStart(2, "0")}/${date.getFullYear()}`;
+              .padStart(2, '0')}/${date.getFullYear()}`;
 
             // Affichage
             let row = `<tr>
@@ -227,74 +227,74 @@ document.addEventListener("DOMContentLoaded", (event) => {
           });
 
           // Masquer le spinner et afficher les données
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('dataContent').style.display = 'block';
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('dataContent').style.display = 'block';
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
+        const tableBody = document.getElementById('commandesTableBody');
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error("There was a problem with the fetch operation:", error);
+        console.error('There was a problem with the fetch operation:', error);
 
         // Masquer le spinner même en cas d'erreur
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dataContent").style.display = "block";
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dataContent').style.display = 'block';
       });
   });
 
   // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    tableBody.innerHTML = ""; // Vider le tableau
+  listeCommandeModal.addEventListener('hidden.bs.modal', function () {
+    const tableBody = document.getElementById('commandesTableBody');
+    tableBody.innerHTML = ''; // Vider le tableau
   });
 
   /** Docs à intégrer dans DW MODAL */
 
-  const docDansDwModal = document.getElementById("docDansDw");
-  const numeroDitInput = document.querySelector("#numeroDit");
-  const numDitHiddenInput = document.querySelector("#doc_dans_dw_numeroDit");
+  const docDansDwModal = document.getElementById('docDansDw');
+  const numeroDitInput = document.querySelector('#numeroDit');
+  const numDitHiddenInput = document.querySelector('#doc_dans_dw_numeroDit');
 
-  docDansDwModal.addEventListener("show.bs.modal", function (event) {
+  docDansDwModal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
-    const numDit = button.getAttribute("data-id");
+    const numDit = button.getAttribute('data-id');
     numeroDitInput.innerHTML = numDit;
     numDitHiddenInput.value = numDit;
   });
 
   // Gestionnaire pour la fermeture du modal
-  docDansDwModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    tableBody.innerHTML = ""; // Vider le tableau
+  docDansDwModal.addEventListener('hidden.bs.modal', function () {
+    const tableBody = document.getElementById('commandesTableBody');
+    tableBody.innerHTML = ''; // Vider le tableau
   });
 });
 
 /**
  * sweetalert pur le bouron cloturer dit
  */
-const clotureDit = document.querySelectorAll(".clotureDit");
+const clotureDit = document.querySelectorAll('.clotureDit');
 
 clotureDit.forEach((el) => {
-  el.addEventListener("click", (e) => {
+  el.addEventListener('click', (e) => {
     e.preventDefault();
-    let id = el.getAttribute("data-id");
+    let id = el.getAttribute('data-id');
 
     Swal.fire({
-      title: "êtes-vous sur?",
-      text: "cette action est irreversible",
-      icon: "warning",
+      title: 'êtes-vous sur?',
+      text: 'cette action est irreversible',
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "OUI",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'OUI',
     }).then(() => {
-      window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+      window.location.href = `/Hffintranet_TEST/cloturer-annuler/${id}`;
     });
     // .then((result) => {
     //   if (result.isConfirmed) {
@@ -304,7 +304,7 @@ clotureDit.forEach((el) => {
     //       icon: "success",
     //     })
     // .then(() => {
-    //       window.location.href = `/Hffintranet/cloturer-annuler/${id}`;
+    //       window.location.href = `/Hffintranet_TEST/cloturer-annuler/${id}`;
     //     });
     //   }
     // });
