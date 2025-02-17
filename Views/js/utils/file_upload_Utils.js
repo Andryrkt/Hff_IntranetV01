@@ -1,6 +1,6 @@
 export function initializeFileHandlers(idSuffix, fileInpute) {
   const fileInput = fileInpute;
-  const fileName = document.querySelector(`.file-name-${idSuffix}`);
+  const fileName = document.querySelector(`#file-name-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
   const dropzone = document.getElementById(`dropzone-${idSuffix}`);
   const fileSize = document.getElementById(`file-size-${idSuffix}`);

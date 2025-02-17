@@ -100,25 +100,28 @@ class DemandePaiement
      */
     private ?string $demandeur;
 
+    
     private $numeroCommande;
-
+    
     private $numeroFacture;
 
     private $contact;
-
+    
     private $devise;
-
+    
     private $montantAPayer;
-
+    
     private $pieceJoint01; // proforma facture fournisseur
-
+    
     private $commandeFichier;
-
+    
     private $factureFournisseurFichier;
-
+    
     private $controleLivraisonFichier;
-
+    
     private $titreDeTransportFichier;
+    
+    private $modePaiement;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -591,6 +594,26 @@ class DemandePaiement
     public function setTitreDeTransportFichier($titreDeTransportFichier)
     {
         $this->titreDeTransportFichier = $titreDeTransportFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of modePaiement
+     */ 
+    public function getModePaiement()
+    {
+        return $this->modePaiement;
+    }
+
+    /**
+     * Set the value of modePaiement
+     *
+     * @return  self
+     */ 
+    public function setModePaiement($modePaiement)
+    {
+        $this->modePaiement = $modePaiement;
 
         return $this;
     }
