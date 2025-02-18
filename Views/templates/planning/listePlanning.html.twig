@@ -10,64 +10,75 @@
 				Planning détaillé
 			</h3>
 			{% include "/planning/_formulaire.html.twig" %}
-			<div class="my-3 d-flex flex-row">
-				<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
-					<small>TOUT AFFICHER |</small>
+			<div class="my-3 d-flex flex-row" style ="justify-content: space-between;">
+				<div class ="d-flex">
+					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+						<small>TOUT AFFICHER |</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré
+						</small>
+					</div>
 				</div>
-				<div role="button" tabindex="0" id="tout-livre">
-					<i class="fa-solid fa-circle text-success"></i>
-					<small class="text-success">Tout livré |</small>
+				<div class ="d-flex">
+					<div  tabindex="0" id="dispo stock">
+						<i class="fa-solid fa-circle " style="color: #c8ad7f"></i>
+						<small style="color: #c8ad7f">Dispo stock |</small>
+					</div>
+					<div  tabindex="0" id="back error">
+						<i class="fa-solid fa-circle text-danger"></i>
+						<small class="text-danger">Back Order / Error |</small>
+					</div>
+					<div  tabindex="0" id="cmd frs">
+						<i class="fa-solid fa-circle " style="color: #9ACD32"></i>
+						<small style="color: #9ACD32">Commande envoyée fournisseur |</small>
+					</div>
+					<div  tabindex="0" id="reception partiel">
+						<i class="fa-solid fa-circle " style="color: #EE82EE"></i>
+						<small style="color: #EE82EE">Réception Partielle</small>
+					</div>
+
 				</div>
-				<div role="button" tabindex="0" id="partiellement-livre">
-					<i class="fa-solid fa-circle text-warning"></i>
-					<small class="text-warning">Partiellement livré |</small>
-				</div>
-				<div role="button" tabindex="0" id="partiellement-dispo">
-					<i class="fa-solid fa-circle text-info"></i>
-					<small class="text-info">Partiellement dispo |</small>
-				</div>
-				<div role="button" tabindex="0" id="complet-non-livre">
-					<i class="fa-solid fa-circle text-primary"></i>
-					<small class="text-primary">Complet non livré |</small>
-				</div>
-				<div role="button" tabindex="0" id="dispo stock">
-					<i class="fa-solid fa-circle " style = "color: #c8ad7f"></i>
-					<small style ="color: #c8ad7f">Dispo stock |</small>
-				</div>
-				<div role="button" tabindex="0" id="back error">
-					<i class="fa-solid fa-circle text-danger" ></i>
-					<small class="text-danger">Back Order / Error |</small>
-				</div>
-				<div role="button" tabindex="0" id="cmd frs">
-					<i class="fa-solid fa-circle " style = "color: #9ACD32"></i>
-					<small style ="color: #9ACD32">Commande envoyée fournisseur |</small>
-				</div>
-				<div role="button" tabindex="0" id="reception partiel">
-					<i class="fa-solid fa-circle " style ="color: #EE82EE"></i>
-					<small style ="color: #EE82EE">Réception Partielle|</small>
-				</div>
-				
 			</div>
+
+
 			{% include "/planning/_pagination.html.twig" %}
 		</div>
 
 	</div>
 	<table class="table rounded table-plein-ecran ">
 		<thead class="table-dark position-sticky">
-			
+
 			<tr>
-				
+
 				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Agence-service</th>
-				<th style="text-align:center;border: 2px solid white;" colspan = "12">Matériel</th>
-				<th style="text-align:center;border: 2px solid white;" colspan = "8">OR </th>
-				<th style="text-align:center;border: 2px solid white;" colspan = "7">CIS</th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato </th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin </th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Message </th>
+				<th style="text-align:center;border: 2px solid white;" colspan="12">Matériel</th>
+				<th style="text-align:center;border: 2px solid white;" colspan="8">OR
+				</th>
+				<th style="text-align:center;border: 2px solid white;" colspan="7">CIS</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato
+				</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin
+				</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Message
+				</th>
 
 			</tr>
 			<tr>
-				
+
 				<th>Marque</th>
 				<th>Modèle</th>
 				<th>ID</th>
@@ -80,10 +91,14 @@
 				<th>CST</th>
 				<th>Ref</th>
 				<th>Dési</th>
-				<th>Qté cde </th>
-				<th>Qté all </th>
-				<th>Qté reliq </th>
-				<th>Qté liv </th>
+				<th>Qté cde
+				</th>
+				<th>Qté all
+				</th>
+				<th>Qté reliq
+				</th>
+				<th>Qté liv
+				</th>
 				<th>Statut</th>
 				<th>Date statut</th>
 				{#  (num CIS) #}
@@ -95,11 +110,13 @@
 				<th>Qté all</th>
 				<th>Qté rel</th>
 				<th>Qté liv</th>
-				<th>Statut </th>
-				<th>Date statut </th>
+				<th>Statut
+				</th>
+				<th>Date statut
+				</th>
 				{# <th>ETA Ivato </th>
-				<th>ETA Magasin </th>
-				<th>Message </th> #}
+								<th>ETA Magasin </th>
+								<th>Message </th> #}
 			</tr>
 		</thead>
 		<tbody id="tableBody">
@@ -152,8 +169,8 @@
 					<td>
 						{{item.commentaire}}</td>
 					<td class="{{statut}}">
-					<span class="numOr-itv">{{item.numor_itv}}</span>
-						</td>
+						<span class="numOr-itv">{{item.numor_itv}}</span>
+					</td>
 					<td>
 						{{item.dateplanning | date("d/m/Y")}}</td>
 					<td>
@@ -202,7 +219,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	
+
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
