@@ -5,13 +5,14 @@ namespace App\Entity\admin\dom;
 use App\Entity\dom\Dom;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
 use App\Entity\admin\dom\Indemnite;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\dom\SiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
-  /**
+/**
  *   @ORM\Table(name="site")
  * @ORM\Entity(repositoryClass=SiteRepository::class)
  * @ORM\HasLifecycleCallbacks
@@ -45,10 +46,15 @@ class Site
      */
     private $indemnites;
 
-     /**
+    /**
      * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="siteId")
      */
     private $domSite;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="siteId")
+     */
+    private $mutation;
 
 
     public function __construct()
@@ -56,7 +62,7 @@ class Site
         $this->catgs = new ArrayCollection();
         $this->domSite = new ArrayCollection();
     }
-  
+
     public function getId(): int
     {
         return $this->id;
@@ -67,7 +73,7 @@ class Site
         return $this->nomZone;
     }
 
-    
+
     public function setNomZone(string $nomZone): self
     {
         $this->nomZone = $nomZone;
@@ -75,7 +81,7 @@ class Site
         return $this;
     }
 
-    
+
 
     public function getCatgs(): Collection
     {
@@ -84,7 +90,7 @@ class Site
 
     public function addCatg(Catg $catg): self
     {
-        if(!$this->catgs->contains($catg)){
+        if (!$this->catgs->contains($catg)) {
             $this->catgs[] = $catg;
             $catg->addSite($this);
         }
@@ -93,15 +99,15 @@ class Site
 
     public function removeCatg(Catg $catg): self
     {
-        if($this->catgs->contains($catg)) {
+        if ($this->catgs->contains($catg)) {
             $this->catgs->removeElement($catg);
-          $catg->removeSite($this);
+            $catg->removeSite($this);
         }
         return $this;
     }
 
 
-   /**
+    /**
      * @return Collection|Indemnite[]
      */
     public function getIndemnites(): Collection
@@ -153,13 +159,55 @@ class Site
                 $domSite->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
     public function setDomSites($domSite)
     {
         $this->domSite = $domSite;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutation
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    public function addMutation(Mutation $mutation): self
+    {
+        if (!$this->mutation->contains($mutation)) {
+            $this->mutation[] = $mutation;
+            $mutation->setSiteId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutation(Mutation $mutation): self
+    {
+        if ($this->mutation->contains($mutation)) {
+            $this->mutation->removeElement($mutation);
+            if ($mutation->getSiteId() === $this) {
+                $mutation->setSiteId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutation
+     *
+     * @return  self
+     */
+    public function setMutation($mutation)
+    {
+        $this->mutation = $mutation;
 
         return $this;
     }
