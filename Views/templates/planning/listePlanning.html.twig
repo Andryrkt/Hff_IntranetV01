@@ -124,13 +124,13 @@
 
 				{# Statut part#}
 				{% if item.status_b is same as "PARTIELLEMENT LIVRE"%}
-					{% set statut = "bg-warning text-white"%}
+					{% set statut = "partiellement-livre bg-warning text-white"%}
 				{% elseif  item.status_b is same as "TOUT LIVRE"%}
-					{% set statut = 'bg-success text-white'%}
+					{% set statut = ' tout-livre bg-success text-white'%}
 				{% elseif  item.status_b is same as "PARTIELLEMENT DISPO"%}
-					{% set statut = 'bg-info text-white'%}
+					{% set statut = ' partiellement-dispo bg-info text-white'%}
 				{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
-					{% set statut = 'bg-primary text-white'%}
+					{% set statut = ' complet-non-livre bg-primary text-white'%}
 				{% else %}
 					{% set statut = ""%}
 				{% endif %}
@@ -151,8 +151,9 @@
 						{{item.casier}}</td>
 					<td>
 						{{item.commentaire}}</td>
-					<td class='{{statut}}'>
-						{{item.numor_itv}}</td>
+					<td>
+					<span class="{{statut}} numOr-itv">{{item.numor_itv}}</span>
+						</td>
 					<td>
 						{{item.dateplanning | date("d/m/Y")}}</td>
 					<td>
