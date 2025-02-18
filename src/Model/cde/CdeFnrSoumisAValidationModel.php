@@ -131,4 +131,55 @@ class CdefnrSoumisAValidationModel extends Model
 
             return $this->convertirEnUtf8($data);
     }
+
+    public function recupListeCdeFrn()
+    {
+        $statement = " SELECT
+                fcde_numcde AS num_cde, 
+                fcde_date AS date_cde,
+                fcde_numfou AS num_fournisseur,
+                fcde_lib AS libelle_cde, 
+                fcde_ttc AS prix_cde_ttc,
+                TRUNC(fcdl_qte) AS nbr_piece,
+                fcde_devise AS devise_cde,
+                fcde_typcde AS type_cde,
+                fcdl_constp AS constructeur,
+                fcdl_refp AS ref_piece
+
+                FROM frn_cde
+	            JOIN frn_cdl ON fcde_numcde = fcdl_numcde and fcdl_soc = 'HF' and fcde_succ =fcdl_succ
+                WHERE fcde_soc = 'HF'
+                and fcde_succ = '01' and fcde_serv = 'NEG'
+                and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_mtn <> 0
+                order by fcde_date desc
+        ";
+
+            $result = $this->connect->executeQuery($statement);
+
+            $data = $this->connect->fetchResults($result);
+
+            return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumCdeFrn()
+    {
+        $statement = " SELECT
+                fcde_numcde AS num_cde,
+                fcde_numfou AS num_fournisseur
+
+                FROM frn_cde
+                WHERE fcde_soc = 'HF'
+                and fcde_succ = '01' and fcde_serv = 'NEG'
+                and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_mtn <> 0
+                order by fcde_date desc
+        ";
+
+            $result = $this->connect->executeQuery($statement);
+
+            $data = $this->connect->fetchResults($result);
+
+            return $this->convertirEnUtf8($data);
+    }
 }

@@ -16,7 +16,7 @@ class CdeFnrSoumisAValidationType extends AbstractType
     {
         $builder
             ->add('codeFournisseur', TextType::class, [
-                'label' => 'Numéro fournisseur',
+                'label' => 'Numéro fournisseur *',
                 'required' => true,
                 'attr' => [
                     'class' => 'autocomplete',
@@ -24,7 +24,7 @@ class CdeFnrSoumisAValidationType extends AbstractType
                 ]
             ])
             ->add('libelleFournisseur', TextType::class, [
-                'label' => 'Nom fournisseur',
+                'label' => 'Nom fournisseur *',
                 'required' => true,
                 'attr' => [
                     'class' => 'autocomplete',
@@ -32,8 +32,12 @@ class CdeFnrSoumisAValidationType extends AbstractType
                 ]
             ])
             ->add('numCdeFournisseur', TextType::class, [
-                'label' => 'Numéro commande',
+                'label' => 'Numéro commande *',
                 'required' => true,
+                'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
+                ]
             ])
             ->add('pieceJoint01',
                 FileType::class,

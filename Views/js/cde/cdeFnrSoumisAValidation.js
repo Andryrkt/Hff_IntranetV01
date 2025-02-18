@@ -1,12 +1,17 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
+import {
+  initializeFileHandlers,
+  disableDropzone,
+  enableDropzone,
+} from "../utils/file_upload_Utils.js";
+import { AutoComplete } from "../utils/Autocomplete.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager("/Hffintranet");
 
-  let preloadedData = [];
-
+  disableDropzone(1);
   const numFrnInput = document.querySelector(
     "#cde_fnr_soumis_a_validation_codeFournisseur"
   );
@@ -20,103 +25,74 @@ document.addEventListener("DOMContentLoaded", function () {
     "#suggestion-nom-fournisseur"
   );
 
-  async function fetchListeFournisseur(endpoint) {
-    try {
-      const fornisseurs = await fetchManager.get(endpoint);
-      preloadedData = fornisseurs;
-      // console.log("Données récupérées:", fornisseurs);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
-      );
-    }
+  const overlay = document.getElementById("loading-overlay-petite");
+
+  const boutonInput = document.querySelector("#bouton-cde-fnr");
+
+  /**=================================================
+   *AUTOCOMPLET LES CHAMPS NUMERO ET NOM FOURNISSEUR
+   *=================================================*/
+
+  async function fetchFournisseurs() {
+    return await fetchManager.get("api/liste-fournisseur");
   }
 
-  const endpoint = "api/liste-fournisseur";
-  fetchListeFournisseur(endpoint);
-
-  numFrnInput.addEventListener("input", filtrerLesDonnerNum);
-  nomFrnInput.addEventListener("input", filtrerLesDonnerNom);
-
-  /**
-   * Methode permet de filtrer les donner selon les donnée saisi dans l'input
-   */
-  function filtrerLesDonnerNum() {
-    const numFrn = numFrnInput.value.trim();
-
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (numFrn === "") {
-      suggestionContainerNum.innerHTML = ""; // Efface les suggestions
-      return;
-    }
-
-    const filteredData = preloadedData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(numFrn.toLowerCase());
-    });
-
-    showSuggestions(suggestionContainerNum, filteredData);
+  function displayFournisseur(item) {
+    return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
   }
-
-  function filtrerLesDonnerNom() {
-    const nomFrn = nomFrnInput.value.trim();
-
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (nomFrn === "") {
-      suggestionContainerNom.innerHTML = ""; // Efface les suggestions
-      return;
-    }
-
-    const filteredData = preloadedData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(nomFrn.toLowerCase());
-    });
-
-    showSuggestions(suggestionContainerNom, filteredData);
-  }
-
-  /**
-   * Methode permet d'afficher les donner sur le div du suggestion
-   * @param {HTMLElement} suggestionsContainer
-   * @param {Array} data
-   */
-  function showSuggestions(suggestionsContainer, data) {
-    // Vérifie si le tableau est vide
-    if (data.length === 0) {
-      suggestionsContainer.innerHTML = ""; // Efface les suggestions
-      return; // Arrête l'exécution de la fonction
-    }
-
-    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
-    data.forEach((item) => {
-      const numFournisseur = item.num_fournisseur;
-      const nomFournisseur = item.nom_fournisseur;
-      const suggestion = document.createElement("div");
-      suggestion.textContent = numFournisseur + " - " + nomFournisseur; // Affiche la liste des suggestions
-      suggestion.addEventListener("click", () => {
-        updateClientFields(numFournisseur, nomFournisseur); // Remplit le champ avec la sélection
-        suggestionsContainer.innerHTML = ""; // Efface les suggestions
+  let autoCompleteCde;
+  function onSelectFournisseur(item) {
+    numFrnInput.value = item.num_fournisseur;
+    nomFrnInput.value = item.nom_fournisseur;
+    if (!autoCompleteCde) {
+      autoCompleteCde = new AutoComplete({
+        inputElement: numCdeInput,
+        suggestionContainer: document.querySelector("#suggestion-num-cde"),
+        loaderElement: document.querySelector("#loader-num-cde"),
+        debounceDelay: 300,
+        fetchDataCallback: async () => {
+          const commandes = await fetchCommandes();
+          return filtreNumCde(commandes, item.num_fournisseur);
+        }, // Capture la valeur du fournisseur sélectionné
+        displayItemCallback: displayCommandes,
+        onSelectCallback: onSelectCommandes,
+        itemToStringCallback: (item) => `${item.num_cde}`,
       });
-      suggestionsContainer.appendChild(suggestion);
-    });
-  }
-
-  function updateClientFields(numFournisseur, nomFournisseur) {
-    // Vérification si les éléments sont présents dans le DOM
-    if (numFrnInput && nomFrnInput) {
-      numFrnInput.value = numFournisseur;
-      nomFrnInput.value = nomFournisseur;
-      const endpointCde = `api/cde-fnr-non-receptionner/${numFournisseur}`;
-      fetchListeCdeFournisseur(endpointCde);
     } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
+      autoCompleteCde.fetchDataCallback = () =>
+        fetchCommandes(item.num_fournisseur);
     }
   }
 
-  /**
+  // Activation sur le champ "Numéro Fournisseur"
+  new AutoComplete({
+    inputElement: numFrnInput,
+    suggestionContainer: suggestionContainerNum,
+    loaderElement: document.querySelector("#loader-num-fournisseur"), // Ajout du loader
+    debounceDelay: 300, // Délai en ms
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+    itemToStringCallback: (item) =>
+      `${item.num_fournisseur} - ${item.nom_fournisseur}`,
+  });
+
+  // Activation sur le champ "Nom Fournisseur"
+  new AutoComplete({
+    inputElement: nomFrnInput,
+    suggestionContainer: suggestionContainerNom,
+    loaderElement: document.querySelector("#loader-nom-fournisseur"), // Ajout du loader
+    debounceDelay: 300, // Délai en ms
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+    itemToStringCallback: (item) =>
+      `${item.num_fournisseur} - ${item.nom_fournisseur}`,
+  });
+
+  /**=====================================================================================
    * Mettre les champs numero fournisseur et numero commande à n'accepter que les chiffres
-   */
+   *========================================================================================*/
   function allowOnlyNumbers(inputElement) {
     inputElement.addEventListener("input", () => {
       inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
@@ -129,10 +105,43 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   allowOnlyNumbers(numCmdInput);
 
-  /**
+  /**===========================================
+   * AUTOCOMPLET NUMERO COMMANDE FOURNISSEUR
+   *===========================================*/
+  const numCdeInput = document.querySelector(
+    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
+  );
+
+  async function fetchCommandes() {
+    try {
+      return await fetchManager.get(`api/num-cde-fnr`);
+    } catch (error) {
+      console.error(
+        `Erreur lors de la récupération des commandes pour le fournisseur:`,
+        error
+      );
+      return [];
+    }
+  }
+
+  function displayCommandes(item) {
+    return `${item.num_cde}`;
+  }
+
+  function onSelectCommandes(item) {
+    numCdeInput.value = item.num_cde;
+
+    console.log(overlay);
+    initTableau(item.num_cde);
+  }
+
+  function filtreNumCde(orders, numFournisseur) {
+    return orders.filter((order) => order.num_fournisseur === numFournisseur);
+  }
+
+  /**=========================================
    * Affichage du liste commande fournisseur
-   */
-  let preloadedDataCde = [];
+   *=========================================*/
   const columns = [
     { label: "N° cde", key: "num_cde" },
     {
@@ -148,131 +157,64 @@ document.addEventListener("DOMContentLoaded", function () {
       format: (value) => formaterNombre(value),
     },
     {
-      label: "Prix TTC Devise",
-      key: "prix_cde_ttc_devise",
-      align: "right",
-      format: (value) => formaterNombre(value),
+      label: "Constructeur",
+      key: "constructeur",
+      align: "center",
+    },
+    {
+      label: "ref pièce",
+      key: "ref_piece",
+    },
+    {
+      label: "Nbre pièces",
+      key: "nbr_piece",
+      align: "center",
     },
     { label: "Devise", key: "devise_cde", align: "center" },
     { label: "Type", key: "type_cde", align: "center" },
   ];
-  async function fetchListeCdeFournisseur(
-    endpoint,
-    spinnerElement,
-    containerElement
-  ) {
+
+  async function fetchListeCdeFournisseur() {
     try {
-      // Afficher le spinner avant le début du chargement
-      // toggleSpinner(spinnerElement, containerElement, true);
+      const commandes = await fetchManager.get(`api/cde-fnr-non-receptionner`);
+      return commandes;
+    } catch (error) {
+      console.error("Erreur lors du chargement des commandes :", error);
+      return [];
+    }
+  }
 
-      const cdes = await fetchManager.get(endpoint);
+  async function initTableau(numCde) {
+    try {
+      overlay.style.display = "flex";
+      const infoCde = await fetchListeCdeFournisseur();
+      const data = filtreListCdeFrn(infoCde, numCde);
 
+      document.querySelector("#tableau_cde_frn").innerHTML = "";
       const tableauComponent = new TableauComponent({
         columns: columns,
-        data: cdes,
+        data: data,
         theadClass: "table-dark",
       });
-
       tableauComponent.mount("tableau_cde_frn");
+      boutonInput.disabled = false;
+      enableDropzone(1);
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
-      );
+      console.error("Erreur lors de l'afichage du tableau cde :", error);
     } finally {
-      // Cacher le spinner après le chargement des données (qu'il y ait une erreur ou non)
-      // toggleSpinner(spinnerElement, containerElement, false);
+      overlay.style.display = "none";
     }
   }
 
-  /**
+  function filtreListCdeFrn(orders, numCde) {
+    return orders.filter((order) => order.num_cde === numCde);
+  }
+  /**=================================================
    * FICHIER
-   */
-  /**
-   * Methode pour le draw and drop du fichier
-   * @param {*} idSuffix
-   */
-  function initializeFileHandlers(idSuffix) {
-    const fileInput = document.querySelector(
-      `#cde_fnr_soumis_a_validation_pieceJoint0${idSuffix}`
-    );
-    const fileName = document.querySelector(`.file-name-${idSuffix}`);
-    const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
-    const dropzone = document.getElementById(`dropzone-${idSuffix}`);
-    const fileSize = document.getElementById(`file-size-${idSuffix}`);
-    const pdfPreview = document.getElementById(`pdf-preview-${idSuffix}`);
-    const pdfEmbed = document.getElementById(`pdf-embed-${idSuffix}`);
+   *=================================================*/
+  const fileInput = document.querySelector(
+    `#cde_fnr_soumis_a_validation_pieceJoint01`
+  );
 
-    uploadBtn.addEventListener("click", function () {
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", function () {
-      handleFiles(this.files, fileName, fileSize, pdfPreview, pdfEmbed);
-    });
-
-    dropzone.addEventListener("dragover", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.style.backgroundColor = "#e2e6ea";
-    });
-
-    dropzone.addEventListener("dragleave", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.style.backgroundColor = "#f8f9fa";
-    });
-
-    dropzone.addEventListener("drop", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const files = e.dataTransfer.files;
-      fileInput.files = files;
-      handleFiles(files, fileName, fileSize, pdfPreview, pdfEmbed);
-      this.style.backgroundColor = "#f8f9fa";
-    });
-  }
-
-  function handleFiles(
-    files,
-    fileNameElement,
-    fileSizeElement,
-    pdfPreviewElement,
-    pdfEmbedElement
-  ) {
-    const file = files[0];
-    if (file && file.type === "application/pdf") {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        pdfEmbedElement.src = e.target.result;
-        pdfPreviewElement.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-
-      fileNameElement.innerHTML = `<strong>Fichier sélectionné :</strong> ${file.name}`;
-      fileSizeElement.innerHTML = `<strong>Taille :</strong> ${formatFileSize(
-        file.size
-      )}`;
-    } else {
-      alert("Veuillez déposer un fichier PDF.");
-      fileNameElement.textContent = "";
-      fileSizeElement.textContent = "";
-    }
-  }
-
-  function formatFileSize(size) {
-    const units = ["B", "KB", "MB", "GB"];
-    let unitIndex = 0;
-    let adjustedSize = size;
-
-    while (adjustedSize >= 1024 && unitIndex < units.length - 1) {
-      adjustedSize /= 1024;
-      unitIndex++;
-    }
-
-    return `${adjustedSize.toFixed(2)} ${units[unitIndex]}`;
-  }
-
-  // Utilisation pour plusieurs fichier
-  initializeFileHandlers("1");
+  initializeFileHandlers("1", fileInput);
 });

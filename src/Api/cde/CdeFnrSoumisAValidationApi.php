@@ -38,14 +38,27 @@ class CdeFnrSoumisAValidationApi extends Controller
     }
 
     /**
-     * @Route("api/cde-fnr-non-receptionner/{numFournisseur}", name="api-cdeèfnr-non-receptionner")
+     * @Route("api/cde-fnr-non-receptionner", name="api-cdefnr-non-receptionner")
      */
-    public function cdeFnrNonReceptionner($numFournisseur)
+    public function cdeFnrNonReceptionner()
     {
-        $cdeFnrNonReceptionner = $this->cdeFnrModel->recupListeInitialCdeFrn($numFournisseur);
+        $cdeFnrNonReceptionner = $this->cdeFnrModel->recupListeCdeFrn();
 
         header("Content-type:application/json");
 
         echo json_encode($cdeFnrNonReceptionner);
     }
+
+    /**
+     * @Route("api/num-cde-fnr", name="api_num_cde_frn")
+     */
+    public function numCdeFnr()
+    {
+        $numCdeFnr = $this->cdeFnrModel->recupNumCdeFrn();
+
+        header("Content-type:application/json");
+
+        echo json_encode($numCdeFnr);
+    }
+
 }
