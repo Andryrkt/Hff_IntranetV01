@@ -162,7 +162,7 @@ if (firstRowInGroup) {
           // Filtre par classe
           let cellMatches = false;
           links.forEach((link) => {
-            if (link.classList.contains(filterClass)) {
+            if (link.parentElement.classList.contains(filterClass)) {
               link.style.display = ""; // Affiche les liens correspondant
               cellMatches = true;
             } else {
