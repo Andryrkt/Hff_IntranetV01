@@ -97,11 +97,6 @@ class Agence
     private $mutationAgenceEmetteur;
 
     /**
-     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="agenceDestination")
-     */
-    private $mutationAgenceDestination;
-
-    /**
      * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="agenceDebiteur")
      */
     private $mutationAgenceDebiteur;
@@ -139,7 +134,6 @@ class Agence
         $this->tkiAgenceEmetteur = new ArrayCollection();
         $this->tkiAgenceDebiteur = new ArrayCollection();
         $this->mutationAgenceEmetteur = new ArrayCollection();
-        $this->mutationAgenceDestination = new ArrayCollection();
         $this->mutationAgenceDebiteur = new ArrayCollection();
     }
 
@@ -597,48 +591,6 @@ class Agence
     public function setMutationAgenceEmetteur($mutationAgenceEmetteur)
     {
         $this->mutationAgenceEmetteur = $mutationAgenceEmetteur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of mutationAgenceDestination
-     */
-    public function getMutationAgenceDestination()
-    {
-        return $this->mutationAgenceDestination;
-    }
-
-    public function addMutationAgenceDestination(Mutation $mutation): self
-    {
-        if (!$this->mutationAgenceDestination->contains($mutation)) {
-            $this->mutationAgenceDestination[] = $mutation;
-            $mutation->setAgenceDestination($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMutationAgenceDestination(Mutation $mutation): self
-    {
-        if ($this->mutationAgenceDestination->contains($mutation)) {
-            $this->mutationAgenceDestination->removeElement($mutation);
-            if ($mutation->getAgenceDestination() === $this) {
-                $mutation->setAgenceDestination(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of mutationAgenceDestination
-     *
-     * @return  self
-     */
-    public function setMutationAgenceDestination($mutationAgenceDestination)
-    {
-        $this->mutationAgenceDestination = $mutationAgenceDestination;
 
         return $this;
     }

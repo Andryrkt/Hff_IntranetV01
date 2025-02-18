@@ -35,8 +35,6 @@ CREATE TABLE Demande_de_mutation(
 	ID_Statut_Demande int NULL,
 	agence_emetteur_id int NULL,
 	service_emetteur_id int NULL,
-	agence_destination_id int NULL,
-	service_destination_id int NULL,
 	agence_debiteur_id int NULL,
 	service_debiteur_id int NULL,
 	site_id int NULL,

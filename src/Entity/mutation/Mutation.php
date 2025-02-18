@@ -206,18 +206,6 @@ class Mutation
     private $serviceEmetteur;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="mutationAgenceDestination")
-     * @ORM\JoinColumn(name="agence_destination_id", referencedColumnName="id")
-     */
-    private $agenceDestination;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="mutationServiceDestination")
-     * @ORM\JoinColumn(name="service_destination_id", referencedColumnName="id")
-     */
-    private $serviceDestination;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="mutationAgenceDebiteur")
      * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
      */
@@ -951,46 +939,6 @@ class Mutation
     public function setServiceEmetteur($serviceEmetteur)
     {
         $this->serviceEmetteur = $serviceEmetteur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of agenceDestination
-     */
-    public function getAgenceDestination()
-    {
-        return $this->agenceDestination;
-    }
-
-    /**
-     * Set the value of agenceDestination
-     *
-     * @return  self
-     */
-    public function setAgenceDestination($agenceDestination)
-    {
-        $this->agenceDestination = $agenceDestination;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of serviceDestination
-     */
-    public function getServiceDestination()
-    {
-        return $this->serviceDestination;
-    }
-
-    /**
-     * Set the value of serviceDestination
-     *
-     * @return  self
-     */
-    public function setServiceDestination($serviceDestination)
-    {
-        $this->serviceDestination = $serviceDestination;
 
         return $this;
     }

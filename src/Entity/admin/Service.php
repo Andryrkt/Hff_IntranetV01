@@ -103,11 +103,6 @@ class Service
     private $mutationServiceEmetteur;
 
     /**
-     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="serviceDestination")
-     */
-    private $mutationServiceDestination;
-
-    /**
      * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="serviceDebiteur")
      */
     private $mutationServiceDebiteur;
@@ -131,7 +126,6 @@ class Service
         $this->tkiServiceEmetteur = new ArrayCollection();
         $this->tkiServiceDebiteur = new ArrayCollection();
         $this->mutationServiceEmetteur = new ArrayCollection();
-        $this->mutationServiceDestination = new ArrayCollection();
         $this->mutationServiceDebiteur = new ArrayCollection();
     }
 
@@ -556,48 +550,6 @@ class Service
     public function setMutationServiceEmetteur($mutationServiceEmetteur)
     {
         $this->mutationServiceEmetteur = $mutationServiceEmetteur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of mutationServiceDestination
-     */
-    public function getMutationServiceDestination()
-    {
-        return $this->mutationServiceDestination;
-    }
-
-    public function addMutationServiceDestination(Mutation $mutation): self
-    {
-        if (!$this->mutationServiceDestination->contains($mutation)) {
-            $this->mutationServiceDestination[] = $mutation;
-            $mutation->setServiceDestination($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMutationServiceDestination(Mutation $mutation): self
-    {
-        if ($this->mutationServiceDestination->contains($mutation)) {
-            $this->mutationServiceDestination->removeElement($mutation);
-            if ($mutation->getServiceDestination() === $this) {
-                $mutation->setServiceDestination(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of mutationServiceDestination
-     *
-     * @return  self
-     */
-    public function setMutationServiceDestination($mutationServiceDestination)
-    {
-        $this->mutationServiceDestination = $mutationServiceDestination;
 
         return $this;
     }
