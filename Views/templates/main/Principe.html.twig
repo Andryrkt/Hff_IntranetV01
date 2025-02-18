@@ -112,10 +112,10 @@
 								<li class="dropdown-header">
 									Mutation</li>
 								<li>
-									<a class="dropdown-item" href="#">Nouvelle Demande</a>
+									<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
 								</li>
 								<li>
-									<a class="dropdown-item" href="#">Consultation</a>
+									<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
 								</li>
 								<li>
 									<hr class="dropdown-divider">
@@ -229,8 +229,8 @@
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
 							{# <li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Liste</a>
-							</li> #}
+																						<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Liste</a>
+																					</li> #}
 						</ul>
 					</li>
 				{% endif %}
