@@ -28,13 +28,10 @@ CREATE TABLE Demande_de_mutation(
 	Mode_Paiement varchar(50) NULL,
 	Piece_Jointe_1 varchar(50) NULL,
 	Piece_Jointe_2 varchar(50) NULL,
-
 	Utilisateur_Creation varchar(50) NOT NULL,
 	Code_Statut varchar(3) NULL,
 	Numero_Tel varchar(10) NULL,
 	Devis varchar(3) NULL,
-	Fiche varchar(50) NULL,                        *****
-	Doit_indemnite varchar(50) NULL,               *****
 	ID_Statut_Demande int NULL,
 	agence_emetteur_id int NULL,
 	service_emetteur_id int NULL,
