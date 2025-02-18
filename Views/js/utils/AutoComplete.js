@@ -6,6 +6,7 @@ export class AutoComplete {
     displayItemCallback,
     onSelectCallback,
     loaderElement = null,
+    itemToStringCallback = null,
     debounceDelay = 300,
   }) {
     this.inputElement = inputElement;
@@ -14,6 +15,7 @@ export class AutoComplete {
     this.displayItemCallback = displayItemCallback;
     this.onSelectCallback = onSelectCallback;
     this.loaderElement = loaderElement;
+    this.itemToStringCallback = itemToStringCallback;
     this.debounceDelay = debounceDelay;
 
     this.data = [];
@@ -67,7 +69,7 @@ export class AutoComplete {
         this.updateActiveSuggestion(suggestions);
         break;
       case "Enter":
-        event.preventDefault(); // 🚫 Bloquer la soumission même si aucune suggestion sélectionnée
+        event.preventDefault();
         if (this.activeIndex >= 0 && suggestions[this.activeIndex]) {
           suggestions[this.activeIndex].click();
         }
@@ -103,7 +105,10 @@ export class AutoComplete {
   }
 
   itemToString(item) {
-    return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
+    if (this.itemToStringCallback) {
+      return this.itemToStringCallback(item);
+    }
+    return JSON.stringify(item);
   }
 
   showSuggestions(suggestions) {
@@ -126,7 +131,7 @@ export class AutoComplete {
       this.suggestionContainer.appendChild(suggestionElement);
     });
 
-    this.activeIndex = -1; // Réinitialise l'index actif
+    this.activeIndex = -1;
   }
 
   clearSuggestions() {

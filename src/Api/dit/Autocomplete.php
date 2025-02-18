@@ -30,8 +30,8 @@ class Autocomplete extends Controller
 
         $results = array_map(function ($client) {
             return [
-                'label' => $client['cbse_numcli'],
-                'value' => $client['cbse_nomcli'],
+                'num_client' => $client['cbse_numcli'],
+                'nom_client' => $client['cbse_nomcli'],
             ];
         }, $clients);
 

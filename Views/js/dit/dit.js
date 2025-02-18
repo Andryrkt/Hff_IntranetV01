@@ -7,7 +7,12 @@ const idMaterielInput = document.querySelector(
 const numParcInput = document.querySelector("#demande_intervention_numParc");
 
 const numSerieInput = document.querySelector("#demande_intervention_numSerie");
-
+const numClientInput = document.querySelector(
+  "#demande_intervention_numeroClient"
+);
+const nomClientInput = document.querySelector(
+  "#demande_intervention_nomClient"
+);
 const constructeurInput = document.querySelector("#constructeur");
 const designationInput = document.querySelector("#designation");
 const modelInput = document.querySelector("#model");
@@ -29,96 +34,84 @@ const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 /** ===================================================================
  * recupère l'idMateriel et afficher les information du matériel
  * ==================================================================*/
-document.addEventListener("DOMContentLoaded", (event) => {
-  const fetchManager = new FetchManager("/Hffintranet");
 
-  function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
-    return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
+const fetchManager = new FetchManager("/Hffintranet");
+
+async function fetchMateriels() {
+  return await fetchManager.get("api/fetch-materiel");
+}
+
+function displayMateriel(item) {
+  return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
+}
+
+function onSelectMateriels(item) {
+  idMaterielInput.value = item.num_matricule;
+  numParcInput.value = item.num_parc;
+  numSerieInput.value = item.num_serie;
+
+  createMaterielInfoDisplay(containerInfoMateriel, item);
+}
+
+//Activation sur le champ Id Matériel
+new AutoComplete({
+  inputElement: idMaterielInput,
+  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
+  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+//Activation sur le champ numSerie
+new AutoComplete({
+  inputElement: numSerieInput,
+  suggestionContainer: document.querySelector("#suggestion-numSerie"),
+  loaderElement: document.querySelector("#loader-numSerie"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+//Activation sur le champ numParc
+new AutoComplete({
+  inputElement: numParcInput,
+  suggestionContainer: document.querySelector("#suggestion-numParc"),
+  loaderElement: document.querySelector("#loader-numParc"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+function createMaterielInfoDisplay(container, data) {
+  if (!container) {
+    console.error(`Container not found.`);
+    return;
   }
 
-  function InfoMateriel() {
-    const idMateriel = idMaterielInput.value;
-    const numParc = numParcInput.value;
-    const numSerie = numSerieInput.value;
+  const fields = [
+    { label: "Constructeur", key: "constructeur" },
+    { label: "Désignation", key: "designation" },
+    { label: "KM", key: "km" },
+    { label: "N° Parc", key: "num_parc" },
 
-    const hasValidInput =
-      idMateriel !== "" || numParc !== "" || numSerie !== "";
+    { label: "Modèle", key: "modele" },
+    { label: "Casier", key: "casier_emetteur" },
+    { label: "Heures", key: "heure" },
+    { label: "N° Serie", key: "num_serie" },
+    { label: "Id Materiel", key: "num_matricule" },
+  ];
 
-    if (hasValidInput) {
-      erreur.innerHTML = "";
-      const url = buildUrl(
-        "fetch-materiel",
-        idMateriel,
-        numParc,
-        numSerie
-      );
-
-      return fetchManager.get(url);
-  }
-
-  function displayMateriel(item) {
-    return `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`;
-  }
-
-  function onSelectFournisseur(item) {
-    idMaterielInput.value = item.num_matricule;
-    numParcInput.value = item.num_parc;
-    numSerieInput.value = item.num_serie;
-    constructeurInput.innerHTML = item.constructeur;
-    designationInput.innerHTML = item.designation;
-    modelInput.innerHTML = item.model;
-    casierInput.innerHTML = item.casier_emetteur;
-    kmInput.innerHTML = item.km;
-    heuresInput.innerHTML = item.heure
-  }
-
-  function resetInfoMateriel(message) {
-    containerInfoMateriel.innerHTML = "";
-    idMaterielInput.value = "";
-    numParcInput.value = "";
-    numSerieInput.value = "";
-
-    erreur.classList.add("text-danger");
-    erreur.innerHTML = message;
-  }
-
-  function showSpinner(container) {
-    container.innerHTML = `
-    <div class="text-center my-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
-    </div>
-  `;
-  }
-
-  function createMaterielInfoDisplay(container, data) {
-    if (!container) {
-      console.error(`Container not found.`);
-      return;
-    }
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      console.error("Invalid or empty data provided.");
-      container.innerHTML =
-        '<p class="text-danger">Aucune donnée disponible.</p>';
-      return;
-    }
-
-    const fields = [
-      { label: "Constructeur", key: "constructeur" },
-      { label: "Désignation", key: "designation" },
-      { label: "KM", key: "km" },
-      { label: "N° Parc", key: "num_parc" },
-
-      { label: "Modèle", key: "modele" },
-      { label: "Casier", key: "casier_emetteur" },
-      { label: "Heures", key: "heure" },
-      { label: "N° Serie", key: "num_serie" },
-      { label: "Id Materiel", key: "num_matricule" },
-    ];
-
-    const createFieldHtml = (label, value) => `
+  const createFieldHtml = (label, value) => `
   <li class="fw-bold">
     ${label} :
     <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
@@ -127,44 +120,82 @@ document.addEventListener("DOMContentLoaded", (event) => {
   </li>
 `;
 
-    container.innerHTML = `
+  container.innerHTML = `
     <ul class="list-unstyled">
       <div class="row">
         <div class="col-12 col-md-6">
           ${fields
             .slice(0, 4)
-            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .map((field) => createFieldHtml(field.label, data[field.key]))
             .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
             .slice(4)
-            .map((field) => createFieldHtml(field.label, data[0][field.key]))
+            .map((field) => createFieldHtml(field.label, data[field.key]))
             .join("")}
         </div>
       </div>
     </ul>
   `;
-  }
+}
 
-  function isValidInput(value) {
-    return value && value.trim().length > 0;
-  }
+/**========================================
+ * AUTOCOMPLETE NOM et NUMERO CLient
+ *===========================================*/
 
-  /** ==========================================================================
-   * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
-   *=============================================================================*/
-  const inputNoEntrers = document.querySelectorAll(".noEntrer");
-  inputNoEntrers.forEach((inputNoEntrer) => {
-    inputNoEntrer.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault(); // Empêche le rechargement de la page
-        console.log(
-          "La touche Entrée a été pressée dans le champ :",
-          inputNoEntrer.placeholder
-        );
-      }
-    });
+async function fetchClients() {
+  const url = numClientInput.getAttribute("data-autocomplete-url");
+  const result = await fetchManager.get(url);
+  return result;
+}
+
+function displayClients(item) {
+  return `${item.num_client} - ${item.nom_client}`;
+}
+
+function onSelectClients(item) {
+  numClientInput.value = item.num_client;
+  nomClientInput.value = item.nom_client;
+}
+
+//Activation sur le champ numero client
+new AutoComplete({
+  inputElement: numClientInput,
+  suggestionContainer: document.querySelector("#suggestion-numClient"),
+  loaderElement: document.querySelector("#loader-numClient"),
+  debounceDelay: 300,
+  fetchDataCallback: fetchClients,
+  displayItemCallback: displayClients,
+  onSelectCallback: onSelectClients,
+  itemToStringCallback: (item) => `${item.num_client} - ${item.nom_client}`,
+});
+
+//Activation sur le champ nom client
+new AutoComplete({
+  inputElement: nomClientInput,
+  suggestionContainer: document.querySelector("#suggestion-nomClient"),
+  loaderElement: document.querySelector("#loader-nomClient"),
+  debounceDelay: 300,
+  fetchDataCallback: fetchClients,
+  displayItemCallback: displayClients,
+  onSelectCallback: onSelectClients,
+  itemToStringCallback: (item) => `${item.num_client} - ${item.nom_client}`,
+});
+
+/** ==========================================================================
+ * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
+ *=============================================================================*/
+const inputNoEntrers = document.querySelectorAll(".noEntrer");
+inputNoEntrers.forEach((inputNoEntrer) => {
+  inputNoEntrer.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Empêche le rechargement de la page
+      console.log(
+        "La touche Entrée a été pressée dans le champ :",
+        inputNoEntrer.placeholder
+      );
+    }
   });
 });
 
@@ -220,9 +251,7 @@ function updateServiceOptions(services) {
 /**
  * CHAMP CLIENT MISE EN MAJUSCULE
  */
-const nomClientInput = document.querySelector(
-  "#demande_intervention_nomClient"
-);
+
 nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
@@ -238,9 +267,6 @@ const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
 const erreurClient = document.querySelector("#erreurClient");
-const numClientInput = document.querySelector(
-  "#demande_intervention_numeroClient"
-);
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
@@ -383,122 +409,6 @@ textarea.addEventListener("input", function () {
     charCount.style.color = "#000";
     // charCount.style.background = "red"; // Change la couleur lorsqu'on commence à écrire
   }
-});
-
-/**
- * AUTOCOMPLETE NOM et NUMERO CLient
- */
-document.addEventListener("DOMContentLoaded", function () {
-  let preloadedData = []; // Variable pour stocker les données préchargées
-
-  // Précharger les données dès le début
-  const url = document
-    .querySelector(".autocomplete")
-    ?.getAttribute("data-autocomplete-url");
-  if (url) {
-    preloadData(url);
-  }
-
-  // Fonction pour afficher les suggestions
-  function showSuggestions(field, suggestionsContainer, data) {
-    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
-    data.forEach((item) => {
-      const suggestion = document.createElement("div");
-      suggestion.textContent =
-        field === "numero"
-          ? item.label + " - " + item.value
-          : item.value + " - " + item.label; // Affiche le label
-      suggestion.addEventListener("click", () => {
-        let label = field === "numero" ? item.label : item.value;
-        let value = field === "numero" ? item.value : item.label;
-        updateClientFields(label, value); // Remplit le champ avec la sélection
-        suggestionsContainer.innerHTML = ""; // Efface les suggestions
-      });
-      suggestionsContainer.appendChild(suggestion);
-    });
-  }
-
-  function updateClientFields(label, value) {
-    // Vérification si les éléments sont présents dans le DOM
-    if (numClientInput && nomClientInput) {
-      numClientInput.value = label; // Assigner le label à 'numeroClient'
-      nomClientInput.value = value; // Assigner la value à 'nomClient'
-    } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
-    }
-  }
-
-  // Fonction pour charger les données au début
-  async function preloadData(url) {
-    try {
-      const response = await fetch(url);
-      preloadedData = await response.json(); // Stocke les données
-    } catch (error) {
-      console.error("Erreur lors du préchargement des données :", error);
-    }
-  }
-
-  // Fonction pour gérer l'autocomplétion
-  function setupAutocomplete(input) {
-    // const url = input.getAttribute('data-autocomplete-url');
-    const suggestionsContainer = document.getElementById(
-      `${input.id}_suggestions`
-    );
-
-    input.addEventListener("input", async function () {
-      const query = input.value.trim();
-      if (query === "") {
-        numClientInput.value = "";
-        nomClientInput.value = "";
-        return;
-      }
-
-      if (query.length > 0) {
-        try {
-          // Filtre les données préchargées
-          let filteredData = [];
-          let field = "";
-          if (input.id === "demande_intervention_numeroClient") {
-            field = "numero";
-            filteredData = preloadedData.filter((item) =>
-              item.label.toLowerCase().includes(query.toLowerCase())
-            );
-          } else {
-            field = "nom";
-            filteredData = preloadedData.filter((item) =>
-              item.value.toLowerCase().includes(query.toLowerCase())
-            );
-            filteredData = filteredData.map((item) => {
-              return { label: item.value, value: item.label };
-            });
-          }
-          showSuggestions(field, suggestionsContainer, filteredData);
-        } catch (error) {
-          console.error(
-            "Erreur lors de la récupération des suggestions :",
-            error
-          );
-        }
-      } else {
-        suggestionsContainer.innerHTML = ""; // Efface les suggestions si la saisie est trop courte
-      }
-    });
-
-    // Cacher les suggestions si on clique ailleurs
-    document.addEventListener("click", (e) => {
-      if (
-        !input.contains(e.target) &&
-        !suggestionsContainer.contains(e.target)
-      ) {
-        suggestionsContainer.innerHTML = "";
-      }
-    });
-  }
-
-  // Appliquer l'autocomplétion à tous les champs avec la classe "autocomplete"
-  document.querySelectorAll(".autocomplete").forEach(setupAutocomplete);
-
-  allowOnlyNumbers(numClientInput); //n'accèpte que le chiffre
 });
 
 /**

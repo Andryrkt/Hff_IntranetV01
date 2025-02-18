@@ -71,9 +71,11 @@
 						<div class="row">
 							<div class="col-12 col-md-6">
 								{{ form_row(form.numeroClient)}}
-								<div id="demande_intervention_numeroClient_suggestions" class="suggestions"></div>
+								<div id="suggestion-numClient" class="suggestions-container"></div>
+								<div id="loader-numClient" class="spinner" style="display: none;"></div>
 								{{ form_row(form.nomClient)}}
-								<div id="demande_intervention_nomClient_suggestions" class="suggestions"></div>
+								<div id="suggestion-nomClient" class="suggestions-container"></div>
+								<div id="loader-nomClient" class="spinner" style="display: none;"></div>
 							</div>
 							<div class="col-12 col-md-6">
 								{{ form_row(form.numeroTel)}}
@@ -87,12 +89,22 @@
 						<div class="row">
 							<div class="col-12 col-md-4">
 								{{ form_row(form.idMateriel)}}
-							</div>
-							<div class="col-12 col-md-4">
-								{{ form_row(form.numSerie)}}
+								<div id="suggestion-idMateriel" class="suggestions-container"></div>
+								<div
+									id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;">{# <i class="fas fa-spinner fa-spin me-2"></i>
+																																							Chargement... #}
+								</div>
+
 							</div>
 							<div class="col-12 col-md-4">
 								{{ form_row(form.numParc)}}
+								<div id="suggestion-numParc" class="suggestions-container"></div>
+								<div id="loader-numParc" class="spinner" style="display: none;"></div>
+							</div>
+							<div class="col-12 col-md-4">
+								{{ form_row(form.numSerie)}}
+								<div id="suggestion-numSerie" class="suggestions-container"></div>
+								<div id="loader-numSerie" class="spinner" style="display: none;"></div>
 							</div>
 						</div>
 						<div class="row">

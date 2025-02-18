@@ -281,7 +281,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -294,7 +294,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -418,7 +418,10 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " Id Matériel *",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
             )
             ->add(
@@ -427,8 +430,12 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Parc",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
+                
             )
             ->add(
                 'numSerie',
@@ -436,7 +443,10 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Serie",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
             )
             ->add(
