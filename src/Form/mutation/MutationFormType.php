@@ -16,10 +16,13 @@ use Symfony\Component\Form\FormEvents;
 use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\admin\Service;
 use App\Entity\mutation\Mutation;
+use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\dom\CatgRepository;
 use App\Repository\admin\dom\SousTypeDocumentRepository;
 use App\Repository\admin\PersonnelRepository;
+use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -50,7 +53,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped'   => false,
-                    'label'    => 'Agence',
+                    'label'    => 'Agence Emetteur',
                     'required' => true,
                     'attr'     => [
                         'class'    => 'disabled',
@@ -63,12 +66,31 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped'   => false,
-                    'label'    => 'Service',
+                    'label'    => 'Service Emetteur',
                     'required' => true,
                     'attr'     => [
                         'class'    => 'disabled',
                     ],
                     'data'     => $options["data"]->getServiceEmetteur() ?? null
+                ]
+            )
+            ->add(
+                'agenceDebiteur',
+                EntityType::class,
+                [
+                    'label'         => 'Agence Debiteur',
+                    'placeholder'   => '-- Choisir une agence Debiteur --',
+                    'class'         => Agence::class,
+                    'attr'          => [
+                        'class' => 'agenceDebiteur',
+                    ],
+                    'choice_label'  => function (Agence $agence): string {
+                        return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
+                    },
+                    'required'      => true,
+                    'query_builder' => function (AgenceRepository $agenceRepository) {
+                        return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
+                    }
                 ]
             )
             ->add(
@@ -79,12 +101,13 @@ class MutationFormType extends AbstractType
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
-                        return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
+                        return $catg->createQueryBuilder('c')->where('c.id <> 5')->orderBy('c.description', 'ASC');
                     }
                 ]
             )
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
+                $data = $event->getData();
 
                 $codeAgence = explode(" ", $options['data']->getAgenceEmetteur())[0];   // obtenir le code agence de l'utilisateur
                 $codeService = explode(" ", $options['data']->getServiceEmetteur())[0];  // obtenir le code service de l'utilisateur
@@ -93,27 +116,51 @@ class MutationFormType extends AbstractType
                 $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)
                     ->findId($codeAgence, $codeService, $options['data']->getServiceEmetteur());
 
+                $services = null;
+
                 // Ajout du champ 'matriculeNom'
-                $form->add(
-                    'matriculeNomPrenom',
-                    EntityType::class,
-                    [
-                        'mapped'        => false,
-                        'label'         => 'Matricule, nom et prénoms',
-                        'class'         => Personnel::class,
-                        'placeholder'   => '-- choisir un personnel --',
-                        'choice_label'  => function (Personnel $personnel): string {
-                            return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
-                        },
-                        'required'      => true,
-                        'query_builder' => function (PersonnelRepository $repository) use ($agenceServiceIriumId) {
-                            return $repository->createQueryBuilder('p')
-                                ->where('p.agenceServiceIriumId IN (:agenceIps)')
-                                ->setParameter('agenceIps', $agenceServiceIriumId)
-                                ->orderBy('p.Matricule', 'ASC');
-                        },
-                    ]
-                );
+                $form
+                    ->add(
+                        'matriculeNomPrenom',
+                        EntityType::class,
+                        [
+                            'mapped'        => false,
+                            'label'         => 'Matricule, nom et prénoms',
+                            'class'         => Personnel::class,
+                            'placeholder'   => '-- choisir un personnel --',
+                            'choice_label'  => function (Personnel $personnel): string {
+                                return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
+                            },
+                            'required'      => true,
+                            'query_builder' => function (PersonnelRepository $repository) use ($agenceServiceIriumId) {
+                                return $repository->createQueryBuilder('p')
+                                    ->where('p.agenceServiceIriumId IN (:agenceIps)')
+                                    ->setParameter('agenceIps', $agenceServiceIriumId)
+                                    ->orderBy('p.Matricule', 'ASC');
+                            },
+                        ]
+                    )
+                    ->add(
+                        'serviceDebiteur',
+                        EntityType::class,
+                        [
+                            'label'         => 'Service Débiteur',
+                            'class'         => Service::class,
+                            'placeholder'   => '-- choisir une service débiteur --',
+                            'choice_label'  => function (Service $service): string {
+                                return $service->getCodeService() . ' ' . $service->getLibelleService();
+                            },
+                            'attr'          => [
+                                'class' => 'serviceDebiteur',
+                            ],
+                            'choices'       => $services,
+                            'required'      => true,
+                            'query_builder' => function (ServiceRepository $serviceRepository) {
+                                return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
+                            }
+                        ]
+                    )
+                ;
             })
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
                 $mutation = $event->getData(); // Objet
