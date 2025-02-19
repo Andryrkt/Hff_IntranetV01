@@ -340,7 +340,6 @@ trait DomsTrait
             $site = $domForm->getSite();
         }
 
-
         $dom
             ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
             ->setSousTypeDocument($sousTypeDocument)

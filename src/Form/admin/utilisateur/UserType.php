@@ -181,6 +181,13 @@ class UserType extends AbstractType
                 'expanded' => false,
                 'required' => false
             ])
+            ->add('numTel', 
+                TextType::class,
+                [
+                    'label' => 'N° Telephone',
+                    'required' => false
+                ]
+            )
     ;
     }
 
