@@ -4,39 +4,44 @@ namespace App\Form\mutation;
 
 use App\Entity\admin\Agence;
 
-use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
-use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\dom\Indemnite;
 use Symfony\Component\Form\FormEvent;
-use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\admin\AgenceServiceIrium;
+use App\Entity\admin\dom\Site;
 use Symfony\Component\Form\AbstractType;
-use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\Service;
 use App\Entity\mutation\Mutation;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\dom\CatgRepository;
-use App\Repository\admin\dom\SousTypeDocumentRepository;
 use App\Repository\admin\PersonnelRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class MutationFormType extends AbstractType
 {
     private $em;
-
-    const SALARIE = [
-        'PERMANENT' => 'PERMANENT',
-        'TEMPORAIRE' => 'TEMPORAIRE',
+    const DEVISE = [
+        'MGA' => 'MGA',
+        'EUR' => 'EUR',
+        'USD' => 'USD'
+    ];
+    const MODE_PAYEMENT = [
+        'MOBILE MONEY'      => 'MOBILE MONEY',
+        'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
     ];
 
     public function __construct()
@@ -46,6 +51,12 @@ class MutationFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $indemites = $this->em->getRepository(Indemnite::class)->findBy(['sousTypeDoc' => '5']);
+
+        $sites = [];
+        foreach ($indemites as $value) {
+            $sites[] = $value->getSite();
+        }
 
         $builder
             ->add(
@@ -75,6 +86,19 @@ class MutationFormType extends AbstractType
                 ]
             )
             ->add(
+                'dateDemande',
+                TextType::class,
+                [
+                    'mapped'   => false,
+                    'label'    => 'Date de la demande',
+                    'required' => true,
+                    'attr'     => [
+                        'class'    => 'disabled',
+                    ],
+                    'data'     => $options["data"]->getDateDemande()->format('d/m/Y') ?? null
+                ]
+            )
+            ->add(
                 'agenceDebiteur',
                 EntityType::class,
                 [
@@ -97,12 +121,249 @@ class MutationFormType extends AbstractType
                 'categorie',
                 EntityType::class,
                 [
-                    'label'         => 'Catégorie',
+                    'label'         => 'Catégorie professionnelle',
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
                         return $catg->createQueryBuilder('c')->where('c.id <> 5')->orderBy('c.description', 'ASC');
                     }
+                ]
+            )
+            ->add(
+                'site',
+                EntityType::class,
+                [
+                    'label'        => 'Site d\'affectation',
+                    'class'        => Site::class,
+                    'required'     => true,
+                    'choice_label' => 'nomZone',
+                    'choices'      => $sites
+                ]
+            )
+            ->add(
+                'dateAffectation',
+                DateType::class,
+                [
+                    'widget' => 'single_text',
+                    'label'  => 'Date d\'affectation',
+                ]
+            )
+            ->add(
+                'motifMutation',
+                TextType::class,
+                [
+                    'label'       => 'Motif',
+                    'required'    => true,
+                    'constraints' => [
+                        new NotBlank(['message' => 'Le motif de mutation ne peut pas être vide.']),
+                        new Length([
+                            'min'        => 3,
+                            'minMessage' => 'Le motif de mutation doit comporter au moins {{ limit }} caractères',
+                            'max'        => 100,
+                            'maxMessage' => 'Le motif de mutation ne peut pas dépasser {{ limit }} caractères',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'client',
+                TextType::class,
+                [
+                    'label'       => 'Nom du client',
+                    'required'    => false,
+                    'constraints' => [
+                        new Length([
+                            'min'        => 3,
+                            'minMessage' => 'Le Client doit comporter au moins {{ limit }} caractères',
+                            'max'        => 50,
+                            'maxMessage' => 'Le Client ne peut pas dépasser {{ limit }} caractères',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'nombreJourAvance',
+                TextType::class,
+                [
+                    'label' => 'Nombre de Jour',
+                ]
+            )
+            ->add(
+                'lieuMutation',
+                TextType::class,
+                [
+                    'label'       => 'Lieu d\'affectation',
+                    'required'    => true,
+                    'constraints' => [
+                        new NotBlank(['message' => 'Le lieu d\'affectation ne peut pas être vide.']),
+                        new Length([
+                            'min'        => 3,
+                            'minMessage' => 'Le lieu doit comporter au moins {{ limit }} caractères',
+                            'max'        => 100,
+                            'maxMessage' => 'Le lieu ne peut pas dépasser {{ limit }} caractères',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'devis',
+                ChoiceType::class,
+                [
+                    'label'   => 'Devise',
+                    'choices' => self::DEVISE,
+                    'data'    => 'MGA'
+                ]
+            )
+            ->add(
+                'indemniteForfaitaire',
+                TextType::class,
+                [
+                    'label' => 'Indemnité forfaitaire journalière(s)',
+                    'attr'  => [
+                        'class' => 'disabled',
+                    ],
+                    'data'  => 0
+                ]
+            )
+            ->add(
+                'totalIndemniteForfaitaire',
+                TextType::class,
+                [
+                    'label' => "Total de l'indemnité forfaitaire",
+                    'attr'  => [
+                        'class' => 'disabled',
+                    ]
+                ]
+            )
+            ->add(
+                'motifAutresDepense1',
+                TextType::class,
+                [
+                    'label'       => 'Motif Autre dépense 1',
+                    'required'    => false,
+                    'constraints' => [
+                        new Length([
+                            'min'        => 3,
+                            'minMessage' => 'Le motif autre dépense 1 doit comporter au moins {{ limit }} caractères',
+                            'max'        => 30,
+                            'maxMessage' => 'Le motif autre dépense 1 ne peut pas dépasser {{ limit }} caractères',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'autresDepense1',
+                TextType::class,
+                [
+                    'label'    => 'Montant',
+                    'required' => false,
+                ]
+            )
+            ->add(
+                'motifAutresDepense2',
+                TextType::class,
+                [
+                    'label'       => 'Motif Autre dépense 2',
+                    'required'    => false,
+                    'constraints' => [
+                        new Length([
+                            'min'        => 3,
+                            'minMessage' => 'Le motif autre dépense 2 doit comporter au moins {{ limit }} caractères',
+                            'max'        => 30,
+                            'maxMessage' => 'Le motif autre dépense 2 ne peut pas dépasser {{ limit }} caractères',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'autresDepense2',
+                TextType::class,
+                [
+                    'label'    => 'Montant',
+                    'required' => false,
+                ]
+            )
+            ->add(
+                'totalAutresDepenses',
+                TextType::class,
+                [
+                    'label'    => 'Total Montant Autre Dépense',
+                    'required' => true,
+                    'attr'     => [
+                        'class' => 'disabled',
+                    ]
+                ]
+            )
+            ->add(
+                'totalGeneralPayer',
+                TextType::class,
+                [
+                    'label' => 'Montant Total',
+                    'required' => true,
+                    'attr' => [
+                        'class' => 'disabled',
+                    ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Le montant total ne peut pas être vide.',
+                        ]),
+                        new GreaterThan([
+                            'value'   => 0,
+                            'message' => 'Le montant total doit être supérieur à 0.',
+                        ]),
+                    ],
+                ]
+            )
+            ->add(
+                'modePaiementLabel',
+                ChoiceType::class,
+                [
+                    'mapped' => false,
+                    'label'   => 'Mode paiement',
+                    'choices' => self::MODE_PAYEMENT
+                ]
+            )
+            ->add(
+                'modePaiementValue',
+                TextType::class,
+                [
+                    'mapped'   => false,
+                    'label'    => 'MOBILE MONEY',
+                    'required' => true,
+                ]
+            )
+            ->add(
+                'pieceJoint01',
+                FileType::class,
+                [
+                    'label'       => 'Fichier Joint 01 (Merci de mettre un fichier PDF)',
+                    'required'    => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize'   => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
+            ->add(
+                'pieceJoint02',
+                FileType::class,
+                [
+                    'label'       => 'Fichier Joint 02 (Merci de mettre un fichier PDF)',
+                    'required'    => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize'   => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
                 ]
             )
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
@@ -145,7 +406,7 @@ class MutationFormType extends AbstractType
                         [
                             'label'         => 'Service Débiteur',
                             'class'         => Service::class,
-                            'placeholder'   => '-- choisir une service débiteur --',
+                            'placeholder'   => '-- Choisir une service débiteur --',
                             'choice_label'  => function (Service $service): string {
                                 return $service->getCodeService() . ' ' . $service->getLibelleService();
                             },
