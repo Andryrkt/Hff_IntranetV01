@@ -1,17 +1,20 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { formaterNombre } from "../utils/formatNumberUtils.js";
+import { limitInputLength, allowOnlyNumbers } from "../utils/inputUtils.js";
 import {
   initializeFileHandlers,
   disableDropzone,
   enableDropzone,
 } from "../utils/file_upload_Utils.js";
 import { AutoComplete } from "../utils/Autocomplete.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const fetchManager = new FetchManager("/Hffintranet");
 
-  disableDropzone(1);
+  disableDropzone(1); //griser l'envoie du fichier
+
   const numFrnInput = document.querySelector(
     "#cde_fnr_soumis_a_validation_codeFournisseur"
   );
@@ -24,10 +27,23 @@ document.addEventListener("DOMContentLoaded", function () {
   const suggestionContainerNom = document.querySelector(
     "#suggestion-nom-fournisseur"
   );
-
+  const numCdeInput = document.querySelector(
+    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
+  );
   const overlay = document.getElementById("loading-overlay-petite");
 
   const boutonInput = document.querySelector("#bouton-cde-fnr");
+
+  /** Mettre les champs numero fournisseur à n'accepter que les chiffres*/
+  allowOnlyNumbers(numFrnInput);
+  /** Limite le nombre de caractère du champ numero fournisseur */
+  limitInputLength(numFrnInput, 7);
+  /** N'accepte que les nombres pour le champ numero commande */
+  allowOnlyNumbers(numCdeInput);
+  /** Limite le nombre de caractère du champ numero commande */
+  limitInputLength(numCdeInput, 8);
+
+  numCdeInput.disabled = true; //griser le champ numero commande
 
   /**=================================================
    *AUTOCOMPLET LES CHAMPS NUMERO ET NOM FOURNISSEUR
@@ -40,28 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function displayFournisseur(item) {
     return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
   }
-  let autoCompleteCde;
+
   function onSelectFournisseur(item) {
     numFrnInput.value = item.num_fournisseur;
     nomFrnInput.value = item.nom_fournisseur;
-    if (!autoCompleteCde) {
-      autoCompleteCde = new AutoComplete({
-        inputElement: numCdeInput,
-        suggestionContainer: document.querySelector("#suggestion-num-cde"),
-        loaderElement: document.querySelector("#loader-num-cde"),
-        debounceDelay: 300,
-        fetchDataCallback: async () => {
-          const commandes = await fetchCommandes();
-          return filtreNumCde(commandes, item.num_fournisseur);
-        }, // Capture la valeur du fournisseur sélectionné
-        displayItemCallback: displayCommandes,
-        onSelectCallback: onSelectCommandes,
-        itemToStringCallback: (item) => `${item.num_cde}`,
-      });
-    } else {
-      autoCompleteCde.fetchDataCallback = () =>
-        fetchCommandes(item.num_fournisseur);
-    }
+    autocompletCde(item.num_fournisseur);
   }
 
   // Activation sur le champ "Numéro Fournisseur"
@@ -90,37 +89,23 @@ document.addEventListener("DOMContentLoaded", function () {
       `${item.num_fournisseur} - ${item.nom_fournisseur}`,
   });
 
-  /**=====================================================================================
-   * Mettre les champs numero fournisseur et numero commande à n'accepter que les chiffres
-   *========================================================================================*/
-  function allowOnlyNumbers(inputElement) {
-    inputElement.addEventListener("input", () => {
-      inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
-    });
-  }
-
-  allowOnlyNumbers(numFrnInput);
-  const numCmdInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
-  );
-  allowOnlyNumbers(numCmdInput);
-
   /**===========================================
    * AUTOCOMPLET NUMERO COMMANDE FOURNISSEUR
    *===========================================*/
-  const numCdeInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
-  );
+
+  const erreurCdeInput = document.querySelector("#erreur-num-cde");
+  let prelodDataCde = [];
 
   async function fetchCommandes() {
     try {
-      return await fetchManager.get(`api/num-cde-fnr`);
+      const response = await fetchManager.get(`api/num-cde-fnr`);
+      prelodDataCde = response;
     } catch (error) {
       console.error(
         `Erreur lors de la récupération des commandes pour le fournisseur:`,
         error
       );
-      return [];
+      prelodDataCde = [];
     }
   }
 
@@ -129,9 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function onSelectCommandes(item) {
+    console.log("Sélection effectuée : ", item);
+
     numCdeInput.value = item.num_cde;
 
-    console.log(overlay);
     initTableau(item.num_cde);
   }
 
@@ -139,6 +125,64 @@ document.addEventListener("DOMContentLoaded", function () {
     return orders.filter((order) => order.num_fournisseur === numFournisseur);
   }
 
+  // let autoCompleteCde;
+  function autocompletCde(numFournisseur) {
+    // if (!autoCompleteCde) {
+    new AutoComplete({
+      inputElement: numCdeInput,
+      suggestionContainer: document.querySelector("#suggestion-num-cde"),
+      loaderElement: document.querySelector("#loader-num-cde"),
+      debounceDelay: 300,
+      fetchDataCallback: () => {
+        return dataCde(numFournisseur);
+      },
+      displayItemCallback: displayCommandes,
+      onSelectCallback: onSelectCommandes,
+      itemToStringCallback: (item) => `${item.num_cde}`,
+    });
+    // } else {
+    //   autoCompleteCde.fetchDataCallback = () => fetchCommandes(numFournisseur);
+    // }
+  }
+
+  /**
+   * Renvoi les donnée filtrer
+   * @param {string} numFournisseur
+   * @returns
+   */
+  function dataCde(numFournisseur) {
+    erreurCdeInput.innerHTML = "";
+
+    const cdeFiltred = filtreNumCde(prelodDataCde, numFournisseur);
+
+    siChangeNumcde(cdeFiltred); //block si l'utilisateur ne rentre pas la vrais valeur
+
+    if (!cdeFiltred.length) {
+      numCdeInput.disabled = true;
+      erreurCdeInput.innerHTML =
+        "pas de commande à soumettre pour ce numéro fournissseur";
+    } else {
+      numCdeInput.disabled = false;
+    }
+    return cdeFiltred;
+  }
+
+  function siChangeNumcde(cdeFiltred) {
+    numCdeInput.addEventListener("input", () => {
+      console.log(numCdeInput.value);
+      const exists = cdeFiltred
+        .map((item) => item.num_cde)
+        .includes(numCdeInput.value);
+      console.log(exists);
+
+      if (!exists) {
+        disableDropzone(1);
+        boutonInput.disabled = true;
+      }
+    });
+  }
+  // Appelle le chargement des commandes au démarrage
+  fetchCommandes();
   /**=========================================
    * Affichage du liste commande fournisseur
    *=========================================*/
@@ -186,11 +230,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function initTableau(numCde) {
     try {
+      effaceTab();
       overlay.style.display = "flex";
       const infoCde = await fetchListeCdeFournisseur();
+
       const data = filtreListCdeFrn(infoCde, numCde);
 
-      document.querySelector("#tableau_cde_frn").innerHTML = "";
       const tableauComponent = new TableauComponent({
         columns: columns,
         data: data,
@@ -209,6 +254,21 @@ document.addEventListener("DOMContentLoaded", function () {
   function filtreListCdeFrn(orders, numCde) {
     return orders.filter((order) => order.num_cde === numCde);
   }
+
+  function effaceTab() {
+    const parent = document.querySelector("#tableau_cde_frn");
+    const secondChild = parent.children[1];
+
+    if (secondChild) {
+      secondChild.remove(); // Plus besoin d'appeler removeChild sur le parent
+      console.log("Deuxième enfant supprimé !");
+      disableDropzone(1);
+      boutonInput.disabled = true;
+    } else {
+      console.warn("Le deuxième enfant n'existe pas !");
+    }
+  }
+
   /**=================================================
    * FICHIER
    *=================================================*/
@@ -217,4 +277,9 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   initializeFileHandlers("1", fileInput);
+
+  /** ====================================================
+   * bouton Enregistrer
+   *===================================================*/
+  setupConfirmationButtons();
 });

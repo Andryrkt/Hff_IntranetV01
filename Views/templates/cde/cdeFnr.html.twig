@@ -37,9 +37,11 @@
 						{{ form_row(form.numCdeFournisseur)}}
 						{{ form_errors(form.numCdeFournisseur)}}
 						<div id="suggestion-num-cde" class="suggestions"></div>
-						<div id="loader-num-cde" class="spinner" style="display: none;"></div>
+						<div id="loader-num-cde" class="spinner" style="display: none;">Chargement ...</div>
 					</div>
-					<div class="col-12 col-md-3"></div>
+					<div class="col-12 col-md-3">
+						<small id="erreur-num-cde" class="text-danger"></small>
+					</div>
 				</div>
 
 				<div class="row">
@@ -50,7 +52,7 @@
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						<div class="d-flex justify-content-start">
-							<button type="submit" class="btn bouton mt-2 ajout-overlay " id="bouton-cde-fnr" disabled>
+							<button type="submit" class="btn bouton mt-2 ajout-overlay " id="bouton-cde-fnr" data-confirmation data-form="#myForm" disabled>
 								<i class="fas fa-save"></i>
 								Enregistrer
 							</button>
