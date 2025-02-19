@@ -7,6 +7,8 @@
 	<link href="/Hffintranet/Views/css/mutation/new.css" rel="stylesheet"/>
 {% endblock %}
 
+{% import "macroForm.html.twig" as macroForm %}
+
 {% block content %}
 	<div class="container">
 		<div class="card">
@@ -30,10 +32,10 @@
 				</div>
 				<div class="row">
 					<div class="col-4">
-						{{ form_row(form.agenceDebiteur)}}
+						{{form_row(form.agenceDebiteur)}}
 					</div>
 					<div class="col-4">
-						{{ form_row(form.serviceDebiteur)}}
+						{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
 					</div>
 				</div>
 				<div class="row">
@@ -61,5 +63,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/mutation/new.js"></script>
+	<script src="/Hffintranet/Views/js/mutation/new.js" type="module"></script>
 {% endblock %}

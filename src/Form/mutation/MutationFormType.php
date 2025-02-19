@@ -107,7 +107,6 @@ class MutationFormType extends AbstractType
             )
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
-                $data = $event->getData();
 
                 $codeAgence = explode(" ", $options['data']->getAgenceEmetteur())[0];   // obtenir le code agence de l'utilisateur
                 $codeService = explode(" ", $options['data']->getServiceEmetteur())[0];  // obtenir le code service de l'utilisateur
