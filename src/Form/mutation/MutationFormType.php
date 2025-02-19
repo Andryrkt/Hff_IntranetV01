@@ -51,9 +51,9 @@ class MutationFormType extends AbstractType
                 [
                     'mapped'   => false,
                     'label'    => 'Agence',
-                    'required' => false,
+                    'required' => true,
                     'attr'     => [
-                        'readonly' => true
+                        'class'    => 'disabled',
                     ],
                     'data'     => $options["data"]->getAgenceEmetteur() ?? null
                 ]
@@ -64,9 +64,9 @@ class MutationFormType extends AbstractType
                 [
                     'mapped'   => false,
                     'label'    => 'Service',
-                    'required' => false,
+                    'required' => true,
                     'attr'     => [
-                        'readonly' => true,
+                        'class'    => 'disabled',
                     ],
                     'data'     => $options["data"]->getServiceEmetteur() ?? null
                 ]
