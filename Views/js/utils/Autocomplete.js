@@ -6,6 +6,7 @@ export class AutoComplete {
     displayItemCallback,
     onSelectCallback,
     loaderElement = null,
+    itemToStringCallback = null,
     debounceDelay = 300,
   }) {
     this.inputElement = inputElement;
@@ -14,6 +15,7 @@ export class AutoComplete {
     this.displayItemCallback = displayItemCallback;
     this.onSelectCallback = onSelectCallback;
     this.loaderElement = loaderElement;
+    this.itemToStringCallback = itemToStringCallback;
     this.debounceDelay = debounceDelay;
 
     this.data = [];
@@ -67,9 +69,17 @@ export class AutoComplete {
         this.updateActiveSuggestion(suggestions);
         break;
       case "Enter":
-        event.preventDefault(); // 🚫 Bloquer la soumission même si aucune suggestion sélectionnée
-        if (this.activeIndex >= 0 && suggestions[this.activeIndex]) {
-          suggestions[this.activeIndex].click();
+        event.preventDefault();
+        if (suggestions.length > 0) {
+          const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
+          suggestions[indexToSelect].click();
+        }
+        break;
+      case "Tab":
+        if (suggestions.length > 0) {
+          event.preventDefault();
+          const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
+          suggestions[indexToSelect].click();
         }
         break;
       case "Escape":
@@ -103,7 +113,10 @@ export class AutoComplete {
   }
 
   itemToString(item) {
-    return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
+    if (this.itemToStringCallback) {
+      return this.itemToStringCallback(item);
+    }
+    return JSON.stringify(item);
   }
 
   showSuggestions(suggestions) {
@@ -115,6 +128,7 @@ export class AutoComplete {
 
     suggestions.forEach((item, index) => {
       const suggestionElement = document.createElement("div");
+      suggestionElement.classList.add("suggestion-item");
       suggestionElement.innerHTML = this.displayItemCallback(item);
       suggestionElement.dataset.index = index;
 
@@ -126,7 +140,7 @@ export class AutoComplete {
       this.suggestionContainer.appendChild(suggestionElement);
     });
 
-    this.activeIndex = -1; // Réinitialise l'index actif
+    this.activeIndex = -1;
   }
 
   clearSuggestions() {

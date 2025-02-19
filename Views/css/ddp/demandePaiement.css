@@ -15,26 +15,26 @@
     margin-top: 5px;
 }
 
-/* Style des éléments de suggestion */
-.suggestions-container div {
+ /* Style des éléments de suggestion */
+ .suggestions-container .suggestion-item {
     padding: 10px;
     font-size: 14px;
     color: #ffc107;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.suggestions-container div.active-suggestion {
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
   }
-
-/* Effet hover sur une suggestion */
-.suggestions-container div:hover {
-    background-color: #000000b2; /* Bleu clair pour hover */
-    color: #ffffff; /* Bleu pour le texte */
-}
+  
+  /* Effet hover sur une suggestion */
+  .suggestions-container .suggestion-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  /* Style pour l'élément actif lors de la navigation avec ArrowDown/ArrowUp */
+  .suggestions-container .suggestion-item.active-suggestion {
+    background-color: #ffc107;
+    color: #000;
+  }
 
 /* Style pour aucune suggestion trouvée */
 .suggestions-container .no_results {

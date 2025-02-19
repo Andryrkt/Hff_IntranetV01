@@ -6,8 +6,22 @@ import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  const numFrnInput = document.querySelector(
+    "#demande_paiement_numeroFournisseur"
+  );
+  const beneficiaireInput = document.querySelector(
+    "#demande_paiement_beneficiaire"
+  );
+  const deviseInput = document.querySelector("#demande_paiement_devise");
+
+  const modePaiementInput = document.querySelector(
+    "#demande_paiement_modePaiement"
+  );
+  const ribFrnInput = document.querySelector(
+    "#demande_paiement_ribFournisseur"
+  );
   /**====================================
-   * AUTOCOMPLETE
+   * AUTOCOMPLETE numero Fournisseur
    *====================================*/
   const fetchManager = new FetchManager("/Hffintranet");
 
@@ -20,14 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function onSelectFournisseur(item) {
-    document.querySelector("#demande_paiement_numeroFournisseur").value =
-      item.num_fournisseur;
-    document.querySelector("#demande_paiement_beneficiaire").value =
-      item.nom_fournisseur;
-    document.querySelector("#demande_paiement_devise").value = item.devise;
-    document.querySelector("#demande_paiement_modePaiement").value =
-      item.mode_paiement;
-    document.querySelector("#demande_paiement_ribFournisseur").value =
+    numFrnInput.value = item.num_fournisseur;
+    beneficiaireInput.value = item.nom_fournisseur;
+    deviseInput.value = item.devise;
+    modePaiementInput.value = item.mode_paiement;
+    ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
         : "-";
@@ -38,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Activation sur le champ "Numéro Fournisseur"
   new AutoComplete({
-    inputElement: document.querySelector("#demande_paiement_numeroFournisseur"),
+    inputElement: numFrnInput,
     suggestionContainer: document.querySelector("#suggestion-num-fournisseur"),
     loaderElement: document.querySelector("#loader-num-fournisseur"), // Ajout du loader
     debounceDelay: 300, // Délai en ms
@@ -49,13 +60,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Activation sur le champ "Nom Fournisseur"
   new AutoComplete({
-    inputElement: document.querySelector("#demande_paiement_beneficiaire"),
+    inputElement: beneficiaireInput,
     suggestionContainer: document.querySelector("#suggestion-nom-fournisseur"),
     fetchDataCallback: fetchFournisseurs,
     displayItemCallback: displayFournisseur,
     onSelectCallback: onSelectFournisseur,
   });
 
+  /**============================================
+   * AFFICHAGE LISTE TABLEAU FACTURE
+   *============================================*/
   /**
    * Permet d'afficher le tableau de facture
    * @param {string} numFournisseur
@@ -66,7 +80,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const $tableauContainer = document.querySelector("#tableau_facture");
     $tableauContainer.innerHTML = "";
+
     const columns = [
+      { label: "Sélectionner", key: "checkbox" },
       { label: "N° Facture", key: "Numero_Facture" },
       { label: "N° fournisseur", key: "Code_Fournisseur" },
       { label: "Nom fournisseur", key: "Libelle_Fournisseur" },
@@ -87,14 +103,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     tableauComponent.mount("tableau_facture");
-    //     document.querySelector("#demande_paiement_numeroCommande").value =
-    //       commandes.numCdes.join(";");
   }
 
   function customRenderRow(row, index, data, columns) {
     const tr = document.createElement("tr");
-
-    // Colonnes qui doivent être identiques pour la fusion
     const columnsToMerge = [
       "Numero_Facture",
       "Code_Fournisseur",
@@ -115,14 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.style.borderBottom = "3px solid black";
     }
 
-    // Vérifie si la ligne actuelle est la première d'un groupe "fusionnable"
     const isFirstOfGroup =
       index === 0 ||
-      columnsToMerge.some(
-        (key) => row[key] !== previousRow[key] // Si une valeur est différente, c'est le début d'un groupe
-      );
+      columnsToMerge.some((key) => row[key] !== previousRow[key]);
 
-    // Compte combien de lignes peuvent être fusionnées
     let rowspan = 1;
     if (isFirstOfGroup) {
       for (let i = index + 1; i < data.length; i++) {
@@ -141,39 +149,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     columns.forEach((column) => {
       const td = document.createElement("td");
-      const value = row[column.key] || "-";
 
-      // Gestion des colonnes à fusionner
-      if (columnsToMerge.includes(column.key)) {
-        // Si ce n'est pas la première ligne du groupe, on ne met rien
-        if (!isFirstOfGroup) {
-          return; // Ne pas créer de cellule pour les lignes suivantes du groupe
+      if (column.key === "checkbox") {
+        if (isFirstOfGroup) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.numFacture = row.Numero_Facture;
+          checkbox.addEventListener("change", (e) =>
+            toggleSelection(e, row.Numero_Facture, data)
+          );
+          td.appendChild(checkbox);
+
+          if (rowspan > 1) {
+            td.setAttribute("rowspan", rowspan);
+            td.style.verticalAlign = "middle";
+          }
+        } else {
+          return;
         }
-
-        td.textContent = value;
-
+      } else if (columnsToMerge.includes(column.key)) {
+        if (!isFirstOfGroup) return;
+        td.textContent = row[column.key] || "-";
         if (rowspan > 1) {
           td.setAttribute("rowspan", rowspan);
           td.style.verticalAlign = "middle";
         }
       } else {
-        // Colonnes normales sans fusion
-        td.textContent = value;
+        td.textContent = row[column.key] || "-";
       }
 
       tr.appendChild(td);
     });
 
-    // Ajoute une classe personnalisée si nécessaire
     tr.classList.add("clickable-row", "clickable");
 
-    // Ajoute l'événement au clic sur la ligne
     tr.addEventListener("click", () =>
       chargerDocuments(row.Numero_Dossier_Douane)
     );
 
     return tr;
   }
+
+  function toggleSelection(event, numeroFacture, data) {
+    const isChecked = event.target.checked;
+    data.forEach((row) => {
+      if (row.Numero_Facture === numeroFacture) {
+        row.selected = isChecked;
+      }
+    });
+    console.log(
+      "Données sélectionnées :",
+      data.filter((row) => row.selected)
+    );
+  }
+
+  function getSelectedFactures(data) {
+    return data.filter((row) => row.selected).map((row) => row.Numero_Facture);
+  }
+
+  /**==============================================
+   * AFFICHAGE DU TABLEAU DE DOCUMENT
+   *===============================================*/
 
   async function chargerDocuments(numeroDossier) {
     // const spinners = document.getElementById("spinners");
