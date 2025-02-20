@@ -2,26 +2,36 @@
 
 namespace App\Controller;
 
+
+use Psr\Log\LoggerInterface;
 use App\Service\ldap\MyLdapService;
+use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Environment;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SecurityController extends AbstractController
 {
     private MyLdapService $ldapService;
     private SessionInterface $session;
+    private LoggerInterface $logger;
+    private EntityManagerInterface $em;
 
     public function __construct(
+        ContainerInterface $container,
         MyLdapService $ldapService,
         SessionInterface $session,
-        Environment $twig
+        LoggerInterface $logger,
+        EntityManagerInterface $em
     ) {
-        parent::__construct($twig);
+        parent::__construct($container);
         $this->ldapService = $ldapService;
         $this->session = $session;
+        $this->logger = $logger;
+        $this->em = $em;
     }
 
     /**
@@ -29,7 +39,12 @@ class SecurityController extends AbstractController
      */
     public function loginForm(): Response
     {
-        return new Response($this->render('security/login.html.twig'));
+        $notification = $this->session->get('notification');
+        $this->session->remove('notification');
+
+        return new Response($this->render('security/login.html.twig', [
+            'notification' => $notification,
+        ]));
     }
 
     /**
@@ -37,16 +52,31 @@ class SecurityController extends AbstractController
      */
     public function login(Request $request): Response
     {
-        
         $username = $request->request->get('username');
         $password = $request->request->get('password');
-dd($username, $password);
-        if ($this->ldapService->authenticate($username, $password, '@fraise.hff.mg')) {
-            $this->session->set('user', $username);
-            return new Response("Authentification réussie !");
+
+        // Si l'un des champs est vide
+        if (!$username || !$password) {
+            $this->logger->warning("Tentative de connexion avec des champs vides.", ['ip' => $request->getClientIp()]);
+            $this->session->set('notification', 'Veuillez remplir tous les champs.');
+            return $this->redirectToRoute('security_login_form');
         }
 
-        return new Response("Identifiants incorrects.", 403);
+        // Si l'authentification échoue
+        if (!$this->ldapService->authenticate($username, $password, '@fraise.hff.mg')) {
+            $this->logger->warning("Échec de connexion", [ 'username'=> $username, 'ip' => $request->getClientIp()]);
+            $this->session->set('notification', 'Vérifier les informations de connexion, veuillez saisir le nom d\'utilisateur et le mot de passe de votre session Windows');
+            return $this->redirectToRoute('security_login_form');
+        }
+
+        // Si c'est OK
+        $user   = $this->em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $username]);
+        $userId = ($user) ? $user->getId() : '-';
+        $this->session->set('user_id', $userId);
+        $this->session->set('notification', 'Authentification réussie !');
+        $this->logger->info("Connexion réussie pour l'utilisateur : $username");
+        
+        return $this->redirectToRoute('security_login_form');
     }
 }
 

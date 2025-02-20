@@ -47,6 +47,7 @@ use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
@@ -148,6 +149,9 @@ $containerBuilder->register('logger', Logger::class)
     ->setArguments(['app'])
     ->addMethodCall('pushHandler', [new StreamHandler(__DIR__ . '/../var/logs/app.log', Logger::DEBUG)])
     ->setPublic(true);
+// Alias pour que LoggerInterface pointe sur 'logger'
+$containerBuilder->setAlias(LoggerInterface::class, 'logger')
+    ->setPublic(true);
 
 // 14) FrontController (service public "app.front_controller")
 $containerBuilder->register('app.front_controller', FrontController::class)
@@ -170,7 +174,8 @@ $containerBuilder->register('routing.url_generator', UrlGenerator::class)
         new Reference('request_context')
     ])
     ->setPublic(true);
-
+$containerBuilder->setAlias(UrlGeneratorInterface::class, 'routing.url_generator')
+    ->setPublic(true);
 
 /**
  * ENTITY MANAGER
@@ -522,7 +527,7 @@ $containerBuilder->register('ldap', Ldap::class)
         [
             'host'       => '192.168.0.1',   // Votre adresse LDAP
             'port'       => 389,             // Le port LDAP
-            'encryption' => null,            // 'tls' si vous utilisez TLS, sinon null
+            'encryption' => 'none',            // 'tls' si vous utilisez TLS, sinon null
             'options'    => [
                 'protocol_version' => 3,     // Version du protocole LDAP
                 'referrals'        => false, // Désactiver les referrals
@@ -541,5 +546,6 @@ $containerBuilder->setAlias(Ldap::class, 'ldap')->setPublic(true);
     // On compile et on retourne le conteneur
 $containerBuilder->compile();
 
+date_default_timezone_set('Indian/Antananarivo');
 
 return $containerBuilder;
