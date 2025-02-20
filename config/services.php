@@ -46,10 +46,12 @@ use Symfony\Component\Form\FormFactoryBuilderInterface;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
@@ -130,8 +132,9 @@ $containerBuilder
 
 // 11) ControllerResolver
 $containerBuilder
-    ->register('controller_resolver', ControllerResolver::class)
-    ->setPublic(false)
+    ->register('controller_resolver', ContainerControllerResolver::class)
+    ->setArguments([new Reference('service_container')])
+    ->setPublic(true)
 ;
 
 // 12) ArgumentResolver
@@ -159,6 +162,8 @@ $containerBuilder->register('app.front_controller', FrontController::class)
 ;
 
 // 15) UrlGenerator
+$containerBuilder->register('request_context', RequestContext::class)
+    ->addMethodCall('setBaseUrl', ['/Hffintranet']);
 $containerBuilder->register('routing.url_generator', UrlGenerator::class)
     ->setArguments([
         new Reference('route_collection'),
@@ -263,7 +268,10 @@ $containerBuilder->register('session_storage', NativeSessionStorage::class);
 $containerBuilder->register('http_foundation.session', Session::class)
     ->setArguments([
         new Reference('session_storage')
-    ]);
+    ])
+    ->setPublic(true);
+$containerBuilder->setAlias(SessionInterface::class, 'http_foundation.session')
+->setPublic(true);
 
 $containerBuilder->register('app.session_manager', SessionManagerService::class)
     ->setArguments([
@@ -277,8 +285,9 @@ $containerBuilder->register('app.session_manager', SessionManagerService::class)
 //1) AppExtension
 $containerBuilder->register('app.app_extension', \App\Twig\AppExtension::class)
     ->setArguments([
-        new Reference('session_storage'), 
+        new Reference('http_foundation.session'), 
         new Reference('request_stack'),
+        new Reference('entity_manager'),
     ]);
 
 //2) DeletewordExtension
@@ -366,6 +375,9 @@ $containerBuilder->register('twig.extension.routing', RoutingExtension::class)
     ]);
 $containerBuilder->register('twig.extension.form', FormExtension::class);
 
+// Alias pour autowiring de Twig
+$containerBuilder->setAlias(Environment::class, 'twig')
+    ->setPublic(true);
 /**
  * TWIG FORM
  */
@@ -398,7 +410,7 @@ $containerBuilder->register('twig.form_runtime_loader', FactoryRuntimeLoader::cl
     ->setPublic(false);
 
 // 1.4) Ajouter ce runtime loader à Twig via un appel de méthode
-$containerBuilder->getDefinition('twig.loader') // supposez que "twig" soit déjà défini
+$containerBuilder->getDefinition('twig') // supposez que "twig" soit déjà défini
     ->addMethodCall('addRuntimeLoader', [
         new Reference('twig.form_runtime_loader')
     ]);
@@ -479,9 +491,9 @@ $containerBuilder->register('app.access_control_service', AccessControlService::
      * Enregistrer AbstractController dans le conteneur
      */ 
 // 1️⃣ Enregistrer `AbstractController`
-$containerBuilder->register('abstract_controller', AbstractController::class)
-->setArguments([new Reference('service_container')])
-->setPublic(true);
+// $containerBuilder->register('abstract_controller', AbstractController::class)
+// ->setArguments([new Reference('service_container')])
+// ->setPublic(true);
 
 // 2️⃣ Automatiser l'enregistrement de tous les contrôleurs
 $finder = new Finder();
@@ -505,16 +517,21 @@ foreach ($finder as $file) {
 // Enregistrer le service LDAP
 $containerBuilder->register('ldap', Ldap::class)
     ->setFactory([Ldap::class, 'create'])
-    ->setArguments([[
-        'host'       => '192.168.0.1',   // Votre adresse LDAP
-        'port'       => 389,             // Le port LDAP
-        'encryption' => null,            // 'tls' si vous utilisez TLS, sinon null
-        'options'    => [
-            'protocol_version' => 3,     // Version du protocole LDAP
-            'referrals'        => false, // Désactiver les referrals
-        ],
-    ]])
+    ->setArguments([
+        'ext_ldap',
+        [
+            'host'       => '192.168.0.1',   // Votre adresse LDAP
+            'port'       => 389,             // Le port LDAP
+            'encryption' => null,            // 'tls' si vous utilisez TLS, sinon null
+            'options'    => [
+                'protocol_version' => 3,     // Version du protocole LDAP
+                'referrals'        => false, // Désactiver les referrals
+            ],
+        ]
+    ])
     ->setPublic(true);
+// Alias pour autowiring
+$containerBuilder->setAlias(Ldap::class, 'ldap')->setPublic(true);
 
     $containerBuilder->register(\App\Service\ldap\MyLdapService::class, \App\Service\ldap\MyLdapService::class)
     ->setAutowired(true)

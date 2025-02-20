@@ -2,22 +2,20 @@
 
 namespace App\Controller;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 
 abstract class AbstractController
 {
-    protected ContainerInterface $container;
     protected Environment $twig;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(Environment $twig)
     {
-        $this->container = $container;
-        $this->twig = $container->get('twig'); // Récupère Twig automatiquement
+        $this->twig = $twig;
     }
 
-    protected function render(string $template, array $parameters = []): void
+    protected function render(string $template, array $parameters = []): string
     {
-        echo $this->twig->render($template, $parameters);
+        return $this->twig->render($template, $parameters);
     }
 }
+

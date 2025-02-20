@@ -6,15 +6,15 @@ use App\Model\LdapModel;
 
 class LdapControl
 {
-    private $LdapModel;
+    // private $LdapModel;
 
-    public function __construct(LdapModel $LdapModel)
-    {
-        $this->LdapModel = $LdapModel;
-    }
-    public function connect_to_user($user, $pswd)
-    {
+    // public function __construct(LdapModel $LdapModel)
+    // {
+    //     $this->LdapModel = $LdapModel;
+    // }
+    // public function connect_to_user($user, $pswd)
+    // {
 
-        return $this->LdapModel->userConnect($user, $pswd);
-    }
+    //     return $this->LdapModel->userConnect($user, $pswd);
+    // }
 }

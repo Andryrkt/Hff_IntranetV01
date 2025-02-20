@@ -58,11 +58,12 @@ class FrontController
             // 403
             $this->logger->warning('Access denied: ' . $e->getMessage());
             $response = new Response('Forbidden', 403);
-        } catch (\Throwable $e) {
-            // 500
-            $this->logger->error('Internal server error: ' . $e->getMessage());
-            $response = new Response('Internal Server Error', 500);
-        }
+        } 
+        // catch (\Throwable $e) {
+        //     // 500
+        //     $this->logger->error('Internal server error: ' . $e->getMessage());
+        //     $response = new Response('Internal Server Error', 500);
+        // }
 
         return $response;
     }

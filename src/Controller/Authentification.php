@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class Authentification extends Controller
 {
     /**
-     * @Route("/login", name="security_signin", methods={"GET", "POST"})
+     * @Route("/login/aut", name="security_signin", methods={"GET", "POST"})
      */
     public function affichageSingnin(Request $request)
     {
