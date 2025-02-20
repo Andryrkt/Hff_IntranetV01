@@ -121,10 +121,6 @@ class GenererPdfCasier extends GeneratePdf
         $pdf->SetXY(118, 2);
         $pdf->Cell(35, 6, 'Email émetteur : ' . $tab['Email_Emetteur'], 0, 0, 'L');
 
-
-
-
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cas/';
-        $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
+        $this->OutputPdf($pdf, 'cas/' . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer']);
     }
 }

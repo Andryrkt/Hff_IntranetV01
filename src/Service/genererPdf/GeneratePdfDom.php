@@ -209,8 +209,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50, 10, $tab['mode'], 0, 1);
 
                 // génération de fichier
-                $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/';
-                $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
+                $this->OutputPdf($pdf, 'dom/' . $tab['NumDom'] . '_' . $tab['codeAg_serv']);
         }
 
         private function getHalfWidth(TCPDF $pdf)
