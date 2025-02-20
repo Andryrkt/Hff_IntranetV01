@@ -446,7 +446,7 @@ trait DomsTrait
         $genererPdfDom = new GeneratePdfDom();
         $genererPdfDom->genererPDF($tabInternePdf);
         $this->envoiePieceJoint($form, $dom, $fusionPdf);
-        $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
+        $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool

@@ -182,4 +182,11 @@ class CdefnrSoumisAValidationModel extends Model
 
             return $this->convertirEnUtf8($data);
     }
+
+    public function findsCde04()
+    {
+        $sqls = " SELECT Cust_ref from Ces_magasin where Eta_ivato<>'1900-01-01' and Eta_magasin<>'1900-01-01' ";
+
+        return array_column($this->retournerResult04($sqls),'Cust_ref');
+    }
 }

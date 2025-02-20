@@ -61,4 +61,17 @@ class CdeFnrSoumisAValidationApi extends Controller
         echo json_encode($numCdeFnr);
     }
 
+    /**
+     * @Route("api/num-cde-04", name="api_num_cde_04")
+     */
+    public function numCde()
+    {
+        $cde04 = $this->cdeFnrModel->findsCde04();
+
+        header("Content-type:application/json");
+
+        echo json_encode($cde04);
+    }
+
+    
 }

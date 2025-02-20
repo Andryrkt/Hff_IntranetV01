@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const erreurCdeInput = document.querySelector("#erreur-num-cde");
   let prelodDataCde = [];
 
-  async function fetchCommandes() {
+  async function fetchCommandesFrn() {
     try {
       const response = await fetchManager.get(`api/num-cde-fnr`);
       prelodDataCde = response;
@@ -106,6 +106,22 @@ document.addEventListener("DOMContentLoaded", function () {
         error
       );
       prelodDataCde = [];
+    }
+  }
+  // Appelle le chargement des commandes au démarrage
+  fetchCommandesFrn();
+
+  let prelodNumCde04 = [];
+  async function fetchNumCde04() {
+    try {
+      const response = await fetchManager.get(`api/num-cde-04`);
+      prelodNumCde04 = response;
+    } catch (error) {
+      console.error(
+        `Erreur lors de la récupération des commandes pour le fournisseur:`,
+        error
+      );
+      prelodNumCde04 = [];
     }
   }
 
@@ -121,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initTableau(item.num_cde);
   }
 
-  function filtreNumCde(orders, numFournisseur) {
+  function filtreNumCdeFrn(orders, numFournisseur) {
     return orders.filter((order) => order.num_fournisseur === numFournisseur);
   }
 
@@ -153,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function dataCde(numFournisseur) {
     erreurCdeInput.innerHTML = "";
 
-    const cdeFiltred = filtreNumCde(prelodDataCde, numFournisseur);
+    const cdeFiltred = filtreNumCdeFrn(prelodDataCde, numFournisseur);
 
     siChangeNumcde(cdeFiltred); //block si l'utilisateur ne rentre pas la vrais valeur
 
@@ -181,8 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-  // Appelle le chargement des commandes au démarrage
-  fetchCommandes();
+
   /**=========================================
    * Affichage du liste commande fournisseur
    *=========================================*/
