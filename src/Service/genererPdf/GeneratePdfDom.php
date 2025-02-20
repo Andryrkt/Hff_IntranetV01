@@ -178,8 +178,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(80, 10, '' . 'MONTANT', 1, 1, 'C');
         $pdf->setX(30);
 
-        $titreMontantTotal = "MONTANT TOTAL A" . ($tab['typMiss'] === 'TROP PERCU' ? 'RETIRER' : 'PAYER');
-        $valeurMontantTotal = ($tab['typMiss'] === 'TROP PERCU' ? '- ' : '') . $tab['AllMontant'] . ' ' . $tab['Devis'];
+        $titreMontantTotal = "MONTANT TOTAL A " . ($tab['typMiss'] === 'TROP PERCU' ? 'RETIRER' : 'PAYER');
 
         $pdf->setTextColor(0, 0, 0); // Noir
         $pdf->Cell(80, 10,  $tab['motifdep01'], 1, 0, 'L');
@@ -197,7 +196,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->setTextColor(...$couleurTitre);
         $pdf->Cell(80, 10, $titreMontantTotal, 1, 0, 'C');
         $pdf->setTextColor(0, 0, 0); // Noir
-        $pdf->Cell(80, 10, $valeurMontantTotal, 1, 1, 'C');
+        $pdf->Cell(80, 10, $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
         $pdf->setY(230);
         $pdf->setTextColor(...$couleurTitre);
