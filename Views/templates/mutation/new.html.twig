@@ -1,58 +1,107 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}Mutation
+{% block title %}Nouvelle mutation
 {% endblock %}
 
 {% block stylesheets %}
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
 	<link href="/Hffintranet/Views/css/mutation/new.css" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class="container">
-		<div class="card">
-			<div class="card-body">
-
+<div class="container">
+	<div class="card">
+		<div class="card-body">
+			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
 
-				<div class="d-flex  flex-row-reverse px-2">
-					<h3 class="perso-titre">Demande d'Ordre de Mission</h3>
+				<div class="row">
+					<div class="col-10">
+						<h3 class="perso-titre">Demande de mutation</h3>
+					</div>
+					<div class="col-2">
+						{{ form_widget(form.dateDemande)}}
+					</div>
 				</div>
-
 
 				{{ form_start(form)}}
 				<div class="row">
 					<div class="col-4">
-						{{ form_row(form.agenceEmetteur)}}
-					</div>
-					<div class="col-4">
-						{{ form_row(form.serviceEmetteur)}}
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-4">
-						{{form_row(form.agenceDebiteur)}}
-					</div>
-					<div class="col-4">
-						{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-6">
+						{{ macroForm.sousTitre('Information sur le salarié')}}
 						{{ form_row(form.categorie)}}
+						{{ form_row(form.matriculeNomPrenom)}}
+					</div>
+					<div class="col-8">
+						{{ macroForm.sousTitre('Agence et Service')}}
+						<div class="row">
+							<div class="col-6">
+								{{form_row(form.agenceDebiteur)}}
+								{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
+							</div>
+							<div class="col-6">
+								{{ form_row(form.agenceEmetteur)}}
+								{{ form_row(form.serviceEmetteur)}}
+							</div>
+						</div>
 					</div>
 				</div>
-				<div class="row" id="Interne">
-
-					{{ form_row(form.matriculeNomPrenom)}}
-
+				{{ macroForm.sousTitre('Information sur l\'affectation')}}
+				<div class="row">
+					<div class="col-4">
+						{{ form_row(form.site)}}
+						{{ form_row(form.lieuMutation)}}
+					</div>
+					<div class="col-4">
+						{{ form_row(form.dateAffectation)}}
+						{{ form_row(form.nombreJourAvance)}}
+					</div>
+					<div class="col-4">
+						{{ form_row(form.client)}}
+						{{ form_row(form.motifMutation)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-4">
+						{{ macroForm.sousTitre('Indemnité')}}
+						{{ form_row(form.devis)}}
+						{{ form_row(form.indemniteForfaitaire)}}
+						{{ form_row(form.totalIndemniteForfaitaire)}}
+					</div>
+					<div class="col-8">
+						{{ macroForm.sousTitre('Autres dépenses')}}
+						<div class="row">
+							<div class="col-6">
+								{{form_row(form.motifAutresDepense1)}}
+								{{form_row(form.autresDepense1)}}
+								{{form_row(form.totalAutresDepenses)}}
+							</div>
+							<div class="col-6">
+								{{ form_row(form.motifAutresDepense2)}}
+								{{ form_row(form.autresDepense2)}}
+								{{ form_row(form.totalGeneralPayer)}}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-4">
+						{{ macroForm.sousTitre('Mode de paiement')}}
+						{{ form_row(form.modePaiementLabel)}}
+						{{ form_row(form.modePaiementValue)}}
+					</div>
+					<div class="col-8">
+						{{ macroForm.sousTitre('Pièce(s) jointe(s)')}}
+						{{ form_row(form.pieceJoint01)}}
+						{{ form_row(form.pieceJoint02)}}
+					</div>
 				</div>
 				<div class="row">
 					<div class="mt-2">
-						<button type="submit" class="btn btn-info fw-bold">
+						<button type="submit" class="btn bouton fw-bold">
+							<i class="fas fa-save"></i>
 							Envoyer
-							<i class="fas fa-arrow-right"></i>
 						</button>
 					</div>
 				</div>
