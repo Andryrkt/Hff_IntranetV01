@@ -4,6 +4,7 @@ namespace App\Api\cde;
 
 use App\Controller\Controller;
 use App\Model\cde\CdefnrSoumisAValidationModel;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CdeFnrSoumisAValidationApi extends Controller
@@ -42,7 +43,7 @@ class CdeFnrSoumisAValidationApi extends Controller
      */
     public function cdeFnrNonReceptionner()
     {
-        $cdeFnrNonReceptionner = $this->cdeFnrModel->recupListeCdeFrn();
+        $cdeFnrNonReceptionner = $this->cdeFnrModel->recupListeCdeFrn($this->numCdeO4());
 
         header("Content-type:application/json");
 
@@ -54,24 +55,17 @@ class CdeFnrSoumisAValidationApi extends Controller
      */
     public function numCdeFnr()
     {
-        $numCdeFnr = $this->cdeFnrModel->recupNumCdeFrn();
+        $numCdeFnr = $this->cdeFnrModel->recupNumCdeFrn($this->numCdeO4());
 
         header("Content-type:application/json");
 
         echo json_encode($numCdeFnr);
     }
 
-    /**
-     * @Route("api/num-cde-04", name="api_num_cde_04")
-     */
-    public function numCde()
+    private function numCdeO4(): string
     {
         $cde04 = $this->cdeFnrModel->findsCde04();
-
-        header("Content-type:application/json");
-
-        echo json_encode($cde04);
+        return TableauEnStringService::TableauEnString(',', $cde04);
     }
 
-    
 }

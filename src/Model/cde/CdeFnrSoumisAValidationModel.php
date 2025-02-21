@@ -132,7 +132,7 @@ class CdefnrSoumisAValidationModel extends Model
             return $this->convertirEnUtf8($data);
     }
 
-    public function recupListeCdeFrn()
+    public function recupListeCdeFrn(string $numCde04)
     {
         $statement = " SELECT
                 fcde_numcde AS num_cde, 
@@ -144,13 +144,14 @@ class CdefnrSoumisAValidationModel extends Model
                 fcde_devise AS devise_cde,
                 fcde_typcde AS type_cde,
                 fcdl_constp AS constructeur,
-                fcdl_refp AS ref_piece
+                TRIM(fcdl_refp) AS ref_piece
 
                 FROM frn_cde
 	            JOIN frn_cdl ON fcde_numcde = fcdl_numcde and fcdl_soc = 'HF' and fcde_succ =fcdl_succ
                 WHERE fcde_soc = 'HF'
                 and fcde_succ = '01' and fcde_serv = 'NEG'
                 and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_numcde in ({$numCde04})
                 and fcde_mtn <> 0
                 order by fcde_date desc
         ";
@@ -162,7 +163,7 @@ class CdefnrSoumisAValidationModel extends Model
             return $this->convertirEnUtf8($data);
     }
 
-    public function recupNumCdeFrn()
+    public function recupNumCdeFrn(string $numCde04)
     {
         $statement = " SELECT
                 fcde_numcde AS num_cde,
@@ -172,6 +173,7 @@ class CdefnrSoumisAValidationModel extends Model
                 WHERE fcde_soc = 'HF'
                 and fcde_succ = '01' and fcde_serv = 'NEG'
                 and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_numcde in ({$numCde04})
                 and fcde_mtn <> 0
                 order by fcde_date desc
         ";
@@ -185,7 +187,7 @@ class CdefnrSoumisAValidationModel extends Model
 
     public function findsCde04()
     {
-        $sqls = " SELECT Cust_ref from Ces_magasin where Eta_ivato<>'1900-01-01' and Eta_magasin<>'1900-01-01' ";
+        $sqls = " SELECT Cust_ref from Ces_magasin where Eta_ivato = '1900-01-01' and Eta_magasin = '1900-01-01' ";
 
         return array_column($this->retournerResult04($sqls),'Cust_ref');
     }

@@ -111,20 +111,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Appelle le chargement des commandes au démarrage
   fetchCommandesFrn();
 
-  let prelodNumCde04 = [];
-  async function fetchNumCde04() {
-    try {
-      const response = await fetchManager.get(`api/num-cde-04`);
-      prelodNumCde04 = response;
-    } catch (error) {
-      console.error(
-        `Erreur lors de la récupération des commandes pour le fournisseur:`,
-        error
-      );
-      prelodNumCde04 = [];
-    }
-  }
-
   function displayCommandes(item) {
     return `${item.num_cde}`;
   }
