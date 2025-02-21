@@ -1,0 +1,41 @@
+{% extends 'baseTemplate.html.twig' %}
+{% block stylesheets %}
+  <link rel="stylesheet" href="/Hffintranet/Views/css/list.css" />
+  <link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css" />
+{% endblock %}
+{% block content %}
+  <div class="sticky-header-titre">
+    <div class="container">
+      <h3 class="perso-titre">Inventaire</h3>
+      {# {% include '/inventaire/_formulaire.html.twig' %} #}
+    </div>
+    <div class="container-fluid">
+        <div class="sticky-header-statut"> <div class="container">
+				<div class="d-flex justify-content-between">
+					<div>
+						<a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+					</div>
+				</div>
+			</div>
+        <table class="table rounded table-plein-ecran">
+         <thead class="table-dark position-sticky">
+             <tr>
+             <th> sequende</th>
+             </tr>
+         </thead>
+         <tbody id="tableBody">
+            {% for item in data %}
+            
+            {% endfor %}
+         </tbody>
+      </table> 
+    </div>
+  </div>
+
+{% endblock %}
+{% block javascript %}
+  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="/Hffintranet/Views/js/inventaire/inventaireAg.js" type="module"></script>
+{% endblock %}

@@ -64,7 +64,7 @@ class InventaireModel extends Model
                 group by 1,2,3,4
         ";
         $result = $this->connect->executeQuery($statement);
-        //  dump($statement);
+         dd($statement);
           $data = $this->connect->fetchResults($result);
           $resultat = $this->convertirEnUtf8($data);
           return $resultat;
@@ -92,14 +92,14 @@ class InventaireModel extends Model
                         ROUND(
                             (SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) +
                             SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END)) 
-                            / COUNT(DISTINCT ainvp_refp) * 100, 
-                        3), 
+                            / COUNT(DISTINCT ainvp_refp) * 100
+                            ), 
                         '%'
                     ) as pourcentage_ref_avec_ecart,
                     trunc(SUM(ainvp_ecart * ainvp_prix)) as montant_ecart,
                      CONCAT(
                         TRUNC(
-                        (SUM(ainvp_stktheo * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
+                        (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
                     '%') as pourcentage_ecart
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
                     and ainvp_numinv = '".$numInvMax."'
@@ -109,6 +109,32 @@ class InventaireModel extends Model
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
-
+    }
+    
+    public function inventaireDetail($numInv){
+            $statement = "SELECT ainvp_soc as soc,
+                                 ainvp_succ as succ, 
+                                 ainvp_constp as cst, 
+                                 TRIM(ainvp_refp) as refp,
+                                  TRIM(abse_desi) as desi ,
+                                   TRIM(astp_casier) as casier,
+                                    round(ainvp_stktheo) as stock_theo, 
+                        '' as qte_comptee, 
+                        round(ainvp_ecart) as ecart,
+                        ROUND((ainvp_ecart / ainvp_stktheo) * 100 )|| '%' as pourcentage_nbr_ecart,
+                        ainvp_prix as PMP,
+                        ainvp_prix * ainvp_stktheo as montant_inventaire,
+                        ainvp_prix * ainvp_ecart as montant_ajuste
+                        FROM art_invp
+                        INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
+                        INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
+                        WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '".$numInv."')
+                        and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
+                        ";
+            $result = $this->connect->executeQuery($statement);
+            //  dump($statement);
+            $data = $this->connect->fetchResults($result);
+            $resultat = $this->convertirEnUtf8($data);
+            return $resultat;    
     }
 }

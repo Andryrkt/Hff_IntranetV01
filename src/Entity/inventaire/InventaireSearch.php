@@ -65,4 +65,20 @@ class InventaireSearch {
 
         return $this;
     }
+    public function toArray(): array
+    {
+        return [
+            'agence' => $this->agence,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+        ];
+    }
+    public function arrayToObjet(array $criteriaTab)
+    {
+        $this
+            ->setAgence($criteriaTab['agence'])
+            ->setDateDebut($criteriaTab['dateDebut'])
+            ->setDateFin($criteriaTab['dateFin'])
+        ;
+    }
 }

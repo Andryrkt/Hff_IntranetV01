@@ -2,12 +2,14 @@
 
 namespace App\Controller\inventaire;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\inventaire\InventaireSearchType;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -49,11 +51,16 @@ class InventaireController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
         }
+        $criteriaTAb = [];
+        //transformer l'objet ditSearch en tableau
+        $criteriaTAb = $criteria->toArray();
+        //recupères les données du criteria dans une session nommé dit_serch_criteria
+        $this->sessionService->set('inventaire_search_criteria', $criteriaTAb);
 
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
-            $data = $this->recupData($listInvent);
+            $data = $this->recupDataList($listInvent);
             // dump($data);
         }
         self::$twig->display('inventaire/inventaire.html.twig', [
@@ -61,9 +68,60 @@ class InventaireController extends Controller
             'data' => $data
         ]);
     }
+    /**
+     * @Route("/detailInventaire/{numinv}",name = "detail_inventaire")
+     */
+    public function inventaireDetail($numinv){
+             //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
+        dd($detailInvent);
+        self::$twig->display('inventaire/inventaireDetail.html.twig', [
+            
+            
+        ]);
+    }
+    public function dataDetail($detailInvent){
+        $data = [];
+        if (!empty($detailInvent)) {
+            
+        }
+    }
+    /**
+     * @Route("/export_excel_liste_inventaire", name = "export_liste_inventaire")
+     */
+    public function exportExcel(){
+         //verification si user connecter
+         $this->verifierSessionUtilisateur();
+         $criteriaTAb = $this->sessionService->get('inventaire_search_criteria');
+         $this->inventaireSearch->arrayToObjet($criteriaTAb);
+         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
+         $data = $this->recupDataList($listInvent);
+         $header = [
+            'numero' => 'N°',
+            'description' => 'Description',
+            'ouvert' => 'Ouvert le',
+            'nbr_casier' => ' Nbr de carsier',
+            'nbr_ref' => 'Nbr de reférence',
+            'qte_comptee' => 'Qté comptée',
+            'statut' => 'Statut',
+            'montant' => 'Montant',
+            'nbre_ref_ecarts_positif' => 'Nbr de réference positif',
+            'nbre_ref_ecarts_negatifs' => 'Nbr de réference négatif',
+            'total_nbre_ref_ecarts' => 'Nbr total de écart',
+            'pourcentage_ref_avec_ecart' => 'Pourcentage de réference avec écart',
+            'montant_ecart' => 'Montant écart',
+            'pourcentage_ecart' => 'Pourcentage écart',
+            
+        
+        ];
 
+        array_unshift($data, $header);
 
-    public function recupData($listInvent)
+        $this->exportDonneesExcel($data);
+         
+    }
+    public function recupDataList($listInvent)
     {
         $data = [];
         if (!empty($listInvent)) {
@@ -90,4 +148,23 @@ class InventaireController extends Controller
         }
         return $data;
     }
+    private function exportDonneesExcel($data){
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Ajout des données
+        $rowIndex = 1;
+        foreach ($data as $row) {
+            $sheet->fromArray([$row], null, "A$rowIndex");
+            $rowIndex++;
+        }
+
+        // Téléchargement du fichier
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="export.xlsx"');
+        $writer->save('php://output');
+        exit();
+    }
+
 }
