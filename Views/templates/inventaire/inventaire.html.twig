@@ -12,8 +12,45 @@
     </div>
     <div class="container-fluid">
       <table class="table rounded table-plein-ecran">
-        <thead clas></thead>
-      </table>
+         <thead class="table-dark position-sticky">
+             <tr>
+             <th> numero</th>
+             <th> description</th>
+             <th> ouvert</th>
+             <th> nbr_casier</th>
+             <th> nbr_ref</th>
+             <th> qte_comptee</th>
+             <th> statut</th>
+             <th> montant</th>
+             <th> nbr Ref écart > 0</th>
+             <th> nbr Ref écart > 0</th>
+             <th> nbr Ref en écart</th>
+             <th> % Ref avec écart</th>
+             <th> Mont. écart</th>
+             <th> % écart</th>
+             </tr>
+         </thead>
+         <tbody id="tableBody">
+            {% for item in data %}
+                <tr>
+                <td> {{item.numero}}</td>
+                <td> {{item.description}}</td>
+                <td> {{item.ouvert}}</td>
+                <td> {{item.nbr_casier}}</td>
+                <td> {{item.nbr_ref}}</td>
+                <td> {{item.qte_comptee}}</td>
+                <td> {{item.statut}}</td>
+                <td> {{item.montant}}</td>
+                <td> {{item.nbre_ref_ecarts_positif}}</td>
+                <td> {{item.nbre_ref_ecarts_negatifs}}</td>
+                <td> {{item.total_nbre_ref_ecarts}}</td>
+                <td> {{item.pourcentage_ref_avec_ecart}}</td>
+                <td> {{item.montant_ecart}}</td>
+                <td> {{item.pourcentage_ecart}}</td>
+                </tr>
+            {% endfor %}
+         </tbody>
+      </table> 
     </div>
   </div>
 {% endblock %}

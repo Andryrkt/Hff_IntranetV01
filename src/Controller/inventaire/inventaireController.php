@@ -7,6 +7,7 @@ use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\inventaire\InventaireSearchType;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -40,7 +41,7 @@ class InventaireController extends Controller
                 'method' => 'GET'
             ]
         )->getForm();
-
+                    
         $form->handleRequest($request);
         //initialisation criteria
         $criteria = $this->inventaireSearch;
@@ -53,37 +54,38 @@ class InventaireController extends Controller
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupData($listInvent);
-            dump($data);
-        } 
+            // dump($data);
+        }
         self::$twig->display('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-             'data' => $data
+            'data' => $data
         ]);
     }
 
 
-    public function recupData($listInvent){
+    public function recupData($listInvent)
+    {
         $data = [];
         if (!empty($listInvent)) {
-            for ($i=0; $i < count($listInvent); $i++) { 
+            for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
-            $data[] = [
+                $data[] = [
                     'numero' => $listInvent[$i]['numero_inv'],
-                    'ouvert le ' => $listInvent[$i]['ouvert_le'],
                     'description' => $listInvent[$i]['description'],
+                    'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
                     'nbr_casier' => $listInvent[$i]['nbre_casier'],
-                    'nbr_ref' =>$listInvent[$i]['nbre_ref'],
+                    'nbr_ref' => $listInvent[$i]['nbre_ref'],
                     'qte_comptee' => $listInvent[$i]['qte_comptee'],
                     'statut' => $listInvent[$i]['statut'],
-                    'montant' =>$listInvent[$i]['montant'],
-                    'nbre_ref_ecarts_positif' =>$invLigne[0]['nbre_ref_ecarts_positif'],
-                    'nbre_ref_ecarts_negatifs'=>$invLigne[0]['nbre_ref_ecarts_negatifs'],
-                    'total_nbre_ref_ecarts' =>$invLigne[0]['total_nbre_ref_ecarts'],
-                    'pourcentage_ref_avec_ecart'=>$invLigne[0]['pourcentage_ref_avec_ecart'],
-                    'montant_ecart'=>$invLigne[0]['montant_ecart'],
-                    'pourcentage_ecart'=>$invLigne[0]['pourcentage_ecart']
-            ];                
+                    'montant' => $listInvent[$i]['montant'],
+                    'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
+                    'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
+                    'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
+                    'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'],
+                    'montant_ecart' => $invLigne[0]['montant_ecart'],
+                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart']
+                ];
             }
         }
         return $data;
