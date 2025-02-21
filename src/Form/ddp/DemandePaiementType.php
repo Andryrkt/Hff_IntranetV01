@@ -38,14 +38,14 @@ class DemandePaiementType extends AbstractType
                         'autocomplete' => 'off',
                     ]
                 ])
-            // ->add('numeroCommande', TextType::class,
-            // [
-            //     'label' => 'N° Commande *'
-            // ])
-            // ->add('numeroFacture',TextType::class,
-            //     [
-            //         'label' => 'N° Facture *'
-            //     ])
+            ->add('numeroCommande', TextType::class,
+            [
+                'label' => 'N° Commande *'
+            ])
+            ->add('numeroFacture',TextType::class,
+                [
+                    'label' => 'N° Facture *'
+                ])
             ->add('beneficiaire', TextType::class,
                 [
                     'label' => 'Bénéficiaire *',

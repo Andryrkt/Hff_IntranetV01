@@ -4,6 +4,12 @@ import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { AutoComplete } from "../utils/Autocomplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
+import { allowOnlyNumbers, limitInputLength } from "../utils/inputUtils.js";
+import {
+  registerLocale,
+  setLocale,
+  formatNumberSpecial,
+} from "../utils/formatNumberUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const numFrnInput = document.querySelector(
@@ -336,4 +342,24 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Value: " + option.value + ", Text: " + option.text);
     }
   }
+
+  /**==========================================
+   * blockage  d'ecriture du champ CONTACT
+   *=============================================*/
+  const constactInput = document.querySelector("#demande_paiement_contact");
+  allowOnlyNumbers(constactInput);
+  limitInputLength(constactInput, 10);
+  /**==========================================
+   * blockage  d'ecriture du champ MONTANT
+   *=============================================*/
+  const montantInput = document.querySelector(
+    "#demande_paiement_montantAPayer"
+  );
+  // allowOnlyNumbers(montantInput);
+  registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
+  setLocale("fr-custom"); // Utiliser la locale personnalisée
+
+  montantInput.addEventListener("input", (e) => {
+    montantInput.value = formatNumberSpecial(montantInput.value);
+  });
 });
