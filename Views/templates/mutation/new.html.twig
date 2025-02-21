@@ -1,7 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}Nouvelle mutation
-{% endblock %}
+{% block title %}Nouvelle mutation{% endblock %}
 
 {% block stylesheets %}
 	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
@@ -24,12 +23,12 @@
 				{{ form_start(form)}}
 				<div class="row">
 					<div class="col-4">
-						{{ macroForm.sousTitre('Information sur le salarié')}}
+						{{ macroForm.sousTitre('Information sur le salarié', {'class':'mb-1'} )}}
 						{{ form_row(form.categorie)}}
 						{{ form_row(form.matriculeNomPrenom)}}
 					</div>
 					<div class="col-8">
-						{{ macroForm.sousTitre('Agence et Service')}}
+						{{ macroForm.sousTitre('Agence et Service', {'class':'mb-1'} )}}
 						<div class="row">
 							<div class="col-6">
 								{{form_row(form.agenceDebiteur)}}
@@ -42,7 +41,7 @@
 						</div>
 					</div>
 				</div>
-				{{ macroForm.sousTitre('Information sur l\'affectation')}}
+				{{ macroForm.sousTitre('Information sur l\'affectation', {'class':'mb-1'} )}}
 				<div class="row">
 					<div class="col-4">
 						{{ form_row(form.site)}}
@@ -51,6 +50,7 @@
 					<div class="col-4">
 						{{ form_row(form.dateDebut)}}
 						{{ form_row(form.dateFin)}}
+
 					</div>
 					<div class="col-4">
 						{{ form_row(form.client)}}
@@ -59,7 +59,7 @@
 				</div>
 				<div class="row">
 					<div class="col-4">
-						{{ macroForm.sousTitre('Indemnité')}}
+						{{ macroForm.sousTitre('Indemnité', {'class':'mb-1'} )}}
 						<div class="row">
 							<div class="col-7">
 								{{ form_row(form.avanceSurIndemnite)}}
@@ -79,7 +79,7 @@
 						{{ form_row(form.totalIndemniteForfaitaire)}}
 					</div>
 					<div class="col-8">
-						{{ macroForm.sousTitre('Autres dépenses')}}
+						{{ macroForm.sousTitre('Autres dépenses', {'class':'mb-1'} )}}
 						<div class="row">
 							<div class="col-6">
 								{{form_row(form.motifAutresDepense1)}}
@@ -96,12 +96,12 @@
 				</div>
 				<div class="row">
 					<div class="col-4">
-						{{ macroForm.sousTitre('Mode de paiement')}}
+						{{ macroForm.sousTitre('Mode de paiement', {'class':'mb-1'} )}}
 						{{ form_row(form.modePaiementLabel)}}
 						{{ form_row(form.modePaiementValue)}}
 					</div>
 					<div class="col-8">
-						{{ macroForm.sousTitre('Pièce(s) jointe(s)')}}
+						{{ macroForm.sousTitre('Pièce(s) jointe(s)', {'class':'mb-1'} )}}
 						{{ form_row(form.pieceJoint01)}}
 						{{ form_row(form.pieceJoint02)}}
 					</div>

@@ -5,6 +5,7 @@ namespace App\Form\mutation;
 use App\Entity\admin\Agence;
 
 use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
@@ -180,6 +181,10 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nombre de Jour',
+                    'attr'     => [
+                        'readonly' => true,
+                        'class'    => 'readonly',
+                    ],
                 ]
             )
             ->add(
@@ -211,7 +216,7 @@ class MutationFormType extends AbstractType
                 'avanceSurIndemnite',
                 ChoiceType::class,
                 [
-                    'mapped' => false,
+                    'mapped'  => false,
                     'label'   => 'Avance sur indemnité de chantier',
                     'choices' => self::AVANCE_SUR_INDEMNITE
                 ]
@@ -222,7 +227,8 @@ class MutationFormType extends AbstractType
                 [
                     'label' => 'Indemnité forfaitaire journalière(s)',
                     'attr'  => [
-                        'class' => 'disabled',
+                        'readonly' => true,
+                        'class'    => 'readonly',
                     ]
                 ]
             )
@@ -231,9 +237,10 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => "Total de l'indemnité forfaitaire",
-                    'attr'  => [
-                        'class' => 'disabled',
-                    ]
+                    'attr'     => [
+                        'readonly' => true,
+                        'class'    => 'readonly',
+                    ],
                 ]
             )
             ->add(
@@ -290,8 +297,9 @@ class MutationFormType extends AbstractType
                 [
                     'label'    => 'Total Montant Autre Dépense',
                     'attr'     => [
-                        'class' => 'disabled',
-                    ]
+                        'readonly' => true,
+                        'class'    => 'readonly',
+                    ],
                 ]
             )
             ->add(
@@ -299,8 +307,9 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Montant Total',
-                    'attr' => [
-                        'class' => 'disabled',
+                    'attr'  => [
+                        'readonly' => true,
+                        'class'    => 'readonly',
                     ],
                     'constraints' => [
                         new NotBlank([
@@ -327,7 +336,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped'   => false,
-                    'label'    => 'MOBILE MONEY'
+                    'label'    => 'TEL'
                 ]
             )
             ->add(
