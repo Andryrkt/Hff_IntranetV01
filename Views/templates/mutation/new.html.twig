@@ -44,13 +44,13 @@
 				{{ macroForm.sousTitre('Information sur l\'affectation', {'class':'mb-1'} )}}
 				<div class="row">
 					<div class="col-4">
-						{{ form_row(form.site)}}
-						{{ form_row(form.lieuMutation)}}
-					</div>
-					<div class="col-4">
 						{{ form_row(form.dateDebut)}}
 						{{ form_row(form.dateFin)}}
-
+						<div class="error-message text-danger d-none"></div>
+					</div>
+					<div class="col-4">
+						{{ form_row(form.site)}}
+						{{ form_row(form.lieuMutation)}}
 					</div>
 					<div class="col-4">
 						{{ form_row(form.client)}}
@@ -70,7 +70,7 @@
 						</div>
 						<div class="row">
 							<div class="col-7">
-								{{ form_row(form.indemniteForfaitaire)}}
+								{{ macroForm.spinner_load('spinner-indemnite-forfaitaire', 'indemnite-forfaitaire-container', form.indemniteForfaitaire) }}
 							</div>
 							<div class="col-5">
 								{{ form_row(form.nombreJourAvance)}}

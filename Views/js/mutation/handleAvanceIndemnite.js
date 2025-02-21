@@ -3,7 +3,6 @@ const dateDebutLabel = document.querySelector(
 );
 const allRequiredField = [
   'mutation_form_dateFin',
-  'mutation_form_devis',
   'mutation_form_indemniteForfaitaire',
   'mutation_form_nombreJourAvance',
   'mutation_form_totalIndemniteForfaitaire',

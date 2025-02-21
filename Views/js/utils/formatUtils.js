@@ -14,5 +14,5 @@ numeral.register('locale', 'fr-custom', {
 });
 
 export function formatMontant(montant) {
-  return numeral(value).format(0, 0);
+  return numeral(montant).format(0, 0);
 }

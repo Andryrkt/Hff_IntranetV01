@@ -1,34 +1,40 @@
-import { updateDropdown } from '../utils/selectionHandler';
 import { handleAvance } from './handleAvanceIndemnite';
+import { handleService } from './agenceService';
+import { formatFieldsToUppercase } from './formatField';
+import { calculTotalIndemnite, updateIndemnite } from './depense';
+import { calculateDaysAvance } from './handleDate';
 
 document.addEventListener('DOMContentLoaded', function () {
-  /** Agence et service */
-  const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
-  const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
-  const placeholder = ' -- Choisir une service débiteur -- ';
-  const spinnerElement = document.querySelector('#spinner-service-debiteur');
-  const containerElement = document.querySelector(
-    '#service-debiteur-container'
+  const avance = document.getElementById('mutation_form_avanceSurIndemnite');
+  const site = document.getElementById('mutation_form_site');
+  const dateDebutInput = document.getElementById('mutation_form_dateDebut');
+  const dateFinInput = document.getElementById('mutation_form_dateFin');
+  const nombreJourAvance = document.getElementById(
+    'mutation_form_nombreJourAvance'
   );
 
-  agenceDebiteurInput?.addEventListener('change', function () {
-    if (agenceDebiteurInput.value !== '') {
-      updateDropdown(
-        serviceDebiteurInput,
-        `/Hffintranet/agence-fetch/${agenceDebiteurInput.value}`,
-        placeholder,
-        spinnerElement,
-        containerElement
-      );
+  /** Agence et service */
+  handleService();
+
+  /** Avance sur indemnité de chantier */
+  avance.addEventListener('change', function () {
+    handleAvance(this.value);
+  });
+
+  /** Calcul de la date de différence entre Date Début et Date Fin */
+  dateDebutInput.addEventListener('change', calculateDaysAvance);
+  dateFinInput.addEventListener('change', calculateDaysAvance);
+
+  /** Calcul de l'indemnité forfaitaire journalière */
+  site.addEventListener('change', function () {
+    if (this.value && avance.value === 'OUI') {
+      updateIndemnite(this.value);
     }
   });
 
-  /** Avance sur indemnité de chantier */
-  const avanceSurIndemnite = document.getElementById(
-    'mutation_form_avanceSurIndemnite'
-  );
+  /** Formater des données en majuscule */
+  formatFieldsToUppercase();
 
-  avanceSurIndemnite.addEventListener('change', function () {
-    handleAvance(this.value);
-  });
+  /** Ajout de l'évènement personnalisé pour caluler le total de l'indemnité forfaitaire */
+  nombreJourAvance.addEventListener('valueAdded', calculTotalIndemnite);
 });
