@@ -83,9 +83,14 @@ class Mutation
     private ?string $libelleCodeAgenceService = null;
 
     /**
-     * @ORM\Column(type="datetime", name="Date_Affectation")
+     * @ORM\Column(type="datetime", name="Date_Debut")
      */
-    private $dateAffectation;
+    private $dateDebut;
+
+    /**
+     * @ORM\Column(type="datetime", name="Date_Fin")
+     */
+    private $dateFin;
 
     /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
@@ -459,26 +464,6 @@ class Mutation
     public function setLibelleCodeAgenceService($libelleCodeAgenceService)
     {
         $this->libelleCodeAgenceService = $libelleCodeAgenceService;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of dateAffectation
-     */
-    public function getDateAffectation()
-    {
-        return $this->dateAffectation;
-    }
-
-    /**
-     * Set the value of dateAffectation
-     *
-     * @return  self
-     */
-    public function setDateAffectation($dateAffectation)
-    {
-        $this->dateAffectation = $dateAffectation;
 
         return $this;
     }
@@ -999,6 +984,46 @@ class Mutation
     public function setSiteId($siteId)
     {
         $this->siteId = $siteId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFin
+     */
+    public function getDateFin()
+    {
+        return $this->dateFin;
+    }
+
+    /**
+     * Set the value of dateFin
+     *
+     * @return  self
+     */
+    public function setDateFin($dateFin)
+    {
+        $this->dateFin = $dateFin;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDebut
+     */
+    public function getDateDebut()
+    {
+        return $this->dateDebut;
+    }
+
+    /**
+     * Set the value of dateDebut
+     *
+     * @return  self
+     */
+    public function setDateDebut($dateDebut)
+    {
+        $this->dateDebut = $dateDebut;
 
         return $this;
     }

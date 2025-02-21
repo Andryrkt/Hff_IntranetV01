@@ -43,6 +43,10 @@ class MutationFormType extends AbstractType
         'MOBILE MONEY'      => 'MOBILE MONEY',
         'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
     ];
+    const AVANCE_SUR_INDEMNITE = [
+        'OUI' => 'OUI',
+        'NON' => 'NON',
+    ];
 
     public function __construct()
     {
@@ -63,11 +67,10 @@ class MutationFormType extends AbstractType
                 'agenceEmetteur',
                 TextType::class,
                 [
-                    'mapped'   => false,
-                    'label'    => 'Agence Emetteur',
-                    'required' => true,
+                    'label'    => 'Agence Emetteur / Origine',
                     'attr'     => [
-                        'class'    => 'disabled',
+                        'readonly' => true,
+                        'class'    => 'readonly',
                     ],
                     'data'     => $options["data"]->getAgenceEmetteur() ?? null
                 ]
@@ -76,33 +79,19 @@ class MutationFormType extends AbstractType
                 'serviceEmetteur',
                 TextType::class,
                 [
-                    'mapped'   => false,
-                    'label'    => 'Service Emetteur',
-                    'required' => true,
+                    'label'    => 'Service Emetteur / Origine',
                     'attr'     => [
-                        'class'    => 'disabled',
+                        'readonly' => true,
+                        'class'    => 'readonly',
                     ],
                     'data'     => $options["data"]->getServiceEmetteur() ?? null
-                ]
-            )
-            ->add(
-                'dateDemande',
-                TextType::class,
-                [
-                    'mapped'   => false,
-                    'label'    => 'Date de la demande',
-                    'required' => true,
-                    'attr'     => [
-                        'class'    => 'disabled',
-                    ],
-                    'data'     => $options["data"]->getDateDemande()->format('d/m/Y') ?? null
                 ]
             )
             ->add(
                 'agenceDebiteur',
                 EntityType::class,
                 [
-                    'label'         => 'Agence Debiteur',
+                    'label'         => 'Agence Debiteur / Destination',
                     'placeholder'   => '-- Choisir une agence Debiteur --',
                     'class'         => Agence::class,
                     'attr'          => [
@@ -111,7 +100,6 @@ class MutationFormType extends AbstractType
                     'choice_label'  => function (Agence $agence): string {
                         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                     },
-                    'required'      => true,
                     'query_builder' => function (AgenceRepository $agenceRepository) {
                         return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                     }
@@ -135,25 +123,32 @@ class MutationFormType extends AbstractType
                 [
                     'label'        => 'Site d\'affectation',
                     'class'        => Site::class,
-                    'required'     => true,
+                    'placeholder'  => '-- choisir une site --',
                     'choice_label' => 'nomZone',
                     'choices'      => $sites
                 ]
             )
             ->add(
-                'dateAffectation',
+                'dateDebut',
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date d\'affectation',
+                    'label'  => 'Date de début d\'avance sur indemnité de chantier',
+                ]
+            )
+            ->add(
+                'dateFin',
+                DateType::class,
+                [
+                    'widget' => 'single_text',
+                    'label'  => 'Date de fin d\'avance sur indemnité de chantier',
                 ]
             )
             ->add(
                 'motifMutation',
                 TextType::class,
                 [
-                    'label'       => 'Motif',
-                    'required'    => true,
+                    'label'       => 'Motif de la mutation',
                     'constraints' => [
                         new NotBlank(['message' => 'Le motif de mutation ne peut pas être vide.']),
                         new Length([
@@ -170,7 +165,6 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Nom du client',
-                    'required'    => false,
                     'constraints' => [
                         new Length([
                             'min'        => 3,
@@ -193,7 +187,6 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Lieu d\'affectation',
-                    'required'    => true,
                     'constraints' => [
                         new NotBlank(['message' => 'Le lieu d\'affectation ne peut pas être vide.']),
                         new Length([
@@ -215,14 +208,22 @@ class MutationFormType extends AbstractType
                 ]
             )
             ->add(
+                'avanceSurIndemnite',
+                ChoiceType::class,
+                [
+                    'mapped' => false,
+                    'label'   => 'Avance sur indemnité de chantier',
+                    'choices' => self::AVANCE_SUR_INDEMNITE
+                ]
+            )
+            ->add(
                 'indemniteForfaitaire',
                 TextType::class,
                 [
                     'label' => 'Indemnité forfaitaire journalière(s)',
                     'attr'  => [
                         'class' => 'disabled',
-                    ],
-                    'data'  => 0
+                    ]
                 ]
             )
             ->add(
@@ -288,7 +289,6 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'    => 'Total Montant Autre Dépense',
-                    'required' => true,
                     'attr'     => [
                         'class' => 'disabled',
                     ]
@@ -299,7 +299,6 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Montant Total',
-                    'required' => true,
                     'attr' => [
                         'class' => 'disabled',
                     ],
@@ -328,8 +327,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped'   => false,
-                    'label'    => 'MOBILE MONEY',
-                    'required' => true,
+                    'label'    => 'MOBILE MONEY'
                 ]
             )
             ->add(
@@ -391,7 +389,6 @@ class MutationFormType extends AbstractType
                             'choice_label'  => function (Personnel $personnel): string {
                                 return $personnel->getMatricule() . ' ' . $personnel->getNom() . ' ' . $personnel->getPrenoms();
                             },
-                            'required'      => true,
                             'query_builder' => function (PersonnelRepository $repository) use ($agenceServiceIriumId) {
                                 return $repository->createQueryBuilder('p')
                                     ->where('p.agenceServiceIriumId IN (:agenceIps)')
@@ -404,7 +401,7 @@ class MutationFormType extends AbstractType
                         'serviceDebiteur',
                         EntityType::class,
                         [
-                            'label'         => 'Service Débiteur',
+                            'label'         => 'Service Débiteur / Destination',
                             'class'         => Service::class,
                             'placeholder'   => '-- Choisir une service débiteur --',
                             'choice_label'  => function (Service $service): string {
@@ -414,7 +411,6 @@ class MutationFormType extends AbstractType
                                 'class' => 'serviceDebiteur',
                             ],
                             'choices'       => $services,
-                            'required'      => true,
                             'query_builder' => function (ServiceRepository $serviceRepository) {
                                 return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                             }

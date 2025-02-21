@@ -18,12 +18,7 @@
 				{% include "/partials/_notification.html.twig" %}
 
 				<div class="row">
-					<div class="col-10">
-						<h3 class="perso-titre">Demande de mutation</h3>
-					</div>
-					<div class="col-2">
-						{{ form_widget(form.dateDemande)}}
-					</div>
+					<h3 class="perso-titre">Demande de mutation</h3>
 				</div>
 
 				{{ form_start(form)}}
@@ -54,8 +49,8 @@
 						{{ form_row(form.lieuMutation)}}
 					</div>
 					<div class="col-4">
-						{{ form_row(form.dateAffectation)}}
-						{{ form_row(form.nombreJourAvance)}}
+						{{ form_row(form.dateDebut)}}
+						{{ form_row(form.dateFin)}}
 					</div>
 					<div class="col-4">
 						{{ form_row(form.client)}}
@@ -65,8 +60,22 @@
 				<div class="row">
 					<div class="col-4">
 						{{ macroForm.sousTitre('Indemnité')}}
-						{{ form_row(form.devis)}}
-						{{ form_row(form.indemniteForfaitaire)}}
+						<div class="row">
+							<div class="col-7">
+								{{ form_row(form.avanceSurIndemnite)}}
+							</div> 
+							<div class="col-5">
+								{{ form_row(form.devis)}}
+							</div>    
+						</div>
+						<div class="row">
+							<div class="col-7">
+								{{ form_row(form.indemniteForfaitaire)}}
+							</div>
+							<div class="col-5">
+								{{ form_row(form.nombreJourAvance)}}
+							</div>
+						</div>
 						{{ form_row(form.totalIndemniteForfaitaire)}}
 					</div>
 					<div class="col-8">
@@ -74,11 +83,11 @@
 						<div class="row">
 							<div class="col-6">
 								{{form_row(form.motifAutresDepense1)}}
-								{{form_row(form.autresDepense1)}}
+								{{ form_row(form.motifAutresDepense2)}}
 								{{form_row(form.totalAutresDepenses)}}
 							</div>
 							<div class="col-6">
-								{{ form_row(form.motifAutresDepense2)}}
+								{{form_row(form.autresDepense1)}}
 								{{ form_row(form.autresDepense2)}}
 								{{ form_row(form.totalGeneralPayer)}}
 							</div>

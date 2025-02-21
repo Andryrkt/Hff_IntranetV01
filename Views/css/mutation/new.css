@@ -3,6 +3,10 @@
   background-color: #e9ecef;
 }
 
+.form-control.readonly {
+  pointer-events: none;
+}
+
 /*
 * pour le spiner
 */
