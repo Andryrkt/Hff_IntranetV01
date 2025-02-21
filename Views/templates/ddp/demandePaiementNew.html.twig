@@ -50,8 +50,7 @@
 
 					</div>
 					<div class="col-12 col-md-3">
-						{{ form_row(form.agenceDebiter)}}
-						{{ form_row(form.serviceDebiter) }}
+						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
 					</div>
 					<div class="col-12 col-md-3">
 						{{ form_row(form.contact)}}

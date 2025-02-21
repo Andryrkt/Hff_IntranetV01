@@ -5,6 +5,7 @@ namespace App\Entity\ddp;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\ddp\TypeDemande;
+use App\Entity\Traits\AgenceServiceTrait;
 use App\Repository\ddp\DemandePaiementRepository;
 
 /**
@@ -15,6 +16,7 @@ use App\Repository\ddp\DemandePaiementRepository;
 class DemandePaiement
 {
     use DateTrait;
+    use AgenceServiceTrait;
 
     /**
      * @ORM\Id
