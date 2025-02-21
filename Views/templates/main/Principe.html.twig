@@ -3,7 +3,7 @@
 	<div
 		class="container">
 		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
-		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset("build/images/logoHFF.jpg")}}" id="LogoHFF" alt="" width="150px"></a>
+		<a class="navbar-brand" href="{{ path("home_home")}}"><img src="{{ asset("build/images/logoHFF.jpg")}}" id="LogoHFF" alt="" width="150px"></a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -12,7 +12,7 @@
 			<ul
 				class="navbar-nav ms-auto mb-2 mb-lg-0">
 				{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
-				{% set role_ids = App.user.roleIds %}
+				{% set role_ids = user.roleIds %}
 				{# FIN Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
@@ -23,7 +23,7 @@
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
 
-					{% for item in App.user.Applications %}
+					{% for item in user.Applications %}
 						{% if item.codeApp == 'BDM' %}
 						{% set hasBDM = true %}
 					{% elseif item.codeApp == 'DOM' %}
@@ -221,7 +221,7 @@
 
 				<li class="nav-item dropdown">
 
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ App.user.nomUtilisateur}}</a>
+					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">{{ user.nomUtilisateur}}</a>
 
 
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -239,7 +239,7 @@
 				</li>
 
 
-				{% if 1 in role_ids or 7 in role_ids or App.user.nomUtilisateur == 'Laetitia' or App.user.nomUtilisateur == 'henintsoa.ramarojaon' %}
+				{% if 1 in role_ids or 7 in role_ids or user.nomUtilisateur == 'Laetitia' or user.nomUtilisateur == 'henintsoa.ramarojaon' %}
 					<li class="nav-item dropdown" id="Setting">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
 							Setting

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\security;
 
 
 use Psr\Log\LoggerInterface;
 use App\Service\ldap\MyLdapService;
+use App\Controller\AbstractController;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,6 +60,7 @@ class SecurityController extends AbstractController
         if (!$username || !$password) {
             $this->logger->warning("Tentative de connexion avec des champs vides.", ['ip' => $request->getClientIp()]);
             $this->session->set('notification', 'Veuillez remplir tous les champs.');
+            $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
             return $this->redirectToRoute('security_login_form');
         }
 
@@ -66,17 +68,33 @@ class SecurityController extends AbstractController
         if (!$this->ldapService->authenticate($username, $password, '@fraise.hff.mg')) {
             $this->logger->warning("Échec de connexion", [ 'username'=> $username, 'ip' => $request->getClientIp()]);
             $this->session->set('notification', 'Vérifier les informations de connexion, veuillez saisir le nom d\'utilisateur et le mot de passe de votre session Windows');
+            $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
             return $this->redirectToRoute('security_login_form');
         }
 
         // Si c'est OK
         $user   = $this->em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $username]);
+
         $userId = ($user) ? $user->getId() : '-';
+
         $this->session->set('user_id', $userId);
-        $this->session->set('notification', 'Authentification réussie !');
+        // $this->session->set('notification', 'Authentification réussie !');
         $this->logger->info("Connexion réussie pour l'utilisateur : $username");
         
-        return $this->redirectToRoute('security_login_form');
+        return $this->redirectToRoute('home_home');
+    }
+
+     /**
+     * @Route("/logout", name="auth_deconnexion")
+     *
+     * @return void
+     */
+    public function deconnexion()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $this->SessionDestroy();
     }
 }
 

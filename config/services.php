@@ -20,6 +20,7 @@ use Symfony\Component\Asset\Packages;
 use App\Controller\AbstractController;
 use App\Service\SessionManagerService;
 use App\Factory\RouteCollectionFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Asset\PathPackage;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
@@ -240,6 +241,12 @@ $containerBuilder->register('manager_registry', SimpleManagerRegistry::class)
         new Reference('entity_manager')
     ])
     ->setPublic(true);
+
+    //9) alias
+
+$containerBuilder->setAlias(EntityManagerInterface::class, 'entity_manager')
+    ->setPublic(true);
+
 
 /**
  * REQUEST
@@ -502,18 +509,26 @@ $containerBuilder->register('app.access_control_service', AccessControlService::
 
 // 2️⃣ Automatiser l'enregistrement de tous les contrôleurs
 $finder = new Finder();
-$finder->files()->in(dirname(__DIR__) . '/src/Controller')->name('*.php');
+$finder->files()->in(dirname(__DIR__) . '/src/Controller')->name('*.php')->depth('>= 0');
 
 foreach ($finder as $file) {
-    $className = 'App\\Controller\\' . $file->getBasename('.php');
+    $relativePath = substr($file->getRealPath(), strlen(dirname(__DIR__)) + 5, -4); // On enlève "src/"
+$className = 'App\\' . str_replace(['/', '\\'], '\\', $relativePath);
 
-    if ($className !== AbstractController::class) {
-        $containerBuilder->register($className, $className)
-            ->setAutowired(true) // Permet l'injection automatique
-            ->setAutoconfigured(true) // Active l'injection des dépendances
-            ->setPublic(true);
+    // dd($className);
+
+    if (!class_exists($className)) {
+        continue;
     }
+
+    $containerBuilder->register($className, $className)
+        ->setAutowired(true) // Permet l'injection automatique des dépendances
+        ->setAutoconfigured(true) // Active l'injection des dépendances
+        ->setPublic(true);
 }
+
+
+
 
 
 /**
