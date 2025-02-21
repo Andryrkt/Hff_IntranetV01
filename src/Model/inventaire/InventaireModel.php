@@ -45,7 +45,7 @@ class InventaireModel extends Model
         $dateD = $this->dateDebut($criteria);
         $dateF = $this->dateFin($criteria);
         $statement = "SELECT  
-                ainvi_numinv_mait as numero, 
+                ainvi_numinv_mait as numero_inv, 
                 ainvi_date as ouvert_le, 
                 TRIM(ainvi_comment) as description,
                 '' as nbre_casier,
@@ -68,5 +68,47 @@ class InventaireModel extends Model
           $data = $this->connect->fetchResults($result);
           $resultat = $this->convertirEnUtf8($data);
           return $resultat;
+    }
+
+    public function maxNumInv($numInv){
+        $statement = "SELECT  max(ainvi_numinv) as numInvMax
+                      FROM art_invi WHERE ainvi_numinv_mait = '".$numInv."' 
+                      ";
+                      $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+    
+    public function inventaireLigneEC( $numInvMax){
+        $statement = "SELECT 
+                    COUNT(distinct ainvp_refp) as nombre_ref,
+                    trunc(SUM(ainvp_stktheo * ainvp_prix)) as Mont_Total,
+                    SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) AS nbre_ref_ecarts_positif,
+                    SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END) AS nbre_ref_ecarts_negatifs,
+                    SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) + SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END) AS total_nbre_ref_ecarts,
+                    CONCAT(
+                        ROUND(
+                            (SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) +
+                            SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END)) 
+                            / COUNT(DISTINCT ainvp_refp) * 100, 
+                        3), 
+                        '%'
+                    ) as pourcentage_ref_avec_ecart,
+                    trunc(SUM(ainvp_ecart * ainvp_prix)) as montant_ecart,
+                     CONCAT(
+                        TRUNC(
+                        (SUM(ainvp_stktheo * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
+                    '%') as pourcentage_ecart
+                    FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
+                    and ainvp_numinv = '".$numInvMax."'
+                    ";
+        $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+
     }
 }

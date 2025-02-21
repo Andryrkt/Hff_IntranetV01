@@ -46,18 +46,46 @@ class InventaireController extends Controller
         $criteria = $this->inventaireSearch;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getdata());
             $criteria =  $form->getdata();
         }
 
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
-            $data = $this->inventaireModel->listeInventaire($criteria);
-            // dd($data);
+            $listInvent = $this->inventaireModel->listeInventaire($criteria);
+            $data = $this->recupData($listInvent);
+            dump($data);
         } 
         self::$twig->display('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
              'data' => $data
         ]);
+    }
+
+
+    public function recupData($listInvent){
+        $data = [];
+        if (!empty($listInvent)) {
+            for ($i=0; $i < count($listInvent); $i++) { 
+                $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
+                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+            $data[] = [
+                    'numero' => $listInvent[$i]['numero_inv'],
+                    'ouvert le ' => $listInvent[$i]['ouvert_le'],
+                    'description' => $listInvent[$i]['description'],
+                    'nbr_casier' => $listInvent[$i]['nbre_casier'],
+                    'nbr_ref' =>$listInvent[$i]['nbre_ref'],
+                    'qte_comptee' => $listInvent[$i]['qte_comptee'],
+                    'statut' => $listInvent[$i]['statut'],
+                    'montant' =>$listInvent[$i]['montant'],
+                    'nbre_ref_ecarts_positif' =>$invLigne[0]['nbre_ref_ecarts_positif'],
+                    'nbre_ref_ecarts_negatifs'=>$invLigne[0]['nbre_ref_ecarts_negatifs'],
+                    'total_nbre_ref_ecarts' =>$invLigne[0]['total_nbre_ref_ecarts'],
+                    'pourcentage_ref_avec_ecart'=>$invLigne[0]['pourcentage_ref_avec_ecart'],
+                    'montant_ecart'=>$invLigne[0]['montant_ecart'],
+                    'pourcentage_ecart'=>$invLigne[0]['pourcentage_ecart']
+            ];                
+            }
+        }
+        return $data;
     }
 }

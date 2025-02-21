@@ -1,25 +1,23 @@
-{% extends "baseTemplate.html.twig" %}
-{% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css">
+{% extends 'baseTemplate.html.twig' %}
+{% block stylesheets %}
+  <link rel="stylesheet" href="/Hffintranet/Views/css/list.css" />
+  <link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css" />
 {% endblock %}
 {% block content %}
-<div class="sticky-header-titre">
-		<div class="container">
-			<h3 class="perso-titre">
-				Inventaire
-			</h3>
+  <div class="sticky-header-titre">
+    <div class="container">
+      <h3 class="perso-titre">Inventaire</h3>
 
-			{% include "/inventaire/_formulaire.html.twig" %}
-		</div>
-        <div class="container-fluid">
-        <table class="table rounded table-plein-ecran">
-        
-        </table>
-        </div>
-	</div>
+      {% include '/inventaire/_formulaire.html.twig' %}
+    </div>
+    <div class="container-fluid">
+      <table class="table rounded table-plein-ecran">
+        <thead clas></thead>
+      </table>
+    </div>
+  </div>
 {% endblock %}
 {% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/inventaire/liste.js" type="module"></script>
+  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="/Hffintranet/Views/js/inventaire/liste.js" type="module"></script>
 {% endblock %}

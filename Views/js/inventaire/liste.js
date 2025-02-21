@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
     const checkAll = document.getElementById('inventaire_search_agence_all');
-
-    checkAll.addEventListener('click', function () {
+    checkAllCheckbox(true);
+    
+    checkAll.addEventListener('click', () => checkAllCheckbox());
+ 
+    function checkAllCheckbox(checked = false) {
         const allInputCheckbox = document.querySelectorAll('.form-check-input');
-
         allInputCheckbox.forEach((inputCheckbox)=> {
+            checkAll.checked = checked ? true : checkAll.checked;
             inputCheckbox.checked = checkAll.checked;
         });
-    });
+    }
 });
