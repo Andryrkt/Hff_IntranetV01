@@ -1,5 +1,6 @@
 import { AutoComplete } from "../utils/AutoComplete.js";
 import { FetchManager } from "../api/FetchManager.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 
 const idMaterielInput = document.querySelector(
   "#demande_intervention_idMateriel"
@@ -414,6 +415,7 @@ textarea.addEventListener("input", function () {
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
+setupConfirmationButtons();
 // const boutonInput = document.querySelector("#formDit");
 
 // boutonInput.addEventListener("click", griserBoutton);

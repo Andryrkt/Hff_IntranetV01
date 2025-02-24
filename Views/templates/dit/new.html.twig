@@ -92,7 +92,7 @@
 								<div id="suggestion-idMateriel" class="suggestions-container"></div>
 								<div
 									id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;">{# <i class="fas fa-spinner fa-spin me-2"></i>
-																																							Chargement... #}
+																																																																																																																																																																																																																																																																																																																																																													Chargement... #}
 								</div>
 
 							</div>
@@ -152,13 +152,18 @@
 						</div>
 
 					</div>
-
-					<a onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
-						<button type="submit" class="btn bouton" id="formDit">
-							<i class="fas fa-save"></i>
-							Enregistrer
+					<div class="d-flex justify-content-end">
+						<button 
+							type="submit" 
+							class="btn bouton mt-2 ajout-overlay " 
+							id="bouton-cde-fnr" 
+							data-confirmation 
+							data-form="#myForm"
+							data-confirmation-text ="Vous êtes en train d'enregistrer une demande d'intervention">
+									<i class="fas fa-save"></i>
+									Enregistrer
 						</button>
-					</a>
+					</div>
 					{{ form_end(form) }}
 				</div>
 
