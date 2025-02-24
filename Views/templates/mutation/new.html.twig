@@ -1,6 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block title %}Nouvelle mutation{% endblock %}
+{% block title %}Nouvelle mutation
+{% endblock %}
 
 {% block stylesheets %}
 	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
@@ -82,13 +83,13 @@
 						{{ macroForm.sousTitre('Autres dépenses', {'class':'mb-1'} )}}
 						<div class="row">
 							<div class="col-6">
-								{{form_row(form.motifAutresDepense1)}}
-								{{ form_row(form.motifAutresDepense2)}}
+								{{form_row(form.autresDepense1)}}
+								{{ form_row(form.autresDepense2)}}
 								{{form_row(form.totalAutresDepenses)}}
 							</div>
 							<div class="col-6">
-								{{form_row(form.autresDepense1)}}
-								{{ form_row(form.autresDepense2)}}
+								{{form_row(form.motifAutresDepense1)}}
+								{{ form_row(form.motifAutresDepense2)}}
 								{{ form_row(form.totalGeneralPayer)}}
 							</div>
 						</div>

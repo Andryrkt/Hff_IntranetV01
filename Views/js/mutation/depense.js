@@ -11,6 +11,18 @@ const nombreJourAvance = document.getElementById(
 const totalIndemniteInput = document.getElementById(
   'mutation_form_totalIndemniteForfaitaire'
 );
+const autreDepenseInput1 = document.getElementById(
+  'mutation_form_autresDepense1'
+);
+const autreDepenseInput2 = document.getElementById(
+  'mutation_form_autresDepense2'
+);
+const totaAutreDepenseInput = document.getElementById(
+  'mutation_form_totalAutresDepenses'
+);
+const montantTotalInput = document.getElementById(
+  'mutation_form_totalGeneralPayer'
+);
 
 export async function updateIndemnite(siteId) {
   const spinnerElement = document.getElementById(
@@ -45,5 +57,33 @@ export function calculTotalIndemnite() {
     totalIndemniteInput.value = formatMontant(
       nombreJour * indemniteForfaitaire
     );
+    calculTotal(); // calculer le total général
   }
+}
+
+export function calculTotalAutreDepense() {
+  let autreDepense1 =
+    parseInt(autreDepenseInput1.value.replace(/[^\d]/g, '')) || 0;
+  let autreDepense2 =
+    parseInt(autreDepenseInput2.value.replace(/[^\d]/g, '')) || 0;
+  let totaAutreDepense = autreDepense1 + autreDepense2;
+
+  autreDepenseInput1.value = formatMontant(autreDepense1);
+  autreDepenseInput2.value = formatMontant(autreDepense2);
+  totaAutreDepenseInput.value = formatMontant(totaAutreDepense);
+
+  //creation d'une evement personaliser
+  const event = new Event('valueAdded');
+  totaAutreDepenseInput.dispatchEvent(event);
+}
+
+export function calculTotal() {
+  let totaAutreDepense =
+    parseInt(totaAutreDepenseInput.value.replace(/[^\d]/g, '')) || 0;
+  let totalindemnite =
+    parseInt(totalIndemniteInput.value.replace(/[^\d]/g, '')) || 0;
+
+  let montantTotal = totalindemnite + totaAutreDepense;
+
+  montantTotalInput.value = formatMontant(montantTotal);
 }

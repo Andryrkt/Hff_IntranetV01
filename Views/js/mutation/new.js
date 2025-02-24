@@ -1,7 +1,12 @@
 import { handleAvance } from './handleAvanceIndemnite';
 import { handleService } from './agenceService';
 import { formatFieldsToUppercase } from './formatField';
-import { calculTotalIndemnite, updateIndemnite } from './depense';
+import {
+  calculTotal,
+  calculTotalAutreDepense,
+  calculTotalIndemnite,
+  updateIndemnite,
+} from './depense';
 import { calculateDaysAvance } from './handleDate';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -11,6 +16,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const dateFinInput = document.getElementById('mutation_form_dateFin');
   const nombreJourAvance = document.getElementById(
     'mutation_form_nombreJourAvance'
+  );
+  const autreDepense1 = document.getElementById('mutation_form_autresDepense1');
+  const autreDepense2 = document.getElementById('mutation_form_autresDepense2');
+  const totalIndemniteInput = document.getElementById(
+    'mutation_form_totalIndemniteForfaitaire'
+  );
+  const totaAutreDepenseInput = document.getElementById(
+    'mutation_form_totalAutresDepenses'
   );
 
   /** Agence et service */
@@ -32,9 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  /** Calculer Montant total Autre dépense et montant total général */
+  autreDepense1.addEventListener('input', calculTotalAutreDepense);
+  autreDepense2.addEventListener('input', calculTotalAutreDepense);
+
   /** Formater des données en majuscule */
   formatFieldsToUppercase();
 
   /** Ajout de l'évènement personnalisé pour caluler le total de l'indemnité forfaitaire */
   nombreJourAvance.addEventListener('valueAdded', calculTotalIndemnite);
+
+  /** Ajout de l'évènement personnalisé pour calculer le total général */
+  totalIndemniteInput.addEventListener('valueAdded', calculTotal);
+  totaAutreDepenseInput.addEventListener('valueAdded', calculTotal);
 });

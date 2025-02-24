@@ -21,8 +21,6 @@ export function calculateDaysAvance() {
       const dayDifference = timeDifference / (1000 * 3600 * 24);
       nombreJourAvance.value = dayDifference + 1;
 
-      // updateTotalIndemnity();
-
       // ajout d'une nouvelle evenement qui sera utiliser plus tard
       const event = new Event('valueAdded');
       nombreJourAvance.dispatchEvent(event);

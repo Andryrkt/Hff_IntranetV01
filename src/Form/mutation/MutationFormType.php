@@ -263,7 +263,7 @@ class MutationFormType extends AbstractType
                 'autresDepense1',
                 TextType::class,
                 [
-                    'label'    => 'Montant',
+                    'label'    => 'Montant (Autre Dépense 1)',
                     'required' => false,
                 ]
             )
@@ -287,7 +287,7 @@ class MutationFormType extends AbstractType
                 'autresDepense2',
                 TextType::class,
                 [
-                    'label'    => 'Montant',
+                    'label'    => 'Montant (Autre Dépense 2)',
                     'required' => false,
                 ]
             )

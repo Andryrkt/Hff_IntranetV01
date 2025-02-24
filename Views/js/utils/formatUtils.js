@@ -13,6 +13,9 @@ numeral.register('locale', 'fr-custom', {
   },
 });
 
+// Utiliser la locale personnalisée
+numeral.locale('fr-custom');
+
 export function formatMontant(montant) {
   return numeral(montant).format(0, 0);
 }
