@@ -53,7 +53,7 @@ class FileUploaderService
      * @param string $index
      * @return string
      */
-    public function generateNomDeFichier(?string $extension,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
+    private function generateNomDeFichier(?string $extension,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
     {
         $extension = $extension ?? 'pdf';
 
@@ -106,7 +106,14 @@ class FileUploaderService
         }
 
         $extension =$file->guessExtension();
-        $fileName = $this->generateNomDeFichier( $extension,  $numeroDoc, $index, $prefixFichier, $numeroVersion);
+        $prepareNom = [
+            'prefix' => $prefixFichier,
+            'numeroDoc' => $numeroDoc,
+            'numeroVersion' => $numeroVersion,
+            'index' => $index,
+            'extension' => $extension
+        ];
+        $fileName = GenererNonFichierService::genererNonFichier($prepareNom );
         $destination = $this->targetDirectory . $pathFichier;
 
         try {
@@ -129,7 +136,7 @@ class FileUploaderService
  */
 private function getUploadedFiles(
     FormInterface $form,
-    string $fieldPattern,
+    string $fieldPattern = '/^pieceJoint(\d{2})$/',
     string $numeroDoc,
     string $prefixFichier,
     string $numeroVersion = '',
@@ -199,7 +206,12 @@ private function getUploadedFiles(
         $isIndex = $options['isIndex'] ?? true;
 
         $uploadedFiles = [];
-        $mainFileName = $this->genererateCheminMainFichier( $numeroDoc, $prefix, $numeroVersion);
+        $prepareNom = [
+            'prefix' => $prefix,
+            'numeroDoc' => $numeroDoc,
+            'numeroVersion' => $numeroVersion
+        ];
+        $mainFileName = GenererNonFichierService::genererNonFichier( $prepareNom);
         $mainFilePathName = $this->targetDirectory. $mainFileName;
         // dump($mainFilePathName);
         // dd(file_exists($mainFilePathName));
@@ -228,4 +240,62 @@ private function getUploadedFiles(
 
         return $mainFileName;
     }
+
+
+
+    public function getPathFiles(
+        FormInterface $form,
+        array $options
+    ): array {
+
+        $prefixFichier = $options['prefixFichier'] ?? '';
+        $numeroDoc = $options['numeroDoc'] ?? '';
+        $numeroVersion = $options['numeroVersion'] ?? '';
+        $fieldPattern = $options['fieldPattern'] ?? '/^pieceJoint(\d{2})$/';
+        $pathFichier = $options['pathFichier'] ?? 'fichiers/';
+        $isIndex = $options['isIndex'] ?? true;
+
+        $uploadedFiles = [];
+    
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match($fieldPattern, $fieldName, $matches)) {
+                /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                    // Récupérer l'index ou identifiant depuis les correspondances
+                    if($isIndex){
+                        $index = isset($matches[1]) ? (string)$matches[1] : '';
+                    } else {
+                        $index = '';
+                    }
+    
+                    // Appeler la méthode uploadFile
+                    $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefixFichier, $numeroVersion, $pathFichier);
+    
+                    if ($uploadedFilePath !== null) {
+                        $uploadedFiles[] = $uploadedFilePath;
+                    }
+                }
+            }
+        }
+    
+        return $uploadedFiles;
+    }
+
+    public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position): array {
+        // S'assurer que la position est valide
+        $position = max(0, min($position, count($uploadedFiles))); 
+    
+        // Insérer le fichier principal à la position spécifiée
+        array_splice($uploadedFiles, $position, 0, [$mainFilePathName]);
+    
+        return $uploadedFiles;
+    }
+
+    public function fusionFichers(array $uploadedFiles, $nomFichierFusioner)
+    {
+        $this->fusionPdf->mergePdfs($uploadedFiles, $nomFichierFusioner);
+    }
+    
+
 }

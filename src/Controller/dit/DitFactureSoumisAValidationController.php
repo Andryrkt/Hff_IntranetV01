@@ -5,9 +5,13 @@ namespace App\Controller\dit;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use App\Service\FusionPdf;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
+use Symfony\Component\Form\FormInterface;
+use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\dit\DitFactureSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,18 +19,28 @@ use App\Form\dit\DitFactureSoumisAValidationType;
 use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
-use App\Entity\dit\DitRiSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
 
 class DitFactureSoumisAValidationController extends Controller
 {
+
     use DitFactureSoumisAValidationtrait;
     private $historiqueOperation;
-
+    private $ditFactureSoumiAValidationModel;
+    private $genererPdfFacture;
+    private $ditFactureSoumiAValidation;
+    private $fileUploaderService;
+    private $ditRepository;
+    
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationFACService;
+        $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
+        $this->genererPdfFacture = new GenererPdfFactureAValidation();
+        $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
+        $this->fileUploaderService = new FileUploaderService($_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/');
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -39,24 +53,25 @@ class DitFactureSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
-        $numOrBaseDonner = $ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
+        
+        $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
-        $ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
-        $ditFactureSoumiAValidation->setNumeroDit($numDit);
-        $ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
+       
+        $this->ditFactureSoumiAValidation->setNumeroDit($numDit);
+        $this->ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
 
-        $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $ditFactureSoumiAValidation)->getForm();
+        $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $this->ditFactureSoumiAValidation)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             //$demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+            $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
@@ -66,61 +81,55 @@ class DitFactureSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
 
-            $ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
+            $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
 
-            $nbFact = $this->nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
+            $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
 
-            $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($ditFactureSoumiAValidation->getNumeroFact());
+            $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
-            // dump($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR());
-            // dump($nbFact === 0);
-            // dump($nbFactSqlServer > 0);
-            if ($numOrBaseDonner[0]['numor'] !== $ditFactureSoumiAValidation->getNumeroOR()) {
+            if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
 
-                $this->historiqueOperation->sendNotificationSoumission($message, $ditFactureSoumiAValidation->getNumeroFact(), 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
 
-                $this->historiqueOperation->sendNotificationSoumission($message, $ditFactureSoumiAValidation->getNumeroFact(), 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } elseif ($nbFactSqlServer > 0) {
-                $message = "La facture n° :{$ditFactureSoumiAValidation->getNumeroFact()} a été déjà soumise à validation ";
+                $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
 
-                $this->historiqueOperation->sendNotificationSoumission($message, $ditFactureSoumiAValidation->getNumeroFact(), 'dit_index');
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } else {
                 $dataForm = $form->getData();
-                $numeroSoumission = $ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
+                $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
-                $this->ajoutInfoEntityDitFactur($ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
+                $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
-                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $ditFactureSoumiAValidation);
+                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $this->ditFactureSoumiAValidation);
 
-                $estRi = $this->conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit);
+                $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
                 if ($estRi) {
                     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
-
-                    $this->historiqueOperation->sendNotificationSoumission($message, $ditFactureSoumiAValidation->getNumeroFact(), 'dit_index');
+                    $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
                 } else {
 
+                    $interneExterne = $this->ditRepository->findInterneExterne($numDit);
                     /** CREATION PDF */
-                    $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($ditFactureSoumiAValidation->getNumeroOR());
-
-                    $orSoumisFact = $ditFactureSoumiAValidationModel->recupOrSoumisValidation($ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
-                    $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $ditFactureSoumiAValidation);
-                    $numDevis = $this->ditModel->recupererNumdevis($ditFactureSoumiAValidation->getNumeroOR());
-                    $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
-                    $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
-
-                    $etatOr = $this->etatOr($dataForm, $ditFactureSoumiAValidationModel);
-                    $this->modificationEtatFacturDit($etatOr, $numDit);
-
-
-                    $genererPdfFacture = new GenererPdfFactureAValidation();
-                    $genererPdfFacture->GenererPdfFactureSoumisAValidation($ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur']);
-                    //envoie des pièce jointe dans une dossier et la fusionner
-                    $this->envoiePieceJoint($form, $ditFactureSoumiAValidation, $this->fusionPdf);
-                    $genererPdfFacture->copyToDwFactureSoumis($ditFactureSoumiAValidation->getNumeroSoumission(), $ditFactureSoumiAValidation->getNumeroFact());
+                    $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
+                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission());
+                    
+                    /**
+                     * TODO : facture pour le client externe
+                     */
+                    if($interneExterne === 'INTERNE') {
+                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 1);
+                        $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
+                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                    } else {
+                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                    }
+                    
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
@@ -139,6 +148,36 @@ class DitFactureSoumisAValidationController extends Controller
             'form' => $form->createView(),
         ]);
     }
+
+    public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne): string 
+    {
+        $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
+
+        $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
+        $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
+        $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
+        $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
+        $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
+
+        $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
+        $this->modificationEtatFacturDit($etatOr, $numDit);
+
+        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur'], $interneExterne);
+        
+    }
+
+    public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission): array 
+    {
+        
+        $options = [
+            'prefixFichier' => 'factureValidation',
+            'numeroDoc' => $numeroFac,
+            'numeroVersion' => $numeroSoumission,
+        ];
+        return $this->fileUploaderService->getPathFiles($form, $options);
+
+    }
+
 
     private function ajoutDataFactureAValidation(array $factureSoumisAValidation): void
     {

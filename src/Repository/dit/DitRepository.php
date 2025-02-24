@@ -581,7 +581,16 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
         return $queryBuilder->getQuery()->getResult();
     }
 
-
+    public function findAteRealiserPar($numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.reparationRealise')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 
     /** MIGRATION */
     public function findDitMigration()
@@ -598,4 +607,16 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->getResult();
     }
 
+
+    /** RECUPERE interne exter pour facture */
+    public function findInterneExterne($numDit)
+    {
+        return $this->createQueryBuilder('d')
+        ->select('d.internetExterne')
+        ->where('d.numeroDemandeIntervention = :numDit')
+        ->setParameter('numDit', $numDit)
+        ->getQuery()
+        ->getSingleScalarResult()
+        ;
+    }
 }

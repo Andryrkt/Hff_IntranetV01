@@ -51,6 +51,13 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    public function copyToDwFacture($numeroVersion, $numeroOR)
+    {
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        copy($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
         $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';

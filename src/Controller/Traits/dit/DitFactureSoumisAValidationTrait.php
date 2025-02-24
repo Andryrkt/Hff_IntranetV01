@@ -323,7 +323,8 @@ trait DitFactureSoumisAValidationtrait
         FormInterface $form,
         DitFactureSoumisAValidation $ditfacture,
         $fusionPdf
-    ): void {
+    ): array 
+    {
         $pdfFiles = [];
 
         // Ajouter le fichier PDF principal en tête du tableau
@@ -368,5 +369,6 @@ trait DitFactureSoumisAValidationtrait
         if (!empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+        return $pdfFiles;
     }
 }

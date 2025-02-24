@@ -6,6 +6,7 @@ use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\autres\MontantPdfService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
@@ -13,8 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Form\dit\DitDevisSoumisAValidationType;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
-use App\Service\autres\MontantPdfService;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
@@ -592,7 +593,12 @@ class DitDevisSoumisAValidationController extends Controller
         ];
         $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
-        $nomFichierUploder = $fileUploader->generateNomDeFichier(null, $numDevis, '', 'devis', $numeroVersion);
+        $preparNom = [
+            'prefix' => 'devis',
+            'numeroDoc' => $numDevis,
+            'numeroVersion' => $numeroVersion
+        ];
+        $nomFichierUploder = GenererNonFichierService::genererNonFichier( $preparNom);
 
         return [
             'fileName' => $fileName,
