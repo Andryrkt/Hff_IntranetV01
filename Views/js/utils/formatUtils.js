@@ -19,3 +19,7 @@ numeral.locale('fr-custom');
 export function formatMontant(montant) {
   return numeral(montant).format(0, 0);
 }
+
+export function parseMontant(montantStr) {
+  return parseFloat(montantStr.replace(/\./g, '').replace(',', '.'));
+}

@@ -1,9 +1,12 @@
 import { fetchData } from '../utils/fetchUtils';
 import { toggleSpinner } from '../utils/spinnerUtils';
-import { formatMontant } from '../utils/formatUtils';
+import { formatMontant, parseMontant } from '../utils/formatUtils';
 
 const indemniteInput = document.getElementById(
   'mutation_form_indemniteForfaitaire'
+);
+const supplementJournalier = document.getElementById(
+  'mutation_form_supplementJournaliere'
 );
 const nombreJourAvance = document.getElementById(
   'mutation_form_nombreJourAvance'
@@ -54,6 +57,9 @@ export function calculTotalIndemnite() {
     let indemniteForfaitaire = parseInt(
       indemniteInput.value.replace(/[^\d]/g, '')
     ); // remplace tous qui est différent de chiffre (\d) en ''
+    if (supplementJournalier.value !== '') {
+      indemniteForfaitaire += parseMontant(supplementJournalier.value);
+    }
     totalIndemniteInput.value = formatMontant(
       nombreJour * indemniteForfaitaire
     );
@@ -68,8 +74,6 @@ export function calculTotalAutreDepense() {
     parseInt(autreDepenseInput2.value.replace(/[^\d]/g, '')) || 0;
   let totaAutreDepense = autreDepense1 + autreDepense2;
 
-  autreDepenseInput1.value = formatMontant(autreDepense1);
-  autreDepenseInput2.value = formatMontant(autreDepense2);
   totaAutreDepenseInput.value = formatMontant(totaAutreDepense);
 
   //creation d'une evement personaliser

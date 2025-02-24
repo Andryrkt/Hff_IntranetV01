@@ -104,6 +104,7 @@ class MutationController extends Controller
 
         $mutation
             ->setDateDemande(new DateTime)
+            ->setDevis('MGA')
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(5)) // Sous-type document MUTATION

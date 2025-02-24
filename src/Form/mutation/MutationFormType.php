@@ -35,11 +35,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class MutationFormType extends AbstractType
 {
     private $em;
-    const DEVISE = [
-        'MGA' => 'MGA',
-        'EUR' => 'EUR',
-        'USD' => 'USD'
-    ];
     const MODE_PAYEMENT = [
         'MOBILE MONEY'      => 'MOBILE MONEY',
         'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
@@ -204,20 +199,11 @@ class MutationFormType extends AbstractType
                 ]
             )
             ->add(
-                'devis',
-                ChoiceType::class,
-                [
-                    'label'   => 'Devise',
-                    'choices' => self::DEVISE,
-                    'data'    => 'MGA'
-                ]
-            )
-            ->add(
                 'avanceSurIndemnite',
                 ChoiceType::class,
                 [
                     'mapped'  => false,
-                    'label'   => 'Avance sur indemnité de chantier',
+                    'label'   => 'Avance sur indemnité',
                     'choices' => self::AVANCE_SUR_INDEMNITE
                 ]
             )
@@ -225,11 +211,20 @@ class MutationFormType extends AbstractType
                 'indemniteForfaitaire',
                 TextType::class,
                 [
-                    'label' => 'Indemnité forfaitaire journalière(s)',
+                    'label' => 'Indemnité forfaitaire / jour',
                     'attr'  => [
                         'readonly' => true,
                         'class'    => 'readonly',
                     ]
+                ]
+            )
+            ->add(
+                'supplementJournaliere',
+                TextType::class,
+                [
+                    'mapped'   => false,
+                    'label'    => 'Supplément journalier',
+                    'required' => false
                 ]
             )
             ->add(
