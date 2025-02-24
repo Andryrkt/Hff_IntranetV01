@@ -6,6 +6,7 @@ import {
   calculTotalAutreDepense,
   calculTotalIndemnite,
   updateIndemnite,
+  updateModePaiement,
 } from './depense';
 import { calculateDaysAvance } from './handleDate';
 import { formatMontant } from '../utils/formatUtils';
@@ -13,6 +14,10 @@ import { formatMontant } from '../utils/formatUtils';
 document.addEventListener('DOMContentLoaded', function () {
   const avance = document.getElementById('mutation_form_avanceSurIndemnite');
   const site = document.getElementById('mutation_form_site');
+  const matricule = document.getElementById('mutation_form_matriculeNomPrenom');
+  const modePaiementLabelInput = document.getElementById(
+    'mutation_form_modePaiementLabel'
+  );
   const dateDebutInput = document.getElementById('mutation_form_dateDebut');
   const dateFinInput = document.getElementById('mutation_form_dateFin');
   const nombreJourAvance = document.getElementById(
@@ -49,6 +54,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  /** Mode de paiement et valeur */
+  matricule.addEventListener('change', function () {
+    if (this.value && avance.value === 'OUI') {
+      updateModePaiement(this.value);
+    }
+  });
+  modePaiementLabelInput.addEventListener('change', function () {
+    if (matricule.value && avance.value === 'OUI') {
+      updateModePaiement(matricule.value);
+    }
+  });
+
   /** Calculer Montant total Autre dépense et montant total général */
   autreDepense1.addEventListener('input', function () {
     this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')) || 0);
@@ -76,4 +93,22 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Ajout de l'évènement personnalisé pour calculer le total général */
   totalIndemniteInput.addEventListener('valueAdded', calculTotal);
   totaAutreDepenseInput.addEventListener('valueAdded', calculTotal);
+
+  /** Evènement sur le formulaire */
+  const myForm = document.getElementById('form-mutation');
+  myForm.addEventListener('submit', function (event) {
+    let montantTotal = document.getElementById(
+      'mutation_form_totalGeneralPayer'
+    );
+    if (montantTotal.value > 500000) {
+      event.preventDefault();
+      alert('Le montant total général ne peut être supérieur à 500.000 Ariary');
+      montantTotal.classList.add(
+        'border',
+        'border-2',
+        'border-danger',
+        'border-opacity-75'
+      );
+    }
+  });
 });

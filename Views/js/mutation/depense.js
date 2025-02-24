@@ -5,6 +5,12 @@ import { formatMontant, parseMontant } from '../utils/formatUtils';
 const indemniteInput = document.getElementById(
   'mutation_form_indemniteForfaitaire'
 );
+const modePaiementValueInput = document.getElementById(
+  'mutation_form_modePaiementValue'
+);
+const modePaiementLabelInput = document.getElementById(
+  'mutation_form_modePaiementLabel'
+);
 const supplementJournalier = document.getElementById(
   'mutation_form_supplementJournaliere'
 );
@@ -51,6 +57,32 @@ export async function updateIndemnite(siteId) {
   }
 }
 
+export async function updateModePaiement(personnelId) {
+  const spinnerElement = document.getElementById('spinner-mode-value');
+  const containerElement = document.getElementById('mode-value-container');
+  try {
+    // Affiche le spinner avant de lancer le fetch
+    toggleSpinner(spinnerElement, containerElement, true);
+    const personne = await fetchData(
+      `/Hffintranet/personnel-fetch-id/${personnelId}`
+    );
+    if (modePaiementLabelInput.value === 'VIREMENT BANCAIRE') {
+      modePaiementValueInput.classList.add('readonly');
+      modePaiementValueInput.value = personne.compteBancaire;
+      modePaiementValueInput.required = false;
+    } else {
+      modePaiementValueInput.classList.remove('readonly');
+      modePaiementValueInput.value = personne.telephone;
+      modePaiementValueInput.required = true;
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du mode de paiement:', error);
+  } finally {
+    // Désactive le spinner une fois le traitement terminé
+    toggleSpinner(spinnerElement, containerElement, false);
+  }
+}
+
 export function calculTotalIndemnite() {
   if (nombreJourAvance.value !== '' && indemniteInput.value !== '') {
     let nombreJour = parseInt(nombreJourAvance.value);
@@ -90,4 +122,32 @@ export function calculTotal() {
   let montantTotal = totalindemnite + totaAutreDepense;
 
   montantTotalInput.value = formatMontant(montantTotal);
+
+  if (montantTotal > 500000) {
+    montantTotalInput.classList.remove(
+      'border',
+      'border-2',
+      'border-success',
+      'border-opacity-75'
+    );
+    montantTotalInput.classList.add(
+      'border',
+      'border-2',
+      'border-danger',
+      'border-opacity-75'
+    );
+  } else {
+    montantTotalInput.classList.remove(
+      'border',
+      'border-2',
+      'border-danger',
+      'border-opacity-75'
+    );
+    montantTotalInput.classList.add(
+      'border',
+      'border-2',
+      'border-success',
+      'border-opacity-75'
+    );
+  }
 }

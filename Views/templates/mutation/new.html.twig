@@ -21,7 +21,7 @@
 					<h3 class="perso-titre">Demande de mutation</h3>
 				</div>
 
-				{{ form_start(form)}}
+				{{ form_start(form, { 'attr': { 'id': 'form-mutation' } } )}}
 				<div class="row">
 					<div class="col-4">
 						{{ macroForm.sousTitre('Information sur le salarié', {'class':'mb-1'} )}}
@@ -99,7 +99,7 @@
 					<div class="col-4">
 						{{ macroForm.sousTitre('Mode de paiement', {'class':'mb-1'} )}}
 						{{ form_row(form.modePaiementLabel)}}
-						{{ form_row(form.modePaiementValue)}}
+						{{ macroForm.spinner_load('spinner-mode-value', 'mode-value-container', form.modePaiementValue) }}
 					</div>
 					<div class="col-8">
 						{{ macroForm.sousTitre('Pièce(s) jointe(s)', {'class':'mb-1'} )}}
@@ -119,6 +119,7 @@
 			</div>
 		</div>
 	</div>
+</div>
 {% endblock %}
 
 {% block javascript %}
