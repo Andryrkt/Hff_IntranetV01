@@ -49,4 +49,12 @@ INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
 WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '1916')
 and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
 
+/* qte compte*/
+SELECT (ainvp_stktheo + ainvp_ecart) as qte_comptee
+FROM art_invp
+INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
+INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
+WHERE ainvp_numinv = (select ainvi_numinv from art_invi where ainvi_numinv_mait = '1916' and ainvi_sequence = 1)
+and ainvp_refp ='2441250'
+and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
 

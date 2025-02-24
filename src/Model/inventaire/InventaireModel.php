@@ -50,7 +50,7 @@ class InventaireModel extends Model
                 TRIM(ainvi_comment) as description,
                 '' as nbre_casier,
                 count(ainvp_refp) as nbre_ref,
-                sum(ainvp_stktheo) as qte_comptee,
+                ROUND(sum(ainvp_stktheo)) as qte_comptee,
                 '' as statut,
                 trunc(sum(ainvp_prix * ainvp_stktheo)) as Montant
                 FROM  art_invi 
@@ -62,26 +62,29 @@ class InventaireModel extends Model
                 $dateD
                 $dateF
                 group by 1,2,3,4
+                order by ainvi_numinv_mait desc
         ";
         $result = $this->connect->executeQuery($statement);
-         dd($statement);
-          $data = $this->connect->fetchResults($result);
-          $resultat = $this->convertirEnUtf8($data);
-          return $resultat;
+        //  dd($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
     }
 
-    public function maxNumInv($numInv){
+    public function maxNumInv($numInv)
+    {
         $statement = "SELECT  max(ainvi_numinv) as numInvMax
-                      FROM art_invi WHERE ainvi_numinv_mait = '".$numInv."' 
+                      FROM art_invi WHERE ainvi_numinv_mait = '" . $numInv . "' 
                       ";
-                      $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
-    
-    public function inventaireLigneEC( $numInvMax){
+
+    public function inventaireLigneEC($numInvMax)
+    {
         $statement = "SELECT 
                     COUNT(distinct ainvp_refp) as nombre_ref,
                     trunc(SUM(ainvp_stktheo * ainvp_prix)) as Mont_Total,
@@ -102,7 +105,7 @@ class InventaireModel extends Model
                         (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
                     '%') as pourcentage_ecart
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
-                    and ainvp_numinv = '".$numInvMax."'
+                    and ainvp_numinv = '" . $numInvMax . "'
                     ";
         $result = $this->connect->executeQuery($statement);
         //  dump($statement);
@@ -110,9 +113,10 @@ class InventaireModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
-    
-    public function inventaireDetail($numInv){
-            $statement = "SELECT ainvp_soc as soc,
+    public function inventaireDetail($numInv)
+    {
+        $statement = "SELECT  
+                                ainvp_soc as soc,
                                  ainvp_succ as succ, 
                                  ainvp_constp as cst, 
                                  TRIM(ainvp_refp) as refp,
@@ -128,13 +132,46 @@ class InventaireModel extends Model
                         FROM art_invp
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
-                        WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '".$numInv."')
+                        WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '" . $numInv . "')
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
                         ";
-            $result = $this->connect->executeQuery($statement);
-            //  dump($statement);
-            $data = $this->connect->fetchResults($result);
-            $resultat = $this->convertirEnUtf8($data);
-            return $resultat;    
+        $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+
+
+    public function countSequenceInvent($numInv)
+    {
+        $statement = " SELECT DISTINCT(ainvi_sequence) as nb_sequence
+                                        FROM art_invi 
+                                        WHERE ainvi_numinv_mait ='" . $numInv . "'
+                        ";
+        $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+
+    public function qteCompte($numInv,$nb_sequence,$refp)
+    {
+        $statement = " SELECT ROUND((ainvp_stktheo + ainvp_ecart)) as qte_comptee
+                        FROM art_invp
+                        INNER JOIN art_bse on abse_constp = ainvp_constp 
+                        and abse_refp = ainvp_refp
+                        INNER JOIN art_stp on astp_constp = ainvp_constp 
+                        and astp_refp = ainvp_refp
+                        WHERE ainvp_numinv = (select ainvi_numinv from art_invi where ainvi_numinv_mait = '".$numInv."' and ainvi_sequence = '".$nb_sequence."')
+                        and ainvp_refp ='".$refp."'
+                        and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
+        ";
+        $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
     }
 }

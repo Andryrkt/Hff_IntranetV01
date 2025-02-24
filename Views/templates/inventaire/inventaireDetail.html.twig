@@ -22,12 +22,43 @@
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
              <tr>
-             <th> sequende</th>
-             </tr>
+               <th rowspan="2" class="align-middle">Numéro</th>
+              <th  rowspan="2" class="align-middle">CST</th>
+              <th  rowspan="2" class="align-middle">Reférence</th>
+              <th  rowspan="2" class="align-middle">Description</th>
+              <th  rowspan="2" class="align-middle">Casier</th>
+              <th  rowspan="2" class="align-middle">Qté théorique</th>
+              <th colspan="3" style="text-align:center;">qté Comptée</th>
+              <th rowspan="2" class="align-middle">Ecat</th>
+              <th rowspan="2" class="align-middle">% nbr écart</th>
+              <th rowspan="2" class="align-middle">P.M.P</th>
+              <th rowspan="2" class="align-middle">Mont. Inventaire</th>
+              <th rowspan="2" class="align-middle">Mont. Ajusté</th>
+            </tr>
+             <tr>
+              <th >Cpt 1</th>
+              <th>Cpt 2</th>
+              <th >Cpt 3</th>
+            </tr>
          </thead>
          <tbody id="tableBody">
             {% for item in data %}
-            
+                  <tr>
+                      <td>{{item.num}}</td>
+                      <td>{{item.cst}}</td>
+                      <td>{{item.refp}}</td>
+                      <td>{{item.desi}}</td>
+                      <td>{{item.casier}}</td>
+                      <td>{{item.stock_theo}}</td>
+                      <td>{{item.qte_comptee_1}}</td>
+                      <td>{{item.qte_comptee_2}}</td>
+                      <td>{{item.qte_comptee_3}}</td>
+                      <td>{{item.ecart}}</td>
+                      <td>{{item.pourcentage_nbr_ecart}}</td>
+                      <td>{{item.pmp}}</td>
+                      <td>{{item.montant_inventaire}}</td>
+                      <td>{{item.montant_ajuste}}</td>
+                  </tr>
             {% endfor %}
          </tbody>
       </table> 
