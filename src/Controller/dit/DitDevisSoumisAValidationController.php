@@ -116,6 +116,7 @@ class DitDevisSoumisAValidationController extends Controller
             $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
             $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
             $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
+            $nomFichierCommence = !preg_match('/^devis/i', $originalName);
         }
 
         return  [
@@ -124,7 +125,8 @@ class DitDevisSoumisAValidationController extends Controller
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
-            'conditionStatutDevis' => $statutDevis === 'Soumis à validation' // le statut de la dernière version de devis est-il Soumis à validation 
+            'conditionStatutDevis' => $statutDevis === 'Soumis à validation', // le statut de la dernière version de devis est-il Soumis à validation 
+            'conditionNomCommence' => $nomFichierCommence // le nom de fichier telechager commence-t-il par "DEVIS"
         ];
     }
 
@@ -155,7 +157,11 @@ class DitDevisSoumisAValidationController extends Controller
         } elseif ($blockages['conditionStatutDevis']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } else {
+        } elseif ($blockages['conditionNomCommence']) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . Le fichier soumis a été renommé ou ne correspond pas à un devis";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        } 
+        else {
             return true;
         }
     } 
