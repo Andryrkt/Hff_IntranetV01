@@ -39,7 +39,12 @@ and ainvp_numinv = '1919'
 /* details inventaire*/
 SELECT ainvp_soc, ainvp_succ, ainvp_constp, ainvp_refp, abse_desi, astp_casier, ainvp_stktheo, 
 '' as qte_comptee, ainvp_ecart,
-ROUND((ainvp_ecart / ainvp_stktheo) * 100 )|| '%' as porcentage_nbr_ecart,
+		CASE
+WHEN ainvp_stktheo != 0 THEN
+                        ROUND((ainvp_ecart / ainvp_stktheo) * 100 )|| '%' 
+ELSE
+'0'
+END as pourcentage_nbr_ecart,
 ainvp_prix as PMP,
 ainvp_prix * ainvp_stktheo as montant_inventaire,
 ainvp_prix * ainvp_ecart as montant_ajuste
