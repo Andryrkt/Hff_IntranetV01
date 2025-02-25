@@ -115,7 +115,7 @@ class InventaireModel extends Model
     }
     public function inventaireDetail($numInv)
     {
-        $statement = "SELECT  
+        $statement = "SELECT    ainvp_datecpt as dateInv,  
                                 ainvp_soc as soc,
                                  ainvp_succ as succ, 
                                  ainvp_constp as cst, 
@@ -128,12 +128,14 @@ class InventaireModel extends Model
                         ROUND((ainvp_ecart / ainvp_stktheo) * 100 )|| '%' as pourcentage_nbr_ecart,
                         ainvp_prix as PMP,
                         ainvp_prix * ainvp_stktheo as montant_inventaire,
-                        ainvp_prix * ainvp_ecart as montant_ajuste
+                        ainvp_prix * ainvp_ecart as montant_ajuste,
+                        trunc(SUM(ainvp_ecart * ainvp_prix)) as montant_ecart
                         FROM art_invp
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
                         WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '" . $numInv . "')
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
+                        group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
                         ";
         $result = $this->connect->executeQuery($statement);
         //  dump($statement);

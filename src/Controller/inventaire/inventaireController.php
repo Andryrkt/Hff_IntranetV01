@@ -231,28 +231,31 @@ class InventaireController extends Controller
 
         $data = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
-        // dump($detailInvent);
-        for ($j = 0; $j < count($detailInvent); $j++) {
-            $data[] = [
-                "numinv" => $numinv,
-                "cst" => $detailInvent[$j]["cst"],
-                "refp" => $detailInvent[$j]["refp"],
-                "desi" => $detailInvent[$j]["desi"],
-                "casier" => $detailInvent[$j]["casier"],
-                "stock_theo" => $detailInvent[$j]["stock_theo"],
-                "qte_comptee_1" => 0,
-                "qte_comptee_2" => 0,
-                "qte_comptee_3" => 0,
-                "ecart" => $detailInvent[$j]["ecart"],
-                "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
-                "pmp" => $this->formatNumber($detailInvent[$j]["pmp"]),
-                "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
-                "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
-            ];
-            if (!empty($countSequence)) {
-                for ($i = 0; $i < count($countSequence); $i++) {
-                    $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                    $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+        if (!empty($detailInvent)) {
+            dump($detailInvent);
+            for ($j = 0; $j < count($detailInvent); $j++) {
+                $data[] = [
+                    "numinv" => $numinv,
+                    "cst" => $detailInvent[$j]["cst"],
+                    "refp" => $detailInvent[$j]["refp"],
+                    "desi" => $detailInvent[$j]["desi"],
+                    "casier" => $detailInvent[$j]["casier"],
+                    "stock_theo" => $detailInvent[$j]["stock_theo"],
+                    "qte_comptee_1" => 0,
+                    "qte_comptee_2" => 0,
+                    "qte_comptee_3" => 0,
+                    "ecart" => $detailInvent[$j]["ecart"],
+                    "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
+                    "pmp" => $this->formatNumber($detailInvent[$j]["pmp"]),
+                    "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
+                    "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
+                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
+                ];
+                if (!empty($countSequence)) {
+                    for ($i = 0; $i < count($countSequence); $i++) {
+                        $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
+                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                    }
                 }
             }
         }
@@ -284,6 +287,11 @@ class InventaireController extends Controller
     public function exportDonneesPdf($data)
     {
         $pdf = new TCPDF();
+
+        $H_total = $pdf->getPageHeight();  // Largeur totale du PDF
+        $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
+        $usable_heigth = $H_total - $margins['top'] - $margins['bottom'] + 10;
+
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->setPageOrientation('L');
         $pdf->SetAuthor('Votre Nom');
@@ -298,55 +306,69 @@ class InventaireController extends Controller
         $pdf->Ln(15);
 
         // Titre principal
-        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->SetFont('dejavusans', 'B', 14);
         $pdf->Cell(0, 10, 'Écart sur inventaire', 0, 1, 'C');
         $pdf->Ln(2);
 
+        // Date en haut à droite
+        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetXY(250, 10);
+        $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R');
+
+        // Numéro de page en dessous
+        $pdf->SetXY(250, 15);
+        $pdf->Cell(0, 5, 'Page                                 ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
+
+        $pdf->Ln(15);
         // Sous-titre
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(0, 10, 'INVENTAIRE N°:'.$data[0]['numinv'], 0, 1, 'C');
-        $pdf->Cell(0, 10, 'du : 13/02/2025', 0, 1, 'C');
+        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->Cell(0, 10, 'INVENTAIRE N°:' . $data[0]['numinv'], 0, 1, 'C');
+        $pdf->Cell(0, 10, 'du : ' . $data[0]['dateInv'], 0, 1, 'C');
         $pdf->Ln(5);
 
         // Création du tableau
-        $pdf->SetFont('helvetica', 'B', 10);
-        $pdf->SetFillColor(200, 200, 200);
-        $pdf->Cell(25, 7, 'CST', 1, 0, 'C', 1);
-        $pdf->Cell(35, 7, 'Référence', 1, 0, 'C', 1);
-        $pdf->Cell(50, 7, 'Description', 1, 0, 'C', 1);
-        $pdf->Cell(25, 7, 'Casier', 1, 0, 'C', 1);
-        $pdf->Cell(20, 7, 'Qté théorique', 1, 0, 'C', 1);
-        $pdf->Cell(20, 7, 'Cpt 1', 1, 0, 'C', 1);
-        $pdf->Cell(20, 7, 'Cpt 2', 1, 0, 'C', 1);
-        $pdf->Cell(20, 7, 'Cpt 3', 1, 0, 'C', 1);
-        $pdf->Cell(20, 7, 'Écart', 1, 0, 'C', 1);
-        $pdf->Cell(30, 7, 'P.M.P', 1, 0, 'C', 1);
-        $pdf->Cell(30, 7, 'Montant écart', 1, 1, 'C', 1);
+        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->Cell(15, 6, 'CST', 1, 0, 'C');
+        $pdf->Cell(30, 6, 'Référence', 1, 0, 'C');
+        $pdf->Cell(42, 6, 'Description', 1, 0, 'C');
+        $pdf->Cell(20, 6, 'Casier', 1, 0, 'C');
+        $pdf->Cell($usable_heigth - 247, 6, 'Qté théorique', 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Cpt 1', 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Cpt 2', 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Cpt 3', 1, 0, 'C');
+        $pdf->Cell(15, 6, 'Écart', 1, 0, 'C');
+        $pdf->Cell(40, 6, 'P.M.P', 1, 0, 'C');
+        $pdf->Cell(40, 6, 'Montant écart', 1, 1, 'C');
 
         // Remplissage du tableau avec les données
-        $pdf->SetFont('helvetica', '', 10);
-        $fill = 0;
+        $pdf->SetFont('dejavusans', '', 10);
+        $total = 0;
         foreach ($data as $row) {
-            $pdf->Cell(25, 6, $row['cst'], 1, 0, 'C', $fill);
-            $pdf->Cell(35, 6, $row['refp'], 1, 0, 'C', $fill);
-            $pdf->Cell(50, 6, $row['desi'], 1, 0, 'C', $fill);
-            $pdf->Cell(25, 6, $row['casier'], 1, 0, 'C', $fill);
-            $pdf->Cell(20, 6, $row['stock_theo'], 1, 0, 'C', $fill);
-            $pdf->Cell(20, 6, $row['qte_comptee_1'], 1, 0, 'C', $fill);
-            $pdf->Cell(20, 6, $row['qte_comptee_2'], 1, 0, 'C', $fill);
-            $pdf->Cell(20, 6, $row['qte_comptee_3'], 1, 0, 'C', $fill);
-            $pdf->Cell(20, 6, $row['ecart'], 1, 0, 'C', $fill);
-            $pdf->Cell(30, 6, str_replace('.',' ',$row['pmp']), 1, 0, 'R', $fill);
-            $pdf->Cell(30, 6, str_replace('.',' ',$row['montant_ajuste']), 1, 1, 'R', $fill);
-            $fill = !$fill; // Alterner les couleurs des lignes
+            $montant_ecarts = str_replace('.', '', $row['montant_ajuste']);
+            $total += (float)$montant_ecarts;
+            $pdf->Cell(15, 6, $row['cst'], 1, 0, 'C');
+            $pdf->Cell(30, 6, $row['refp'], 1, 0, 'C');
+            $pdf->Cell(42, 6, $row['desi'], 1, 0, 'C');
+            $pdf->Cell(20, 6, $row['casier'], 1, 0, 'C');
+            $pdf->Cell($usable_heigth - 247, 6, $row['stock_theo'], 1, 0, 'C');
+            $pdf->Cell(15, 6, $row['qte_comptee_1'], 1, 0, 'C');
+            $pdf->Cell(15, 6, $row['qte_comptee_2'], 1, 0, 'C');
+            $pdf->Cell(15, 6, $row['qte_comptee_3'], 1, 0, 'C');
+            $pdf->Cell(15, 6, $row['ecart'], 1, 0, 'C');
+            $pdf->Cell(40, 6, str_replace('.', ' ', $row['pmp']), 1, 0, 'R');
+            $pdf->Cell(40, 6, str_replace('.', ' ', $row['montant_ajuste']), 1, 1, 'R');
         }
 
+        // Affichage du nombre de lignes
+        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->Cell(50, 7, 'Nombre de lignes : ' . count($data), 0, 0, 'L');
+
         // Affichage du total
-        $pdf->SetFont('helvetica', 'B', 10);
-        $pdf->Cell(205, 7, 'Total écart', 1, 0, 'R', 1);
-        $pdf->Cell(30, 7, str_replace('.',' ',array_sum(array_column($data,'montant_ajuste'))), 1, 1, 'R', 1);
+        $pdf->Cell($usable_heigth - 130, 7, '', 0, 0);
+        $pdf->Cell(40, 7, 'Total écart', 0, 0, 'R');
+        $pdf->Cell(40, 7, str_replace('.', ' ', $this->formatNumber($total)), 0, 1, 'R');
 
         // Sortie du fichier PDF
-        $pdf->Output('ecart_inventaire.pdf', 'D');
+        $pdf->Output('ecart_inventaire.pdf', 'I');
     }
 }

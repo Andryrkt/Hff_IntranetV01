@@ -13,12 +13,22 @@
         <div class="sticky-header-statut"> <div class="container">
 				<div class="d-flex justify-content-between">
 					<div>
+        {% if data is not empty %}
 						<a href="{{path("export_liste_inventaire_detail", { 'numinv': data[0].numinv })}}" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
 							<i class="fas fa-table"></i>
 							Excel</a>
 						<a href="{{path("export_pdf_liste_inventaire_detail", { 'numinv': data[0].numinv })}}" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
 							<i class="fas fa-print"></i>
 							PDF</a>
+        {% else %}
+						<a href="#" id="excelInventaireDetail" name="excelinvenatireDetail" class="btn btn bg-success text-white my-3 fw-bold">
+							<i class="fas fa-table"></i>
+							Excel</a>
+						<a href="#" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+							<i class="fas fa-print"></i>
+							PDF</a>
+        {% endif %}
+        
 					</div>
           
 				</div>
@@ -40,12 +50,17 @@
               <th rowspan="2" class="align-middle">Mont. Ajusté</th>
             </tr>
              <tr>
-              <th >Cpt 1</th>
+              <th>Cpt 1</th>
               <th>Cpt 2</th>
-              <th >Cpt 3</th>
+              <th>Cpt 3</th>
             </tr>
          </thead>
          <tbody id="tableBody">
+          {% if data is empty %}
+            <tr>
+                <td colspan="14">Aucune donnée disponible</td>
+            </tr>
+          {% else %}
             {% for item in data %}
                   <tr>
                       <td>{{item.numinv}}</td>
@@ -64,6 +79,7 @@
                       <td>{{item.montant_ajuste}}</td>
                   </tr>
             {% endfor %}
+          {% endif %}
          </tbody>
       </table> 
     </div>
