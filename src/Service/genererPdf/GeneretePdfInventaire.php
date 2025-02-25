@@ -56,15 +56,15 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->SetFont('dejavusans', '', 10);
         $pdf->Cell(15, 6, 'CST', 1, 0, 'C');
         $pdf->Cell(30, 6, 'Référence', 1, 0, 'C');
-        $pdf->Cell(42, 6, 'Description', 1, 0, 'C');
+        $pdf->Cell($usable_heigth - 225, 6, 'Description', 1, 0, 'C');
         $pdf->Cell(20, 6, 'Casier', 1, 0, 'C');
-        $pdf->Cell($usable_heigth - 247, 6, 'Qté théorique', 1, 0, 'C');
+        $pdf->Cell(30, 6, 'Qté théorique', 1, 0, 'C');
         $pdf->Cell(15, 6, 'Cpt 1', 1, 0, 'C');
         $pdf->Cell(15, 6, 'Cpt 2', 1, 0, 'C');
         $pdf->Cell(15, 6, 'Cpt 3', 1, 0, 'C');
         $pdf->Cell(15, 6, 'Écart', 1, 0, 'C');
-        $pdf->Cell(40, 6, 'P.M.P', 1, 0, 'C');
-        $pdf->Cell(40, 6, 'Montant écart', 1, 1, 'C');
+        $pdf->Cell(35, 6, 'P.M.P', 1, 0, 'C');
+        $pdf->Cell(35, 6, 'Montant écart', 1, 1, 'C');
 
         // Remplissage du tableau avec les données
         $pdf->SetFont('dejavusans', '', 10);
@@ -74,15 +74,15 @@ class GeneretePdfInventaire extends GeneratePdf
             $total += (float)$montant_ecarts;
             $pdf->Cell(15, 6, $row['cst'], 1, 0, 'C');
             $pdf->Cell(30, 6, $row['refp'], 1, 0, 'C');
-            $pdf->Cell(42, 6, $row['desi'], 1, 0, 'C');
+            $pdf->Cell($usable_heigth - 225, 6, $row['desi'], 1, 0, 'C');
             $pdf->Cell(20, 6, $row['casier'], 1, 0, 'C');
-            $pdf->Cell($usable_heigth - 247, 6, $row['stock_theo'], 1, 0, 'C');
+            $pdf->Cell(30, 6, $row['stock_theo'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['qte_comptee_1'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['qte_comptee_2'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['qte_comptee_3'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['ecart'], 1, 0, 'C');
-            $pdf->Cell(40, 6, str_replace('.', ' ', $row['pmp']), 1, 0, 'R');
-            $pdf->Cell(40, 6, str_replace('.', ' ', $row['montant_ajuste']), 1, 1, 'R');
+            $pdf->Cell(35, 6, str_replace('.', ' ', $row['pmp']), 1, 0, 'R');
+            $pdf->Cell(35, 6, str_replace('.', ' ', $row['montant_ajuste']), 1, 1, 'R');
         }
 
         // Affichage du nombre de lignes
@@ -91,8 +91,8 @@ class GeneretePdfInventaire extends GeneratePdf
 
         // Affichage du total
         $pdf->Cell($usable_heigth - 130, 7, '', 0, 0);
-        $pdf->Cell(40, 7, 'Total écart', 0, 0, 'R');
-        $pdf->Cell(40, 7, str_replace('.', ' ', $this->formatNumber($total)), 0, 1, 'R');
+        $pdf->Cell(35, 7, 'Total écart', 0, 0, 'R');
+        $pdf->Cell(35, 7, str_replace('.', ' ', $this->formatNumber($total)), 0, 1, 'R');
 
         // Sortie du fichier PDF
         $pdf->Output('ecart_inventaire.pdf', 'I');
