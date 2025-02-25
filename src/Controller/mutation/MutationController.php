@@ -3,16 +3,18 @@
 namespace App\Controller\mutation;
 
 use App\Controller\Controller;
+use App\Controller\Traits\MutationTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
 use App\Form\mutation\MutationFormType;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MutationController extends Controller
 {
+    use MutationTrait;
+
     /**
      * @Route("/mutation/new", name="mutation_nouvelle_demande")
      */
@@ -22,14 +24,19 @@ class MutationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $mutation = new Mutation;
-        $this->initialisationMutation($mutation);
+        $this->initialisationMutation($mutation, self::$em);
 
         $form = self::$validator->createBuilder(MutationFormType::class, $mutation)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            dd($form->getData());
+            $mutForm = $form->getData();
+            dump($mutForm);
+            self::$em->persist($mutation);
+            self::$em->flush();
+            die;
+            $this->enregistrementValeurDansMutation($mutForm);
         }
 
         self::$twig->display('mutation/new.html.twig', [
@@ -96,19 +103,5 @@ class MutationController extends Controller
         //         'criteria' => $criteria,
         //     ]
         // );
-    }
-
-    private function initialisationMutation(Mutation $mutation)
-    {
-        $agenceServiceIps = $this->agenceServiceIpsString();
-
-        $mutation
-            ->setDateDemande(new DateTime)
-            ->setDevis('MGA')
-            ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
-            ->setServiceEmetteur($agenceServiceIps['serviceIps'])
-            ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(5)) // Sous-type document MUTATION
-            ->setTypeDocument($mutation->getSousTypeDocument()->getCodeDocument())
-        ;
     }
 }
