@@ -17,7 +17,7 @@ class MigrationDevisModels extends Model
      * @param boolean $estCeForfait
      * @return void
      */
-    public function recupDevisSoumisValidation(string $numDevis)
+    public function recupDevisSoumisValidation(string $numDevis): array
     {
         
         $statement = " SELECT sitv_succdeb as num_agence, slor_numor as numero_devis, sitv_datdeb, trim(seor_refdem) as numero_dit, sitv_interv as numero_itv, trim(sitv_comment) as libell_itv, trim(sitv_natop) as nature_operation, trim(seor_devise) as devise, count(slor_constp) as nombre_ligne, Sum(

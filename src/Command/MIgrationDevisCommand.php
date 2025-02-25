@@ -14,7 +14,7 @@ class MigrationDevisCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Migration des devis. voici la ligne de commande pour faire fonctionner : "php bin/console app:migration-devis"')
+            ->setDescription('Migration des devis. voici la ligne de commande pour faire fonctionner : "php bin/console app:migration-devis" et les données excel sont récupérer "C:\wamp64\www\Hffintranet\src\Service\migration\migration_devi.xlsx"')
             ->setHelp('Cette commande vous permet de migrer les devis dit...');
     }
 
