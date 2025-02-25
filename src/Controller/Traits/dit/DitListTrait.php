@@ -183,6 +183,8 @@ trait DitListTrait
     {
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
+                if (!empty($data[$i]->getIdMateriel())) {
+                
                 // Associez chaque entité à ses valeurs de num_serie et num_parc
                 $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
                 if(!empty($numSerieParc)) {
@@ -194,6 +196,7 @@ trait DitListTrait
                     $data[$i]->setNumSerie('');
                     $data[$i]->setNumParc('');
                 }
+                }
             }
         }
     }
@@ -202,6 +205,7 @@ trait DitListTrait
     {
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
+                if (!empty($data[$i]->getIdMateriel())) {
                 // Associez chaque entité à ses valeurs de num_serie et num_parc
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
                 if(!empty($marqueCasier)) {
@@ -214,13 +218,17 @@ trait DitListTrait
                     $data[$i]->setCasier('');
                 }
             }
+            }
         }
     }
 
     private function ajoutStatutAchatPiece($data){
         for ($i=0 ; $i < count($data) ; $i++ ) { 
-            if ($data[$i]->getNumeroOR() !== null) {
+         
+            if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
+
                 if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+                    
                     foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
@@ -261,7 +269,8 @@ trait DitListTrait
 
     private function ajoutNbrPj($data, $em){
         for ($i=0 ; $i < count($data) ; $i++ ) { 
-            $data[$i]->setNbrPj($em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention()));
+            $nbrJr = $em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention());
+            $data[$i]->setNbrPj($nbrJr);
         }
     }
 
@@ -545,19 +554,20 @@ trait DitListTrait
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
-
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
+        
 
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
-
+        
         //ajout nombre de pièce joint
         $this->ajoutNbrPj($paginationData['data'], $em);
-
+      
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
+        
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
@@ -565,7 +575,6 @@ trait DitListTrait
         $this->ajoutri($paginationData['data'], $ditListeModel, $em);
 
         $this->ajoutMarqueCasierMateriel($paginationData['data']);
-
         $this->ajoutEstOrASoumis($paginationData['data'], $em);
 
         return $paginationData;

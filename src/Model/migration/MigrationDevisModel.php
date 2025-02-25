@@ -104,4 +104,41 @@ private function requestCreate()
 
         return  "SELECT $columns FROM $this->tableName $whereCondition";
     }
+
+    /**
+     * UPDATE
+     */
+    public function updateGeneralise(string $table, array $tabUpdate, array $condition)
+    {
+        if (empty($tabUpdate) || empty($condition)) {
+            throw new \Exception("Les données ou la condition de mise à jour ne peuvent pas être vides.");
+        }
+    
+        // Génération dynamique des colonnes et des valeurs
+        $setClause = implode(", ", array_map(fn($key) => "$key = ?", array_keys($tabUpdate)));
+        $whereClause = implode(" AND ", array_map(fn($key) => "$key = ?", array_keys($condition)));
+    
+        // Construction de la requête SQL
+        $query = "UPDATE $table SET $setClause WHERE $whereClause";
+    
+        // Préparation de la requête
+        $stmt = odbc_prepare($this->connexion->getConnexion(), $query);
+    
+        // Conversion et sécurisation des valeurs pour l'exécution
+        $values = array_map(function ($value) {
+            if ($value instanceof \DateTime) {
+                return $value->format('Y-m-d H:i:s'); // Conversion DateTime -> string
+            } elseif ($value === '') {
+                return NULL; // Éviter les chaînes vides
+            } elseif (is_string($value)) {
+                return utf8_encode($value); // Gérer l'encodage
+            }
+            return $value; // Retourner les autres types tels quels
+        }, array_merge(array_values($tabUpdate), array_values($condition))); // Fusion des valeurs SET et WHERE
+    
+        // Exécution de la requête
+        return odbc_execute($stmt, $values);
+    }
+    
+
 }
