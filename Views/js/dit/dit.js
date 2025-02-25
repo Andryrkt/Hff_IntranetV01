@@ -390,34 +390,34 @@ objetDemande.addEventListener('input', function () {
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
-const textarea = document.querySelector('.detailDemande');
+// const textarea = document.querySelector('.detailDemande');
 
-textarea.addEventListener('input', function () {
-  var lines = textarea.value.split('\n');
+// textarea.addEventListener('input', function () {
+//   var lines = textarea.value.split('\n');
 
-  // Limiter chaque ligne à 86 caractères
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i];
-    if (line.length > 86) {
-      let newLines = [];
-      while (line.length > 86) {
-        newLines.push(line.substring(0, 86)); // Ajouter une sous-ligne de 86 caractères
-        line = line.substring(86); // Couper la partie déjà traitée
-      }
-      if (line) {
-        newLines.push(line); // Ajouter la dernière partie de la ligne si elle existe
-      }
-      lines[i] = newLines.join('\n'); // Remplacer la ligne par les sous-lignes
-    }
-  }
+//   // Limiter chaque ligne à 86 caractères
+//   for (var i = 0; i < lines.length; i++) {
+//     var line = lines[i];
+//     if (line.length > 86) {
+//       let newLines = [];
+//       while (line.length > 86) {
+//         newLines.push(line.substring(0, 86)); // Ajouter une sous-ligne de 86 caractères
+//         line = line.substring(86); // Couper la partie déjà traitée
+//       }
+//       if (line) {
+//         newLines.push(line); // Ajouter la dernière partie de la ligne si elle existe
+//       }
+//       lines[i] = newLines.join('\n'); // Remplacer la ligne par les sous-lignes
+//     }
+//   }
 
-  // Limiter le nombre de lignes à 3
-  if (lines.length > 3) {
-    textarea.value = lines.slice(0, 3).join('\n');
-  } else {
-    textarea.value = lines.join('\n');
-  }
-});
+//   // Limiter le nombre de lignes à 3
+//   if (lines.length > 3) {
+//     textarea.value = lines.slice(0, 3).join('\n');
+//   } else {
+//     textarea.value = lines.join('\n');
+//   }
+// });
 
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
