@@ -68,7 +68,7 @@ class Mutation
 
     /**
      * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="mutation")
-     * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
+     * @ORM\JoinColumn(name="sous_type_document_id", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument; //relation avec la table sousTypeDocument
 
@@ -194,7 +194,7 @@ class Mutation
 
     /**
      * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="mutation")
-     * @ORM\JoinColumn(name="ID_Statut_Demande", referencedColumnName="ID_Statut_Demande")
+     * @ORM\JoinColumn(name="statut_demande_id", referencedColumnName="ID_Statut_Demande")
      */
     private $statutDemande = null;
 

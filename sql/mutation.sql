@@ -6,9 +6,7 @@ CREATE TABLE Demande_de_mutation(
 	Prenom varchar(100) NULL,
 	Matricule varchar(50) NULL,
 	Categorie varchar(50) NULL,
-	categorie_id int NULL,
 	Type_Document varchar(10) NOT NULL,
-	Sous_Type_Document int NULL,
 	Code_Agence_Service_Debiteur varchar(6) NULL,
 	LibelleCodeAgence_Service varchar(50) NULL,
 	Date_Debut date NOT NULL,
@@ -33,7 +31,9 @@ CREATE TABLE Demande_de_mutation(
 	Code_Statut varchar(3) NULL,
 	Numero_Tel varchar(10) NULL,
 	Devis varchar(3) NULL,
-	ID_Statut_Demande int NULL,
+	statut_demande_id int NULL,
+	categorie_id int NULL,
+	sous_type_document_id int NULL,
 	agence_emetteur_id int NULL,
 	service_emetteur_id int NULL,
 	agence_debiteur_id int NULL,
@@ -41,3 +41,65 @@ CREATE TABLE Demande_de_mutation(
 	site_id int NULL,
     CONSTRAINT PK_Demande_de_mutation PRIMARY KEY (ID_Demande_Mutation)
 )
+
+INSERT INTO STATUT_DEMANDE(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+) VALUES
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+),
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+),
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+),
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	GET,
+	date_modification
+),
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+),
+(
+	Code_Application,
+	Code_Statut,
+	Description,
+	Date_creation,
+	date_modification
+)
+
+Code_Application       Code_Statut       Descriptio
+MUT					   			OUV               		A VALIDER SERVIC EMETTEUR
+MUT					   			OUV               		A VALIDER SERVIC DESTINATAIRE
+MUT					   			OUV               		PRE-CONTROLE ATELIER
+MUT					   			OUV               		A VALIDER COMPTA
+MUT					   			OUV               		A CONTROLER RH
+MUT					   			ANN               		ANNULE CHEF DE SERVIC DESTINATAIRE
+MUT					   			ANN               		ANNULE CHEF D'ATELIER
+MUT					   			ANN               		ANNULE CHEF DE SERVICE EMMETTEUR
+MUT					   			ANN               		ANNULE RH
+MUT					   			ANN               		ANNULE COMPTA
