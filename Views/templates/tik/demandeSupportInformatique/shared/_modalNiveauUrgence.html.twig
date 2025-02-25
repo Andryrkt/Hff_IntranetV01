@@ -1,0 +1,56 @@
+<div class="modal fade" tabindex="-1" id="niveauUrgence" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable custom-width">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Liste Niveau d'Urgence
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			{# body du modal#}
+			<div
+				class="modal-body">
+
+				<!-- Contenu des données -->
+				<div>
+					<table class="table rounded mt-1">
+						<thead class="table">
+							<tr>
+								<th class="text-center">Ordre de priorité</th>
+								<th>Définition</th>
+								<th class="text-center">Perte d'exploitation</th>
+								<th>Délai d'intervention</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="text-center">P0</td>
+								<td>Tous ou une bonne partie des utilisateurs ne peuvent pas travailler</td>
+								<td class="text-center">Oui</td>
+								<td>Intervention immédiate</td>
+							</tr>
+							<tr>
+								<td class="text-center">P1</td>
+								<td>Le demandeur ne peut pas travailler</td>
+								<td class="text-center">Oui</td>
+								<td>Intervention dans la demi-journée
+								</td>
+							</tr>
+							<tr>
+								<td class="text-center">P2</td>
+								<td>Demande normale à résoudre dans 48h</td>
+								<td class="text-center">Non</td>
+								<td>Intervention dans les 48h</td>
+							</tr>
+							<tr>
+								<td class="text-center">P3</td>
+								<td>Demande à planifier ou nécessitant intervention autres services</td>
+								<td class="text-center">Non</td>
+								<td>Intervention plus de 48h</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

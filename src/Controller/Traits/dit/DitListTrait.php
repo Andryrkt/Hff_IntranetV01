@@ -550,7 +550,7 @@ trait DitListTrait
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 10;
+        $limit = 50;
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);

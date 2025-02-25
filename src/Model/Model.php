@@ -2,10 +2,14 @@
 
 namespace App\Model;
 
+use App\Model\Traits\ConversionModel;
+
 
 
 class Model
 {
+    use ConversionModel;
+    
     protected $connexion;
     protected $connect;
     protected $sqlServer;
@@ -141,4 +145,12 @@ class Model
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
 
+    public function returnResultat($statement)
+    {
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

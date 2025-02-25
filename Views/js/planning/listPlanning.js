@@ -1,4 +1,5 @@
 import { TableauComponent } from "../Component/TableauComponent.js";
+import { TableauComponent } from "../Component/TableauComponent.js";
 /**
  * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
  */
@@ -59,6 +60,19 @@ function handleAgenceChange() {
   }
 
   // URL pour fetch
+  // Récupération de l'agence sélectionnée
+  const agenceDebiteur =
+    agenceDebiteurInput.value === "" ? null : agenceDebiteurInput.value;
+
+  clearServiceCheckboxes();
+  removeSelectAllCheckbox();
+
+  if (!agenceDebiteur) {
+    // Si aucune agence n'est sélectionnée, on arrête ici
+    return;
+  }
+
+  // URL pour fetch
   const url = config.urls.serviceFetch(agenceDebiteur);
 
   // Création et affichage du spinner
@@ -73,6 +87,63 @@ function handleAgenceChange() {
       attachCheckboxEventListeners();
       selectAllCheckboxByDefault(); // Ensure default selection after updating checkboxes
     })
+    .catch((error) => console.error("Error:", error))
+    .finally(() => {
+      // Suppression du spinner
+      spinner.remove();
+    });
+}
+
+// Fonction pour retirer le bouton "Tout sélectionner"
+function removeSelectAllCheckbox() {
+  const selectAllCheckbox = document.querySelector(
+    config.elements.selectAllCheckbox
+  );
+  if (selectAllCheckbox) {
+    selectAllCheckbox.parentElement.remove();
+  }
+}
+
+/// Fonction pour créer le spinner HTML avec CSS intégré
+function createSpinner() {
+  // Conteneur du spinner
+  const spinnerContainer = document.createElement("div");
+  spinnerContainer.id = "serviceSpinner";
+  spinnerContainer.style.display = "flex";
+  spinnerContainer.style.justifyContent = "center";
+  spinnerContainer.style.alignItems = "center";
+  spinnerContainer.style.margin = "20px 0";
+
+  // Spinner
+  const spinner = document.createElement("div");
+  spinner.className = "spinner-border";
+  spinner.role = "status";
+  spinner.style.width = "3rem";
+  spinner.style.height = "3rem";
+  spinner.style.border = "0.25em solid #ccc";
+  spinner.style.borderTop = "0.25em solid #000";
+  spinner.style.borderRadius = "50%";
+  spinner.style.animation = "spin 0.8s linear infinite";
+
+  // Texte pour les lecteurs d'écran (optionnel)
+  const spinnerText = document.createElement("span");
+  spinnerText.className = "sr-only";
+  spinnerText.textContent = "Chargement...";
+
+  spinner.appendChild(spinnerText);
+  spinnerContainer.appendChild(spinner);
+
+  // Ajout des styles d'animation au document (si nécessaire)
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  return spinnerContainer;
     .catch((error) => console.error("Error:", error))
     .finally(() => {
       // Suppression du spinner

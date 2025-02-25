@@ -170,21 +170,17 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Numéro :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(90);
         $pdf->cell(15, 6, 'Nom :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->cell(25, 6, 'N° tel :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(50, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(90);
         $pdf->cell(15, 6, 'Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         

@@ -340,7 +340,6 @@ trait DomsTrait
             $site = $domForm->getSite();
         }
 
-
         $dom
             ->setTypeDocument($form1Data['sousTypeDocument']->getCodeDocument())
             ->setSousTypeDocument($sousTypeDocument)
@@ -459,11 +458,11 @@ trait DomsTrait
         if (empty($Dates)) {
             return false; // Pas de périodes dans la base
         }
-    
+
         // Convertir les dates d'entrée si elles sont en chaînes
         $dateDebutInputObj = $dateDebutInput instanceof DateTime ? $dateDebutInput : new DateTime($dateDebutInput);
         $dateFinInputObj = $dateFinInput instanceof DateTime ? $dateFinInput : new DateTime($dateFinInput);
-    
+
         foreach ($Dates as $periode) {
             // Convertir les dates en objets DateTime pour faciliter la comparaison
             $dateDebut = new DateTime($periode['Date_Debut']); //date dans la base de donner
@@ -478,7 +477,7 @@ trait DomsTrait
                 return $trouve;
             }
         }
-    
+
         return false; // Pas de chevauchement
     }
 

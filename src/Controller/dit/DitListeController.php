@@ -13,6 +13,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,7 +30,6 @@ class DitListeController extends Controller
      */
     public function index(Request $request)
     {
-
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -52,7 +52,6 @@ class DitListeController extends Controller
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
 
-
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
@@ -63,16 +62,14 @@ class DitListeController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-                } 
+                }
             } else {
                 $this->ajoutDonnerRecherche($form, $ditSearch);
                 $ditSearch->setIdMateriel($form->get('idMateriel')->getData());
@@ -90,7 +87,10 @@ class DitListeController extends Controller
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
 
+        //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
+        //ajout de numero devis
+        $paginationData = $this->updateNumeroDevis($paginationData, $ditListeModel);
         
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
@@ -103,27 +103,59 @@ class DitListeController extends Controller
         if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
             if($formDocDansDW->getData()['docDansDW'] === 'OR'){
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } else if($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+            } elseif  ($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
+                $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
         } 
 
+        /** HISTORIQUE DES OPERATION */
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        $filteredCriteria = $this->criteriaTab($criteria);
 
-        $this->logUserVisit('dit_index'); // historisation du page visité par l'utilisateur
+        // Déterminer le type de log
+        $logType = empty($filteredCriteria) ? ['dit_index'] : ['dit_index_search', $filteredCriteria];
+
+        // Appeler la méthode logUserVisit avec les arguments définis
+        $this->logUserVisit(...$logType);
+
 
         self::$twig->display('dit/list.html.twig', [
-            'data' => $paginationData['data'],
-            'currentPage' => $paginationData['currentPage'],
-            'totalPages' => $paginationData['lastPage'],
-            'criteria' => $criteria,
-            'resultat' => $paginationData['totalItems'],
-            'statusCounts' => $paginationData['statusCounts'],
-            'form' => $form->createView(),
-            'criteria' => $criteria,
+            'data'          => $paginationData['data'],
+            'currentPage'   => $paginationData['currentPage'],
+            'totalPages'    => $paginationData['lastPage'],
+            'criteria'      => $criteria,
+            'resultat'      => $paginationData['totalItems'],
+            'statusCounts'  => $paginationData['statusCounts'],
+            'form'          => $form->createView(),
             'formDocDansDW' => $formDocDansDW->createView()
         ]);
+    }
+
+    private function updateNumeroDevis(array $paginationData, DitListModel $ditListModel): array
+    {
+        foreach ($paginationData['data'] as $item) {
+            if ($item->getInternetExterne() === 'EXTERNE' && (is_null($item->getNumeroDevisRattache()) || empty($item->getNumeroDevisRattache()))) {
+                // Récupération du numéro de devis
+                $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
+
+                // Vérification de la récupération du numéro de devis
+                $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
+
+                // Mise à jour de l'élément avec le numéro de devis
+                $item->setNumeroDevisRattache($numeroDevis);
+
+                self::$em->persist($item);
+            }
+        }
+        self::$em->flush();
+
+        return $paginationData;
     }
 
     /**
@@ -164,8 +196,8 @@ class DitListeController extends Controller
 
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
-        $fileName = 'fichier_cloturer_annuler_'.$dit->getNumeroDemandeIntervention().'.csv';
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/'.$fileName;
+        $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
@@ -181,41 +213,7 @@ class DitListeController extends Controller
         $this->redirectToRoute("dit_index");
     }
 
-    private function changementStatutDit($dit, $statutCloturerAnnuler)
-    {
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
-    }
-
-    private function ajouterDansCsv($filePath, $data, $headers = null)
-{
-    $fichierExiste = file_exists($filePath);
-
-    // Ouvre le fichier en mode append
-    $handle = fopen($filePath, 'a');
-
-    // Si le fichier est nouveau, ajoute un BOM UTF-8
-    if (!$fichierExiste) {
-        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
-    }
-
-    // Si le fichier est nouveau, ajouter les en-têtes
-    if (!$fichierExiste && $headers !== null) {
-        // Force l'encodage UTF-8 pour les en-têtes
-        fputcsv($handle, array_map(function ($header) {
-            return mb_convert_encoding($header, 'UTF-8');
-        }, $headers));
-    }
-
-    // Force l'encodage UTF-8 pour les données
-    fputcsv($handle, array_map(function ($field) {
-        return mb_convert_encoding($field, 'UTF-8');
-    }, $data));
-
-    // Ferme le fichier
-    fclose($handle);
-}
+   
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -272,4 +270,62 @@ class DitListeController extends Controller
             'data' => $data,
         ]);
     }
+
+    private function criteriaTab(array $criteria): array
+    {
+        $criteriaTab = $criteria;
+
+        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        return  array_filter($criteriaTab);
+
+    }
+    
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+{
+    $fichierExiste = file_exists($filePath);
+
+    // Ouvre le fichier en mode append
+    $handle = fopen($filePath, 'a');
+
+    // Si le fichier est nouveau, ajoute un BOM UTF-8
+    if (!$fichierExiste) {
+        fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+    }
+
+    // Si le fichier est nouveau, ajouter les en-têtes
+    if (!$fichierExiste && $headers !== null) {
+        // Force l'encodage UTF-8 pour les en-têtes
+        fputcsv($handle, array_map(function ($header) {
+            return mb_convert_encoding($header, 'UTF-8');
+        }, $headers));
+    }
+
+    // Force l'encodage UTF-8 pour les données
+    fputcsv($handle, array_map(function ($field) {
+        return mb_convert_encoding($field, 'UTF-8');
+    }, $data));
+
+    // Ferme le fichier
+    fclose($handle);
+}
+
+
 }

@@ -1,5 +1,5 @@
 <!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%; z-index: 1030;">
 	<div
 		class="container">
 		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
@@ -236,7 +236,7 @@
 							<hr class="dropdown-divider"/>
 						</li>
 						<li>
-							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}">Déconnexion</a>
+							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}" id="logoutLink">Déconnexion</a>
 						</li>
 					</ul>
 				</li>
@@ -248,12 +248,7 @@
 							Setting
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							<li>
-								<a class="dropdown-item" href="{{ path('user_list') }}">Profil User</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('autoriser_index') }}">Agence Service Autoriser</a>
-							</li>
+
 							<li>
 								<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
 							</li>
@@ -265,9 +260,6 @@
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
@@ -288,16 +280,34 @@
 								<a class="dropdown-item" href="#">Statut App</a>
 							</li>
 							<li class="dropdown-header">
+								Utilisateur
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('user_list') }}">Profil User</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('autoriser_index') }}">Agence Service Autoriser</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
+							</li>
+							<li class="dropdown-header">
+								Historique
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+							</li>
+							<li class="dropdown-header">
 								Ticket
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("tki_categorie_index")}}">Catégories</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_sous_categorie_index")}}">Sous-catégories</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_autres_categories_index")}}">Autres catégories</a>
+								<a class="dropdown-item" href="{{ path("tki_all_categorie_index")}}">Tous les catégories</a>
 							</li>
 						</ul>
 					</li>

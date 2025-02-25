@@ -37,4 +37,15 @@ class UserRepository extends EntityRepository
             ->getResult()
         ;
     }
+
+    public function findMail(string $nomUtilisateur)
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.mail')
+            ->where('u.nom_utilisateur = :nomUser')
+            ->setParameter('nomUser', $nomUtilisateur)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 }

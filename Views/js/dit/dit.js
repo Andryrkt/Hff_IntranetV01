@@ -1,153 +1,118 @@
-/**recupère l'idMateriel et afficher les information du matériel */
+import { AutoComplete } from "../utils/AutoComplete.js";
+import { FetchManager } from "../api/FetchManager.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+
 const idMaterielInput = document.querySelector(
-  '#demande_intervention_idMateriel'
+  "#demande_intervention_idMateriel"
 );
-const numParcInput = document.querySelector('#demande_intervention_numParc');
+const numParcInput = document.querySelector("#demande_intervention_numParc");
 
-const numSerieInput = document.querySelector('#demande_intervention_numSerie');
-
-const constructeurInput = document.querySelector('#constructeur');
-const designationInput = document.querySelector('#designation');
-const modelInput = document.querySelector('#model');
-const casierInput = document.querySelector('#casier');
-const kmInput = document.querySelector('#km');
-const heuresInput = document.querySelector('#heures');
-const coutAcquisitionInput = document.querySelector('#coutAcquisition');
-const amortissementInput = document.querySelector('#amortissement');
-const vncInput = document.querySelector('#vnc');
-const caInput = document.querySelector('#ca');
-const chargeLocativeInput = document.querySelector('#chargeLocative');
-const chargeEntretienInput = document.querySelector('#chargeEntretien');
+const numSerieInput = document.querySelector("#demande_intervention_numSerie");
+const numClientInput = document.querySelector(
+  "#demande_intervention_numeroClient"
+);
+const nomClientInput = document.querySelector(
+  "#demande_intervention_nomClient"
+);
+const constructeurInput = document.querySelector("#constructeur");
+const designationInput = document.querySelector("#designation");
+const modelInput = document.querySelector("#model");
+const casierInput = document.querySelector("#casier");
+const kmInput = document.querySelector("#km");
+const heuresInput = document.querySelector("#heures");
+const coutAcquisitionInput = document.querySelector("#coutAcquisition");
+const amortissementInput = document.querySelector("#amortissement");
+const vncInput = document.querySelector("#vnc");
+const caInput = document.querySelector("#ca");
+const chargeLocativeInput = document.querySelector("#chargeLocative");
+const chargeEntretienInput = document.querySelector("#chargeEntretien");
 const resultatExploitationInput = document.querySelector(
-  '#resultatExploitation'
+  "#resultatExploitation"
 );
-const erreur = document.querySelector('#erreur');
-const containerInfoMateriel = document.querySelector('#containerInfoMateriel');
+const erreur = document.querySelector("#erreur");
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  let timeouts = {}; // Objets de timeouts pour chaque champ
+/** ===================================================================
+ * recupère l'idMateriel et afficher les information du matériel
+ * ==================================================================*/
 
-  function debounceInput(callback, delay, inputId) {
-    return (...args) => {
-      clearTimeout(timeouts[inputId]); // Réinitialise le timer pour ce champ spécifique
-      timeouts[inputId] = setTimeout(() => {
-        callback(...args); // Appelle la fonction après le délai
-      }, delay);
-    };
+const fetchManager = new FetchManager("/Hffintranet");
+
+async function fetchMateriels() {
+  return await fetchManager.get("api/fetch-materiel");
+}
+
+function displayMateriel(item) {
+  return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
+}
+
+function onSelectMateriels(item) {
+  idMaterielInput.value = item.num_matricule;
+  numParcInput.value = item.num_parc;
+  numSerieInput.value = item.num_serie;
+
+  createMaterielInfoDisplay(containerInfoMateriel, item);
+}
+
+//Activation sur le champ Id Matériel
+new AutoComplete({
+  inputElement: idMaterielInput,
+  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
+  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+//Activation sur le champ numSerie
+new AutoComplete({
+  inputElement: numSerieInput,
+  suggestionContainer: document.querySelector("#suggestion-numSerie"),
+  loaderElement: document.querySelector("#loader-numSerie"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+//Activation sur le champ numParc
+new AutoComplete({
+  inputElement: numParcInput,
+  suggestionContainer: document.querySelector("#suggestion-numParc"),
+  loaderElement: document.querySelector("#loader-numParc"), // Ajout du loader
+  debounceDelay: 300, // Délai en ms
+  fetchDataCallback: fetchMateriels,
+  displayItemCallback: displayMateriel,
+  onSelectCallback: onSelectMateriels,
+  itemToStringCallback: (item) =>
+    `${item.num_matricule} - ${item.num_parc} - ${item.num_serie}`,
+});
+
+function createMaterielInfoDisplay(container, data) {
+  if (!container) {
+    console.error(`Container not found.`);
+    return;
   }
 
-  idMaterielInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(idMaterielInput);
-      },
-      2000,
-      'idMateriel'
-    )
-  );
+  const fields = [
+    { label: "Constructeur", key: "constructeur" },
+    { label: "Désignation", key: "designation" },
+    { label: "KM", key: "km" },
+    { label: "N° Parc", key: "num_parc" },
 
-  numParcInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(numParcInput);
-      },
-      2000,
-      'numParc'
-    )
-  );
+    { label: "Modèle", key: "modele" },
+    { label: "Casier", key: "casier_emetteur" },
+    { label: "Heures", key: "heure" },
+    { label: "N° Serie", key: "num_serie" },
+    { label: "Id Materiel", key: "num_matricule" },
+  ];
 
-  numSerieInput.addEventListener(
-    'input',
-    debounceInput(
-      () => {
-        handleInputChange(numSerieInput);
-      },
-      2000,
-      'numSerie'
-    )
-  );
-
-  function handleInputChange(inputElement) {
-    InfoMateriel(); // Appeler votre fonction principale
-    clearAndToggleRequired(inputElement); // Nettoyer et définir les règles requises
-  }
-
-  function clearAndToggleRequired(excludeInput) {
-    if (excludeInput !== idMaterielInput) {
-      idMaterielInput.value = '';
-      idMaterielInput.removeAttribute('required');
-    } else {
-      idMaterielInput.setAttribute('required', 'required');
-    }
-
-    if (excludeInput !== numParcInput) {
-      numParcInput.value = '';
-      numParcInput.removeAttribute('required');
-    } else {
-      numParcInput.setAttribute('required', 'required');
-    }
-
-    if (excludeInput !== numSerieInput) {
-      numSerieInput.value = '';
-      numSerieInput.removeAttribute('required');
-    } else {
-      numSerieInput.setAttribute('required', 'required');
-    }
-  }
-
-  function buildUrl(base, idMateriel = 0, numParc = 0, numSerie = 0) {
-    return `${base}/${idMateriel || 0}/${numParc || 0}/${numSerie || 0}`;
-  }
-
-  function resetInfoMateriel(message) {
-    containerInfoMateriel.innerHTML = '';
-    idMaterielInput.value = '';
-    numParcInput.value = '';
-    numSerieInput.value = '';
-
-    erreur.classList.add('text-danger');
-    erreur.innerHTML = message;
-  }
-
-  function showSpinner(container) {
-    container.innerHTML = `
-    <div class="text-center my-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
-    </div>
-  `;
-  }
-
-  function createMaterielInfoDisplay(container, data) {
-    if (!container) {
-      console.error(`Container not found.`);
-      return;
-    }
-
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      console.error('Invalid or empty data provided.');
-      container.innerHTML =
-        '<p class="text-danger">Aucune donnée disponible.</p>';
-      return;
-    }
-
-    const fields = [
-      { label: 'Constructeur', key: 'constructeur' },
-      { label: 'Désignation', key: 'designation' },
-      { label: 'KM', key: 'km' },
-      { label: 'N° Parc', key: 'num_parc' },
-
-      { label: 'Modèle', key: 'modele' },
-      { label: 'Casier', key: 'casier_emetteur' },
-      { label: 'Heures', key: 'heure' },
-      { label: 'N° Serie', key: 'num_serie' },
-      { label: 'Id Materiel', key: 'num_matricule' },
-    ];
-
-    const createFieldHtml = (label, value) => `
+  const createFieldHtml = (label, value) => `
   <li class="fw-bold">
     ${label} :
     <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
@@ -156,115 +121,93 @@ document.addEventListener('DOMContentLoaded', (event) => {
   </li>
 `;
 
-    container.innerHTML = `
+  container.innerHTML = `
     <ul class="list-unstyled">
       <div class="row">
         <div class="col-12 col-md-6">
           ${fields
             .slice(0, 4)
-            .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .map((field) => createFieldHtml(field.label, data[field.key]))
+            .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
             .slice(4)
-            .map((field) => createFieldHtml(field.label, data[0][field.key]))
-            .join('')}
+            .map((field) => createFieldHtml(field.label, data[field.key]))
+            .join("")}
         </div>
       </div>
     </ul>
   `;
-  }
+}
 
-  function isValidInput(value) {
-    return value && value.trim().length > 0;
-  }
+/**========================================
+ * AUTOCOMPLETE NOM et NUMERO CLient
+ *===========================================*/
 
-  function InfoMateriel() {
-    const idMateriel = idMaterielInput.value;
-    const numParc = numParcInput.value;
-    const numSerie = numSerieInput.value;
+async function fetchClients() {
+  const url = numClientInput.getAttribute("data-autocomplete-url");
+  const result = await fetchManager.get(url);
+  return result;
+}
 
-    if (
-      !isValidInput(idMateriel) &&
-      !isValidInput(numParc) &&
-      !isValidInput(numSerie)
-    ) {
-      resetInfoMateriel("Veuillez compléter l'un des champs.");
-      return;
-    }
+function displayClients(item) {
+  return `${item.num_client} - ${item.nom_client}`;
+}
 
-    const hasValidInput =
-      idMateriel !== '' || numParc !== '' || numSerie !== '';
+function onSelectClients(item) {
+  numClientInput.value = item.num_client;
+  nomClientInput.value = item.nom_client;
+}
 
-    if (hasValidInput) {
-      erreur.innerHTML = '';
-      const url = buildUrl(
-        '/Hffintranet/fetch-materiel',
-        idMateriel,
-        numParc,
-        numSerie
+//Activation sur le champ numero client
+new AutoComplete({
+  inputElement: numClientInput,
+  suggestionContainer: document.querySelector("#suggestion-numClient"),
+  loaderElement: document.querySelector("#loader-numClient"),
+  debounceDelay: 300,
+  fetchDataCallback: fetchClients,
+  displayItemCallback: displayClients,
+  onSelectCallback: onSelectClients,
+  itemToStringCallback: (item) => `${item.num_client} - ${item.nom_client}`,
+});
+
+//Activation sur le champ nom client
+new AutoComplete({
+  inputElement: nomClientInput,
+  suggestionContainer: document.querySelector("#suggestion-nomClient"),
+  loaderElement: document.querySelector("#loader-nomClient"),
+  debounceDelay: 300,
+  fetchDataCallback: fetchClients,
+  displayItemCallback: displayClients,
+  onSelectCallback: onSelectClients,
+  itemToStringCallback: (item) => `${item.num_client} - ${item.nom_client}`,
+});
+
+/** ==========================================================================
+ * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
+ *=============================================================================*/
+const inputNoEntrers = document.querySelectorAll(".noEntrer");
+inputNoEntrers.forEach((inputNoEntrer) => {
+  inputNoEntrer.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Empêche le rechargement de la page
+      console.log(
+        "La touche Entrée a été pressée dans le champ :",
+        inputNoEntrer.placeholder
       );
-
-      // Afficher le spinner dans le container
-      showSpinner(containerInfoMateriel);
-
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des données.');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log(data);
-
-          erreur.innerHTML = '';
-
-          // Effacer le spinner et afficher les données
-          containerInfoMateriel.innerHTML = '';
-          createMaterielInfoDisplay(containerInfoMateriel, data);
-        })
-        .catch((error) => {
-          if (error instanceof SyntaxError) {
-            resetInfoMateriel(
-              "Erreur : l'information du matériel n'est pas dans la base de données."
-            );
-          } else {
-            console.error('Error:', error);
-            erreur.innerHTML = 'Erreur : ' + error.message;
-          }
-        });
-    } else {
-      resetInfoMateriel("veuillez completer l'un des champs ");
     }
-  }
-
-  /**
-   * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
-   */
-  const inputNoEntrers = document.querySelectorAll('.noEntrer');
-  inputNoEntrers.forEach((inputNoEntrer) => {
-    inputNoEntrer.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault(); // Empêche le rechargement de la page
-        console.log(
-          'La touche Entrée a été pressée dans le champ :',
-          inputNoEntrer.placeholder
-        );
-      }
-    });
   });
 });
 
-/**
+/** =========================================================================
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
- */
-const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
-const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
-const spinnerService = document.getElementById('spinner-service');
-const serviceContainer = document.getElementById('service-container');
-agenceDebiteurInput.addEventListener('change', selectAgence);
+ *==========================================================================*/
+const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
+const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
+agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -276,13 +219,13 @@ function selectAgence() {
       console.log(services);
       updateServiceOptions(services);
     })
-    .catch((error) => console.error('Error:', error))
+    .catch((error) => console.error("Error:", error))
     .finally(() => toggleSpinner(false));
 }
 
 function toggleSpinner(show) {
-  spinnerService.style.display = show ? 'inline-block' : 'none';
-  serviceContainer.style.display = show ? 'none' : 'block';
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
 }
 
 function updateServiceOptions(services) {
@@ -293,7 +236,7 @@ function updateServiceOptions(services) {
 
   // Ajouter les nouvelles options à partir du tableau services
   for (var i = 0; i < services.length; i++) {
-    var option = document.createElement('option');
+    var option = document.createElement("option");
     option.value = services[i].value;
     option.text = services[i].text;
     serviceDebiteurInput.add(option);
@@ -302,15 +245,15 @@ function updateServiceOptions(services) {
   //Afficher les nouvelles valeurs et textes des options
   for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
     var option = serviceDebiteurInput.options[i];
-    console.log('Value: ' + option.value + ', Text: ' + option.text);
+    console.log("Value: " + option.value + ", Text: " + option.text);
   }
 }
 
 /**
  * CHAMP CLIENT MISE EN MAJUSCULE
  */
-const nomClientInput = document.querySelector('.nomClient');
-nomClientInput.addEventListener('input', MiseMajuscule);
+
+nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
@@ -318,47 +261,78 @@ function MiseMajuscule() {
 /**
  * INTERNE - EXTERNE (champ )
  */
-const interneExterneInput = document.querySelector('.interneExterne');
-const numTelInput = document.querySelector('.numTel');
-const clientSousContratInput = document.querySelector('.clientSousContrat');
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
 const demandeDevisInput = document.querySelector(
-  '#demande_intervention_demandeDevis'
+  "#demande_intervention_demandeDevis"
 );
+const erreurClient = document.querySelector("#erreurClient");
 
-if (interneExterneInput.value === 'INTERNE') {
-  nomClientInput.setAttribute('disabled', true);
-  numTelInput.setAttribute('disabled', true);
-  clientSousContratInput.setAttribute('disabled', true);
+if (interneExterneInput.value === "INTERNE") {
+  nomClientInput.setAttribute("disabled", true);
+  numClientInput.setAttribute("disabled", true);
+  numTelInput.setAttribute("disabled", true);
+  clientSousContratInput.setAttribute("disabled", true);
 }
 
-interneExterneInput.addEventListener('change', interneExterne);
+interneExterneInput.addEventListener("change", interneExterne);
 
 function interneExterne() {
   console.log(interneExterneInput.value);
-  if (interneExterneInput.value === 'EXTERNE') {
-    nomClientInput.removeAttribute('disabled');
-    numTelInput.removeAttribute('disabled');
-    clientSousContratInput.removeAttribute('disabled');
-    demandeDevisInput.removeAttribute('disabled');
-    agenceDebiteurInput.setAttribute('disabled', true);
-    serviceDebiteurInput.setAttribute('disabled', true);
+  const dataInformations = interneExterneInput.dataset.informations;
+  const parsedData = JSON.parse(dataInformations);
+
+  if (interneExterneInput.value === "EXTERNE") {
+    nomClientInput.removeAttribute("disabled");
+    numClientInput.removeAttribute("disabled");
+    numTelInput.removeAttribute("disabled");
+    clientSousContratInput.removeAttribute("disabled");
+    demandeDevisInput.removeAttribute("disabled");
+    demandeDevisInput.value = "OUI";
+    agenceDebiteurInput.setAttribute("disabled", true);
+    serviceDebiteurInput.setAttribute("disabled", true);
+    agenceDebiteurInput.value = "";
+    serviceDebiteurInput.value = "";
   } else {
-    nomClientInput.setAttribute('disabled', true);
-    numTelInput.setAttribute('disabled', true);
-    demandeDevisInput.setAttribute('disabled', true);
-    clientSousContratInput.setAttribute('disabled', true);
-    agenceDebiteurInput.removeAttribute('disabled');
-    serviceDebiteurInput.removeAttribute('disabled');
+    nomClientInput.setAttribute("disabled", true);
+    numClientInput.setAttribute("disabled", true);
+    numTelInput.setAttribute("disabled", true);
+    demandeDevisInput.setAttribute("disabled", true);
+    demandeDevisInput.value = "NON";
+    clientSousContratInput.setAttribute("disabled", true);
+    agenceDebiteurInput.removeAttribute("disabled");
+    serviceDebiteurInput.removeAttribute("disabled");
+    agenceDebiteurInput.value = parsedData.agenceId;
+    serviceDebiteurInput.value = parsedData.serviceId;
   }
 }
 
-/** FORM */
-const myForm = document.querySelector('#myForm');
+/** LIMITATION DE CARACTERE DU TELEPHONE */
+function limitInputCharacters(inputElement, maxLength) {
+  inputElement.addEventListener("input", () => {
+    if (inputElement.value.length > maxLength) {
+      inputElement.value = inputElement.value.substring(0, maxLength);
+    }
+  });
+}
+limitInputCharacters(numTelInput, 10);
 
-myForm.addEventListener('submit', intExtEnvoier);
+/** LES CARACTES CHIFFRE SEULEMENT */
+function allowOnlyNumbers(inputElement) {
+  inputElement.addEventListener("input", () => {
+    inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
+  });
+}
+allowOnlyNumbers(numTelInput);
+
+/** FORM */
+const myForm = document.querySelector("#myForm");
+
+myForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute('disabled');
-  serviceDebiteurInput.removeAttribute('disabled');
+  agenceDebiteurInput.removeAttribute("disabled");
+  serviceDebiteurInput.removeAttribute("disabled");
 }
 
 /**
@@ -368,12 +342,12 @@ function formatNumber(input) {
   let number = parseFloat(input);
   if (!isNaN(number)) {
     // Formater le nombre en utilisant la locale fr-FR
-    let formatted = number.toLocaleString('fr-FR', {
+    let formatted = number.toLocaleString("fr-FR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
     // Remplacer les espaces par des points pour les séparateurs de milliers
-    formatted = formatted.replace(/\s/g, '.');
+    formatted = formatted.replace(/\s/g, ".");
     return formatted;
   }
 }
@@ -381,47 +355,67 @@ function formatNumber(input) {
 /**
  * VALIDATION DE OBJET DEMANDE (ne peut pas contenir plus de 86 caractère)
  */
-const objetDemande = document.querySelector('.noEntrer');
+const objetDemande = document.querySelector(".noEntrer");
 
-objetDemande.addEventListener('input', function () {
+objetDemande.addEventListener("input", function () {
   objetDemande.value = objetDemande.value.substring(0, 86);
 });
 
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
-// const textarea = document.querySelector('.detailDemande');
+// const textarea = document.querySelector(".detailDemande");
 
-// textarea.addEventListener('input', function () {
-//   var lines = textarea.value.split('\n');
+// textarea.addEventListener("input", function () {
+//   var lines = textarea.value.split("\n");
 
 //   // Limiter chaque ligne à 86 caractères
 //   for (var i = 0; i < lines.length; i++) {
-//     var line = lines[i];
-//     if (line.length > 86) {
-//       let newLines = [];
-//       while (line.length > 86) {
-//         newLines.push(line.substring(0, 86)); // Ajouter une sous-ligne de 86 caractères
-//         line = line.substring(86); // Couper la partie déjà traitée
-//       }
-//       if (line) {
-//         newLines.push(line); // Ajouter la dernière partie de la ligne si elle existe
-//       }
-//       lines[i] = newLines.join('\n'); // Remplacer la ligne par les sous-lignes
+//     if (lines[i].length > 86) {
+//       lines[i] = lines[i].substring(0, 86);
 //     }
 //   }
 
 //   // Limiter le nombre de lignes à 3
 //   if (lines.length > 3) {
-//     textarea.value = lines.slice(0, 3).join('\n');
+//     textarea.value = lines.slice(0, 3).join("\n");
 //   } else {
-//     textarea.value = lines.join('\n');
+//     textarea.value = lines.join("\n");
 //   }
 // });
+
+const textarea = document.querySelector(".detailDemande");
+const charCount = document.getElementById("charCount");
+const MAX_CHARACTERS = 1877;
+
+// Afficher le message initial
+charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
+charCount.style.color = "black"; // Couleur initiale
+
+textarea.addEventListener("input", function () {
+  const remainingCharacters = MAX_CHARACTERS - textarea.value.length;
+
+  if (remainingCharacters < 0) {
+    textarea.value = textarea.value.substring(0, MAX_CHARACTERS);
+  }
+
+  // Mettre à jour le nombre restant et la couleur
+  if (textarea.value.length === 0) {
+    charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
+    charCount.style.color = "black";
+  } else {
+    charCount.textContent = `Il vous reste ${
+      remainingCharacters >= 0 ? remainingCharacters : 0
+    } caractères.`;
+    charCount.style.color = "#000";
+    // charCount.style.background = "red"; // Change la couleur lorsqu'on commence à écrire
+  }
+});
 
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
+setupConfirmationButtons();
 // const boutonInput = document.querySelector("#formDit");
 
 // boutonInput.addEventListener("click", griserBoutton);
