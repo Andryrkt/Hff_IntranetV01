@@ -51,33 +51,34 @@ class AcBcSoumisController extends Controller
 
         // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $devis = $this->filtredataDevis($numDit);
-        
 
-        if(empty($devis)) {
+
+        if (empty($devis)) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
             $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         }
-        
+
         $acSoumis = $this->initialisation($devis, $numDit);
-        
+
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
-            
+
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $numClientBcDevis = $this->ditRepository->findNumClient($numDit).'_'.$numBc.'_'.$acSoumis->getNumeroDevis();
-            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis);
-            $fileName= $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
-            $this->genererPdfAc->copyToDWAcSoumis($fileName);// copier le fichier dans docuware
-            
+            $numClientBcDevis = $this->ditRepository->findNumClient($numDit) . '_' . $numBc . '_' . $acSoumis->getNumeroDevis();
+            $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
+            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit);
+            $fileName = $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
+            $this->genererPdfAc->copyToDWAcSoumis($fileName); // copier le fichier dans docuware
+
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($fileName);
             $this->envoieBcDansBd($bcSoumis);
@@ -94,9 +95,9 @@ class AcBcSoumisController extends Controller
     private function filtredataDevis($numDit)
     {
         $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
-        
+
         return array_filter($devi, function ($item) {
-            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00 ;
+            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00;
         });
     }
 
@@ -109,7 +110,7 @@ class AcBcSoumisController extends Controller
 
         return $fileName;
     }
-    
+
     private function envoieBcDansBd(BcSoumis $bcSoumis): void
     {
         self::$em->persist($bcSoumis);
@@ -119,15 +120,15 @@ class AcBcSoumisController extends Controller
     private function ajoutDonneeBc(AcSoumis $acSoumis, ?int $numeroVersionMax): BcSoumis
     {
         $this->bcSoumis
-                ->setNumDit($acSoumis->getNumeroDit())
-                ->setNumDevis($acSoumis->getNumeroDevis())
-                ->setNumBc($acSoumis->getNumeroBc())
-                ->setDateBc($acSoumis->getDateBc())
-                ->setDateDevis($acSoumis->getDateDevis())
-                ->setMontantDevis($acSoumis->getMontantDevis())
-                ->setDateHeureSoumission(new \DateTime())
-                ->setNumVersion($this->autoIncrement($numeroVersionMax))
-            ;
+            ->setNumDit($acSoumis->getNumeroDit())
+            ->setNumDevis($acSoumis->getNumeroDevis())
+            ->setNumBc($acSoumis->getNumeroBc())
+            ->setDateBc($acSoumis->getDateBc())
+            ->setDateDevis($acSoumis->getDateDevis())
+            ->setMontantDevis($acSoumis->getMontantDevis())
+            ->setDateHeureSoumission(new \DateTime())
+            ->setNumVersion($this->autoIncrement($numeroVersionMax))
+        ;
         return $this->bcSoumis;
     }
 
@@ -140,7 +141,7 @@ class AcBcSoumisController extends Controller
     }
 
     private function initialisation(array $devis, string $numDit): AcSoumis
-    {   
+    {
         $reparationRealiser = $this->ditRepository->findAteRealiserPar($numDit);
         $atelier = $this->contactAgenceAteRepository->findContactSelonAtelier($reparationRealiser);
 
@@ -161,12 +162,12 @@ class AcBcSoumisController extends Controller
 
     private function telephoneHff(array $atelier)
     {
-        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el) => $el->getTelephone(), $atelier), '');
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getTelephone(), $atelier), '');
     }
 
     private function emailHff(array $atelier)
     {
-        return TableauEnStringService::TableauEnString(' / ',array_map(fn($el)=> $el->getEmailString(), $atelier), '');
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getEmailString(), $atelier), '');
     }
 
     /**
