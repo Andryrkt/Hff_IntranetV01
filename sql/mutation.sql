@@ -50,56 +50,72 @@ INSERT INTO STATUT_DEMANDE(
 	date_modification
 ) VALUES
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	Date_creation,
-	date_modification
+	'MUT',
+	'OUV',
+	'A VALIDER SERVICE EMETTEUR',
+	GETDATE(),
+	GETDATE()
 ),
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	Date_creation,
-	date_modification
+	'MUT',
+	'OUV',
+	'A VALIDER SERVICE DESTINATAIRE',
+	GETDATE(),
+	GETDATE()
 ),
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	Date_creation,
-	date_modification
+	'MUT',
+	'OUV',
+	'PRE-CONTROLE ATELIER',
+	GETDATE(),
+	GETDATE()
 ),
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	GET,
-	date_modification
+	'MUT',
+	'OUV',
+	'A VALIDER COMPTA',
+	GETDATE(),
+	GETDATE()
 ),
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	Date_creation,
-	date_modification
+	'MUT',
+	'OUV',
+	'A CONTROLER RH',
+	GETDATE(),
+	GETDATE()
 ),
 (
-	Code_Application,
-	Code_Statut,
-	Description,
-	Date_creation,
-	date_modification
-)
-
-Code_Application       Code_Statut       Descriptio
-MUT					   			OUV               		A VALIDER SERVIC EMETTEUR
-MUT					   			OUV               		A VALIDER SERVIC DESTINATAIRE
-MUT					   			OUV               		PRE-CONTROLE ATELIER
-MUT					   			OUV               		A VALIDER COMPTA
-MUT					   			OUV               		A CONTROLER RH
-MUT					   			ANN               		ANNULE CHEF DE SERVIC DESTINATAIRE
-MUT					   			ANN               		ANNULE CHEF D'ATELIER
-MUT					   			ANN               		ANNULE CHEF DE SERVICE EMMETTEUR
-MUT					   			ANN               		ANNULE RH
-MUT					   			ANN               		ANNULE COMPTA
+	'MUT',
+	'ANN',
+	'ANNULE CHEF DE SERVICE DESTINATAIRE',
+	GETDATE(),
+	GETDATE()
+),
+(
+	'MUT',
+	'ANN',
+	'ANNULE CHEF D''ATELIER',
+	GETDATE(),
+	GETDATE()
+),
+(
+	'MUT',
+	'ANN',
+	'ANNULE CHEF DE SERVICE EMMETTEUR',
+	GETDATE(),
+	GETDATE()
+),
+(
+	'MUT',
+	'ANN',
+	'ANNULE RH',
+	GETDATE(),
+	GETDATE()
+),
+(
+	'MUT',
+	'ANN',
+	'ANNULE COMPTA',
+	GETDATE(),
+	GETDATE()
+);
