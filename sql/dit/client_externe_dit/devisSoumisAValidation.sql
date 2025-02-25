@@ -38,3 +38,6 @@ ADD devise VARCHAR(10)
 
 ALTER TABLE devis_soumis_a_validation
 ADD montantVente DECIMAL(18, 2)
+
+ALTER TABLE devis_soumis_a_validation
+ADD num_migr INT

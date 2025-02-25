@@ -521,17 +521,19 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     public function findNbrPj($numDit)
     {
         $nombrePiecesJointes = $this->createQueryBuilder('d')
-            ->select(
-                "(CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END) AS nombrePiecesJointes"
-            )
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
+        ->select(
+            "SUM(
+                (CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END) + 
+                (CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END) + 
+                (CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END)
+            ) AS nombrePiecesJointes"
+        )
+        ->where('d.numeroDemandeIntervention = :numDit')
+        ->setParameter('numDit', $numDit)
+        ->getQuery()
+        ->getSingleScalarResult();
 
-        return (int) $nombrePiecesJointes;
+    return (int) $nombrePiecesJointes;
     }
 
 
