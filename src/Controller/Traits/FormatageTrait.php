@@ -9,6 +9,13 @@ trait FormatageTrait
         return implode('/', array_reverse(explode('-', $date)));
     }
 
+    private function formatDateTime($dateTime)
+    {
+        $date = new \DateTime($dateTime);
+        $formattedDate = $date->format('d/m/Y');
+
+        return $formattedDate;
+    }
     
     private function formatNumber($number)
 {

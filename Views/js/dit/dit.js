@@ -379,6 +379,15 @@ function formatNumber(input) {
 }
 
 /**
+ * VALIDATION DE OBJET DEMANDE (ne peut pas contenir plus de 86 caractère)
+ */
+const objetDemande = document.querySelector('.noEntrer');
+
+objetDemande.addEventListener('input', function () {
+  objetDemande.value = objetDemande.value.substring(0, 86);
+});
+
+/**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
 const textarea = document.querySelector('.detailDemande');
@@ -388,8 +397,17 @@ textarea.addEventListener('input', function () {
 
   // Limiter chaque ligne à 86 caractères
   for (var i = 0; i < lines.length; i++) {
-    if (lines[i].length > 86) {
-      lines[i] = lines[i].substring(0, 86);
+    var line = lines[i];
+    if (line.length > 86) {
+      let newLines = [];
+      while (line.length > 86) {
+        newLines.push(line.substring(0, 86)); // Ajouter une sous-ligne de 86 caractères
+        line = line.substring(86); // Couper la partie déjà traitée
+      }
+      if (line) {
+        newLines.push(line); // Ajouter la dernière partie de la ligne si elle existe
+      }
+      lines[i] = newLines.join('\n'); // Remplacer la ligne par les sous-lignes
     }
   }
 

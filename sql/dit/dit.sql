@@ -30,7 +30,8 @@ SET
         WHEN LEFT(agence_service_emmeteur, 2) = '91' THEN '10'
         WHEN LEFT(agence_service_emmeteur, 2) = '92' THEN '11'
         ELSE '0'
-    END;
+    END
+    WHERE num_migr=4;
 
 UPDATE demande_intervention
 SET
@@ -82,7 +83,8 @@ SET
         WHEN RIGHT(agence_service_emmeteur, 3) = 'LGR' THEN '46'
         WHEN RIGHT(agence_service_emmeteur, 3) = 'LSC' THEN '46'
         ELSE '0'
-    END;
+    END
+    WHERE num_migr=4;
 
 UPDATE demande_intervention
 SET
@@ -99,7 +101,8 @@ SET
         WHEN LEFT(agence_service_debiteur, 2) = '91' THEN '10'
         WHEN LEFT(agence_service_debiteur, 2) = '92' THEN '11'
         ELSE '0'
-    END;
+    END
+    WHERE num_migr=4;
 
 UPDATE demande_intervention
 SET
@@ -151,7 +154,8 @@ SET
         WHEN RIGHT(agence_service_debiteur, 3) = 'LGR' THEN '46'
         WHEN RIGHT(agence_service_debiteur, 3) = 'LSC' THEN '47'
         ELSE '0'
-    END;
+    END
+    WHERE num_migr=4;
 
 UPDATE demande_intervention
 SET
@@ -368,4 +372,4 @@ SET mail_demandeur = CASE
     WHEN utilisateur_demandeur = 'zoary' THEN  'zoary.andriamanantena@hff.mg'
     ELSE '-'
 END
-WHERE num_migr=3
+WHERE num_migr=4

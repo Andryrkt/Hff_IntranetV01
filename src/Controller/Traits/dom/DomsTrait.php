@@ -442,10 +442,13 @@ trait DomsTrait
         $em->persist($dom);
         $em->flush();
 
+        //GENERER un PDF
         $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user);
         $genererPdfDom = new GeneratePdfDom();
         $genererPdfDom->genererPDF($tabInternePdf);
+        //Fusion piece joint
         $this->envoiePieceJoint($form, $dom, $fusionPdf);
+        //envoie vers DW
         $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 

@@ -112,7 +112,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=100, name="Client")
      */
-    private ?string $client = null;
+    private string $client = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="Numero_OR",nullable=true)

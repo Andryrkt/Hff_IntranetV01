@@ -449,7 +449,7 @@ class DomForm2Type extends AbstractType
         TextType::class,
         [
             'label' => 'Nom du client',
-            'required' => false,
+            'required' => true,
             'constraints' => [
                     new Length([
                         'min' => 3,
