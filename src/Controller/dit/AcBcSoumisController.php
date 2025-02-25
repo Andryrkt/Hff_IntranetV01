@@ -5,19 +5,18 @@ namespace App\Controller\dit;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
+use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\dit\AcSoumisType;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dit\DitDevisSoumisAValidationModel;
-use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use App\Service\TableauEnStringService;
 
 class AcBcSoumisController extends Controller
 {
@@ -28,7 +27,6 @@ class AcBcSoumisController extends Controller
     private $historiqueOperation;
     private $contactAgenceAteRepository;
     private $ditRepository;
-    private $ditDevisSoumisAValidationModel;
 
     public function __construct()
     {
@@ -41,7 +39,6 @@ class AcBcSoumisController extends Controller
         $this->historiqueOperation = new HistoriqueOperationBCService;
         $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
     }
 
     /**
@@ -54,48 +51,40 @@ class AcBcSoumisController extends Controller
 
         // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $devis = $this->filtredataDevis($numDit);
-        
 
-        if(empty($devis)) {
+
+        if (empty($devis)) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
             $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         }
         
         $acSoumis = $this->initialisation($devis, $numDit);
-        
-        if(empty($acSoumis->getEmailContactHff()) || empty($acSoumis->getTelephoneContactHff())) {
-            $message = 'Erreur lors de la soumission, Impossible de soumettre le BC . . . l\'adresse email ou le numéro de téléphone du chef atelier est introuvable';
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        }
 
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            $blockage = $this->ConditionDeBlockage($devis, $data);
-            if($this->blockageSoumission($blockage)) {
-                $acSoumis = $this->initialisation($devis, $numDit);
-                $numBc = $acSoumis->getNumeroBc();
-                $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
-                $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
-                
-                /** CREATION , FUSION, ENVOIE DW du PDF */
-                $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-                $numClientBcDevis = $this->ditRepository->findNumClient($numDit).'_'.$numBc.'_'.$acSoumis->getNumeroDevis();
-                $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis);
-                $fileName= $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
-                $this->genererPdfAc->copyToDWAcSoumis($fileName);// copier le fichier dans docuware
-                
-                /** Envoie des information du bc dans le table bc_soumis */
-                $bcSoumis->setNomFichier($fileName);
-                $this->envoieBcDansBd($bcSoumis);
 
-                $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
-                $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
-            }
-            
+            $acSoumis = $this->initialisation($devis, $numDit);
+            $numBc = $acSoumis->getNumeroBc();
+            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
+            $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
+
+            /** CREATION , FUSION, ENVOIE DW du PDF */
+            $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
+            $numClientBcDevis = $this->ditRepository->findNumClient($numDit) . '_' . $numBc . '_' . $acSoumis->getNumeroDevis();
+            $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
+            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit);
+            $fileName = $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
+            $this->genererPdfAc->copyToDWAcSoumis($fileName); // copier le fichier dans docuware
+
+            /** Envoie des information du bc dans le table bc_soumis */
+            $bcSoumis->setNomFichier($fileName);
+            $this->envoieBcDansBd($bcSoumis);
+
+            $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
+            $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
         }
 
         self::$twig->display('dit/AcBcSoumis.html.twig', [
@@ -103,33 +92,12 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
-    private function ConditionDeBlockage(array $devis, AcSoumis $data): array
-    {
-        $numClientIps = $this->ditDevisSoumisAValidationModel->recupNomClient($devis[0]->getNumeroDevis())[0]['nom_client'];
-        $numClientSaisie = $data->getNomClient();
-
-        return [
-            'conditionNomClient' => $numClientIps !== $numClientSaisie,
-        ];
-    }
-
-    private function blockageSoumission(array $blockage): bool
-    {
-        if ($blockage['conditionNomClient']) {
-            $message = 'Erreur lors de la soumission, Impossible de soumettre le BC . . . le nom du client saisi ne correspond pas au nom du client du devis';
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        }
-
-        return true;
-    }
-
-
     private function filtredataDevis($numDit)
     {
         $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
-        
+
         return array_filter($devi, function ($item) {
-            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00 ;
+            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00;
         });
     }
 
@@ -137,10 +105,10 @@ class AcBcSoumisController extends Controller
     {
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
-        $options = [
-            'prefix' => 'bc',
+        $prefix = 'bc';
+        $options =[
+            'prefix' => $prefix,
             'numeroDoc' => $numClientBcDevis,
-            'mergeFiles' => true,
             'numeroVersion' => $numeroVersion,
             'mainFirstPage' => true
         ];
@@ -148,7 +116,7 @@ class AcBcSoumisController extends Controller
 
         return $fileName;
     }
-    
+
     private function envoieBcDansBd(BcSoumis $bcSoumis): void
     {
         self::$em->persist($bcSoumis);
@@ -158,15 +126,15 @@ class AcBcSoumisController extends Controller
     private function ajoutDonneeBc(AcSoumis $acSoumis, ?int $numeroVersionMax): BcSoumis
     {
         $this->bcSoumis
-                ->setNumDit($acSoumis->getNumeroDit())
-                ->setNumDevis($acSoumis->getNumeroDevis())
-                ->setNumBc($acSoumis->getNumeroBc())
-                ->setDateBc($acSoumis->getDateBc())
-                ->setDateDevis($acSoumis->getDateDevis())
-                ->setMontantDevis($acSoumis->getMontantDevis())
-                ->setDateHeureSoumission(new \DateTime())
-                ->setNumVersion($this->autoIncrement($numeroVersionMax))
-            ;
+            ->setNumDit($acSoumis->getNumeroDit())
+            ->setNumDevis($acSoumis->getNumeroDevis())
+            ->setNumBc($acSoumis->getNumeroBc())
+            ->setDateBc($acSoumis->getDateBc())
+            ->setDateDevis($acSoumis->getDateDevis())
+            ->setMontantDevis($acSoumis->getMontantDevis())
+            ->setDateHeureSoumission(new \DateTime())
+            ->setNumVersion($this->autoIncrement($numeroVersionMax))
+        ;
         return $this->bcSoumis;
     }
 
@@ -179,7 +147,7 @@ class AcBcSoumisController extends Controller
     }
 
     private function initialisation(array $devis, string $numDit): AcSoumis
-    {   
+    {
         $reparationRealiser = $this->ditRepository->findAteRealiserPar($numDit);
         $atelier = $this->contactAgenceAteRepository->findContactSelonAtelier($reparationRealiser);
 
@@ -198,22 +166,14 @@ class AcBcSoumisController extends Controller
         return $this->acSoumis;
     }
 
-    private function telephoneHff(array $atelier): string
+    private function telephoneHff(array $atelier)
     {
-        // if (empty($atelier)) {
-        //     return 'Le téléphone du chef atelier <realisé_par> est introuvable';
-        // }
-
-        return TableauEnStringService::TableauEnString(PHP_EOL, array_map(fn($el) => '- ' .$el->getTelephone(), $atelier), '') ;
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getTelephone(), $atelier), '');
     }
 
-    private function emailHff(array $atelier): string
+    private function emailHff(array $atelier)
     {
-        // if (empty($atelier)) {
-        //     return 'L\'adresse mail du chef atelier <realisé_par> est introuvable';
-        // }
-
-        return TableauEnStringService::TableauEnString(PHP_EOL, array_map(fn($el)=> '- ' .$el->getEmailString(), $atelier), '');
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getEmailString(), $atelier), '');
     }
 
     /**
@@ -230,10 +190,10 @@ class AcBcSoumisController extends Controller
             return $acc + $item->getMontantItv();
         }, 0);
 
-        // $montantForfait = array_reduce($devis, function ($acc, $item) {
-        //     return $acc + $item->getMontantForfait();
-        // }, 0);
+        $montantForfait = array_reduce($devis, function ($acc, $item) {
+            return $acc + $item->getMontantForfait();
+        }, 0);
 
-        return $montantItv;
+        return $montantItv - $montantForfait;
     }
 }

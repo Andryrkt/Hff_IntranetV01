@@ -20,7 +20,7 @@ class GenererNonFichierService
         $numeroDoc = $options['numeroDoc'] ?? '';
         $numeroVersion = $options['numeroVersion'] ?? '';
         $index = $option['index'] ?? '';
-        $extension = $option['extension']?? '';
+        $extension = $option['extension']?? '.pdf';
 
         return sprintf(
             '%s%s%s%s%s',

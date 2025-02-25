@@ -4,6 +4,8 @@ namespace App\Repository\dit;
 
 use App\Entity\dit\DitSearch;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 
@@ -585,13 +587,16 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
 
     public function findAteRealiserPar($numDit)
     {
-        return $this->createQueryBuilder('d')
-            ->select('d.reparationRealise')
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        try {
+            return $this->createQueryBuilder('d')
+                ->select('d.reparationRealise')
+                ->where('d.numeroDemandeIntervention = :numDit')
+                ->setParameter('numDit', $numDit)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return null; // Ou toute autre valeur par défaut
+        }
     }
 
     /** MIGRATION */
@@ -619,6 +624,17 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
         ->setParameter('numDit', $numDit)
         ->getQuery()
         ->getSingleScalarResult()
+        ;
+    }
+
+    public function findNumClient(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroClient')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 }
