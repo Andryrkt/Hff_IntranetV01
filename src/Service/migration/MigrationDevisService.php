@@ -2,7 +2,10 @@
 
 namespace App\Service\migration;
 
+
 use App\Model\migration\MigrationDevisModel;
+use App\Model\dit\migration\MigrationDevisModels;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class MigrationDevisService
@@ -10,7 +13,7 @@ class MigrationDevisService
     
     public function migrationDevis($output)
     {
-        $dataDebuts = $this->assignationValue($this->recupData());
+        $dataDebuts = $this->assignationValue( $this->recupData());
         $total = count($dataDebuts);
         $progressBar = new ProgressBar($output, $total);
         $progressBar->start();
@@ -26,11 +29,9 @@ class MigrationDevisService
 
     public function recupData()
     {
-        $nomTableDebut= '';
-        $nomDesColonnes = "tata,toto,titi";
-        $condition = [];
-        $migrationDataModel = new MigrationDevisModel($nomTableDebut);
-        return  $migrationDataModel->selectDevisMIgration($condition, $nomDesColonnes);
+        $numDevis = ['17099540','17099541'];
+        $migrationDevisModel = new MigrationDevisModels();
+        return $migrationDevisModel->recupDevisSoumisValidation(TableauEnStringService::TableauEnString(',',$numDevis));
     }
 
     public function insertData(array $dataDebut = [])
@@ -45,24 +46,24 @@ class MigrationDevisService
         $donners = [];
         foreach ($datas as $data) {
             $donners[] = [
-                'numeroDit' =>'',
-                'numeroDevis' => '',
-                'numeroItv' =>'',
-                'nombreLigneItv' => '',
-                'montantItv' => 0.00,
+                'numeroDit' =>$data['numero_dit']?? '',
+                'numeroDevis' => $data['numero_devis']?? '',
+                'numeroItv' =>$data['numero_itv']?? '',
+                'nombreLigneItv' => $data['nombre_ligne']?? '',
+                'montantItv' => $data['montant_itv']?? '',
                 'numeroVersion' => 1,
-                'montantPiece' => 0.00,
-                'montantMo' => 0.00,
-                'montantAchatLocaux' => 0.00,
-                'montantFraisDivers' => 0.00,
-                'montantLubrifiants' => 0.00,
-                'libelleItv' => '',
+                'montantPiece' => $data['montant_piece']?? '',
+                'montantMo' => $data['montant_mo']?? '',
+                'montantAchatLocaux' => $data['montant_achats_locaux']?? '',
+                'montantFraisDivers' => $data['montant_divers']?? '',
+                'montantLubrifiants' => $data['montant_lubrifiants']?? '',
+                'libellelItv' => $data['libell_itv']?? '',
                 'statut' => '',
-                'dateHeureSoumission' => new \DateTime(),
+                'dateHeureSoumission' => (new \DateTime())->format('Y-m-d H:i:s')?? '',
                 'montantForfait' => 0.00,
-                'natureOperation' =>'',
+                'natureOperation' =>$data['nature_operation']?? '',
                 'devisVenteOuForfait' => '',
-                'devise' => '',
+                'devise' => $data['devise']??'',
                 'montantVente' => 0.00
             ];
         }
