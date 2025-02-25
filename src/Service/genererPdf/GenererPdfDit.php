@@ -319,7 +319,7 @@ class GenererPdfDit extends GeneratePdf
         //$pdf->Output('exemple.pdf', 'I');
         // Obtention du chemin absolu du répertoire de travail
         //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
-        $documentRoot = 'C:/wamp64/www/Upload/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $documentRoot = 'C:/wamp64/www/Upload_TEST/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';
