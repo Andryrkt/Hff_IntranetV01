@@ -22,6 +22,7 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
+				{% set hasDAP = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -36,6 +37,8 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
+					{% elseif item.codeApp == 'DAP' %}
+						{% set hasDAP = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -139,6 +142,8 @@
 				<!-- FIN Dématérialisation -->
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
 
+				{# DEMANDE D'APPROVISIONNEMENT #}
+			{% if hasDAP %}
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						Demande d'Appro</a>
@@ -151,7 +156,7 @@
 						</li>
 					</ul>
 				</li>
-
+			{% endif %}
 				{% if hasMAG %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
