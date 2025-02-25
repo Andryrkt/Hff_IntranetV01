@@ -174,6 +174,7 @@ class InventaireController extends Controller
             'pmp' => 'PMP',
             'montant_inventaire' => 'Mont. Inventaire',
             'montant_ajuste' => 'Mont. Ajusté',
+            'dateInv'=> 'Date invetaire'
         ];
 
         array_unshift($data, $header);
