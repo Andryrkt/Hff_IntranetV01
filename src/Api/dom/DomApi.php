@@ -12,6 +12,7 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\mutation\Mutation;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DomApi extends Controller
@@ -150,7 +151,7 @@ class DomApi extends Controller
     {
         $personne = self::$em->getRepository(Personnel::class)->find($personnelId);
         $matricule = $personne->getMatricule();
-        $numTel = self::$em->getRepository(Dom::class)->findLastNumtel((string)$matricule);
+        $numTel = self::$em->getRepository(Mutation::class)->findLastNumtel((string)$matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
             'telephone' => $numTel

@@ -21,14 +21,14 @@ class Mutation
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", name="ID_Demande_Mutation")
+     * @ORM\Column(type="integer", name="id")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=11, name="Numero_Mutation")
      */
-    private string $numeroMutation;
+    private string $numeroMutation = '';
 
     /**
      * @ORM\Column(type="datetime", name="Date_Demande")
@@ -51,15 +51,10 @@ class Mutation
     private ?string $matricule = null;
 
     /**
-     * @ORM\Column(type="string", length=50, name="Categorie",nullable=true)
-     */
-    private $categorie = null;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="mutCatg")
      * @ORM\JoinColumn(name="categorie_id", referencedColumnName="id")
      */
-    private $categorieId;
+    private $categorie;
 
     /**
      * @ORM\Column(type="string", length=10, name="Type_Document")
@@ -91,11 +86,6 @@ class Mutation
      * @ORM\Column(type="datetime", name="Date_Fin")
      */
     private $dateFin;
-
-    /**
-     * @ORM\Column(type="string", length=50, name="Site",nullable=true)
-     */
-    private $site = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="Lieu_Mutation")
@@ -226,7 +216,7 @@ class Mutation
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="mutation")
      * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
      */
-    private $siteId;
+    private $site;
 
     /**
      * Get the value of id
@@ -364,26 +354,6 @@ class Mutation
     public function setCategorie($categorie)
     {
         $this->categorie = $categorie;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of categorieId
-     */
-    public function getCategorieId()
-    {
-        return $this->categorieId;
-    }
-
-    /**
-     * Set the value of categorieId
-     *
-     * @return  self
-     */
-    public function setCategorieId($categorieId)
-    {
-        $this->categorieId = $categorieId;
 
         return $this;
     }
@@ -964,26 +934,6 @@ class Mutation
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of siteId
-     */
-    public function getSiteId()
-    {
-        return $this->siteId;
-    }
-
-    /**
-     * Set the value of siteId
-     *
-     * @return  self
-     */
-    public function setSiteId($siteId)
-    {
-        $this->siteId = $siteId;
 
         return $this;
     }

@@ -32,7 +32,7 @@ class MutationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $mutForm = $form->getData();
-            dump($mutForm, $mutation);
+            dump($form->get('avanceSurIndemnite')->getData(), $form->get('modePaiementLabel')->getData(), $form->get('modePaiementValue')->getData(), $mutation);
             self::$em->persist($mutation);
             self::$em->flush();
             die;

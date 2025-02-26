@@ -1,17 +1,15 @@
 CREATE TABLE Demande_de_mutation(
-    ID_Demande_Mutation int IDENTITY(1,1) NOT NULL,
+    id int IDENTITY(1,1) NOT NULL,
 	Numero_Mutation varchar(11) NOT NULL,
 	Date_Demande date NOT NULL,
 	Nom varchar(100) NULL,
 	Prenom varchar(100) NULL,
 	Matricule varchar(50) NULL,
-	Categorie varchar(50) NULL,
 	Type_Document varchar(10) NOT NULL,
 	Code_Agence_Service_Debiteur varchar(6) NULL,
 	LibelleCodeAgence_Service varchar(50) NULL,
 	Date_Debut date NOT NULL,
 	Date_Fin date NOT NULL,
-	Site varchar(50) NULL,
 	Lieu_Mutation varchar(100) NOT NULL,
 	Motif_Mutation varchar(100) NOT NULL,
 	Client varchar(100) NOT NULL,
@@ -39,7 +37,7 @@ CREATE TABLE Demande_de_mutation(
 	agence_debiteur_id int NULL,
 	service_debiteur_id int NULL,
 	site_id int NULL,
-    CONSTRAINT PK_Demande_de_mutation PRIMARY KEY (ID_Demande_Mutation)
+    CONSTRAINT PK_Demande_de_mutation PRIMARY KEY (id)
 )
 
 INSERT INTO STATUT_DEMANDE(
