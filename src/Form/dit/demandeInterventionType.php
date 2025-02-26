@@ -101,7 +101,7 @@ class demandeInterventionType extends AbstractType
                         },
                         //'data' => $options['data']->getService(),
                         'attr' => [
-                            'class' => 'serviceDebiteur', 
+                            'class' => 'serviceDebiteur',
                             'disabled' => empty($services),
                         ]
                     ]
