@@ -66,7 +66,6 @@ class MutationFormType extends AbstractType
                 'agenceEmetteur',
                 TextType::class,
                 [
-                    'mapped'   => false,
                     'label'    => 'Agence Emetteur / Origine',
                     'attr'     => [
                         'readonly' => true,
@@ -79,7 +78,6 @@ class MutationFormType extends AbstractType
                 'serviceEmetteur',
                 TextType::class,
                 [
-                    'mapped'   => false,
                     'label'    => 'Service Emetteur / Origine',
                     'attr'     => [
                         'readonly' => true,
