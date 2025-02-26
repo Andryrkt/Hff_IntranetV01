@@ -83,7 +83,7 @@ class Mutation
     private $dateDebut;
 
     /**
-     * @ORM\Column(type="datetime", name="Date_Fin")
+     * @ORM\Column(type="datetime", name="Date_Fin", nullable=true)
      */
     private $dateFin;
 

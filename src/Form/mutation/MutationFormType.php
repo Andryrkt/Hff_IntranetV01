@@ -310,16 +310,7 @@ class MutationFormType extends AbstractType
                     'attr'  => [
                         'readonly' => true,
                         'class'    => 'readonly',
-                    ],
-                    'constraints' => [
-                        new NotBlank([
-                            'message' => 'Le montant total ne peut pas être vide.',
-                        ]),
-                        new GreaterThan([
-                            'value'   => 0,
-                            'message' => 'Le montant total doit être supérieur à 0.',
-                        ]),
-                    ],
+                    ]
                 ]
             )
             ->add(

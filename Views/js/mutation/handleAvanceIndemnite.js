@@ -11,6 +11,7 @@ const allRequiredField = [
   'mutation_form_modePaiementValue',
 ];
 const allNotRequiredField = [
+  'mutation_form_supplementJournaliere',
   'mutation_form_motifAutresDepense1',
   'mutation_form_autresDepense1',
   'mutation_form_motifAutresDepense2',
