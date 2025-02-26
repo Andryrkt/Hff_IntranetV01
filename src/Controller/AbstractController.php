@@ -3,13 +3,13 @@ namespace App\Controller;
 
 use Twig\Environment;
 use App\Entity\admin\utilisateur\User;
+use App\Service\session\SessionService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\log\UserActivityLoggerService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use App\Entity\admin\historisation\pageConsultation\PageHff;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
 abstract class AbstractController
 {
@@ -33,30 +33,29 @@ abstract class AbstractController
         return new RedirectResponse($url);
     }
 
-    protected function logUserVisit(string $nomRoute, ?array $params = null): void
+    protected function getSession(): SessionInterface
     {
-        $session = $this->container->get(SessionInterface::class);
-        $em = $this->container->get(EntityManagerInterface::class);
-
-        $idUtilisateur = $session->get('user_id');
-        $utilisateur = ($idUtilisateur !== '-') ? $em->getRepository(User::class)->find($idUtilisateur) : null;
-        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : '-';
-        $page = $em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
-
-        if ($page) {
-            $log = new UserLogger();
-            $log->setUtilisateur($utilisateurNom);
-            // $log->setNomPage($page->getNom());
-            $log->setParams($params ?: null);
-            $log->setUser($utilisateur);
-            $log->setPage($page);
-            $log->setMachineUser($machine);
-
-            $em->persist($log);
-            $em->flush();
-        }
+        return $this->container->get(SessionInterface::class);
     }
+
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return $this->container->get(EntityManagerInterface::class);
+    }
+
+
+    protected function getUserLogger(): UserActivityLoggerService
+    {
+        return $this->container->get(UserActivityLoggerService::class);
+    }
+
+    public function getCurrentUser(): ?User
+    {
+        return $this->getEntityManager()->getRepository(User::class)->find(
+            $this->getSession()->get('user_id')
+        );
+    }
+
 
     public function verifierSessionUtilisateur(): ?RedirectResponse
     {
@@ -68,39 +67,11 @@ abstract class AbstractController
 
         return null;
     }
-    public function utilisateurConnecter(): ?User
+   
+
+    protected function getSessionService(): SessionService
     {
-        $session = $this->container->get(SessionInterface::class);
-        $em = $this->container->get(EntityManagerInterface::class);
-
-        $idUtilisateur = $session->get('user_id');
-        return $em->getRepository(User::class)->find($idUtilisateur);
-    }
-
-    protected function SessionDestroy()
-    {
-        // Commence la session si elle n'est pas déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Supprime l'utilisateur de la session
-        unset($_SESSION['user']);
-
-        // Détruit la session
-        session_destroy();
-
-        // Réinitialise toutes les variables de session
-        session_unset();
-
-        // Redirige vers la page d'accueil
-        header("Location: /Hffintranet/");
-
-        // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
-        session_write_close();
-
-        // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
-        exit();
+        return $this->container->get(SessionService::class);
     }
 }
 
