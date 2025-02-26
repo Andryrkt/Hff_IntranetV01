@@ -48,10 +48,42 @@ class InventaireModel extends Model
                 ainvi_numinv_mait as numero_inv, 
                 ainvi_date as ouvert_le, 
                 TRIM(ainvi_comment) as description,
-                '' as nbre_casier,
+                 (
+                    select
+                        Count(distinct astp_casier)
+                    from
+                        art_invp,
+                        art_stp
+                    WHERE
+                        ainvp_soc = ainvi_soc
+                        AND ainvp_succ = ainvi_succ
+                        AND ainvp_numinv = ainvi_numinv
+                        AND ainvp_stktheo <> 0
+                        AND astp_succ = ainvp_succ
+                        AND astp_constp = ainvp_constp
+                        AND astp_refp = ainvp_refp
+                )  as nbre_casier,
                 count(ainvp_refp) as nbre_ref,
                 ROUND(sum(ainvp_stktheo)) as qte_comptee,
-                '' as statut,
+                 CASE
+                    WHEN (
+                        select
+                            Count(ainvp_refp) from art_invp WHERE  ainvp_soc = ainvi_soc
+                            AND ainvp_succ = ainvi_succ
+                            AND ainvp_numinv = ainvi_numinv
+                            AND ainvp_ecart <> 0
+                            ) = 0
+                        AND (
+                        select Count(ainvp_refp) from art_invp WHERE ainvp_soc = ainvi_soc
+                            AND ainvp_succ = ainvi_succ
+                            AND ainvp_numinv = ainvi_numinv
+                            AND ainvp_ctrlok = 0
+                            AND ainvp_nbordereau > 0
+                            ) = 0 THEN 
+                            'Soldé'
+                    ELSE 
+                    decode (ainvi_cloture, 'O', 'Clôturé', 'Encours')
+                END as statut,
                 trunc(sum(ainvp_prix * ainvp_stktheo)) as Montant
                 FROM  art_invi 
                 INNER  JOIN art_invp ON ainvp_numinv = ainvi_numinv_mait
@@ -61,7 +93,13 @@ class InventaireModel extends Model
                 $agence
                 $dateD
                 $dateF
-                group by 1,2,3,4
+                group by
+                ainvi_numinv_mait,
+                ainvi_date,
+                ainvi_comment,
+                ainvi_cloture,
+                nbre_casier,
+                statut
                 order by ainvi_numinv_mait desc
         ";
         $result = $this->connect->executeQuery($statement);
@@ -163,7 +201,7 @@ class InventaireModel extends Model
         return $resultat;
     }
 
-    public function qteCompte($numInv,$nb_sequence,$refp)
+    public function qteCompte($numInv, $nb_sequence, $refp)
     {
         $statement = " SELECT ROUND((ainvp_stktheo + ainvp_ecart)) as qte_comptee
                         FROM art_invp
@@ -171,8 +209,8 @@ class InventaireModel extends Model
                         and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp 
                         and astp_refp = ainvp_refp
-                        WHERE ainvp_numinv = (select ainvi_numinv from art_invi where ainvi_numinv_mait = '".$numInv."' and ainvi_sequence = '".$nb_sequence."')
-                        and ainvp_refp ='".$refp."'
+                        WHERE ainvp_numinv = (select ainvi_numinv from art_invi where ainvi_numinv_mait = '" . $numInv . "' and ainvi_sequence = '" . $nb_sequence . "')
+                        and ainvp_refp ='" . $refp . "'
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
         ";
         $result = $this->connect->executeQuery($statement);
