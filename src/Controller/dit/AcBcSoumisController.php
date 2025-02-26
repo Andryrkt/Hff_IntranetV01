@@ -134,6 +134,7 @@ class AcBcSoumisController extends Controller
             ->setMontantDevis($acSoumis->getMontantDevis())
             ->setDateHeureSoumission(new \DateTime())
             ->setNumVersion($this->autoIncrement($numeroVersionMax))
+            ->setStatut('Soumis à validation')
         ;
         return $this->bcSoumis;
     }

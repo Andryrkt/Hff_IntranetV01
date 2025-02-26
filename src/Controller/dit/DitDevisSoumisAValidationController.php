@@ -66,6 +66,7 @@ class DitDevisSoumisAValidationController extends Controller
             if ($this->blockageSoumission($blockages, $numDevis)) {
                 
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
+
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
                 //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
@@ -112,7 +113,7 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $numClientIps = $this->ditDevisSoumisAValidationModel->recupNumeroClient($numDevis)[0]['numero_client'];
             $numClientIntranet = $TrouverDansDit->getNumeroClient();
-            $numDevisNomFichier = explode('_', $originalName)[1];
+            $numDevisNomFichier = !preg_match("/$numDevis/", $originalName);
             $idStatutDit = $TrouverDansDit->getIdStatutDemande()->getId();
             $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
             $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
@@ -122,7 +123,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         return  [
             'numClient' => $numClientIps <> $numClientIntranet, // est -ce le n° client dans IPS est different du n° client dans intranet
-            'numDevisNomFichier' => $numDevisNomFichier <> $numDevis, // le n° devis sur le nom de fichier est différent du n°devis IPS
+            'numDevisNomFichier' => $numDevisNomFichier, // le n° devis contient sur le nom de fichier?
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION

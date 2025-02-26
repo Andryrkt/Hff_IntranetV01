@@ -51,10 +51,17 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    public function copyToDwFacture($numeroVersion, $numeroOR)
+    public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        copy($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    public function copyToDwFactureFichier($numeroVersion, $numeroDoc, $index)
+    {
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'. $index .'.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/fichiers/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '_'. $index .'.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 

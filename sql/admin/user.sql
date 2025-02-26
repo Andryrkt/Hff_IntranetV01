@@ -126,3 +126,5 @@ SET mail_demandeur = CASE
     ELSE '-'
 END
 WHERE num_migr=4
+
+UPDATE users SET personnel_id = NULL WHERE personnel_id NOT IN (SELECT id FROM personnel);

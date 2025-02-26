@@ -100,7 +100,10 @@ class demandeInterventionType extends AbstractType
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
                         //'data' => $options['data']->getService(),
-                        'attr' => ['class' => 'serviceDebiteur']
+                        'attr' => [
+                            'class' => 'serviceDebiteur', 
+                            'disabled' => empty($services),
+                        ]
                     ]
                 );
             })
@@ -109,13 +112,15 @@ class demandeInterventionType extends AbstractType
                 $data = $event->getData();
 
 
-                $agenceId = $data['agence'];
+                $agenceId = $data['agence']?? null;
 
-                $agence = $this->agenceRepository->find($agenceId);
-                if($agence === null){
-                    $services = [];
-                } else {
-                    $services = $agence->getServices();
+                $services = [];
+
+                if ($agenceId) {
+                    $agence = $this->agenceRepository->find($agenceId);
+                    if ($agence) {
+                        $services = $agence->getServices();
+                    }
                 }
                 
 

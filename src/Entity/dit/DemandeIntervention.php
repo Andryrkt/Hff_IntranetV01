@@ -1141,7 +1141,7 @@ class DemandeIntervention
     }
 
 
-    public function setDevisValide($statutDevis): self
+    public function setStatutDevis($statutDevis): self
     {
         $this->statutDevis = $statutDevis;
 

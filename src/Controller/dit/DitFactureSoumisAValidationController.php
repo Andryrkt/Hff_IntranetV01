@@ -5,7 +5,6 @@ namespace App\Controller\dit;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
-use App\Service\FusionPdf;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -55,6 +54,7 @@ class DitFactureSoumisAValidationController extends Controller
 
         
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
+    
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
@@ -75,69 +75,70 @@ class DitFactureSoumisAValidationController extends Controller
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
-            // if (strpos($originalName, 'FACTURE CESSION') !== 0) {
-            //     $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
+            if (strpos($originalName, 'FACTURE CESSION') !== 0) {
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
 
-            //     $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            // }
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            }
 
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
-
+            
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
-
+           
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
-            // if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
-            //     $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+            if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
+                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
 
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } elseif ($nbFact === 0) {
-            //     $message = "La facture ne correspond pas à l’OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } elseif ($nbFact === 0) {
+                $message = "La facture ne correspond pas à l’OR";
 
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } elseif ($nbFactSqlServer > 0) {
-            //     $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } elseif ($nbFactSqlServer > 0) {
+                $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
 
-            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            // } else {
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
                 $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $this->ditFactureSoumiAValidation);
-
+            
                 $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
-                // if ($estRi) {
-                //     $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
-                //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-                // } else {
+                if ($estRi) {
+                    $message = "La facture ne correspond pas ou correspond partiellement à un rapport d'intervention.";
+                    $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+                } else {
 
                     $interneExterne = $this->ditRepository->findInterneExterne($numDit);
                     /** CREATION PDF */
                     $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
                     $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission());
-                    
+                    dd($pathPageDeGarde, $pathFichiers, $interneExterne);
                     /**
                      * TODO : facture pour le client externe
                      */
                     if($interneExterne === 'INTERNE') {
-                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 1);
-                        $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
-                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        // $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 1);
+                        // $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
+                        // $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                     } else {
-                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        // $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        // $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                     }
                     
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
-                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    // $this->ajoutDataFactureAValidation($factureSoumisAValidation);
 
                     $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
-            //     }
-            // }
+                }
+            }
         }
 
         $this->logUserVisit('dit_insertion_facture', [
@@ -219,7 +220,7 @@ class DitFactureSoumisAValidationController extends Controller
     }
 
     private function nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)
-    {
+    {dd($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
         $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         if (empty($nbFactInformix)) {
             $nbFact = 0;

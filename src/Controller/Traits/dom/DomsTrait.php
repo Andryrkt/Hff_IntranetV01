@@ -448,7 +448,7 @@ trait DomsTrait
         //Fusion piece joint
         $this->envoiePieceJoint($form, $dom, $fusionPdf);
         //envoie vers DW
-        $genererPdfDom->copyInterneToDOXCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
+        $genererPdfDom->copyInterneToDOCUWARE($dom->getNumeroOrdreMission(), $dom->getAgenceEmetteurId()->getCodeAgence() . '' . $dom->getServiceEmetteurId()->getCodeService());
     }
 
     private function verifierSiDateExistant(string $matricule,  $dateDebutInput, $dateFinInput): bool
