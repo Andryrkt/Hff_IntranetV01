@@ -32,12 +32,12 @@
 						{{ macroForm.sousTitre('Agence et Service', {'class':'mb-1'} )}}
 						<div class="row">
 							<div class="col-6">
-								{{form_row(form.agenceDebiteur)}}
-								{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
-							</div>
-							<div class="col-6">
 								{{ form_row(form.agenceEmetteur)}}
 								{{ form_row(form.serviceEmetteur)}}
+							</div>
+							<div class="col-6">
+								{{form_row(form.agenceDebiteur)}}
+								{{ macroForm.spinner_load('spinner-service-debiteur', 'service-debiteur-container', form.serviceDebiteur) }}
 							</div>
 						</div>
 					</div>

@@ -351,7 +351,7 @@ class MutationFormType extends AbstractType
                             'mimeTypes' => [
                                 'application/pdf',
                             ],
-                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                            'mimeTypesMessage' => 'Veuillez mettre un fichier PDF valide.',
                         ])
                     ],
                 ]
@@ -368,7 +368,7 @@ class MutationFormType extends AbstractType
                             'mimeTypes' => [
                                 'application/pdf',
                             ],
-                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                            'mimeTypesMessage' => 'Veuillez mettre un fichier PDF valide.',
                         ])
                     ],
                 ]
