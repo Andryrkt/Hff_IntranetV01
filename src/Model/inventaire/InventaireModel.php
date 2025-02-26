@@ -80,7 +80,7 @@ class InventaireModel extends Model
                             AND ainvp_ctrlok = 0
                             AND ainvp_nbordereau > 0
                             ) = 0 THEN 
-                            'Soldé'
+                            'SOLDE'
                     ELSE 
                     decode (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS')
                 END as statut,
