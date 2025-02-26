@@ -23,6 +23,10 @@ class MutationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        //recuperation de l'utilisateur connecter
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
         $mutation = new Mutation;
         $this->initialisationMutation($mutation, self::$em);
 
@@ -31,12 +35,8 @@ class MutationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $mutForm = $form->getData();
-            dump($form->get('avanceSurIndemnite')->getData(), $form->get('modePaiementLabel')->getData(), $form->get('modePaiementValue')->getData(), $mutation);
-            self::$em->persist($mutation);
-            self::$em->flush();
-            die;
-            $this->enregistrementValeurDansMutation($mutForm);
+            $this->enregistrementValeurDansMutation($form, self::$em, $user);
+            $this->genererEtEnvoyerPdf($form, $user);
         }
 
         self::$twig->display('mutation/new.html.twig', [
