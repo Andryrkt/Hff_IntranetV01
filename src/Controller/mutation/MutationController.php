@@ -30,9 +30,9 @@ class MutationController extends Controller
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $mutForm = $form->getData();
-            dump($mutForm);
+            dump($mutForm, $mutation);
             self::$em->persist($mutation);
             self::$em->flush();
             die;

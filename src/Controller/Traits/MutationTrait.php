@@ -10,7 +10,7 @@ trait MutationTrait
 {
     private function initialisationMutation(Mutation $mutation, $em)
     {
-        $agenceServiceIps = $this->agenceServiceIpsString();
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $mutation
             ->setDateDemande(new DateTime())

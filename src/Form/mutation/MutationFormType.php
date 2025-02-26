@@ -58,29 +58,34 @@ class MutationFormType extends AbstractType
             $sites[] = $value->getSite();
         }
 
+        $agenceEmetteur = $options["data"]->getAgenceEmetteur();
+        $serviceEmetteur = $options["data"]->getServiceEmetteur();
+
         $builder
             ->add(
                 'agenceEmetteur',
                 TextType::class,
                 [
+                    'mapped'   => false,
                     'label'    => 'Agence Emetteur / Origine',
                     'attr'     => [
                         'readonly' => true,
                         'class'    => 'readonly',
                     ],
-                    'data'     => $options["data"]->getAgenceEmetteur() ?? null
+                    'data'     => $agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()
                 ]
             )
             ->add(
                 'serviceEmetteur',
                 TextType::class,
                 [
+                    'mapped'   => false,
                     'label'    => 'Service Emetteur / Origine',
                     'attr'     => [
                         'readonly' => true,
                         'class'    => 'readonly',
                     ],
-                    'data'     => $options["data"]->getServiceEmetteur() ?? null
+                    'data'     => $serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService()
                 ]
             )
             ->add(
@@ -371,8 +376,8 @@ class MutationFormType extends AbstractType
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
 
-                $codeAgence = explode(" ", $options['data']->getAgenceEmetteur())[0];   // obtenir le code agence de l'utilisateur
-                $codeService = explode(" ", $options['data']->getServiceEmetteur())[0];  // obtenir le code service de l'utilisateur
+                $codeAgence = $options['data']->getAgenceEmetteur()->getCodeAgence();   // obtenir le code agence de l'utilisateur
+                $codeService = $options['data']->getServiceEmetteur()->getCodeService();  // obtenir le code service de l'utilisateur
 
                 // Récupération de l'ID du service agence irium
                 $agenceServiceIriumId = $this->em->getRepository(AgenceServiceIrium::class)
