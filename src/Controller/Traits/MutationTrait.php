@@ -85,7 +85,7 @@ trait MutationTrait
             "serviceDestination"    => $mutation->getServiceDebiteur()->getLibelleService(),
             "client"                => $mutation->getClient(),
             "avanceSurIndemnite"    => $form->get('avanceSurIndemnite')->getData(),
-            "NbJ"                   => $mutation->getNombreJourAvance(),
+            "NbJ"                   => '',
             "indemnite"             => '',
             "supplement"            => '',
             "totalIndemnite"        => '',
@@ -102,13 +102,11 @@ trait MutationTrait
         ];
         if ($tab['avanceSurIndemnite'] === 'OUI') {
             $devis = $mutation->getDevis();
-            $tab['indemnite'] = $mutation->getIndemniteForfaitaire() . ' ' . $devis . ' / jour';
             if ($form->get('supplementJournaliere')->getData() !== null) {
                 $tab['supplement'] = $form->get('supplementJournaliere')->getData() . ' ' . $devis . ' / jour';
             }
-            $tab['totalIndemnite'] = $mutation->getTotalIndemniteForfaitaire() . ' ' . $devis;
-            if ($mutation->getTotalAutresDepenses() !== null) {
-                $tab['totaldep'] = $mutation->getTotalAutresDepenses() . ' ' . $devis;
+            if ($mutation->getNombreJourAvance() !== null) {
+                $tab['NbJ'] = $mutation->getNombreJourAvance();
             }
             if ($mutation->getMotifAutresDepense1() !== null) {
                 $tab['motifdep01'] = $mutation->getMotifAutresDepense1();
@@ -116,6 +114,17 @@ trait MutationTrait
             if ($mutation->getMotifAutresDepense2() !== null) {
                 $tab['motifdep02'] = $mutation->getMotifAutresDepense2();
             }
+            if ($mutation->getAutresDepense1() !== null) {
+                $tab['montdep01'] = $mutation->getAutresDepense1() . ' ' . $devis;
+            }
+            if ($mutation->getAutresDepense2() !== null) {
+                $tab['montdep02'] = $mutation->getAutresDepense2() . ' ' . $devis;
+            }
+            if ($mutation->getTotalAutresDepenses() !== null) {
+                $tab['totaldep'] = $mutation->getTotalAutresDepenses() . ' ' . $devis;
+            }
+            $tab['indemnite'] = $mutation->getIndemniteForfaitaire() . ' ' . $devis . ' / jour';
+            $tab['totalIndemnite'] = $mutation->getTotalIndemniteForfaitaire() . ' ' . $devis;
             $tab['totalGeneral'] = $mutation->getTotalGeneralPayer();
             $tab['libModPaie'] = $form->get('modePaiementLabel')->getData();
             $tab['valModPaie'] = $form->get('modePaiementValue')->getData();

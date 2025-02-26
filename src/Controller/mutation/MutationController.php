@@ -37,6 +37,7 @@ class MutationController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $this->enregistrementValeurDansMutation($form, self::$em, $user);
             $this->genererEtEnvoyerPdf($form, $user);
+            $this->redirectToRoute("mutation_liste");
         }
 
         self::$twig->display('mutation/new.html.twig', [
