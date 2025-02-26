@@ -1,6 +1,6 @@
 import { handleAvance } from './handleAvanceIndemnite';
 import { handleService } from './agenceService';
-import { formatFieldsToUppercase } from './formatField';
+import { formatFieldsToUppercaseAndSlice } from './formatField';
 import {
   calculTotal,
   calculTotalAutreDepense,
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /** Formater des données en majuscule */
-  formatFieldsToUppercase();
+  formatFieldsToUppercaseAndSlice();
 
   /** Calcul de l'indemnité total forfaitaire */
   supplementJournalier.addEventListener('input', function () {

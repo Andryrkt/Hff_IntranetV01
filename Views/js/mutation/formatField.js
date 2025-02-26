@@ -2,18 +2,20 @@
  * CHAMP A METTRE EN MAJUSCULE
  */
 const allToUpperCaseFieldId = [
-  'mutation_form_lieuMutation',
-  'mutation_form_client',
-  'mutation_form_motifMutation',
-  'mutation_form_motifAutresDepense1',
-  'mutation_form_motifAutresDepense2',
+  { sliceEnd: 35, fieldId: 'mutation_form_lieuMutation' },
+  { sliceEnd: 70, fieldId: 'mutation_form_client' },
+  { sliceEnd: 70, fieldId: 'mutation_form_motifMutation' },
+  { sliceEnd: 45, fieldId: 'mutation_form_motifAutresDepense1' },
+  { sliceEnd: 45, fieldId: 'mutation_form_motifAutresDepense2' },
 ];
 
-export function formatFieldsToUppercase() {
-  allToUpperCaseFieldId.forEach((fieldId) => {
+export function formatFieldsToUppercaseAndSlice() {
+  allToUpperCaseFieldId.forEach(({ sliceEnd, fieldId }) => {
     let field = document.getElementById(fieldId);
-    field.addEventListener('input', function () {
-      this.value = this.value.toUpperCase();
-    });
+    if (field) {
+      field.addEventListener('input', function () {
+        this.value = this.value.toUpperCase().slice(0, sliceEnd);
+      });
+    }
   });
 }
