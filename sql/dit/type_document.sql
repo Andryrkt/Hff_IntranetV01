@@ -104,5 +104,21 @@ VALUES
         CONVERT(TIME, GETDATE ()),
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'CDEFRN', 
+        'COMMANDE FOURNISSEUR', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
+    ),
+    (
+        'SW', 
+        'SWIFT', 
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ()),
+        CONVERT(DATE, GETDATE ()),
+        CONVERT(TIME, GETDATE ())
     )
 ;
