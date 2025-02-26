@@ -510,7 +510,7 @@ class Controller
         // $log->setNom_page('-');
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
-        $log->setPage($page);
+        // $log->setPage($page);
         $log->setMachineUser($machine);
 
         self::$em->persist($log);

@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               statut = detail.statut;
             }
-
+           
             if (detail.message == null) {
               message = "";
             } else {
