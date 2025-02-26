@@ -506,10 +506,11 @@ class Controller
         $log            = new UserLogger();
 
         $log->setUtilisateur($utilisateurNom ?: '-');
-        $log->setNom_page($page->getNom());
+        // $log->setNom_page($page->getNom());
+        $log->setNom_page('-');
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
-        $log->setPage($page);
+        // $log->setPage($page);
         $log->setMachineUser($machine);
 
         self::$em->persist($log);
