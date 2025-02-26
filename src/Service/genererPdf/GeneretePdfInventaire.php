@@ -53,7 +53,7 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->Ln(5);
 
         // Création du tableau
-        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetFont('dejavusans', '', 6.5);
         $pdf->Cell(15, 6, 'CST', 1, 0, 'C');
         $pdf->Cell(30, 6, 'Référence', 1, 0, 'C');
         $pdf->Cell($usable_heigth - 225, 6, 'Description', 1, 0, 'C');
@@ -67,7 +67,7 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->Cell(35, 6, 'Montant écart', 1, 1, 'C');
 
         // Remplissage du tableau avec les données
-        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetFont('dejavusans', '', 6.5);
         $total = 0;
         foreach ($data as $row) {
             $montant_ecarts = str_replace('.', '', $row['montant_ajuste']);
