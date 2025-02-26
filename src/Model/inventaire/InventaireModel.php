@@ -82,7 +82,7 @@ class InventaireModel extends Model
                             ) = 0 THEN 
                             'Soldé'
                     ELSE 
-                    decode (ainvi_cloture, 'O', 'Clôturé', 'Encours')
+                    decode (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS')
                 END as statut,
                 trunc(sum(ainvp_prix * ainvp_stktheo)) as Montant
                 FROM  art_invi 
