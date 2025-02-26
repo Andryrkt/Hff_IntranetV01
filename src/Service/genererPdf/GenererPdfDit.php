@@ -62,7 +62,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 100, $dit->getDetailDemande(), 1, 'J', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 100, $dit->getDetailDemande(), 1, '', 0, 0, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(133);
@@ -315,7 +315,7 @@ class GenererPdfDit extends GeneratePdf
         //$pdf->Output('exemple.pdf', 'I');
         // Obtention du chemin absolu du répertoire de travail
         //$documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/dit/');
-        $documentRoot = 'C:/wamp64/www/Upload_TEST/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $documentRoot = 'C:/wamp64/www/Upload/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';
