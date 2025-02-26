@@ -58,6 +58,9 @@ export async function updateIndemnite(siteId) {
 }
 
 export async function updateModePaiement(personnelId) {
+  const labelMode = document.querySelector(
+    "label[for='mutation_form_modePaiementValue']"
+  );
   const spinnerElement = document.getElementById('spinner-mode-value');
   const containerElement = document.getElementById('mode-value-container');
   try {
@@ -67,10 +70,12 @@ export async function updateModePaiement(personnelId) {
       `/Hffintranet/personnel-fetch-id/${personnelId}`
     );
     if (modePaiementLabelInput.value === 'VIREMENT BANCAIRE') {
+      labelMode.textContent = 'CPT';
       modePaiementValueInput.classList.add('readonly');
       modePaiementValueInput.value = personne.compteBancaire;
       modePaiementValueInput.required = false;
     } else {
+      labelMode.textContent = 'TEL';
       modePaiementValueInput.classList.remove('readonly');
       modePaiementValueInput.value = personne.telephone;
       modePaiementValueInput.required = true;
