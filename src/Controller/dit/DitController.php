@@ -3,16 +3,20 @@
 namespace App\Controller\dit;
 
 
+use App\Model\dit\DitModel;
+use App\Entity\admin\Agence;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\utilisateur\User;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 class DitController extends Controller
@@ -37,7 +41,7 @@ class DitController extends Controller
         $user = self::$em->getRepository(User::class)->find($userId);
 
         /** Autorisation accées */
-        $this->autorisationAcces($user);
+        // $this->autorisationAcces($user);
         /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();
