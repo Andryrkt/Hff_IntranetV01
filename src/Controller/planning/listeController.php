@@ -85,7 +85,7 @@ class ListeController extends Controller
                 $backString = '';
             }
 
-            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit,true);
+            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit);
              $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
             // Calcule le nombre total de pages
             $pagesCount = ceil($resultat / $limit);
