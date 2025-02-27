@@ -45,27 +45,38 @@ trait PlanningModelTrait
     }
 
 
-    private function typeLigne($criteria){
-      
-      switch ($criteria->getTypeLigne()) {
-        case "TOUTES": 
-            $vtypeligne = " ";
-            break;
-        case "PIECES_MAGASIN":
-            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
-            break;
-        case "ACHAT_LOCAUX":
-            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
-            break;
-        case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
-            break;
-        default:
-            $vtypeligne = " ";
-            break;
+    private function typeLigne($criteria) {
+      // Déterminer la valeur de typeLigne selon si criteria est un objet ou un tableau
+      if (is_array($criteria)) {
+          $typeLigne = $criteria['typeLigne'] ?? null;
+      } elseif (is_object($criteria)) {
+          $typeLigne = $criteria->getTypeLigne();
+      } else {
+          throw new \InvalidArgumentException('Criteria must be an array or an object.');
       }
+  
+      // Appliquer les conditions selon typeLigne
+      switch ($typeLigne) {
+          case "TOUTES": 
+              $vtypeligne = " ";
+              break;
+          case "PIECES_MAGASIN":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
+              break;
+          case "ACHAT_LOCAUX":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
+              break;
+          case "LUBRIFIANTS":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
+              break;
+          default:
+              $vtypeligne = " ";
+              break;
+      }
+  
       return $vtypeligne;
-    }
+  }
+  
     
     // private function sumPieces($criteria){
       

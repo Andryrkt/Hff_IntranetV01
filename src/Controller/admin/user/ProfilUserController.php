@@ -42,8 +42,6 @@ class ProfilUserController extends Controller
 
         }
 
-        $this->logUserVisit('user_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display(
             'admin/user/profilUser.html.twig',
             [
@@ -63,8 +61,6 @@ class ProfilUserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
-
-        $this->logUserVisit('user_list'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'admin/user/listProfilUser.html.twig',
@@ -107,10 +103,6 @@ class ProfilUserController extends Controller
             // $this->profilUser->update($this->nomTable, $profilUser, "ID_Profil = {$id}");
 
         }
-
-        $this->logUserVisit('user_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display(
             'admin/user/editProfilUser.html.twig',

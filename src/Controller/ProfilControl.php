@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class ProfilControl extends Controller
 {
     /**
-     * @Route("/Acceuil", name="profil_acceuil")
+     * @Route("/Accueil", name="profil_acceuil")
      */
     public function showPageAcceuil()
     {

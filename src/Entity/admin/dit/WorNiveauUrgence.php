@@ -148,6 +148,6 @@ class WorNiveauUrgence{
 
     public function __toString()
     {
-        return $this->description; 
+        return $this->description ?? 'N/A'; 
     }
 }

@@ -22,13 +22,13 @@ trait BadmsForm2Trait
 
     private function notification($message)
     {
-        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("badms_newForm1");
     }
 
     private function dateMiseEnlocation($data)
     {
-        if($data[0]["date_location"] === null){
+        if ($data[0]["date_location"] === null) {
             $dateMiseLocation = null;
         } else {
 
@@ -40,54 +40,54 @@ trait BadmsForm2Trait
     private function initialisation(Badm $badm, array $form1Data, $data, $em): Badm
     {
         $badm
-       ->setTypeMouvement($form1Data['typeMouvemnt'])
-       //caracteristique du materiel
-       ->setGroupe($data[0]["famille"])
-       ->setAffectation($data[0]["affectation"])
-       ->setConstructeur($data[0]["constructeur"])
-       ->setDesignation($data[0]["designation"])
-       ->setModele($data[0]["modele"])
-       ->setNumParc($data[0]["num_parc"])
-       ->setNumSerie($data[0]["num_serie"])
-       ->setIdMateriel((int)$data[0]["num_matricule"])
-       ->setAnneeDuModele($data[0]["annee"])
-       ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
-       //etat machine
-       ->setHeureMachine((int)$data[0]['heure'])
-       ->setKmMachine((int)$data[0]['km'])
-       //Agence - service - casier Emetteur
-       ;
-       $idTypeMouvement = $badm->getTypeMouvement()->getId();
-       $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
-       $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
-       $serviceEmetteur = $em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
-       if($data[0]["casier_emetteur"] === null){
-           $casierEmetteur = '';
+            ->setTypeMouvement($form1Data['typeMouvemnt'])
+            //caracteristique du materiel
+            ->setGroupe($data[0]["famille"])
+            ->setAffectation($data[0]["affectation"])
+            ->setConstructeur($data[0]["constructeur"])
+            ->setDesignation($data[0]["designation"])
+            ->setModele($data[0]["modele"])
+            ->setNumParc($data[0]["num_parc"])
+            ->setNumSerie($data[0]["num_serie"])
+            ->setIdMateriel((int)$data[0]["num_matricule"])
+            ->setAnneeDuModele($data[0]["annee"])
+            ->setDateAchat($this->formatageDate($data[0]["date_achat"]))
+            //etat machine
+            ->setHeureMachine((int)$data[0]['heure'])
+            ->setKmMachine((int)$data[0]['km'])
+            //Agence - service - casier Emetteur
+        ;
+        $idTypeMouvement = $badm->getTypeMouvement()->getId();
+        $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
+        $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
+        $serviceEmetteur = $em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
+        if ($data[0]["casier_emetteur"] === null) {
+            $casierEmetteur = '';
         } else {
             $casierEmetteur =  $data[0]["casier_emetteur"];
-       }
+        }
 
-       
-       //Agence - service - casier destinataire
-       if( $idTypeMouvement === 1) {
+
+        //Agence - service - casier destinataire
+        if ($idTypeMouvement === 1) {
             $agencedestinataire = null;
             $serviceDestinataire = null;
             $casierDestinataire = null;
             $dateMiseLocation = null;
             $serviceEmetteur = $em->getRepository(Service::class)->find(2);
-       } elseif ($idTypeMouvement === 2) {
+        } elseif ($idTypeMouvement === 2) {
             $agencedestinataire = null;
             $serviceDestinataire = null;
             $casierDestinataire = null;
             //$serviceEmetteur = $em->getRepository(Service::class)->find(2);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
-       } elseif ($idTypeMouvement === 3) {
+        } elseif ($idTypeMouvement === 3) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = null;
             $dateMiseLocation = $this->dateMiseEnlocation($data);
-       } elseif ($idTypeMouvement === 4) {
-            if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
+        } elseif ($idTypeMouvement === 4) {
+            if (in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
                 $serviceDestinataire = $em->getRepository(Service::class)->find(2);
             } else {
@@ -96,34 +96,34 @@ trait BadmsForm2Trait
             }
             $casierDestinataire = null;
             $dateMiseLocation = $this->dateMiseEnlocation($data);
-       } elseif($idTypeMouvement === 5) {
+        } elseif ($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
-       }
+        }
 
 
-       $badm->setAgence($agencedestinataire);
+        $badm->setAgence($agencedestinataire);
         $badm->setService($serviceDestinataire);
         $badm->setCasierDestinataire($casierDestinataire);
         $badm->setDateMiseLocation($dateMiseLocation);
-        $badm->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService());
-       $badm->setCasierEmetteur($casierEmetteur);
-       
+        $badm->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService());
+        $badm->setCasierEmetteur($casierEmetteur);
+
         //ENTREE EN PARC
         $badm->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]));
-        
+
         //BILAN FINANCIERE
         $badm->setCoutAcquisition((float)$data[0]["droits_taxe"])
-        ->setAmortissement((float)$data[0]["amortissement"])
-        ->setValeurNetComptable((float)$data[0]["droits_taxe"] - $data[0]["amortissement"])
-        
-        //date de demande
-       ->setDateDemande(new \DateTime())
-       ;
+            ->setAmortissement((float)$data[0]["amortissement"])
+            ->setValeurNetComptable((float)$data[0]["droits_taxe"] - $data[0]["amortissement"])
 
-       return $badm;
+            //date de demande
+            ->setDateDemande(new \DateTime())
+        ;
+
+        return $badm;
     }
 
     /**
@@ -136,12 +136,12 @@ trait BadmsForm2Trait
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
-       
+
         $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/';
-       
+
         $file->move($fileDossier, $fileName);
 
-        $setPieceJoint = 'set'.ucfirst($nomFichier);
+        $setPieceJoint = 'set' . ucfirst($nomFichier);
         $badm->$setPieceJoint($fileName);
 
         // Retourne le chemin complet du fichier pour une éventuelle fusion
@@ -167,21 +167,21 @@ trait BadmsForm2Trait
         }
 
         array_unshift($pdfFiles, $mainPdf);
-        
-        if($form->get("nomImage")->getData() !== null){
+
+        if ($form->get("nomImage")->getData() !== null) {
             $pdfPath = $this->uplodeFile($form, $badm, "nomImage");
             if ($pdfPath !== null) {
                 $pdfFiles[] = $pdfPath;
             }
         }
 
-        if($form->get("nomFichier")->getData() !== null){
+        if ($form->get("nomFichier")->getData() !== null) {
             $pdfPath = $this->uplodeFile($form, $badm, "nomFichier");
             if ($pdfPath !== null) {
                 $pdfFiles[] = $pdfPath;
             }
         }
-        
+
 
         // Nom du fichier PDF fusionné
         $mergedPdfFile = $mainPdf;
@@ -192,7 +192,7 @@ trait BadmsForm2Trait
         }
     }
 
-    
+
     private function ouiNonOr($orDb): string
     {
         if (empty($orDb)) {
@@ -228,14 +228,14 @@ trait BadmsForm2Trait
         $agenceEmetteur = $em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]]);
         $badm->setAgenceEmetteur(($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence()));
         $serviceEmetteur = $em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]]);
-        if($data[0]["casier_emetteur"] === null){
+        if ($data[0]["casier_emetteur"] === null) {
             $casierEmetteur = '';
-         } else {
-             $casierEmetteur =  $data[0]["casier_emetteur"];
+        } else {
+            $casierEmetteur =  $data[0]["casier_emetteur"];
         }
-        
-        
-        if( $idTypeMouvement === 1) {
+
+
+        if ($idTypeMouvement === 1) {
             $agencedestinataire = $form->getData()->getAgence();
             $serviceDestinataire = $form->getData()->getService();
             $casierDestinataire = $form->getData()->getCasierDestinataire();
@@ -255,7 +255,7 @@ trait BadmsForm2Trait
             $dateMiseLocation = $this->dateMiseEnlocation($data);
             $numParc = $data[0]["num_parc"];
         } elseif ($idTypeMouvement === 4) {
-            if(in_array($agenceEmetteur->getId(), [9, 10, 11])) {
+            if (in_array($agenceEmetteur->getId(), [9, 10, 11])) {
                 $agencedestinataire = $em->getRepository(Agence::class)->find(9);
                 $serviceDestinataire = $em->getRepository(Service::class)->find(2);
             } else {
@@ -265,14 +265,14 @@ trait BadmsForm2Trait
             $casierDestinataire = null;
             $dateMiseLocation = $this->dateMiseEnlocation($data);
             $numParc = $data[0]["num_parc"];
-        } elseif($idTypeMouvement === 5) {
+        } elseif ($idTypeMouvement === 5) {
             $agencedestinataire = $agenceEmetteur;
             $serviceDestinataire = $serviceEmetteur;
             $casierDestinataire = $em->getRepository(CasierValider::class)->findOneBy(['casier' => $casierEmetteur]);
             $dateMiseLocation = $this->dateMiseEnlocation($data);
             $numParc = $data[0]["num_parc"];
         }
-           
+
         // if ($data[0]['code_affect'] === 'LCD') {
         //     $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         // } else {
@@ -280,35 +280,34 @@ trait BadmsForm2Trait
         // }
 
         $badm
-        ->setNumParc($numParc)
-        ->setHeureMachine((int)$data[0]['heure'])
-        ->setKmMachine((int)$data[0]['km'])
-        ->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]))
-        ->setCoutAcquisition((float)$data[0]["droits_taxe"])
-        ->setAmortissement((float)$data[0]["amortissement"])
-        ->setValeurNetComptable((float)$data[0]["droits_taxe"] - $data[0]["amortissement"])
-        ->setAgence($agencedestinataire)
-        ->setService($serviceDestinataire)
-        ->setCasierDestinataire($casierDestinataire)
-        ->setDateMiseLocation($dateMiseLocation)
-        ->setStatutDemande($em->getRepository(StatutDemande::class)->find(15))
-        ->setHeureDemande($this->getTime())
-        ->setNumBadm($this->autoINcriment('BDM'))
-        ->setAgenceServiceEmetteur(substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3))
-        ->setAgenceServiceDestinataire($badm->getAgence()->getCodeAgence() . $badm->getService()->getCodeService())
-        ->setNomUtilisateur($em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getNomUtilisateur())
-        ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
-        ->setCasierEmetteur($casierEmetteur)
+            ->setNumParc($numParc)
+            ->setHeureMachine((int)$data[0]['heure'])
+            ->setKmMachine((int)$data[0]['km'])
+            ->setEtatAchat($this->changeEtatAchat($data[0]["mmat_nouo"]))
+            ->setCoutAcquisition((float)$data[0]["droits_taxe"])
+            ->setAmortissement((float)$data[0]["amortissement"])
+            ->setValeurNetComptable((float)$data[0]["droits_taxe"] - $data[0]["amortissement"])
+            ->setAgence($agencedestinataire)
+            ->setService($serviceDestinataire)
+            ->setCasierDestinataire($casierDestinataire)
+            ->setDateMiseLocation($dateMiseLocation)
+            ->setStatutDemande($em->getRepository(StatutDemande::class)->find(15))
+            ->setHeureDemande($this->getTime())
+            ->setNumBadm($this->autoINcriment('BDM'))
+            ->setAgenceServiceEmetteur(substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3))
+            ->setAgenceServiceDestinataire($badm->getAgence()->getCodeAgence() . $badm->getService()->getCodeService())
+            ->setNomUtilisateur($em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getNomUtilisateur())
+            ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())
+            ->setCasierEmetteur($casierEmetteur)
         ;
-        
     }
 
     private function genereteTabPdf($OR, $data, $badm, $form, $em, $idTypeMouvement)
     {
-        if( $idTypeMouvement === 1 || $idTypeMouvement === 2 || $idTypeMouvement === 3 || $idTypeMouvement === 4) {
+        if ($idTypeMouvement === 1 || $idTypeMouvement === 2 || $idTypeMouvement === 3 || $idTypeMouvement === 4) {
             $image = '';
             $extension = '';
-        } elseif($idTypeMouvement === 5) {
+        } elseif ($idTypeMouvement === 5) {
             $image = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
@@ -328,13 +327,13 @@ trait BadmsForm2Trait
             'Date_Achat' => $this->formatageDate($data[0]['date_achat']),
             'Annee_Model' => $data[0]['annee'],
             'Modele' => $data[0]['modele'],
-            'Agence_Service_Emetteur' => substr($badm->getAgenceEmetteur(),0,2) . '-' . substr($badm->getServiceEmetteur(),0,3),
+            'Agence_Service_Emetteur' => substr($badm->getAgenceEmetteur(), 0, 2) . '-' . substr($badm->getServiceEmetteur(), 0, 3),
             'Casier_Emetteur' => $badm->getCasierEmetteur(),
             'Agence_Service_Destinataire' => $badm->getAgence()->getCodeAgence() . '-' . $badm->getService()->getCodeService(),
             'Casier_Destinataire' => $badm->getCasierDestinataire() === null ? '' : $badm->getCasierDestinataire()->getCasier(),
             'Motif_Arret_Materiel' => $badm->getMotifMateriel(),
             'Etat_Achat' => $badm->getEtatAchat(),
-            'Date_Mise_Location' => $badm->getDateMiseLocation() === null ? '': $badm->getDateMiseLocation()->format('d/m/Y'),
+            'Date_Mise_Location' => $badm->getDateMiseLocation() === null ? '' : $badm->getDateMiseLocation()->format('d/m/Y'),
             'Cout_Acquisition' => (float)$badm->getCoutAcquisition(),
             'Amort' => (float)$data[0]['amortissement'],
             'VNC' => (float)$badm->getValeurNetComptable(),
@@ -345,7 +344,7 @@ trait BadmsForm2Trait
             'Heures_Machine' => $data[0]['heure'],
             'Kilometrage' => $data[0]['km'],
             'Email_Emetteur' => $em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getMail(),
-            'Agence_Service_Emetteur_Non_separer' => substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3),
+            'Agence_Service_Emetteur_Non_separer' => substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3),
             'image' => $image,
             'extension' => $extension,
             'OR' => $OR

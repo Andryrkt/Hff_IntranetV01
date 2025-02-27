@@ -27,12 +27,12 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     public function findNumOrItvValide()
     {
         $query = $this->createQueryBuilder('osv')
-        ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
-        ->where('osv.statut IN (:statut)')
-        ->setParameter('statut', ['Validé', 'Livré','Livré partiellement'])
-        ->getQuery()
-        ->getSingleColumnResult();
-    
+            ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
+            ->where('osv.statut IN (:statut)')
+            ->setParameter('statut', ['Validé', 'Livré', 'Livré partiellement'])
+            ->getQuery()
+            ->getSingleColumnResult();
+
         return $query;
     }
 
@@ -40,7 +40,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         $nbrItv = $this->createQueryBuilder('osv')
             ->select('COUNT(osv.numeroItv)')
-            ->where('osv.numeroOR = :numOr') 
+            ->where('osv.numeroOR = :numOr')
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();
@@ -62,9 +62,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')
-            ->select('osv.numeroItv')  
-            ->where('osv.numeroOR = :numOr') 
-            ->andWhere('osv.statut IN (:statut)')  
+            ->select('osv.numeroItv')
+            ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.statut IN (:statut)')
             ->andwhere('osv.numeroVersion = :numeroVersionMax')
             ->setParameters([
                 'numeroVersionMax' => $numeroVersionMax,
@@ -73,7 +73,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ])
             ->getQuery()
             ->getSingleColumnResult();
-            
+
         return $nbrItv;
     }
 
@@ -113,8 +113,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->where('osv.numeroOR = :numOr')
             ->setParameter('numOr', $numOr)
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 
@@ -144,14 +144,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->select('MAX(osv2.numeroVersion)')
             ->where('osv2.numeroOR = :numOr')
             ->setParameter('numOr', $numOr);
-    
+
         $maxVersion = $qbMax->getQuery()->getSingleScalarResult();
-    
+
         if ($maxVersion === null || $maxVersion == 1) {
             // Si la version max est 1 ou nulle, il n'y a pas de version avant la version maximale
             return null;
         }
-    
+
         // Étape 2: Récupérer la ligne qui a la version juste avant la version max
         $qb = $this->createQueryBuilder('osv')
             ->where('osv.numeroOR = :numOr')
@@ -160,10 +160,10 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()
             ->getResult();
-    
+
         return $qb;
     }
-    
+
 
     public function findMontantValide($numOr, $numItv)
     {
@@ -215,5 +215,4 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $montantValide;
     }
-
 }

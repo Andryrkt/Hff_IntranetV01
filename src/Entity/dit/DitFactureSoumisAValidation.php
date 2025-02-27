@@ -22,7 +22,7 @@ class DitFactureSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8, name="numero_fact")
      */
-    private string $numeroFact;
+    private string $numeroFact = '';
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_dit")

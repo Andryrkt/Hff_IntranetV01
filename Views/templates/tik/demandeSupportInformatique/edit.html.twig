@@ -24,7 +24,7 @@
 							</div>
 
 							<div class=" col-12 col-md-1">
-								<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+								<a href="{{ path("liste_tik_index")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 							</div>
 						</div>
 						{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
@@ -97,7 +97,7 @@
 					</div>
 					<div class="d-flex justify-content-end">
 						<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
-						<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<button type="submit" class="btn bouton ajout-overlay" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
@@ -115,12 +115,10 @@
 
 {% block javascript %}
 	<script src="/Hffintranet/Views/js/tik/tikSupport.js"></script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-CKEDITOR.replace('demande_support_informatique[detailDemande]', {
-language: 'fr',
-toolbar: 'basic', // Personnaliser la barre d'outils
-});
-});
-	</script>
-{% endblock %}
+	<script>// document.addEventListener("DOMContentLoaded", function () {
+// CKEDITOR.replace('demande_support_informatique[detailDemande]', {
+// language: 'fr',
+// toolbar: 'basic', // Personnaliser la barre d'outils
+// });
+// });
+</script>{% endblock %}
