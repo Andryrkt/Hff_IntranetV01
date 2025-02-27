@@ -336,10 +336,10 @@ class DemandeIntervention
     private ?datetime $dateDevisRattache = null;
     
     /**
-     * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
+     * @ORM\Column(type="string", length=3, name="statut_devis",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $devisValide = null;
+    private ?string $statutDevis = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_validation_devis", nullable=true)
@@ -493,6 +493,13 @@ class DemandeIntervention
     private $estOrEqDit;
 
     private bool $estOrASoumi = false;
+
+    /**
+     * @ORM\Column(type="integer", name="num_migr")
+     *
+     * @var integer
+     */
+    private int $numMigration;
     
     /** ===================================================================================================================
      * 
@@ -1105,13 +1112,13 @@ class DemandeIntervention
 
     public function getDevisValide()
     {
-        return $this->devisValide;
+        return $this->statutDevis;
     }
 
 
-    public function setDevisValide($devisValide): self
+    public function setDevisValide($statutDevis): self
     {
-        $this->devisValide = $devisValide;
+        $this->statutDevis = $statutDevis;
 
         return $this;
     }
@@ -1517,6 +1524,30 @@ class DemandeIntervention
     public function setEstOrASoumi($estOrASoumi)
     {
         $this->estOrASoumi = $estOrASoumi;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numMigration
+     *
+     * @return  integer
+     */ 
+    public function getNumMigration()
+    {
+        return $this->numMigration;
+    }
+
+    /**
+     * Set the value of numMigration
+     *
+     * @param  integer  $numMigration
+     *
+     * @return  self
+     */ 
+    public function setNumMigration($numMigration)
+    {
+        $this->numMigration = $numMigration;
 
         return $this;
     }

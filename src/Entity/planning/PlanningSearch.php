@@ -26,7 +26,8 @@ class PlanningSearch
     private $section;
     private $months;
     private ?bool $orBackOrder = false;
-
+    private $typeDocument;
+    private $reparationRealise;
 
     public function getNiveauUrgence()
     {
@@ -420,6 +421,46 @@ class PlanningSearch
     public function setOrBackOrder($orBackOrder)
     {
         $this->orBackOrder = $orBackOrder;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of typeDocument
+     */ 
+    public function getTypeDocument()
+    {
+        return $this->typeDocument;
+    }
+
+    /**
+     * Set the value of typeDocument
+     *
+     * @return  self
+     */ 
+    public function setTypeDocument($typeDocument)
+    {
+        $this->typeDocument = $typeDocument;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of reparationRealise
+     */ 
+    public function getReparationRealise()
+    {
+        return $this->reparationRealise;
+    }
+
+    /**
+     * Set the value of reparationRealise
+     *
+     * @return  self
+     */ 
+    public function setReparationRealise($reparationRealise)
+    {
+        $this->reparationRealise = $reparationRealise;
 
         return $this;
     }

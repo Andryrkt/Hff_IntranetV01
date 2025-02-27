@@ -304,6 +304,13 @@ class GenererPdfDit extends GeneratePdf
             echo "\nErreur lors de la génération du fichier PDF.";
         }
 
+        if (!file_exists($filePath) || filesize($filePath) == 0) {
+            throw new \Exception("Le fichier PDF n'a pas été généré correctement : " . $filePath);
+        }
+        $fileContent = file_get_contents($filePath);
+        if (strpos($fileContent, '%PDF-') === false) {
+            throw new \Exception("Erreur : le fichier PDF généré ne contient pas d'en-tête PDF valide.");
+        }
     }
 
 

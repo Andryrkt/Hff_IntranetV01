@@ -11,19 +11,18 @@ use Symfony\Component\Form\FormEvents;
 use App\Entity\planning\PlanningSearch;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use App\Entity\admin\dit\WorTypeDocument;
 use setasign\Fpdi\PdfParser\Filter\Flate;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\planning\ListePlanningSearch;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
-class PlanningSearchType extends AbstractType
+class ListePlanningSearchType extends AbstractType
 {
     use Transformation; 
    
@@ -51,14 +50,23 @@ class PlanningSearchType extends AbstractType
                 'ACHATS LOCAUX' => 'ACHAT_LOCAUX',
                 'LUBRIFIANTS' => 'LUBRIFIANTS'
             ];
-            const REPARATION_REALISE = [
-                'ATE TANA' => 'ATE TANA',
-                'ATE STAR' => 'ATE STAR',
-                'ATE MAS' => 'ATE MAS',
-                'ATE TMV' => 'ATE TMV',
-                'ATE FTU' => 'ATE FTU',
-                'ATE ABV' => 'ATE ABV',
-            ];
+            // const SECTION = [
+            //     'ASS' 	ASSURANCE
+            //     'AUT'	AUTRES
+            //     'AVI'	AVION
+            //     'BAT'	FER ET BATIMENTS
+            //     'CSP'	CUSTOMER SUPPORT
+            //     'DGO'	ATELIER DIEGO
+            //     'ELE'	ELECTRICITE
+            //     'FLE'	FLEXIBLE
+            //     'FRO'	FROID
+            //     'MAC'	MACHINE ET MATERIELS
+            //     'MAG'	MAGASIN
+            //     'MOT'	MOTEURS ET MACHINES OUTILS
+            //     'PEI'	TOLERIE & PEINTURE & MECANIQUE
+            //     'PNE'	PNEUMATIQUE
+            //     'REB'	REBOBINAGE
+            // ]
 
             public function __construct()
             {
@@ -134,7 +142,7 @@ class PlanningSearchType extends AbstractType
                 ])
                 ->add('plan',ChoiceType::class,[
                     'label' => 'Planification',
-                    'required' => true,
+                    'required' => false,
                     'choices' => self::PLANIFIER,
                     'attr' => ['class'=> 'plan'],
                     'data' => 'PLANIFIE'
@@ -197,29 +205,7 @@ class PlanningSearchType extends AbstractType
                     'placeholder' => " -- Choisir un service--",
                     'expanded' => true,
                 ])
-                ->add('typeDocument', 
-                EntityType::class, [
-                    'label' => 'Type de document ',
-                    'placeholder' => '-- Choisir--',
-                    'class' => WorTypeDocument::class,
-                    'choice_label' => 'description',
-                    'required' => false,
-                    'query_builder' => function (WorTypeDocumentRepository $repository) {
-                        return $repository->createQueryBuilder('w')
-                            ->where('w.id >= :id')
-                            ->setParameter('id', 5)
-                            ->orderBy('w.description', 'ASC');
-                    }
-                ])
-                ->add('reparationRealise', 
-                ChoiceType::class, 
-                [
-                    'label' => "Réparation réalisé par *",
-                    'choices' => self::REPARATION_REALISE,
-                    'placeholder' => '-- Choisir le répartion réalisé --',
-                    'required' => false,
-                    
-                ])
+                
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
                     $data = $event->getData();
@@ -236,19 +222,16 @@ class PlanningSearchType extends AbstractType
                 }) 
                 ->add('months', ChoiceType::class, [
                     'choices' => [
-                        '3 mois suivant'    => 3,
-                        '6 mois suivant'    => 6,
-                        '12 mois suivant'   => 12,
-                        '12 mois précédent' => 13,
-                        'Année encours'     => 9,
-                        'Année suivante'    => 11,
-                        'Année précédente'  => 14,
+                        '3 mois suivant' => 3,
+                        '6 mois suivant' => 6,
+                        'Année encours' => 9,
+                        'Année suivante' => 11,
                     ],
                     'expanded' => false, // Utiliser une liste déroulante
                     'multiple' => false, // Sélectionner une seule valeur
-                    'label'    => 'Nombre de mois',
-                    'data'     => 3
-                ])
+                    'label' => 'Nombre de mois', // Label du champ
+                    'data' => 3
+                ]);
                 ;
 
     }
@@ -256,7 +239,7 @@ class PlanningSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => PlanningSearch::class,
+            'data_class' => ListePlanningSearch::class,
         ]);
        
     }
