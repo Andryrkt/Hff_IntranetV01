@@ -69,9 +69,9 @@
                       <td>{{item.desi}}</td>
                       <td>{{item.casier}}</td>
                       <td>{{item.stock_theo}}</td>
-                      <td>{{item.qte_comptee_1}}</td>
-                      <td>{{item.qte_comptee_2}}</td>
-                      <td>{{item.qte_comptee_3}}</td>
+                      <td>{{ item.qte_comptee_1 is same as("0") ? "" : item.qte_comptee_1 }}</td>
+                      <td>{{ item.qte_comptee_2 is same as("0") ? "" : item.qte_comptee_2 }}</td>
+                      <td>{{ item.qte_comptee_3 is same as("0")  ? "" : item.qte_comptee_3 }}</td>
                       <td>{{item.ecart}}</td>
                       <td>{{item.pourcentage_nbr_ecart}}</td>
                       <td>{{item.pmp}}</td>

@@ -41,7 +41,7 @@
          <tbody id="tableBody">
             {% for item in data %}
                 <tr>
-                <td> <a href="{{path('detail_inventaire',{numinv : item.numero})}}" >  {{item.numero}}</a></td>
+                <td> <a href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank">  {{item.numero}}</a></td>
                 <td> {{item.description}}</td>
                 <td> {{item.ouvert}}</td>
                 <td> {{item.nbr_casier}}</td>
