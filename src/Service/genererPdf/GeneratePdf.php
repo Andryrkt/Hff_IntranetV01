@@ -58,11 +58,14 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    public function copyToDwFactureFichier($numeroVersion, $numeroDoc, $index)
+    public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'. $index .'.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/fichiers/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '_'. $index .'.pdf';
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        for ($i=1; $i <= count($pathFichiers); $i++) { 
+            $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+            $cheminDestinationLocal = $pathFichiers[$i];
+            copy($cheminDestinationLocal, $cheminFichierDistant);
+        }
+        
     }
 
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)

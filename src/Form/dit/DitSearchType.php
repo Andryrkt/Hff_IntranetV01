@@ -299,7 +299,7 @@ class DitSearchType extends AbstractType
                 'query_builder' => function (AgenceRepository $agenceRepository) {
                     return $agenceRepository->createQueryBuilder('a')
                         ->where('a.codeAgence IN (:codes)')
-                        ->setParameter('codes', [90, 91, 92])
+                        ->setParameter('codes', ['90', '91', '92'])
                         ->orderBy('a.codeAgence', 'ASC');
                 },
                 'attr' => ['class' => 'agenceEmetteur']

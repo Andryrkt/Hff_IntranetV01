@@ -71,14 +71,15 @@ class DitOrsSoumisAValidationController extends Controller
             }
 
             /** DEBUT CONDITION DE BLOCAGE */
-            $ditInsertionOrSoumis->setNumeroOR(explode('_', $originalName)[1]);
-
+            $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
+            
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+
             $idMateriel = $ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
-
+            
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
 
             $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
@@ -113,21 +114,22 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setHeureSoumission($this->getTime())
                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
                 ;
-
+                
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 //dump($orSoumisValidationModel);
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 //dump($orSoumisValidataion);
-
+                
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($orSoumisValidataion);
-
+                
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $ditOrsoumisAValidationModel, $genererPdfDit);
+
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf);
                 $genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
@@ -198,6 +200,7 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $numDevis = $this->ditModel->recupererNumdevis($numOr);
         $nbSotrieMagasin = $ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
+
         $nbAchatLocaux = $ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
         if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';

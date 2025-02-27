@@ -1,6 +1,6 @@
 function initializeFileHandlers(idSuffix) {
   const fileInput = document.querySelector(
-    `#dit_ors_soumis_a_validation_pieceJoint${idSuffix}`
+    `#dit_ors_soumis_a_validation_pieceJoint0${idSuffix}`
   );
   const fileName = document.querySelector(`.file-name-${idSuffix}`);
   const uploadBtn = document.getElementById(`upload-btn-${idSuffix}`);
@@ -80,7 +80,7 @@ function formatFileSize(size) {
 }
 
 // Utilisation pour plusieurs fichiers
-["01", "02", "03", "04"].forEach((idSuffix) => {
+["1", "2", "3", "4"].forEach((idSuffix) => {
   initializeFileHandlers(idSuffix);
 });
 
