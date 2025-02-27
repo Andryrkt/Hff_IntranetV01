@@ -118,14 +118,15 @@ class DitFactureSoumisAValidationController extends Controller
                     /** CREATION PDF */
                     $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
                     $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission());
-                    dd($pathPageDeGarde, $pathFichiers, $interneExterne);
+                    // dd($pathPageDeGarde, $pathFichiers, $interneExterne);
+                    // dd('Une erreur s\'est produite');
                     /**
                      * TODO : facture pour le client externe
                      */
                     if($interneExterne === 'INTERNE') {
-                        // $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 1);
-                        // $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
-                        // $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                        $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
+                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                     } else {
                         // $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                         // $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
@@ -134,7 +135,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
-                    // $this->ajoutDataFactureAValidation($factureSoumisAValidation);
+                    $this->ajoutDataFactureAValidation($factureSoumisAValidation);
 
                     $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $dataForm->getNumeroFact(), 'dit_index', true);
                 }
