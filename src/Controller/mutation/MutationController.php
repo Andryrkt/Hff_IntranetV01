@@ -95,4 +95,21 @@ class MutationController extends Controller
             ]
         );
     }
+
+    /**
+     * @Route("/mutation/detail/{id}", name="mutation_detail")
+     */
+    public function detailMutation($id)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $mutation = self::$em->getRepository(Mutation::class)->find($id);
+        self::$twig->display(
+            'mutation/detail.html.twig',
+            [
+                'mutation' => $mutation
+            ]
+        );
+    }
 }
