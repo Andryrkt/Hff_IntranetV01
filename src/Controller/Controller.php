@@ -13,46 +13,30 @@ use App\Model\ProfilModel;
 use App\Service\FusionPdf;
 use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
-use App\Service\GenererPdf;
 use App\Entity\admin\Agence;
-use App\Model\OdbcCrudModel;
 use App\Entity\admin\Service;
 use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
-use App\Entity\admin\PageHff;
-use App\Entity\admin\UserLogger;
 use App\Model\dom\DomDetailModel;
-
 use App\Model\TransferDonnerModel;
-
-use App\Service\FlashManagerService;
-
-use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
-use App\Service\ExcelExporterService;
 use App\Entity\admin\utilisateur\User;
-
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
 //use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
-include dirname(__DIR__) . '/Service/GenererPdf.php';
 
 class Controller
 {
-
-
     protected $fusionPdf;
-    protected $genererPdf;
 
     protected $ldap;
     protected $profilModel;
@@ -71,9 +55,6 @@ class Controller
 
     protected $request;
     protected $response;
-
-    protected $excelExport;
-    protected $flashManager;
 
     protected static $validator;
 
@@ -97,46 +78,42 @@ class Controller
     public function __construct()
     {
 
-        $this->fusionPdf = new FusionPdf();
-        $this->genererPdf = new GenererPdf();
+        $this->fusionPdf        = new FusionPdf();
 
-        $this->ldap = new LdapModel();
+        $this->ldap             = new LdapModel();
 
-        $this->profilModel = new ProfilModel();
-
-
-        $this->badm = new BadmModel();
-
-        $this->Person = new PersonnelModel();
-
-        $this->DomModel = new DomModel();
-        $this->detailModel = new DomDetailModel();
-        $this->duplicata = new DomDuplicationModel();
-        $this->domList = new DomListModel();
-
-        $this->ProfilModel = new ProfilModel();
-
-        $this->request = Request::createFromGlobals();
-
-        $this->response = new Response();
-
-        $this->excelExport = new ExcelExporterService();
-        $this->flashManager = new FlashManagerService();
-
-        $this->parsedown = new Parsedown();
-
-        //$this->profilUser = new ProfilUserModel();
-
-        $this->ditModel = new DitModel();
-
-        $this->transfer04 = new TransferDonnerModel();
+        $this->profilModel      = new ProfilModel();
 
 
-        $this->sessionService = new SessionManagerService();
+        $this->badm             = new BadmModel();
 
-        $this->accessControl = new AccessControlService();
+        $this->Person           = new PersonnelModel();
 
-        $this->excelService = new ExcelService();
+        $this->DomModel         = new DomModel();
+        $this->detailModel      = new DomDetailModel();
+        $this->duplicata        = new DomDuplicationModel();
+        $this->domList          = new DomListModel();
+
+        $this->ProfilModel      = new ProfilModel();
+
+        $this->request          = Request::createFromGlobals();
+
+        $this->response         = new Response();
+
+        $this->parsedown        = new Parsedown();
+
+        //$this->profilUser     = new ProfilUserModel();
+
+        $this->ditModel         = new DitModel();
+
+        $this->transfer04       = new TransferDonnerModel();
+
+
+        $this->sessionService   = new SessionManagerService();
+
+        $this->accessControl    = new AccessControlService();
+
+        $this->excelService     = new ExcelService();
     }
 
     public static function setTwig($twig)
@@ -236,10 +213,6 @@ class Controller
         return $Date_system;
     }
 
-
-
-
-
     protected function conversionCaratere(string $chaine): string
     {
         return iconv('Windows-1252', 'UTF-8', $chaine);
@@ -267,8 +240,9 @@ class Controller
     /**
      * redirigé l'utilisateur vers la route donnée en paramètre
      *
-     * @param string $routeName
-     * @param array $params
+     * @param string $routeName nom de la route en question 
+     *      Exemple: $routeName = "profil_acceuil"
+     * @param array $params tableau de paramètres à ajouter dans la route
      * @return void
      */
     protected function redirectToRoute(string $routeName, array $params = [])
@@ -523,18 +497,20 @@ class Controller
 
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->sessionService->get('user_id');
-        $utilisateur   = self::$em->getRepository(User::class)->find($idUtilisateur);
-        
-        $page          = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-        $machine       = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
-        $log           = new UserLogger();
-        $log->setUtilisateur($utilisateur->getNomUtilisateur());
+        $log            = new UserLogger();
+
+        $log->setUtilisateur($utilisateurNom ?: '-');
         $log->setNom_page($page->getNom());
+        // $log->setNom_page('-');
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
-        $log->setPage($page);
+        // $log->setPage($page);
         $log->setMachineUser($machine);
 
         self::$em->persist($log);

@@ -195,7 +195,7 @@
     </div>
 {% endmacro %}
 
-{% macro spinner_load(spinner_id, form_container_id, form_data_id, form_data) %}
+{% macro spinner_load(spinner_id, form_container_id, form_data) %}
     <div class="spinner-container">
         {{ form_label(form_data) }} <br>
         <div class="spinner-load" id="{{spinner_id}}" style="display: none;">
@@ -215,5 +215,29 @@
     </div>
     <div id="{{ form_container_id }}" class="mb-3">
 	    {{ form_widget(form_data) }}
+    </div>
+{% endmacro %}
+
+
+{% macro select_change( form_select, spinner_service, service_container) %}
+    <div class="spinner-container">
+	    <label for="form_service">{{ form_label(form_select) }}</label><br>
+        <div class="spinner" id="{{spinner_service}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{service_container}}">
+	    {{ form_widget(form_select) }}
     </div>
 {% endmacro %}

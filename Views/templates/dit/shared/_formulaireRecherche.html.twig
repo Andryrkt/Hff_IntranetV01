@@ -17,13 +17,14 @@
 						{{ form_row(form.typeDocument) }}
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.sectionAffectee) }}
+						{{ form_row(form.numDevis) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
-						{{ form_widget(form.niveauUrgence) }}
-						{{form_row(form.internetExterne)}}
-						{{form_row(form.numOr)}}
-						{{form_row(form.sectionSupport1)}}
+						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
+						{{ form_row(form.internetExterne)}}
+						{{ form_row(form.numOr)}}
+						{{ form_row(form.sectionSupport1)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}

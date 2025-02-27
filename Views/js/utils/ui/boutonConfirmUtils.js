@@ -32,13 +32,7 @@ export function setupConfirmationButtons() {
             }).then(() => {
               overlay.classList.remove("hidden");
 
-              let form;
-              if (formSelector) {
-                form = document.querySelector(formSelector);
-              } else {
-                form = button.closest("form");
-              }
-
+              const form = document.querySelector(formSelector);
               if (form) {
                 form.submit();
               } else {
