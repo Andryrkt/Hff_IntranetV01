@@ -23,7 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class UserType extends AbstractType
 {
@@ -38,7 +38,7 @@ class UserType extends AbstractType
         $this->sessionService = new SessionManagerService();
     }
 
-    
+
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -46,10 +46,10 @@ class UserType extends AbstractType
         $password = $this->sessionService->get('password');
         $user = $this->em->getRepository(User::class)->find($userId)->getNomUtilisateur();
         $users = $this->ldap->infoUser($user, $password);
-   
+
         $nom = [];
         foreach ($users as $key => $value) {
-            $nom[]=$key;
+            $nom[] = $key;
         }
 
 
@@ -181,6 +181,13 @@ class UserType extends AbstractType
                 'expanded' => false,
                 'required' => false
             ])
+            ->add('numTel', 
+                TextType::class,
+                [
+                    'label' => 'N° Telephone',
+                    'required' => false
+                ]
+            )
     ;
     }
 
@@ -190,6 +197,4 @@ class UserType extends AbstractType
             'data_class' => User::class,
         ]);
     }
-
-
 }

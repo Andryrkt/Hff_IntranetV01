@@ -12,7 +12,7 @@ class GeneratePdf
     /**
      * Copie le PDF generer dans l'upload 
      */
-    public function copyInterneToDOXCUWARE($NumDom, $codeAg_serv)
+    public function copyInterneToDOCUWARE($NumDom, $codeAg_serv)
     {
         $cheminFichierDistant = self::DOCUWARE . '/ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
         $cheminDestinationLocal = self::UPLOAD . '/' . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';

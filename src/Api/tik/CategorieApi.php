@@ -18,7 +18,7 @@ class CategorieApi extends Controller
     {
         $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
 
-        $sousCategorie =[];
+        $sousCategorie = [];
         foreach ($categorie->getSousCategories() as $value) {
             $sousCategorie[] = [
                 'value' => $value->getId(),
@@ -40,7 +40,7 @@ class CategorieApi extends Controller
     {
         $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
 
-        $autreCategorie =[];
+        $autreCategorie = [];
         foreach ($sousCategorie->getAutresCategories() as $value) {
             $autreCategorie[] = [
                 'value' => $value->getId(),

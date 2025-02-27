@@ -1,0 +1,137 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+<link href="/Hffintranet/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+<link href="/Hffintranet/Views/css/dit/acBcSoumis.css" rel="stylesheet"/>
+{% endblock%}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								SOUMISSION BC
+							</h3>
+
+						</div>
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("dit_index")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<div class="row">
+								<div class="col-12 col-md-3">
+									{{ form_row(form.dateCreation)}}
+									{{ form_errors(form.dateCreation)}}
+
+									{{ form_row(form.telephoneContactHff)}}
+									{{ form_errors(form.telephoneContactHff)}}
+								</div>
+								<div class="col-12 col-md-5">
+									{{ form_row(form.numeroDevis)}}
+									{{ form_errors(form.numeroDevis)}}
+
+									{{ form_row(form.emailContactHff)}}
+									{{ form_errors(form.emailContactHff)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.dateDevis)}}
+									{{ form_errors(form.dateDevis)}}
+									{{ form_row(form.nomClient)}}
+									{{ form_errors(form.nomClient)}}
+									<div id="suggestion" class="suggestions"></div>
+
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="row">
+								<div class="col-12 col-md-4">
+									{{ form_row(form.montantDevis)}}
+									{{ form_errors(form.montantDevis)}}
+									{{ form_row(form.numeroBc)}}
+									{{ form_errors(form.numeroBc)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.numeroDit)}}
+									{{ form_errors(form.numeroDit)}}
+									{{ form_row(form.dateBc)}}
+									{{ form_errors(form.dateBc)}}
+								</div>
+								<div class="col-12 col-md-4">
+									{{ form_row(form.statutDevis)}}
+									{{ form_errors(form.statutDevis)}}
+									{{ form_row(form.emailClient)}}
+									{{ form_errors(form.emailClient)}}
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-12 col-md-4"></div>
+							<div class="col-12 col-md-3">
+								<p>Veuillez insérer
+									<strong>le BC à valider *</strong>
+								</p>
+							</div>
+
+						</div>
+						<div class="row">
+							<div class="col-12 col-md-4">
+								{{ form_row(form.descriptionBc)}}
+								{{ form_errors(form.descriptionBc)}}
+							</div>
+							<div class="col-12 col-md-3">
+
+								<div id="dropzone-1" style="border: 2px dashed #ccc; padding: 50px; text-align: center;">
+									<i class="fa fa-cloud-upload upload-icon"></i>
+									<br>
+
+									Glissez et déposez votre fichier PDF ici, ou cliquez pour sélectionner un fichier PDF.
+									<br>
+									<button type="button" id="upload-btn-1" class="btn btn-primary">Sélectionner un fichier</button>
+								</div>
+								{{ form_widget(form.pieceJoint01, {'attr': {'style': 'display:none;'}}) }}
+								{{ form_errors(form.pieceJoint01)}}
+								<!-- Conteneur pour afficher le nom du fichier -->
+								<div class="file-name-1" style="margin-top: 10px;"></div>
+								<div class="file-size" id="file-size-1"></div>
+							</div>
+
+						</div>
+
+
+						{# <button type="submit" id="submit-btn" class="btn btn-success" style="display:none;">Upload</button> #}
+
+
+						<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn bouton mt-2 ajout-overlay" id="btn-enregistre-devis" data-devis="{{numDevis}}" data-dit="{{numDit}}">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+
+					{{ form_end(form) }}
+				</div>
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="/Hffintranet/Views/js/dit/AcBcSoumis.js"></script>
+{% endblock %}

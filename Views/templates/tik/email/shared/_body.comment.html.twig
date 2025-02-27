@@ -1,6 +1,9 @@
 <p>
-    <b>{{ tab.userConnecter }}</b> a commenté le ticket n° <b>{{ tab.numTik }}</b>.
+	<b>{{ tab.userConnecter }}</b>
+	a commenté le ticket n°
+	<b>{{ tab.numTik }}</b>.
 </p>
 <p>
-    <b>Commentaire émis:</b> {{ tab.variable }}
+	<b>Commentaire émis:</b><br>
+	{{ tab.variable | raw }}
 </p>

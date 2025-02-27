@@ -5,6 +5,7 @@ namespace App\Api\planning;
 use App\Controller\Controller;
 use App\Model\planning\PlanningModel;
 use App\Entity\dit\DemandeIntervention;
+use App\Model\planning\ModalPlanningModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PlanningApi extends Controller
@@ -21,8 +22,12 @@ class PlanningApi extends Controller
      * @Route("/serviceDebiteurPlanning-fetch/{agenceId}")
      */
     public function serviceDebiteur($agenceId)
-    {
-        $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+    { 
+        if($agenceId == 100){
+            $serviceDebiteur = [];
+        } else {
+            $serviceDebiteur = $this->planningModel->recuperationServiceDebite($agenceId);
+        }
         
         header("Content-type:application/json");
 

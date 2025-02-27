@@ -26,9 +26,8 @@ class DitFactureSoumisAValidationRepository extends EntityRepository
             ->where('fsv.numeroOR = :numeroOr')
             ->setParameter('numeroOr', $numOr)
             ->getQuery()
-            ->getResult()
-            ;
-        
-            return $numItvFacStatut;
+            ->getResult();
+
+        return $numItvFacStatut;
     }
 }

@@ -22,34 +22,30 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class DitCdeSoumisAValidationType extends AbstractType
 {
-    
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
-            ->add('pieceJoint01', 
-            FileType::class, 
-            [
-                'label' => 'Upload File',
-                'required' => true,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuiller sélectionner le RI à soumettre .', // Message d'erreur si le champ est vide
-                    ]),
-                    new File([
-                        'maxSize' => '5M',
-                        'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
-                        'mimeTypes' => [
-                            'application/pdf',
-                        ],
-                        'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                    ])
-                ],
-            ])
-            ;
-
-    
+            ->add(
+                'pieceJoint01',
+                FileType::class,
+                [
+                    'label' => 'Upload File',
+                    'required' => true,
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Veuiller sélectionner le RI à soumettre .', // Message d'erreur si le champ est vide
+                        ]),
+                        new File([
+                            'maxSize' => '5M',
+                            'maxSizeMessage' => 'La taille du fichier ne doit pas dépasser 5 Mo.',
+                            'mimeTypes' => [
+                                'application/pdf',
+                            ],
+                            'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
+                        ])
+                    ],
+                ]
+            );
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -58,5 +54,4 @@ class DitCdeSoumisAValidationType extends AbstractType
             'data_class' => DitCdeSoumisAValidation::class,
         ]);
     }
-
 }

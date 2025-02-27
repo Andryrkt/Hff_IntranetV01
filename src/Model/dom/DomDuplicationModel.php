@@ -68,25 +68,25 @@ class DomDuplicationModel extends Model
     /**
      * c'est une foncion qui décode les caractères speciaux en html
      */
-    private function decode_entities_in_array($array)
-    {
-        // Parcourir chaque élément du tableau
-        foreach ($array as $key => $value) {
-            // Si la valeur est un tableau, appeler récursivement la fonction
-            if (is_array($value)) {
-                $array[$key] = $this->decode_entities_in_array($value);
-            } else {
-                // Si la valeur est une chaîne, appliquer la fonction decode_entities()
-                $array[$key] = html_entity_decode($value);
-            }
-        }
-        return $array;
-    }
+    // private function decode_entities_in_array($array)
+    // {
+    //     // Parcourir chaque élément du tableau
+    //     foreach ($array as $key => $value) {
+    //         // Si la valeur est un tableau, appeler récursivement la fonction
+    //         if (is_array($value)) {
+    //             $array[$key] = $this->decode_entities_in_array($value);
+    //         } else {
+    //             // Si la valeur est une chaîne, appliquer la fonction decode_entities()
+    //             $array[$key] = html_entity_decode($value);
+    //         }
+    //     }
+    //     return $array;
+    // }
 
-    private function clean_string($string)
-    {
-        return mb_convert_encoding($string, 'ASCII', 'UTF-8');
-    }
+    // private function clean_string($string)
+    // {
+    //     return mb_convert_encoding($string, 'ASCII', 'UTF-8');
+    // }
 
     public function DuplicaftionFormJsonModel()
     {

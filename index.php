@@ -14,10 +14,10 @@ require __DIR__ . '/config/listeConstructeur.php';
 try {
     $curentRoute = $matcher->match($request->getPathInfo());
     $request->attributes->add($curentRoute);
-
+    
     $controller = $controllerResolver->getController($request);
     $arguments = $argumentResolver->getArguments($request, $controller);
-
+   
     call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
     $htmlContent = $twig->render('404.html.twig');

@@ -21,23 +21,27 @@ class TkiCommentairesType extends AbstractType
             ->add('commentaires', TextareaType::class, [
                 'label' => false,
                 'attr'  => [
+                    'row'         => 5,
                     'placeholder' => 'Entrer votre commentaire ici',
                     'minlength'   => '1',
                     'maxlength'   => '1500'
                 ]
             ])
-            ->add('fileNames', FileType::class, [
-                'label'       => 'Pièces Jointes',
-                'required'    => false,
-                'multiple'    => true,
-                'data_class'  => null,
-                'mapped'      => false, // Indique que ce champ ne doit pas être lié à l'entité
-                'constraints' => [
-                    new Callback([$this, 'validateFiles']),
-                ],
-            ]
-        )
-            ;
+            ->add(
+                'fileNames',
+                FileType::class,
+                [
+                    'label'       => 'Pièces Jointes',
+                    'required'    => false,
+                    'multiple'    => true,
+                    'data_class'  => null,
+                    'mapped'      => false, // Indique que ce champ ne doit pas être lié à l'entité
+                    'constraints' => [
+                        new Callback([$this, 'validateFiles']),
+                    ],
+                ]
+            )
+        ;
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)
