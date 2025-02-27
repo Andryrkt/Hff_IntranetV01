@@ -203,11 +203,7 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->Line(0, $pdf->GetY() + 3, $w_total, $pdf->GetY() + 3);
 
         // génération de fichier
-        $Dossier = __DIR__ . "/Upload/";
-        $pdf->Output($Dossier . $tab['NumMut'] . '_' . $tab['codeAg_serv'] . '.pdf', 'i');
-
-        // génération de fichier
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/';
-        $pdf->Output($Dossier . $tab['NumMut'] . '_' . $tab['codeAg_serv'] . '.pdf', 'I');
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/mut/';
+        $pdf->Output($Dossier . $tab['NumMut'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 }

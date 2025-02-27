@@ -35,10 +35,11 @@ class MutationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->enregistrementValeurDansMutation($form, self::$em, $user);
+            $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
             $generatePdf = new GeneratePdfMutation;
             $generatePdf->genererPDF($this->donneePourPdf($form, $user));
             $this->envoyerPieceJointes($form, $this->fusionPdf);
+            $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
             $this->redirectToRoute("mutation_liste");
         }
 

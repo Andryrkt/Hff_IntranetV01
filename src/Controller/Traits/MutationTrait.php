@@ -55,6 +55,8 @@ trait MutationTrait
         $em->persist($application);
         $em->persist($mutation);
         $em->flush();
+
+        return $mutation;
     }
 
     private function donneePourPdf($form, User $user): array
@@ -120,7 +122,7 @@ trait MutationTrait
             }
             $tab['indemnite'] = $mutation->getIndemniteForfaitaire() . ' ' . $devis . ' / jour';
             $tab['totalIndemnite'] = $mutation->getTotalIndemniteForfaitaire() . ' ' . $devis;
-            $tab['totalGeneral'] = $mutation->getTotalGeneralPayer();
+            $tab['totalGeneral'] = $mutation->getTotalGeneralPayer() . ' ' . $devis;
             $tab['libModPaie'] = $form->get('modePaiementLabel')->getData();
             $tab['valModPaie'] = $form->get('modePaiementValue')->getData();
             if ($tab['libModPaie'] !== 'MOBILE MONEY') {
@@ -138,7 +140,7 @@ trait MutationTrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/dom/%s_%s%s.pdf',
+            '%s/Upload/mut/%s_%s%s.pdf',
             rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
             $mutation->getNumeroMutation(),
             $mutation->getAgenceEmetteur()->getCodeAgence(),
@@ -153,15 +155,15 @@ trait MutationTrait
         array_unshift($pdfFiles, $mainPdf);
 
         // Récupérer tous les champs de fichiers du formulaire
-        $pieceJointes = [
-            'pieceJoint01' => $mutation->getPieceJoint01(),
-            'pieceJoint02' => $mutation->getPieceJoint02()
-        ];
-        foreach ($pieceJointes as $fieldName => $file) {
-            if ($file !== null) {
-                $pdfPath = $this->uploadFile($file, $mutation, $fieldName);
-                if ($pdfPath !== null) {
-                    $pdfFiles[] = $pdfPath;
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match('/^pieceJoint\d+$/', $fieldName)) {
+                /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                    $pdfPath = $this->uploadFile($file, $mutation, $fieldName);
+                    if ($pdfPath !== null) {
+                        $pdfFiles[] = $pdfPath;
+                    }
                 }
             }
         }
@@ -217,7 +219,7 @@ trait MutationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
+        $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/mut/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
