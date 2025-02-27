@@ -6,7 +6,9 @@ use App\Controller\Controller;
 use App\Controller\Traits\MutationTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
+use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
+use App\Form\mutation\MutationSearchType;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -51,61 +53,46 @@ class MutationController extends Controller
     /**
      * @Route("/mutation/list", name="mutation_liste")
      */
-    public function listeDom(Request $request)
+    public function listeMutation(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        // $autoriser = $this->autorisationRole(self::$em);
+        $mutationSearch = new MutationSearch();
 
-        // $domSearch = new DomSearch();
+        $form = self::$validator->createBuilder(MutationSearchType::class, $mutationSearch, [
+            'method' => 'GET'
+        ])->getForm();
 
-        // $agenceServiceIps = $this->agenceServiceIpsObjet();
-        // /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        // $this->initialisation($domSearch, self::$em, $agenceServiceIps, $autoriser);
+        $form->handleRequest($request);
 
-        // $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
-        //     'method' => 'GET',
-        //     'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
-        // ])->getForm();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $mutationSearch = $form->getData();
+        }
 
-        // $form->handleRequest($request);
+        $criteria = [];
+        //transformer l'objet ditSearch en tableau
+        $criteria = $mutationSearch->toArray();
 
-        // if ($form->isSubmitted() && $form->isValid()) {
-        //     $domSearch = $form->getData();
-        // }
+        $page = $request->query->getInt('page', 1);
+        $limit = 10;
 
-        // $criteria = [];
-        // //transformer l'objet ditSearch en tableau
-        // $criteria = $domSearch->toArray();
+        $repository = self::$em->getRepository(Mutation::class);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $mutationSearch);
 
-        // $page = max(1, $request->query->getInt('page', 1));
-        // $limit = 10;
+        //enregistre le critère dans la session
+        $this->sessionService->set('mutation_search_criteria', $criteria);
 
-        // $option = [
-        //     'boolean' => $autoriser,
-        //     'idAgence' => $this->agenceIdAutoriser(self::$em)
-        // ];
-
-        // $repository = self::$em->getRepository(Dom::class);
-        // $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
-
-        // //enregistre le critère dans la session
-        // $this->sessionService->set('dom_search_criteria', $criteria);
-        // $this->sessionService->set('dom_search_option', $option);
-
-        // $this->logUserVisit('doms_liste'); // historisation du page visité par l'utilisateur
-
-        // self::$twig->display(
-        //     'doms/list.html.twig',
-        //     [
-        //         'form' => $form->createView(),
-        //         'data' => $paginationData['data'],
-        //         'currentPage' => $paginationData['currentPage'],
-        //         'lastPage' => $paginationData['lastPage'],
-        //         'resultat' => $paginationData['totalItems'],
-        //         'criteria' => $criteria,
-        //     ]
-        // );
+        self::$twig->display(
+            'mutation/list.html.twig',
+            [
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'currentPage' => $paginationData['currentPage'],
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
+            ]
+        );
     }
 }
