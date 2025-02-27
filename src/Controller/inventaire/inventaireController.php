@@ -174,6 +174,7 @@ class InventaireController extends Controller
             'pmp' => 'PMP',
             'montant_inventaire' => 'Mont. Inventaire',
             'montant_ajuste' => 'Mont. Ajusté',
+            'pourcentage_ecart' => '% mont. écart',
             'dateInv'=> 'Date invetaire'
         ];
 
@@ -253,6 +254,7 @@ class InventaireController extends Controller
                     "pmp" => $this->formatNumber($detailInvent[$j]["pmp"]),
                     "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
                     "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
+                    "pourcentage_ecart" => $this->formatNumber($detailInvent[$j]["pourcentage_ecart"]),
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {

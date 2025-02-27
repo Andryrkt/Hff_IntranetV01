@@ -23,21 +23,28 @@ SELECT
     CASE
         WHEN (
             select
-                Count(ainvp_refp) from art_invp WHERE  ainvp_soc = ainvi_soc
+                Count(ainvp_refp)
+            from
+                art_invp
+            WHERE
+                ainvp_soc = ainvi_soc
                 AND ainvp_succ = ainvi_succ
                 AND ainvp_numinv = ainvi_numinv
                 AND ainvp_ecart <> 0
-                 ) = 0
-             AND (
-            select Count(ainvp_refp) from art_invp WHERE ainvp_soc = ainvi_soc
+        ) = 0
+        AND (
+            select
+                Count(ainvp_refp)
+            from
+                art_invp
+            WHERE
+                ainvp_soc = ainvi_soc
                 AND ainvp_succ = ainvi_succ
                 AND ainvp_numinv = ainvi_numinv
                 AND ainvp_ctrlok = 0
                 AND ainvp_nbordereau > 0
-                 ) = 0 THEN 
-                 'Soldé'
-        ELSE 
-        decode (ainvi_cloture, 'O', 'Clôturé', 'Encours')
+        ) = 0 THEN 'Soldé'
+        ELSE decode (ainvi_cloture, 'O', 'Clôturé', 'Encours')
     END as statut,
     trunc (sum(ainvp_prix * ainvp_stktheo)) as Montant
 FROM
@@ -62,27 +69,28 @@ group by
     statut
 order by
     ainvi_numinv_mait desc
-
-
-    
     /* details inventaire*/
 SELECT
-    ainvp_soc,
-    ainvp_succ,
-    ainvp_constp,
-    ainvp_refp,
-    abse_desi,
-    astp_casier,
-    ainvp_stktheo,
+    ainvp_datecpt as dateInv,
+    ainvp_soc as soc,
+    ainvp_succ as succ,
+    ainvp_constp as cst,
+    TRIM(ainvp_refp) as refp,
+    TRIM(abse_desi) as desi,
+    TRIM(astp_casier) as casier,
+    round(ainvp_stktheo) as stock_theo,
     '' as qte_comptee,
-    ainvp_ecart,
+    round(ainvp_ecart) as ecart,
     CASE
         WHEN ainvp_stktheo != 0 THEN ROUND((ainvp_ecart / ainvp_stktheo) * 100) || '%'
         ELSE '0'
     END as pourcentage_nbr_ecart,
     ainvp_prix as PMP,
     ainvp_prix * ainvp_stktheo as montant_inventaire,
-    ainvp_prix * ainvp_ecart as montant_ajuste
+    ainvp_prix * ainvp_ecart as montant_ajuste,
+    ROUND(
+        (ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100
+    ) || '%' as pourcentage_ecart
 FROM
     art_invp
     INNER JOIN art_bse on abse_constp = ainvp_constp
@@ -100,6 +108,24 @@ WHERE
     )
     and ainvp_ecart <> 0
     and astp_casier not in ('NP', '@@@@', 'CASIER C')
+group by
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+order by
+    5 asc
     /* qte compte*/
 SELECT
     (ainvp_stktheo + ainvp_ecart) as qte_comptee
