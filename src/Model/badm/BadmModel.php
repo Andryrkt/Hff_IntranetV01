@@ -44,17 +44,17 @@ class BadmModel extends Model
      * @param [type] $element
      * @return void
      */
-    private function convertirEnUtf8($element)
-    {
-        if (is_array($element)) {
-            foreach ($element as $key => $value) {
-                $element[$key] = $this->convertirEnUtf8($value);
-            }
-        } elseif (is_string($element)) {
-            return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
-        }
-        return $element;
-    }
+    // private function convertirEnUtf8($element)
+    // {
+    //     if (is_array($element)) {
+    //         foreach ($element as $key => $value) {
+    //             $element[$key] = $this->convertirEnUtf8($value);
+    //         }
+    //     } elseif (is_string($element)) {
+    //         return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
+    //     }
+    //     return $element;
+    // }
 
 
 

@@ -62,7 +62,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 100, $dit->getDetailDemande(), 1, 'J', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 100, $dit->getDetailDemande(), 1, '', 0, 0, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(133);
@@ -170,21 +170,17 @@ class GenererPdfDit extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Numéro :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(90);
         $pdf->cell(15, 6, 'Nom :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->cell(25, 6, 'N° tel :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(50, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(90);
         $pdf->cell(15, 6, 'Email :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, '', 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         
@@ -313,7 +309,9 @@ class GenererPdfDit extends GeneratePdf
 
         //=================================================================================================
         /**DEUXIEME PAGE */
-        $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
+        if(!in_array($dit->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,765,7677,9863])) {
+            $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
+        }
 
 
         //$pdf->Output('exemple.pdf', 'I');

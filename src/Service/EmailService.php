@@ -76,4 +76,24 @@ class EmailService
             return false;
         }
     }
+
+    /**
+     * Get the value of mailer
+     */
+    public function getMailer()
+    {
+        return $this->mailer;
+    }
+
+    /**
+     * Set the value of mailer
+     *
+     * @return  self
+     */
+    public function setMailer($mailer)
+    {
+        $this->mailer = $mailer;
+
+        return $this;
+    }
 }

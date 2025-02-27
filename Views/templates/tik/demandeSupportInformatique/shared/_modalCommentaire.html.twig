@@ -1,0 +1,31 @@
+<!-- Modal Bootstrap -->
+<div class="modal fade" tabindex="-1" id="commentaire" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-sm custom-width">
+		<div class="modal-content">
+			<div
+				class="modal-header">
+				<!-- Titre avec icône Font Awesome -->
+				<h4 class="modal-title">
+					<i class="fas fa-info-circle text-primary"></i>
+					Détails du commentaire
+				</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<div
+				class="modal-body" style="font-size: 0.85rem;">
+				<!-- Contenu des données -->
+				<div class="card">
+					<div class="card-header">
+						<i class="fas fa-comment-alt text-secondary"></i>
+						Dernier commentaire émis sur le ticket
+					</div>
+					<div class="card-body">
+						<div
+							id="modal-commentaire-content"><!-- Contenu dynamique inséré ici -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -24,8 +24,6 @@ class RoleController extends Controller
 
         $data = self::$em->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
 
-        $this->logUserVisit('role_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display(
             'admin/role/list.html.twig',
             [
@@ -62,8 +60,6 @@ class RoleController extends Controller
             $this->redirectToRoute("role_index");
         }
 
-        $this->logUserVisit('role_new'); // historisation du page visité par l'utilisateur
-
         self::$twig->display(
             'admin/role/new.html.twig',
             [
@@ -96,10 +92,6 @@ class RoleController extends Controller
             self::$em->flush();
             $this->redirectToRoute("role_index");
         }
-
-        $this->logUserVisit('role_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/role/edit.html.twig', [
             'form' => $form->createView(),

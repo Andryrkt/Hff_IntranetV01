@@ -71,7 +71,8 @@ class TkiCommentaires
      */
     private $fileNames = [];
 
-    public function __construct($numeroTicket = '', $nomUtilisateur = '') {
+    public function __construct($numeroTicket = '', $nomUtilisateur = '')
+    {
         $this->numeroTicket   = $numeroTicket;
         $this->nomUtilisateur = $nomUtilisateur;
     }
@@ -84,7 +85,7 @@ class TkiCommentaires
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -94,7 +95,7 @@ class TkiCommentaires
      * Set the value of id
      *
      * @return  self
-     */ 
+     */
     public function setId($id)
     {
         $this->id = $id;
@@ -104,7 +105,7 @@ class TkiCommentaires
 
     /**
      * Get the value of numeroTicket
-     */ 
+     */
     public function getNumeroTicket()
     {
         return $this->numeroTicket;
@@ -114,7 +115,7 @@ class TkiCommentaires
      * Set the value of numeroTicket
      *
      * @return  self
-     */ 
+     */
     public function setNumeroTicket($numeroTicket)
     {
         $this->numeroTicket = $numeroTicket;
@@ -124,7 +125,7 @@ class TkiCommentaires
 
     /**
      * Get the value of nomUtilisateur
-     */ 
+     */
     public function getNomUtilisateur()
     {
         return $this->nomUtilisateur;
@@ -134,7 +135,7 @@ class TkiCommentaires
      * Set the value of nomUtilisateur
      *
      * @return  self
-     */ 
+     */
     public function setNomUtilisateur($nomUtilisateur)
     {
         $this->nomUtilisateur = $nomUtilisateur;
@@ -144,7 +145,7 @@ class TkiCommentaires
 
     /**
      * Get the value of commentaires
-     */ 
+     */
     public function getCommentaires()
     {
         return $this->commentaires;
@@ -154,7 +155,7 @@ class TkiCommentaires
      * Set the value of commentaires
      *
      * @return  self
-     */ 
+     */
     public function setCommentaires($commentaires)
     {
         $this->commentaires = $commentaires;
@@ -164,7 +165,7 @@ class TkiCommentaires
 
     /**
      * Get the value of piecesJointes1
-     */ 
+     */
     public function getPiecesJointes1()
     {
         return $this->piecesJointes1;
@@ -174,7 +175,7 @@ class TkiCommentaires
      * Set the value of piecesJointes1
      *
      * @return  self
-     */ 
+     */
     public function setPiecesJointes1($piecesJointes1)
     {
         $this->piecesJointes1 = $piecesJointes1;
@@ -184,7 +185,7 @@ class TkiCommentaires
 
     /**
      * Get the value of piecesJointes2
-     */ 
+     */
     public function getPiecesJointes2()
     {
         return $this->piecesJointes2;
@@ -194,7 +195,7 @@ class TkiCommentaires
      * Set the value of piecesJointes2
      *
      * @return  self
-     */ 
+     */
     public function setPiecesJointes2($piecesJointes2)
     {
         $this->piecesJointes2 = $piecesJointes2;
@@ -204,7 +205,7 @@ class TkiCommentaires
 
     /**
      * Get the value of piecesJointes3
-     */ 
+     */
     public function getPiecesJointes3()
     {
         return $this->piecesJointes3;
@@ -214,7 +215,7 @@ class TkiCommentaires
      * Set the value of piecesJointes3
      *
      * @return  self
-     */ 
+     */
     public function setPiecesJointes3($piecesJointes3)
     {
         $this->piecesJointes3 = $piecesJointes3;
@@ -224,7 +225,7 @@ class TkiCommentaires
 
     /**
      * Get the value of utilisateur
-     */ 
+     */
     public function getUtilisateur()
     {
         return $this->utilisateur;
@@ -234,7 +235,7 @@ class TkiCommentaires
      * Set the value of utilisateur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
@@ -244,7 +245,7 @@ class TkiCommentaires
 
     /**
      * Get the value of demandeSupportInformatique
-     */ 
+     */
     public function getDemandeSupportInformatique()
     {
         return $this->demandeSupportInformatique;
@@ -254,7 +255,7 @@ class TkiCommentaires
      * Set the value of demandeSupportInformatique
      *
      * @return  self
-     */ 
+     */
     public function setDemandeSupportInformatique($demandeSupportInformatique)
     {
         $this->demandeSupportInformatique = $demandeSupportInformatique;
@@ -264,7 +265,7 @@ class TkiCommentaires
 
     /**
      * Get the value of fileNames
-     */ 
+     */
     public function getFileNames()
     {
         return $this->fileNames;
@@ -274,7 +275,7 @@ class TkiCommentaires
      * Set the value of fileNames
      *
      * @return  self
-     */ 
+     */
     public function setFileNames($fileNames)
     {
         $this->fileNames = $fileNames;

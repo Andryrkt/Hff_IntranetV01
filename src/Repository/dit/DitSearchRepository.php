@@ -22,7 +22,7 @@ class DitRepository extends EntityRepository
         ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
-    
+
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
@@ -68,10 +68,10 @@ class DitRepository extends EntityRepository
     public function findStatutOr()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.statutOr')
-        ->where('d.statutOr IS NOT NULL')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.statutOr')
+            ->where('d.statutOr IS NOT NULL')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'statutOr');
     }
 }

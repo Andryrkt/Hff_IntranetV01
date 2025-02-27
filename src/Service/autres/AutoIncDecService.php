@@ -114,4 +114,18 @@ class AutoIncDecService
         }
         return $ChaineComplet;
     }
+
+    /**
+     * Methode qui permet d'incrémenter un nombre de pas 1 lorqu'il est appeler
+     *
+     * @param integer|null $num
+     * @return integer
+     */
+    public function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return $num + 1;
+    }
 }

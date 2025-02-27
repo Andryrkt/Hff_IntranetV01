@@ -8,7 +8,6 @@ use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\UserLogger;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
@@ -22,6 +21,7 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -167,6 +167,19 @@ class User implements UserInterface
      */
     private $userLoggers;
 
+    /**
+     * @ORM\Column(type="string", length=10, name="num_tel")
+     *
+     * @var string 
+     */
+    private ?string $numTel;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="poste")
+     *
+     * @var string
+     */
+    private ?string $poste;
     //=================================================================================================================================
 
     public function __construct()
@@ -703,6 +716,54 @@ class User implements UserInterface
     public function setUserLoggers($userLoggers)
     {
         $this->userLoggers = $userLoggers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numTel
+     *
+     * @return  string
+     */ 
+    public function getNumTel()
+    {
+        return $this->numTel;
+    }
+
+    /**
+     * Set the value of numTel
+     *
+     * @param  string  $numTel
+     *
+     * @return  self
+     */ 
+    public function setNumTel(string $numTel)
+    {
+        $this->numTel = $numTel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of poste
+     *
+     * @return  string
+     */ 
+    public function getPoste()
+    {
+        return $this->poste;
+    }
+
+    /**
+     * Set the value of poste
+     *
+     * @param  string  $poste
+     *
+     * @return  self
+     */ 
+    public function setPoste(string $poste)
+    {
+        $this->poste = $poste;
 
         return $this;
     }

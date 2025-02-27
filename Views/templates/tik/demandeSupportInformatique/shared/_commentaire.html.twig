@@ -24,47 +24,50 @@
 								</div>
 								<span>{{ item.nomUtilisateur }}</span>
 							</div>
-						{% else %}
-							<div class="talk right mb-3">
-							{% endif %}
-							<div class="msg">
-								<p>{{ item.commentaires }}</p>
-								<time>{{ item.dateCreation|date('H:i') }}</time>
-							</div>
-							{% for fileName in item.fileNames %}
-								<div class="file-comment d-flex align-items-center rounded px-1 mt-1" style="min-height: 22px;">
-									<a href="/Upload/tik/fichiers/{{fileName.name}}" download="{{fileName.name}}">
-										{{fileName.name}}
-									</a>
+							<div class="msg-file align-items-start">
+							{% else %}
+								<div class="talk right mb-3">
+									<div class="msg-file align-items-end">
+									{% endif %}
+									<div class="msg">
+										<p>{{ item.commentaires | raw }}</p>
+										<span class="time">{{ item.dateCreation|date('H:i') }}</span>
+									</div>
+									{% for fileName in item.fileNames %}
+										<div class="file-comment d-flex align-items-center rounded px-1 mt-1" style="min-height: 22px;">
+											<a href="/Upload/tik/fichiers/{{fileName.name}}" download="{{fileName.name}}">
+												{{fileName.name}}
+											</a>
+										</div>
+									{% endfor %}
 								</div>
-							{% endfor %}
-						</div>
-					{% endfor %}
-				</div>
-			{% endif %}
-
-			{% if canComment %}
-				{{ form_start(form) }}
-				<div id="file-upload-wrapper" class="file-upload-wrapper">
-					<label for="file-input" class="d-none">
-						{{ form_widget(form.fileNames, {'attr': {'class': 'file-input', 'multiple': true, 'style': 'display: none'}}) }}
-					</label>
-					<ul id="file-list" class="file-list"></ul>
-					{{ form_errors(form.fileNames) }}
-				</div>
-				<div class="chat-form">
-					<div class="container-inputs-stuffs">
-						<div class="group-inp">
-							{{ form_widget(form.commentaires) }}
-						</div>
-						<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" aria-label="Ajouter des fichiers" data-bs-original-title="Ajouter des fichiers"></i>
-						<button class="submit-msg-btn" name="commenter" id="btn_commenter">
-							<i class="fas fa-paper-plane"></i>
-						</button>
+							</div>
+						{% endfor %}
 					</div>
-				</div>
-				{{ form_end(form) }}
-			{% endif %}
+				{% endif %}
 
+				{% if canComment %}
+					{{ form_start(form) }}
+					<div id="file-upload-wrapper" class="file-upload-wrapper">
+						<label for="file-input" class="d-none">
+							{{ form_widget(form.fileNames, {'attr': {'class': 'file-input', 'multiple': true, 'style': 'display: none'}}) }}
+						</label>
+						<ul id="file-list" class="file-list"></ul>
+						{{ form_errors(form.fileNames) }}
+					</div>
+					<div class="chat-form">
+						<div class="container-inputs-stuffs">
+							<div class="group-inp">
+								{{ form_widget(form.commentaires) }}
+							</div>
+							<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" aria-label="Ajouter des fichiers" data-bs-original-title="Ajouter des fichiers"></i>
+							<button class="submit-msg-btn" name="commenter" id="btn_commenter">
+								<i class="fas fa-paper-plane"></i>
+							</button>
+						</div>
+					</div>
+					{{ form_end(form) }}
+				{% endif %}
+
+			</div>
 		</div>
-	</div>

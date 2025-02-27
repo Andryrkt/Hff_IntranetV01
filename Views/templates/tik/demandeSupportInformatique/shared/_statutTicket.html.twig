@@ -1,24 +1,22 @@
 <div class="card mb-3 me-2">
-    <div class="card-body p-0">
-        <input type="checkbox" name="accordion" id="historiqueStatut">
-        <label for="historiqueStatut" class="nav-top">
-            <span>Statut ticket</span>
-            <i class="fa fa-chevron-down"></i>
-        </label>
-        <div class="statut">
-            {% for item in items %}
-                <div class="row">
-                    <div class="col-12 col-md-4">
-                        {{ item.dateStatut|date('d/m/Y') }}
-                    </div>
-                    <div class="col-12 col-md-4">
-                        {{ item.dateStatut|date('H:i:s') }}
-                    </div>
-                    <div class="col-12 col-md-4 fw-bold">
-                        {{ item.idStatutDemande.description }}
-                    </div>							
-                </div>
-            {% endfor %}
-        </div>
-    </div>
+	<div class="card-body p-0">
+		<label class="nav-top">
+			<span>Statut ticket</span>
+		</label>
+		<div class="statut">
+			{% for item in items %}
+				<div class="row">
+					<div class="col-12 col-md-4">
+						{{ item.dateStatut|date('d/m/Y') }}
+					</div>
+					<div class="col-12 col-md-4">
+						{{ item.dateStatut|date('H:i:s') }}
+					</div>
+					<div class="col-12 col-md-4 fw-bold">
+						{{ item.idStatutDemande.description }}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
 </div>

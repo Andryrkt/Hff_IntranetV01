@@ -5,6 +5,7 @@ namespace App\Model\dit;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
+use App\Service\GlobalVariablesService;
 
 class DitOrSoumisAValidationModel extends Model
 {
@@ -198,8 +199,7 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_sortie_magasin 
             from sav_lor 
-            where slor_constp not like ('Z%') 
-            and slor_constp not in ('LUB') 
+            where slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
             and slor_typlig = 'P' 
             and slor_numor = '".$numOr."'
             ";
@@ -216,7 +216,7 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_achat_locaux 
             from sav_lor 
-            where slor_constp like 'Z%'  
+            where slor_constp in (".GlobalVariablesService::get('achat_locaux').")  
             and slor_numor = '".$numOr."'
         ";
 

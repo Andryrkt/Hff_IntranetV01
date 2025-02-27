@@ -91,7 +91,7 @@ export function populateServiceOptions(services, serviceInput) {
 export function contenuInfoMateriel(data, rectangle) {
   // Ajouter le contenu au rectangle
   const contenu = `
-   ID mat : ${data.numMat} | Parc : ${data.numParc} | S/N : ${data.numSerie}<br/>
+   ID: ${data.numMat} | Parc: ${data.numParc} | S/N: ${data.numSerie}<br/>
    ${data.marque} | ${data.model} | ${data.designation}<br/>
    Casier : ${data.casier}<br/>
  `;

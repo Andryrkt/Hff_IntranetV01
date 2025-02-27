@@ -9,6 +9,24 @@ class DitListModel extends Model
 {
     use ConversionModel;
     
+    public function recupNumeroDevis($numDit)
+    {
+        $statement = "SELECT 
+                    CASE 
+                        WHEN seor_serv = 'SAV' AND seor_numor = seor_numdev THEN CAST('' AS VARCHAR(255))
+                        WHEN seor_serv = 'SAV' AND seor_numor <> seor_numdev THEN CAST(seor_numor AS VARCHAR(255))
+                    END AS numDevis
+                    FROM sav_eor
+                    where seor_refdem = '".$numDit."'
+                ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupItvComment($numOr)
     {
         $statement = " SELECT 
