@@ -500,6 +500,13 @@ class DemandeIntervention
 
     private bool $estOrASoumi = false;
 
+    /**
+     * @ORM\Column(type="integer", name="num_migr")
+     *
+     * @var integer
+     */
+    private int $numMigration;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1542,6 +1549,30 @@ class DemandeIntervention
     public function setEstOrASoumi($estOrASoumi)
     {
         $this->estOrASoumi = $estOrASoumi;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numMigration
+     *
+     * @return  integer
+     */
+    public function getNumMigration()
+    {
+        return $this->numMigration;
+    }
+
+    /**
+     * Set the value of numMigration
+     *
+     * @param  integer  $numMigration
+     *
+     * @return  self
+     */
+    public function setNumMigration($numMigration)
+    {
+        $this->numMigration = $numMigration;
 
         return $this;
     }

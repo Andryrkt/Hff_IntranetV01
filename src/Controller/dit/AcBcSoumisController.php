@@ -106,7 +106,13 @@ class AcBcSoumisController extends Controller
         $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $prefix, $numClientBcDevis, true, $numeroVersion, true);
+        $options = [
+            'prefix' => $prefix,
+            'numeroDoc' => $numClientBcDevis,
+            'numeroVersion' => $numeroVersion,
+            'mainFirstPage' => true
+        ];
+        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
         return $fileName;
     }
@@ -128,6 +134,7 @@ class AcBcSoumisController extends Controller
             ->setMontantDevis($acSoumis->getMontantDevis())
             ->setDateHeureSoumission(new \DateTime())
             ->setNumVersion($this->autoIncrement($numeroVersionMax))
+            ->setStatut('Soumis à validation')
         ;
         return $this->bcSoumis;
     }

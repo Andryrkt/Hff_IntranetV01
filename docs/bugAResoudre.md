@@ -29,3 +29,7 @@ $piece = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','
 
         return $piece;
     }
+
+06/02/2025
+MIGRATION DES DIT INTERNE
+manque de fichier "Messagerie Henri Fraise et Fils - Fwd\_ Devis n° 4DE011344.pdf" pour deuxième pièce joint dans le dit DIT25010315 (qui n'est pas encore générer dans doxcuware)

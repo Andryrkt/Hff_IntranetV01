@@ -22,6 +22,7 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
+				{% set hasDAP = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -36,6 +37,8 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
+					{% elseif item.codeApp == 'DAP' %}
+						{% set hasDAP = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -139,19 +142,20 @@
 				<!-- FIN Dématérialisation -->
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
 
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Demande d'Appro</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
-						</li>
-					</ul>
-				</li>
-
+				{# DEMANDE D'APPROVISIONNEMENT #}
+					{% if hasDAP %}
+						<li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Demande d'Appro</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
+							</li>
+						</ul>
+					</li>
+				{% endif %}
 				{% if hasMAG %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -214,6 +218,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
+							{# <li>
+																						<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+																					</li> #}
 						</ul>
 					</li>
 				{% endif %}

@@ -80,7 +80,7 @@ trait DitTrait
             $demandeIntervention->setServiceDebiteurId($dits->getService());
             
             //societte
-        dd($demandeIntervention);
+        // dd($demandeIntervention);
         return $demandeIntervention;
     }
 
@@ -119,7 +119,6 @@ trait DitTrait
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
 
-            
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
             if (empty($data)) {
                 $message = 'ce matériel n\'est pas enregistrer dans Irium';

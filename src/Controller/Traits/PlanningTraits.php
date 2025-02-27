@@ -21,7 +21,6 @@ trait PlanningTraits
     {
         $PlanningModel  = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-
         $numOrItvValide = $this->recupNumORItvValide($numeroOrs, $em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
@@ -317,6 +316,28 @@ trait PlanningTraits
                         'month' => $months[$i],
                         'year' => $currentYear + 1,
                         'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
+                    ];
+                }
+                break;
+            case 12: // 12 mois suivant (à partir du mois suivant le mois courant)
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
+                }
+                break;
+
+            case 13: // 12 mois précédent (jusqu'au mois précédent le mois courant)
+                for ($i = -11; $i <= 0; $i++) {
+                    $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
+                }
+                break;
+
+            case 14: // Année précédente
+                $previousYear = $currentYear - 1;
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $previousYear,
+                        'key' => sprintf('%04d-%02d', $previousYear, $i + 1),
                     ];
                 }
                 break;

@@ -92,7 +92,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         // Configuration des entêtes du tableau
         $headerConfig = [
             ['key' => 'cst', 'label' => 'CST', 'width' => 40, 'style' => 'text-align: center; font-weight: bold;'],
-            ['key' => 'refPiece', 'label' => 'Ref. Pièce', 'width' => 50, 'style' => 'text-align: left; font-weight: bold;'],
+            ['key' => 'refPieces', 'label' => 'Ref. Pièce', 'width' => 50, 'style' => 'text-align: left; font-weight: bold;'],
             ['key' => 'pu1', 'label' => 'PU 1', 'width' => 60, 'style' => 'text-align: right; font-weight: bold;'],
             ['key' => 'datePu1', 'label' => 'Date PU 1', 'width' => 60, 'style' => 'text-align: center; font-weight: bold;'],
             ['key' => 'pu2', 'label' => 'PU 2', 'width' => 60, 'style' => 'text-align: right; font-weight: bold;'],

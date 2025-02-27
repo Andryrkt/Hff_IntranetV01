@@ -130,6 +130,11 @@ class DitDevisSoumisAValidation
      */
     private ?string $devise = '';
 
+    /**
+     * @ORM\Column(type="float", scale="2")
+     */
+    private ?float $montantVente=0.00;
+
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -640,9 +645,6 @@ class DitDevisSoumisAValidation
         return $this;
     }
     
-    
-
-    
 
     /**
      * Get the value of devise
@@ -660,6 +662,26 @@ class DitDevisSoumisAValidation
     public function setDevise($devise)
     {
         $this->devise = $devise;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantVente
+     */ 
+    public function getMontantVente()
+    {
+        return $this->montantVente;
+    }
+
+    /**
+     * Set the value of montantVente
+     *
+     * @return  self
+     */ 
+    public function setMontantVente($montantVente)
+    {
+        $this->montantVente = $montantVente;
 
         return $this;
     }

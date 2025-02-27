@@ -37,7 +37,7 @@ class ListApi extends Controller
      */
     public function sectionAffecteeModal($id)
     {
-        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section'];
+        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section','Chef d\'équipe'];
 
         // Récupération des données
         $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);

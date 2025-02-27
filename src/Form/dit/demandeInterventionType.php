@@ -100,7 +100,10 @@ class demandeInterventionType extends AbstractType
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
                         //'data' => $options['data']->getService(),
-                        'attr' => ['class' => 'serviceDebiteur']
+                        'attr' => [
+                            'class' => 'serviceDebiteur',
+                            'disabled' => empty($services),
+                        ]
                     ]
                 );
             })
@@ -109,13 +112,15 @@ class demandeInterventionType extends AbstractType
                 $data = $event->getData();
 
 
-                $agenceId = $data['agence'];
+                $agenceId = $data['agence']?? null;
 
-                $agence = $this->agenceRepository->find($agenceId);
-                if($agence === null){
-                    $services = [];
-                } else {
-                    $services = $agence->getServices();
+                $services = [];
+
+                if ($agenceId) {
+                    $agence = $this->agenceRepository->find($agenceId);
+                    if ($agence) {
+                        $services = $agence->getServices();
+                    }
                 }
                 
 
@@ -281,7 +286,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -294,7 +299,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -418,7 +423,10 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " Id Matériel *",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
             )
             ->add(
@@ -427,8 +435,12 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Parc",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
+                
             )
             ->add(
                 'numSerie',
@@ -436,7 +448,10 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " N° Serie",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete', 
+                        'autocomplete' => 'off',
+                    ]
                 ]
             )
             ->add(

@@ -46,8 +46,11 @@ trait DitFactureSoumisAValidationtrait
             //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
 
             // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
+
             $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
+
             $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
+
             //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
             $factureSoumis
                 ->setNumeroDit($numDit)
@@ -320,7 +323,7 @@ trait DitFactureSoumisAValidationtrait
         FormInterface $form,
         DitFactureSoumisAValidation $ditfacture,
         $fusionPdf
-    ): void {
+    ): array {
         $pdfFiles = [];
 
         // Ajouter le fichier PDF principal en tête du tableau
@@ -365,5 +368,6 @@ trait DitFactureSoumisAValidationtrait
         if (!empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+        return $pdfFiles;
     }
 }

@@ -40,7 +40,7 @@ class TableauEnStringService
         return $result;
     }
 
-    /**
+     /**
      * Methode general pour transformer un tableau en string
      *
      * @param array $tab
@@ -63,5 +63,4 @@ class TableauEnStringService
         // Joindre les éléments avec le séparateur
         return implode($separateur, $escapedArray);
     }
-
 }

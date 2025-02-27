@@ -211,41 +211,7 @@ class DitListeController extends Controller
         $this->redirectToRoute("dit_index");
     }
 
-    private function changementStatutDit($dit, $statutCloturerAnnuler)
-    {
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
-    }
 
-    private function ajouterDansCsv($filePath, $data, $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
-
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
-
-        // Si le fichier est nouveau, ajoute un BOM UTF-8
-        if (!$fichierExiste) {
-            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
-        }
-
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            // Force l'encodage UTF-8 pour les en-têtes
-            fputcsv($handle, array_map(function ($header) {
-                return mb_convert_encoding($header, 'UTF-8');
-            }, $headers));
-        }
-
-        // Force l'encodage UTF-8 pour les données
-        fputcsv($handle, array_map(function ($field) {
-            return mb_convert_encoding($field, 'UTF-8');
-        }, $data));
-
-        // Ferme le fichier
-        fclose($handle);
-    }
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -301,5 +267,60 @@ class DitListeController extends Controller
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
             'data' => $data,
         ]);
+    }
+
+    private function criteriaTab(array $criteria): array
+    {
+        $criteriaTab = $criteria;
+
+        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
+        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
+        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        return  array_filter($criteriaTab);
+    }
+
+    private function changementStatutDit($dit, $statutCloturerAnnuler)
+    {
+        $dit->setIdStatutDemande($statutCloturerAnnuler);
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+    {
+        $fichierExiste = file_exists($filePath);
+
+        // Ouvre le fichier en mode append
+        $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajoute un BOM UTF-8
+        if (!$fichierExiste) {
+            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+        }
+
+        // Si le fichier est nouveau, ajouter les en-têtes
+        if (!$fichierExiste && $headers !== null) {
+            // Force l'encodage UTF-8 pour les en-têtes
+            fputcsv($handle, array_map(function ($header) {
+                return mb_convert_encoding($header, 'UTF-8');
+            }, $headers));
+        }
+
+        // Force l'encodage UTF-8 pour les données
+        fputcsv($handle, array_map(function ($field) {
+            return mb_convert_encoding($field, 'UTF-8');
+        }, $data));
+
+        // Ferme le fichier
+        fclose($handle);
     }
 }

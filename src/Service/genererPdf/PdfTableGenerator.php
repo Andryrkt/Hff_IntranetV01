@@ -122,7 +122,7 @@ class PdfTableGenerator
     private function formatValue(string $key, $value): string
     {
         // Vérifier si la clé concerne un montant
-        if (in_array($key, ['mttTotal', 'mttPieces', 'mttMo', 'mttSt', 'mttLub', 'mttAutres', 'mttTotalAv', 'mttTotalAp']) || stripos($key, 'mtt') !== false) {
+        if (in_array($key, ['mttTotal', 'mttPieces', 'mttMo', 'mttSt', 'mttLub', 'mttAutres', 'mttTotalAv', 'mttTotalAp', 'pu1', 'pu2', 'pu3']) || stripos($key, 'mtt') !== false) {
             // Vérifier si la valeur est un nombre
             if (is_numeric($value)) {
                 return number_format((float) $value, 2, ',', '.');
