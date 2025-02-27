@@ -170,7 +170,7 @@ class MutationFormType extends AbstractType
                         new Length([
                             'min'        => 3,
                             'minMessage' => 'Le Client doit comporter au moins {{ limit }} caractères',
-                            'max'        => 50,
+                            'max'        => 100,
                             'maxMessage' => 'Le Client ne peut pas dépasser {{ limit }} caractères',
                         ]),
                     ],
@@ -253,7 +253,7 @@ class MutationFormType extends AbstractType
                         new Length([
                             'min'        => 3,
                             'minMessage' => 'Le motif autre dépense 1 doit comporter au moins {{ limit }} caractères',
-                            'max'        => 30,
+                            'max'        => 50,
                             'maxMessage' => 'Le motif autre dépense 1 ne peut pas dépasser {{ limit }} caractères',
                         ]),
                     ],
@@ -277,7 +277,7 @@ class MutationFormType extends AbstractType
                         new Length([
                             'min'        => 3,
                             'minMessage' => 'Le motif autre dépense 2 doit comporter au moins {{ limit }} caractères',
-                            'max'        => 30,
+                            'max'        => 50,
                             'maxMessage' => 'Le motif autre dépense 2 ne peut pas dépasser {{ limit }} caractères',
                         ]),
                     ],
