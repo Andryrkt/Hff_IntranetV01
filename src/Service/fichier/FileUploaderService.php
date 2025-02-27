@@ -282,7 +282,7 @@ private function getUploadedFiles(
         return $uploadedFiles;
     }
 
-    public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position): array {
+    public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array {
         // S'assurer que la position est valide
         $position = max(0, min($position, count($uploadedFiles))); 
     
