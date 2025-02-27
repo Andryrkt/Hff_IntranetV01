@@ -27,6 +27,7 @@ class PlanningSearch
     private $months;
     private ?bool $orBackOrder = false;
     private $typeDocument;
+    private $reparationRealise;
 
     public function getNiveauUrgence()
     {
@@ -440,6 +441,26 @@ class PlanningSearch
     public function setTypeDocument($typeDocument)
     {
         $this->typeDocument = $typeDocument;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of reparationRealise
+     */ 
+    public function getReparationRealise()
+    {
+        return $this->reparationRealise;
+    }
+
+    /**
+     * Set the value of reparationRealise
+     *
+     * @return  self
+     */ 
+    public function setReparationRealise($reparationRealise)
+    {
+        $this->reparationRealise = $reparationRealise;
 
         return $this;
     }

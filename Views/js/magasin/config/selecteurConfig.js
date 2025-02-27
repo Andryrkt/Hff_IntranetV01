@@ -3,6 +3,7 @@ import {
   cellIndicesOrALivrer,
   cellIndicesCisATraiter,
   cellIndicesCisALivrer,
+  cellIndicesListePlanning,
 } from "./cellIndicesConfig.js";
 export const config = {
   or_a_traiter: {
@@ -49,4 +50,8 @@ export const config = {
     numOrInput: "#a_livrer_search_numOr",
     cellIndices: cellIndicesCisALivrer,
   },
+  liste_planning: {
+    tableBody: "#tableBody",
+    cellIndices: cellIndicesListePlanning
+  }
 };
