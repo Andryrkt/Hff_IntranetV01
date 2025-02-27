@@ -51,23 +51,14 @@ class PlanningSearchType extends AbstractType
                 'ACHATS LOCAUX' => 'ACHAT_LOCAUX',
                 'LUBRIFIANTS' => 'LUBRIFIANTS'
             ];
-            // const SECTION = [
-            //     'ASS' 	ASSURANCE
-            //     'AUT'	AUTRES
-            //     'AVI'	AVION
-            //     'BAT'	FER ET BATIMENTS
-            //     'CSP'	CUSTOMER SUPPORT
-            //     'DGO'	ATELIER DIEGO
-            //     'ELE'	ELECTRICITE
-            //     'FLE'	FLEXIBLE
-            //     'FRO'	FROID
-            //     'MAC'	MACHINE ET MATERIELS
-            //     'MAG'	MAGASIN
-            //     'MOT'	MOTEURS ET MACHINES OUTILS
-            //     'PEI'	TOLERIE & PEINTURE & MECANIQUE
-            //     'PNE'	PNEUMATIQUE
-            //     'REB'	REBOBINAGE
-            // ]
+            const REPARATION_REALISE = [
+                'ATE TANA' => 'ATE TANA',
+                'ATE STAR' => 'ATE STAR',
+                'ATE MAS' => 'ATE MAS',
+                'ATE TMV' => 'ATE TMV',
+                'ATE FTU' => 'ATE FTU',
+                'ATE ABV' => 'ATE ABV',
+            ];
 
             public function __construct()
             {
@@ -219,6 +210,15 @@ class PlanningSearchType extends AbstractType
                             ->setParameter('id', 5)
                             ->orderBy('w.description', 'ASC');
                     }
+                ])
+                ->add('reparationRealise', 
+                ChoiceType::class, 
+                [
+                    'label' => "Réparation réalisé par *",
+                    'choices' => self::REPARATION_REALISE,
+                    'placeholder' => '-- Choisir le répartion réalisé --',
+                    'required' => false,
+                    
                 ])
                 ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                     $form = $event->getForm();
