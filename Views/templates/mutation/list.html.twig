@@ -43,21 +43,21 @@
 					{% set styleStatutDom = '' %}
 					{% set styleStatutDom = '' %}
 
-					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+					{% if item.statutDemande.description | trim == 'OUVERT' %}
 						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
-					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
+					{% elseif item.statutDemande.description | trim == 'PAYE'  %}
 						{% set classeStatutDom ='bg-success bg-gradient' %}
-					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
+					{% elseif  item.statutDemande.description | trim == 'ATTENTE PAIEMENT' %}
 						{% set classeStatutDom ='bg-success' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'CONTROLE SERVICE' %}
+					{% elseif item.statutDemande.description | trim == 'CONTROLE SERVICE' %}
 						{% set classeStatutDom ='bg-info' %}
-					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
+					{% elseif item.statutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
 						{% set classeStatutDom ='bg-primary' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG'%}
+					{% elseif item.statutDemande.description | trim == 'VALIDE' or item.statutDemande.description | trim == 'VALIDE COMPTABILITE' or item.statutDemande.description | trim == 'VALIDATION RH' or item.statutDemande.description | trim == 'VALIDATION DG'%}
 						{% set classeStatutDom ='bg-success' %}
-					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
+					{% elseif item.statutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.statutDemande.description | trim == 'ANNULE COMPTABILITE' or item.statutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.statutDemande.description | trim == 'ANNULE' %}
 						{% set classeStatutDom ='bg-danger' %}
 					{% else %}
 						{% set classeStatutDom = '' %}
@@ -66,7 +66,7 @@
 					<tr>
 
 						{# DEBUT Statut #}
-						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.idStatutDemande.description}}</td>
+						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.statutDemande.description}}</td>
 
 						{# FIN Statut #}
 						<td>
@@ -82,8 +82,8 @@
 						<td class="text-center">{{ item.dateDebut | date('d/m/Y')}}</td>
 						<td>{{ item.client}}</td>
 						<td>{{ item.lieuMutation}}</td>
-						<td class="text-end">{{ item.totalGeneralPayer}}</td>
-						<td>{{ item.devis}}</td>
+						<td class="text-end">{{ item.totalGeneralPayer }}</td>
+						<td class="text-start">{{ item.devis}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
