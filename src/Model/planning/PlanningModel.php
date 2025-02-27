@@ -1274,7 +1274,7 @@ TRIM('COMPLET NON LIVRE')
                         trim('DISPO STOCK')
                       WHEN slor_qterea =  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
                          trim('LIVRE')
-                      WHEN slor_natcm = 'C' THEN
+                      WHEN slor_natcm = 'C' THEN 
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
                                   WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
@@ -1288,7 +1288,7 @@ TRIM('COMPLET NON LIVRE')
                                                              AND Parts_CST = slor_constp 
                                                              AND Line_Number = slor_noligncm )
 					                    	 )
-                      WHEN slor_typcf = 'CIS' THEN
+                      WHEN slor_typcf = 'CIS' THEN 
 		                            ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
                                   WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
@@ -1324,7 +1324,7 @@ TRIM('COMPLET NON LIVRE')
 		                        FROM sav_liv 
                             WHERE sliv_numor = slor_numor 
 		                        AND sliv_nolign = slor_nolign)), '%Y-%m-%d')
-	                  WHEN slor_natcm = 'C' THEN
+	                  WHEN slor_natcm = 'C' THEN 
  		                    TO_CHAR((	
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
@@ -1341,7 +1341,7 @@ TRIM('COMPLET NON LIVRE')
 	                        	       )
                                  ), 
                                  '%Y-%m-%d')
-                    WHEN slor_typcf = 'CIS' THEN
+                    WHEN slor_typcf = 'CIS' THEN 
 		                       TO_CHAR((
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
@@ -1359,7 +1359,7 @@ TRIM('COMPLET NON LIVRE')
                                  ), '%Y-%m-%d')
 	                  END AS dateStatut,
 
-                      CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
+                      CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN 
 	                     ( SELECT message FROM  gcot_acknow_cat 
                           WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
                           AND Parts_Number = slor_refp  
@@ -1371,8 +1371,8 @@ TRIM('COMPLET NON LIVRE')
                                                       AND Parts_Number = slor_refp  
                                                       AND Parts_CST = slor_constp 
                                                       AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign))
-					            	)
-                        WHEN slor_typcf = 'CIS' THEN
+					            	) 
+                        WHEN slor_typcf = 'CIS' THEN 
                                   ( SELECT message FROM  gcot_acknow_cat 
                                             WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                             AND Parts_Number = slor_refp  
