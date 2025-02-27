@@ -1,3 +1,10 @@
+/**
+ * Fonction permet de crée une element HTML
+ * @param {string} tag
+ * @param {Object} attributes
+ * @param {array} children
+ * @returns
+ */
 export function createElement(tag, attributes = {}, children = []) {
   const element = document.createElement(tag);
   Object.keys(attributes).forEach((key) => {
@@ -19,6 +26,10 @@ export function createElement(tag, attributes = {}, children = []) {
   return element;
 }
 
+/**
+ * Fonction qui permet d'effacher les enfant d'une select
+ * @param {HTMLElement} parent
+ */
 export function clearChildren(parent) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);

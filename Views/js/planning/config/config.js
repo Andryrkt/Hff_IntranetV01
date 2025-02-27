@@ -1,4 +1,4 @@
-const config = {
+export const config = {
   elements: {
     agenceDebiteurInput: "#planning_search_agenceDebite",
     serviceDebiteurInput: "#planning_search_serviceDebite",
@@ -10,5 +10,3 @@ const config = {
       `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`,
   },
 };
-
-export default config;

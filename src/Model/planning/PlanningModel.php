@@ -544,7 +544,7 @@ public function backOrderPlanning($lesOrValides){
                 WHERE slor_numor || '-' || sitv_interv = '".$numOrIntv."'
                 --AND slor_typlig = 'P'
                 $vtypeligne
-                AND slor_constp NOT LIKE '%ZDI%'
+               -- AND slor_constp NOT LIKE '%ZDI%'
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
       ";
         // dump($statement);
