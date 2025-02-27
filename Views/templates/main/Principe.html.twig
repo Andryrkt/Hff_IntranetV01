@@ -143,20 +143,19 @@
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
 
 				{# DEMANDE D'APPROVISIONNEMENT #}
-			{% if hasDAP %}
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Demande d'Appro</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
-						</li>
-					</ul>
-				</li>
-			{% endif %}
+					{% if hasDAP %}
+						<li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Demande d'Appro</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
+							</li>
+						</ul>
+					</li>
+				{% endif %}
 				{% if hasMAG %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -220,8 +219,8 @@
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
 							{# <li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Liste</a>
-							</li> #}
+																						<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+																					</li> #}
 						</ul>
 					</li>
 				{% endif %}
