@@ -4,10 +4,10 @@ namespace App\Controller\mutation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\MutationTrait;
-use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
 use App\Form\mutation\MutationFormType;
+use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -36,7 +36,9 @@ class MutationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->enregistrementValeurDansMutation($form, self::$em, $user);
-            $this->genererEtEnvoyerPdf($form, $user);
+            $generatePdf = new GeneratePdfMutation;
+            $generatePdf->genererPDF($this->donneePourPdf($form, $user));
+            $this->envoyerPieceJointes($form, $this->fusionPdf);
             $this->redirectToRoute("mutation_liste");
         }
 

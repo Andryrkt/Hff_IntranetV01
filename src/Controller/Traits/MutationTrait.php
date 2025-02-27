@@ -9,6 +9,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
 use App\Service\genererPdf\GeneratePdfMutation;
 use DateTime;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait MutationTrait
 {
@@ -54,12 +55,6 @@ trait MutationTrait
         $em->persist($application);
         $em->persist($mutation);
         $em->flush();
-    }
-
-    private function genererEtEnvoyerPdf($form, $user)
-    {
-        $generatePdf = new GeneratePdfMutation;
-        $generatePdf->genererPDF($this->donneePourPdf($form, $user));
     }
 
     private function donneePourPdf($form, User $user): array
@@ -133,5 +128,113 @@ trait MutationTrait
             }
         }
         return $tab;
+    }
+
+    private function envoyerPieceJointes($form, $fusionPdf)
+    {
+        $pdfFiles = [];
+
+        $mutation = $form->getData();
+
+        // Ajouter le fichier PDF principal en tête du tableau
+        $mainPdf = sprintf(
+            '%s/Upload/dom/%s_%s%s.pdf',
+            rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+            $mutation->getNumeroMutation(),
+            $mutation->getAgenceEmetteur()->getCodeAgence(),
+            $mutation->getServiceEmetteur()->getCodeService()
+        );
+
+        // Vérifier que le fichier principal existe avant de l'ajouter
+        if (!file_exists($mainPdf)) {
+            throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
+        }
+
+        array_unshift($pdfFiles, $mainPdf);
+
+        // Récupérer tous les champs de fichiers du formulaire
+        $pieceJointes = [
+            'pieceJoint01' => $mutation->getPieceJoint01(),
+            'pieceJoint02' => $mutation->getPieceJoint02()
+        ];
+        foreach ($pieceJointes as $fieldName => $file) {
+            if ($file !== null) {
+                $pdfPath = $this->uploadFile($file, $mutation, $fieldName);
+                if ($pdfPath !== null) {
+                    $pdfFiles[] = $pdfPath;
+                }
+            }
+        }
+
+        // Nom du fichier PDF fusionné
+        $mergedPdfFile = $mainPdf;
+
+        // Appeler la fonction pour fusionner les fichiers PDF
+        if (!empty($pdfFiles)) {
+            $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+        }
+    }
+
+    /**
+     * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
+     *
+     * @param UploadedFile $file
+     * @param Mutation $mutation
+     * @param string $fieldName
+     *
+     * @return string|null
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     */
+    private function uploadFile($file, $mutation, $fieldName)
+    {
+        // Récupérer l'extension et le type MIME
+        $extension = strtolower($file->getClientOriginalExtension());
+        $mimeType = strtolower($file->getMimeType());
+
+        // Pour déboguer, enregistrer les valeurs
+        error_log("Uploading file for field $fieldName: Extension = $extension, MIME type = $mimeType");
+
+        // Validation des extensions et types MIME - uniquement PDF
+        $allowedExtensions = ['pdf'];
+        $allowedMimeTypes = ['application/pdf'];
+
+        if (
+            !$file->isValid() ||
+            !in_array($extension, $allowedExtensions, true) ||
+            !in_array($mimeType, $allowedMimeTypes, true)
+        ) {
+            throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName. Extension: $extension, MIME type: $mimeType");
+        }
+
+        // Générer un nom de fichier sécurisé et unique
+        $fileName = sprintf(
+            '%s_0%d.%s',
+            $mutation->getNumeroMutation(),
+            substr($fieldName, -1),
+            $file->guessExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        // Retourner le chemin complet du fichier si c'est un PDF, sinon null
+        if ($extension === 'pdf') {
+            return $destination . $fileName;
+        }
+
+        return null;
     }
 }
