@@ -221,7 +221,7 @@ class DitFactureSoumisAValidationController extends Controller
     }
 
     private function nombreFact($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)
-    {dd($ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation);
+    {
         $nbFactInformix = $ditFactureSoumiAValidationModel->recupNombreFacture($ditFactureSoumiAValidation->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         if (empty($nbFactInformix)) {
             $nbFact = 0;
