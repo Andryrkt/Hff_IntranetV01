@@ -282,7 +282,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nom du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -295,7 +295,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Numéro du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -308,7 +308,7 @@ class demandeInterventionType extends AbstractType
                 TelType::class,
                 [
                     'label' => 'N° téléphone (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'numTel noEntrer'
                     ]
@@ -320,9 +320,17 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
-                    'attr' => ['class' => 'clientSousContrat'],
+                    'attr' => ['class' => 'mailClient noEntrer'],
                 ]
             )
+            ->add('clientSousContrat', ChoiceType::class, [
+                'label' => 'Client sous contrat',
+                'choices' => self::OUI_NON,
+                'placeholder' => false,
+                'required' => false,
+                'data' => 'NON',
+                'attr' => ['class' => 'clientSousContrat']
+            ])
 
             ->add('datePrevueTravaux', DateType::class, [
                 'widget' => 'single_text',
