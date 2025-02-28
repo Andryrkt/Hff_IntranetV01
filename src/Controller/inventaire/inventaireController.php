@@ -157,7 +157,7 @@ class InventaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
-        $data = $this->dataDetail($countSequence, $numinv);
+        $data = $this->dataDetailExcel($countSequence, $numinv);
         // dd($data);
         $header = [
             'numinv' => 'Numéro',
@@ -251,10 +251,52 @@ class InventaireController extends Controller
                     "qte_comptee_3" => "0",
                     "ecart" => $detailInvent[$j]["ecart"],
                     "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
-                    "pmp" => $this->formatNumber($detailInvent[$j]["pmp"]),
+                    "pmp" =>  $this->formatNumber($detailInvent[$j]["pmp"]),
                     "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
                     "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
-                    "pourcentage_ecart" => $this->formatNumber($detailInvent[$j]["pourcentage_ecart"]),
+                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
+                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
+                ];
+                if (!empty($countSequence)) {
+                    for ($i = 0; $i < count($countSequence); $i++) {
+                        $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
+                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                    }
+                }
+            }
+        }
+        return $data;
+    }
+    public function dataDetailExcel($countSequence, $numinv)
+    {
+        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
+
+        if ($numinv !== $numinvCriteria) {
+            $this->redirectToRoute('detail_inventaire', ['numinv' => $numinvCriteria]);
+        }
+
+        $data = [];
+        $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
+        if (!empty($detailInvent)) {
+            // dump($detailInvent);
+            for ($j = 0; $j < count($detailInvent); $j++) {
+                $data[] = [
+                    "numinv" => $numinv,
+                    "cst" => $detailInvent[$j]["cst"],
+                    "refp" => $detailInvent[$j]["refp"],
+                    "desi" => $detailInvent[$j]["desi"],
+                    "casier" => $detailInvent[$j]["casier"],
+                    "stock_theo" => $detailInvent[$j]["stock_theo"],
+                    "qte_comptee_1" => "0",
+                    "qte_comptee_2" => "0",
+                    "qte_comptee_3" => "0",
+                    "ecart" => $detailInvent[$j]["ecart"],
+                    "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
+                    "pmp" => $detailInvent[$j]["pmp"],
+                    "montant_inventaire" => $detailInvent[$j]["montant_inventaire"],
+                    "montant_ajuste" => $detailInvent[$j]["montant_ajuste"],
+                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {
