@@ -1,0 +1,78 @@
+{% extends 'baseTemplate.html.twig' %}
+{% block stylesheets %}
+  <link rel="stylesheet" href="/Hffintranet/Views/css/list.css" />
+  <link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css" />
+{% endblock %}
+{% block content %}
+  <div class="sticky-header-titre">
+    <div class="container">
+      <h3 class="perso-titre">Bordereau de comptage</h3>
+       {% include '/bordereau/_formulaire.html.twig' %}
+    </div>
+    <div class="container-fluid">
+        <div class="sticky-header-statut"> <div class="container">
+				<div class="d-flex justify-content-between">
+					<div>
+        {% if data is not empty %}
+						
+						<a href="{{path("export_pdf_liste_inventaire_detail", { 'numinv': data[0].numinv })}}" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+							<i class="fas fa-print"></i>
+							PDF</a>
+        {% else %}
+					
+						<a href="#" id="pdfInventaireDetail" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+							<i class="fas fa-print"></i>
+							PDF</a>
+        {% endif %}
+        
+					</div>
+          
+				</div>
+			</div>
+
+        <table class="table rounded table-plein-ecran">
+         <thead class="table-dark position-sticky">
+            <tr>
+              <th>Date inventaire</th>
+              <th>Numero</th>
+              <th>Bordereau</th>
+              <th>Ligne</th>
+              <th>Casier</th>
+              <th>CST</th>
+              <th>Ref</th>
+              <th>Description</th>
+              <th>Qté théorique</th>
+              <th>Qté allouée</th>
+            </tr>
+         </thead>
+         <tbody id="tableBody">
+          {% if data is empty %}
+            <tr>
+                <td colspan="14">Aucune donnée disponible</td>
+            </tr>
+          {% else %}
+            {% for item in data %}
+                 <tr>
+                    <td> {{item.dateinv}}</td>
+                    <td> {{item.numinv}}</td>
+                    <td> {{item.numbordereau}}</td>
+                    <td> {{item.ligne}}</td>
+                    <td> {{item.casier}}</td>
+                    <td> {{item.cst}}</td>
+                    <td> {{item.refp}}</td>
+                    <td> {{item.descrip}}</td>
+                    <td> {{item.qte_theo  is same as("0") ? "" : item.qte_theo }}</td>
+                    <td> {{item.qte_alloue is same as("0") ? "" :  item.qte_alloue }}</td>
+                 </tr>
+            {% endfor %}
+          {% endif %}
+         </tbody>
+      </table> 
+    </div>
+  </div>
+
+{% endblock %}
+{% block javascript %}
+  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="/Hffintranet/Views/js/inventaire/inventaireAg.js" type="module"></script>
+{% endblock %}
