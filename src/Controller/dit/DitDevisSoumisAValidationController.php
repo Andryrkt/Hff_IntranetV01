@@ -628,10 +628,10 @@ class DitDevisSoumisAValidationController extends Controller
             } else if($constructeur[0]['constructeur'] <> 'CAT') {
                 $suffix = 'P';
             } else {
-                $suffix = '';
+                $suffix = 'N';
             }
         } else {
-            $suffix = '';
+            $suffix = 'N';
         }
        
 
