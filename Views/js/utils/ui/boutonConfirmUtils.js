@@ -39,10 +39,11 @@ export function setupConfirmationButtons() {
 
       await showWarningDialog(messages.warning);
 
-      overlay.classList.remove("hidden");
-      button.disabled = true; // Désactiver le bouton pour éviter les doubles soumissions
-
       try {
+        console.log(overlay);
+        console.log(overlay.classList);
+        overlay.classList.remove("hidden");
+        button.disabled = true; // Désactiver le bouton pour éviter les doubles soumissions
         form.submit();
       } catch (error) {
         console.error("Erreur lors de la soumission du formulaire:", error);
