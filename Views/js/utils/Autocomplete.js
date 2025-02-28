@@ -70,16 +70,8 @@ export class AutoComplete {
         break;
       case "Enter":
         event.preventDefault();
-        if (suggestions.length > 0) {
-          const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
-          suggestions[indexToSelect].click();
-        }
-        break;
-      case "Tab":
-        if (suggestions.length > 0) {
-          event.preventDefault();
-          const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
-          suggestions[indexToSelect].click();
+        if (this.activeIndex >= 0 && suggestions[this.activeIndex]) {
+          suggestions[this.activeIndex].click();
         }
         break;
       case "Escape":
@@ -128,7 +120,6 @@ export class AutoComplete {
 
     suggestions.forEach((item, index) => {
       const suggestionElement = document.createElement("div");
-      suggestionElement.classList.add("suggestion-item");
       suggestionElement.innerHTML = this.displayItemCallback(item);
       suggestionElement.dataset.index = index;
 
