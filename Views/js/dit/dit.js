@@ -287,10 +287,15 @@ function interneExterne() {
 
   if (interneExterneInput.value === "EXTERNE") {
     nomClientInput.removeAttribute("disabled");
+    nomClientInput.setAttribute("required", true);
     numClientInput.removeAttribute("disabled");
+    numClientInput.setAttribute("required", true);
     numTelInput.removeAttribute("disabled");
+    numTelInput.setAttribute("required", true);
     clientSousContratInput.removeAttribute("disabled");
+    clientSousContratInput.setAttribute("required", true);
     mailClientInput.removeAttribute("disabled");
+    mailClientInput.setAttribute("required", true);
     demandeDevisInput.removeAttribute("disabled");
     demandeDevisInput.value = "OUI";
     agenceDebiteurInput.setAttribute("disabled", true);
@@ -299,12 +304,16 @@ function interneExterne() {
     serviceDebiteurInput.value = "";
   } else {
     nomClientInput.setAttribute("disabled", true);
+    nomClientInput.removeAttribute("required");
     numClientInput.setAttribute("disabled", true);
+    numClientInput.removeAttribute("required");
     numTelInput.setAttribute("disabled", true);
+    numTelInput.removeAttribute("required");
     demandeDevisInput.setAttribute("disabled", true);
     demandeDevisInput.value = "NON";
     clientSousContratInput.setAttribute("disabled", true);
     mailClientInput.setAttribute("disabled", true);
+    mailClientInput.removeAttribute("required");
     agenceDebiteurInput.removeAttribute("disabled");
     serviceDebiteurInput.removeAttribute("disabled");
     agenceDebiteurInput.value = parsedData.agenceId;

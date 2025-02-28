@@ -282,7 +282,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nom du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -295,7 +295,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Numéro du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
@@ -308,7 +308,7 @@ class demandeInterventionType extends AbstractType
                 TelType::class,
                 [
                     'label' => 'N° téléphone (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'numTel noEntrer'
                     ]
