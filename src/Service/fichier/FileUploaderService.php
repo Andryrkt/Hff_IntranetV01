@@ -88,7 +88,7 @@ class FileUploaderService
      * @param string $numeroVersion
      * @return string|null
      */
-    private function uploadFile(
+    public function uploadFile(
         UploadedFile $file,  
         string $numeroDoc, 
         string $index, 
@@ -124,6 +124,8 @@ class FileUploaderService
 
         return $destination . $fileName;
     }
+
+
 /**
  * Méthode pour récupérer les fichiers téléchargés correspondant à un motif spécifique.
  *
@@ -243,6 +245,13 @@ private function getUploadedFiles(
 
 
 
+    /**
+     * Permet de récupérer les chemins des fichiers téléchargés correspondant à un motif spécifique dans un tableau
+     *
+     * @param FormInterface $form
+     * @param array $options
+     * @return array
+     */
     public function getPathFiles(
         FormInterface $form,
         array $options
@@ -282,6 +291,18 @@ private function getUploadedFiles(
         return $uploadedFiles;
     }
 
+    /**
+     * Methode qui permet de crée un tableau qui contient les chemis de fichier à fusionner
+     * il permet aussi de specifier le position du page principal
+     * position 0 si le fichier principal doit etre en premier page
+     * position 1 si le fichier principal doit etre en deuxieme page
+     *  ex : ['fichier1.pdf', 'fichier2.pdf', 'fichier3.pdf', 'fichier4.pdf']
+     *
+     * @param array $uploadedFiles
+     * @param string $mainFilePathName
+     * @param integer $position
+     * @return array
+     */
     public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array {
         // S'assurer que la position est valide
         $position = max(0, min($position, count($uploadedFiles))); 
@@ -297,5 +318,38 @@ private function getUploadedFiles(
         $this->fusionPdf->mergePdfs($uploadedFiles, $nomFichierFusioner);
     }
     
+     /**
+     * Upload un fichier après validation.
+     *
+     * @param UploadedFile $file
+     * @param string $numeroDoc
+     * @param string $index
+     * @param string $prefix
+     * @param string $numeroVersion
+     * @return string|null
+     */
+    public function uploadFileSansName(
+        UploadedFile $file,  
+        string $fileName = '',
+        string $pathFichier = 'fichiers/'
+        ): ?string
+    {
+        if (
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
+            !in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
+        ) {
+            throw new InvalidArgumentException("Type de fichier non autorisé : {$file->getClientOriginalName()}.");
+        }
+        
+        $destination = $this->targetDirectory . $pathFichier;
 
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        return $destination . $fileName;
+    }
 }

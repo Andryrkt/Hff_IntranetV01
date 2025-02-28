@@ -10,7 +10,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 {
     use FormatageTrait;
 
-    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email)
+    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
     {
         $pdf = new HeaderPdf($email);
         $generator = new PdfTableGenerator();
@@ -112,8 +112,12 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         //=====================================================================================================================
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-        $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
-        $pdf->Output($filePath, 'F');
+
+        
+            $filePath = $nomFichierCtrl;
+       
+        $pdf->Output($Dossier .$filePath, 'F');
+
     }
 
 
@@ -127,7 +131,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
      * @param string $email
      * @return void
      */
-    function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email)
+    function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl)
     {
         // $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
@@ -332,7 +336,11 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-        $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
+        
+            $filePath = $Dossier . $nomFichierCtrl;
+        
         $pdf->Output($filePath, 'F');
+
+    
     }
 }
