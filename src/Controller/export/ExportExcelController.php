@@ -3,11 +3,15 @@
 namespace App\Controller\export;
 
 use App\Controller\Controller;
+use App\Controller\Traits\FormatageTrait;
 use App\Model\export\ExportExcelModel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ExportExcelController extends Controller
 {
+    use FormatageTrait;
     /**
      * @Route("/Export/Excel/specifique", name="export_excel_specifique")
      */
@@ -29,7 +33,6 @@ class ExportExcelController extends Controller
             "dateop" => "dateop",
             "module" => "module",
         ];
-        $i=0;
         foreach ($allData as $data) {
             $rows = $model->recuperationDonneeConstructeur($data['referencepiece'], $data['constructeur']);
             foreach ($rows as $row) {
@@ -39,22 +42,37 @@ class ExportExcelController extends Controller
                     'natmouv' => $row['natmouv'] ?? '',
                     'qte' => $row['qte'] ?? '',
                     'prix' => $row['prix'] ?? '',
-                    'datemouv' => $row['datemouv'] ?? '',
+                    'datemouv' => $row['datemouv'] !== null ? $this->formatageDate($row['datemouv']) : '',
                     'ident' => $row['ident'] ?? '',
                     'natop' => $row['natop'] ?? '',
                     'nomtiers' => $row['nomtiers'] ?? '',
                     'numfac' => $row['numfac'] ?? '',
-                    'dateop' => $row['dateop'] ?? '',
+                    'dateop' => $row['dateop']  !== null ? $this->formatageDate($row['dateop']) : '',
                     'module' => $row['module'] ?? '',
                 ];
             }
-            $i++;
-            if ($i===10) {
-                break;
-            }
         }
-        dump($dataExcel); 
 
-        $this->excelService->createSpreadsheet($dataExcel);
+        $this->exporterDonneesExcel($dataExcel);
+    }
+
+    private function exporterDonneesExcel($data)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Ajout des données
+        $rowIndex = 1;
+        foreach ($data as $row) {
+            $sheet->fromArray([$row], null, "A$rowIndex");
+            $rowIndex++;
+        }
+
+        // Téléchargement du fichier
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="export-excel.xlsx"');
+        $writer->save('php://output');
+        exit();
     }
 }
