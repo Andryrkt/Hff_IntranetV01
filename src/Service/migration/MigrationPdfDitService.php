@@ -54,10 +54,10 @@ class MigrationPdfDitService
             // Supposons que le PDF est sauvegardé sur disque ici
 
             // Fusion du PDF et migration (vérifier que cette méthode utilise bien des fichiers temporaires)
-            $this->fusionPdfmigrations($dit);
+            // $this->fusionPdfmigrations($dit);
 
             // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
-            $ditPdf->copyInterneToDOXCUWARE(
+            $ditPdf->copyInterneToDOCUWARE(
                 $dit->getNumeroDemandeIntervention(),
                 str_replace("-", "", $dit->getAgenceServiceEmetteur())
             );
