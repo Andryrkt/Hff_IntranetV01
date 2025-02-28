@@ -49,8 +49,6 @@ class PersonnelController extends Controller
 
         $totalPages = ceil($totalBadms / $limit);
 
-        $this->logUserVisit('personnel_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display('admin/Personnel/list.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
@@ -76,7 +74,6 @@ class PersonnelController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $personnelData = $form->getData();
             $agServIrium = self::$em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
             $personnel->setNom($personnelData->getNom())
@@ -96,8 +93,6 @@ class PersonnelController extends Controller
 
             $this->redirectToRoute("personnel_index");
         }
-
-        $this->logUserVisit('personnnel_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'admin/Personnel/new.html.twig',
@@ -126,14 +121,13 @@ class PersonnelController extends Controller
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
+            $personnelData = $form->getData();
+            $agServIrium = self::$em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
+            $user->setAgenceServiceIriumId($agServIrium);
 
             self::$em->flush();
             $this->redirectToRoute("personnel_index");
         }
-
-        $this->logUserVisit('personnel_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/Personnel/edit.html.twig', [
             'form' => $form->createView(),
@@ -167,10 +161,6 @@ class PersonnelController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(Personnel::class)->find($id);
-
-        $this->logUserVisit('personnel_show', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display('admin/Personnel/show.html.twig', [
             'personnel' => $user

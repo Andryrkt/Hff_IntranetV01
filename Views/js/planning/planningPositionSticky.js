@@ -4,7 +4,7 @@
 
 function adjustStickyPositions() {
     const stickyTitre = document.querySelector(".sticky-header-titre");
-    const tableHeader = document.querySelector(".table-plein-ecran thead tr");
+    const tableHeader = document.querySelector(".table-plein-ecran thead");
   
     if (stickyTitre) {
       stickyTitre.style.top = `0px`;

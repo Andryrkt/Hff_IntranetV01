@@ -2,10 +2,14 @@
 
 namespace App\Model;
 
+use App\Model\Traits\ConversionModel;
+
 
 
 class Model
 {
+    use ConversionModel;
+    
     protected $connexion;
     protected $connect;
     protected $sqlServer;

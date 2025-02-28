@@ -85,9 +85,8 @@ class ListeController extends Controller
                 $backString = '';
             }
 
-            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit);
+            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit,true);
              $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
-
             // Calcule le nombre total de pages
             $pagesCount = ceil($resultat / $limit);
 
@@ -403,7 +402,9 @@ class ListeController extends Controller
                         'Eta_magasin' => $dateEtaMag ,
                         'message' => $details[$j]['message'],
                         'ord' => $details[$j]['Ord'],
-                        'status_b' =>$res1[$i]['status_b']
+                        'status_b' =>$res1[$i]['status_b'],
+                        'Qte_Solde' => $details[$j]['qteSlode'],
+                        'qte' => $details[$j]['qte']
 
                     ];
                 }

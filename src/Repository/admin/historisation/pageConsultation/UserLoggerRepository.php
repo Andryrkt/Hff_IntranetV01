@@ -2,6 +2,7 @@
 
 namespace App\Repository\admin\historisation\pageConsultation;
 
+<<<<<<< HEAD
 use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
@@ -80,3 +81,8 @@ class UserLoggerRepository extends EntityRepository
         }
     }
 }
+=======
+use Doctrine\ORM\EntityRepository;
+
+class UserLoggerRepository extends EntityRepository {}
+>>>>>>> e2449b113a26f4a16e2de08d779a4e263ca62975

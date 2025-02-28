@@ -68,7 +68,23 @@ class DomsListeController extends Controller
         $this->sessionService->set('dom_search_criteria', $criteria);
         $this->sessionService->set('dom_search_option', $option);
 
-        $this->logUserVisit('doms_liste'); // historisation du page visité par l'utilisateur
+        $criteriaTab = $criteria;
+
+        $criteriaTab['sousTypeDocument'] = $criteria['sousTypeDocument'] ? $criteria['sousTypeDocument']->getCodeSousType() : $criteria['sousTypeDocument'];
+        $criteriaTab['statut']           = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut']        = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin']          = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y') : $criteria['dateMissionDebut'];
+        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin'] ? $criteria['dateMissionFin']->format('d-m-Y') : $criteria['dateMissionFin'];
+
+        // Filtrer les critères pour supprimer les valeurs "falsy"
+        $filteredCriteria = array_filter($criteriaTab);
+
+        // Déterminer le type de log
+        $logType = empty($filteredCriteria) ? ['doms_liste'] : ['doms_liste_search', $filteredCriteria];
+
+        // Appeler la méthode logUserVisit avec les arguments définis
+        $this->logUserVisit(...$logType);
 
         self::$twig->display(
             'doms/list.html.twig',
