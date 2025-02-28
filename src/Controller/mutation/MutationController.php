@@ -104,7 +104,50 @@ class MutationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** 
+         * @var Mutation entité correspondant à l'id $id
+         */
         $mutation = self::$em->getRepository(Mutation::class)->find($id);
+
+        $avanceSurIndemnite = !($mutation->getNombreJourAvance() === null);
+        $tabModePaiement = explode(':', $mutation->getModePaiement());
+        $modePaiement = $tabModePaiement[0];
+        $modePaiementLabel = $modePaiement === 'MOBILE MONEY' ? 'TEL' : 'CPT';
+        $modePaiementValue = $tabModePaiement[1];
+
+        $mutation = [
+            'nom'                           => $mutation->getNom(),
+            'prenom'                        => $mutation->getPrenom(),
+            'matricule'                     => $mutation->getMatricule(),
+            'categorie'                     => $mutation->getCategorie()->getDescription(),
+            'agenceEmetteur'                => $mutation->getAgenceEmetteur()->getLibelleAgence(),
+            'serviceEmetteur'               => $mutation->getServiceEmetteur()->getLibelleService(),
+            'agenceDebiteur'                => $mutation->getAgenceDebiteur()->getLibelleAgence(),
+            'serviceDebiteur'               => $mutation->getServiceDebiteur()->getLibelleService(),
+            'dateDebutLabel'                => $avanceSurIndemnite ? "Date de début d'avance sur indemnité de chantier" : 'Date de début de mutation',
+            'dateDebut'                     => $mutation->getDateDebut() === null ? '' : $mutation->getDateDebut()->format('d/m/Y'),
+            'dateFin'                       => $mutation->getDateFin() === null ? '' : $mutation->getDateFin()->format('d/m/Y'),
+            'site'                          => $mutation->getSite()->getNomZone(),
+            'lieuMutation'                  => $mutation->getLieuMutation(),
+            'client'                        => $mutation->getClient(),
+            'motifMutation'                 => $mutation->getMotifMutation(),
+            'avanceSurIndemnite'            => $avanceSurIndemnite ? 'OUI' : 'NON',
+            'nombreJourAvance'              => $mutation->getNombreJourAvance(),
+            'indemniteForfaitaire'          => $mutation->getIndemniteForfaitaire(),
+            'supplementJournaliere'         => '',
+            'totalIndemniteForfaitaire'     => $mutation->getTotalIndemniteForfaitaire(),
+            'autresDepense1'                => $mutation->getAutresDepense1(),
+            'autresDepense2'                => $mutation->getAutresDepense2(),
+            'totalAutresDepenses'           => $mutation->getTotalAutresDepenses(),
+            'motifAutresDepense1'           => $mutation->getMotifAutresDepense1(),
+            'motifAutresDepense2'           => $mutation->getMotifAutresDepense2(),
+            'totalGeneralPayer'             => $mutation->getTotalGeneralPayer(),
+            'modePaiement'                  => $modePaiement,
+            'modePaiementLabel'             => $modePaiementLabel,
+            'modePaiementValue'             => $modePaiementValue,
+            'pieceJoint01'                  => $mutation->getPieceJoint01(),
+            'pieceJoint02'                  => $mutation->getPieceJoint02(),
+        ];
         self::$twig->display(
             'mutation/detail.html.twig',
             [

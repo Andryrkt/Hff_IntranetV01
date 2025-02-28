@@ -182,7 +182,7 @@ class Site
     {
         if (!$this->mutation->contains($mutation)) {
             $this->mutation[] = $mutation;
-            $mutation->setSiteId($this);
+            $mutation->setSite($this);
         }
 
         return $this;
@@ -192,8 +192,8 @@ class Site
     {
         if ($this->mutation->contains($mutation)) {
             $this->mutation->removeElement($mutation);
-            if ($mutation->getSiteId() === $this) {
-                $mutation->setSiteId(null);
+            if ($mutation->getSite() === $this) {
+                $mutation->setSite(null);
             }
         }
 

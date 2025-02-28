@@ -198,7 +198,7 @@ class Catg
     {
         if (!$this->mutCatg->contains($mutCatg)) {
             $this->mutCatg[] = $mutCatg;
-            $mutCatg->setCategorieId($this);
+            $mutCatg->setCategorie($this);
         }
 
         return $this;
@@ -208,8 +208,8 @@ class Catg
     {
         if ($this->mutCatg->contains($mutCatg)) {
             $this->mutCatg->removeElement($mutCatg);
-            if ($mutCatg->getCategorieId() === $this) {
-                $mutCatg->setCategorieId(null);
+            if ($mutCatg->getCategorie() === $this) {
+                $mutCatg->setCategorie(null);
             }
         }
 
