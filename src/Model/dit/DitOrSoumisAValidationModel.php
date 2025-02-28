@@ -199,7 +199,7 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_sortie_magasin 
             from sav_lor 
-            where slor.slor_constp not in (".GlobalVariablesService::get('pieces_magasin').") 
+            where slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
             and slor_typlig = 'P' 
             and slor_numor = '".$numOr."'
             ";

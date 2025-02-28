@@ -6,6 +6,7 @@ use App\Entity\badm\Badm;
 use App\Controller\Controller;
 use App\Entity\badm\BadmSearch;
 use App\Form\badm\BadmSearchType;
+use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,9 @@ class BadmListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $userId = $this->sessionService->get('user_id');
+        $userConnecter = self::$em->getRepository(User::class)->find($userId);
 
         $autoriser = $this->autorisationRole(self::$em);
 
@@ -54,13 +58,13 @@ class BadmListeController extends Controller
         
 
         //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
-
+        $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
 
 
         $repository = self::$em->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $autoriser);
 
 
         $this->ajoutNumSerieNumParc($paginationData);

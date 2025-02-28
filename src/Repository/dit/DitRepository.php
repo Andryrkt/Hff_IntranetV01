@@ -4,6 +4,8 @@ namespace App\Repository\dit;
 
 use App\Entity\dit\DitSearch;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 
@@ -167,7 +169,7 @@ class DitRepository extends EntityRepository
         //filtre selon le section affectée
         $sectionAffectee = $ditSearch->getSectionAffectee();
         if (!empty($sectionAffectee)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section']; // Les groupes de mots disponibles
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
             $resultatsSectionAffectee = [];
 
             foreach ($groupes as $groupe) {
@@ -354,13 +356,13 @@ class DitRepository extends EntityRepository
     //     }
     // }
 
-    private function applySection($queryBuilder, DitSearch $ditSearch)
-    {
-        // Filtrer selon la section affectée
-        $sectionAffectee = $ditSearch->getSectionAffectee();
-        if (!empty($sectionAffectee)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
-            $orX = $queryBuilder->expr()->orX();
+private function applySection($queryBuilder, DitSearch $ditSearch)
+{
+    // Filtrer selon la section affectée
+    $sectionAffectee = $ditSearch->getSectionAffectee();
+    if (!empty($sectionAffectee)) {
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+        $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $index => $groupe) {
                 $phraseConstruite = $groupe . $sectionAffectee;
@@ -374,11 +376,11 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($orX);
         }
 
-        //filtre selon le section support 1
-        $sectionSupport1 = $ditSearch->getSectionSupport1();
-        if (!empty($sectionSupport1)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
-            $orX = $queryBuilder->expr()->orX();
+    //filtre selon le section support 1
+    $sectionSupport1 = $ditSearch->getSectionSupport1();
+    if (!empty($sectionSupport1)) {
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+        $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport1;
@@ -389,26 +391,26 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($orX);
         }
 
-        //filtre selon le section support 2
-        $sectionSupport2 = $ditSearch->getSectionSupport2();
-        if (!empty($sectionSupport2)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
-            $orX = $queryBuilder->expr()->orX();
-
-            foreach ($groupes as $groupe) {
-                $phraseConstruite = $groupe . $sectionSupport2;
-                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
-                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
-            }
-
-            $queryBuilder->andWhere($orX);
+     //filtre selon le section support 2
+    $sectionSupport2 = $ditSearch->getSectionSupport2();
+    if (!empty($sectionSupport2)) {
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+        $orX = $queryBuilder->expr()->orX();
+        
+        foreach ($groupes as $groupe) {
+            $phraseConstruite = $groupe. $sectionSupport2;
+            $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+            $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
         }
+        
+        $queryBuilder->andWhere($orX);
+    }
 
-        //filtre selon le section support 3
-        $sectionSupport3 = $ditSearch->getSectionSupport1();
-        if (!empty($sectionSupport3)) {
-            $groupes = ['Chef section', 'Chef de section', 'Responsable section'];
-            $orX = $queryBuilder->expr()->orX();
+      //filtre selon le section support 3
+    $sectionSupport3 = $ditSearch->getSectionSupport1();
+    if (!empty($sectionSupport3)) {
+        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+        $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport3;
@@ -438,36 +440,56 @@ class DitRepository extends EntityRepository
     public function findSectionSupport1()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport1')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport1')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
 
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport2')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport2')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport2');
     }
 
     public function findSectionSupport3()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport3')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport3')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport3');
     }
 
     public function findSectionAffectee()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionAffectee')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionAffectee')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionAffectee');
     }
 
@@ -499,20 +521,23 @@ class DitRepository extends EntityRepository
 
     /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
-    {
-        $nombrePiecesJointes = $this->createQueryBuilder('d')
-            ->select(
-                "(CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END + 
-                CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END) AS nombrePiecesJointes"
-            )
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleScalarResult();
+{
+    $nombrePiecesJointes = $this->createQueryBuilder('d')
+        ->select(
+            "SUM(
+                (CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END) + 
+                (CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END) + 
+                (CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END)
+            ) AS nombrePiecesJointes"
+        )
+        ->where('d.numeroDemandeIntervention = :numDit')
+        ->setParameter('numDit', $numDit)
+        ->getQuery()
+        ->getSingleScalarResult();
 
-        return (int) $nombrePiecesJointes;
-    }
+    return (int) $nombrePiecesJointes;
+}
+
 
 
     public function findAllNumeroDit()
@@ -561,14 +586,43 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findAteRealiserPar(string $numDit)
+    public function findAteRealiserPar($numDit)
+    {
+        try {
+            return $this->createQueryBuilder('d')
+                ->select('d.reparationRealise')
+                ->where('d.numeroDemandeIntervention = :numDit')
+                ->setParameter('numDit', $numDit)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return null; // Ou toute autre valeur par défaut
+        }
+    }
+
+    /** MIGRATION */
+    public function findDitMigration()
     {
         return $this->createQueryBuilder('d')
-            ->select('d.reparationRealise')
-            ->where('d.numeroDemandeIntervention = :numDit')
-            ->setParameter('numDit', $numDit)
+            ->Where('d.numMigration = :numMigr')
+            ->setParameter('numMigr', 4)
+            // ->andWhere('d.numeroDemandeIntervention = :numDit')
+            // ->setParameter('numDit', 'DIT25010315')
+            ->orderBy('d.numeroDemandeIntervention', 'ASC')
             ->getQuery()
-            ->getSingleScalarResult()
+            ->getResult();
+    }
+
+
+    /** RECUPERE interne exter pour facture */
+    public function findInterneExterne($numDit)
+    {
+        return $this->createQueryBuilder('d')
+        ->select('d.internetExterne')
+        ->where('d.numeroDemandeIntervention = :numDit')
+        ->setParameter('numDit', $numDit)
+        ->getQuery()
+        ->getSingleScalarResult()
         ;
     }
 

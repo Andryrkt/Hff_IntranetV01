@@ -46,3 +46,6 @@ ADD email VARCHAR(255)
 
 ALTER TABLE contact_agence_ate
 ADD atelier VARCHAR(10)
+
+ALTER TABLE bc_soumis
+ADD statut VARCHAR(50)

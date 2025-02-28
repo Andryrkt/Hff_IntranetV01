@@ -46,8 +46,8 @@ class DitModel extends Model
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc,
 
-        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
-        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
+        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Prix_achat,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
 
@@ -57,7 +57,7 @@ class DitModel extends Model
 
       FROM MAT_MAT, mat_bil
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-      and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      --and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
       and mbil_dateclot = '12/31/1899'
       ".$conditionNummat."

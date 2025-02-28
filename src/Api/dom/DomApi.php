@@ -2,14 +2,15 @@
 
 namespace App\Api\dom;
 
+use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
+use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -126,9 +127,10 @@ class DomApi extends Controller
      */
     public function personnelFetch($matricule){
         $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
-        
+        $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
+            'telephone' => $numTel
         ];
 
         header("Content-type:application/json");

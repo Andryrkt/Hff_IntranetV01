@@ -78,7 +78,7 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-            //dd($lesOrvalides);
+            // dd($lesOrvalides);
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
             
             if (is_array($back)) {
@@ -87,7 +87,7 @@ class PlanningController extends Controller
                 $backString = '';
             }
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
-    
+   
         } else {
             $data = [];
             $back = [];

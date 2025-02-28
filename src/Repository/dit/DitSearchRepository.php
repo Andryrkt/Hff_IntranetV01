@@ -12,36 +12,56 @@ class DitRepository extends EntityRepository
     public function findSectionSupport1()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport1')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport1')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
 
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport2')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport2')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport2');
     }
 
     public function findSectionSupport3()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionSupport3')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionSupport3')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionSupport3');
     }
 
     public function findSectionAffectee()
     {
         $result = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.sectionAffectee')
-            ->getQuery()
-            ->getScalarResult();
+        ->select('DISTINCT d.sectionAffectee')
+        ->where('d.sectionAffectee IS NOT NULL')
+        ->andWhere('d.sectionAffectee != :sectionAffectee')
+        ->setParameter('sectionAffectee', ' ')
+        ->andWhere('d.sectionAffectee != :sectionAffecte')
+        ->setParameter('sectionAffecte', 'Autres')
+        ->getQuery()
+        ->getScalarResult();
         return array_column($result, 'sectionAffectee');
     }
 

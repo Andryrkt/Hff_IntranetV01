@@ -174,7 +174,7 @@
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>
 								{{ item.objetDemande}}</td>
-							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 							<td>
 								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
 									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}

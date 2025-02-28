@@ -51,6 +51,23 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    public function copyToDwFacture($numeroVersion, $numeroDoc)
+    {
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        copy($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
+    {
+        for ($i=1; $i <= count($pathFichiers); $i++) { 
+            $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+            $cheminDestinationLocal = $pathFichiers[$i];
+            copy($cheminDestinationLocal, $cheminFichierDistant);
+        }
+        
+    }
+
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
         $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
@@ -71,9 +88,15 @@ class GeneratePdf
 
     public function copyToDWDevisSoumis($fileName)
     {
-
         $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    public function copyToDWFichierDevisSoumis($fileName)
+    {   
+        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

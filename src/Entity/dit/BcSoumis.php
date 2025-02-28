@@ -70,6 +70,11 @@ class BcSoumis
      * @ORM\Column(type="string", length=255)
      */
     private $nomFichier;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $statut;
     
     
     /**==============================================================================
@@ -277,6 +282,26 @@ class BcSoumis
     public function setNomFichier($nomFichier)
     {
         $this->nomFichier = $nomFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
 
         return $this;
     }
