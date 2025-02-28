@@ -264,6 +264,7 @@ function MiseMajuscule() {
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
+const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
@@ -274,6 +275,7 @@ if (interneExterneInput.value === "INTERNE") {
   numClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
   clientSousContratInput.setAttribute("disabled", true);
+  mailClientInput.setAttribute("disabled", true);
 }
 
 interneExterneInput.addEventListener("change", interneExterne);
@@ -288,6 +290,7 @@ function interneExterne() {
     numClientInput.removeAttribute("disabled");
     numTelInput.removeAttribute("disabled");
     clientSousContratInput.removeAttribute("disabled");
+    mailClientInput.removeAttribute("disabled");
     demandeDevisInput.removeAttribute("disabled");
     demandeDevisInput.value = "OUI";
     agenceDebiteurInput.setAttribute("disabled", true);
@@ -301,6 +304,7 @@ function interneExterne() {
     demandeDevisInput.setAttribute("disabled", true);
     demandeDevisInput.value = "NON";
     clientSousContratInput.setAttribute("disabled", true);
+    mailClientInput.setAttribute("disabled", true);
     agenceDebiteurInput.removeAttribute("disabled");
     serviceDebiteurInput.removeAttribute("disabled");
     agenceDebiteurInput.value = parsedData.agenceId;
@@ -360,6 +364,11 @@ const objetDemande = document.querySelector(".noEntrer");
 objetDemande.addEventListener("input", function () {
   objetDemande.value = objetDemande.value.substring(0, 86);
 });
+
+/**===================
+ * BOUTON ENREGISTRER
+ *====================*/
+setupConfirmationButtons();
 
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)

@@ -320,9 +320,17 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
-                    'attr' => ['class' => 'clientSousContrat'],
+                    'attr' => ['class' => 'mailClient noEntrer'],
                 ]
             )
+            ->add('clientSousContrat', ChoiceType::class, [
+                'label' => 'Client sous contrat',
+                'choices' => self::OUI_NON,
+                'placeholder' => false,
+                'required' => false,
+                'data' => 'NON',
+                'attr' => ['class' => 'clientSousContrat']
+            ])
 
             ->add('datePrevueTravaux', DateType::class, [
                 'widget' => 'single_text',
