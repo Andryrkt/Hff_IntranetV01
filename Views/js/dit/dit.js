@@ -377,8 +377,9 @@ objetDemande.addEventListener("input", function () {
 /**===================
  * BOUTON ENREGISTRER
  *====================*/
-setupConfirmationButtons();
-
+document.addEventListener("DOMContentLoaded", function () {
+  setupConfirmationButtons();
+});
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
@@ -433,7 +434,7 @@ textarea.addEventListener("input", function () {
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
-setupConfirmationButtons();
+// setupConfirmationButtons();
 // const boutonInput = document.querySelector("#formDit");
 
 // boutonInput.addEventListener("click", griserBoutton);
