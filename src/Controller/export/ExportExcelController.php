@@ -29,9 +29,31 @@ class ExportExcelController extends Controller
             "dateop",
             "module",
         ];
+        $i=0;
         foreach ($allData as $data) {
-            $dataExcel = array_merge($dataExcel, $model->recuperationDonneeConstructeur($data['referencepiece'], $data['constructeur']));
+            $rows = $model->recuperationDonneeConstructeur($data['referencepiece'], $data['constructeur']);
+            foreach ($rows as $row) {
+                $dataExcel[] = [
+                    'constructeur' => $row['constructeur'],
+                    'referencepiece' => $row['referencepiece'],
+                    'natmouv' => $row['natmouv'] ?? '',
+                    'qte' => $row['qte'] ?? '',
+                    'prix' => $row['prix'] ?? '',
+                    'datemouv' => $row['datemouv'] ?? '',
+                    'ident' => $row['ident'] ?? '',
+                    'natop' => $row['natop'] ?? '',
+                    'nomtiers' => $row['nomtiers'] ?? '',
+                    'numfac' => $row['numfac'] ?? '',
+                    'dateop' => $row['dateop'] ?? '',
+                    'module' => $row['module'] ?? '',
+                ];
+            }
+            $i++;
+            if ($i===10) {
+                break;
+            }
         }
+        dump($dataExcel); 
 
         $this->excelService->createSpreadsheet($dataExcel);
     }
