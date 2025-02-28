@@ -49,6 +49,13 @@ trait MutationTrait
             ->setUtilisateurCreation($user->getNomUtilisateur())
         ;
 
+        if ($mutation->getPieceJoint01() !== null) {
+            $mutation->setPieceJoint01($mutation->getNumeroMutation() . '_01.pdf');
+        }
+        if ($mutation->getPieceJoint02() !== null) {
+            $mutation->setPieceJoint02($mutation->getNumeroMutation() . '_02.pdf');
+        }
+
         $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => 'MUT']);
         $application->setDerniereId($mutation->getNumeroMutation());
 
