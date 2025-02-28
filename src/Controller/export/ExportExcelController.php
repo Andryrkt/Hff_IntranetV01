@@ -16,18 +16,18 @@ class ExportExcelController extends Controller
         $model = new ExportExcelModel;
         $allData = $model->recuperationConstructeur();
         $dataExcel[] = [
-            "constructeur",
-            "referencepiece",
-            "natmouv",
-            "qte",
-            "prix",
-            "datemouv",
-            "ident",
-            "natop",
-            "nomtiers",
-            "numfac",
-            "dateop",
-            "module",
+            "constructeur" => "constructeur",
+            "referencepiece" => "referencepiece",
+            "natmouv" => "natmouv",
+            "qte" => "qte",
+            "prix" => "prix",
+            "datemouv" => "datemouv",
+            "ident" => "ident",
+            "natop" => "natop",
+            "nomtiers" => "nomtiers",
+            "numfac" => "numfac",
+            "dateop" => "dateop",
+            "module" => "module",
         ];
         $i=0;
         foreach ($allData as $data) {
