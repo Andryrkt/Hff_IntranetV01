@@ -36,8 +36,7 @@ class BordereauSearch {
     public function arrayToObjet(array $criteriaTab)
     {
         $this
-            ->setNuminv($criteriaTab['numInv'])
-            
+            ->setNumInv($criteriaTab['numInv'])
         ;
     }
 
