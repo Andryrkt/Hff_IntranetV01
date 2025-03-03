@@ -442,7 +442,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => " N° Parc",
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'noEntrer autocomplete', 
                         'autocomplete' => 'off',
@@ -455,7 +455,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => " N° Serie",
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'noEntrer autocomplete', 
                         'autocomplete' => 'off',
