@@ -1,6 +1,6 @@
 export function setupConfirmationButtons() {
   document.querySelectorAll("[data-confirmation]").forEach((button) => {
-    button.addEventListener("click", async (e) => {
+    button.addEventListener("click", (e) => {
       e.preventDefault();
 
       const overlay = document.getElementById("loading-overlays");
