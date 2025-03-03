@@ -9,7 +9,9 @@ use App\Entity\planning\PlanningSearch;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\planning\PlanningSearchType;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,12 +22,14 @@ class PlanningController extends Controller
 
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->planningModel = new PlanningModel();
         $this->planningSearch = new PlanningSearch();
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -78,15 +82,17 @@ class PlanningController extends Controller
 
         if ($request->query->get('action') !== 'oui') {
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-            // dd($lesOrvalides);
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+            $tousLesOrSoumis = $this->allOrs();
+            $touslesOrItvSoumis = $this->allOrsItv();
+
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria,$tousLesOrSoumis);
             
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
-            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString);
+            $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString, $touslesOrItvSoumis);
    
         } else {
             $data = [];
@@ -109,6 +115,15 @@ class PlanningController extends Controller
         ]);
     }
 
+    private function allOrsItv()
+    {
+        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+    }
+
+    private function allOrs()
+    {
+        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrAll());
+    }
 
     /**
      * @Route("/export_excel_planning", name= "export_planning")
@@ -124,7 +139,7 @@ class PlanningController extends Controller
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
 
-        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $this->allOrs());
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
 
 
