@@ -76,8 +76,8 @@ class GenererPdfDit extends GeneratePdf
         }
         $pdf->cell(55, 6, $libelleCategorie, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(95);
-        $pdf->MultiCell(40, 6, " avis recouvrement :", 0, 'L', false, 0);
-        $pdf->cell(15, 6, $dit->getAvisRecouvrement(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->MultiCell(40, 6, "Client Sous Contrat :", 0, 'L', false, 0);
+        $pdf->cell(15, 6, $dit->getClientSousContrat(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(155);
         $pdf->cell(30, 6, 'Devis demandé :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(0, 6, $dit->getDemandeDevis(), 1, 0, '', false, '', 0, false, 'T', 'M');

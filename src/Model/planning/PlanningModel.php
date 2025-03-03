@@ -120,13 +120,17 @@ class PlanningModel extends Model
       ];
     }, $dataUtf8);
   }
-  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
+  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back, $touslesOrItvSoumis)
   {
     if ($criteria->getOrBackOrder() == true) {
       $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
     } else {
       if (!empty($lesOrValides)) {
-        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        if ($criteria->getOrNonValiderDw() == true) {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
+        } else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        }
       } else {
         $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
       }
@@ -221,11 +225,15 @@ class PlanningModel extends Model
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
-  public function backOrderPlanning($lesOrValides)
+  public function backOrderPlanning($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
   {
-
+    
     if (!empty($lesOrValides)) {
-      $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      if ($criteria->getOrNonValiderDw() == true) {
+        $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
+      } else {
+        $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      }
     } else {
       $vOrvalDw = " AND  slor_numor in ('')";
     }
@@ -249,6 +257,7 @@ class PlanningModel extends Model
                   $vOrvalDw
                   
       ";
+
     $result = $this->connect->executeQuery($statement);
     // dump($statement);
     $data = $this->connect->fetchResults($result);

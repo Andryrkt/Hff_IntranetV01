@@ -264,6 +264,7 @@ function MiseMajuscule() {
 const interneExterneInput = document.querySelector(".interneExterne");
 const numTelInput = document.querySelector(".numTel");
 const clientSousContratInput = document.querySelector(".clientSousContrat");
+const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
   "#demande_intervention_demandeDevis"
 );
@@ -274,6 +275,7 @@ if (interneExterneInput.value === "INTERNE") {
   numClientInput.setAttribute("disabled", true);
   numTelInput.setAttribute("disabled", true);
   clientSousContratInput.setAttribute("disabled", true);
+  mailClientInput.setAttribute("disabled", true);
 }
 
 interneExterneInput.addEventListener("change", interneExterne);
@@ -285,9 +287,15 @@ function interneExterne() {
 
   if (interneExterneInput.value === "EXTERNE") {
     nomClientInput.removeAttribute("disabled");
+    nomClientInput.setAttribute("required", true);
     numClientInput.removeAttribute("disabled");
+    numClientInput.setAttribute("required", true);
     numTelInput.removeAttribute("disabled");
+    numTelInput.setAttribute("required", true);
     clientSousContratInput.removeAttribute("disabled");
+    clientSousContratInput.setAttribute("required", true);
+    mailClientInput.removeAttribute("disabled");
+    mailClientInput.setAttribute("required", true);
     demandeDevisInput.removeAttribute("disabled");
     demandeDevisInput.value = "OUI";
     agenceDebiteurInput.setAttribute("disabled", true);
@@ -296,11 +304,16 @@ function interneExterne() {
     serviceDebiteurInput.value = "";
   } else {
     nomClientInput.setAttribute("disabled", true);
+    nomClientInput.removeAttribute("required");
     numClientInput.setAttribute("disabled", true);
+    numClientInput.removeAttribute("required");
     numTelInput.setAttribute("disabled", true);
+    numTelInput.removeAttribute("required");
     demandeDevisInput.setAttribute("disabled", true);
     demandeDevisInput.value = "NON";
     clientSousContratInput.setAttribute("disabled", true);
+    mailClientInput.setAttribute("disabled", true);
+    mailClientInput.removeAttribute("required");
     agenceDebiteurInput.removeAttribute("disabled");
     serviceDebiteurInput.removeAttribute("disabled");
     agenceDebiteurInput.value = parsedData.agenceId;
@@ -361,6 +374,12 @@ objetDemande.addEventListener("input", function () {
   objetDemande.value = objetDemande.value.substring(0, 86);
 });
 
+/**===================
+ * BOUTON ENREGISTRER
+ *====================*/
+document.addEventListener("DOMContentLoaded", function () {
+  setupConfirmationButtons();
+});
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
@@ -393,13 +412,17 @@ charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
 charCount.style.color = "black"; // Couleur initiale
 
 textarea.addEventListener("input", function () {
-  const remainingCharacters = MAX_CHARACTERS - textarea.value.length;
+  // Compter chaque retour à la ligne comme 131 caractères
+  let adjustedLength =
+    textarea.value.length + (textarea.value.match(/\n/g) || []).length * 130;
+
+  let remainingCharacters = MAX_CHARACTERS - adjustedLength;
 
   if (remainingCharacters < 0) {
     textarea.value = textarea.value.substring(0, MAX_CHARACTERS);
   }
 
-  // Mettre à jour le nombre restant et la couleur
+  // Mettre à jour le compteur de caractères
   if (textarea.value.length === 0) {
     charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
     charCount.style.color = "black";
@@ -408,14 +431,13 @@ textarea.addEventListener("input", function () {
       remainingCharacters >= 0 ? remainingCharacters : 0
     } caractères.`;
     charCount.style.color = "#000";
-    // charCount.style.background = "red"; // Change la couleur lorsqu'on commence à écrire
   }
 });
 
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
-setupConfirmationButtons();
+// setupConfirmationButtons();
 // const boutonInput = document.querySelector("#formDit");
 
 // boutonInput.addEventListener("click", griserBoutton);

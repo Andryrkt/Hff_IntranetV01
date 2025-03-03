@@ -11,9 +11,10 @@ export function toUppercase(input) {
  * @param {HTMLElement} input - Le champ d'entrée à filtrer.
  */
 export function allowOnlyNumbers(input) {
-  input.value = input.value.replace(/[^0-9]/g, "");
+  input.addEventListener("input", function () {
+    input.value = input.value.replace(/[^0-9]/g, "");
+  });
 }
-
 
 /**
  * Limite le nombre de caractères autorisés dans un champ d'entrée.
@@ -21,7 +22,9 @@ export function allowOnlyNumbers(input) {
  * @param {number} maxLength - Le nombre maximum de caractères autorisés.
  */
 export function limitInputLength(input, maxLength) {
-  if (input.value.length > maxLength) {
-    input.value = input.value.slice(0, maxLength);
-  }
+  input.addEventListener("input", function () {
+    if (input.value.length > maxLength) {
+      input.value = input.value.slice(0, maxLength);
+    }
+  });
 }

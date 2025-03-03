@@ -23,6 +23,7 @@
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
 				{% set hasDAP = false %}
+				{% set hasCFR = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -39,6 +40,8 @@
 						{% set hasTIK = true %}
 					{% elseif item.codeApp == 'DAP' %}
 						{% set hasDAP = true %}
+					{% elseif item.codeApp == 'CFR' %}
+						{% set hasCFR = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -182,6 +185,17 @@
 							<li>
 								<a class="dropdown-item" href="{{ path("cis_liste_a_livrer")}}">Liste des CIS à livrer</a>
 							</li>
+							{% if hasCFR %}
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li class="dropdown-header">
+									CDE Fournisseur
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">Soumission commande fournisseur</a>
+								</li>
+							{% endif %}
 							{# <li class="dropdown-header"> #}
 						{# CDE #}
 							{# </li> #}
@@ -218,9 +232,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-							</li>
+							{# <li>
+																																											<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+																																										</li> #}
 						</ul>
 					</li>
 				{% endif %}
@@ -285,12 +299,6 @@
 							</li>
 							<li class="dropdown-header">
 								Utilisateur
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('user_list') }}">Profil User</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('autoriser_index') }}">Agence Service Autoriser</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
