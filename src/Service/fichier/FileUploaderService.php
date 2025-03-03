@@ -352,4 +352,50 @@ private function getUploadedFiles(
 
         return $destination . $fileName;
     }
+
+     /**
+     * Permet de récupérer les chemins des fichiers téléchargés correspondant à un motif spécifique dans un tableau
+     *
+     * @param FormInterface $form
+     * @param array $options
+     * @return array
+     */
+    public function getPathFilesSansNom(
+        FormInterface $form,
+        array $options
+    ): array {
+
+        $nomFichier = $options['nomFichier'] ?? '';
+        $fieldPattern = $options['fieldPattern'] ?? '/^pieceJoint(\d{2})$/';
+        $pathFichier = $options['pathFichier'] ?? 'fichiers/';
+        $isIndex = $options['isIndex'] ?? true;
+
+        $uploadedFiles = [];
+    
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match($fieldPattern, $fieldName, $matches)) {
+                /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                    // Récupérer l'index ou identifiant depuis les correspondances
+                    if($isIndex){
+                        $index = isset($matches[1]) ? (string)$matches[1] : '';
+                    } else {
+                        $index = '';
+                    }
+    
+                    // Appeler la méthode uploadFile
+                    $uploadedFilePath = $this->uploadFileSansName($file, $nomFichier, $pathFichier);
+    
+                    if ($uploadedFilePath !== null) {
+                        $uploadedFiles[] = $uploadedFilePath;
+                    }
+                }
+            }
+        }
+    
+        return $uploadedFiles;
+    }
+
+   
 }

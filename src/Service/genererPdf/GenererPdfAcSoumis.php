@@ -10,7 +10,7 @@ class GenererPdfAcSoumis extends GeneratePdf
 {
     use FormatageTrait;
 
-    function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax)
+    function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax, $nomFichier)
     {
         // Création de l'objet PDF
         $pdf = new HeaderFooterAcPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -119,7 +119,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         $pdf->Image($logoPath, 27, 265, 160, '', 'png');
         // Générer le fichier PDF
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
-        $filePath = $Dossier . 'bc_' . $numeroDunom . '_' . $acSoumis->getNumeroVersion() . '.pdf';
+        $filePath = $Dossier . $nomFichier;
         $pdf->Output($filePath, 'F');
     }
 }

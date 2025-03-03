@@ -63,7 +63,7 @@ class DitDevisSoumisAValidationController extends Controller
 
             $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
             $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository, $originalName);
-            // if ($this->blockageSoumission($blockages, $numDevis)) {
+            if ($this->blockageSoumission($blockages, $numDevis)) {
                 
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
 
@@ -100,7 +100,7 @@ class DitDevisSoumisAValidationController extends Controller
 
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
-            // }
+            }
         }
 
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
