@@ -224,4 +224,39 @@ private function getUploadedFiles(
 
         return $mainFileName;
     }
+
+    /**
+     * Upload un fichier après validation.
+     *
+     * @param UploadedFile $file
+     * @param string $numeroDoc
+     * @param string $index
+     * @param string $prefix
+     * @param string $numeroVersion
+     * @return string|null
+     */
+    public function uploadFileSansName(
+        UploadedFile $file,  
+        string $fileName = '',
+        string $pathFichier = 'fichiers/'
+        ): ?string
+    {
+        if (
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
+            !in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
+        ) {
+            throw new InvalidArgumentException("Type de fichier non autorisé : {$file->getClientOriginalName()}.");
+        }
+        
+        $destination = $this->targetDirectory . $pathFichier;
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        return $destination . $fileName;
+    }
 }
