@@ -14,6 +14,8 @@ use DateTime;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\VarDumper\Cloner\Data;
 
 class ListeController extends Controller
@@ -22,11 +24,13 @@ class ListeController extends Controller
     use PlanningTraits;
     private PlanningSearch $planningSearch;
     private PlanningModel $planningModel;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     public function __construct()
     {
         parent::__construct();
         $this->planningSearch = new PlanningSearch();
         $this->planningModel = new PlanningModel();
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
     /**
      * @Route("/Liste",name = "liste_planning")
@@ -77,7 +81,9 @@ class ListeController extends Controller
 
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
             // dump($lesOrvalides['orSansItv']);
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+            $tousLesOrSoumis = $this->allOrs();
+            $touslesOrItvSoumis = $this->allOrsItv();
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'],$criteria,$tousLesOrSoumis);
 
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
@@ -104,6 +110,15 @@ class ListeController extends Controller
             'data' => $data,
         ]);
     }
+    private function allOrsItv()
+    {
+        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+    }
+
+    private function allOrs()
+    {
+        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrAll());
+    }
 
     /**
      * @Route("/export_excel_liste_planning", name= "export_liste_planning")
@@ -118,7 +133,7 @@ class ListeController extends Controller
         $criteria = $this->creationObjetCriteria($criteriaTAb);
         $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
 
-        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv']);
+        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'],$criteriaTAb,$this->allOrs());
 
         if (is_array($back)) {
             $backString = TableauEnStringService::orEnString($back);
