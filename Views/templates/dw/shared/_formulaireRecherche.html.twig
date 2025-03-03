@@ -11,28 +11,42 @@
 			<div class="accordion-body">
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
-					<div class="col-12 col-md-2">
-						{{ form_row(form.numDit) }}
-						{{form_row(form.numOr)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.typeIntervention)}}
-						{{form_row(form.designation)}}
+					<div class="row">
+						<div class="col-12 col-md-2">
+							{{ form_row(form.numDit) }}
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.typeIntervention)}}
 
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.dateDebut) }}
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.client)}}
+						</div>
 					</div>
-					<div class="col-12 col-md-2">
-						{{ form_row(form.dateDebut) }}
-						{{ form_row(form.dateFin) }}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.idMateriel)}}
+					<div class="row">
+						<div class="col-12 col-md-2">
+							{{form_row(form.numOr)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.designation)}}
 
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.numSerie)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.numParc)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{ form_row(form.dateFin) }}
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.idMateriel)}}
+
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.numSerie)}}
+						</div>
+						<div class="col-12 col-md-2">
+							{{form_row(form.numParc)}}
+						</div>
 					</div>
 				</div>
 
