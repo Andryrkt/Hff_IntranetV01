@@ -377,8 +377,9 @@ objetDemande.addEventListener("input", function () {
 /**===================
  * BOUTON ENREGISTRER
  *====================*/
-setupConfirmationButtons();
-
+document.addEventListener("DOMContentLoaded", function () {
+  setupConfirmationButtons();
+});
 /**
  * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
  */
@@ -411,13 +412,17 @@ charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
 charCount.style.color = "black"; // Couleur initiale
 
 textarea.addEventListener("input", function () {
-  const remainingCharacters = MAX_CHARACTERS - textarea.value.length;
+  // Compter chaque retour à la ligne comme 131 caractères
+  let adjustedLength =
+    textarea.value.length + (textarea.value.match(/\n/g) || []).length * 130;
+
+  let remainingCharacters = MAX_CHARACTERS - adjustedLength;
 
   if (remainingCharacters < 0) {
     textarea.value = textarea.value.substring(0, MAX_CHARACTERS);
   }
 
-  // Mettre à jour le nombre restant et la couleur
+  // Mettre à jour le compteur de caractères
   if (textarea.value.length === 0) {
     charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
     charCount.style.color = "black";
@@ -426,14 +431,13 @@ textarea.addEventListener("input", function () {
       remainingCharacters >= 0 ? remainingCharacters : 0
     } caractères.`;
     charCount.style.color = "#000";
-    // charCount.style.background = "red"; // Change la couleur lorsqu'on commence à écrire
   }
 });
 
 /**
  * GRISER LE BOUTTON APRES UNE CLICK
  */
-setupConfirmationButtons();
+// setupConfirmationButtons();
 // const boutonInput = document.querySelector("#formDit");
 
 // boutonInput.addEventListener("click", griserBoutton);
