@@ -309,11 +309,12 @@ class demandeInterventionType extends AbstractType
                 'numeroTel',
                 TelType::class,
                 [
-                    'disabled' => true,
+                    
                     'label' => 'N° téléphone (*EXTERNE)',
                     'required' => false,
                     'attr' => [
-                        'class' => 'numTel noEntrer'
+                        'disabled' => true,
+                        'class' => 'numTel'
                     ]
                 ]
             )
@@ -321,10 +322,13 @@ class demandeInterventionType extends AbstractType
                 'mailClient',
                 EmailType::class,
                 [
-                    'disabled' => true,
+                    
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
-                    'attr' => ['class' => 'mailClient noEntrer'],
+                    'attr' => [
+                        'class' => 'mailClient',
+                        'disabled' => true,
+                    ],
                 ]
             )
             ->add('clientSousContrat', ChoiceType::class, [
