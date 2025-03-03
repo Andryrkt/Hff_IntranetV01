@@ -1027,7 +1027,7 @@ TRIM('COMPLET NON LIVRE')
 
 
     $result = $this->connect->executeQuery($statement);
-    //  dump($statement);
+     dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
