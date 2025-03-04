@@ -90,7 +90,8 @@ class ListeController extends Controller
             } else {
                 $backString = '';
             }
-            $result = $this->planningModel->recupMatListeTous($criteria,$lesOrvalides['orSansItv'],$backString);
+            // dump($tousLesOrSoumis);
+            $result = $this->planningModel->recupMatListeTous($criteria,$lesOrvalides['orSansItv'],$backString,$tousLesOrSoumis);
             $data = $this->recupData($result,$criteriaTAb);
             
             // $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit,true);

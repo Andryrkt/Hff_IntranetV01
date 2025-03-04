@@ -842,16 +842,20 @@ class PlanningModel extends Model
   /**
    * liste planning
    */
-  public function recupMatListeTous($criteria, string $lesOrValides, string $back)
+  public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
   {
     if ($criteria->getOrBackOrder() == true) {
       $vOrvalDw = "AND seor_numor in (" . $back . ") ";
       // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
     } else {
       if (!empty($lesOrValides)) {
-        $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        if ($criteria->getOrNonValiderDw() == true) {
+          $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+        }else {
+          $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
         // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-      } else {
+          } 
+    } else {
         $vOrvalDw = " AND seor_numor in ('')";
         // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
       }
