@@ -90,14 +90,16 @@ class ListeController extends Controller
             } else {
                 $backString = '';
             }
+            $result = $this->planningModel->recupMatListeTous($criteria,$lesOrvalides['orSansItv'],$backString);
+            $data = $this->recupData($result,$criteriaTAb);
+            
+            // $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit,true);
+            //  dd($res1);
+            //  $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
+            // // Calcule le nombre total de pages
+            // $pagesCount = ceil($resultat / $limit);
 
-            $res1 = $this->planningModel->recuperationMaterielplanifierListe($criteria, $lesOrvalides['orSansItv'], $backString, $page, $limit,true);
-             dd($res1);
-             $resultat = $this->planningModel->recuperationNombreMaterielplanifier($criteria, $lesOrvalides['orSansItv'], $backString);
-            // Calcule le nombre total de pages
-            $pagesCount = ceil($resultat / $limit);
-
-            $data = $this->recuperationDonnees($res1, $criteriaTAb);
+            // $data = $this->recuperationDonnees($res1, $criteriaTAb);
             // dd($data);
         }
         // dump($data);
@@ -428,4 +430,190 @@ class ListeController extends Controller
         }
         return $data;
     }
+
+    public function recupData($result, $criteriaTAb, $sendCmd = false){
+        $data = [];
+        if (!empty($result)) {
+            $qteCis = [];
+            $dateLivLigCIS = [];
+            $dateAllLigCIS = [];
+            for ($i=0; $i <count($result) ; $i++) { 
+                if (substr($result[$i]['numor'], 0, 1) == '5') {
+                    if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
+                        $recupGcot = [];
+                        $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
+                        $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                        $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+                    } else {
+                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocdecis'], $result[$i]['ref'], $result[$i]['cst']);
+                        $qteCis[] = $this->planningModel->recupeQteCISlig($result[$i]['numor'], $result[$i]['itv'], $result[$i]['ref']);
+                        $dateLivLigCIS[] = $this->planningModel->dateLivraisonCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                        $dateAllLigCIS[] = $this->planningModel->dateAllocationCIS($result[$i]['numcis'], $result[$i]['ref'], $result[$i]['cst']);
+                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
+                        $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
+                    }
+                }else {
+                    if (empty($result[$i]['numerocmd']) || $result[$i]['numerocmd'] == '0') {
+                        $recupGcot = [];
+                    } else {
+                        $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocmd'], $result[$i]['ref']);
+                        $etatMag[] = $this->planningModel->recuperationEtaMag($result[$i]['numerocmd'], $result[$i]['ref'], $result[$i]['cst']);
+                        $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocmd']);
+                    }
+                }
+               
+                
+                if (!empty($etatMag[0])) {
+                    $result[$i]['Eta_ivato'] = $etatMag[0][0]['Eta_ivato'];
+                    $result[$i]['Eta_magasin'] =  $etatMag[0][0]['Eta_magasin'];
+                    $etatMag = [];
+                } else {
+                    $result[$i]['Eta_ivato'] = "";
+                    $result[$i]['Eta_magasin'] = "";
+                    $etatMag = [];
+                }
+
+                if (!empty($recupPartiel[$i])) {
+                    $result[$i]['qteSlode'] = $recupPartiel[$i]['0']['solde'];
+                    $result[$i]['qte'] = $recupPartiel[$i]['0']['qte'];
+                } else {
+                    $result[$i]['qteSlode'] = "";
+                    $result[$i]['qte'] = "";
+                }
+
+                if (!empty($recupGcot)) {
+                    $result[$i]['Ord'] = $recupGcot['ord'] === false ? '' : ($sendCmd === false ? $recupGcot['ord']['Ord'] : "oui");
+                } else {
+                    $result[$i]['Ord'] = "";
+                }
+            
+                if (!empty($dateLivLigCIS[$i][0])) {
+                    $result[$i]['dateLivLIg'] = $dateLivLigCIS[$i]['0']['datelivlig'];
+                } else {
+                    $result[$i]['dateLivLIg'] = "";
+                }
+           
+                if (!empty($dateAllLigCIS)) {
+                    $result[$i]['dateAllLIg'] = $dateAllLigCIS[0]['0']['datealllig'];
+                } else {
+                    $result[$i]['dateAllLIg'] = "";
+                }
+
+                if (!empty($qteCis)) {
+                    if (!empty($qteCis[$i])) {
+                        $result[$i]['qteORlig'] = $qteCis[$i]['0']['qteorlig'];
+                        $result[$i]['qtealllig'] = $qteCis[$i]['0']['qtealllig'];
+                        $result[$i]['qterlqlig'] = $qteCis[$i]['0']['qtereliquatlig'];
+                        $result[$i]['qtelivlig'] = $qteCis[$i]['0']['qtelivlig'];
+                    } elseif (isset($qteCis[$i - 1]) && !empty($qteCis[$i - 1])) {
+                        $result[$i]['qteORlig'] = $qteCis[$i - 1]['0']['qteorlig'];
+                        $result[$i]['qtealllig'] = $qteCis[$i - 1]['0']['qtealllig'];
+                        $result[$i]['qterlqlig'] = $qteCis[$i - 1]['0']['qtereliquatlig'];
+                        $result[$i]['qtelivlig'] = $qteCis[$i - 1]['0']['qtelivlig'];
+                    } else {
+                        $result[$i]['qteORlig'] = "";
+                        $result[$i]['qtealllig'] = "";
+                        $result[$i]['qterlqlig'] = "";
+                        $result[$i]['qtelivlig'] = "";
+                    }
+                } else {
+                    $result[$i]['qteORlig'] = "";
+                    $result[$i]['qtealllig'] = "";
+                    $result[$i]['qterlqlig'] = "";
+                    $result[$i]['qtelivlig'] = "";
+                }
+
+                if ($result[$i]['qtelivlig'] > 0 &&  $result[$i]['qtealllig']  == 0 && $result[$i]['qterlqlig'] == 0) {
+                    $result[$i]['StatutCIS'] = "LIVRE";
+                    $result[$i]['DateStatutCIS'] = $result[$i]['dateLivLIg'];
+                } elseif ($result[$i]['qtealllig'] > 0) {
+                    $result[$i]['StatutCIS'] = "A LIVRER";
+                    $result[$i]['DateStatutCIS'] = $result[$i]['dateAllLIg'];
+                } else {
+                    $result[$i]['StatutCIS'] = "";
+                    $result[$i]['DateStatutCIS'] = "";
+                }
+                if ($result[$i]['numcis'] === $result[$i]['numerocmd']) {
+                    $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                } else {
+                    $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                }
+               
+
+                if ($result[$i]['statut'] == "" || $result[$i]['statut'] == null  ) {
+                    $statutDetail = "";
+                } else {
+                    $statutDetail = $result[$i]['statut'];
+                }
+                if ($result[$i]['StatutCIS'] == "" || $result[$i]['StatutCIS'] == null  ) {
+                    $statutCisDetail = "";
+                } else {
+                    $statutCisDetail = $result[$i]['StatutCIS'];
+                }
+                if ($result[$i]['datestatut'] == "" || $result[$i]['datestatut'] == null  ) {
+                    $datestatutDetail = "";
+                } else {
+                    $datestatutDetail = (new DateTime($result[$i]['datestatut']))->format('d/m/Y');
+                }
+                if ($result[$i]['DateStatutCIS'] == "" || $result[$i]['DateStatutCIS'] == null  ) {
+                    $datestatutCisDetail = "";
+                } else {
+                    $datestatutCisDetail = (new DateTime($result[$i]['DateStatutCIS']))->format('d/m/Y');
+                }
+                if ($result[$i]['Eta_ivato'] == "" || $result[$i]['Eta_ivato'] == null  ) {
+                    $dateEtaIvato = "";
+                } else {
+                    $dateEtaIvato = (new DateTime($result[$i]['Eta_ivato']))->format('d/m/Y');
+                }
+                if ($result[$i]['Eta_magasin'] == "" || $result[$i]['Eta_magasin'] == null  ) {
+                    $dateEtaMag = "";
+                } else {
+                    $dateEtaMag = (new DateTime($result[$i]['Eta_magasin']))->format('d/m/Y');
+                }  
+                $data[] = [
+                    'agenceServiceTravaux' => $result[$i]['libsuc'] . ' - ' . $result[$i]['libserv'],
+                    'Marque' => $result[$i]['markmat'],
+                    'Modele' => $result[$i]['typemat'],
+                    'Id' => $result[$i]['idmat'],
+                    'N_Serie' => $result[$i]['numserie'],
+                    'parc' => $result[$i]['numparc'],
+                    'casier' => $result[$i]['casier'],
+                    'commentaire' => $result[$i]['commentaire'],
+                    'numor_itv' => $result[$i]['numor'] . '-' . $result[$i]['itv'],
+                    'dateplanning' => $result[$i]['dateplanning'],
+                    'cst' => $result[$i]['cst'],
+                    'ref' => $result[$i]['ref'],
+                    'desi' => $result[$i]['desi'],
+                    'qteres_or' => $result[$i]['qteres_or'],
+                    'qteall_or' => $result[$i]['qteall'],
+                    'qtereliquat' => $result[$i]['qtereliquat'],
+                    'qteliv_or' => $result[$i]['qteliv'],
+                    'statutOR' => $statutDetail,
+                    'datestatutOR' => $datestatutDetail  ,
+                    'numcis' => $result[$i]['numcde_cis'],
+                    'numerocmd' => $result[$i]['numerocdecis'],
+                    'statut_ctrmq' => $result[$i]['statut_ctrmq'] . $result[$i]['statut_ctrmq_cis'],
+                    'qteORlig_cis' => $result[$i]['qteORlig'],
+                    'qtealllig_cis' => $result[$i]['qtealllig'],
+                    'qterlqlig_cis' => $result[$i]['qterlqlig'],
+                    'qtelivlig_cis' => $result[$i]['qtelivlig'],
+                    'statutCis' => $statutCisDetail,
+                    'datestatutCis' => $datestatutCisDetail ,
+                    'Eta_ivato' =>  $dateEtaIvato ,
+                    'Eta_magasin' => $dateEtaMag ,
+                    'message' => $result[$i]['message'],
+                    'ord' => $result[$i]['Ord'],
+                    'status_b' =>$result[$i]['status_b'],
+                    'Qte_Solde' => $result[$i]['qteSlode'],
+                    'qte' => $result[$i]['qte']
+
+                ]; 
+                
+            }
+        }
+        return $data;
+    }
+
+
 }
