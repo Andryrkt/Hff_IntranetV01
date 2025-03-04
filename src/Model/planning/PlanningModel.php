@@ -842,6 +842,152 @@ class PlanningModel extends Model
   /**
    * liste planning
    */
+public function recupMatListeTous($criteria, string $lesOrValides, string $back){
+  if ($criteria->getOrBackOrder() == true) {
+    $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+    // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+  } else {
+    if (!empty($lesOrValides)) {
+      $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+    } else {
+      $vOrvalDw = " AND seor_numor in ('')";
+      // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+    }
+  }
+
+
+  $vligneType = $this->typeLigne($criteria);
+
+  $vYearsStatutPlan =  $this->planAnnee($criteria);
+  $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+  $vMonthStatutPlan = $this->planMonth($criteria);
+  $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+  $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+  $vStatutFacture = $this->facture($criteria);
+  $annee =  $this->criterAnnee($criteria);
+  $agence = $this->agence($criteria);
+  $vStatutInterneExterne = $this->interneExterne($criteria);
+  $agenceDebite = $this->agenceDebite($criteria);
+  $serviceDebite = $this->serviceDebite($criteria);
+  $vconditionNumParc = $this->numParc($criteria);
+  $vconditionIdMat = $this->idMat($criteria);
+  $vconditionNumOr = $this->numOr($criteria);
+  $vconditionNumSerie = $this->numSerie($criteria);
+  $vconditionCasier = $this->casier($criteria);
+  $vsection = $this->section($criteria);
+  $vplan = $criteria->getPlan();
+
+  $statement = " SELECT 
+                trim(seor_succ) as codeSuc, 
+                trim(asuc_lib) as libSuc, 
+                trim(seor_servcrt) as codeServ, 
+                trim(ser.atab_lib) as libServ, 
+                trim(sitv_comment) as commentaire,
+                 mmat_nummat as idMat,
+                trim(mmat_marqmat) as markMat,
+                trim(mmat_typmat) as typeMat ,
+                trim(mmat_numserie) as numSerie,
+                trim(mmat_recalph) as numParc,
+                trim(mmat_numparc) as casier,
+                $vYearsStatutPlan as annee,
+                $vMonthStatutPlan as mois,
+                seor_numor ||'-'||sitv_interv as orIntv,
+                 ( SELECT SUM( CASE WHEN slor_typlig = 'P' $vligneType  THEN
+                  slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                   ELSE slor_qterea END )
+                  FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QteCdm,
+                (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
+                (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
+                sitv_interv as Itv,
+                seor_numor as numOR,
+
+                CASE  
+                      WHEN  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+                                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                                          ELSE slor_qterea END )
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) 
+		=  
+		(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) THEN
+                      TRIM('TOUT LIVRE') 
+		
+	       WHEN  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > 0 
+AND   (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )
+AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > ( (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) +   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+) THEN
+		TRIM('PARTIELLEMENT LIVRE')
+WHEN   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = 0 
+AND  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) >0  THEN
+TRIM('PARTIELLEMENT DISPO')
+
+WHEN  (  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) =  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) <   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )  )
+OR(  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) > 0 
+
+AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = (  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) +  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )   )) THEN
+TRIM('COMPLET NON LIVRE')
+                      END  AS Status_B,
+                      --ligne
+                      
+  ";
+
+}
+
   public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
   {
     if ($criteria->getOrBackOrder() == true) {
