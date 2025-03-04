@@ -109,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const spinner = document.createElement("div");
         spinner.classList.add("spinner");
-        spinner.textContent = "Chargement...";
 
         listItem.appendChild(fileName);
         listItem.appendChild(fileSize);
@@ -118,6 +117,9 @@ document.addEventListener("DOMContentLoaded", function () {
         fileList.appendChild(listItem);
 
         startLoading(spinner);
+      }
+      else {
+        alert('Merci de choisir un autre fichier.');
       }
     });
     updateFileInput();

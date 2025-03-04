@@ -2,6 +2,8 @@
 
 namespace App\Model\planning;
 
+use App\Service\GlobalVariablesService;
+
 trait PlanningModelTrait
 {
     private function criterAnnee($criteria)
@@ -32,6 +34,7 @@ trait PlanningModelTrait
 
       return $vStatutFacture; 
     }
+
     private function section($criteria){
       if(!empty($criteria->getSection())){
         $section = " AND sitv_typitv = '".$criteria->getSection()."' ";
@@ -40,47 +43,62 @@ trait PlanningModelTrait
       }
       return $section;
     }
-    private function typeLigne($criteria){
+
+
+    private function typeLigne($criteria) {
+      // Déterminer la valeur de typeLigne selon si criteria est un objet ou un tableau
+      if (is_array($criteria)) {
+          $typeLigne = $criteria['typeLigne'] ?? null;
+      } elseif (is_object($criteria)) {
+          $typeLigne = $criteria->getTypeLigne();
+      } else {
+          throw new \InvalidArgumentException('Criteria must be an array or an object.');
+      }
+  
+      // Appliquer les conditions selon typeLigne
+      switch ($typeLigne) {
+          case "TOUTES": 
+              $vtypeligne = " ";
+              break;
+          case "PIECES_MAGASIN":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
+              break;
+          case "ACHAT_LOCAUX":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
+              break;
+          case "LUBRIFIANTS":
+              $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
+              break;
+          default:
+              $vtypeligne = " ";
+              break;
+      }
+  
+      return $vtypeligne;
+  }
+  
+    
+    // private function sumPieces($criteria){
       
-      switch ($criteria->getTypeLigne()) {
-        case "TOUTES": 
-            $vtypeligne = " ";
-            break;
-        case "PIECES_MAGASIN":
-            $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
-            break;
-        case "ACHAT_LOCAUX":
-            $vtypeligne = " AND slor_constp  = 'ZST'" ;
-            break;
-        case "LUBRIFIANTS":
-            $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P'";
-            break;
-        default:
-            $vtypeligne = " ";
-    }
-    return $vtypeligne;
-    }
-    private function sumPieces($criteria){
+    //   switch ($criteria->getTypeLigne()) {
+    //     case "TOUTES": 
+    //         $vPieces = " ";
+    //         break;
+    //     case "PIECES_MAGASIN":
+    //         $vPieces = " AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') AND slor_typlig = 'P'";
+    //         break;
+    //     case "ACHAT_LOCAUX":
+    //         $vPieces = " AND slor_constp in ('ALI','BOI','CAR','CEN','FAT','FBU','HAB','INF','MIN','OUT','ZST')" ;
+    //         break;
+    //     case "LUBRIFIANTS":
+    //         $vPieces = "AND slor_constp in ('LUB', 'JOV')  AND slor_typlig = 'P'";
+    //         break;
+    //     default:
+    //         $vPieces = " ";
+    // }
+    // return $vPieces;
 
-      switch ($criteria->getTypeLigne()) {
-        case "TOUTES": 
-            $vPieces = " ";
-            break;
-        case "PIECES_MAGASIN":
-            $vPieces = "AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%' AND slor_typlig = 'P'";
-            break;
-        case "ACHAT_LOCAUX":
-            $vPieces = " AND slor_constp  = 'ZST' " ;
-            break;
-        case "LUBRIFIANTS":
-            $vPieces = "AND slor_constp = 'LUB'  AND slor_typlig = 'P'";
-            break;
-        default:
-            $vPieces = " ";
-    }
-    return $vPieces;
-
-    }
+    // }
 
     private function planAnnee($criteria){
                     $yearsDatePlanifier = " CASE WHEN 
@@ -196,7 +214,7 @@ trait PlanningModelTrait
                    $vStatutInterneExterne = " AND SITV_NATOP = 'CES'  and SITV_TYPEOR not in ('501','601','602','603','604','605','606','607','608','609','610','611','701','702','703','704','705','706')";
                    break;
             case "EXTERNE":
-                   $vStatutInterneExterne = "AND SITV_NATOP <> 'CES' ";
+                   $vStatutInterneExterne = "AND seor_numcli >1 ";
                    break;
           }
           return $vStatutInterneExterne;
@@ -228,7 +246,7 @@ trait PlanningModelTrait
     }    
     private function idMat($criteria){
         if(!empty($criteria->getIdMat())){
-            $vconditionIdMat = " AND mmat_nummat = " + "'".$criteria->getIdMat()."'";
+            $vconditionIdMat = " AND mmat_nummat = '".$criteria->getIdMat()."'";
           }else{
             $vconditionIdMat = "";
           }

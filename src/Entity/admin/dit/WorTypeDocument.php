@@ -36,8 +36,7 @@ class WorTypeDocument
      */
     private string $description;
 
-    
-   /**
+    /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="typeDocument")
      */
     private $demandeInterventions;
@@ -169,6 +168,6 @@ class WorTypeDocument
 
     public function __toString()
     {
-        return $this->description; 
+        return $this->description ?? 'N/A'; 
     }
 }

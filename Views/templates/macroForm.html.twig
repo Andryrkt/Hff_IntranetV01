@@ -17,6 +17,13 @@
 </div>
 {% endmacro %}
 
+{% macro sousTitre2(name, option = []) %}
+<div id="{{ option.id }}" class=" mt-4 sousTitre {{ option.class }}">
+    <h3>{{name}}</h3>
+    <div></div>
+</div>
+{% endmacro %}
+
 {% macro readOnly(name, nom, value = null, option = []) %}
 <div class="col-{{option.endpoint}} {{ option.class}}">
     <label for="{{ name }}" class="label-form fw-bold">{{ nom }}</label>
@@ -121,6 +128,15 @@
 </div>
 {% endmacro %}
 
+{% macro affichageFileDownload(label, value = "", directory) %}
+<label for="" class="mt-2">{{label}}</label>
+<div class="d-flex align-items-center border border-secondary border-1 rounded px-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
+<a href=" {{directory}}/{{value}}" download="{{value}}">
+{{value}}
+</a>
+</div>
+{% endmacro %}
+
 {% macro affichageModal(label, value = "") %}
 <label for="" class="mt-2">{{label}}</label>
 <div class="d-flex align-items-center  border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;">
@@ -147,3 +163,81 @@
   {% endfor %}
 </ul>
 {% endmacro %} 
+
+{# Fonction pour concaténer une catégorie et sous-catégorie #}
+{% macro concat(categorie, sousCategorie) %}
+    {{ sousCategorie ? categorie ~ ' / ' ~ sousCategorie : categorie }}
+{% endmacro %}
+
+{% macro agence_service_change(form_agence, form_service, spinner_service, service_container) %}
+    <div>
+	    {{ form_row(form_agence) }}
+	</div>
+    <div class="spinner-container">
+	    <label for="form_service">{{ form_label(form_service) }}</label><br>
+        <div class="spinner" id="{{spinner_service}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{service_container}}">
+	    {{ form_widget(form_service) }}
+    </div>
+{% endmacro %}
+
+{% macro spinner_load(spinner_id, form_container_id, form_data) %}
+    <div class="spinner-container">
+        {{ form_label(form_data) }} <br>
+        <div class="spinner-load" id="{{spinner_id}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{ form_container_id }}" class="mb-3">
+	    {{ form_widget(form_data) }}
+    </div>
+{% endmacro %}
+
+
+{% macro select_change( form_select, spinner_service, service_container) %}
+    <div class="spinner-container">
+	    <label for="form_service">{{ form_label(form_select) }}</label><br>
+        <div class="spinner" id="{{spinner_service}}" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="{{service_container}}">
+	    {{ form_widget(form_select) }}
+    </div>
+{% endmacro %}

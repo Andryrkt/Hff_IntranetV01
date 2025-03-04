@@ -9,7 +9,7 @@ use App\Entity\admin\badm\TypeMouvement;
 
 class BadmSearch
 {
-    private ?StatutDemande $statut;
+    private ?StatutDemande $statut = null;
 
     private ?int $idMateriel = null;
 

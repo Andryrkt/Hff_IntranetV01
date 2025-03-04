@@ -61,7 +61,7 @@
 									{{ macroForm.affichage('N° Or', dit.numeroOr)}}
 								</div>
 								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
-								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
 							</div>
 						</div>
@@ -225,11 +225,11 @@
 
 
 							<div class="d-flex justify-content-end">
-								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
+								<button type="submit" class="btn bouton mx-3 text-white bg-danger ajout-overlay" name="refuser" id="btn_refuser">
 									<i class="fas fa-xmark"></i>
 									Réfuser
 								</button>
-								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
+								<button type="submit" class="btn bouton ajout-overlay" name="valider" id="btn_valider">
 									<i class="fas fa-check"></i>
 									Valider
 								</button>

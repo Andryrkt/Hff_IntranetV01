@@ -5,6 +5,7 @@ namespace App\Controller\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
@@ -13,10 +14,22 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
+use App\Repository\admin\utilisateur\UserRepository;
+use App\Service\EmailService;
 use App\Service\fichier\FileUploaderService;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
+    use lienGenerique;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationTIKService;
+    }
+
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
      */
@@ -25,28 +38,42 @@ class DemandeSupportInformatiqueController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
         $supportInfo = new DemandeSupportInformatique();
         //INITIALISATION DU FORMULAIRE
-        $this->initialisationForm($supportInfo);
+        $this->initialisationForm($supportInfo, $user);
 
         $form = self::$validator->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $donnerForm = $form->getData();
-            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo);
+            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
-            
+
+            $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
+            $supportInfo->setDetailDemande($text);
+
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
 
-            $this->sessionService->set('notification',['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("liste_tik_index");
+            $this->envoyerMailAuxValidateurs([
+                'id'            => $donnerForm->getId(),
+                'numTik'        => $donnerForm->getNumeroTicket(),
+                'objet'         => $donnerForm->getObjetDemande(),
+                'detail'        => $donnerForm->getDetailDemande(),
+                'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
+            ]);
+
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
         }
+
+        $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/new.html.twig', [
             'form' => $form->createView()
@@ -57,31 +84,28 @@ class DemandeSupportInformatiqueController extends Controller
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
      * @param DemandeIntervention $demandeIntervention
-     * @param [type] $em
+     * @param User $user
      * @return void
      */
-    private function initialisationForm(DemandeSupportInformatique $supportInfo)
+    private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)
     {
         $agenceService = $this->agenceServiceIpsObjet();
-        $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence());
+        $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $supportInfo->setAgence($agenceService['agenceIps']);
-        $supportInfo->setService($agenceService['serviceIps']);
+        $supportInfo->setAgence(self::$em->getRepository(Agence::class)->find('08'));    // agence Administration
+        $supportInfo->setService(self::$em->getRepository(Service::class)->find('13'));   // service Informatique
         $supportInfo->setDateFinSouhaiteeAutomatique();
+        $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
 
-    private function ajoutDonnerDansEntity($donnerForm, $supportInfo)
+    private function ajoutDonnerDansEntity($donnerForm, DemandeSupportInformatique $supportInfo, User $user)
     {
         $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
         $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
-        
-        /** 
-         * TODO: code_société à revoir (problem: utilisateur qui a plusieur société)
-         * */
-        $supportInfo 
+
+        $statut = self::$em->getRepository(StatutDemande::class)->find('58');
+
+        $supportInfo
             ->setAgenceDebiteurId($donnerForm->getAgence())
             ->setServiceDebiteurId($donnerForm->getService())
             ->setAgenceEmetteurId($agenceEmetteur)
@@ -90,10 +114,11 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUtilisateurDemandeur($user->getNomUtilisateur())
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
-            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
+            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . '-' . $donnerForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
+            ->setCodeSociete($user->getSociettes()->getCodeSociete())
         ;
 
         $this->historiqueStatut($supportInfo, $statut);
@@ -132,26 +157,56 @@ class DemandeSupportInformatiqueController extends Controller
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
-                $prefix = $supportInfo->getNumeroTicket() .'_';
+                $prefix = $supportInfo->getNumeroTicket() . '_detail_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
-            $filePath = $chemin . '/' . $fileName;
-            $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
-            if (file_exists($filePath)) {
-                $fileSize = round(filesize($filePath) / 1024, 2);
-            } else {
-                $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
-            }
-            
-                $fileNames[] = 
+                $fileSize = $this->tailleFichier($chemin, $fileName);
+
+                $fileNames[] =
                     [
                         'name' => $fileName,
                         'size' => $fileSize
                     ];
             }
         }
-       // Enregistrez les noms des fichiers dans votre entité
+        // Enregistrez les noms des fichiers dans votre entité
         $supportInfo->setFileNames($fileNames);
     }
-}
 
+    private function tailleFichier(string $chemin, string $fileName): int
+    {
+        $filePath = $chemin . '/' . $fileName;
+        $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
+        if (file_exists($filePath)) {
+            $fileSize = round(filesize($filePath) / 1024, 2);
+        } else {
+            $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
+        }
+        return $fileSize;
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail aux validateurs
+     */
+    private function envoyerMailAuxValidateurs(array $tab)
+    {
+        $email       = new EmailService;
+
+        $emailValidateurs = array_map(function ($validateur) {
+            return $validateur->getMail();
+        }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
+
+        $content = [
+            'to'        => $emailValidateurs[0],
+            'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'tik/email/emailTik.html.twig',
+            'variables' => [
+                'statut'     => "newTik",
+                'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+            ]
+        ];
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+}

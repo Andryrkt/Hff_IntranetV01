@@ -13,46 +13,30 @@ use App\Model\ProfilModel;
 use App\Service\FusionPdf;
 use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
-use App\Service\GenererPdf;
 use App\Entity\admin\Agence;
-use App\Model\OdbcCrudModel;
 use App\Entity\admin\Service;
 use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
 use App\Model\dom\DomDetailModel;
-
 use App\Model\TransferDonnerModel;
-
-use App\Service\FlashManagerService;
-
-
-
-use Symfony\Component\Asset\Package;
 use App\Service\AccessControlService;
-use App\Service\ExcelExporterService;
 use App\Entity\admin\utilisateur\User;
-
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
-use App\Model\admin\user\ProfilUserModel;
+//use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use App\Entity\admin\historisation\pageConsultation\PageHff;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
-include dirname(__DIR__) . '/Service/GenererPdf.php';
 
 class Controller
 {
-
-
     protected $fusionPdf;
-    protected $genererPdf;
 
     protected $ldap;
     protected $profilModel;
@@ -64,20 +48,13 @@ class Controller
     protected $duplicata;
     protected $domList;
     protected $ProfilModel;
-    
-
-    protected $odbcCrud;
 
     protected static $generator;
     protected static $twig;
     protected $loader;
-   
 
     protected $request;
     protected $response;
-
-    protected $excelExport;
-    protected $flashManager;
 
     protected static $validator;
 
@@ -101,50 +78,42 @@ class Controller
     public function __construct()
     {
 
-        $this->fusionPdf = new FusionPdf();
-        $this->genererPdf = new GenererPdf();
+        $this->fusionPdf        = new FusionPdf();
 
-        $this->ldap = new LdapModel();
+        $this->ldap             = new LdapModel();
 
-        $this->profilModel = new ProfilModel();
-
-        $this->odbcCrud = new OdbcCrudModel();
+        $this->profilModel      = new ProfilModel();
 
 
-        
-        $this->badm = new BadmModel();
+        $this->badm             = new BadmModel();
 
-        $this->Person = new PersonnelModel();
+        $this->Person           = new PersonnelModel();
 
-        $this->DomModel = new DomModel();
-        $this->detailModel = new DomDetailModel();
-        $this->duplicata = new DomDuplicationModel();
-        $this->domList = new DomListModel();
+        $this->DomModel         = new DomModel();
+        $this->detailModel      = new DomDetailModel();
+        $this->duplicata        = new DomDuplicationModel();
+        $this->domList          = new DomListModel();
 
-        $this->ProfilModel = new ProfilModel();
+        $this->ProfilModel      = new ProfilModel();
 
-        $this->request = Request::createFromGlobals();
+        $this->request          = Request::createFromGlobals();
 
-        $this->response = new Response();
+        $this->response         = new Response();
 
-        $this->excelExport = new ExcelExporterService();
-        $this->flashManager = new FlashManagerService();
+        $this->parsedown        = new Parsedown();
 
-        $this->parsedown = new Parsedown();
+        //$this->profilUser     = new ProfilUserModel();
 
-        $this->profilUser = new ProfilUserModel();
+        $this->ditModel         = new DitModel();
 
-        $this->ditModel = new DitModel();
-
-        $this->transfer04 = new TransferDonnerModel();
+        $this->transfer04       = new TransferDonnerModel();
 
 
-        $this->sessionService = new SessionManagerService();
+        $this->sessionService   = new SessionManagerService();
 
-        $this->accessControl = new AccessControlService();
+        $this->accessControl    = new AccessControlService();
 
-        $this->excelService = new ExcelService();
-
+        $this->excelService     = new ExcelService();
     }
 
     public static function setTwig($twig)
@@ -170,7 +139,7 @@ class Controller
     {
         return self::$generator;
     }
-    
+
     public static function setEntity($em)
     {
         self::$em = $em;
@@ -190,7 +159,7 @@ class Controller
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        } 
+        }
         if (empty($_SESSION['user'])) {
             header("Location:/Hffintranet/");
             session_destroy();
@@ -207,19 +176,19 @@ class Controller
 
         // Supprime l'utilisateur de la session
         unset($_SESSION['user']);
-        
+
         // Détruit la session
         session_destroy();
-        
+
         // Réinitialise toutes les variables de session
         session_unset();
-        
+
         // Redirige vers la page d'accueil
         header("Location: /Hffintranet/");
-        
+
         // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
         session_write_close();
-        
+
         // Arrête l'exécution du script pour s'assurer que rien d'autre ne se passe après la redirection
         exit();
     }
@@ -244,23 +213,6 @@ class Controller
         return $Date_system;
     }
 
-
-    public function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
-    {
-        for ($i = 1; $i < $LongerVoulu; $i++) {
-            if (strlen($ChaineComplet) < $LongerVoulu) {
-                if ($PositionComplet = "G") {
-                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
-                } else {
-                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
-                }
-            }
-        }
-        return $ChaineComplet;
-    }
-
-
-
     protected function conversionCaratere(string $chaine): string
     {
         return iconv('Windows-1252', 'UTF-8', $chaine);
@@ -277,7 +229,8 @@ class Controller
         return $array;
     }
 
-    protected function redirectTo($url) {
+    protected function redirectTo($url)
+    {
         // Créer une réponse de redirection
         $response = new RedirectResponse($url);
         // Envoyer la réponse de redirection au client
@@ -287,11 +240,13 @@ class Controller
     /**
      * redirigé l'utilisateur vers la route donnée en paramètre
      *
-     * @param string $routeName
-     * @param array $params
+     * @param string $routeName nom de la route en question 
+     *      Exemple: $routeName = "profil_acceuil"
+     * @param array $params tableau de paramètres à ajouter dans la route
      * @return void
      */
-    protected function redirectToRoute(string $routeName, array $params = []) {
+    protected function redirectToRoute(string $routeName, array $params = [])
+    {
         $url = self::$generator->generate($routeName, $params);
         header("Location: $url");
         exit();
@@ -330,7 +285,21 @@ class Controller
             echo $jsonData;
         }
     }
-    
+
+    private function CompleteChaineCaractere($ChaineComplet, $LongerVoulu, $Caracterecomplet, $PositionComplet)
+    {
+        for ($i = 1; $i < $LongerVoulu; $i++) {
+            if (strlen($ChaineComplet) < $LongerVoulu) {
+                if ($PositionComplet = "G") {
+                    $ChaineComplet = $Caracterecomplet . $ChaineComplet;
+                } else {
+                    $ChaineComplet = $Caracterecomplet . $Caracterecomplet;
+                }
+            }
+        }
+        return $ChaineComplet;
+    }
+
 
     /**
      * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
@@ -343,7 +312,7 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-        
+
         $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
 
         //var_dump($Max_Num);
@@ -368,7 +337,7 @@ class Controller
 
         return $Result_Num;
     }
-    
+
     /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
      *
@@ -384,9 +353,9 @@ class Controller
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-       
-            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-            
+
+        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+
         if ($nomDemande === 'DIT') {
             $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
         } else {
@@ -417,24 +386,24 @@ class Controller
         //dd($Result_Num);
         return $Result_Num;
     }
-    
+
 
     protected function arrayToObjet(User $user): User
     {
-     
+
         $superieurs = [];
         foreach ($user->getSuperieurs() as  $value) {
             if (empty($value)) {
                 return $user;
             } else {
                 $superieurs[] = self::$em->getRepository(user::class)->find($value);
-           $user->setSuperieurs($superieurs);
+                $user->setSuperieurs($superieurs);
             }
-       }
-   
-       return $user;
-    } 
-    
+        }
+
+        return $user;
+    }
+
 
     /**
      * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
@@ -445,30 +414,30 @@ class Controller
     {
         try {
             $userId = $this->sessionService->get('user_id');
-            
+
             if (!$userId) {
                 throw new \Exception("User ID not found in session");
             }
-    
+
             $user = self::$em->getRepository(User::class)->find($userId);
-      
+
             if (!$user) {
                 throw new \Exception("User not found with ID $userId");
             }
-   
+
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-      
+
             if (!$agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
-    
+
             $codeService = $user->getAgenceServiceIrium()->getServiceIps();
             $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (!$serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
-    
+
             return [
                 'agenceIps' => $agenceIps,
                 'serviceIps' => $serviceIps
@@ -514,25 +483,44 @@ class Controller
             }
 
             return [
-                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(), 
+                'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(),
                 'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
             ];
         } catch (\Throwable $e) {
             error_log($e->getMessage());
-                return [
-                    'agenceIps' => '',
-                    'serviceIps' => ''
-                ];
+            return [
+                'agenceIps' => '',
+                'serviceIps' => ''
+            ];
         }
     }
 
+    protected function logUserVisit(string $nomRoute, ?array $params = null)
+    {
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+        $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
+
+        $log            = new UserLogger();
+
+        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setNom_page($page->getNom());
+        // $log->setNom_page('-');
+        $log->setParams($params ?: null);
+        $log->setUser($utilisateur);
+        // $log->setPage($page);
+        $log->setMachineUser($machine);
+
+        self::$em->persist($log);
+        self::$em->flush();
+    }
 
     protected function verifierSessionUtilisateur()
     {
         if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
-        } 
+        }
     }
-
-    
 }

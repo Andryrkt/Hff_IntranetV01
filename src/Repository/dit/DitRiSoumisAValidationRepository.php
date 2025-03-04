@@ -14,7 +14,7 @@ class DitRiSoumisAValidationRepository extends EntityRepository
             ->Where('rsv.numeroOR = :numOr')
             ->andWhere('rsv.numeroDit = :numDit')
             ->setParameters([
-            
+
                 'numOr' => $numOr,
                 'numDit' => $numDit,
             ])
@@ -35,34 +35,32 @@ class DitRiSoumisAValidationRepository extends EntityRepository
             ->getSingleScalarResult();
 
 
-            // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
-            $nbrItv = $this->createQueryBuilder('rsv')
-                ->select('rsv.numeroItv')  
-                ->where('rsv.numeroOR = :numOr') 
-                ->andwhere('rsv.numeroSoumission = :numeroVersionMax')
-                ->setParameters([
-                    'numeroVersionMax' => $numeroVersionMax,
-                    'numOr' => $numOr,
-                ])
-                ->getQuery()
-                ->getSingleColumnResult();
-    
-            return $nbrItv;
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
+        $nbrItv = $this->createQueryBuilder('rsv')
+            ->select('rsv.numeroItv')
+            ->where('rsv.numeroOR = :numOr')
+            ->andwhere('rsv.numeroSoumission = :numeroVersionMax')
+            ->setParameters([
+                'numeroVersionMax' => $numeroVersionMax,
+                'numOr' => $numOr,
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $nbrItv;
     }
 
     public function findNbreNumItv($numOr)
     {
-            // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
-            $nbrItv = $this->createQueryBuilder('rsv')
-                ->select('COUNT(rsv.numeroItv)')  
-                ->where('rsv.numeroOR = :numOr') 
-                ->setParameters([
-                    'numOr' => $numOr,
-                ])
-                ->getQuery()
-                ->getSingleColumnResult();
-    
-            return $nbrItv;
-    }
+        $nbrItv = $this->createQueryBuilder('rsv')
+            ->select('COUNT(rsv.numeroItv)')
+            ->where('rsv.numeroOR = :numOr')
+            ->setParameters([
+                'numOr' => $numOr,
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
 
+        return $nbrItv;
+    }
 }

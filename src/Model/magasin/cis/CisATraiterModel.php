@@ -70,7 +70,8 @@ class CisATraiterModel extends Model
                     TRUNC(CASE 
                         WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
                         WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea 
-                    END) AS Qte_dem
+                    END) AS Qte_dem,
+                    TRUNC(nlig_qtecde - nlig_qtealiv) as Qte_A_TRAITER
 
 
                 FROM 
@@ -78,7 +79,7 @@ class CisATraiterModel extends Model
                 INNER JOIN 
                     neg_lig ON nlig_soc = slor_soc 
                     AND nlig_numcde = slor_numcf 
-                    AND nlig_nolign = slor_noligncm
+                    AND nlig_nolign = slor_noligncm AND slor_pos = 'EC'
                 INNER JOIN 
                     sav_eor ON seor_soc = slor_soc 
                     AND seor_succ = slor_succ 
@@ -88,11 +89,12 @@ class CisATraiterModel extends Model
                     AND slor_numcf > 0 -- Ne filtre que les lignes d'OR contremarquées 
                     AND (
                         NVL(nlig_numcf, 0) = 0 -- La CIS n'est pas contremarquée
-                        AND NVL(nlig_qtealiv, 0) = 0 -- Pas encore de quantité à livrer
+                        --AND NVL(nlig_qtealiv, 0) = 0 -- Pas encore de quantité à livrer
+                        AND nlig_qtealiv < nlig_qtecde -- il ya une qte reliquat qui n'est pas encore commender au fournisseur
                         AND NVL(nlig_qteliv, 0) = 0 -- Pas encore de quantité livrée
                     )
                     AND nlig_natop = 'CIS'
-                    AND slor_constp NOT IN ('LUB', 'SHE', 'JOV')
+                    --AND slor_constp NOT IN ('LUB', 'SHE', 'JOV')
                     $agenceUser
                     $piece
                     $designation
@@ -109,7 +111,8 @@ class CisATraiterModel extends Model
                     $service
                 -- Ajouter d'autres conditions si nécessaire pour les pièces magasin et les achats locaux
                 $orValide
-                ORDER BY 
+                ORDER BY
+                    seor_refdem, 
                     slor_datel, -- Date planning
                     slor_numor";
 

@@ -13,7 +13,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
     /**
      * generer pdf facture à validation
      */
-    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr, $email)
+    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr, $email, $interneExterne)
     {
         $pdf = new TCPDF();
 
@@ -127,6 +127,8 @@ class GenererPdfFactureAValidation extends GeneratePdf
                     } elseif ($key === 'statut') {
                         if($cell === 'OK'){
                             $html .= '<td style="width: 110px; text-align: left; background-color: #008000;"  >' . $cell . '</td>';
+                        } elseif($cell === 'DIT migrée') {
+                            $html .= '<td style="width: 110px; text-align: left;"  >' . $cell . '</td>';
                         }  else {
                             $html .= '<td style="width: 110px; text-align: left; background-color: #FF0000;"  >' . $cell . '</td>';
                         }
@@ -278,7 +280,15 @@ class GenererPdfFactureAValidation extends GeneratePdf
 
 
         $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/';
-        $pdf->Output($Dossier.'factureValidation_'.$ditfacture->getNumeroFact().'_'.$ditfacture->getNumeroSoumission(). '.pdf', 'F');
+        if($interneExterne == 'INTERNE') {
+            $filePath = $Dossier . 'factureValidation_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        } else {
+            $filePath = $Dossier . 'validation_facture_client_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        }
+
+        $pdf->Output($filePath, 'F');
+        
+        return $filePath;
     }
 
 }

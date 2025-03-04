@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller\admin\tik;
 
 use App\Controller\Controller;
@@ -11,30 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class TkiSousCategorieController extends Controller
 {
     /**
-     * @Route("/admin/tki-sous-categorie-liste", name="tki_sous_categorie_index")
-     */
-    public function index()
-    {
-        $data = self::$em->getRepository(TkiSousCategorie::class)->findBy([], ['id'=>'DESC']);
-
-        self::$twig->display('admin/tik/sousCategorie/list.html.twig', 
-        [
-            'data' => $data
-        ]);
-
-    }
-
-    /**
      * @Route("/admin/tki-sous-categorie-new", name="tki_sous_categorie_new")
      */
     public function new(Request $request)
     {
         $form = self::$validator->createBuilder(TkiSousCategorieType::class)->getForm();
-        
+
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             $sousCategorie = $form->getData();
 
             // Récupérer les catégories et autres catégories sélectionnées
@@ -49,13 +35,15 @@ class TkiSousCategorieController extends Controller
             self::$em->persist($sousCategorie);
             self::$em->flush();
 
-            $this->redirectToRoute("tki_sous_categorie_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
-        
-        self::$twig->display('admin/tik/sousCategorie/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+
+        self::$twig->display(
+            'admin/tik/sousCategorie/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -68,7 +56,7 @@ class TkiSousCategorieController extends Controller
     public function edit(Request $request, int $id)
     {
         $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(TkiSousCategorieType::class, $sousCategorie)->getForm();
 
         $form->handleRequest($request);
@@ -91,7 +79,7 @@ class TkiSousCategorieController extends Controller
             }
 
             self::$em->flush();
-            $this->redirectToRoute("tki_sous_categorie_index");
+            $this->redirectToRoute("tki_all_categorie_index");
         }
 
         self::$twig->display('admin/tik/sousCategorie/edit.html.twig', [
@@ -100,31 +88,31 @@ class TkiSousCategorieController extends Controller
     }
 
     /**
-    * @Route("/admin/tki-sous-categorie-delete/{id}", name="tki_sous_categorie_delete")
-    *
-    * @return void
-    */
+     * @Route("/admin/tki-sous-categorie-delete/{id}", name="tki_sous_categorie_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
         $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
 
         if ($sousCategorie) {
-            $autresCategories = $sousCategorie->getSousCategories();
+            $autresCategories = $sousCategorie->getAutresCategories();
             foreach ($autresCategories as $autreCategorie) {
-                $autreCategorie->removePermission($autreCategorie);
+                $sousCategorie->removeAutresCategorie($autreCategorie);
                 self::$em->persist($autreCategorie); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
-            $sousCategorie->getSousCategories()->clear();
+            $sousCategorie->getAutresCategories()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();
-        
-                self::$em->remove($sousCategorie);
-                self::$em->flush();
+
+            self::$em->remove($sousCategorie);
+            self::$em->flush();
         }
-        
-        $this->redirectToRoute("tki_sous_categorie_index");
+
+        $this->redirectToRoute("tki_all_categorie_index");
     }
 }

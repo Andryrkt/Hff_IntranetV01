@@ -72,7 +72,6 @@ class MagasinListeOrATraiterModel extends Model
     {
         $statement = " SELECT
                             min(sitv_datepla) as datePlanning2 
-
                         from sav_itv 
                         where sitv_numor = '".$numOr."'
                         group by sitv_numor
@@ -129,7 +128,7 @@ class MagasinListeOrATraiterModel extends Model
             where 
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
-            and slor_succ = '01'
+            -- and slor_succ in ('01', '50')
             and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
             $agenceUser
             $designation
@@ -148,7 +147,7 @@ class MagasinListeOrATraiterModel extends Model
             and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
             order by numInterv ASC, seor_dateor DESC, slor_numor DESC, numeroLigne ASC
         ";
-
+// dd($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -168,7 +167,7 @@ class MagasinListeOrATraiterModel extends Model
             and seor_numor = slor_numor
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            -- and slor_succ in ('01', '50')
             and slor_typlig = 'P'
     	    and slor_constp <> '---'
             and slor_constp not like 'Z%'
@@ -205,8 +204,7 @@ class MagasinListeOrATraiterModel extends Model
         $statement = "SELECT 
         numero_or 
         FROM demande_intervention
-        WHERE date_validation_or is not null
-        and date_validation_or <>'' 
+        WHERE (date_validation_or is not null  or date_validation_or = '1900-01-01') 
         {$niveauUrgence}
         {$numDit}
         {$numOr}
@@ -236,7 +234,6 @@ class MagasinListeOrATraiterModel extends Model
             where 
             slor_soc = 'HF'
 
-            and slor_succ = '01'
             and slor_desi like '%" . $designations . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -263,7 +260,7 @@ class MagasinListeOrATraiterModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+
             and slor_refp like '%" . $refPiece . "%'
             and slor_typlig = 'P'
             and slor_pos = 'EC'
@@ -299,13 +296,32 @@ class MagasinListeOrATraiterModel extends Model
 
     public function service($agence)
     {
-        $statement = "  SELECT DISTINCT
-                            slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
-                        FROM sav_lor
-                        WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
-                        AND slor_soc = 'HF'
-                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
-                    ";
+        // $statement = "  SELECT DISTINCT
+        //                     slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) as service
+        //                 FROM sav_lor
+        //                 WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
+        //                 AND slor_soc = 'HF'
+        //                 AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
+        //             ";
+
+                    
+        if ($agence === null) {
+            $codeAgence = "";
+        } else {
+        $codeAgence = " AND asuc_num = '" .$agence."'";
+        }
+    
+        $statement = " SELECT DISTINCT
+                        trim(atab_code) || ' '||trim(atab_lib) as service  
+                        FROM agr_succ , agr_tab a 
+                        WHERE a.atab_nom = 'SER' 
+                        and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%') 
+                        $codeAgence
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
 
         $result = $this->connect->executeQuery($statement);
 

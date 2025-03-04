@@ -27,8 +27,8 @@ INSERT INTO NouvelleTable SELECT \* FROM AncienneTable;
 
 --change le nom dans la base de donée
 -- Renommez la colonne dans la table
-EXEC sp_rename 'historique_operation_ditors.votreAncienneColonne',
-'ditorssoumisavalidation_id',
+EXEC sp_rename 'historique_operation_ditors.votreAncienneNomColonne',
+'nouveaunomColonne',
 'COLUMN';
 
 -- supprimer un clé etrangère

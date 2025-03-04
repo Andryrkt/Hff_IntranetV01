@@ -2,8 +2,9 @@
 
 namespace App\Model\dit;
 
-use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\ConversionTrait;
 
 class DitFactureSoumisAValidationModel extends Model
 {
@@ -59,7 +60,7 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                         AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
                     AND slor_numor = '".$numOR."'
                     AND slor_numfac = '".$numFact."'
                 GROUP BY
@@ -178,23 +179,11 @@ class DitFactureSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        AND sitv_servcrt IN (
-            'ATE',
-            'FOR',
-            'GAR',
-            'MAN',
-            'CSP',
-            'MAS'
-        )
+        AND sitv_servcrt IN ('ATE','FOR','MAN','GAR','CSP','MAS', 'LR6', 'LST')
         AND seor_numor = '".$numOr."'
         AND slor_numfac = '".$numFact."'
         --AND SEOR_SUCC = '01'
-        group by
-            1,
-            2,
-            3,
-            4,
-            5
+        group by 1, 2, 3, 4, 5
         order by slor_numor, sitv_interv
     ";
 
@@ -229,7 +218,7 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                             AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS')
+                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
                     AND slor_numor = '".$numOr."'
                     AND slor_numfac = '".$numFact."'
                 GROUP BY
@@ -253,6 +242,38 @@ class DitFactureSoumisAValidationModel extends Model
             AND seor_serv = 'SAV'
 
         ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recuperationStatutItv($numOr, $numItv)
+    {
+        $statement = " SELECT 
+                trim(seor_refdem) as referenceDIT,
+                seor_numor as numeroOr,
+                TRUNC(sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END)) AS quantiteDemander,
+                TRUNC(sum(slor_qteres)) as quantiteReserver,
+                TRUNC(sum(sliv_qteliv)) as quantiteLivree,
+                TRUNC(sum(slor_qterel)) as quantiteReliquat
+                from sav_lor 
+                inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
+                and seor_numor = slor_numor
+                left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
+                
+                where 
+                slor_soc = 'HF'
+                --and slor_succ = '01'
+                --and slor_typlig = 'P'
+                and seor_serv ='SAV'
+                and slor_constp in (".GlobalVariablesService::get('tous').")
+                and slor_numor = '".$numOr."'
+                and TRUNC(slor_nogrp/100) in (".$numItv.")
+                group by 1,2
+        ";
+    
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

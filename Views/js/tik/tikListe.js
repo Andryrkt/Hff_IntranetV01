@@ -1,225 +1,103 @@
-/**
- * recuperer l'agence emetteur et changer le service emetteur selon l'agence
- */
-const agenceEmetteurInput = document.querySelector(".agenceEmetteur");
-const serviceEmetteurInput = document.querySelector(".serviceEmetteur");
+import { resetDropdown } from '../utils/dropdownUtils.js';
 
-agenceEmetteurInput.addEventListener("change", selectAgenceEmetteur);
+import { updateDropdown } from '../utils/selectionHandler.js';
 
-function selectAgenceEmetteur() {
-  const agenceDebiteur = agenceEmetteurInput.value;
+document.addEventListener('DOMContentLoaded', function () {
+  const elements = [
+    {
+      firstInput: '.agenceEmetteur',
+      secondInput: '.serviceEmetteur',
+      thirdInput: '',
+      spinner: '#spinner-service-emetteur',
+      container: '#service-emetteur-container',
+      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      placeholder: ' -- Choisir un service -- ',
+    },
+    {
+      firstInput: '.agenceDebiteur',
+      secondInput: '.serviceDebiteur',
+      thirdInput: '',
+      spinner: '#spinner-service-debiteur',
+      container: '#service-debiteur-container',
+      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      placeholder: ' -- Choisir un service -- ',
+    },
+    {
+      firstInput: '.categorie',
+      secondInput: '.sous-categorie',
+      thirdInput: '.autres-categories',
+      spinner: '#spinner-sous-categorie',
+      container: '#sous-categorie-container',
+      fetchUrl: (value) => `/Hffintranet/api/sous-categorie-fetch/${value}`,
+      placeholder: ' -- Choisir une sous-catégorie -- ',
+    },
+    {
+      firstInput: '.sous-categorie',
+      secondInput: '.autres-categories',
+      thirdInput: '',
+      spinner: '#spinner-autres-categories',
+      container: '#autres-categories-container',
+      fetchUrl: (value) => `/Hffintranet/api/autres-categorie-fetch/${value}`,
+      placeholder: ' -- Choisir une autre catégorie -- ',
+    },
+  ];
 
-  if (agenceDebiteur === "") {
-    while (serviceEmetteurInput.options.length > 0) {
-      serviceEmetteurInput.remove(0);
+  elements.forEach(
+    ({
+      firstInput,
+      secondInput,
+      thirdInput,
+      spinner,
+      container,
+      fetchUrl,
+      placeholder,
+    }) => {
+      const firstElement = document.querySelector(firstInput);
+      const secondElement = document.querySelector(secondInput);
+      const spinnerElement = document.querySelector(spinner);
+      const containerElement = document.querySelector(container);
+
+      firstElement?.addEventListener('change', function () {
+        if (firstElement.value !== '') {
+          const url = fetchUrl(firstElement.value);
+          updateDropdown(
+            secondElement,
+            url,
+            placeholder,
+            spinnerElement,
+            containerElement
+          );
+        }
+        if (thirdInput !== '') {
+          const thirdElement = document.querySelector(thirdInput);
+          if (thirdElement.value !== '') {
+            resetDropdown(thirdElement, ' -- Choisir une autre catégorie -- ');
+          }
+        }
+      });
     }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
-    return; // Sortir de la fonction
-  }
-
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((services) => {
-      console.log(services);
-
-      // Supprimer toutes les options existantes
-      while (serviceEmetteurInput.options.length > 0) {
-        serviceEmetteurInput.remove(0);
-      }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une service -- ";
-      serviceEmetteurInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
-        option.value = services[i].value;
-        option.text = services[i].text;
-        serviceEmetteurInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceEmetteurInput.options.length; i++) {
-        var option = serviceEmetteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-}
-
-/**
- * recuperer l'agence debiteur et changer le service debiteur selon l'agence
- */
-const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
-const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
-
-agenceDebiteurInput.addEventListener("change", selectAgenceDebiteur);
-
-function selectAgenceDebiteur() {
-  const agenceDebiteur = agenceDebiteurInput.value;
-
-  if (agenceDebiteur === "") {
-    while (serviceEmetteurInput.options.length > 0) {
-      serviceEmetteurInput.remove(0);
-    }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une service -- ";
-    serviceEmetteurInput.add(defaultOption);
-    return; // Sortir de la fonction
-  }
-
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((services) => {
-      console.log(services);
-
-      // Supprimer toutes les options existantes
-      while (serviceDebiteurInput.options.length > 0) {
-        serviceDebiteurInput.remove(0);
-      }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une service -- ";
-      serviceDebiteurInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < services.length; i++) {
-        var option = document.createElement("option");
-        option.value = services[i].value;
-        option.text = services[i].text;
-        serviceDebiteurInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-        var option = serviceDebiteurInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-}
-
-/**
- * recupérer le catégorie et afficher les sous catégorie et autre categorie correspondant
- */
-const categorieInput = document.querySelector(".categorie");
-const sousCategorieInput = document.querySelector(".sous-categorie");
-const autreCategorieInput = document.querySelector(".autres-categories");
-
-//AFFICHAGE SOUS CATEGORIES
-categorieInput.addEventListener("change", selectCategorieSousCategorie);
-
-function selectCategorieSousCategorie() {
-  const categorie = categorieInput.value;
-
-  if (categorie === "") {
-    while (sousCategorieInput.options.length > 0) {
-      sousCategorieInput.remove(0);
-    }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.text = " -- Choisir une sous catégorie -- ";
-    sousCategorieInput.add(defaultOption);
-    return; // Sortir de la fonction
-  }
-
-  let url = `/Hffintranet/api/sous-categorie-fetch/${categorie}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((sousCategories) => {
-      console.log(sousCategories);
-
-      // Supprimer toutes les options existantes
-      while (sousCategorieInput.options.length > 0) {
-        sousCategorieInput.remove(0);
-      }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une sous catégorie -- ";
-      sousCategorieInput.add(defaultOption);
-
-      // Ajouter les nouvelles options à partir du tableau services
-      for (var i = 0; i < sousCategories.length; i++) {
-        var option = document.createElement("option");
-        option.value = sousCategories[i].value;
-        option.text = sousCategories[i].text;
-        sousCategorieInput.add(option);
-      }
-
-      //Afficher les nouvelles valeurs et textes des options
-      for (var i = 0; i < sousCategorieInput.options.length; i++) {
-        var option = sousCategorieInput.options[i];
-        console.log("Value: " + option.value + ", Text: " + option.text);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-
-  //AFFICHAGE AUTRES CATEGORIE
-  sousCategorieInput.addEventListener(
-    "change",
-    selectSousCategorieAutresCategories
   );
 
-  function selectSousCategorieAutresCategories() {
-    const sousCategorie = sousCategorieInput.value;
+  // Limite de caractères
+  const maxChars = 50;
 
-    if (sousCategorie === "") {
-      while (autreCategorieInput.options.length > 0) {
-        autreCategorieInput.remove(0);
+  // Sélection de toutes les cellules concernées
+  document.querySelectorAll('.comment-link').forEach((link) => {
+    let originalText = link.innerHTML; // Texte original incluant les balises HTML comme <br>
+
+    // Vérifier si le texte dépasse la limite
+    if (originalText.length > maxChars) {
+      // Tronquer le texte à la limite de caractères
+      let truncatedText = originalText.substring(0, maxChars) + '...';
+
+      link.innerHTML = truncatedText;
+    } else {
+      const lineBreakIndex = originalText.indexOf('<br>');
+
+      // Si un retour à la ligne est trouvé, tronquer à ce point
+      if (lineBreakIndex !== -1) {
+        link.innerHTML = originalText.substring(0, lineBreakIndex) + '...';
       }
-
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = " -- Choisir une sous catégorie -- ";
-      autreCategorieInput.add(defaultOption);
-      return; // Sortir de la fonction
     }
-
-    console.log(sousCategorie);
-
-    let url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorie}`;
-    fetch(url)
-      .then((response) => response.json())
-      .then((autresCategories) => {
-        console.log(autresCategories);
-
-        // Supprimer toutes les options existantes
-        while (autreCategorieInput.options.length > 0) {
-          autreCategorieInput.remove(0);
-        }
-
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.text = " -- Choisir une autre categorie-- ";
-        autreCategorieInput.add(defaultOption);
-
-        // Ajouter les nouvelles options à partir du tableau services
-        for (var i = 0; i < autresCategories.length; i++) {
-          var option = document.createElement("option");
-          option.value = autresCategories[i].value;
-          option.text = autresCategories[i].text;
-          autreCategorieInput.add(option);
-        }
-
-        //Afficher les nouvelles valeurs et textes des options
-        for (var i = 0; i < autreCategorieInput.options.length; i++) {
-          var option = autreCategorieInput.options[i];
-          console.log("Value: " + option.value + ", Text: " + option.text);
-        }
-      })
-      .catch((error) => console.error("Error:", error));
-  }
-}
+  });
+});

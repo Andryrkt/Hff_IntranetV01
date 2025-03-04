@@ -1,5 +1,5 @@
 <!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%;">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%; z-index: 1030;">
 	<div
 		class="container">
 		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
@@ -22,6 +22,8 @@
 				{% set hasMAG = false %}
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
+				{% set hasDAP = false %}
+				{% set hasCFR = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -36,6 +38,10 @@
 						{% set hasREP = true %}
 					{% elseif item.codeApp == 'TIK' %}
 						{% set hasTIK = true %}
+					{% elseif item.codeApp == 'DAP' %}
+						{% set hasDAP = true %}
+					{% elseif item.codeApp == 'CFR' %}
+						{% set hasCFR = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -139,19 +145,20 @@
 				<!-- FIN Dématérialisation -->
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
 
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Demande d'Appro</a>
-					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-						<li>
-							<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
-						</li>
-					</ul>
-				</li>
-
+				{# DEMANDE D'APPROVISIONNEMENT #}
+					{% if hasDAP %}
+						<li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Demande d'Appro</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							<li>
+								<a class="dropdown-item" href="#">Nouvelle Demande d'Appro</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
+							</li>
+						</ul>
+					</li>
+				{% endif %}
 				{% if hasMAG %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -178,10 +185,26 @@
 							<li>
 								<a class="dropdown-item" href="{{ path("cis_liste_a_livrer")}}">Liste des CIS à livrer</a>
 							</li>
+							{% if hasCFR %}
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li class="dropdown-header">
+									CDE Fournisseur
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">Soumission commande fournisseur</a>
+								</li>
+							{% endif %}
+							{# <li class="dropdown-header"> #}
+						{# CDE #}
+							{# </li> #}
+							{# <li> #}
+							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
+							{# </li> #}
 						</ul>
 					</li>
 				{% endif %}
-
 
 				{% if hasTIK %}
 					<li class="nav-item dropdown">
@@ -189,13 +212,15 @@
 							Support Info</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="{{ path("demande_support_informatique")}}">Nouveau demande</a>
+								<a class="dropdown-item" href="{{ path("demande_support_informatique")}}">Nouvelle Demande</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path("liste_tik_index")}}">Consultation
 								</a>
 							</li>
-
+							<li>
+								<a class="dropdown-item" href="{{ path("tik_calendar_planning")}}">Planning</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
@@ -207,6 +232,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
+							{# <li>
+																																											<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+																																										</li> #}
 						</ul>
 					</li>
 				{% endif %}
@@ -226,7 +254,7 @@
 							<hr class="dropdown-divider"/>
 						</li>
 						<li>
-							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}">Déconnexion</a>
+							<a class="dropdown-item" href="{{ path("auth_deconnexion")}}" id="logoutLink">Déconnexion</a>
 						</li>
 					</ul>
 				</li>
@@ -238,12 +266,7 @@
 							Setting
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							<li>
-								<a class="dropdown-item" href="{{ path('user_list') }}">Profil User</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('autoriser_index') }}">Agence Service Autoriser</a>
-							</li>
+
 							<li>
 								<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
 							</li>
@@ -255,9 +278,6 @@
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
@@ -277,14 +297,29 @@
 							<li>
 								<a class="dropdown-item" href="#">Statut App</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_categorie_index")}}">Catégories</a>
+							<li class="dropdown-header">
+								Utilisateur
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("tki_sous_categorie_index")}}">Sous-catégories</a>
+								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="{{ path("tki_autres_categories_index")}}">Autres catégories</a>
+								<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
+							</li>
+							<li class="dropdown-header">
+								Historique
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+							</li>
+							<li class="dropdown-header">
+								Ticket
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("tki_all_categorie_index")}}">Tous les catégories</a>
 							</li>
 						</ul>
 					</li>

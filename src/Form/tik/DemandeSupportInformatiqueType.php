@@ -109,31 +109,34 @@ class DemandeSupportInformatiqueType extends AbstractType
         ])
         
         ->add('fileNames', 
-    FileType::class, 
-    [
-        'label' => 'Pièces Jointes',
-        'required' => false,
-        'multiple' => true,
-        'data_class' => null,
-        'mapped' => false, // Indique que ce champ ne doit pas être lié à l'entité
-        'constraints' => [
-            new Callback([$this, 'validateFiles']),
-        ],
-    ]
-)
-
-
-
-            ->add('categorie', EntityType::class, [
-                'label' => 'Catégorie *',
-                'placeholder' => ' -- Choisir une catégorie',
-                'class' => TkiCategorie::class,
-                'choice_label' => 'description'
-            ])
-            ->add('parcInformatique', TextType::class, [
-                'label' => 'Parc informatique *'
-            ])
-            ->add('agence', 
+            FileType::class, 
+            [
+                'label' => 'Pièces Jointes',
+                'required' => false,
+                'multiple' => true,
+                'data_class' => null,
+                'mapped' => false, // Indique que ce champ ne doit pas être lié à l'entité
+                'constraints' => [
+                    new Callback([$this, 'validateFiles']),
+                ],
+            ]
+        )
+        ->add('categorie', EntityType::class, [
+            'label' => 'Catégorie *',
+            'placeholder' => ' -- Choisir une catégorie',
+            'class' => TkiCategorie::class,
+            'choice_label' => 'description'
+        ])
+        ->add('parcInformatique', TextType::class, [
+            'label' => 'Parc informatique ',
+            'required' => false,
+        ])
+        ->add('codeSociete', TextType::class, [
+            'label' => 'Code Société',
+            'disabled' => true,
+            'data' => $options['data']->getCodeSociete()
+        ])
+        ->add('agence', 
         EntityType::class,
         [
             'label' => 'Agence Debiteur *',

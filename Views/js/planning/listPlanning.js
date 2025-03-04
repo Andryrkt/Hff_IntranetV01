@@ -1,71 +1,30 @@
-/**
- * RECUPERATION DES SERVICE PAR RAPPORT à l'AGENCE
- */
-const agenceDebiteurInput = document.querySelector(
-  "#planning_search_agenceDebite"
-);
-const serviceDebiteurInput = document.querySelector(
-  "#planning_search_serviceDebite"
-);
-agenceDebiteurInput.addEventListener("change", selectAgence);
-
-function selectAgence() {
-  serviceDebiteurInput.disabled = false;
-
-  const agenceDebiteur = agenceDebiteurInput.value;
-  let url = `/Hffintranet/serviceDebiteurPlanning-fetch/${agenceDebiteur}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((services) => {
-      console.log(services);
-
-      // Effacer les éléments existants dans le conteneur
-      serviceDebiteurInput.innerHTML = "";
-
-      for (var i = 0; i < services.length; i++) {
-        var div = document.createElement("div");
-        div.className = "form-check";
-
-        var checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = "planning_search[serviceDebite][]";
-        checkbox.value = services[i].value;
-        checkbox.id = "service_" + i;
-        checkbox.className = "form-check-input";
-
-        var label = document.createElement("label");
-        label.htmlFor = checkbox.id;
-        label.appendChild(document.createTextNode(services[i].text));
-        label.className = "form-check-label";
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-
-        serviceDebiteurInput.appendChild(div);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-}
-
-/** LIST DETAIL MODAL */
+/** *======================
+ * LIST DETAIL MODAL
+ *  =======================*/
 
 document.addEventListener("DOMContentLoaded", (event) => {
+  let abortController; // AbortController pour annuler les requêtes fetch précédentes
+
   const listeCommandeModal = document.getElementById("listeCommande");
 
+  // Gestionnaire pour l'ouverture du modal
   listeCommandeModal.addEventListener("show.bs.modal", function (event) {
-    const button = event.relatedTarget; // Button that triggered the modal
-    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
+    // Annuler les requêtes fetch en cours s'il y en a
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController(); // Créer un nouveau contrôleur
+
+    const button = event.relatedTarget; // Bouton qui a déclenché le modal
+    const orIntv = button.getAttribute("data-id");
     const numDit = button.getAttribute("data-numDit");
     const migration = button.getAttribute("data-migration");
-    console.log(migration);
-
-    // Mettre à jour le lien avec le numDit dynamique
     const dossierDitLink = document.getElementById("dossierDitLink");
-    if (migration == 1) {
-      dossierDitLink.disabled = true;
+    if (migration == "1") {
+      dossierDitLink.style.display = "none";
     }
-    console.log(numDit);
-    console.log(dossierDitLink);
+
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
@@ -74,12 +33,43 @@ document.addEventListener("DOMContentLoaded", (event) => {
       );
     };
 
-    // Afficher le spinner et masquer le contenu des données
+    // Afficher le spinner
     document.getElementById("loading").style.display = "block";
     document.getElementById("dataContent").style.display = "none";
 
-    // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`)
+    const numOr = orIntv.split("-")[0];
+    const numItv = orIntv.split("-")[1];
+
+    // Utiliser AbortController pour fetchDetailModal
+    fetchDetailModal(orIntv, abortController.signal);
+    fetchTechnicienInterv(numOr, numItv, abortController.signal);
+  });
+
+  // Gestionnaire pour la fermeture du modal
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    const tableBodyOR = document.getElementById("commandesTableBodyOR");
+    const tableBodyLign = document.getElementById("commandesTableBodyLign");
+    const Ornum = document.getElementById("orIntv");
+    const planningTableHead = document.getElementById("planningTableHead");
+
+    tableBody.innerHTML = ""; // Vider le tableau
+    tableBodyLign.innerHTML = "";
+    tableBodyOR.innerHTML = "";
+    Ornum.innerHTML = "";
+    planningTableHead.innerHTML = "";
+  });
+
+  function masquerSpinner() {
+    // Masquer le spinner et afficher les données
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dataContent").style.display = "block";
+  }
+
+  function fetchTechnicienInterv(numOr, numItv, signal) {
+    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
+      signal,
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -87,22 +77,132 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-
-        const tableBody = document.getElementById("commandesTableBody");
-        const Ornum = document.getElementById("orIntv");
+        const tableBody = document.getElementById("technicienTableBody");
 
         tableBody.innerHTML = ""; // Clear previous data
 
         if (data.length > 0) {
-          data.forEach((detail) => {
-            Ornum.innerHTML = `${detail.numor} - ${detail.intv}`;
+          data.forEach((technicien) => {
+            let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+            // Affichage
+            let row = `<tr>
+              <td>${technicien.matricule}</td> 
+              <td>${nomPrenom}</td> 
+          </tr>`;
+            tableBody.innerHTML += row;
+          });
+        } else {
+          // Si les données sont vides, afficher un message vide
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
+        }
+      })
+      .catch((error) => {
+        if (error.name === "AbortError") {
+          console.log("Requête annulée !");
+        } else {
+          const tableBody = document.getElementById("technicienTableBody");
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          console.error("There was a problem with the fetch operation:", error);
+        }
+      });
+  }
+
+  function fetchDetailModal(id, signal) {
+    // Fetch request to get the data
+    fetch(`/Hffintranet/detail-modal/${id}`, { signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.avecOnglet);
+
+        displayOnglet(data.avecOnglet);
+        const Ornum = document.getElementById("orIntv");
+        const tableBody = document.getElementById("commandesTableBody");
+        const planningTableHead = document.getElementById("planningTableHead");
+        const tableBodyOR = document.getElementById("commandesTableBodyOR");
+        const planningTableHeadOR = document.getElementById(
+          "planningTableHeadOR"
+        );
+        const tableBodyLign = document.getElementById("commandesTableBodyLign");
+        const planningTableHeadLign = document.getElementById(
+          "planningTableHeadLign"
+        );
+
+        tableBody.innerHTML = ""; // Clear previous data
+        Ornum.innerHTML = "";
+        planningTableHead.innerHTML = "";
+        planningTableHeadOR.innerHTML = "";
+        planningTableHeadLign.innerHTML = "";
+
+        if (data.data.length > 0) {
+          if (data.data[0].numor.startsWith("5")) {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° CIS</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+            planningTableHeadOR.innerHTML += rowHeader;
+            planningTableHeadLign.innerHTML += rowHeader;
+          } else {
+            let rowHeader = `<th>N° OR</th>
+                            <th>Intv</th>
+                            <th>N° Commande</th>
+                            <th>Statut ctrmrq</th>
+                            <th>CST</th>
+                            <th>Ref</th>
+                            <th>Désignation</th>
+                            <th>Qté OR</th>
+                            <th>Qté ALL</th>
+                            <th>QTé RLQ</th>
+                            <th>QTé LIV</th>
+                            <th>Statut</th>
+                            <th>Date Statut</th>
+                            <th>ETA Ivato</th>
+                            <th>ETA Magasin</th>
+                            <th>Message</th>`;
+            planningTableHead.innerHTML += rowHeader;
+          }
+          data.data.forEach((detail) => {
+            console.log(detail);
+
+            Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
+            if (detail.plan == "PLANIFIE") {
+              Ornum.innerHTML += `planifié le : ${formaterDate(
+                detail.dateplanning
+              )}`;
+            } else {
+              Ornum.innerHTML += `date début : ${formaterDate(
+                detail.dateplanning
+              )}`;
+            }
             // Formater la date
             let dateEtaIvato;
             let dateMagasin;
             let dateStatut;
+            let numCis;
             let numCde;
+            let numeroCdeCis;
             let statrmq;
+            let StatutCtrmqCis;
             let statut;
             let message;
             let cmdColorRmq = "";
@@ -151,11 +251,29 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else {
               statut = detail.statut;
             }
+           
             if (detail.message == null) {
               message = "";
             } else {
               message = detail.message;
             }
+
+            if (detail.numcis == "0") {
+              numCis = "";
+            } else {
+              numCis = detail.numcis;
+            }
+            if (detail.numerocdecis == null) {
+              numeroCdeCis = "";
+            } else {
+              numeroCdeCis = detail.numerocdecis;
+            }
+            if (detail.statut_ctrmq_cis == null) {
+              StatutCtrmqCis = "";
+            } else {
+              StatutCtrmqCis = detail.statut_ctrmq_cis;
+            }
+
             //reception partiel
             let qteSolde = parseInt(detail.qteSlode);
             let qteQte = parseInt(detail.qte);
@@ -172,9 +290,89 @@ document.addEventListener("DOMContentLoaded", (event) => {
             } else if (Ord == "ORD") {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
+            //onglet CIS
+            let statutCIS;
+            let dateStatutCIS;
 
-            // Affichage
-            let row = `<tr>
+            if (
+              parseInt(detail.qtelivlig) > 0 &&
+              parseInt(detail.qtealllig) === 0 &&
+              parseInt(detail.qterlqlig) === 0
+            ) {
+              statutCIS = "LIVRE";
+              dateStatutCIS = formaterDate(detail.dateLivLIg);
+            } else if (parseInt(detail.qtealllig) > 0) {
+              statutCIS = "A LIVRER";
+              dateStatutCIS = formaterDate(detail.dateAllLIg);
+            } else {
+              statutCIS = detail.statut;
+              dateStatutCIS = "";
+            }
+
+            if (detail.numor && detail.numor.startsWith("5")) {
+              // Affichage
+              let row = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td ${cmdColor}>${numCis}</td> 
+                        <td ></td> 
+                        <td></td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${parseInt(detail.qteres_or)}</td> 
+                        <td>${parseInt(detail.qteall)}</td> 
+                        <td>${parseInt(detail.qtereliquat)}</td> 
+                        <td>${parseInt(detail.qteliv)}</td> 
+                        <td  >${statut} </td> 
+                        <td>${dateStatut}</td> 
+                        <td></td> 
+                        <td></td> 
+                        <td></td> 
+                    </tr>`;
+              // tableBody.innerHTML += row;
+              tableBodyOR.innerHTML += row;
+              if (numCis) {
+                let row1 = `<tr>
+                        <td>${detail.numor}</td> 
+                        <td>${detail.intv}</td> 
+                        <td>${numCis}</td> 
+                        <td ${cmdColor}>${numeroCdeCis}</td> 
+                        <td ${cmdColorRmq}>${StatutCtrmqCis}</td> 
+                        <td>${detail.cst}</td> 
+                        <td>${numRef}</td> 
+                        <td>${detail.desi}</td> 
+                        <td>${
+                          isNaN(detail.qteORlig) || detail.qteORlig === ""
+                            ? ""
+                            : parseInt(detail.qteORlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtealllig) || detail.qtealllig === ""
+                            ? ""
+                            : parseInt(detail.qtealllig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
+                            ? ""
+                            : parseInt(detail.qterlqlig)
+                        }</td> 
+                        <td>${
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
+                            ? ""
+                            : parseInt(detail.qtelivlig)
+                        }</td> 
+                        <td >${statutCIS === null ? "" : statutCIS}</td> 
+                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
+                        <td>${dateEtaIvato}</td> 
+                        <td>${dateMagasin}</td> 
+                        <td>${message}</td> 
+                    </tr>`;
+                tableBodyLign.innerHTML += row1;
+              }
+            } else {
+              // Affichage
+              let row = `<tr>
                       <td>${detail.numor}</td> 
                       <td>${detail.intv}</td> 
                       <td ${cmdColor}>${numCde}</td> 
@@ -192,37 +390,42 @@ document.addEventListener("DOMContentLoaded", (event) => {
                       <td>${dateMagasin}</td> 
                       <td>${message}</td> 
                   </tr>`;
-            tableBody.innerHTML += row;
+              tableBody.innerHTML += row;
+            }
           });
 
-          // Masquer le spinner et afficher les données
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          masquerSpinner();
         } else {
           // Si les données sont vides, afficher un message vide
           tableBody.innerHTML =
             '<tr><td colspan="5">Aucune donnée disponible.</td></tr>';
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("dataContent").style.display = "block";
+          masquerSpinner();
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById("commandesTableBody");
-        tableBody.innerHTML =
-          '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error("There was a problem with the fetch operation:", error);
-
-        // Masquer le spinner même en cas d'erreur
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dataContent").style.display = "block";
+        if (error.name === "AbortError") {
+          console.log("Requête annulée !");
+        } else {
+          const tableBody = document.getElementById("commandesTableBody");
+          tableBody.innerHTML =
+            '<tr><td colspan="5">Could not retrieve data.</td></tr>';
+          console.error("There was a problem with the fetch operation:", error);
+          masquerSpinner();
+        }
       });
-  });
+  }
 
-  // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    tableBody.innerHTML = ""; // Vider le tableau
-  });
+  function displayOnglet(show) {
+    const avecOnglet = document.getElementById("avec_onglet");
+    const sansOnglet = document.getElementById("sans_onglet");
+    if (show) {
+      avecOnglet.classList.remove("d-none");
+      sansOnglet.classList.add("d-none");
+    } else {
+      avecOnglet.classList.add("d-none");
+      sansOnglet.classList.remove("d-none");
+    }
+  }
 
   function formaterDate(daty) {
     const date = new Date(daty);
@@ -233,7 +436,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .padStart(2, "0")}/${date.getFullYear()}`;
   }
 
-  /** pour le separateur et fusion des numOR */
+  /**
+   * pour le separateur et fusion des numOR
+   *
+   * */
   const tableBody = document.querySelector("#tableBody");
   const rows = document.querySelectorAll("#tableBody tr");
 

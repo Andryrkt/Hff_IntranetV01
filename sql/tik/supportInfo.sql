@@ -18,8 +18,8 @@ CREATE TABLE Demande_Support_Informatique(
 	Piece_Jointe1 varchar(200) NULL,
 	Piece_Jointe2 varchar(200) NULL,
 	Piece_Jointe3 varchar(200) NULL,
-	Date_Deb_Planning date NULL,
-	Date_Fin_Planning date NULL,
+	Date_Deb_Planning datetime2(0) NULL,
+	Date_Fin_Planning datetime2(0) NULL,
 	ID_Projet_Informatique int NULL,
 	ID_Niveau_Urgence int NULL,
 	Parc_Informatique varchar(50) NOT NULL,
@@ -32,6 +32,7 @@ CREATE TABLE Demande_Support_Informatique(
 	service_debiteur_id int NULL,
 	date_modification datetime2(7) NULL,
 	ID_Statut_Demande int NULL,
+	commentaire text NULL,
 	file_names text NULL
 CONSTRAINT PRIMARY KEY (ID_Demande_Support_Informatique));
 
@@ -73,3 +74,11 @@ ADD ID_Intervenant INT;
 ALTER TABLE Demande_Support_Informatique
 ADD CONSTRAINT FK_User_Intervenant
 FOREIGN KEY (ID_Intervenant) REFERENCES users (id);
+
+
+ALTER TABLE Demande_Support_Informatique
+ADD ID_Validateur INT;
+
+ALTER TABLE Demande_Support_Informatique
+ADD CONSTRAINT FK_User_Validateur
+FOREIGN KEY (ID_Validateur) REFERENCES users (id);

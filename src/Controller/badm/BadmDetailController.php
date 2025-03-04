@@ -18,13 +18,16 @@ class BadmDetailController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $badm = self::$em->getRepository(Badm::class)->findOneBy(['id' => $id]);
-        
+
         $badmDetailModel = new BadmDetailModel();
         $data = $badmDetailModel->findAll($badm->getIdMateriel());
-    
-    
+
+        $this->logUserVisit('BadmDetail_detailBadm', [
+            'id' => $id
+        ]); // historisation du page visité par l'utilisateur
+
         self::$twig->display(
             'badm/detail.html.twig',
             [

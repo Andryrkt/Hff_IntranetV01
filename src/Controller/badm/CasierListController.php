@@ -13,15 +13,15 @@ class CasierListController extends Controller
 {
 
     use Transformation;
-    
-/**
- * @Route("/listCasier", name="liste_affichageListeCasier")
- */
+
+    /**
+     * @Route("/listCasier", name="liste_affichageListeCasier")
+     */
     public function AffichageListeCasier(Request $request)
-    {   
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
@@ -30,19 +30,22 @@ class CasierListController extends Controller
 
         $empty = false;
         $criteria = [];
-        if($form->isSubmitted() && $form->isValid()) {
-           $criteria = $form->getData();
-        } 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        }
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
         $paginationData = self::$em->getRepository(CasierValider::class)->findPaginatedAndFiltered($page, $limit, $criteria);
 
+        // dd($paginationData['data']);
 
-        if(empty($paginationData['data'])){
+        if (empty($paginationData['data'])) {
             $empty = true;
         }
+
+        $this->logUserVisit('liste_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'badm/casier/listCasier.html.twig',
@@ -57,5 +60,4 @@ class CasierListController extends Controller
             ]
         );
     }
-
 }

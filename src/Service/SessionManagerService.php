@@ -13,6 +13,11 @@ class SessionManagerService
 
     public function __construct()
     {
+        // Vérifier si une session est déjà démarrée
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         $this->session = new Session(new NativeSessionStorage());
         //$this->session->start();
     }

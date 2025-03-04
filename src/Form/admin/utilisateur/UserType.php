@@ -11,6 +11,7 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use App\Service\SessionManagerService;
 use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\Fonction;
@@ -18,41 +19,39 @@ use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Repository\admin\utilisateur\RoleRepository;
-use App\Service\SessionManagerService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class UserType extends AbstractType
 {
     private $ldap;
-    private $userRepository;
+    private $em;
     private $sessionService;
 
     public function __construct()
     {
         $this->ldap = new LdapModel();
-        $this->userRepository = Controller::getEntity()->getRepository(User::class);
+        $this->em = Controller::getEntity();
         $this->sessionService = new SessionManagerService();
     }
 
-    
+
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $userId = $this->sessionService->get('user_id');
-        $user = $this->userRepository->find($userId);
         $password = $this->sessionService->get('password');
-        
-        $users = $this->ldap->infoUser($user->getNomUtilisateur(), $password);
-   
+        $user = $this->em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+        $users = $this->ldap->infoUser($user, $password);
+
         $nom = [];
         foreach ($users as $key => $value) {
-            $nom[]=$key;
+            $nom[] = $key;
         }
- 
+
 
         $builder
         ->add('nom_utilisateur', 
@@ -72,7 +71,7 @@ class UserType extends AbstractType
             ])
         ->add('mail', 
             EmailType::class, [
-                'label' => 'Email',
+                'label' => 'Email *',
                 'required' =>true,
                 
             ])
@@ -99,7 +98,6 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'required' => true,
-              
             ])
         ->add('societtes',
             EntityType::class,
@@ -109,10 +107,8 @@ class UserType extends AbstractType
                 'choice_label' => function (Societte $societte): string {
                     return $societte->getCodeSociete() . ' ' . $societte->getNom();
                 },
-                'multiple' => true,
-                'expanded' => true,
+                'placeholder' => '-- Choisir une sociétés--',
                 'required' => true,
-                
             ])
             ->add('personnels', 
             EntityType::class,
@@ -120,9 +116,8 @@ class UserType extends AbstractType
                 'label' => 'Nom Personnel *',
                 'class' => Personnel::class,
                 'choice_label' => 'Matricule',
-                'placeholder' => '-- Choisir un nom --',
+                'placeholder' => '-- Choisir une matricuel --',
                 'required' => true,
-                
             ])
             ->add('superieurs', 
             EntityType::class, [
@@ -186,6 +181,13 @@ class UserType extends AbstractType
                 'expanded' => false,
                 'required' => false
             ])
+            ->add('numTel', 
+                TextType::class,
+                [
+                    'label' => 'N° Telephone',
+                    'required' => false
+                ]
+            )
     ;
     }
 
@@ -195,6 +197,4 @@ class UserType extends AbstractType
             'data_class' => User::class,
         ]);
     }
-
-
 }

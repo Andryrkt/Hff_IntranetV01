@@ -103,7 +103,7 @@ function formatFileSize(bytes) {
 }
 
 /**
- * BLOCASE DE SOUMISI SI AUCUNE CASE N'EST PAS COCHE
+ * BLOCAGE DE SOUMISI SI AUCUNE CASE N'EST PAS COCHE
  */
 document.addEventListener("DOMContentLoaded", function () {
   // Récupérer le formulaire

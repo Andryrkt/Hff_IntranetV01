@@ -5,10 +5,12 @@
 	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
 {% endblock %}
 
-{# {% import "macroForm.html.twig" as form %} #}
+{% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
+	{% set role_ids = App.user.roleIds %}
+	{% set user_connecter = App.user.nom_utilisateur %}
 
 	<div class="container">
 		<h3 class="perso-titre">
@@ -70,6 +72,8 @@
 						<th>Débiteur</th>
 						<th>Objet</th>
 						<th>Section affectée</th>
+						<th>N° devis</th>
+						<th>Statut Devis</th>
 						<th>N° OR</th>
 						<th class="fw-bold">Statut OR</th>
 						{# <th>Statut Livraison Pièces</th> #}
@@ -131,7 +135,7 @@
 											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
 										</li>
 										<li>
-											{% if item.idStatutDemande.description | trim != 'A AFFECTER' and item.estOrEqDit %}
+											{% if item.estOrASoumi %}
 												<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Soumission document à valider</a>
 											{% endif %}
 										</li>
@@ -139,7 +143,7 @@
 											<a class="dropdown-item fw-bold" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeIntervention})}}">Dossier DIT</a>
 										</li>
 										<li>
-											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' %}
+											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' or (item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' and (9 in role_ids or item.utilisateurDemandeur == user_connecter)) %}
 												<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
 											{% endif %}
 										</li>
@@ -170,12 +174,14 @@
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>
 								{{ item.objetDemande}}</td>
-							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 							<td>
 								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
 									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
 								</a>
 							</td>
+							<td>{{item.numeroDevisRattache}}</td>
+							<td>{{ item.statutDevis}}</td>
 							<td>
 								{% if item.numeroOr != '' %}
 									<a href="#" data-bs-toggle="modal" data-bs-target="#listeCommande" data-id="{{item.numeroOr}}" id="numOr" class="{{classeQuatreStatutOr}} text-black" data-bs-toggle="tooltip" title="lister les commandes">{{ item.numeroOr}}</a>

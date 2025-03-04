@@ -113,9 +113,12 @@ class TikSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => [ 'class' => 'agenceEmetteur']
+                'attr' => [ 
+                    'class' => 'agenceEmetteur',
+                    'disabled' => !$options['data']->getAutoriser()
+                    ]
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
                 $form = $event->getForm();
                 $data = $event->getData();
             
@@ -137,10 +140,13 @@ class TikSearchType extends AbstractType
                     'query_builder' => function(ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceEmetteur']
+                    'attr' => [ 
+                        'class' => 'serviceEmetteur',
+                        'disabled' => !$options['data']->getAutoriser()
+                        ]
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
             
@@ -169,7 +175,10 @@ class TikSearchType extends AbstractType
                     'query_builder' => function(ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceEmetteur']
+                    'attr' => [ 
+                        'class' => 'serviceEmetteur',
+                        'disabled' => $options['data']->getAutoriser()
+                        ]
                 ]);
             })
             ->add('agenceDebiteur', EntityType::class, [
@@ -254,7 +263,7 @@ class TikSearchType extends AbstractType
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+                
                 $sousCategorie = [];
                 if ($data && $data->getCategorie()) {
                     $sousCategorie = $data->getCategorie()->getSousCategories();

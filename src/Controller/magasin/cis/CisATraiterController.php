@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\cis\CisATraiterModel;
 use App\Form\magasin\cis\ATraiterSearchType;
@@ -38,25 +39,23 @@ class CisATraiterController extends Controller
             "agenceUser" => $agenceUser,
             'orValide' => true
         ];
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-        } 
-        
-        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
-        
-        $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
+        }
 
-        
+        $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
         $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
 
+        $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
+
         self::$twig->display('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
-            'form' =>$form->createView()
+            'form' => $form->createView()
         ]);
     }
-    
+
     /**
      * @Route("/export-excel-a-traiter-cis", name="export_excel_a_traiter_cis")
      */
@@ -64,18 +63,17 @@ class CisATraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
         $criteria = $this->sessionService->get('cis_a_traiter_search_criteria', []);
 
-        $numORItvValides = $this->orEnString(self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumOrItvValide());
-        $entities = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
+        $entities = $this->recupData($cisATraiterModel, $criteria);
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem']; 
+        $data[] = ['N° DIT', 'N° CIS', 'Date CIS', 'Ag/Serv Travaux', 'N° Or', 'Date Or', "Ag/Serv Débiteur / client", 'N° Intv', 'N° lig', 'Cst', 'Réf.', 'Désignations', 'Qté dem', 'ID Materiel', 'Marque', 'Casier'];
         foreach ($entities as $entity) {
             $data[] = [
                 $entity['numdit'],
@@ -90,10 +88,41 @@ class CisATraiterController extends Controller
                 $entity['cst'],
                 $entity['ref'],
                 $entity['designations'],
-                $entity['qte_dem']
+                $entity['qte_dem'],
+                $entity['idMateriel'],
+                $entity['marque'],
+                $entity['casier']
             ];
         }
 
-         $this->excelService->createSpreadsheet($data);
+        $this->excelService->createSpreadsheet($data);
+    }
+
+
+    private function recupData($cisATraiterModel, $criteria)
+    {
+        $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
+
+        $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
+
+        for ($i = 0; $i < count($data); $i++) {
+
+            $numeroOr = $data[$i]['numor'];
+            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            if ($ditRepository != null) {
+                $idMateriel = $ditRepository->getIdMateriel();
+                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
+                $data[$i]['idMateriel'] = $idMateriel;
+                $data[$i]['marque'] = $marqueCasier[0]['marque'];
+                $data[$i]['casier'] = $marqueCasier[0]['casier'];
+            } else {
+                $data[$i]['idMateriel'] = 0;
+                $data[$i]['marque'] = '';
+                $data[$i]['casier'] = '';
+            }
+        }
+
+        return $data;
     }
 }

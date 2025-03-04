@@ -30,12 +30,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DemandeIntervention
 {
-   use AgenceServiceEmetteurTrait;
-   use AgenceServiceTrait;
-   use CaracteristiqueMaterielTrait;
-   use BilanFinancierMaterielTrait;
-   use QuantiteDitTrait;
-   
+    use AgenceServiceEmetteurTrait;
+    use AgenceServiceTrait;
+    use CaracteristiqueMaterielTrait;
+    use BilanFinancierMaterielTrait;
+    use QuantiteDitTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -43,7 +43,7 @@ class DemandeIntervention
      * @Groups("intervention")
      */
     private $id;
-    
+
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
      * @Groups("intervention")
@@ -55,14 +55,14 @@ class DemandeIntervention
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $typeDocument = null;//relation avec la table wor_type_document
+    private  $typeDocument = null; //relation avec la table wor_type_document
 
     /**
      * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $codeSociete = null;// relation avec la table societe
+    private  $codeSociete = null; // relation avec la table societe
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
@@ -76,12 +76,12 @@ class DemandeIntervention
      */
     private ?string $reparationRealise = null;
 
-   /**
+    /**
      * @ORM\ManyToOne(targetEntity=CategorieATEAPP::class, inversedBy="DemandeIntervention")
      * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private ?CategorieAteApp $categorieDemande = null;//relation avec la table categorie_ate_app
+    private ?CategorieAteApp $categorieDemande = null; //relation avec la table categorie_ate_app
 
     /**
      * @ORM\Column(type="string", length=140, name="internet_externe",nullable=true)
@@ -112,6 +112,12 @@ class DemandeIntervention
      * @Groups("intervention")
      */
     private ?string $numeroTel= null;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="mail_client",nullable=true)
+     * @Groups("intervention")
+     */
+    private ?string $mailClient = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_or",nullable=true)
@@ -193,12 +199,12 @@ class DemandeIntervention
      */
     private ?datetime $dateDemande = null;
 
-/**
- * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
- * @Groups("intervention")
- *
- * @var string|null
- */
+    /**
+     * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
+     * @Groups("intervention")
+     *
+     * @var string|null
+     */
     private ?string $heureDemande = null;
 
     /**
@@ -235,9 +241,9 @@ class DemandeIntervention
      * )
      * @Groups("intervention")
      */
-    private ?string $pieceJoint01 =null;
+    private ?string $pieceJoint01 = null;
 
-        /**
+    /**
      * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
      * @Assert\File(
      *     maxSize="5M",
@@ -246,7 +252,7 @@ class DemandeIntervention
      * )
      * @Groups("intervention")
      */
-    private ?string $pieceJoint02=null;
+    private ?string $pieceJoint02 = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_demandeur", nullable=true)
@@ -334,12 +340,12 @@ class DemandeIntervention
      * @var datetime|null
      */
     private ?datetime $dateDevisRattache = null;
-    
+
     /**
-     * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
+     * @ORM\Column(type="string", length=3, name="statut_devis",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $devisValide = null;
+    private ?string $statutDevis = null;
 
     /**
      * @ORM\Column(type="datetime", name="date_validation_devis", nullable=true)
@@ -428,7 +434,7 @@ class DemandeIntervention
      */
     private ?\DateTime $dateValidationOr = null;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      * @Groups("intervention")
@@ -465,7 +471,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=255, name="section_support_2")
      */
     private $sectionSupport2;
-    
+
     /**
      * @ORM\Column(type="string", length=255, name="section_support_3")
      */
@@ -491,25 +497,34 @@ class DemandeIntervention
     private $quatreStatutOr;
 
     private $estOrEqDit;
+
+    private bool $estOrASoumi = false;
+
+    /**
+     * @ORM\Column(type="integer", name="num_migr")
+     *
+     * @var integer
+     */
+    private int $numMigration;
     
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
      * 
-    *===============================================================================================================*/
+     *===============================================================================================================*/
 
     public function getId()
     {
         return $this->id;
     }
 
-    
+
     public function getNumeroDemandeIntervention(): string
     {
         return $this->numeroDemandeIntervention;
     }
 
-   
+
     public function setNumeroDemandeIntervention(string $numeroDemandeIntervention): self
     {
         $this->numeroDemandeIntervention = $numeroDemandeIntervention;
@@ -523,21 +538,21 @@ class DemandeIntervention
         return $this->typeDocument;
     }
 
-    
+
     public function setTypeDocument($typeDocument): self
     {
         $this->typeDocument = $typeDocument;
 
         return $this;
     }
-    
-     
+
+
     public function getCodeSociete()
     {
         return $this->codeSociete;
     }
 
-    
+
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
@@ -550,20 +565,20 @@ class DemandeIntervention
         return $this->typeReparation;
     }
 
-    public function setTypeReparation( string $typeReparation): self
+    public function setTypeReparation(string $typeReparation): self
     {
         $this->typeReparation = $typeReparation;
 
         return $this;
     }
 
-    
+
     public function getReparationRealise()
     {
         return $this->reparationRealise;
     }
 
-    
+
     public function setReparationRealise($reparationRealise): self
     {
         $this->reparationRealise = $reparationRealise;
@@ -571,13 +586,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getCategorieDemande()
     {
         return $this->categorieDemande;
     }
 
-    
+
     public function setCategorieDemande($categorieDemande): self
     {
         $this->categorieDemande = $categorieDemande;
@@ -585,13 +600,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getInternetExterne()
     {
         return $this->internetExterne;
     }
 
-   
+
     public function setInternetExterne($internetExterne): self
     {
         $this->internetExterne = $internetExterne;
@@ -599,13 +614,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getAgenceServiceDebiteur()
     {
         return $this->agenceServiceDebiteur;
     }
 
-    
+
     public function setAgenceServiceDebiteur($agenceServiceDebiteur): self
     {
         $this->agenceServiceDebiteur = $agenceServiceDebiteur;
@@ -613,13 +628,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getAgenceServiceEmetteur()
     {
         return $this->agenceServiceEmetteur;
     }
 
-    
+
     public function setAgenceServiceEmetteur($agenceServiceEmetteur): self
     {
         $this->agenceServiceEmetteur = $agenceServiceEmetteur;
@@ -627,13 +642,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getNomClient()
     {
         return $this->nomClient;
     }
 
-    
+
     public function setNomClient($nomClient): self
     {
         $this->nomClient = $nomClient;
@@ -646,7 +661,7 @@ class DemandeIntervention
         return $this->numeroTel;
     }
 
-    
+
     public function setNumeroTel($numeroTel): self
     {
         $this->numeroTel = $numeroTel;
@@ -654,13 +669,32 @@ class DemandeIntervention
         return $this;
     }
 
+    /**
+     * Get the value of mailClient
+     */ 
+    public function getMailClient()
+    {
+        return $this->mailClient;
+    }
+
+    /**
+     * Set the value of mailClient
+     *
+     * @return  self
+     */ 
+    public function setMailClient($mailClient)
+    {
+        $this->mailClient = $mailClient;
+
+        return $this;
+    }
    
     public function getDateOr()
     {
         return $this->dateOr;
     }
 
-    
+
     public function setDateOr($dateOr): self
     {
         $this->dateOr = $dateOr;
@@ -668,13 +702,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getHeureOR()
     {
         return $this->heureOR;
     }
 
-    
+
     public function setHeureOR($heureOR): self
     {
         $this->heureOR = $heureOR;
@@ -682,13 +716,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getDatePrevueTravaux()
     {
         return $this->datePrevueTravaux;
     }
 
-    
+
     public function setDatePrevueTravaux($datePrevueTravaux): self
     {
         $this->datePrevueTravaux = $datePrevueTravaux;
@@ -696,13 +730,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getDemandeDevis()
     {
         return $this->demandeDevis;
     }
 
-    
+
     public function setDemandeDevis($demandeDevis): self
     {
         $this->demandeDevis = $demandeDevis;
@@ -710,13 +744,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getIdNiveauUrgence()
     {
         return $this->idNiveauUrgence;
     }
 
-    
+
     public function setIdNiveauUrgence($idNiveauUrgence): self
     {
         $this->idNiveauUrgence = $idNiveauUrgence;
@@ -724,13 +758,13 @@ class DemandeIntervention
         return $this;
     }
 
-  
+
     public function getAvisRecouvrement()
     {
         return $this->avisRecouvrement;
     }
 
-    
+
     public function setAvisRecouvrement($avisRecouvrement): self
     {
         $this->avisRecouvrement = $avisRecouvrement;
@@ -738,13 +772,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getClientSousContrat()
     {
         return $this->clientSousContrat;
     }
 
-   
+
     public function setClientSousContrat($clientSousContrat): self
     {
         $this->clientSousContrat = $clientSousContrat;
@@ -752,7 +786,7 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getObjetDemande()
     {
         return $this->objetDemande;
@@ -765,13 +799,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getDetailDemande()
     {
         return $this->detailDemande;
     }
 
-   
+
     public function setDetailDemande($detailDemande): self
     {
         $this->detailDemande = $detailDemande;
@@ -779,13 +813,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getLivraisonPartiel()
     {
         return $this->livraisonPartiel;
     }
 
-    
+
     public function setLivraisonPartiel($livraisonPartiel): self
     {
         $this->livraisonPartiel = $livraisonPartiel;
@@ -793,13 +827,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getIdMateriel()
     {
         return $this->idMateriel;
     }
 
-    
+
     public function setIdMateriel($idMateriel): self
     {
         $this->idMateriel = $idMateriel;
@@ -807,13 +841,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getMailDemandeur()
     {
         return $this->mailDemandeur;
     }
 
-    
+
     public function setMailDemandeur($mailDemandeur): self
     {
         $this->mailDemandeur = $mailDemandeur;
@@ -835,13 +869,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getHeureDemande()
     {
         return $this->heureDemande;
     }
 
-   
+
     public function setHeureDemande($heureDemande): self
     {
         $this->heureDemande = $heureDemande;
@@ -849,13 +883,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getDateCloture()
     {
         return $this->dateCloture;
     }
 
-   
+
     public function setDateCloture($dateCloture): self
     {
         $this->dateCloture = $dateCloture;
@@ -863,13 +897,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getHeureCloture()
     {
         return $this->heureCloture;
     }
 
-   
+
     public function setHeureCloture($heureCloture): self
     {
         $this->heureCloture = $heureCloture;
@@ -877,13 +911,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
     }
 
-    
+
     public function setPieceJoint03($pieceJoint03): self
     {
         $this->pieceJoint03 = $pieceJoint03;
@@ -891,13 +925,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
     }
 
-   
+
     public function setPieceJoint01($pieceJoint01): self
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -905,13 +939,13 @@ class DemandeIntervention
         return $this;
     }
 
-   
+
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
     }
 
-    
+
     public function setPieceJoint02($pieceJoint02): self
     {
         $this->pieceJoint02 = $pieceJoint02;
@@ -919,13 +953,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getUtilisateurDemandeur()
     {
         return $this->utilisateurDemandeur;
     }
 
-   
+
     public function setUtilisateurDemandeur($utilisateurDemandeur): self
     {
         $this->utilisateurDemandeur = $utilisateurDemandeur;
@@ -939,7 +973,7 @@ class DemandeIntervention
         return $this->observations;
     }
 
-  
+
     public function setObservations($observations): self
     {
         $this->observations = $observations;
@@ -953,7 +987,7 @@ class DemandeIntervention
         return $this->idStatutDemande;
     }
 
-   
+
     public function setIdStatutDemande($idStatutDemande): self
     {
         $this->idStatutDemande = $idStatutDemande;
@@ -995,7 +1029,7 @@ class DemandeIntervention
         return $this->numeroClient;
     }
 
-   
+
     public function setNumeroClient($numeroClient): self
     {
         $this->numeroClient = $numeroClient;
@@ -1050,7 +1084,7 @@ class DemandeIntervention
         return $this->observationDirectionTechnique;
     }
 
-    
+
     public function setObservationDirectionTechnique($observationDirectionTechnique): self
     {
         $this->observationDirectionTechnique = $observationDirectionTechnique;
@@ -1101,26 +1135,26 @@ class DemandeIntervention
     }
 
 
-    public function getDevisValide()
+    public function getStatutDevis()
     {
-        return $this->devisValide;
+        return $this->statutDevis;
     }
 
 
-    public function setDevisValide($devisValide): self
+    public function setStatutDevis($statutDevis): self
     {
-        $this->devisValide = $devisValide;
+        $this->statutDevis = $statutDevis;
 
         return $this;
     }
 
- 
+
     public function getDateValidationDevis()
     {
         return $this->dateValidationDevis;
     }
 
-    
+
     public function setDateValidationDevis($dateValidationDevis): self
     {
         $this->dateValidationDevis = $dateValidationDevis;
@@ -1134,7 +1168,7 @@ class DemandeIntervention
         return $this->idServiceIntervenant;
     }
 
-   
+
     public function setIdServiceIntervenant($idServiceIntervenant): self
     {
         $this->idServiceIntervenant = $idServiceIntervenant;
@@ -1272,13 +1306,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getDateValidationOr()
     {
         return $this->dateValidationOr;
     }
 
-    
+
     public function setDateValidationOr(?\DateTime $dateValidationOr): self
     {
         $this->dateValidationOr = $dateValidationOr;
@@ -1286,13 +1320,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getAgenceEmetteurId()
     {
         return $this->agenceEmetteurId;
     }
 
-    
+
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -1300,13 +1334,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
 
-   
+
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
         $this->serviceEmetteurId = $serviceEmetteurId;
@@ -1314,13 +1348,13 @@ class DemandeIntervention
         return $this;
     }
 
-  
+
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
 
-    
+
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
         $this->agenceDebiteurId = $agenceDebiteurId;
@@ -1328,13 +1362,13 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
 
-    
+
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
         $this->serviceDebiteurId = $serviceDebiteurId;
@@ -1346,7 +1380,7 @@ class DemandeIntervention
 
     /**
      * Get the value of sectionSupport1
-     */ 
+     */
     public function getSectionSupport1()
     {
         return $this->sectionSupport1;
@@ -1356,7 +1390,7 @@ class DemandeIntervention
      * Set the value of sectionSupport1
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport1($sectionSupport1)
     {
         $this->sectionSupport1 = $sectionSupport1;
@@ -1366,7 +1400,7 @@ class DemandeIntervention
 
     /**
      * Get the value of sectionSupport2
-     */ 
+     */
     public function getSectionSupport2()
     {
         return $this->sectionSupport2;
@@ -1376,7 +1410,7 @@ class DemandeIntervention
      * Set the value of sectionSupport2
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport2($sectionSupport2)
     {
         $this->sectionSupport2 = $sectionSupport2;
@@ -1386,7 +1420,7 @@ class DemandeIntervention
 
     /**
      * Get the value of sectionSupport3
-     */ 
+     */
     public function getSectionSupport3()
     {
         return $this->sectionSupport3;
@@ -1396,7 +1430,7 @@ class DemandeIntervention
      * Set the value of sectionSupport3
      *
      * @return  self
-     */ 
+     */
     public function setSectionSupport3($sectionSupport3)
     {
         $this->sectionSupport3 = $sectionSupport3;
@@ -1422,13 +1456,13 @@ class DemandeIntervention
 
     public function setRi($ri)
     {
-        $this->ri=$ri;
+        $this->ri = $ri;
         return $this;
     }
 
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -1438,7 +1472,7 @@ class DemandeIntervention
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;
@@ -1446,9 +1480,9 @@ class DemandeIntervention
         return $this;
     }
 
-        /**
+    /**
      * Get the value of nbrPj
-     */ 
+     */
     public function getNbrPj()
     {
         return $this->nbrPj;
@@ -1458,17 +1492,17 @@ class DemandeIntervention
      * Set the value of nbrPj
      *
      * @return  self
-     */ 
+     */
     public function setNbrPj($nbrPj)
     {
         $this->nbrPj = $nbrPj;
 
         return $this;
     }
-    
+
     /**
      * Get the value of quatreStatutOr
-     */ 
+     */
     public function getQuatreStatutOr()
     {
         return $this->quatreStatutOr;
@@ -1478,7 +1512,7 @@ class DemandeIntervention
      * Set the value of quatreStatutOr
      *
      * @return  self
-     */ 
+     */
     public function setQuatreStatutOr($quatreStatutOr)
     {
         $this->quatreStatutOr = $quatreStatutOr;
@@ -1497,5 +1531,49 @@ class DemandeIntervention
         return $this;
     }
 
-    
+
+
+    /**
+     * Get the value of estOrASoumi
+     */
+    public function getEstOrASoumi()
+    {
+        return $this->estOrASoumi;
+    }
+
+    /**
+     * Set the value of estOrASoumi
+     *
+     * @return  self
+     */
+    public function setEstOrASoumi($estOrASoumi)
+    {
+        $this->estOrASoumi = $estOrASoumi;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numMigration
+     *
+     * @return  integer
+     */ 
+    public function getNumMigration()
+    {
+        return $this->numMigration;
+    }
+
+    /**
+     * Set the value of numMigration
+     *
+     * @param  integer  $numMigration
+     *
+     * @return  self
+     */ 
+    public function setNumMigration($numMigration)
+    {
+        $this->numMigration = $numMigration;
+
+        return $this;
+    }
 }

@@ -9,19 +9,15 @@ use App\Model\Traits\ConversionModel;
 class DitModel extends Model
 {
 
-
-   use ConversionModel;
+    use ConversionModel;
 
     /**
      * informix
      */
     public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
-
-      
-      
       if($matricule === '' || $matricule === '0' || $matricule === null){
-       $conditionNummat = "";
+        $conditionNummat = "";
       } else {
         $conditionNummat = "and mmat_nummat = '" . $matricule."'";
       }
@@ -50,8 +46,8 @@ class DitModel extends Model
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc,
 
-        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as HEURE,
-        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as KM,
+        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse in (10,11,12,13,14,16,17,18,19) and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Prix_achat,
         (select nvl(sum(mofi_mt),0) from mat_ofi where mofi_classe = 30 and mofi_ssclasse = 15 and mofi_numbil = mbil_numbil and mofi_typmt = 'R') as Amortissement,
 
@@ -61,7 +57,7 @@ class DitModel extends Model
 
       FROM MAT_MAT, mat_bil
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-      and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      --and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
       and mbil_dateclot = '12/31/1899'
       ".$conditionNummat."
@@ -104,8 +100,8 @@ class DitModel extends Model
             and (seor_servcrt = ser.atab_code and ser.atab_nom = 'SER')
             and (sitv_typitv = sec.atab_code and sec.atab_nom = 'TYI')
             and (seor_ope = ope.atab_code and ope.atab_nom = 'OPE')
-            and sitv_pos in ('FC','FE','CP','ST')
-            and sitv_servcrt in ('ATE','FOR','GAR','MAN','CSP','MAS')
+            and sitv_pos in ('FC','FE','CP','ST', 'EC')
+            and sitv_servcrt in ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
             and (seor_nummat = mmat_nummat)
 
             and mmat_nummat ='$idMateriel'
@@ -232,7 +228,7 @@ class DitModel extends Model
       inner join frn_cde on frn_cde.fcde_numcde = slor_numcf
       where
       slor_soc = 'HF'
-      and slor_succ = '01'
+      --and slor_succ = '01'
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
@@ -263,7 +259,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -297,7 +293,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -331,7 +327,7 @@ class DitModel extends Model
             
             where 
             slor_soc = 'HF'
-            and slor_succ = '01'
+            --and slor_succ = '01'
             and slor_typlig = 'P'
             and seor_serv ='SAV'
             and slor_constp not like 'Z%'
@@ -358,11 +354,12 @@ class DitModel extends Model
           count(slor_constp) as NOMBRE_LIGNE,
           Sum(
               CASE
-                  WHEN slor_typlig = 'P' THEN (
-                      slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                  )
+                  WHEN slor_typlig = 'P' 
+                  THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
-              END * CASE
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -372,10 +369,10 @@ class DitModel extends Model
               CASE
                   WHEN slor_typlig = 'P'
                   AND slor_constp NOT like 'Z%'
-                  AND slor_constp <> 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  AND slor_constp <> 'LUB' THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -413,12 +410,14 @@ class DitModel extends Model
 
           Sum(
               CASE
-                  WHEN slor_typlig = 'P'
-                  AND slor_constp NOT like 'Z%'
-                  AND slor_constp = 'LUB' THEN (
-                      nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0)
-                  )
-              END * CASE
+                  WHEN 
+                    slor_typlig = 'P'
+                    AND slor_constp NOT like 'Z%'
+                    AND slor_constp = 'LUB' 
+                  THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
+              END 
+              * 
+              CASE
                   WHEN slor_typlig = 'P' THEN slor_pxnreel
                   WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
               END
@@ -430,24 +429,14 @@ class DitModel extends Model
               AND seor_serv <> 'DEV'
               AND sitv_numor = slor_numor
               AND sitv_interv = slor_nogrp / 100
-
+              AND seor_soc = 'HF'
+              AND slor_soc=seor_soc
+              AND sitv_soc=seor_soc
           AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-          AND sitv_servcrt IN (
-              'ATE',
-              'FOR',
-              'GAR',
-              'MAN',
-              'CSP',
-              'MAS'
-          )
+          AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'
-          group by
-              1,
-              2,
-              3,
-              4,
-              5
+          group by 1, 2, 3, 4, 5
           order by slor_numor, sitv_interv
         ";
 
@@ -496,6 +485,31 @@ class DitModel extends Model
         ";
 
         $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupMarqueCasierMateriel($matricule)
+    {
+        $statement = "SELECT
+          mmat_nummat as num_matricule,
+          trim(mmat_numserie) as num_serie,
+          trim(mmat_recalph) as num_parc ,
+          trim(mmat_marqmat) as marque,
+          trim(mmat_desi) as designation,
+          trim(mmat_typmat) as modele,
+          trim(mmat_numparc) as casier
+
+          from mat_mat
+          where mmat_nummat ='".$matricule."'
+          and MMAT_ETSTOCK in ('ST','AT', '--')
+          and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+      ";
+
+        $result = $this->connect->executeQuery($statement);
+
 
         $data = $this->connect->fetchResults($result);
 

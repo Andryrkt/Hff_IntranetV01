@@ -33,7 +33,11 @@ trait DitTrait
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
             $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            if($dits->getAgence() === null) {
+                $demandeIntervention->setAgenceServiceDebiteur(null);
+            } else {
+                $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            }
             //INTERVENTION
             $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
             $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
@@ -76,7 +80,7 @@ trait DitTrait
             $demandeIntervention->setServiceDebiteurId($dits->getService());
             
             //societte
-           
+        // dd($demandeIntervention);
         return $demandeIntervention;
     }
 
@@ -97,8 +101,12 @@ trait DitTrait
 
         //Agence - service
         $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-        $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
-
+        if($dits->getAgence() === null) {
+            $demandeIntervention->setAgenceServiceDebiteur(null);
+        } else {
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+        }
+        
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());
@@ -107,11 +115,10 @@ trait DitTrait
         //INFO CLIENT
         $demandeIntervention->setNomClient($dits->getNomClient());
         $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-        $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+        $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
 
-            
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
             if (empty($data)) {
                 $message = 'ce matériel n\'est pas enregistrer dans Irium';

@@ -11,7 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class NatemaDitController extends Controller
 {
     public function index(){
-           
         $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
