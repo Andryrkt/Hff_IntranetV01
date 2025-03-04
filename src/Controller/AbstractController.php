@@ -125,7 +125,7 @@ abstract class AbstractController
      */
     protected function getBaseUrl(): string
     {
-    return $this->container->getParameter('base_url');
+        return $this->container->getParameter('base_url');
     }
 
 }
