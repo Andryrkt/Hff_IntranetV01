@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use App\Controller\Controller;
+use App\Service\GlobalVariablesService;
 
 class DatabaseInformix
 {
@@ -89,7 +90,7 @@ class DatabaseInformix
     private function logError($message)
     {
         $formattedMessage = sprintf("[%s] %s\n", date("Y-m-d H:i:s"), $message);
-        error_log($formattedMessage, 3, "C:\wamp64\www\Hffintranet/var/log/app_errors.log");
+        error_log($formattedMessage, 3, GlobalVariablesService::get('chemin_log')."/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

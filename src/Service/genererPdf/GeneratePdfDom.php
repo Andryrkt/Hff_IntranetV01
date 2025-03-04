@@ -3,6 +3,7 @@
 namespace App\Service\genererPdf;
 
 use TCPDF;
+use App\Service\GlobalVariablesService;
 
 class GeneratePdfDom extends GeneratePdf
 {
@@ -24,7 +25,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
 
         // Logo HFF
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = GlobalVariablesService::get('chemin_base_long') . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
 
         // Grand titre du pdf

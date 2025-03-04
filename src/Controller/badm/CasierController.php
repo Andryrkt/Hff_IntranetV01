@@ -57,16 +57,10 @@ class CasierController extends Controller
             $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
             if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
-
-                $this->historiqueOperation->enregistrer('-', 5, false, $message);
-
-                $this->alertRedirection($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'casier_nouveau');
             } elseif (empty($data)) {
                 $message = "Matériel déjà vendu";
-
-                $this->historiqueOperation->enregistrer('-', 5, false, $message);
-
-                $this->alertRedirection($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'casier_nouveau');
             } else {
                 $formData = [
                     'idMateriel' => $casier->getIdMateriel(),
@@ -196,8 +190,4 @@ class CasierController extends Controller
         ];
     }
 
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/nouveauCasier")
-    {
-        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
-    }
 }
