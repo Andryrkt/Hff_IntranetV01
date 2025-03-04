@@ -211,10 +211,10 @@ agenceDebiteurInput.addEventListener('change', selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
-  let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+  let url = `agence-fetch/${agenceDebiteur}`;
   toggleSpinner(true);
-  fetch(url)
-    .then((response) => response.json())
+  fetchManager
+    .get(url)
     .then((services) => {
       console.log(services);
       updateServiceOptions(services);
