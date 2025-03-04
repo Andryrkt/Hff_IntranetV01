@@ -2,13 +2,15 @@
  * LIST DETAIL MODAL
  *  =======================*/
 
-document.addEventListener("DOMContentLoaded", (event) => {
+import { baseUrl } from '../utils/config';
+
+document.addEventListener('DOMContentLoaded', (event) => {
   let abortController; // AbortController pour annuler les requêtes fetch précédentes
 
-  const listeCommandeModal = document.getElementById("listeCommande");
+  const listeCommandeModal = document.getElementById('listeCommande');
 
   // Gestionnaire pour l'ouverture du modal
-  listeCommandeModal.addEventListener("show.bs.modal", function (event) {
+  listeCommandeModal.addEventListener('show.bs.modal', function (event) {
     // Annuler les requêtes fetch en cours s'il y en a
     if (abortController) {
       abortController.abort();
@@ -17,28 +19,28 @@ document.addEventListener("DOMContentLoaded", (event) => {
     abortController = new AbortController(); // Créer un nouveau contrôleur
 
     const button = event.relatedTarget; // Bouton qui a déclenché le modal
-    const orIntv = button.getAttribute("data-id");
-    const numDit = button.getAttribute("data-numDit");
-    const migration = button.getAttribute("data-migration");
-    const dossierDitLink = document.getElementById("dossierDitLink");
-    if (migration == "1") {
-      dossierDitLink.style.display = "none";
+    const orIntv = button.getAttribute('data-id');
+    const numDit = button.getAttribute('data-numDit');
+    const migration = button.getAttribute('data-migration');
+    const dossierDitLink = document.getElementById('dossierDitLink');
+    if (migration == '1') {
+      dossierDitLink.style.display = 'none';
     }
 
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
-        `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
-        "_blank"
+        `${baseUrl}/dw-intervention-atelier-avec-dit/${numDit}`,
+        '_blank'
       );
     };
 
     // Afficher le spinner
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("dataContent").style.display = "none";
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('dataContent').style.display = 'none';
 
-    const numOr = orIntv.split("-")[0];
-    const numItv = orIntv.split("-")[1];
+    const numOr = orIntv.split('-')[0];
+    const numItv = orIntv.split('-')[1];
 
     // Utiliser AbortController pour fetchDetailModal
     fetchDetailModal(orIntv, abortController.signal);
@@ -46,44 +48,44 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 
   // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
-    const tableBody = document.getElementById("commandesTableBody");
-    const tableBodyOR = document.getElementById("commandesTableBodyOR");
-    const tableBodyLign = document.getElementById("commandesTableBodyLign");
-    const Ornum = document.getElementById("orIntv");
-    const planningTableHead = document.getElementById("planningTableHead");
+  listeCommandeModal.addEventListener('hidden.bs.modal', function () {
+    const tableBody = document.getElementById('commandesTableBody');
+    const tableBodyOR = document.getElementById('commandesTableBodyOR');
+    const tableBodyLign = document.getElementById('commandesTableBodyLign');
+    const Ornum = document.getElementById('orIntv');
+    const planningTableHead = document.getElementById('planningTableHead');
 
-    tableBody.innerHTML = ""; // Vider le tableau
-    tableBodyLign.innerHTML = "";
-    tableBodyOR.innerHTML = "";
-    Ornum.innerHTML = "";
-    planningTableHead.innerHTML = "";
+    tableBody.innerHTML = ''; // Vider le tableau
+    tableBodyLign.innerHTML = '';
+    tableBodyOR.innerHTML = '';
+    Ornum.innerHTML = '';
+    planningTableHead.innerHTML = '';
   });
 
   function masquerSpinner() {
     // Masquer le spinner et afficher les données
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("dataContent").style.display = "block";
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dataContent').style.display = 'block';
   }
 
   function fetchTechnicienInterv(numOr, numItv, signal) {
-    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
+    fetch(`${baseUrl}/api/technicien-intervenant/${numOr}/${numItv}`, {
       signal,
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error('Network response was not ok');
         }
         return response.json();
       })
       .then((data) => {
-        const tableBody = document.getElementById("technicienTableBody");
+        const tableBody = document.getElementById('technicienTableBody');
 
-        tableBody.innerHTML = ""; // Clear previous data
+        tableBody.innerHTML = ''; // Clear previous data
 
         if (data.length > 0) {
           data.forEach((technicien) => {
-            let nomPrenom = technicien.matriculenomprenom.split("-")[1];
+            let nomPrenom = technicien.matriculenomprenom.split('-')[1];
             // Affichage
             let row = `<tr>
               <td>${technicien.matricule}</td> 
@@ -98,23 +100,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Requête annulée !");
+        if (error.name === 'AbortError') {
+          console.log('Requête annulée !');
         } else {
-          const tableBody = document.getElementById("technicienTableBody");
+          const tableBody = document.getElementById('technicienTableBody');
           tableBody.innerHTML =
             '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-          console.error("There was a problem with the fetch operation:", error);
+          console.error('There was a problem with the fetch operation:', error);
         }
       });
   }
 
   function fetchDetailModal(id, signal) {
     // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`, { signal })
+    fetch(`${baseUrl}/detail-modal/${id}`, { signal })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error('Network response was not ok');
         }
         return response.json();
       })
@@ -122,26 +124,26 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.log(data.avecOnglet);
 
         displayOnglet(data.avecOnglet);
-        const Ornum = document.getElementById("orIntv");
-        const tableBody = document.getElementById("commandesTableBody");
-        const planningTableHead = document.getElementById("planningTableHead");
-        const tableBodyOR = document.getElementById("commandesTableBodyOR");
+        const Ornum = document.getElementById('orIntv');
+        const tableBody = document.getElementById('commandesTableBody');
+        const planningTableHead = document.getElementById('planningTableHead');
+        const tableBodyOR = document.getElementById('commandesTableBodyOR');
         const planningTableHeadOR = document.getElementById(
-          "planningTableHeadOR"
+          'planningTableHeadOR'
         );
-        const tableBodyLign = document.getElementById("commandesTableBodyLign");
+        const tableBodyLign = document.getElementById('commandesTableBodyLign');
         const planningTableHeadLign = document.getElementById(
-          "planningTableHeadLign"
+          'planningTableHeadLign'
         );
 
-        tableBody.innerHTML = ""; // Clear previous data
-        Ornum.innerHTML = "";
-        planningTableHead.innerHTML = "";
-        planningTableHeadOR.innerHTML = "";
-        planningTableHeadLign.innerHTML = "";
+        tableBody.innerHTML = ''; // Clear previous data
+        Ornum.innerHTML = '';
+        planningTableHead.innerHTML = '';
+        planningTableHeadOR.innerHTML = '';
+        planningTableHeadLign.innerHTML = '';
 
         if (data.data.length > 0) {
-          if (data.data[0].numor.startsWith("5")) {
+          if (data.data[0].numor.startsWith('5')) {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
                             <th>N° CIS</th>
@@ -185,7 +187,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             console.log(detail);
 
             Ornum.innerHTML = `${detail.numor} - ${detail.intv} | intitulé : ${detail.commentaire} | `;
-            if (detail.plan == "PLANIFIE") {
+            if (detail.plan == 'PLANIFIE') {
               Ornum.innerHTML += `planifié le : ${formaterDate(
                 detail.dateplanning
               )}`;
@@ -205,71 +207,71 @@ document.addEventListener("DOMContentLoaded", (event) => {
             let StatutCtrmqCis;
             let statut;
             let message;
-            let cmdColorRmq = "";
+            let cmdColorRmq = '';
             let numRef;
             if (
-              formaterDate(detail.datestatut) == "01/01/1970" ||
-              formaterDate(detail.datestatut) == "01/01/1900"
+              formaterDate(detail.datestatut) == '01/01/1970' ||
+              formaterDate(detail.datestatut) == '01/01/1900'
             ) {
-              dateStatut = "";
+              dateStatut = '';
             } else {
               dateStatut = formaterDate(detail.datestatut);
             }
             if (
-              detail.Eta_ivato == "" ||
-              formaterDate(detail.Eta_ivato) === "01/01/1900"
+              detail.Eta_ivato == '' ||
+              formaterDate(detail.Eta_ivato) === '01/01/1900'
             ) {
-              dateEtaIvato = "";
+              dateEtaIvato = '';
             } else {
               dateEtaIvato = formaterDate(detail.Eta_ivato);
             }
             if (
-              detail.Eta_magasin == "" ||
-              formaterDate(detail.Eta_magasin) === "01/01/1900"
+              detail.Eta_magasin == '' ||
+              formaterDate(detail.Eta_magasin) === '01/01/1900'
             ) {
-              dateMagasin = "";
+              dateMagasin = '';
             } else {
               dateMagasin = formaterDate(detail.Eta_magasin);
             }
             if (detail.numerocmd == null) {
-              numCde = "";
+              numCde = '';
             } else {
               numCde = detail.numerocmd;
             }
             if (detail.ref == null) {
-              numRef = "";
+              numRef = '';
             } else {
               numRef = detail.ref;
             }
             if (detail.statut_ctrmq == null) {
-              statrmq = "";
+              statrmq = '';
             } else {
               statrmq = detail.statut_ctrmq;
             }
             if (detail.statut == null) {
-              statut = "";
+              statut = '';
             } else {
               statut = detail.statut;
             }
-           
+
             if (detail.message == null) {
-              message = "";
+              message = '';
             } else {
               message = detail.message;
             }
 
-            if (detail.numcis == "0") {
-              numCis = "";
+            if (detail.numcis == '0') {
+              numCis = '';
             } else {
               numCis = detail.numcis;
             }
             if (detail.numerocdecis == null) {
-              numeroCdeCis = "";
+              numeroCdeCis = '';
             } else {
               numeroCdeCis = detail.numerocdecis;
             }
             if (detail.statut_ctrmq_cis == null) {
-              StatutCtrmqCis = "";
+              StatutCtrmqCis = '';
             } else {
               StatutCtrmqCis = detail.statut_ctrmq_cis;
             }
@@ -283,11 +285,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
             }
             let cmdColor;
             let Ord = detail.Ord;
-            if (statut == "DISPO STOCK") {
+            if (statut == 'DISPO STOCK') {
               cmdColor = 'style="background-color: #c8ad7f; color: white;"';
-            } else if (statut == "Error" || statut == "Back Order") {
+            } else if (statut == 'Error' || statut == 'Back Order') {
               cmdColor = 'style="background-color: red; color: white;"';
-            } else if (Ord == "ORD") {
+            } else if (Ord == 'ORD') {
               cmdColor = 'style="background-color:#9ACD32  ; color: white;"';
             }
             //onglet CIS
@@ -299,17 +301,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
               parseInt(detail.qtealllig) === 0 &&
               parseInt(detail.qterlqlig) === 0
             ) {
-              statutCIS = "LIVRE";
+              statutCIS = 'LIVRE';
               dateStatutCIS = formaterDate(detail.dateLivLIg);
             } else if (parseInt(detail.qtealllig) > 0) {
-              statutCIS = "A LIVRER";
+              statutCIS = 'A LIVRER';
               dateStatutCIS = formaterDate(detail.dateAllLIg);
             } else {
               statutCIS = detail.statut;
-              dateStatutCIS = "";
+              dateStatutCIS = '';
             }
 
-            if (detail.numor && detail.numor.startsWith("5")) {
+            if (detail.numor && detail.numor.startsWith('5')) {
               // Affichage
               let row = `<tr>
                         <td>${detail.numor}</td> 
@@ -343,27 +345,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         <td>${numRef}</td> 
                         <td>${detail.desi}</td> 
                         <td>${
-                          isNaN(detail.qteORlig) || detail.qteORlig === ""
-                            ? ""
+                          isNaN(detail.qteORlig) || detail.qteORlig === ''
+                            ? ''
                             : parseInt(detail.qteORlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtealllig) || detail.qtealllig === ""
-                            ? ""
+                          isNaN(detail.qtealllig) || detail.qtealllig === ''
+                            ? ''
                             : parseInt(detail.qtealllig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qterlqlig) || detail.qterlqlig === ""
-                            ? ""
+                          isNaN(detail.qterlqlig) || detail.qterlqlig === ''
+                            ? ''
                             : parseInt(detail.qterlqlig)
                         }</td> 
                         <td>${
-                          isNaN(detail.qtelivlig) || detail.qtelivlig === ""
-                            ? ""
+                          isNaN(detail.qtelivlig) || detail.qtelivlig === ''
+                            ? ''
                             : parseInt(detail.qtelivlig)
                         }</td> 
-                        <td >${statutCIS === null ? "" : statutCIS}</td> 
-                        <td>${dateStatutCIS === null ? "" : dateStatutCIS}</td> 
+                        <td >${statutCIS === null ? '' : statutCIS}</td> 
+                        <td>${dateStatutCIS === null ? '' : dateStatutCIS}</td> 
                         <td>${dateEtaIvato}</td> 
                         <td>${dateMagasin}</td> 
                         <td>${message}</td> 
@@ -403,45 +405,45 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
       })
       .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Requête annulée !");
+        if (error.name === 'AbortError') {
+          console.log('Requête annulée !');
         } else {
-          const tableBody = document.getElementById("commandesTableBody");
+          const tableBody = document.getElementById('commandesTableBody');
           tableBody.innerHTML =
             '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-          console.error("There was a problem with the fetch operation:", error);
+          console.error('There was a problem with the fetch operation:', error);
           masquerSpinner();
         }
       });
   }
 
   function displayOnglet(show) {
-    const avecOnglet = document.getElementById("avec_onglet");
-    const sansOnglet = document.getElementById("sans_onglet");
+    const avecOnglet = document.getElementById('avec_onglet');
+    const sansOnglet = document.getElementById('sans_onglet');
     if (show) {
-      avecOnglet.classList.remove("d-none");
-      sansOnglet.classList.add("d-none");
+      avecOnglet.classList.remove('d-none');
+      sansOnglet.classList.add('d-none');
     } else {
-      avecOnglet.classList.add("d-none");
-      sansOnglet.classList.remove("d-none");
+      avecOnglet.classList.add('d-none');
+      sansOnglet.classList.remove('d-none');
     }
   }
 
   function formaterDate(daty) {
     const date = new Date(daty);
-    return `${date.getDate().toString().padStart(2, "0")}/${(
+    return `${date.getDate().toString().padStart(2, '0')}/${(
       date.getMonth() + 1
     )
       .toString()
-      .padStart(2, "0")}/${date.getFullYear()}`;
+      .padStart(2, '0')}/${date.getFullYear()}`;
   }
 
   /**
    * pour le separateur et fusion des numOR
    *
    * */
-  const tableBody = document.querySelector("#tableBody");
-  const rows = document.querySelectorAll("#tableBody tr");
+  const tableBody = document.querySelector('#tableBody');
+  const rows = document.querySelectorAll('#tableBody tr');
 
   let previousOrNumber = null;
   let rowSpanCount = 0;
@@ -449,7 +451,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   for (var i = 0; i < rows.length; i++) {
     let currentRow = rows[i];
-    let orNumberCell = currentRow.getElementsByTagName("td")[2]; // Modifier l'indice selon la position du numéro OR
+    let orNumberCell = currentRow.getElementsByTagName('td')[2]; // Modifier l'indice selon la position du numéro OR
     let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
 
     if (previousOrNumber === null) {
@@ -458,30 +460,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
       rowSpanCount = 1;
     } else if (previousOrNumber && previousOrNumber !== currentOrNumber) {
       if (firstRowInGroup) {
-        let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-        let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-        let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
+        let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName('td')[1]; // Modifier l'indice selon la position du numéro OR
+        let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName('td')[2];
+        let cellToRowspanInter = firstRowInGroup.getElementsByTagName('td')[7];
+        let cellToRowspanAgence = firstRowInGroup.getElementsByTagName('td')[5];
         let cellToRowspanService =
-          firstRowInGroup.getElementsByTagName("td")[6];
+          firstRowInGroup.getElementsByTagName('td')[6];
         cellToRowspanNumDit.rowSpan = rowSpanCount;
         cellToRowspanNumOr.rowSpan = rowSpanCount;
         cellToRowspanInter.rowSpan = rowSpanCount;
         cellToRowspanAgence.rowSpan = rowSpanCount;
         cellToRowspanService.rowSpan = rowSpanCount;
-        cellToRowspanNumDit.classList.add("rowspan-cell");
-        cellToRowspanNumOr.classList.add("rowspan-cell");
-        cellToRowspanInter.classList.add("rowspan-cell");
-        cellToRowspanAgence.classList.add("rowspan-cell");
-        cellToRowspanService.classList.add("rowspan-cell");
+        cellToRowspanNumDit.classList.add('rowspan-cell');
+        cellToRowspanNumOr.classList.add('rowspan-cell');
+        cellToRowspanInter.classList.add('rowspan-cell');
+        cellToRowspanAgence.classList.add('rowspan-cell');
+        cellToRowspanService.classList.add('rowspan-cell');
       }
 
       // Début pour le séparateur
-      let separatorRow = document.createElement("tr");
-      separatorRow.classList.add("separator-row");
-      let td = document.createElement("td");
+      let separatorRow = document.createElement('tr');
+      separatorRow.classList.add('separator-row');
+      let td = document.createElement('td');
       td.colSpan = currentRow.cells.length;
-      td.classList.add("p-0");
+      td.classList.add('p-0');
       separatorRow.appendChild(td);
       tableBody.insertBefore(separatorRow, currentRow);
       // Fin pour le séparateur
@@ -491,11 +493,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     } else {
       rowSpanCount++;
       if (firstRowInGroup !== currentRow) {
-        currentRow.getElementsByTagName("td")[2].style.display = "none";
-        currentRow.getElementsByTagName("td")[1].style.display = "none";
-        currentRow.getElementsByTagName("td")[7].style.display = "none";
-        currentRow.getElementsByTagName("td")[5].style.display = "none";
-        currentRow.getElementsByTagName("td")[6].style.display = "none";
+        currentRow.getElementsByTagName('td')[2].style.display = 'none';
+        currentRow.getElementsByTagName('td')[1].style.display = 'none';
+        currentRow.getElementsByTagName('td')[7].style.display = 'none';
+        currentRow.getElementsByTagName('td')[5].style.display = 'none';
+        currentRow.getElementsByTagName('td')[6].style.display = 'none';
       }
     }
 
@@ -504,20 +506,20 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // Appliquer le rowspan à la dernière série de lignes
   if (firstRowInGroup) {
-    let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName("td")[1]; // Modifier l'indice selon la position du numéro OR
-    let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName("td")[2];
-    let cellToRowspanInter = firstRowInGroup.getElementsByTagName("td")[7];
-    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName("td")[5];
-    let cellToRowspanService = firstRowInGroup.getElementsByTagName("td")[6];
+    let cellToRowspanNumDit = firstRowInGroup.getElementsByTagName('td')[1]; // Modifier l'indice selon la position du numéro OR
+    let cellToRowspanNumOr = firstRowInGroup.getElementsByTagName('td')[2];
+    let cellToRowspanInter = firstRowInGroup.getElementsByTagName('td')[7];
+    let cellToRowspanAgence = firstRowInGroup.getElementsByTagName('td')[5];
+    let cellToRowspanService = firstRowInGroup.getElementsByTagName('td')[6];
     cellToRowspanNumDit.rowSpan = rowSpanCount;
     cellToRowspanNumOr.rowSpan = rowSpanCount;
     cellToRowspanInter.rowSpan = rowSpanCount;
     cellToRowspanAgence.rowSpan = rowSpanCount;
     cellToRowspanService.rowSpan = rowSpanCount;
-    cellToRowspanNumDit.classList.add("rowspan-cell");
-    cellToRowspanNumOr.classList.add("rowspan-cell");
-    cellToRowspanInter.classList.add("rowspan-cell");
-    cellToRowspanAgence.classList.add("rowspan-cell");
-    cellToRowspanService.classList.add("rowspan-cell");
+    cellToRowspanNumDit.classList.add('rowspan-cell');
+    cellToRowspanNumOr.classList.add('rowspan-cell');
+    cellToRowspanInter.classList.add('rowspan-cell');
+    cellToRowspanAgence.classList.add('rowspan-cell');
+    cellToRowspanService.classList.add('rowspan-cell');
   }
 });
