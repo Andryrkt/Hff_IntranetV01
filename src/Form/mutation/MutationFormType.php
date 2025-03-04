@@ -134,7 +134,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date de début d\'avance sur indemnité de chantier',
+                    'label'  => 'Date début affectation / Frais d\'installation',
                 ]
             )
             ->add(
@@ -142,7 +142,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date de fin d\'avance sur indemnité de chantier',
+                    'label'  => 'Date fin / Frais d\'installation',
                 ]
             )
             ->add(
@@ -208,7 +208,7 @@ class MutationFormType extends AbstractType
                 ChoiceType::class,
                 [
                     'mapped'  => false,
-                    'label'   => 'Avance sur indemnité',
+                    'label'   => 'Frais d\'installation',
                     'choices' => self::AVANCE_SUR_INDEMNITE
                 ]
             )

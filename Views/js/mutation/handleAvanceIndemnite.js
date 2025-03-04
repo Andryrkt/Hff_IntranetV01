@@ -6,18 +6,8 @@ const allRequiredField = [
   'mutation_form_indemniteForfaitaire',
   'mutation_form_nombreJourAvance',
   'mutation_form_totalIndemniteForfaitaire',
-  'mutation_form_totalGeneralPayer',
-  'mutation_form_modePaiementLabel',
-  'mutation_form_modePaiementValue',
 ];
-const allNotRequiredField = [
-  'mutation_form_supplementJournaliere',
-  'mutation_form_motifAutresDepense1',
-  'mutation_form_autresDepense1',
-  'mutation_form_motifAutresDepense2',
-  'mutation_form_autresDepense2',
-  'mutation_form_totalAutresDepenses',
-];
+const allNotRequiredField = ['mutation_form_supplementJournaliere'];
 
 export function handleAvance(avance) {
   avance === 'OUI' ? acceptAvance() : declineAvance();
