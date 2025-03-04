@@ -42,6 +42,7 @@ class SecurityController extends AbstractController
     {
         $notification = $this->session->get('notification');
         $this->session->remove('notification');
+        $this->getUserLogger()->logUserVisit('security_login');
 
         return new Response($this->render('security/login.html.twig', [
             'notification' => $notification,
@@ -60,7 +61,7 @@ class SecurityController extends AbstractController
         if (!$username || !$password) {
             $this->logger->warning("Tentative de connexion avec des champs vides.", ['ip' => $request->getClientIp()]);
             $this->session->set('notification', 'Veuillez remplir tous les champs.');
-            $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
+            $this->getUserLogger()->logUserVisit('security_login'); // historisation du page visité par l'utilisateur
             return $this->redirectToRoute('security_login_form');
         }
 
@@ -68,7 +69,7 @@ class SecurityController extends AbstractController
         if (!$this->ldapService->authenticate($username, $password, '@fraise.hff.mg')) {
             $this->logger->warning("Échec de connexion", [ 'username'=> $username, 'ip' => $request->getClientIp()]);
             $this->session->set('notification', 'Vérifier les informations de connexion, veuillez saisir le nom d\'utilisateur et le mot de passe de votre session Windows');
-            $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
+            $this->getUserLogger()->logUserVisit('security_login'); // historisation du page visité par l'utilisateur
             return $this->redirectToRoute('security_login_form');
         }
 
@@ -85,7 +86,7 @@ class SecurityController extends AbstractController
     }
 
      /**
-     * @Route("/logout", name="auth_deconnexion")
+     * @Route("/logout", name="security_deconnexion")
      *
      * @return void
      */
@@ -94,7 +95,7 @@ class SecurityController extends AbstractController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->SessionDestroy();
+        return $this->getSessionService()->destroySession();
     }
 }
 
