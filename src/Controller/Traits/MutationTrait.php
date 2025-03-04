@@ -7,7 +7,6 @@ use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
-use App\Service\genererPdf\GeneratePdfMutation;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -72,6 +71,7 @@ trait MutationTrait
          * @var Mutation $mutation entité correspondant aux données du formulaire
          */
         $mutation = $form->getData();
+        $devis = $mutation->getDevis();
         $tab = [
             'MailUser'              => $user->getMail(),
             'dateS'                 => $mutation->getDateDemande()->format('d/m/Y'),
@@ -80,13 +80,13 @@ trait MutationTrait
             "Prenoms"               => $mutation->getPrenom(),
             "matr"                  => $mutation->getMatricule(),
             "CategoriePers"         => $mutation->getCategorie() === null ? '' : $mutation->getCategorie()->getDescription(),
-            "agenceOrigine"         => $mutation->getAgenceEmetteur()->getLibelleAgence(),
-            "serviceOrigine"        => $mutation->getServiceEmetteur()->getLibelleService(),
+            "agenceOrigine"         => $mutation->getAgenceEmetteur()->getCodeAgence() . ' - ' . $mutation->getAgenceEmetteur()->getLibelleAgence(),
+            "serviceOrigine"        => $mutation->getServiceEmetteur()->getCodeService() . ' - ' . $mutation->getServiceEmetteur()->getLibelleService(),
             "dateAffectation"       => $mutation->getDateDebut()->format('d/m/Y'),
             "lieuAffectation"       => $mutation->getLieuMutation(),
             "motif"                 => $mutation->getMotifMutation(),
-            "agenceDestination"     => $mutation->getAgenceDebiteur()->getLibelleAgence(),
-            "serviceDestination"    => $mutation->getServiceDebiteur()->getLibelleService(),
+            "agenceDestination"     => $mutation->getAgenceDebiteur()->getCodeAgence() . ' - ' . $mutation->getAgenceDebiteur()->getLibelleAgence(),
+            "serviceDestination"    => $mutation->getServiceDebiteur()->getCodeService() . ' - ' . $mutation->getServiceDebiteur()->getLibelleService(),
             "client"                => $mutation->getClient(),
             "avanceSurIndemnite"    => $form->get('avanceSurIndemnite')->getData(),
             "NbJ"                   => '',
@@ -98,43 +98,42 @@ trait MutationTrait
             "motifdep02"            => '',
             "montdep02"             => '',
             "totaldep"              => '',
-            "totalGeneral"          => '',
-            "libModPaie"            => '',
-            "valModPaie"            => '',
+            "totalGeneral"          => '0 ' . $devis,
+            "libModPaie"            => $form->get('modePaiementLabel')->getData(),
+            "valModPaie"            => $form->get('modePaiementValue')->getData(),
             "mode"                  => 'TEL',
             "codeAg_serv"           => $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService()
         ];
+        if ($mutation->getMotifAutresDepense1() !== null) {
+            $tab['motifdep01'] = $mutation->getMotifAutresDepense1();
+        }
+        if ($mutation->getMotifAutresDepense2() !== null) {
+            $tab['motifdep02'] = $mutation->getMotifAutresDepense2();
+        }
+        if ($mutation->getAutresDepense1() !== null) {
+            $tab['montdep01'] = $mutation->getAutresDepense1() . ' ' . $devis;
+        }
+        if ($mutation->getAutresDepense2() !== null) {
+            $tab['montdep02'] = $mutation->getAutresDepense2() . ' ' . $devis;
+        }
+        if ($mutation->getTotalAutresDepenses() !== null) {
+            $tab['totaldep'] = $mutation->getTotalAutresDepenses() . ' ' . $devis;
+        }
+        if ($mutation->getTotalGeneralPayer() !== null) {
+            $tab['totalGeneral'] = $mutation->getTotalGeneralPayer() . ' ' . $devis;
+        }
+        if ($tab['libModPaie'] !== 'MOBILE MONEY') {
+            $tab['mode'] = 'CPT';
+        }
         if ($tab['avanceSurIndemnite'] === 'OUI') {
-            $devis = $mutation->getDevis();
             if ($form->get('supplementJournaliere')->getData() !== null) {
                 $tab['supplement'] = $form->get('supplementJournaliere')->getData() . ' ' . $devis . ' / jour';
             }
             if ($mutation->getNombreJourAvance() !== null) {
                 $tab['NbJ'] = $mutation->getNombreJourAvance();
             }
-            if ($mutation->getMotifAutresDepense1() !== null) {
-                $tab['motifdep01'] = $mutation->getMotifAutresDepense1();
-            }
-            if ($mutation->getMotifAutresDepense2() !== null) {
-                $tab['motifdep02'] = $mutation->getMotifAutresDepense2();
-            }
-            if ($mutation->getAutresDepense1() !== null) {
-                $tab['montdep01'] = $mutation->getAutresDepense1() . ' ' . $devis;
-            }
-            if ($mutation->getAutresDepense2() !== null) {
-                $tab['montdep02'] = $mutation->getAutresDepense2() . ' ' . $devis;
-            }
-            if ($mutation->getTotalAutresDepenses() !== null) {
-                $tab['totaldep'] = $mutation->getTotalAutresDepenses() . ' ' . $devis;
-            }
             $tab['indemnite'] = $mutation->getIndemniteForfaitaire() . ' ' . $devis . ' / jour';
             $tab['totalIndemnite'] = $mutation->getTotalIndemniteForfaitaire() . ' ' . $devis;
-            $tab['totalGeneral'] = $mutation->getTotalGeneralPayer() . ' ' . $devis;
-            $tab['libModPaie'] = $form->get('modePaiementLabel')->getData();
-            $tab['valModPaie'] = $form->get('modePaiementValue')->getData();
-            if ($tab['libModPaie'] !== 'MOBILE MONEY') {
-                $tab['mode'] = 'CPT';
-            }
         }
         return $tab;
     }
