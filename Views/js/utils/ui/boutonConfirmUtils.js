@@ -3,7 +3,7 @@ export function setupConfirmationButtons() {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
 
-      const overlay = document.getElementById("loading-overlay");
+      const overlay = document.getElementById("loading-overlays");
       const formSelector = button.getAttribute("data-form");
       const form = document.querySelector(formSelector);
 
@@ -33,21 +33,21 @@ export function setupConfirmationButtons() {
           button.getAttribute("data-confirmation-text") ||
           "Vous êtes en train de faire une soumission à validation dans DocuWare",
       };
-
       const isConfirmed = await showConfirmationDialog(messages);
       if (!isConfirmed) return;
 
       await showWarningDialog(messages.warning);
-
-      overlay.classList.remove("hidden");
-      button.disabled = true; // Désactiver le bouton pour éviter les doubles soumissions
+      setTimeout(() => {
+        overlay.style.display = "flex";
+        button.disabled = true; // Désactiver le bouton pour éviter les doubles soumissions
+      }, 100);
 
       try {
         form.submit();
       } catch (error) {
         console.error("Erreur lors de la soumission du formulaire:", error);
       } finally {
-        overlay.classList.add("hidden");
+        overlay.style.display = "none";
         button.disabled = false; // Réactiver le bouton après la soumission
       }
     });
