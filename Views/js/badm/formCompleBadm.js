@@ -1,7 +1,7 @@
-import Validator from "validatorjs";
-import { FetchManager } from "./../FetchManager.js";
+import Validator from 'validatorjs';
+import { FetchManager } from './../FetchManager.js';
 
-const fetchManager = new FetchManager("/Hffintranet");
+const fetchManager = new FetchManager();
 export const form = document.form;
 // let dateDemande = form.dateDemande.value;
 // let idMateriel = form.idMateriel.value;
@@ -64,7 +64,7 @@ const serviceDestinataire = form.serviceDestinataire;
 export function fetchData(selectOption = undefined) {
   //const fetchManager = new FetchManager("/Hffintranet/");
   fetchManager
-    .get("serviceDestinataire")
+    .get('serviceDestinataire')
     .then((data) => {
       console.log(data);
 
@@ -82,7 +82,7 @@ export function fetchData(selectOption = undefined) {
         //const serviceDestinataire = document.getElementById('serviceDestinataire');
         let taille = data[selectOption].length;
         //console.log(taille);
-        let optionsHTML = "";
+        let optionsHTML = '';
         for (let i = 0; i < taille; i++) {
           optionsHTML += `<option value="${data[selectOption][
             i
@@ -112,22 +112,22 @@ export const send = (event) => {
   };
 
   let rules = {
-    motifArretMateriel: "required|max:100",
-    nomClient: "max:50",
-    motifMiseRebut: "max:100",
+    motifArretMateriel: 'required|max:100',
+    nomClient: 'max:50',
+    motifMiseRebut: 'max:100',
   };
 
   let messages = {
-    "required.motifArretMateriel": "Le champ email est obligatoire.",
-    "max.motifArretMateriel": "caractères maximum: 100",
-    "max.nomClient": "caractères maximum: 50",
-    "max.motifMiseRebut": "caractères maximum: 100",
+    'required.motifArretMateriel': 'Le champ email est obligatoire.',
+    'max.motifArretMateriel': 'caractères maximum: 100',
+    'max.nomClient': 'caractères maximum: 50',
+    'max.motifMiseRebut': 'caractères maximum: 100',
   };
 
   let validation = new Validator(data, rules, messages);
 
   if (validation.passes()) {
-    console.log("Validation avec succes");
+    console.log('Validation avec succes');
     // const dataToPost = {
     //     Date_Demande: dateDemande,
     //     ID_Materiel: idMateriel,
@@ -153,7 +153,7 @@ export const send = (event) => {
     // .then(data => console.log(data))
     // .catch(error => console.error(error));
   } else {
-    console.log("Validation failed");
+    console.log('Validation failed');
     const errors = validation.errors.all();
     console.log(errors);
 
