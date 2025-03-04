@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const textarea = document.querySelector(".detailDemande");
 const charCount = document.getElementById("charCount");
-const MAX_CHARACTERS = 1877;
+const MAX_CHARACTERS = 1800;
 
 // Afficher le message initial
 charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
