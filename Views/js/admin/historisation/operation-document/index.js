@@ -1,4 +1,5 @@
 import { fetchData } from '../../../utils/fetchUtils';
+import { baseUrl } from '../../../utils/config';
 
 const spinner = document.getElementById('spinner');
 
@@ -10,7 +11,7 @@ function toggleSpinner(show) {
 async function loadOperations() {
   toggleSpinner(true); // Afficher le spinner pendant la récupération des données
   const operations = await fetchData(
-    '/Hffintranet/api/operation-document-fetch-all'
+    `${baseUrl}api/operation-document-fetch-all`
   ); // Données JSON injectées par le back-end
   toggleSpinner(false); // Masquer le spinner après la récupération des données
   return operations;

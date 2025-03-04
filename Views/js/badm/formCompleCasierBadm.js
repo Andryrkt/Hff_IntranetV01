@@ -4,7 +4,6 @@ const fetchManager = new FetchManager();
 
 console.log(fetchManager);
 export function fetchCasier(selectOption = undefined) {
-  //const fetchManager = new FetchManager('/Hffintranet/');
   fetchManager
     .get('casierDestinataire')
     .then((data) => {
