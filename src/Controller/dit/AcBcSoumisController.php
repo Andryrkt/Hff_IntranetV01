@@ -145,7 +145,7 @@ class AcBcSoumisController extends Controller
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
         $options =[

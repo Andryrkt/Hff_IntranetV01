@@ -149,10 +149,10 @@ trait DomsTrait
     //         }
     //     }
     //     //ajouter le nom du pdf crée par dit en avant du tableau
-    //     array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
+    //     array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
 
     //     // Nom du fichier PDF fusionné
-    //     $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
+    //     $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
 
     //     // Appeler la fonction pour fusionner les fichiers PDF
     //     if (!empty($pdfFiles)) {

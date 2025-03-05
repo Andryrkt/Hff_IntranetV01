@@ -47,7 +47,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_SERVER['DOCUMENT_ROOT'] . 'Upload/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {

@@ -1,3 +1,8 @@
+import { FetchManager } from '../api/FetchManager';
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 document.addEventListener('DOMContentLoaded', (event) => {
   /**
    * N'AFFICHE PAS LES CHAMPS matricule et cin selon le statut de la salarier
@@ -6,9 +11,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const matriculeInput = document.querySelector('#dom_form2_matricule');
 
   function form1Data() {
-    let url = `/Hffintranet/form1Data-fetch`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `form1Data-fetch`;
+    fetchManager
+      .get(url)
       .then((form1Data) => {
         console.log(form1Data);
         if (form1Data.salarier === 'PERMANENT') {
@@ -30,9 +35,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `agence-fetch/${agenceDebiteur}`;
+    fetchManager
+      .get(url)
       .then((services) => {
         console.log(services);
 
@@ -185,9 +190,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const docValue = sousTypeDocInput.value;
     const catgValue = categorieInput.value;
     const rmqValue = rmqInput.value;
-    let url = `/Hffintranet/site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
+    fetchManager
+      .get(url)
       .then((indemnite) => {
         console.log(indemnite);
         indemniteForfaitaireJournaliereInput.value = indemnite.montant;
@@ -361,9 +366,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
   function infoPersonnel() {
     const matricule = matriculeInput_2.value;
-    let url = `/Hffintranet/personnel-fetch/${matricule}`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `personnel-fetch/${matricule}`;
+    fetchManager
+      .get(url)
       .then((personne) => {
         console.log(personne);
         console.log(modePayementInput.value);

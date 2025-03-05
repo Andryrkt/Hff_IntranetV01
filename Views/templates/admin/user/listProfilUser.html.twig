@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig"%}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css">
 {% endblock%}
 
 {% block content %}
@@ -57,5 +57,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/admin/user/listProfilUser.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/user/listProfilUser.js" type="module"></script>
 {% endblock %}

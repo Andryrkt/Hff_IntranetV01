@@ -197,7 +197,7 @@ class DitListeController extends Controller
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
         $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'].'/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
