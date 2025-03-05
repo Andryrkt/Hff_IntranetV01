@@ -74,8 +74,6 @@ class DomForm1Type extends AbstractType
                     'data' => $options["data"]->getServiceEmetteur() ?? null
                 ]
             )
-
-
             ->add(
                 'sousTypeDocument',
                 EntityType::class,
@@ -83,8 +81,10 @@ class DomForm1Type extends AbstractType
                     'label' => 'Type de Mission',
                     'class' => SousTypeDocument::class,
                     'choice_label' => 'codeSousType',
-                    'query_builder' => function (SousTypeDocumentRepository $catg) {
-                        return $catg->createQueryBuilder('s')->where('s.id <> 5');
+                    'query_builder' => function (SousTypeDocumentRepository $repo) {
+                        return $repo->createQueryBuilder('s')
+                            ->where('s.id NOT IN (:excludedIds)')
+                            ->setParameter('excludedIds', [5, 11]); // id de mutation et trop perçu
                     }
                 ]
             )
