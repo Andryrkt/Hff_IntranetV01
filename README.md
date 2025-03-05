@@ -15,3 +15,20 @@
 # configuration du php.ini pour la durée de session par defaut
 
 session.gc_maxlifetime = 3600
+
+
+# webpack
+## instalation fait 
+npm init -y
+
+npm install webpack webpack-cli --save-dev
+
+npm install --save-dev mini-css-extract-plugin
+npm install select2
+
+npm install jquery --save
+
+npm install sass sass-loader css-loader style-loader --save-dev
+npm install @popperjs/core
+npm install bootstrap
+

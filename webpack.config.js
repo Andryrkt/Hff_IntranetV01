@@ -1,32 +1,48 @@
-const Encore = require("@symfony/webpack-encore");
+const path = require("path");
+const webpack = require("webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-Encore.setOutputPath("public/build/")
-  .setPublicPath("/build")
-  .addEntry("app", "./assets/app.js")
-  .addStyleEntry("global", "./assets/css/global.scss")
+module.exports = {
+  // Le point d'entrée de votre application front-end
+  entry: {
+    main: "./assets/js/main.js",
+  },
 
-  .copyFiles({
-    from: "./assets/images",
-    to: "images/[path][name].[ext]", // Les images seront copiées avec un hash dans leur nom
-  })
-  .configureImageRule({
-    type: "asset",
-    maxSize: 4 * 1024, // 4 KB
-  })
-  .enableSingleRuntimeChunk()
-  .cleanupOutputBeforeBuild()
-  .enableBuildNotifications()
-  .enableSourceMaps(!Encore.isProduction())
-  .enableVersioning(Encore.isProduction())
-  .configureBabel(() => {}, {
-    useBuiltIns: "usage",
-    corejs: 3,
-  })
-  .enableSassLoader((options) => {
-    options.sassOptions = {
-      outputStyle: "expanded",
-    };
-  })
-  .enablePostCssLoader();
+  // La sortie du bundle généré par Webpack
+  output: {
+    filename: "js/[name].bundle.js",
+    path: path.resolve(__dirname, "public/build"),
+  },
+  // Configuration des loaders pour traiter CSS ou d'autres fichiers
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+      {
+        test: /\.(scss|sass)$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
+      // Règle pour les images
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: "asset/resource", // Copie le fichier dans le dossier de sortie et renvoie l'URL
+        generator: {
+          filename: "images/[name][ext]", // Place les images dans le dossier "images" avec un nom unique
+        },
+      },
+    ],
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+      "window.jQuery": "jquery",
+    }),
+    new MiniCssExtractPlugin({ filename: "css/main.css" }), // Crée un fichier CSS séparé
+  ],
 
-module.exports = Encore.getWebpackConfig();
+  // Mode de build : 'development' ou 'production'
+  mode: "development",
+};
