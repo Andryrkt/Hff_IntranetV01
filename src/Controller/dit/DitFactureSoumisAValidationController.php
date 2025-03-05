@@ -38,7 +38,7 @@ class DitFactureSoumisAValidationController extends Controller
         $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
-        $this->fileUploaderService = new FileUploaderService($_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/');
+        $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'].'/vfac/');
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 

@@ -1,9 +1,9 @@
-import { FetchManager } from "./FetchManager.js";
-import { updateServiceOptions } from "../utils/ui/uiAgenceServiceUtils.js";
-import { toggleSpinner } from "../utils/ui/uiSpinnerUtils.js";
+import { FetchManager } from './FetchManager.js';
+import { updateServiceOptions } from '../utils/ui/uiAgenceServiceUtils.js';
+import { toggleSpinner } from '../utils/ui/uiSpinnerUtils.js';
 
 // Instanciation de FetchManager avec la base URL
-const fetchManager = new FetchManager("/Hffintranet");
+const fetchManager = new FetchManager();
 
 /**
  * Fonction pour mettre à jour les donner dans le select de docSoumis à validation DW
@@ -27,7 +27,7 @@ export function fetchDevis(
       let docASoumettre = valeurDocASoumettre(docDansDw);
       updateServiceOptions(docASoumettre, selecteInput);
     })
-    .catch((error) => console.error("Error:", error))
+    .catch((error) => console.error('Error:', error))
     .finally(() => toggleSpinner(spinnerSelect, selectContainer, false));
 }
 
@@ -40,24 +40,25 @@ function valeurDocASoumettre(docDansDw) {
   let docASoumettre = [];
 
   if (
-    docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDit === "AFFECTEE SECTION" &&
-    docDansDw.statutDevis !== "Validé"
+    docDansDw.client === 'EXTERNE' &&
+    docDansDw.statutDit === 'AFFECTEE SECTION' &&
+    docDansDw.statutDevis !== 'Validé'
   ) {
-    docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
+    docASoumettre = [{ value: 'DEVIS', text: 'DEVIS' }];
   } else if (
-    docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé" && !docDansDw.numeroOR 
+    docDansDw.client === 'EXTERNE' &&
+    docDansDw.statutDevis === 'Validé' &&
+    !docDansDw.numeroOR
   ) {
     docASoumettre = [
-      { value: "DEVIS", text: "DEVIS" },
-      { value: "BC", text: "BC" },
+      { value: 'DEVIS', text: 'DEVIS' },
+      { value: 'BC', text: 'BC' },
     ];
   } else {
     docASoumettre = [
-      { value: "OR", text: "OR" },
-      { value: "RI", text: "RI" },
-      { value: "FACTURE", text: "FACTURE" },
+      { value: 'OR', text: 'OR' },
+      { value: 'RI', text: 'RI' },
+      { value: 'FACTURE', text: 'FACTURE' },
     ];
   }
 

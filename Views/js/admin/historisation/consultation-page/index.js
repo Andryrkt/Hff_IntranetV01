@@ -1,4 +1,5 @@
 import { fetchData } from '../../../utils/fetchUtils';
+import { baseUrl } from '../../../utils/config';
 
 const buttonFilter = document.getElementById('filter');
 const spinner = document.getElementById('spinner');
@@ -11,7 +12,7 @@ function toggleSpinner(show) {
 async function loadConsultations() {
   toggleSpinner(true); // Afficher le spinner pendant la récupération des données
   const consultations = await fetchData(
-    '/Hffintranet/api/consultation-page-fetch-all'
+    `${baseUrl}/api/consultation-page-fetch-all`
   ); // Données JSON injectées par le back-end
   toggleSpinner(false); // Masquer le spinner après la récupération des données
   return consultations;
