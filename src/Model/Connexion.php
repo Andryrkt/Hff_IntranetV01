@@ -81,7 +81,7 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, GlobalVariablesService::get('chemin_log')."/log/app_errors.log");
+        error_log($message, 3, $_ENV['BASE_PATH_LOG']."/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

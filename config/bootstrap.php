@@ -84,6 +84,7 @@ define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
 
+
 $request = Request::createFromGlobals();
 $response = new Response();
 
@@ -116,7 +117,7 @@ $argumentResolver = new ArgumentResolver();
 
 /** TWIG */
 // URL Generator for use in Twig
-$generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
+$generator = new UrlGenerator($collection, new RequestContext($_ENV['BASE_PATH_COURT']));
 
 //secuiter csrf
 $csrfTokenManager = new CsrfTokenManager();
@@ -158,8 +159,6 @@ $request = Request::createFromGlobals();
 $requestStack->push($request);
 
 $twig->addExtension(new TranslationExtension($translator));
-//$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
-//$twig = new Environment($loader, ['debug' => true]);
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
@@ -168,7 +167,7 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
-$publicPath = '/Hffintranet/public';
+$publicPath = $_ENV['BASE_PATH_COURT'].'/public';
 $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
 
 // Ajouter l'extension Asset à Twig

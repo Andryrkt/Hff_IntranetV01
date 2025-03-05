@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/historisation/operation-document/dashboard.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/dashboard.css">
 {% endblock %}
 
 {% block content %}
@@ -46,5 +46,5 @@
 
 {% block javascript %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="/Hffintranet/Views/js/admin/historisation/operation-document/dashboard.js"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/operation-document/dashboard.js"></script>
 {% endblock %}

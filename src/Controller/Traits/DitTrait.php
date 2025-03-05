@@ -181,7 +181,7 @@ trait DitTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
        
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/fichier/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/dit/fichier/';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
 
@@ -207,10 +207,10 @@ trait DitTrait
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {

@@ -279,7 +279,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/vfac/';
         if($interneExterne == 'INTERNE') {
             $filePath = $Dossier . 'factureValidation_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
         } else {

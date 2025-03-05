@@ -134,6 +134,3 @@ configDevis.btnEnregistre.addEventListener("click", (e) => {
     }
   });
 });
-
-// Redirection après confirmation
-//  window.location.href = `/Hffintranet/insertion-devis/${numDit}`;

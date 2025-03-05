@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/dom/firstForm.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dom/firstForm.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -73,4 +73,4 @@
 	</div>
 </div>
 {{ form_end(form)}}{% endblock %}{% block javascript %}
-<script src="/Hffintranet/Views/js/dom/firstForm.js" type="module"></script>{% endblock %}
+<script src="{{ App.base_path }}/Views/js/dom/firstForm.js" type="module"></script>{% endblock %}

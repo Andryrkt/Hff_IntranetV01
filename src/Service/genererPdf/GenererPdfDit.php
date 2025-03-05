@@ -24,7 +24,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath =  GlobalVariablesService::get('chemin_base_long').'/Views/assets/logoHff.jpg';
+        $logoPath =  $_ENV['BASE_PATH_LONG'].'/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -315,7 +315,7 @@ class GenererPdfDit extends GeneratePdf
         }
 
         // Obtention du chemin absolu du répertoire de travail
-        $documentRoot = GlobalVariablesService::get('chemin_upload_file').'/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $documentRoot = $_ENV['BASE_PATH_FICHIER'].'/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';

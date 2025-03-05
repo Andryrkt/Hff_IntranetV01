@@ -285,7 +285,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/vor/';
         $pdf->Output($Dossier.'oRValidation_' .$ditInsertionOr->getNumeroOR().'_'.$ditInsertionOr->getNumeroVersion(). '.pdf', 'F');
     }
 

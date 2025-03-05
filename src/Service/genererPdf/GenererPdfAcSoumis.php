@@ -35,7 +35,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         // Ajouter une page
         $pdf->AddPage();
 
-        $logoPath = GlobalVariablesService::get('chemin_base_long'). '/Public/build/images/logoHFF.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG']. '/Public/build/images/logoHFF.jpg';
         $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
 
         // Définir la police pour l'email
@@ -116,10 +116,10 @@ class GenererPdfAcSoumis extends GeneratePdf
 
 
 
-        $logoPath = GlobalVariablesService::get('chemin_base_long') . '/Public/build/images/footer.png';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Public/build/images/footer.png';
         $pdf->Image($logoPath, 27, 265, 160, '', 'png');
         // Générer le fichier PDF
-        $Dossier = GlobalVariablesService::get('chemin_upload_file'). '/dit/ac_bc/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER']. '/dit/ac_bc/';
         $filePath = $Dossier . 'bc_' . $numeroDunom . '_' . $acSoumis->getNumeroVersion() . '.pdf';
         $pdf->Output($filePath, 'F');
     }

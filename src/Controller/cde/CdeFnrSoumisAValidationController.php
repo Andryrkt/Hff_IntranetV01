@@ -139,7 +139,7 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)
     {
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cde_fournisseur/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/cde_fournisseur/';
         $fileUploader = new FileUploaderService($chemin);
         $options = [
             'prefix' => 'cdefrn',

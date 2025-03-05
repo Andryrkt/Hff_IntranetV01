@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-<link href="/Hffintranet/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
 {% endblock%}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -107,5 +107,5 @@
 		</div>
 	{% endblock %}
 	{% block javascript %}
-		<script src="/Hffintranet/Views/js/dit/ditRiSoumisAValidation.js"></script>
+		<script src="{{ App.base_path }}/Views/js/dit/ditRiSoumisAValidation.js"></script>
 	{% endblock %}

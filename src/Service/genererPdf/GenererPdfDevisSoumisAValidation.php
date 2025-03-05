@@ -111,7 +111,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         // $pdf->Cell(35, 6, $email, 0, 0, 'L');
         //=====================================================================================================================
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
 
         
             $filePath = $nomFichierCtrl;
@@ -335,7 +335,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         // $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
         
             $filePath = $Dossier . $nomFichierCtrl;
         

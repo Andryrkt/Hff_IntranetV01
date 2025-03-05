@@ -82,7 +82,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
                 
-                $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+                $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
                 $fileUploader = new FileUploaderService($chemin);
                 $file =  $form->get('pieceJoint01')->getData();
                 //generer le nom du fichier
