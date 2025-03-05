@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/planning/planning.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -139,8 +139,8 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/planning/planning.js" type="module"></script>
-	<script src="/Hffintranet/Views/js/planning/listPlanning.js" type="module"></script>
-	<script src="/Hffintranet/Views/js/planning/agServPlanning.js" type="module"></script>
-	{#<script src="/Hffintranet/Views/js/planning/main.js" type="module"></script>#}
+	<script src="{{ App.base_path }}/Views/js/planning/planning.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/listPlanning.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js" type="module"></script>
+	{#<script src="{{ App.base_path }}/Views/js/planning/main.js" type="module"></script>#}
 {% endblock %}

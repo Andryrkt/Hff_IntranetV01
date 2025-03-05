@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig"%}
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/signin.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/signin.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -17,10 +17,7 @@
 									{{ error_msg }}
 								</div>
 							{% endif %}
-							{% set path = App.base_path %}
-							<pre>
-		{{ dump(path) }}
-	</pre>
+							
 							<div class="form-outline mb-4" data-mdb-input-init>
 								<label class="form-label" for="username">Utilisateur</label>
 								<div class="input-group">
@@ -57,5 +54,5 @@
 
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/signin.js"></script>
+	<script src="{{ App.base_path }}/Views/js/signin.js"></script>
 {% endblock %}

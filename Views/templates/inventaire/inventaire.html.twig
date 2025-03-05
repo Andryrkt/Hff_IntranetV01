@@ -1,7 +1,7 @@
 {% extends 'baseTemplate.html.twig' %}
 {% block stylesheets %}
-  <link rel="stylesheet" href="/Hffintranet/Views/css/list.css" />
-  <link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css" />
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
 {% endblock %}
 {% block content %}
   <div class="sticky-header-titre">
@@ -65,5 +65,5 @@
 {% endblock %}
 {% block javascript %}
   <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script src="/Hffintranet/Views/js/inventaire/inventaireAg.js" type="module"></script>
+  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
 {% endblock %}
